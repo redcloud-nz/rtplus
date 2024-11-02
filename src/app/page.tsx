@@ -1,5 +1,8 @@
+/* eslint-disable @next/next/no-html-link-for-pages */
+
 import { LogInIcon } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 
@@ -26,6 +29,7 @@ export default function Home() {
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
         <Button asChild>
+            {/* eslint-disable-next-line */}
             <a href="/api/auth/login">
             <LogInIcon/> Login
             </a>
@@ -34,11 +38,9 @@ export default function Home() {
         
       </main>
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
+        <Link
           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
           href="/documentation"
-          target="_blank"
-          rel="noopener noreferrer"
         >
           <Image
             aria-hidden
@@ -48,7 +50,7 @@ export default function Home() {
             height={16}
           />
           Documentation
-        </a>
+        </Link>
         <a
           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
           href="https://github.com/alexwestphal/rtplus-vercel"

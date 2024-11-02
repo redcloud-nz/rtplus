@@ -1,6 +1,6 @@
 // app/profile/page.js
 
-import { withPageAuthRequired, getSession } from '@auth0/nextjs-auth0'
+import { getSession } from '@auth0/nextjs-auth0'
 
 export default async function Profile() {
     const session = await getSession()
