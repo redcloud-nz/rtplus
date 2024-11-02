@@ -21,7 +21,7 @@ export default function Home() {
         <ul className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
           <li className="mb-2">Integrates with D4H.</li>
           <li className="mb-2">Works with multiple teams.</li>
-          <li>Open Source</li>
+          <li>Open source.</li>
         </ul>
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
@@ -31,7 +31,40 @@ export default function Home() {
             </a>
         </Button>
         </div>
+        
       </main>
+      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
+        <a
+          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+          href="/documentation"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Image
+            aria-hidden
+            src="/window.svg"
+            alt="Window icon"
+            width={16}
+            height={16}
+          />
+          Documentation
+        </a>
+        <a
+          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+          href="https://github.com/alexwestphal/rtplus-vercel"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Image
+            aria-hidden
+            src="/github.svg"
+            alt="Githib Icon"
+            width={16}
+            height={16}
+          />
+          Source Code
+        </a>
+      </footer>
     </div>
   );
 }
