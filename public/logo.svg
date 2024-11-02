@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="20 0 80 50">
+        
+        <path d="M 23.5 40 L 25.5 12" stroke="black" stroke-width="2" fill="transparent"/>
+        <path d="M 25.5 40 L 23.5 12" stroke="red" stroke-width="1.5" fill="transparent"/>
+        <path d="M 25 12 L 32 14 C 45 13, 42 28, 32 26 L 25 28" stroke="black" stroke-width="2" fill="transparent"/>
+        <path d="M 25 14 L 32 12 C 42 13, 45 28, 32 28 L 25 26" stroke="red" stroke-width="1.5" fill="transparent"/>
+        <path d="M 33.5 28 L 42 40" stroke="black" stroke-width="2"/>
+        <path d="M 35.5 28 L 40 40" stroke="red" stroke-width="1.5"/>
+
+        <path d="M 46 12 L 67 14" stroke="black" stroke-width="2"/>
+        <path d="M 55 12 L 57.5 40" stroke="black" stroke-width="2"/>
+        <path d="M 46 14 L 67 12" stroke="red" strokewidth="1.5"/>
+        <path d="M 57 12 L 55 26 L 55 40" stroke="red" stroke-width="1.5"/>
+
+        <g transform="translate(75 25)">
+            <path d="M -10 -1 L 10 1" stroke="black" stroke-width="2"/>
+            <path d="M -1 -10 L 1 10" stroke="black" stroke-width="2" />
+            <path d="M -10 1 L 10 -1" stroke="red" stroke-width="1.5"/>
+            
+            
+            <path d="M 1 -10 L -1 10" stroke="red" stroke-width="1.5" />
+        </g>
+        
+    </svg>
