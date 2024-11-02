@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-html-link-for-pages */
 
 import { LogInIcon } from 'lucide-react'
 import Image from 'next/image'
@@ -14,8 +13,8 @@ export default function Home() {
           className="dark:invert"
           src="/logo.svg"
           alt="RT+ logo"
-          width={180}
-          height={38}
+          width={200}
+          height={100}
           priority
         />
         <p>
@@ -31,7 +30,7 @@ export default function Home() {
         <Button asChild>
             {/* eslint-disable-next-line */}
             <a href="/api/auth/login">
-            <LogInIcon/> Login
+                <LogInIcon/> Login
             </a>
         </Button>
         </div>
