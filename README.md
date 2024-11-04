@@ -38,6 +38,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## Commands
 
+Fetch environment variables from Vercel:
+```bash
+vercel env pull
+```
+
 Updated database schema:
 
 ```bash
@@ -55,4 +60,7 @@ Generate Prisma Client:
 npx prisma generate
 ```
 
-
+Build D4H Schema:
+```bash
+npx openapi-typescript ./resources/d4h-api-schema-3.0.0-beta.json -o ./src/lib/d4h-api/schema.d.ts
+```

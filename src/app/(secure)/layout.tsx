@@ -2,11 +2,7 @@
 import { UserProvider } from '@auth0/nextjs-auth0/client'
 
 import { AppSidebar } from "@/components/app-sidebar"
-import {
-    SidebarInset,
-    SidebarProvider,
-    SidebarTrigger,
-  } from '@/components/ui/sidebar'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 
 export default function SecureLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     return <UserProvider>

@@ -7,7 +7,8 @@ import {
   Bell,
   ChevronsUpDown,
   CreditCard,
-  LogOut,
+  KeySquareIcon,
+  LogOutIcon,
   Sparkles,
 } from 'lucide-react'
 
@@ -80,9 +81,8 @@ export function NavUser() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                <DropdownMenuItem>
-                    <Sparkles />
-                    Upgrade to Pro
+                <DropdownMenuItem asChild>
+                    <a href="/~/d4h-access-keys"><KeySquareIcon /> D4H Access Keys</a>
                 </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
@@ -101,9 +101,10 @@ export function NavUser() {
                 </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                    <LogOut />
-                    Log out
+                <DropdownMenuItem asChild>
+                    <a href="/api/auth/logout">
+                        <LogOutIcon /> Log out
+                    </a>
                 </DropdownMenuItem>
             </DropdownMenuContent>
             </DropdownMenu>

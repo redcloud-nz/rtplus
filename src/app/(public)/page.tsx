@@ -29,7 +29,7 @@ export default function Home() {
         <div className="flex gap-4 items-center flex-col sm:flex-row">
         <Button asChild>
             {/* eslint-disable-next-line */}
-            <a href="/api/auth/login">
+            <a href="/api/auth/login?returnTo=/dashboard">
                 <LogInIcon/> Login
             </a>
         </Button>

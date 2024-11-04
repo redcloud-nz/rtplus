@@ -32,65 +32,39 @@ import {
 
 // This is sample data.
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
   navMain: [
     {
-      title: "Playground",
-      url: "#",
+      title: "D4H Unified",
+      url: "/unified",
       icon: SquareTerminal,
       isActive: true,
       items: [
         {
-          title: "History",
-          url: "#",
+          title: "Personnel",
+          url: "/unified/personnel",
         },
         {
-          title: "Starred",
-          url: "#",
+          title: "Calendar",
+          url: "/unified/calendar",
         },
         {
-          title: "Settings",
-          url: "#",
+          title: "Equipment",
+          url: "/unified/equipment",
         },
       ],
     },
     {
-      title: "Models",
-      url: "#",
+      title: "Tools",
+      url: "/tools",
       icon: Bot,
       items: [
         {
-          title: "Genesis",
-          url: "#",
+            title: "Availability",
+            url: "/tools/availability"
         },
         {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
+          title: "Competencies",
+          url: "/tools/competencies",
         },
       ],
     },
@@ -174,7 +148,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 priority
                 />
             </Link>
-            {/* <TeamSwitcher teams={data.teams} /> */}
         </SidebarHeader>
         <SidebarContent>
             <NavMain items={data.navMain} />
