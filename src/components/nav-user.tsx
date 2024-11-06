@@ -82,7 +82,7 @@ export function NavUser() {
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
                             <DropdownMenuItem asChild>
-                                <Link href="/~/d4h-access-keys"><KeySquareIcon /> D4H Access Keys</Link>
+                                <Link href="/account/d4h-access-keys"><KeySquareIcon /> D4H Access Keys</Link>
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
