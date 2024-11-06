@@ -1,13 +1,10 @@
 
-import { getSession } from '@auth0/nextjs-auth0'
-
 import prisma from '@/lib/prisma'
 
-import { getUserId } from './utils'
+import 'server-only'
 
-export async function getD4hAccessKeys() {
-    const session = await getSession()
-    const userId = getUserId(session)
+
+export async function getD4hAccessKeys(userId: string) {
 
     return await prisma.d4hAccessKey.findMany({ where: { userId: userId, enabled: true } })
 }
