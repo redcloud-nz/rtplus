@@ -3,7 +3,7 @@
 import React from 'react'
 
 import { useQueries } from '@tanstack/react-query'
-import { ColumnDef, createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, RowSelectionState, useReactTable } from '@tanstack/react-table'
+import { ColumnDef, createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
 
 import { D4hApi } from '@/lib/d4h-api/client'
@@ -18,19 +18,19 @@ export interface PersonnelListProps {
 
 export function PersonnelList({ accessKeys }: PersonnelListProps) {
 
-    function getTeamName(teamId: number) {
-        for(let accessKey of accessKeys) {
+    const getTeamName = React.useMemo(() => function getTeamName(teamId: number | null) {
+        for(const accessKey of accessKeys) {
             if(accessKey.teamId == teamId) return accessKey.teamName.replace("NZ Response Team", "NZRT")
         }
         return ""
-    }
+    }, [accessKeys])
 
     const membersQuery = useQueries({
         queries: accessKeys.map(accessKey => 
             D4hApi.queryOptions('get', '/v3/{context}/{contextId}/members', 
                 {
                     params: { 
-                        path: { context: 'team', contextId: accessKey?.teamId!! },
+                        path: { context: 'team', contextId: accessKey?.teamId },
                         query: { status: ['OPERATIONAL', 'NON_OPERATIONAL'] }
                     },
                     headers: { Authorization: `Bearer ${accessKey?.key}` },
@@ -45,11 +45,11 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
             
             if(isSuccess) {
                 const members: D4hMember[] = []
-                for(let result of queryResults) {
+                for(const result of queryResults) {
                     members.push(...(result.data as { results: D4hMember[] }).results)
                 }
                 return {
-                    data: members.sort((a, b) => getTeamName(a.owner.id!!).localeCompare(getTeamName(b.owner.id!!))),
+                    data: members.sort((a, b) => getTeamName(a.owner.id).localeCompare(getTeamName(b.owner.id))),
                     isError, isPending, isSuccess
                 }
                
@@ -118,8 +118,9 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
                 enableSorting: false,
                 
             })
+        // eslint-disable-next-line
         ] satisfies ColumnDef<D4hMember, any>[]
-    }, [accessKeys])
+    }, [getTeamName])
 
     const table = useReactTable({ 
         columns, 

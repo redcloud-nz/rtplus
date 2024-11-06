@@ -59,7 +59,7 @@ export default function Alert({className, children, severity, title, ...props}: 
     const slots = alertStyles({ severity })
     const Icon = alertIcons[severity]
 
-    return <div {...props} className={cn(slots.root(), cn)}>
+    return <div {...props} className={cn(slots.root(), className)}>
         <div className="flex">
             <div className="flex-shrink-0">
                 <Icon aria-hidden="true" className={slots.icon()} />

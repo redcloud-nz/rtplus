@@ -89,15 +89,14 @@ export function DataTable<T>({ table, ...props}: DataTableProps<T>) {
 }
 
 
-type ColumnHeaderProps = {
-    table: TanstackTable<any>
-    column: Column<any, any>
+type ColumnHeaderProps<T> = {
+    table: TanstackTable<T>
+    // eslint-disable-next-line
+    column: Column<T, any>
 
 } & TableHeadCellProps
 
-function ColumnHeader({ className, children, column, table, ...props }: ColumnHeaderProps) {
-
-    const isSorted = column.getIsSorted()
+function ColumnHeader<T>({ className, children, column, table, ...props }: ColumnHeaderProps<T>) {
 
     function handleHideColumn() {
         column.toggleVisibility()
@@ -149,13 +148,13 @@ function ColumnHeader({ className, children, column, table, ...props }: ColumnHe
 }
 
 
-export type DataTableControlsProps = {
+export type DataTableControlsProps<T> = {
     className?: string
-    table: TanstackTable<any>
+    table: TanstackTable<T>
 
 }
 
-export function DataTableControls({className, table, ...props}: DataTableControlsProps) {
+export function DataTableControls<T>({className, table}: DataTableControlsProps<T>) {
     
     return <div className={cn(
         'mt-4 mb-2', 
