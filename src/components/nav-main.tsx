@@ -17,6 +17,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
+import { SignedIn } from "@clerk/nextjs"
 
 export function NavMain({
   items,
@@ -32,9 +33,14 @@ export function NavMain({
     }[]
   }[]
 }) {
-  return (
+  return <>
+    <SignedIn>
+        <SidebarGroup>
+            <SidebarGroupLabel>Shortcuts</SidebarGroupLabel>
+        </SidebarGroup>
+    </SignedIn>
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
+      <SidebarGroupLabel>Tools</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible
@@ -69,5 +75,5 @@ export function NavMain({
         ))}
       </SidebarMenu>
     </SidebarGroup>
-  )
+  </>
 }

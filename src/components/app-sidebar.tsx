@@ -4,10 +4,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
-import { BookOpen, Bot, Frame, Map, PieChart, Settings2, SquareTerminal } from "lucide-react"
+import { BookOpen, Frame, Map, PieChart, PocketKnife, Settings2, SquareTerminal, UserCheck } from "lucide-react"
 
 import { NavMain } from '@/components/nav-main'
-import { NavUser } from '@/components/nav-user'
 
 import {
     Sidebar,
@@ -42,19 +41,28 @@ const data = {
       ],
     },
     {
-      title: "Tools",
-      url: "/tools",
-      icon: Bot,
-      items: [
-        {
-            title: "Availability",
-            url: "/tools/availability"
-        },
-        {
-          title: "Competencies",
-          url: "/tools/competencies",
-        },
-      ],
+        title: "Availability",
+        url: "/availability",
+        icon: UserCheck,
+    },
+    {
+        title: "Competencies",
+        url: "/competencies",
+        icon: PocketKnife,
+        items: [
+            {
+                title: "Record",
+                url: "/competencies/record"
+            },
+            {
+                title: "Manage",
+                url: "/competencies/manage"
+            },
+            {
+                title: "Report",
+                url: "/competencies/report"
+            }
+        ]
     },
     {
       title: "Documentation",
@@ -89,12 +97,12 @@ const data = {
           url: "#",
         },
         {
-          title: "Team",
+          title: "Teams",
           url: "#",
         },
         {
-          title: "Billing",
-          url: "#",
+          title: "D4H Access Keys",
+          url: "/user/d4h-access-keys",
         },
         {
           title: "Limits",
@@ -124,7 +132,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return <Sidebar collapsible="icon" {...props}>
-        <SidebarHeader>
+        <SidebarHeader className="mt-2">
             <Link href="/dashboard">
                 <Image
                     className="dark:invert"
@@ -141,7 +149,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {/* <NavProjects projects={data.projects} /> */}
         </SidebarContent>
         <SidebarFooter>
-            <NavUser/>
+            {/* <NavUser/> */}
         </SidebarFooter>
             <SidebarRail />
     </Sidebar>

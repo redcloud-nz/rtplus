@@ -2,21 +2,22 @@
 import { Metadata } from 'next'
 
 import { Heading } from '@/components/ui/heading'
-import { SecurePage } from '@/components/secure-page'
+import { AppPage } from '@/components/app-page'
 
 import { getD4hAccessKeys } from '@/lib/db'
-import { getUserSession } from '@/lib/get-user-session'
 
 import { PersonnelList } from './personnel-list'
+import { currentUser } from '@clerk/nextjs/server'
 
 
 export const metadata: Metadata = { title: "D4H Access Keys | RT+" }
 
 export default async function PersonnelPage() {
-    const { userId } = await getUserSession()
-    const accessKeys = await getD4hAccessKeys(userId)
+    const user = await currentUser()
+    if(!user) throw new Error("Must be logged in to access.")
+    const accessKeys = await getD4hAccessKeys(user.id)
 
-    return <SecurePage label="Personnel" breadcrumbs={[{ label: "D4H Unified", href: "/unified" }]}>
+    return <AppPage label="Personnel" breadcrumbs={[{ label: "D4H Unified", href: "/unified" }]}>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
             <div className="sm:flex sm:items-center">
                 <div className="sm:flex-auto">
@@ -28,5 +29,5 @@ export default async function PersonnelPage() {
             </div>
             <PersonnelList accessKeys={accessKeys}/>
         </div>
-    </SecurePage>
+    </AppPage>
 }

@@ -2,8 +2,14 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 
-import './globals.css'
+import { ClerkProvider } from '@clerk/nextjs'
 
+import { AppSidebar } from "@/components/app-sidebar"
+import { FrontendProvider } from '@/components/frontend-provider'
+import { SidebarInset } from '@/components/ui/sidebar'
+import { Toaster } from '@/components/ui/toaster'
+
+import './globals.css'
 
 const geistSans = localFont({
     src: "./fonts/GeistVF.woff",
@@ -22,11 +28,17 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-    return (
+    return <ClerkProvider>
         <html lang="en">
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-                {children}
+                <FrontendProvider>
+                    <AppSidebar />
+                    <SidebarInset>
+                        {children}
+                    </SidebarInset>
+                    <Toaster/>
+                </FrontendProvider>
             </body>
         </html>
-    )
+    </ClerkProvider>
 }
