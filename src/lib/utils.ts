@@ -5,7 +5,7 @@ import { twMerge } from 'tailwind-merge'
 
 
 export function assertNonNull<T>(obj: T, message: string = ""): asserts obj is NonNullable<T> {
-    throw new TypeError(message)
+    if(obj == null) throw TypeError(message)
 }
 
 export function cn(...inputs: ClassValue[]) {

@@ -9,15 +9,15 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { SubmitButton, SubmitButtonLabel } from '@/components/ui/submit-button'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 import { Text } from '@/components/ui/text'
 
 import { D4hFetchClient } from '@/lib/d4h-api/client'
 import { D4hWhoami } from '@/lib/d4h-api/whoami'
+import { assertNonNull } from '@/lib/utils'
 
 import { createAccessKey } from './actions'
-import { SubmitButton, SubmitButtonLabel } from '@/components/ui/submit-button'
-import { assertNonNull } from '@/lib/utils'
 
 
 type FormState = { key: string, label: string, primary: boolean, memberId: number | null }

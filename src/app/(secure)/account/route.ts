@@ -2,5 +2,5 @@
 import { redirect  } from 'next/navigation'
 
 export async function GET() {
-    redirect('/~/profile')
+    redirect('/account/profile')
 }
