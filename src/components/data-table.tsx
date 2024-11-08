@@ -6,7 +6,7 @@ import { Column, flexRender, Table as TanstackTable } from '@tanstack/react-tabl
 
 import { Button } from './ui/button'
 import { Checkbox } from './ui/checkbox'
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuGroupLabel, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableHeadCellProps, TableProps, TableRow } from './ui/table'
 
 import { cn } from '@/lib/utils'
@@ -19,73 +19,72 @@ export type DataTableProps<T> = {
 
 export function DataTable<T>({ table, ...props}: DataTableProps<T>) {
     return <Table {...props}>
-            <TableHead>
-                {table.getHeaderGroups().map(headerGroup => 
-                    <TableRow key={headerGroup.id} className="divide-x divide-x-gray-400">
-                        <TableHeadCell>
-                            <Checkbox
-                                color="zinc"
-                                checked={table.getIsAllRowsSelected() ? true : table.getIsSomeRowsSelected() ? 'indeterminate' : false}
-                                onCheckedChange={() => table.toggleAllRowsSelected()}
-                            />
-                        </TableHeadCell>
-                        {headerGroup.headers.map(header => <ColumnHeader
-                            key={header.id}
-                            table={table}
-                            column={header.column}
-                        >
-                            {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                        </ColumnHeader>)}
-                    </TableRow>
-                )}
-            </TableHead>
-            <TableBody>
-                {table.getRowModel().rows.map(row => {
-                    return <TableRow key={row.id}>
-                        <TableCell>
-                            <Checkbox
-                                color="zinc"
-                                checked={(row.getIsAllSubRowsSelected() || row.getIsSelected()) ? true : row.getIsSomeSelected() ? 'indeterminate' : false }
-                                disabled={!row.getCanSelect()}
-                                onCheckedChange={row.getToggleSelectedHandler()}
-                            />
-                        </TableCell>
-                        {row.getVisibleCells().map(cell => {
-                            const columnDef = cell.column.columnDef
+        <TableHead>
+            {table.getHeaderGroups().map(headerGroup => 
+                <TableRow key={headerGroup.id} className="divide-x divide-x-gray-400">
+                    <TableHeadCell className="w-12 pl-4 leading-4">
+                        <Checkbox
+                            color="zinc"
+                            checked={table.getIsAllRowsSelected() ? true : table.getIsSomeRowsSelected() ? 'indeterminate' : false}
+                            onCheckedChange={() => table.toggleAllRowsSelected()}
+                        />
+                    </TableHeadCell>
+                    {headerGroup.headers.map(header => <ColumnHeader
+                        key={header.id}
+                        table={table}
+                        column={header.column}
+                    >
+                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                    </ColumnHeader>)}
+                </TableRow>
+            )}
+        </TableHead>
+        <TableBody>
+            {table.getRowModel().rows.map(row => {
+                return <TableRow key={row.id}>
+                    <TableCell className="pl-4 leading-4">
+                        <Checkbox
+                            color="zinc"
+                            checked={(row.getIsAllSubRowsSelected() || row.getIsSelected()) ? true : row.getIsSomeSelected() ? 'indeterminate' : false }
+                            disabled={!row.getCanSelect()}
+                            onCheckedChange={row.getToggleSelectedHandler()}
+                        />
+                    </TableCell>
+                    {row.getVisibleCells().map(cell => {
+                        const columnDef = cell.column.columnDef
 
-                            if(cell.getIsGrouped()) {
-                                return <TableCell
-                                    key={cell.id}
-                                    className=""
-                                    colSpan={table.getVisibleFlatColumns().length}
-                                >
-                                    <div className={cn(
-                                        'flex items-center',
-                                        'font-bold'
-                                    )}>
-                                        {cell.getValue() == '' ? <span className="italic">EMPTY</span> : flexRender(columnDef.cell, cell.getContext()) }
-                                        <div className="grow"/>
-                                        
-                                        <div>( {row.subRows.length} )</div>
-                                        <Button variant="ghost" className="ml-2 -mr-2" onClick={() => row.toggleExpanded()}>
-                                            <ChevronsUpDownIcon data-slot="icon" className="size-5 text-gray-400 group-hover:text-gray-500"/>
-                                        </Button>
-                                    </div>
-                                </TableCell>
-                            } else if(cell.getIsAggregated()) {
-                                return null
-                            } else if(cell.getIsPlaceholder()) {
-                                return <TableCell key={columnDef.id}/>
-                            } else {
-                                return <TableCell key={cell.id} align={columnDef.meta?.align}>
-                                    {flexRender(columnDef.cell, cell.getContext())}
-                                </TableCell>
-                            }
-                        })}
-                    </TableRow>
-                })}
-            </TableBody>
-        </Table>
+                        if(cell.getIsGrouped()) {
+                            return <TableCell
+                                key={cell.id}
+                                colSpan={table.getVisibleFlatColumns().length}
+                            >
+                                <div className={cn(
+                                    'flex items-center',
+                                    'font-bold'
+                                )}>
+                                    {cell.getValue() == '' ? <span className="italic">EMPTY</span> : flexRender(columnDef.cell, cell.getContext()) }
+                                    <div className="grow"/>
+                                    
+                                    <div>( {row.subRows.length} )</div>
+                                    <Button variant="ghost" className="ml-2 -mr-2" onClick={() => row.toggleExpanded()}>
+                                        <ChevronsUpDownIcon data-slot="icon" className="size-5 text-gray-400 group-hover:text-gray-500"/>
+                                    </Button>
+                                </div>
+                            </TableCell>
+                        } else if(cell.getIsAggregated()) {
+                            return null
+                        } else if(cell.getIsPlaceholder()) {
+                            return <TableCell key={columnDef.id}/>
+                        } else {
+                            return <TableCell key={cell.id} align={columnDef.meta?.align}>
+                                {flexRender(columnDef.cell, cell.getContext())}
+                            </TableCell>
+                        }
+                    })}
+                </TableRow>
+            })}
+        </TableBody>
+    </Table>
 }
 
 
@@ -98,12 +97,16 @@ type ColumnHeaderProps<T> = {
 
 function ColumnHeader<T>({ className, children, column, table, ...props }: ColumnHeaderProps<T>) {
 
+    const enumOptions = column.columnDef.meta?.enumOptions
+    const filterValue = column.getFilterValue() as string[] ?? []
+
     function handleHideColumn() {
         column.toggleVisibility()
     }
 
     return <TableHeadCell {...props} className="pr-0">
         <div className={cn('w-full flex items-center justify-between', className)}>
+            {column.columnDef.meta?.align == 'center' && <div className="w-8"/>}
             <div>{children}</div>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -112,20 +115,40 @@ function ColumnHeader<T>({ className, children, column, table, ...props }: Colum
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end">
-                    <DropdownMenuLabel>Column Options</DropdownMenuLabel>
+                    <DropdownMenuLabel className="text-center">Column Options</DropdownMenuLabel>
                     {column.getCanSort() ? <>
                         <DropdownMenuSeparator/>
                         <DropdownMenuGroup>
+                            <DropdownMenuGroupLabel>Sort</DropdownMenuGroupLabel>
                             <DropdownMenuItem onClick={() => column.toggleSorting()}>
                                 <ArrowDownAZIcon/>
-                                <span>Sort Ascending</span>
+                                <span>Ascending</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
                                 <ArrowDownZAIcon/>
-                                <span>Sort Descending</span>
+                                <span>Descending</span>
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                     </> : null}
+                    { enumOptions && <>
+                        <DropdownMenuSeparator/>
+                        <DropdownMenuGroup>
+                            <DropdownMenuGroupLabel>Show</DropdownMenuGroupLabel>
+                            {Object.keys(enumOptions).map(key =>
+                                <DropdownMenuCheckboxItem 
+                                    key={key}
+                                    checked={filterValue.includes(key)}
+                                    onCheckedChange={(checked) => {
+                                        if(checked) column.setFilterValue([...filterValue, key])
+                                        else column.setFilterValue(filterValue.filter(x => x != key))
+                                    }}
+                                >
+                                    <span>{enumOptions[key]}</span>
+                                </DropdownMenuCheckboxItem>
+                            )}
+                            
+                        </DropdownMenuGroup>
+                    </>}
                     {(column.getCanHide() || column.getCanGroup()) && <>
                         <DropdownMenuSeparator/>
                         <DropdownMenuGroup>
@@ -157,7 +180,7 @@ export type DataTableControlsProps<T> = {
 export function DataTableControls<T>({className, table}: DataTableControlsProps<T>) {
     
     return <div className={cn(
-        'mt-4 mb-2', 
+        'mb-2', 
         'flex gap-2',
         className
     )}>

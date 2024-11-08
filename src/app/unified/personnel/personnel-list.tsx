@@ -10,7 +10,21 @@ import { D4hApi } from '@/lib/d4h-api/client'
 import { D4hMember } from '@/lib/d4h-api/member'
 import { EmailLink, PhoneLink } from '@/components/ui/link'
 import { DataTable, DataTableControls } from '@/components/data-table'
+import { Skeleton } from '@/components/ui/skeleton'
 
+function getTeamName(accessKeys: PersonnelListProps['accessKeys'], teamId: number | null) {
+    for(const accessKey of accessKeys) {
+        if(accessKey.teamId == teamId) return accessKey.teamName.replace("NZ Response Team", "NZRT")
+    }
+    return ""
+}
+
+const StatusOptions: Record<D4hMember['status'], string> = {
+    OPERATIONAL: 'Operational',
+    NON_OPERATIONAL: 'Non Operational',
+    OBSERVER: 'Observer',
+    RETIRED: 'Retired'
+}
 
 export interface PersonnelListProps {
     accessKeys: { key: string, teamId: number, teamName: string }[]
@@ -18,22 +32,15 @@ export interface PersonnelListProps {
 
 export function PersonnelList({ accessKeys }: PersonnelListProps) {
 
-    const getTeamName = React.useMemo(() => function getTeamName(teamId: number | null) {
-        for(const accessKey of accessKeys) {
-            if(accessKey.teamId == teamId) return accessKey.teamName.replace("NZ Response Team", "NZRT")
-        }
-        return ""
-    }, [accessKeys])
-
     const membersQuery = useQueries({
         queries: accessKeys.map(accessKey => 
             D4hApi.queryOptions('get', '/v3/{context}/{contextId}/members', 
                 {
                     params: { 
-                        path: { context: 'team', contextId: accessKey?.teamId },
-                        query: { status: ['OPERATIONAL', 'NON_OPERATIONAL'] }
+                        path: { context: 'team', contextId: accessKey.teamId },
+                        query: { status: ['OPERATIONAL', 'NON_OPERATIONAL', 'OBSERVER'] }
                     },
-                    headers: { Authorization: `Bearer ${accessKey?.key}` },
+                    headers: { Authorization: `Bearer ${accessKey.key}` },
                 }
             )
         ),
@@ -49,7 +56,11 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
                     members.push(...(result.data as { results: D4hMember[] }).results)
                 }
                 return {
-                    data: members.sort((a, b) => getTeamName(a.owner.id).localeCompare(getTeamName(b.owner.id))),
+                    data: members.sort((a, b) => {
+                        const teamNameA = getTeamName(accessKeys, a.owner.id)
+                        const teamNameB = getTeamName(accessKeys, b.owner.id)
+                        return teamNameA.localeCompare(teamNameB)
+                    }),
                     isError, isPending, isSuccess
                 }
                
@@ -78,7 +89,7 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
             columnHelper.accessor('owner.id', {
                 id: 'team',
                 header: 'Team',
-                cell: info => getTeamName(info.getValue()),
+                cell: info => getTeamName(accessKeys, info.getValue()),
                 enableGlobalFilter: false,
                 enableGrouping: true,
                 enableSorting: true,
@@ -92,13 +103,17 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
                 enableSorting: true,
             }),
             columnHelper.accessor('status', {
+                id: 'status',
                 header: 'Status',
-                cell: info => info.getValue(),
+                cell: info => StatusOptions[info.getValue() as D4hMember['status']],
+                filterFn: (row, columnId, filterValue) => (filterValue as string[] ?? []).includes(row.getValue(columnId)),
                 enableGlobalFilter: false,
-                enableGrouping: true,
+                enableColumnFilter: true,
+                enableGrouping: false,
                 enableSorting: false,
                 meta: {
-                    align: 'center'
+                    align: 'center',
+                    enumOptions: StatusOptions
                 },
             }),
             columnHelper.accessor('email.value', {
@@ -120,7 +135,7 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
             })
         // eslint-disable-next-line
         ] satisfies ColumnDef<D4hMember, any>[]
-    }, [getTeamName])
+    }, [accessKeys])
 
     const table = useReactTable({ 
         columns, 
@@ -137,6 +152,9 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
                 position: true, operational: true,
                 email: false, phone: false
             },
+            columnFilters: [
+                { id: 'status', value: ['OPERATIONAL', 'NON_OPERATIONAL'] }
+            ],
             expanded: true,
             globalFilter: "",
             grouping: [],
@@ -146,7 +164,17 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
         },
     })
 
-    return <div>
+    if(membersQuery.isPending) return <div>
+        <div className="mb-2 flex items-center space-x-4">
+            <Skeleton className="h-10 flex-grow rounded-md"/>
+            <Skeleton className="h-10 w-[120px] rounded-md"/>
+            <Skeleton className="h-10 w-[120px] rounded-md"/>
+        </div>
+        <Skeleton className="w-full h-20 rounded-md"/>
+    </div>
+
+    else return <div>
+        
         <DataTableControls table={table}/>
         <div className="rounded-md border">
             <DataTable table={table}/>

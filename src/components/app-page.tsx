@@ -8,8 +8,10 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbP
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
+import { Heading } from '@/components/ui/typography'
 
 import { cn } from '@/lib/utils'
+
 
 export type AppPageContainerProps = {
     children: React.ReactNode
@@ -43,9 +45,10 @@ export type PageBreadcrumbs = { label: string, href: string }[]
 export type AppPageProps = React.ComponentProps<"main"> & {
     breadcrumbs?: PageBreadcrumbs
     label: string
+    variant?: 'default' | 'list'
 }
 
-export function AppPage({ breadcrumbs = [], children, className, label, ...props }: AppPageProps) {
+export function AppPage({ breadcrumbs = [], children, className, label, variant = 'default', ...props }: AppPageProps) {
     return <>
         <div className="row-start-1 flex items-center h-12 gap-2 pr-2">
             <Separator orientation="vertical" className="h-4"/>
@@ -72,8 +75,20 @@ export function AppPage({ breadcrumbs = [], children, className, label, ...props
                 }
             </Breadcrumb>
         </div>
-        <main className={cn("row-start-3 col-span-full p-4 overflow-y-auto", className)} {...props}>
+        <main className={cn(
+            'row-start-3 col-span-full p-4 overflow-y-auto',
+            variant == 'list' && 'flex flex-1 flex-col gap-4',
+            className
+        )} {...props}>
             {children}
         </main>
     </>
 }
+
+export function PageTitle({ ...props }: React.ComponentPropsWithoutRef<'h2'>) {
+    return <Heading level={1} {...props}/>
+}
+
+export function PageDescription({ className, ...props }: React.ComponentPropsWithoutRef<'p'>) {
+    return <p className={cn('mb-2 text-sm text-gray-700', className)} {...props}/>
+} 

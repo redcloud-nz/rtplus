@@ -5,11 +5,10 @@ import React from 'react'
 
 import { currentUser } from '@clerk/nextjs/server'
 
-import { AppPage } from '@/components/app-page'
+import { AppPage, PageDescription, PageTitle } from '@/components/app-page'
 import { Unauthorized } from '@/components/errors'
 
 import Alert from '@/components/ui/alert'
-import { Heading } from '@/components/ui/heading'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
 import prisma from '@/lib/prisma'
@@ -29,55 +28,55 @@ export default async function D4hAccessKeysPage() {
    
    const accessKeys = await prisma.d4hAccessKey.findMany({ where: { userId: user.id } })
 
-    return <AppPage label="D4H Access Keys" breadcrumbs={[{ label: "User Settings", href: "/user" }]}>
-        <div className="flex flex-1 flex-col gap-4">
-            <div>
-                <Heading level={1}>Personal D4H Access Keys</Heading>
-                <p className="mt-2 text-sm text-gray-700">
-                    A list of the personal D4H access keys that you have configured.
-                </p>
+    return <AppPage 
+        label="D4H Access Keys" 
+        breadcrumbs={[{ label: "User Settings", href: "/user" }]}
+        variant="list"
+    >
+        <PageTitle>Personal D4H Access Keys</PageTitle>
+        <PageDescription>
+            A list of the personal D4H access keys that you have configured.
+        </PageDescription>
+        <div>
+            <div className="mb-2 flex gap-2 justify-end">
+                <NewAccessKeyButton/>
             </div>
-            <div>
-                <div className="mb-2 flex gap-2 justify-end">
-                    <NewAccessKeyButton/>
-                </div>
-                {accessKeys.length > 0
-                    ? <div className="rounded-md border">
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableHeadCell>Label</TableHeadCell>
-                                    <TableHeadCell>Team</TableHeadCell>
-                                    <TableHeadCell>Create At</TableHeadCell>
-                                    <TableHeadCell className="text-center">Primary</TableHeadCell>
-                                    <TableHeadCell className="text-center">Enabled</TableHeadCell>
-                                    <TableHeadCell/>
+            {accessKeys.length > 0
+                ? <div className="rounded-md border">
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableHeadCell>Label</TableHeadCell>
+                                <TableHeadCell>Team</TableHeadCell>
+                                <TableHeadCell>Create At</TableHeadCell>
+                                <TableHeadCell className="text-center">Primary</TableHeadCell>
+                                <TableHeadCell className="text-center">Enabled</TableHeadCell>
+                                <TableHeadCell/>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {accessKeys.map(accessKey =>
+                                <TableRow key={accessKey.id}>
+                                    <TableCell>{accessKey.label}</TableCell>
+                                    <TableCell>{accessKey.teamName}</TableCell>
+                                    <TableCell>{formatDateTime(accessKey.createdAt)}</TableCell>
+                                    <TableCell className="text-center">{accessKey.primary ? "YES" : null}</TableCell>
+                                    <TableCell className="text-center">{accessKey.enabled ? "YES" : "NO"}</TableCell>
+                                    <TableCell className="text-right">
+                                        
+                                        <UpdateAccessKeyButton accessKey={accessKey}/>
+                                        <DeleteAccessKeyButton accessKey={accessKey}/>
+                                    </TableCell>
                                 </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {accessKeys.map(accessKey =>
-                                    <TableRow key={accessKey.id}>
-                                        <TableCell>{accessKey.label}</TableCell>
-                                        <TableCell>{accessKey.teamName}</TableCell>
-                                        <TableCell>{formatDateTime(accessKey.createdAt)}</TableCell>
-                                        <TableCell className="text-center">{accessKey.primary ? "YES" : null}</TableCell>
-                                        <TableCell className="text-center">{accessKey.enabled ? "YES" : "NO"}</TableCell>
-                                        <TableCell className="text-right">
-                                            
-                                            <UpdateAccessKeyButton accessKey={accessKey}/>
-                                            <DeleteAccessKeyButton accessKey={accessKey}/>
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-                    : <Alert severity="info" title="No personal access keys defined.">
-                        Generate a key at: <span className="ml-2 font-mono">D4H Team Manager &gt; My Settings &gt; API Access Keys</span>
-                    </Alert>
-                }
-                
-            </div>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+                : <Alert severity="info" title="No personal access keys defined.">
+                    Generate a key at: <span className="ml-2 font-mono">D4H Team Manager &gt; My Settings &gt; API Access Keys</span>
+                </Alert>
+            }
+            
         </div>
     </AppPage>
 }

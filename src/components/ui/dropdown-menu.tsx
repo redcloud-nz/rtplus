@@ -143,7 +143,7 @@ const DropdownMenuLabel = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Label> & {
     inset?: boolean
   }
->(({ className, inset, ...props }, ref) => (
+>(({ className, inset, ...props }, ref) => 
   <DropdownMenuPrimitive.Label
     ref={ref}
     className={cn(
@@ -153,8 +153,20 @@ const DropdownMenuLabel = React.forwardRef<
     )}
     {...props}
   />
-))
+)
 DropdownMenuLabel.displayName = DropdownMenuPrimitive.Label.displayName
+
+const DropdownMenuGroupLabel = React.forwardRef<React.ElementRef<typeof DropdownMenuPrimitive.Label>, React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Label>>(({ className, ...props }, ref) => 
+    <DropdownMenuPrimitive.Label
+        ref={ref}
+        className={cn(
+            'px-2 py-0 text-sm font-semibold text-zinc-600',
+            className
+        )}
+        {...props}
+    />
+)
+DropdownMenuGroupLabel.displayName = "DropdownMenuGroupLabel" 
 
 const DropdownMenuSeparator = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Separator>,
@@ -192,6 +204,7 @@ export {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuGroup,
+  DropdownMenuGroupLabel,
   DropdownMenuPortal,
   DropdownMenuSub,
   DropdownMenuSubContent,
