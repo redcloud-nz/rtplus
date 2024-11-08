@@ -4,12 +4,13 @@ import localFont from 'next/font/local'
 
 import { ClerkProvider } from '@clerk/nextjs'
 
+import { AppPageContainer } from '@/components/app-page'
 import { AppSidebar } from "@/components/app-sidebar"
 import { FrontendProvider } from '@/components/frontend-provider'
-import { SidebarInset } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/toaster'
 
 import './globals.css'
+
 
 const geistSans = localFont({
     src: "./fonts/GeistVF.woff",
@@ -33,9 +34,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
                 <FrontendProvider>
                     <AppSidebar />
-                    <SidebarInset>
+                    <AppPageContainer>
                         {children}
-                    </SidebarInset>
+                    </AppPageContainer>
                     <Toaster/>
                 </FrontendProvider>
             </body>

@@ -18,7 +18,7 @@ export default async function PersonnelPage() {
     const accessKeys = await getD4hAccessKeys(user.id)
 
     return <AppPage label="Personnel" breadcrumbs={[{ label: "D4H Unified", href: "/unified" }]}>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        <div className="flex flex-1 flex-col gap-4">
             <div className="sm:flex sm:items-center">
                 <div className="sm:flex-auto">
                     <Heading level={1}>Personnel</Heading>

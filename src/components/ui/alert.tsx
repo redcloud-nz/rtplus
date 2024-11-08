@@ -66,7 +66,7 @@ export default function Alert({className, children, severity, title, ...props}: 
             </div>
             <div className="ml-3">
                 <h3 className={slots.title()}>{title}</h3>
-                <div className={slots.description()}>{children}</div>
+                { children && <div className={slots.description()}>{children}</div>}
             </div>
         </div>
     </div>

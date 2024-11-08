@@ -25,7 +25,7 @@ const defaultFormState: FormState = { key: "", label: "", primary: true, memberI
 
 type Validation = { status: 'Init' } | { status: 'Error', message: string } | { status: 'Success', data: D4hWhoami }
 
-export function NewAccessKeyDialog() {
+export function NewAccessKeyButton() {
     const [open, setOpen] = React.useState(false)
     const [formState, setFormState] = React.useState<FormState>(defaultFormState)
     const [validation, setValidation] = React.useState<Validation>({ status: 'Init'})

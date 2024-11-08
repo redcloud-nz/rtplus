@@ -16,7 +16,7 @@ interface UpdateAccessKeyDialogProps {
     accessKey: { id: string, label: string, primary: boolean, enabled: boolean }
 }
 
-export function UpdateAccessKeyDialog({ accessKey }: UpdateAccessKeyDialogProps) {
+export function UpdateAccessKeyButton({ accessKey }: UpdateAccessKeyDialogProps) {
     const [open, setOpen] = React.useState(false)
     const [formState, setFormState] = React.useState(accessKey)
 

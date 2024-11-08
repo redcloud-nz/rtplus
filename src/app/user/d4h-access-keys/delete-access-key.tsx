@@ -12,7 +12,7 @@ import { deleteAccessKey } from './actions'
 interface DeleteAccessKeyDialogProps {
     accessKey: { id: string, label: string}
 }
-export function DeleteAccessKeyDialog({ accessKey }: DeleteAccessKeyDialogProps) {
+export function DeleteAccessKeyButton({ accessKey }: DeleteAccessKeyDialogProps) {
     const [open, setOpen] = React.useState(false)
 
     function handleClose() {

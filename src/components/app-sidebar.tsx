@@ -1,54 +1,35 @@
-"use client"
 
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
-import { BookOpen, Frame, Map, PieChart, PocketKnife, Settings2, SquareTerminal, UserCheck } from "lucide-react"
+import { BookOpenIcon, InfoIcon, ListChecksIcon, NotebookTextIcon, PocketKnifeIcon, Settings2Icon, SquareTerminalIcon, UserCheckIcon } from "lucide-react"
 
-import { NavMain } from '@/components/nav-main'
+import { NavItem, NavSection } from '@/components/nav-section'
 
 import {
     Sidebar,
     SidebarContent,
-    SidebarFooter,
     SidebarHeader,
     SidebarRail,
 } from '@/components/ui/sidebar'
 
 
-// This is sample data.
-const data = {
-  navMain: [
-    {
-      title: "D4H Unified",
-      url: "/unified",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "Personnel",
-          url: "/unified/personnel",
-        },
-        {
-          title: "Calendar",
-          url: "/unified/calendar",
-        },
-        {
-          title: "Equipment",
-          url: "/unified/equipment",
-        },
-      ],
-    },
+const navTools: NavItem[] = [
     {
         title: "Availability",
         url: "/availability",
-        icon: UserCheck,
+        icon: <UserCheckIcon/>,
+    },
+    {
+        title: "Checklists",
+        url: "/checklists",
+        icon: <ListChecksIcon/>
     },
     {
         title: "Competencies",
         url: "/competencies",
-        icon: PocketKnife,
+        icon: <PocketKnifeIcon/>,
         items: [
             {
                 title: "Record",
@@ -65,70 +46,96 @@ const data = {
         ]
     },
     {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
+        title: "D4H Unified",
+        url: "/unified",
+        icon: <SquareTerminalIcon/>,
+        items: [
+            {
+                title: "Personnel",
+                url: "/unified/personnel",
+            },
+            {
+                title: "Calendar",
+                url: "/unified/calendar",
+            },
+            {
+                title: "Equipment",
+                url: "/unified/equipment",
+            },
+        ],
+        defaultOpen: true
     },
     {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Teams",
-          url: "#",
-        },
-        {
-          title: "D4H Access Keys",
-          url: "/user/d4h-access-keys",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  projects: [
+        title: "Field Operations Guide",
+        url: "/fog",
+        icon: <NotebookTextIcon/>,
+    }
+  ]
+
+  const navGeneral: NavItem[] = [
     {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
+        title: "About",
+        url: "/about",
+        icon: <InfoIcon/>
     },
     {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
+        title: "Documentation",
+        url: "/documentation",
+        icon: <BookOpenIcon/>,
+        // items: [
+        //     {
+        //         title: "Introduction",
+        //         url: "#",
+        //     },
+        //     {
+        //         title: "Get Started",
+        //         url: "#",
+        //     },
+        //     {
+        //         title: "Tutorials",
+        //         url: "#",
+        //     },
+        //     {
+        //         title: "Changelog",
+        //         url: "#",
+        //     },
+        // ],
+      },
+      {
+        title: "Settings",
+        url: "/",
+        icon: <Settings2Icon/>,
+        items: [
+            {
+                title: "General",
+                url: "/settings",
+            },
+            {
+                title: "D4H Access Keys",
+                url: "/user/d4h-access-keys",
+            },
+            {
+                title: "Teams",
+                url: "/teams",
+            },
+            {
+                title: "Users",
+                url: "/users",
+            },
+        ],
     },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
-}
+    { 
+        title: "Source Code",
+        url: "https://github.com/alexwestphal/rtplus-vercel",
+        icon: <Image
+            aria-hidden
+            src="/github.svg"
+            alt="Githib Icon"
+            width={16}
+            height={16}
+        />
+    }
+]
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return <Sidebar collapsible="icon" {...props}>
@@ -145,12 +152,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </Link>
         </SidebarHeader>
         <SidebarContent>
-            <NavMain items={data.navMain} />
-            {/* <NavProjects projects={data.projects} /> */}
+            <NavSection title="Tools" items={navTools} />
+            <NavSection title="General" items={navGeneral}/>
         </SidebarContent>
-        <SidebarFooter>
-            {/* <NavUser/> */}
-        </SidebarFooter>
-            <SidebarRail />
+        <SidebarRail />
     </Sidebar>
 }
