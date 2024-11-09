@@ -1,5 +1,5 @@
 
-import { ArrowDownAZIcon, ArrowDownZAIcon, ChevronDownIcon, ChevronsUpDownIcon, EllipsisVerticalIcon, EyeOffIcon, GroupIcon, UngroupIcon } from 'lucide-react'
+import { ArrowDownAZIcon, ArrowDownZAIcon, ChevronDownIcon, ChevronsUpDownIcon, EllipsisVerticalIcon, EyeOffIcon, GroupIcon, ListRestartIcon, UngroupIcon } from 'lucide-react'
 import React from 'react'
 
 import { Column, flexRender, Table as TanstackTable } from '@tanstack/react-table'
@@ -230,5 +230,6 @@ export function DataTableControls<T>({className, table}: DataTableControlsProps<
                     </DropdownMenuCheckboxItem>)}
             </DropdownMenuContent>
         </DropdownMenu>
+        <Button variant="outline" onClick={() => table.reset()}><ListRestartIcon/> Reset</Button>
     </div>
 }

@@ -1,20 +1,22 @@
 
 import { Metadata } from 'next'
 
+import { currentUser } from '@clerk/nextjs/server'
+
 import { AppPage, PageDescription, PageTitle } from '@/components/app-page'
+import { Unauthorized } from '@/components/errors'
 
 import { getD4hAccessKeys } from '@/lib/db'
 
 import { PersonnelList } from './personnel-list'
-import { currentUser } from '@clerk/nextjs/server'
 
 
-export const metadata: Metadata = { title: "D4H Access Keys | RT+" }
+export const metadata: Metadata = { title: "Unified Personnel | RT+" }
 
 export default async function PersonnelPage() {
 
     const user = await currentUser()
-    if(!user) throw new Error("Must be logged in to access.")
+    if(!user) return <Unauthorized label="Personnel"/>
     const accessKeys = await getD4hAccessKeys(user.id)
 
     return <AppPage 

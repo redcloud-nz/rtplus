@@ -1,5 +1,6 @@
 'use client'
 
+import { format as formatDate } from 'date-fns'
 import React from 'react'
 
 import { useQueries } from '@tanstack/react-query'
@@ -94,6 +95,17 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
                 enableGrouping: true,
                 enableSorting: true,
             }),
+            columnHelper.accessor('ref', {
+                header: 'Ref',
+                cell: info => info.getValue(),
+                sortingFn: 'alphanumeric',
+                enableGlobalFilter: true,
+                enableGrouping: false,
+                enableSorting: true,
+                meta: {
+                    align: 'center'
+                }
+            }),
             columnHelper.accessor('position', {
                 id: 'position',
                 header: 'Position',
@@ -109,7 +121,7 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
                 filterFn: (row, columnId, filterValue) => (filterValue as string[] ?? []).includes(row.getValue(columnId)),
                 enableGlobalFilter: false,
                 enableColumnFilter: true,
-                enableGrouping: false,
+                enableGrouping: true,
                 enableSorting: false,
                 meta: {
                     align: 'center',
@@ -131,7 +143,14 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
                 enableGlobalFilter: false,
                 enableGrouping: false,
                 enableSorting: false,
-                
+            }),
+            columnHelper.accessor('startsAt', {
+                id: 'joined',
+                header: 'Joined',
+                cell: info => formatDate(Date.parse(info.getValue()), 'MMM yyyy'),
+                enableGlobalFilter: false,
+                enableGrouping: false,
+                enableSorting: true,
             })
         // eslint-disable-next-line
         ] satisfies ColumnDef<D4hMember, any>[]
@@ -148,7 +167,7 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
         getGroupedRowModel: getGroupedRowModel(),
         initialState: {
             columnVisibility: {
-                name: true, team: true,
+                name: true, team: true, ref: true,
                 position: true, operational: true,
                 email: false, phone: false
             },

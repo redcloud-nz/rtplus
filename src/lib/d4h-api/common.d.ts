@@ -13,7 +13,7 @@ export interface CustomField {
 
 export type DateString = string
 
-export type ResourceId<Type> = { id: number | null, resourceType: Type }
+export type ResourceId<Type extends string, ID = number> = { id: ID, resourceType: Type }
 
 export interface D4hPoint {
     type: 'Point',

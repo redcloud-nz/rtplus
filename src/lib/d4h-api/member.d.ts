@@ -64,7 +64,7 @@ export interface D4hMember {
     position: string
     primaryEmergencyContact: EmergencyContact
     ref: string
-    retiredReason: ResourceId<'RetiredReason'>
+    retiredReason: ResourceId<'RetiredReason', number | null>
     role: ResourceId<'Role'>
     secondaryEmergencyContact: EmergencyContact
     signedTandC: DateString | null
