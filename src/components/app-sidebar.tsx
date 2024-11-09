@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
-import { BookOpenIcon, InfoIcon, ListChecksIcon, NotebookTextIcon, PocketKnifeIcon, Settings2Icon, SquareTerminalIcon, UserCheckIcon } from "lucide-react"
+import { BookOpenIcon, InfoIcon, ListChecksIcon, NotebookTextIcon, PocketKnifeIcon, Settings2Icon, SquareTerminalIcon, UserCheckIcon, WalletCardsIcon } from "lucide-react"
 
 import { NavItem, NavSection } from '@/components/nav-section'
 
@@ -69,7 +69,12 @@ const navTools: NavItem[] = [
         title: "Field Operations Guide",
         url: "/fog",
         icon: <NotebookTextIcon/>,
-    }
+    },
+    {
+        title: "Reference Cards",
+        url: "/cards",
+        icon: <WalletCardsIcon/>
+    },
   ]
 
   const navGeneral: NavItem[] = [

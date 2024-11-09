@@ -1,6 +1,7 @@
 
 import { LogInIcon } from 'lucide-react'
 import Link from 'next/link'
+import React from 'react'
 
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs'
 
@@ -55,14 +56,14 @@ export function AppPage({ breadcrumbs = [], children, className, label, variant 
             <Breadcrumb className="px-2">
                 {breadcrumbs.length > 0
                     ? <BreadcrumbList>
-                        {breadcrumbs.map((breadcrumb, index) => 
-                            <BreadcrumbItem key={index} className="hidden md:block">
+                        {breadcrumbs.map((breadcrumb, index) => <React.Fragment key={index}>
+                            <BreadcrumbItem className="hidden md:block">
                                 <BreadcrumbLink asChild>
                                     <Link href={breadcrumb.href}>{breadcrumb.label}</Link>
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
-                        )}
-                        <BreadcrumbSeparator className="hidden md:block"/>
+                            <BreadcrumbSeparator className="hidden md:block"/>
+                        </React.Fragment>)}
                         <BreadcrumbItem>
                             <BreadcrumbPage>{label}</BreadcrumbPage>
                         </BreadcrumbItem>
