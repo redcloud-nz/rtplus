@@ -1,66 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+## Introduction
 
-First, run the development server:
+RT+ is a collection of web based tools for managing response teams. It started as a work-around to dealing with multiple teams in D4H but now includes other features independent of D4H.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Development of RT+ is a volunteer effort led by Alex Westphal (NZ-RT11).
 
 
-## Commands
+## Technology
 
-Fetch environment variables from Vercel:
-```bash
-vercel env pull
-```
+RT+ is build using a number of cutting edge web technologies:
 
-Updated database schema:
+- [Clerk](https://clerk.com) - Comprehensive user managment platform.
+- [Github](https://github.com/) - Code management platform.
+- [Lucide Icons](https://lucide.dev/icons/) - Large simple SVG based icon set.
+- [Neon Postgres](https://neon.tech) - Serverless Postgres database.
+- [Next.js](https://nextjs.org/) - Web application framework built using React components.
+- [Prisma](https://www.prisma.io/) - Typescript ORM.
+- [Radix Primitives](https://www.radix-ui.com/primitives) - Unstyled, accessible, React primitives.
+- [React](https://react.dev/) - Library for building user interfaces based on components.
+- [shadcn/ui](https://ui.shadcn.com/) - React component library styled with Tailwind CSS.
+- [Tailwind CSS](https://tailwindcss.com/) - Utility first CSS framework.
+- [TanStack Query](https://tanstack.com/query/latest) - Client side data synchronisation library.
+- [TanStack Table](https://tanstack.com/table/latest) - Headless UI for building tables and datagrids.
+- [Typescript](https://www.typescriptlang.org/) - Strongly typed programming language that builds on JavaScript.
+- [Vercel](https://vercel.com/) - Cloud hosting for Next.js
 
-```bash
-npx prisma db push
-```
 
-Start Prisma Studio:
+## Cost
 
-```bash
-npx prisma studio
-```
+All technologies used are either free/open-source or a currently setup with a free plan (Clerk, Neon Postgres, and Vercel).
+Depending on future use, we may need to ask for donations to cover hosting costs.
 
-Generate Prisma Client:
-```bash
-npx prisma generate
-```
 
-Build D4H Schema:
-```bash
-npx openapi-typescript ./resources/d4h-api-schema-3.0.0-beta.json -o ./src/lib/d4h-api/schema.d.ts
-```
+## Bugs / Feature Requests
+
+File bug reports or feature requests on the [GitHub Issues Tab](https://github.com/alexwestphal/rtplus-vercel/issues).
+
+Be aware that RT+ is a volunteer effort so we can't guarantee a timeframe to fix bugs or implement features.

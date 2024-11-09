@@ -47,7 +47,7 @@ export default function VehicleReferenceCard({ params }: { params: { plate: stri
                     <dd>{vehicle.seats}</dd>
                     <dt>Fuel</dt>
                     <dd>{vehicle.fuel}</dd>
-                    <dt>Gross Vehicle Mass</dt>
+                    <dt>GVM</dt>
                     <dd>{vehicle.gvm}kg</dd>
                     <dt>Tare Weight</dt>
                     <dd>{vehicle.tare}kg</dd>
