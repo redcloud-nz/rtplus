@@ -3,17 +3,21 @@
 import { format as formatDate } from 'date-fns'
 import React from 'react'
 
+import { D4hAccessKey } from '@prisma/client'
 import { useQueries } from '@tanstack/react-query'
-import { ColumnDef, createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-
-import { D4hApi } from '@/lib/d4h-api/client'
-import { D4hMember } from '@/lib/d4h-api/member'
+import { DataTable, DataTableControls, defineColumns} from '@/components/data-table'
 import { EmailLink, PhoneLink } from '@/components/ui/link'
-import { DataTable, DataTableControls } from '@/components/data-table'
 import { Skeleton } from '@/components/ui/skeleton'
 
-function getTeamName(accessKeys: PersonnelListProps['accessKeys'], teamId: number | null) {
+import { D4hApi, D4HListResponse } from '@/lib/d4h-api/client'
+import { D4hMember } from '@/lib/d4h-api/member'
+
+
+
+
+function getTeamName(accessKeys: D4hAccessKey[], teamId: number | null) {
     for(const accessKey of accessKeys) {
         if(accessKey.teamId == teamId) return accessKey.teamName.replace("NZ Response Team", "NZRT")
     }
@@ -28,7 +32,7 @@ const StatusOptions: Record<D4hMember['status'], string> = {
 }
 
 export interface PersonnelListProps {
-    accessKeys: { key: string, teamId: number, teamName: string }[]
+    accessKeys: D4hAccessKey[]
 }
 
 export function PersonnelList({ accessKeys }: PersonnelListProps) {
@@ -54,7 +58,7 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
             if(isSuccess) {
                 const members: D4hMember[] = []
                 for(const result of queryResults) {
-                    members.push(...(result.data as { results: D4hMember[] }).results)
+                    members.push(...(result.data as D4HListResponse<D4hMember>).results)
                 }
                 return {
                     data: members.sort((a, b) => {
@@ -75,9 +79,7 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
     })
 
     const columns = React.useMemo(() => {
-        const columnHelper = createColumnHelper<D4hMember>()
-
-        return [
+        return defineColumns<D4hMember>(columnHelper => [
             columnHelper.accessor('name', {
                 header: 'Name',
                 cell: info => info.getValue(),
@@ -152,8 +154,7 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
                 enableGrouping: false,
                 enableSorting: true,
             })
-        // eslint-disable-next-line
-        ] satisfies ColumnDef<D4hMember, any>[]
+        ])
     }, [accessKeys])
 
     const table = useReactTable({ 
@@ -169,7 +170,7 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
             columnVisibility: {
                 name: true, team: true, ref: true,
                 position: true, operational: true,
-                email: false, phone: false
+                email: false, phone: false, joined: false,
             },
             columnFilters: [
                 { id: 'status', value: ['OPERATIONAL', 'NON_OPERATIONAL'] }

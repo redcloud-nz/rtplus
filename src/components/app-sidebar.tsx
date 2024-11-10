@@ -51,6 +51,10 @@ const navTools: NavItem[] = [
         icon: <SquareTerminalIcon/>,
         items: [
             {
+                title: "Activities",
+                url: "/unified/activities"
+            },
+            {
                 title: "Personnel",
                 url: "/unified/personnel",
             },

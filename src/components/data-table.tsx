@@ -2,7 +2,7 @@
 import { ArrowDownAZIcon, ArrowDownZAIcon, ChevronDownIcon, ChevronsUpDownIcon, EllipsisVerticalIcon, EyeOffIcon, GroupIcon, ListRestartIcon, UngroupIcon } from 'lucide-react'
 import React from 'react'
 
-import { Column, flexRender, Table as TanstackTable } from '@tanstack/react-table'
+import { Column, ColumnDef, ColumnHelper, createColumnHelper, flexRender, RowData, Table as TanstackTable } from '@tanstack/react-table'
 
 import { Button } from './ui/button'
 import { Checkbox } from './ui/checkbox'
@@ -232,4 +232,10 @@ export function DataTableControls<T>({className, table}: DataTableControlsProps<
         </DropdownMenu>
         <Button variant="outline" onClick={() => table.reset()}><ListRestartIcon/> Reset</Button>
     </div>
+}
+
+// eslint-disable-next-line
+export function defineColumns<TData extends RowData>(factory: (columnHelper: ColumnHelper<TData>) => ColumnDef<TData, any>[]): ColumnDef<TData>[] {
+    const columnHelper = createColumnHelper<TData>()
+    return factory(columnHelper)
 }

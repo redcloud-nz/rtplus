@@ -6,3 +6,5 @@ import type { paths } from './schema'
 export const D4hFetchClient = createFetchClient<paths>({ baseUrl: 'https://api.team-manager.ap.d4h.com' })
 
 export const D4hApi = createClient(D4hFetchClient)
+
+export type D4HListResponse<Model> = { results: Model[], page: number, pageSize: number, totalSize: number }
