@@ -13,7 +13,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDateTime(dateString: string) {
-    return format(new Date(dateString), 'yyyy-MM-dd hh:mm')
+    return format(new Date(dateString), 'yyyy-MM-dd HH:mm')
 }
 
 export function resolveAfter<R>(valueOrLazy: R | (() => R), delay: number): Promise<R> {

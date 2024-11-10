@@ -1,12 +1,13 @@
 'use client'
 
+import { startOfMonth } from 'date-fns'
 import React from 'react'
 
 import { D4hAccessKey } from '@prisma/client'
 import { useQueries } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { DataTable, DataTableControls, defineColumns} from '@/components/data-table'
+import { DataTable, DataTableColumnsDropdown, DataTableControls, DataTableGroupingDropdown, DataTableProvider, DataTableResetButton, DataTableSearch, defineColumns} from '@/components/data-table'
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { D4hFetchClient, D4HListResponse as D4hListResponse } from '@/lib/d4h-api/client'
@@ -27,23 +28,39 @@ export interface ActivitiesListProps {
 
 export function ActivitiesList({ accessKeys }: ActivitiesListProps) {
 
-    const now = React.useMemo(() => new Date().toISOString(), [])
+    const now = React.useMemo(() => startOfMonth(new Date()).toISOString(), [])
 
     const eventsQuery = useQueries({
-        queries: accessKeys.map(accessKey => ({ 
-            queryFn: async () => {
-                const { data, error } = await D4hFetchClient.GET('/v3/{context}/{contextId}/exercises', {
-                    params: {
-                        path: { context: 'team', contextId: accessKey.teamId },
-                        query: { after: now }
-                    },
-                    headers: { Authorization: `Bearer ${accessKey.key}` },
-                })
-                if(error) throw error
-                return data as D4hListResponse<D4hEvent>
+        queries: accessKeys.flatMap(accessKey => [
+            { 
+                queryFn: async () => {
+                    const { data, error } = await D4hFetchClient.GET('/v3/{context}/{contextId}/events', {
+                        params: {
+                            path: { context: 'team', contextId: accessKey.teamId },
+                            query: { after: now }
+                        },
+                        headers: { Authorization: `Bearer ${accessKey.key}` },
+                    })
+                    if(error) throw error
+                    return data as D4hListResponse<D4hEvent>
+                },
+                queryKey: [`/v3/team/${accessKey.teamId}/events`]
             },
-            queryKey: [`/v3/team/${accessKey.teamId}/exercises`]
-        })),
+            { 
+                queryFn: async () => {
+                    const { data, error } = await D4hFetchClient.GET('/v3/{context}/{contextId}/exercises', {
+                        params: {
+                            path: { context: 'team', contextId: accessKey.teamId },
+                            query: { after: now }
+                        },
+                        headers: { Authorization: `Bearer ${accessKey.key}` },
+                    })
+                    if(error) throw error
+                    return data as D4hListResponse<D4hEvent>
+                },
+                queryKey: [`/v3/team/${accessKey.teamId}/exercises`]
+            }
+        ]),
         combine: (queryResults) => {
 
             const isError = queryResults.some(qr => qr.isError)
@@ -138,10 +155,17 @@ export function ActivitiesList({ accessKeys }: ActivitiesListProps) {
     </div>
 
     else return <div>
+        <DataTableProvider value={table}>
+            <DataTableControls>
+                <DataTableSearch/>
+                <DataTableColumnsDropdown/>
+                <DataTableGroupingDropdown/>
+                <DataTableResetButton/>
+            </DataTableControls>
+            <div className="rounded-md border">
+                <DataTable/>
+            </div>
+        </DataTableProvider>
         
-        <DataTableControls table={table}/>
-        <div className="rounded-md border">
-            <DataTable table={table}/>
-        </div>
     </div>
 }

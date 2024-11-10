@@ -7,7 +7,7 @@ import { D4hAccessKey } from '@prisma/client'
 import { useQueries } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { DataTable, DataTableControls, defineColumns} from '@/components/data-table'
+import { DataTable, DataTableColumnsDropdown, DataTableControls, DataTableGroupingDropdown, DataTableProvider, DataTableResetButton, DataTableSearch, defineColumns} from '@/components/data-table'
 import { EmailLink, PhoneLink } from '@/components/ui/link'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -194,10 +194,16 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
     </div>
 
     else return <div>
-        
-        <DataTableControls table={table}/>
-        <div className="rounded-md border">
-            <DataTable table={table}/>
-        </div>
+        <DataTableProvider value={table}>
+            <DataTableControls>
+                <DataTableSearch/>
+                <DataTableColumnsDropdown/>
+                <DataTableGroupingDropdown/>
+                <DataTableResetButton/>
+            </DataTableControls>
+            <div className="rounded-md border">
+                <DataTable/>
+            </div>
+        </DataTableProvider>
     </div>
 }

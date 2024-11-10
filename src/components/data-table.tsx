@@ -4,20 +4,26 @@ import React from 'react'
 
 import { Column, ColumnDef, ColumnHelper, createColumnHelper, flexRender, RowData, Table as TanstackTable } from '@tanstack/react-table'
 
-import { Button } from './ui/button'
+import { Button, ButtonProps } from './ui/button'
 import { Checkbox } from './ui/checkbox'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuGroupLabel, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableHeadCellProps, TableProps, TableRow } from './ui/table'
 
 import { cn } from '@/lib/utils'
-import { Input } from './ui/input'
+import { Input, InputProps } from './ui/input'
 
+const DataTableContext = React.createContext<TanstackTable<any> | null>(null)
 
-export type DataTableProps<T> = {
-    table: TanstackTable<T>
-} & TableProps
+export const DataTableProvider = DataTableContext.Provider
+const useDataTable = () => {
+    const table = React.useContext(DataTableContext)
+    if(table == null) throw new Error("useDataTable called outside of provider.")
+    return table
+}
 
-export function DataTable<T>({ table, ...props}: DataTableProps<T>) {
+export function DataTable(props: TableProps) {
+    const table = useDataTable()
+
     return <Table {...props}>
         <TableHead>
             {table.getHeaderGroups().map(headerGroup => 
@@ -171,67 +177,99 @@ function ColumnHeader<T>({ className, children, column, table, ...props }: Colum
 }
 
 
-export type DataTableControlsProps<T> = {
-    className?: string
+export type DataTableControlsProps<T> = React.ComponentPropsWithoutRef<'div'> & {
     table: TanstackTable<T>
 
 }
 
-export function DataTableControls<T>({className, table}: DataTableControlsProps<T>) {
-    
+export function DataTableControls<T>({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
+    const table = useDataTable()
+
     return <div className={cn(
         'mb-2', 
         'flex gap-2',
         className
-    )}>
-        <Input 
-            placeholder="Search&hellip;"
-            value={table.getState().globalFilter}
-            onChange={ev => table.setGlobalFilter(String(ev.target.value))}
-        />
-        <DropdownMenu >
-            <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                    Columns
-                    <ChevronDownIcon />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Column visibility</DropdownMenuLabel>
-                <DropdownMenuSeparator/>
-                {table.getAllColumns()
-                    .filter(column => column.getCanHide())
-                    .map(column => <DropdownMenuCheckboxItem 
-                        key={column.id} 
-                        checked={column.getIsVisible()}
-                        onCheckedChange={() => column.toggleVisibility()}
-                    >
-                        {column.columnDef.header as string}
-                    </DropdownMenuCheckboxItem>)}
-            </DropdownMenuContent>
-        </DropdownMenu>
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                    Group By
-                    <ChevronDownIcon />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Group rows by</DropdownMenuLabel>
-                {table.getAllColumns()
-                    .filter(column => column.getCanGroup())
-                    .map(column => <DropdownMenuCheckboxItem
-                        key={column.id} 
-                        checked={column.getIsGrouped()}
-                        onCheckedChange={() => table.setGrouping(column.getIsGrouped() ? [] : [column.id])}
-                    >
-                        {column.columnDef.header as string}
-                    </DropdownMenuCheckboxItem>)}
-            </DropdownMenuContent>
-        </DropdownMenu>
-        <Button variant="outline" onClick={() => table.reset()}><ListRestartIcon/> Reset</Button>
-    </div>
+    )} {...props}/>
+}
+
+export function DataTableSearch(props: Omit<InputProps, 'onChange' | 'placeholder' | 'value'>) {
+    const table = useDataTable()
+
+    return <Input 
+        {...props}
+        placeholder="Search&hellip;"
+        value={table.getState().globalFilter}
+        onChange={ev => table.setGlobalFilter(String(ev.target.value))}
+    />
+}
+
+export type DataTableColumnsDropdownProps = {
+    slotProps?: {
+        Button?: Omit<ButtonProps, 'onClick'>
+    }
+}
+
+export function DataTableColumnsDropdown({ slotProps = {}}: DataTableColumnsDropdownProps) {
+    const table = useDataTable()
+
+    return <DropdownMenu >
+        <DropdownMenuTrigger asChild>
+            <Button variant="outline" {...(slotProps.Button ?? {})}>
+                Columns
+                <ChevronDownIcon />
+            </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Column visibility</DropdownMenuLabel>
+            <DropdownMenuSeparator/>
+            {table.getAllColumns()
+                .filter(column => column.getCanHide())
+                .map(column => <DropdownMenuCheckboxItem 
+                    key={column.id} 
+                    checked={column.getIsVisible()}
+                    onCheckedChange={() => column.toggleVisibility()}
+                >
+                    {column.columnDef.header as string}
+                </DropdownMenuCheckboxItem>)}
+        </DropdownMenuContent>
+    </DropdownMenu>
+}
+
+export type DataTableGroupingDropdownProps = {
+    slotProps?: {
+        Button?: Omit<ButtonProps, 'onClick'>
+    }
+}
+
+export function DataTableGroupingDropdown({ slotProps = {}}: DataTableGroupingDropdownProps) {
+    const table = useDataTable()
+
+    return <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+            <Button variant="outline" {...(slotProps.Button ?? {})}>
+                Group By
+                <ChevronDownIcon />
+            </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Group rows by</DropdownMenuLabel>
+            {table.getAllColumns()
+                .filter(column => column.getCanGroup())
+                .map(column => <DropdownMenuCheckboxItem
+                    key={column.id} 
+                    checked={column.getIsGrouped()}
+                    onCheckedChange={() => table.setGrouping(column.getIsGrouped() ? [] : [column.id])}
+                >
+                    {column.columnDef.header as string}
+                </DropdownMenuCheckboxItem>)}
+        </DropdownMenuContent>
+    </DropdownMenu>
+}
+
+export function DataTableResetButton(props: Omit<ButtonProps, 'children' | 'onClick'>) {
+    const table = useDataTable()
+
+    return <Button variant="outline" {...props} onClick={() => table.reset()}><ListRestartIcon/> Reset</Button>
 }
 
 // eslint-disable-next-line
