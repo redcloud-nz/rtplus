@@ -12,8 +12,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatDateTime(dateString: string) {
-    return format(new Date(dateString), 'yyyy-MM-dd HH:mm')
+export function formatDateTime(stringOrDate: string | Date) {
+    let date = stringOrDate instanceof Date ? stringOrDate : new Date(stringOrDate)
+
+    return format(date, 'yyyy-MM-dd HH:mm')
 }
 
 export function resolveAfter<R>(valueOrLazy: R | (() => R), delay: number): Promise<R> {
