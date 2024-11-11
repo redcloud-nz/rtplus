@@ -13,7 +13,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDateTime(stringOrDate: string | Date) {
-    let date = stringOrDate instanceof Date ? stringOrDate : new Date(stringOrDate)
+    const date = stringOrDate instanceof Date ? stringOrDate : new Date(stringOrDate)
 
     return format(date, 'yyyy-MM-dd HH:mm')
 }
