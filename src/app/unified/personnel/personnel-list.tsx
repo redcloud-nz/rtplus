@@ -11,18 +11,10 @@ import { DataTable, DataTableColumnsDropdown, DataTableControls, DataTableGroupi
 import { EmailLink, PhoneLink } from '@/components/ui/link'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { D4hApi, D4HListResponse } from '@/lib/d4h-api/client'
+import { D4hApi, D4hListResponse } from '@/lib/d4h-api/client'
+import { getTeamName } from '@/lib/d4h-api/common'
 import { D4hMember } from '@/lib/d4h-api/member'
 
-
-
-
-function getTeamName(accessKeys: D4hAccessKey[], teamId: number | null) {
-    for(const accessKey of accessKeys) {
-        if(accessKey.teamId == teamId) return accessKey.teamName.replace("NZ Response Team", "NZRT")
-    }
-    return ""
-}
 
 const StatusOptions: Record<D4hMember['status'], string> = {
     OPERATIONAL: 'Operational',
@@ -58,7 +50,7 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
             if(isSuccess) {
                 const members: D4hMember[] = []
                 for(const result of queryResults) {
-                    members.push(...(result.data as D4HListResponse<D4hMember>).results)
+                    members.push(...(result.data as D4hListResponse<D4hMember>).results)
                 }
                 return {
                     data: members.sort((a, b) => {

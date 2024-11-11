@@ -1,4 +1,4 @@
-
+import { cva, VariantProps } from 'class-variance-authority'
 import { LogInIcon } from 'lucide-react'
 import Link from 'next/link'
 import React from 'react'
@@ -12,6 +12,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Heading } from '@/components/ui/typography'
 
 import { cn } from '@/lib/utils'
+
 
 
 export type AppPageContainerProps = {
@@ -41,12 +42,27 @@ export function AppPageContainer({ children }: AppPageContainerProps) {
     </div>
 }
 
+const appPageVariants = cva(
+    'row-start-3 col-span-full overflow-y-auto',
+    {
+        variants: {
+            variant: {
+                default: 'p-4',
+                list: 'flex flex-1 flex-col gap-4 p-4',
+                full: 'w-full flex items-stretch *:flex-1',
+            }
+        },
+        defaultVariants: {
+            variant: 'default'
+        }
+    }
+)
+
 export type PageBreadcrumbs = { label: string, href: string }[]
 
-export type AppPageProps = React.ComponentProps<"main"> & {
+export type AppPageProps = React.ComponentProps<"main"> & VariantProps<typeof appPageVariants> & {
     breadcrumbs?: PageBreadcrumbs
     label: string
-    variant?: 'default' | 'list'
 }
 
 export function AppPage({ breadcrumbs = [], children, className, label, variant = 'default', ...props }: AppPageProps) {
@@ -76,11 +92,7 @@ export function AppPage({ breadcrumbs = [], children, className, label, variant 
                 }
             </Breadcrumb>
         </div>
-        <main className={cn(
-            'row-start-3 col-span-full p-4 overflow-y-auto',
-            variant == 'list' && 'flex flex-1 flex-col gap-4',
-            className
-        )} {...props}>
+        <main className={cn(appPageVariants({ variant, className }))} {...props}>
             {children}
         </main>
     </>

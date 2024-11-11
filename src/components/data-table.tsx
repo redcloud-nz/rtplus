@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableHeadCellPro
 import { cn } from '@/lib/utils'
 import { Input, InputProps } from './ui/input'
 
+// eslint-disable-next-line
 const DataTableContext = React.createContext<TanstackTable<any> | null>(null)
 
 export const DataTableProvider = DataTableContext.Provider
@@ -182,8 +183,7 @@ export type DataTableControlsProps<T> = React.ComponentPropsWithoutRef<'div'> & 
 
 }
 
-export function DataTableControls<T>({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
-    const table = useDataTable()
+export function DataTableControls({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
 
     return <div className={cn(
         'mb-2', 

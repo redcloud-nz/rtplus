@@ -1,3 +1,4 @@
+import { D4hAccessKey } from '@prisma/client'
 
 
 export interface CustomField {
@@ -18,4 +19,11 @@ export type ResourceId<Type extends string, ID = number> = { id: ID, resourceTyp
 export interface D4hPoint {
     type: 'Point',
     coordinates: [number, number]
+}
+
+export function getTeamName(accessKeys: D4hAccessKey[], teamId: number | null) {
+    for(const accessKey of accessKeys) {
+        if(accessKey.teamId == teamId) return accessKey.teamName.replace("NZ Response Team", "NZRT")
+    }
+    return ""
 }

@@ -1,6 +1,5 @@
 'use client'
 
-import { startOfMonth } from 'date-fns'
 import React from 'react'
 
 import { D4hAccessKey } from '@prisma/client'
@@ -10,17 +9,11 @@ import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRo
 import { DataTable, DataTableColumnsDropdown, DataTableControls, DataTableGroupingDropdown, DataTableProvider, DataTableResetButton, DataTableSearch, defineColumns} from '@/components/data-table'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { D4hFetchClient, D4HListResponse as D4hListResponse } from '@/lib/d4h-api/client'
-import { D4hEvent } from '@/lib/d4h-api/event'
+import { getListResponseCombiner } from '@/lib/d4h-api/client'
+import { getTeamName } from '@/lib/d4h-api/common'
+import { D4hEvent, getFetchEventsQueryOptions } from '@/lib/d4h-api/event'
 import { formatDateTime } from '@/lib/utils'
 
-
-function getTeamName(accessKeys: D4hAccessKey[], teamId: number | null) {
-    for(const accessKey of accessKeys) {
-        if(accessKey.teamId == teamId) return accessKey.teamName.replace("NZ Response Team", "NZRT")
-    }
-    return ""
-}
 
 export interface ActivitiesListProps {
     accessKeys: D4hAccessKey[]
@@ -28,62 +21,14 @@ export interface ActivitiesListProps {
 
 export function ActivitiesList({ accessKeys }: ActivitiesListProps) {
 
-    const now = React.useMemo(() => startOfMonth(new Date()).toISOString(), [])
+    const now = React.useMemo(() => new Date(), [])
 
     const eventsQuery = useQueries({
         queries: accessKeys.flatMap(accessKey => [
-            { 
-                queryFn: async () => {
-                    const { data, error } = await D4hFetchClient.GET('/v3/{context}/{contextId}/events', {
-                        params: {
-                            path: { context: 'team', contextId: accessKey.teamId },
-                            query: { after: now }
-                        },
-                        headers: { Authorization: `Bearer ${accessKey.key}` },
-                    })
-                    if(error) throw error
-                    return data as D4hListResponse<D4hEvent>
-                },
-                queryKey: [`/v3/team/${accessKey.teamId}/events`]
-            },
-            { 
-                queryFn: async () => {
-                    const { data, error } = await D4hFetchClient.GET('/v3/{context}/{contextId}/exercises', {
-                        params: {
-                            path: { context: 'team', contextId: accessKey.teamId },
-                            query: { after: now }
-                        },
-                        headers: { Authorization: `Bearer ${accessKey.key}` },
-                    })
-                    if(error) throw error
-                    return data as D4hListResponse<D4hEvent>
-                },
-                queryKey: [`/v3/team/${accessKey.teamId}/exercises`]
-            }
+            getFetchEventsQueryOptions(accessKey, 'event', { refDate: now, scope: 'future'}),
+            getFetchEventsQueryOptions(accessKey, 'exercise', { refDate: now, scope: 'future'}),
         ]),
-        combine: (queryResults) => {
-
-            const isError = queryResults.some(qr => qr.isError)
-            const isPending = queryResults.some(qr => qr.isPending)
-            const isSuccess = queryResults.every(qr => qr.isSuccess)
-            
-            if(isSuccess) {
-                const events: D4hEvent[] = []
-                for(const result of queryResults) {
-                    events.push(...(result.data).results)
-                }
-                return {
-                    data: events,
-                    isError, isPending, isSuccess
-                }
-               
-            } else {
-                return {
-                    data: [],
-                    isError, isPending, isSuccess
-                }
-            }
-        },
+        combine: getListResponseCombiner<D4hEvent>(),
     })
 
     const columns = React.useMemo(() => {
