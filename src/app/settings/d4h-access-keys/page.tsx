@@ -1,4 +1,4 @@
-// /user/d4h-access-keys
+// /settings/d4h-access-keys
 
 import { Metadata } from 'next'
 import React from 'react'

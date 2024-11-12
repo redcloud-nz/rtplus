@@ -118,7 +118,7 @@ function MonthViewEvent({ event }: MonthViewEventProps) {
         event.owner.id == 6 && 'bg-red-400',
         event.owner.id == 7 && 'bg-green-400',
     )}>
-        <span className="mr-1.5">{DF.format(startsAt, 'HH:mm')}</span>
+        <span className="mr-1.5 hidden md:inline-block">{DF.format(startsAt, 'HH:mm')}</span>
         <span className="font-semibold">{event.referenceDescription}</span>
     </div>
 }

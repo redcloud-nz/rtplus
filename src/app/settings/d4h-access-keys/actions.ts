@@ -31,7 +31,7 @@ export async function createAccessKey({ key, label, memberId, teamName, teamId, 
         data: { userId: user.id, key, label, memberId, teamName, teamId, primary, enabled: true }
     })
 
-    revalidatePath('/user/d4h-access-keys')
+    revalidatePath('/settings/d4h-access-keys')
 }
 
 
@@ -57,7 +57,7 @@ export async function updateAccessKey({ id, label, primary, enabled }: UpdateArg
         data: { label, primary, enabled }
     })
 
-    revalidatePath('/user/d4h-access-keys')
+    revalidatePath('/settings/d4h-access-keys')
 }
 
 
@@ -74,5 +74,5 @@ export async function deleteAccessKey({ id }: DeleteArgs) {
         where: { id, userId: user.id }
     })
 
-    revalidatePath('/user/d4h-access-keys')
+    revalidatePath('/settings/d4h-access-keys')
 }

@@ -121,7 +121,7 @@ const navTools: NavItem[] = [
             },
             {
                 title: "D4H Access Keys",
-                url: "/user/d4h-access-keys",
+                url: "/settings/d4h-access-keys",
             },
             {
                 title: "Teams",
