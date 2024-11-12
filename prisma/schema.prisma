@@ -10,25 +10,89 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
-model User {
-  id            String       @default(cuid()) @id
-  name          String?
-  email         String?   @unique
-  createdAt     DateTime  @default(now()) @map(name: "created_at")
-  updatedAt     DateTime  @updatedAt @map(name: "updated_at")
-  @@map(name: "users")
-}
+
 
 model D4hAccessKey {
-    id          String  @default(cuid()) @id
-    userId      String                                              // The userId provided by Auth0.
-    key         String                                              // The access key.
-    label       String                                              // Label for the access key.
-    createdAt   DateTime @default(now()) @map(name: "created_at")
-    memberId    Int                                                 // The D4H userId that this key belongs to.
-    teamId      Int                                                 // The D4H teamId that this key belongs to.
-    teamName    String                                              // The D4H team name this this key belongs to.
-    primary     Boolean                                             // If this is the user's primary team.
-    enabled     Boolean                                             // If this access key is currently enabled.
-    @@map(name: "d4h_access_keys")
+    id              String      @default(cuid()) @id
+    userId          String                                                  // The userId provided by Auth0.
+    key             String                                                  // The access key.
+    label           String                                                  // Label for the access key.
+    createdAt       DateTime    @default(now())
+    updatedAt       DateTime    @updatedAt
+    memberId        Int                                                     // The D4H userId that this key belongs to.
+    teamId          Int                                                     // The D4H teamId that this key belongs to.
+    teamName        String                                                  // The D4H team name this this key belongs to.
+    primary         Boolean                                                 // If this is the user's primary team.
+    enabled         Boolean                                                 // If this access key is currently enabled.
 }
+
+model Person {
+    id              String      @default(cuid()) @id
+    name            String
+    email           String
+    memberships     TeamMembership[]
+    skillChecksAsAsessee    SkillCheck[] @relation("SkillCheckAssessee")
+    skillChecksAsAssessor   SkillCheck[] @relation("SkillCheckAssessor")
+    
+}
+
+model Skill {
+    id              String      @default(cuid()) @id
+    skillGroup      SkillGroup  @relation(fields: [skillGroupId], references: [id])
+    skillGroupId    String
+    name            String
+    frequency       String                              // Stored as an ISO-8601 Duration
+    optional        String
+    checks          SkillCheck[]
+}
+
+model SkillCheck {
+    id              String      @default(cuid()) @id
+    skill           Skill       @relation(fields: [skillId], references: [id])
+    skillId         String
+    assessee        Person      @relation("SkillCheckAssessee", fields: [assesseeId], references: [id])
+    assesseeId      String
+    assessor        Person      @relation("SkillCheckAssessor", fields: [assessorId], references: [id])
+    assessorId      String
+    result          String
+    notes           String
+    checkedAt       DateTime    @default(now())
+}
+
+model SkillGroup {
+    id              String      @default(cuid()) @id
+    strand          Strand      @relation(fields: [strandId], references: [id])
+    strandId        String
+    name            String
+    createdAt       DateTime    @default(now())
+    updatedAt       DateTime    @updatedAt
+    skills          Skill[]
+}
+
+model Strand {
+    id              String      @default(cuid()) @id
+    name            String
+    createdAt       DateTime    @default(now())
+    updatedAt       DateTime    @updatedAt   
+    skillGroups     SkillGroup[]  
+}
+
+model Team {
+    id              String      @default(cuid()) @id
+    name            String
+    code            String
+    color           String
+    createdAt       DateTime    @default(now())
+    updatedAt       DateTime    @updatedAt
+    memberships     TeamMembership[]
+}
+
+model TeamMembership {
+    id              String      @default(cuid()) @id
+    person          Person      @relation(fields: [personId], references: [id])
+    personId        String
+    team            Team        @relation(fields: [teamId], references: [id])
+    teamId          String
+    assignedAt      DateTime    @default(now())
+}
+
