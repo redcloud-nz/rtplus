@@ -13,6 +13,7 @@ import {
     SidebarHeader,
     SidebarRail,
 } from '@/components/ui/sidebar'
+import { Paths } from '@/paths'
 
 
 const navTools: NavItem[] = [
@@ -34,10 +35,6 @@ const navTools: NavItem[] = [
             {
                 title: "Record",
                 url: "/competencies/record"
-            },
-            {
-                title: "Manage",
-                url: "/competencies/manage"
             },
             {
                 title: "Report",
@@ -111,25 +108,37 @@ const navTools: NavItem[] = [
         // ],
       },
       {
-        title: "Settings",
+        title: "Configuration",
         url: "/",
         icon: <Settings2Icon/>,
         items: [
+            {
+                title: "Capabilities",
+                url: Paths.capabilities
+            },
             {
                 title: "General",
                 url: "/settings",
             },
             {
                 title: "D4H Access Keys",
-                url: "/settings/d4h-access-keys",
+                url: "/profile/d4h-access-keys",
+            },
+            {
+                title: "People",
+                url: Paths.people,
+            },
+            {
+                title: "Skills",
+                url: Paths.skills
+            },
+            {
+                title: "Skill Groups",
+                url: Paths.skillGroups
             },
             {
                 title: "Teams",
-                url: "/manage/teams",
-            },
-            {
-                title: "Users",
-                url: "/users",
+                url: Paths.teams,
             },
         ],
     },

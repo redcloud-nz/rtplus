@@ -97,9 +97,9 @@ export function AppPage({ breadcrumbs = [], children, className, label, variant 
 }
 
 export function PageTitle({ ...props }: React.ComponentPropsWithoutRef<'h2'>) {
-    return <Heading level={1} {...props}/>
+    return <Heading level={1} data-slot="page-title" {...props}/>
 }
 
 export function PageDescription({ className, ...props }: React.ComponentPropsWithoutRef<'p'>) {
-    return <p className={cn('mb-2 text-sm text-gray-700', className)} {...props}/>
+    return <p className={cn('mb-2 text-sm text-gray-700', className)} data-slot="page-description" {...props}/>
 } 

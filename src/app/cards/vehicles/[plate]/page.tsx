@@ -2,6 +2,7 @@
 
 import { AppPage, PageDescription, PageTitle } from '@/components/app-page'
 import { NotFound } from '@/components/errors'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 
 import { VehicleInfo, VehicleList } from '@/data/vehicles'
@@ -22,59 +23,67 @@ export default function VehicleReferenceCard({ params }: { params: { plate: stri
     >
         <PageTitle>{vehicle.plate}</PageTitle>
         <PageDescription>{vehicle.name}</PageDescription>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-            <div className="border rounded-md p-2">
-                <div className="text-lg font-semibold text-center mb-2">Specifications</div>
-                <DL>
-                    <DLTerm>Owner</DLTerm>
-                    <DLDetails>{vehicle.owner}</DLDetails>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Specifications</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <DL>
+                        <DLTerm>Owner</DLTerm>
+                        <DLDetails>{vehicle.owner}</DLDetails>
+                    
+                        <DLTerm>Make</DLTerm>
+                        <DLDetails>{vehicle.make}</DLDetails>
+                    
+                        <DLTerm>Model</DLTerm>
+                        <DLDetails>{vehicle.model} ({vehicle.subModel})</DLDetails>
+                    
+                        <DLTerm>Body Style</DLTerm>
+                        <DLDetails>{vehicle.bodyStyle}</DLDetails>
+                    
+                        <DLTerm>Colour</DLTerm>
+                        <DLDetails>{vehicle.colour}</DLDetails>
+                    
+                        <DLTerm>Seats</DLTerm>
+                        <DLDetails>{vehicle.seats}</DLDetails>
+                    
+                        <DLTerm>Fuel Type</DLTerm>
+                        <DLDetails>{vehicle.fuel}</DLDetails>
+                    
+                        <DLTerm>Gross Vehicle Mass</DLTerm>
+                        <DLDetails>{vehicle.gvm}kg</DLDetails>
+                    
+                        <DLTerm>Tare Weight</DLTerm>
+                        <DLDetails>{vehicle.tare}kg</DLDetails>
+                    
+                        <DLTerm>Towing Capacity</DLTerm>
+                        <DLDetails>
+                            <div>{vehicle.towing?.unbraked}kg (unbraked)</div>
+                            <div>{vehicle.towing?.braked}kg (braked)</div>
+                        </DLDetails>
+                    </DL>
+                </CardContent>
                 
-                    <DLTerm>Make</DLTerm>
-                    <DLDetails>{vehicle.make}</DLDetails>
-                
-                    <DLTerm>Model</DLTerm>
-                    <DLDetails>{vehicle.model} ({vehicle.subModel})</DLDetails>
-                
-                    <DLTerm>Body Style</DLTerm>
-                    <DLDetails>{vehicle.bodyStyle}</DLDetails>
-                
-                    <DLTerm>Colour</DLTerm>
-                    <DLDetails>{vehicle.colour}</DLDetails>
-                
-                    <DLTerm>Seats</DLTerm>
-                    <DLDetails>{vehicle.seats}</DLDetails>
-                
-                    <DLTerm>Fuel Type</DLTerm>
-                    <DLDetails>{vehicle.fuel}</DLDetails>
-                
-                    <DLTerm>Gross Vehicle Mass</DLTerm>
-                    <DLDetails>{vehicle.gvm}kg</DLDetails>
-                
-                    <DLTerm>Tare Weight</DLTerm>
-                    <DLDetails>{vehicle.tare}kg</DLDetails>
-                
-                    <DLTerm>Towing Capacity</DLTerm>
-                    <DLDetails>
-                        <div>{vehicle.towing?.unbraked}kg (unbraked)</div>
-                        <div>{vehicle.towing?.braked}kg (braked)</div>
-                    </DLDetails>
-                </DL>
-            </div>
+            </Card>
             <DimensionsSection dimensions={vehicle.dimensions}/>
-            <div className="border rounded-md p-2">
-                
-                <div className="text-lg font-semibold text-center mb-2">Basic Maintence</div>
-                <DL>
-                    <DLTerm>Battery</DLTerm>
-                    <DLDetails>Under passenger seat. Jump start from contacts in engine bay (nearside).</DLDetails>
-                    <DLTerm>Toolkit</DLTerm>
-                    <DLDetails>Passenger footwell</DLDetails>
-                    <DLTerm>Jack</DLTerm>
-                    <DLDetails>Drivers step</DLDetails>
-                    <DLTerm>Spare Wheel</DLTerm>
-                    <DLDetails>In cradle underneath rear. Lower using bolts under covers.</DLDetails>
-                </DL>
-            </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Basic Maintence</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <DL>
+                        <DLTerm>Battery</DLTerm>
+                        <DLDetails>Under passenger seat. Jump start from contacts in engine bay (nearside).</DLDetails>
+                        <DLTerm>Toolkit</DLTerm>
+                        <DLDetails>Passenger footwell</DLDetails>
+                        <DLTerm>Jack</DLTerm>
+                        <DLDetails>Drivers step</DLDetails>
+                        <DLTerm>Spare Wheel</DLTerm>
+                        <DLDetails>In cradle underneath rear. Lower using bolts under covers.</DLDetails>
+                    </DL>
+                </CardContent>
+            </Card>
         </div>
         
     </AppPage>
@@ -104,8 +113,11 @@ function DimensionsSection({ dimensions }: DimensionsSectionProps) {
     const a1 = { x: ws, y: h-wr } // Front Axel
     const a2 = { x: ws+wb, y: h-wr } // Front Axel
 
-    return <div className="border rounded-md p-2">
-        <div className="text-lg font-semibold text-center mb-2">Dimensions</div>
+    return <Card>
+        <CardHeader>
+            <CardTitle>Dimensions</CardTitle>
+        </CardHeader>
+       
         <svg className="w-full" viewBox={`0 0 ${ml+l+mr} ${mt+h+gap+w+mb}`}>
             <defs>
                 <marker
@@ -167,5 +179,5 @@ function DimensionsSection({ dimensions }: DimensionsSectionProps) {
                 />
             </g>
         </svg>
-    </div>
+    </Card>
 }
