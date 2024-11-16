@@ -1,11 +1,10 @@
-
+// /cards/vehicle/[plate]
 
 import { AppPage, PageDescription, PageTitle } from '@/components/app-page'
 import { NotFound } from '@/components/errors'
+import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 
 import { VehicleInfo, VehicleList } from '@/data/vehicles'
-
-import { cn } from '@/lib/utils'
 
 
 export default function VehicleReferenceCard({ params }: { params: { plate: string} }) {
@@ -26,55 +25,55 @@ export default function VehicleReferenceCard({ params }: { params: { plate: stri
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
             <div className="border rounded-md p-2">
                 <div className="text-lg font-semibold text-center mb-2">Specifications</div>
-                <dl className={cn(
-                    'grid grid-cols-[auto_1fr]',
-                    '[&_dt]:px-2 [&_dt]:py-1 [&_dt]:font-semibold [&_dt]:text-right [&_dt]:min-w-[100px]',
-                    '[&_dd]:px-2 [&_dd]:py-1'
-                )}>
-                    <dt>Owner</dt>
-                    <dd>{vehicle.owner}</dd>
-                    <dt>Make</dt>
-                    <dd>{vehicle.make}</dd>
-                    <dt>Model</dt>
-                    <dd>{vehicle.model}</dd>
-                    <dt>Sub Model</dt>
-                    <dd>{vehicle.subModel}</dd>
-                    <dt>Body Style</dt>
-                    <dd>{vehicle.bodyStyle}</dd>
-                    <dt>Colour</dt>
-                    <dd>{vehicle.colour}</dd>
-                    <dt>Seats</dt>
-                    <dd>{vehicle.seats}</dd>
-                    <dt>Fuel</dt>
-                    <dd>{vehicle.fuel}</dd>
-                    <dt>GVM</dt>
-                    <dd>{vehicle.gvm}kg</dd>
-                    <dt>Tare Weight</dt>
-                    <dd>{vehicle.tare}kg</dd>
-                    <dt>Towing</dt>
-                    <dd>
+                <DL>
+                    <DLTerm>Owner</DLTerm>
+                    <DLDetails>{vehicle.owner}</DLDetails>
+                
+                    <DLTerm>Make</DLTerm>
+                    <DLDetails>{vehicle.make}</DLDetails>
+                
+                    <DLTerm>Model</DLTerm>
+                    <DLDetails>{vehicle.model} ({vehicle.subModel})</DLDetails>
+                
+                    <DLTerm>Body Style</DLTerm>
+                    <DLDetails>{vehicle.bodyStyle}</DLDetails>
+                
+                    <DLTerm>Colour</DLTerm>
+                    <DLDetails>{vehicle.colour}</DLDetails>
+                
+                    <DLTerm>Seats</DLTerm>
+                    <DLDetails>{vehicle.seats}</DLDetails>
+                
+                    <DLTerm>Fuel Type</DLTerm>
+                    <DLDetails>{vehicle.fuel}</DLDetails>
+                
+                    <DLTerm>Gross Vehicle Mass</DLTerm>
+                    <DLDetails>{vehicle.gvm}kg</DLDetails>
+                
+                    <DLTerm>Tare Weight</DLTerm>
+                    <DLDetails>{vehicle.tare}kg</DLDetails>
+                
+                    <DLTerm>Towing Capacity</DLTerm>
+                    <DLDetails>
                         <div>{vehicle.towing?.unbraked}kg (unbraked)</div>
                         <div>{vehicle.towing?.braked}kg (braked)</div>
-                    </dd>
-                </dl>
+                    </DLDetails>
+                </DL>
             </div>
             <DimensionsSection dimensions={vehicle.dimensions}/>
             <div className="border rounded-md p-2">
-                <div className="text-lg font-semibold text-center mb-2">Tips</div>
-                <dl className={cn(
-                    'grid grid-cols-[auto_1fr]',
-                    '[&_dt]:px-2 [&_dt]:py-1 [&_dt]:font-semibold [&_dt]:text-right [&_dt]:min-w-[100px]',
-                    '[&_dd]:px-2 [&_dd]:py-1'
-                )}>
-                    <dt>Battery</dt>
-                    <dd>Under passenger seat. Jump start from contacts in engine bay (nearside).</dd>
-                    <dt>Toolkit</dt>
-                    <dd>Passenger footwell</dd>
-                    <dt>Jack</dt>
-                    <dd>Drivers step</dd>
-                    <dt>Spare Wheel</dt>
-                    <dd>In cradle underneath rear. Lower using bolts under covers.</dd>
-                </dl>
+                
+                <div className="text-lg font-semibold text-center mb-2">Basic Maintence</div>
+                <DL>
+                    <DLTerm>Battery</DLTerm>
+                    <DLDetails>Under passenger seat. Jump start from contacts in engine bay (nearside).</DLDetails>
+                    <DLTerm>Toolkit</DLTerm>
+                    <DLDetails>Passenger footwell</DLDetails>
+                    <DLTerm>Jack</DLTerm>
+                    <DLDetails>Drivers step</DLDetails>
+                    <DLTerm>Spare Wheel</DLTerm>
+                    <DLDetails>In cradle underneath rear. Lower using bolts under covers.</DLDetails>
+                </DL>
             </div>
         </div>
         

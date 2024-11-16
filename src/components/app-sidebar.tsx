@@ -125,7 +125,7 @@ const navTools: NavItem[] = [
             },
             {
                 title: "Teams",
-                url: "/teams",
+                url: "/manage/teams",
             },
             {
                 title: "Users",

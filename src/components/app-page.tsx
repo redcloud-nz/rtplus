@@ -1,4 +1,4 @@
-import { cva, VariantProps } from 'class-variance-authority'
+import { tv, VariantProps } from 'tailwind-variants'
 import { LogInIcon } from 'lucide-react'
 import Link from 'next/link'
 import React from 'react'
@@ -42,21 +42,19 @@ export function AppPageContainer({ children }: AppPageContainerProps) {
     </div>
 }
 
-const appPageVariants = cva(
-    'row-start-3 col-span-full overflow-y-auto',
-    {
-        variants: {
-            variant: {
-                default: 'p-4',
-                list: 'flex flex-1 flex-col gap-4 p-4',
-                full: 'w-full flex items-stretch *:flex-1',
-            }
-        },
-        defaultVariants: {
-            variant: 'default'
+const appPageVariants = tv({
+    base: 'row-start-3 col-span-full overflow-y-auto',
+    variants: {
+        variant: {
+            default: 'p-4',
+            list: 'flex flex-1 flex-col gap-4 p-4',
+            full: 'w-full flex items-stretch *:flex-1',
         }
+    },
+    defaultVariants: {
+        variant: 'default'
     }
-)
+})
 
 export type PageBreadcrumbs = { label: string, href: string }[]
 
