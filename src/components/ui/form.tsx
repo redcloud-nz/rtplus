@@ -147,7 +147,7 @@ const FieldMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes
 FieldMessage.displayName = "FieldMessage"
 
 
-const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(({ className, children, ...props }, ref) => {
+const FormMessage = React.forwardRef<HTMLParagraphElement, Omit<React.HTMLAttributes<HTMLParagraphElement>, 'children'>>(({ className, ...props }, ref) => {
     const formContext = React.useContext(FormContext)
 
     const { message } = formContext.formState
@@ -165,7 +165,7 @@ FormMessage.displayName = "FormMessage"
 
 
 export function FormFooter({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
-    return <div className={cn('mt-2', className)} {...props}/>
+    return <div className={cn('mt-2 flex gap-2', className)} {...props}/>
 }
 
 export interface FormSubmitButtonProps {

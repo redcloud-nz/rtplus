@@ -1,11 +1,12 @@
 
 import * as DF from 'date-fns'
 
-import { D4hAccessKey } from '@prisma/client'
+import { QueryKey } from '@tanstack/react-query'
 
 import { D4hFetchClient, D4hListResponse } from './client'
 import { D4hPoint, DateString, ResourceId } from './common'
-import { QueryKey } from '@tanstack/react-query'
+
+import { D4hAccessKeys } from '../d4h-access-keys'
 
 
 export interface D4hEvent {
@@ -65,7 +66,7 @@ export interface FetchEventsQueryOptions {
 
 type ParamOptions = { refDate: Date, scope: 'future' | 'year' | 'month' }
 
-export function getFetchEventsQueryOptions(accessKey: D4hAccessKey, eventType: 'event' | 'exercise' | 'incident', options: ParamOptions): FetchEventsQueryOptions {
+export function getFetchEventsQueryOptions(accessKey: D4hAccessKeys.KeyInfo, eventType: 'event' | 'exercise' | 'incident', options: ParamOptions): FetchEventsQueryOptions {
 
     let queryParams: { after?: string, before?: string } = {}
     if(options.scope == 'future') {
@@ -83,7 +84,7 @@ export function getFetchEventsQueryOptions(accessKey: D4hAccessKey, eventType: '
     }
 
     const params = {
-        path: { context: 'team', contextId: accessKey.teamId },
+        path: accessKey.context,
         query: queryParams
     } as const
 
@@ -96,7 +97,7 @@ export function getFetchEventsQueryOptions(accessKey: D4hAccessKey, eventType: '
                 if(error) throw error
                 return data as D4hListResponse<D4hEvent>
             },
-            queryKey: ['teams', accessKey.teamId, 'events', queryParams]
+            queryKey: ['teams', accessKey.d4hTeamId, 'events', queryParams]
         }
     } else if(eventType == 'exercise') {
         return {
@@ -105,7 +106,7 @@ export function getFetchEventsQueryOptions(accessKey: D4hAccessKey, eventType: '
                 if(error) throw error
                 return data as D4hListResponse<D4hEvent>
             },
-            queryKey: ['teams', accessKey.teamId, 'exercises', queryParams]
+            queryKey: ['teams', accessKey.d4hTeamId, 'exercises', queryParams]
         }
     } else {
         return {
@@ -114,7 +115,7 @@ export function getFetchEventsQueryOptions(accessKey: D4hAccessKey, eventType: '
                 if(error) throw error
                 return data as D4hListResponse<D4hEvent>
             },
-            queryKey: ['teams', accessKey.teamId, 'incidents', queryParams]
+            queryKey: ['teams', accessKey.d4hTeamId, 'incidents', queryParams]
         }
     }
 

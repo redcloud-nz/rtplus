@@ -8,3 +8,9 @@ declare module '@tanstack/react-table' {
         enumOptions?: Record<string, string>
     }
 }
+
+declare global {
+    interface UserPublicMetadata {
+        personId: string
+    }
+}

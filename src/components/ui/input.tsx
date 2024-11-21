@@ -22,4 +22,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type,
 })
 Input.displayName = "Input"
 
+export interface HiddenInputProps {
+    name: string
+    value: string | number | undefined
+}
+
+export function HiddenInput({ name, value }: HiddenInputProps) {
+    return <input type="hidden" name={name} value={value}/>
+}
+
 export { Input }

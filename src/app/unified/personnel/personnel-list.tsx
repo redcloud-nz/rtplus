@@ -3,7 +3,6 @@
 import { format as formatDate } from 'date-fns'
 import React from 'react'
 
-import { D4hAccessKey } from '@prisma/client'
 import { useQueries } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
@@ -12,8 +11,8 @@ import { EmailLink, PhoneLink } from '@/components/ui/link'
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { D4hApi, D4hListResponse } from '@/lib/d4h-api/client'
-import { getTeamName } from '@/lib/d4h-api/common'
 import { D4hMember } from '@/lib/d4h-api/member'
+import { D4hAccessKeys } from '@/lib/d4h-access-keys'
 
 
 const StatusOptions: Record<D4hMember['status'], string> = {
@@ -24,20 +23,20 @@ const StatusOptions: Record<D4hMember['status'], string> = {
 }
 
 export interface PersonnelListProps {
-    accessKeys: D4hAccessKey[]
+    accessKeys: D4hAccessKeys
 }
 
 export function PersonnelList({ accessKeys }: PersonnelListProps) {
 
     const membersQuery = useQueries({
-        queries: accessKeys.map(accessKey => 
+        queries: accessKeys.keys.map(accessKey => 
             D4hApi.queryOptions('get', '/v3/{context}/{contextId}/members', 
                 {
                     params: { 
-                        path: { context: 'team', contextId: accessKey.teamId },
+                        path: accessKey.context,
                         query: { status: ['OPERATIONAL', 'NON_OPERATIONAL', 'OBSERVER'] }
                     },
-                    headers: { Authorization: `Bearer ${accessKey.key}` },
+                    headers: accessKey.header,
                 }
             )
         ),
@@ -54,8 +53,8 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
                 }
                 return {
                     data: members.sort((a, b) => {
-                        const teamNameA = getTeamName(accessKeys, a.owner.id)
-                        const teamNameB = getTeamName(accessKeys, b.owner.id)
+                        const teamNameA = accessKeys.resolveTeamName(a.owner.id)
+                        const teamNameB = accessKeys.resolveTeamName(b.owner.id)
                         return teamNameA.localeCompare(teamNameB)
                     }),
                     isError, isPending, isSuccess
@@ -84,7 +83,7 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
             columnHelper.accessor('owner.id', {
                 id: 'team',
                 header: 'Team',
-                cell: info => getTeamName(accessKeys, info.getValue()),
+                cell: info => accessKeys.resolveTeamName(info.getValue()),
                 enableGlobalFilter: false,
                 enableGrouping: true,
                 enableSorting: true,

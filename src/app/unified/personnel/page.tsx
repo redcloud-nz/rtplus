@@ -6,7 +6,7 @@ import { currentUser } from '@clerk/nextjs/server'
 import { AppPage, PageDescription, PageTitle } from '@/components/app-page'
 import { Unauthorized } from '@/components/errors'
 
-import { getD4hAccessKeys } from '@/lib/db'
+import { getD4hAccessKeys } from '@/lib/d4h-access-keys'
 
 import { PersonnelList } from './personnel-list'
 
@@ -17,7 +17,7 @@ export default async function PersonnelPage() {
 
     const user = await currentUser()
     if(!user) return <Unauthorized label="Personnel"/>
-    const accessKeys = await getD4hAccessKeys(user.id)
+    const accessKeys = await getD4hAccessKeys(user)
 
     return <AppPage 
         label="Personnel" 

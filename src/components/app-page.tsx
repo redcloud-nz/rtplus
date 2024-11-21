@@ -46,8 +46,7 @@ const appPageVariants = tv({
     base: 'row-start-3 col-span-full overflow-y-auto',
     variants: {
         variant: {
-            default: 'p-4',
-            list: 'flex flex-1 flex-col gap-4 p-4',
+            default: 'flex flex-1 flex-col gap-4 p-4',
             full: 'w-full flex items-stretch *:flex-1',
         }
     },
@@ -96,10 +95,48 @@ export function AppPage({ breadcrumbs = [], children, className, label, variant 
     </>
 }
 
-export function PageTitle({ ...props }: React.ComponentPropsWithoutRef<'h2'>) {
-    return <Heading level={1} data-slot="page-title" {...props}/>
+export function PageHeader({ className, ...props }: React.ComponentPropsWithoutRef<'header'>) {
+    return <header 
+        className={cn(
+            'grid', 
+            'md:grid-cols-2 md:grid-rows-[auto_auto] ',
+            className
+        )}
+        {...props}
+    />
+}
+
+export function PageTitle({ className, ...props }: React.ComponentPropsWithoutRef<'h1'>) {
+    return <Heading 
+        level={1} 
+        className={cn(
+            'row-start-1', 
+            className
+        )}
+        data-slot="title" 
+        {...props}
+    />
 }
 
 export function PageDescription({ className, ...props }: React.ComponentPropsWithoutRef<'p'>) {
-    return <p className={cn('mb-2 text-sm text-gray-700', className)} data-slot="page-description" {...props}/>
-} 
+    return <p 
+        className={cn(
+            'mt-2 text-sm text-gray-700', 
+            'row-start-2',
+            className
+        )} 
+        data-slot="description" 
+        {...props}
+    />
+}
+
+export function PageControls({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
+    return <div
+        className={cn(
+            'row-start-1 row-span-2 col-start-2 justify-self-end self-center',
+            'flex gap-2',
+            className
+        )}
+        {...props}
+    />
+}

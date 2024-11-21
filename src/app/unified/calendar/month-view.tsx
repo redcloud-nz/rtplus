@@ -4,25 +4,26 @@ import * as DF from 'date-fns'
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
 import React from 'react'
 
-import { D4hAccessKey } from '@prisma/client'
 import { useQueries } from '@tanstack/react-query'
 
 import { Button } from '@/components/ui/button'
 
+import { D4hAccessKeys } from '@/lib/d4h-access-keys'
 import { getListResponseCombiner } from '@/lib/d4h-api/client'
 import { D4hEvent, getFetchEventsQueryOptions } from '@/lib/d4h-api/event'
 import { cn } from '@/lib/utils'
 
 
+
 export interface MonthViewProps {
-    accessKeys: D4hAccessKey[]
+    accessKeys: D4hAccessKeys
 }
 
 export function MonthView({ accessKeys }: MonthViewProps) {
     const [month, setMonth] = React.useState<Date>(DF.startOfMonth(new Date()))
 
     const eventsQuery = useQueries({
-        queries: accessKeys.flatMap(accessKey => [
+        queries: accessKeys.keys.flatMap(accessKey => [
             getFetchEventsQueryOptions(accessKey, 'event', { refDate: month, scope: 'month' }),
             getFetchEventsQueryOptions(accessKey, 'exercise', { refDate: month, scope: 'month' }),
             getFetchEventsQueryOptions(accessKey, 'incident', { refDate: month, scope: 'month' }),

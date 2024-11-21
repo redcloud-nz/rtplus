@@ -1,7 +1,9 @@
 
-import clsx from 'clsx'
+
 import NextLink from 'next/link'
 import React from 'react'
+
+import { cn } from '@/lib/utils'
 
 export const Link = NextLink
 
@@ -14,10 +16,7 @@ export function EmailLink({ email, className, ...props}: EmailLinkProps) {
 
     return <a
         {...props}
-        className={clsx(
-            className,
-            'hover:underline'
-        )}
+        className={cn('hover:underline', className)}
         href={`mailto:${email}`}
     >{email}</a>
 }
@@ -36,12 +35,21 @@ export function PhoneLink({ phoneNumber, className, ...props}: PhoneLinkProps) {
 
     return <a
         {...props}
-        className={clsx(
-            className,
-            'font-mono hover:underline'
-        )}
+        className={cn('font-mono hover:underline', className)}
         href={`tel:${linkNumber}`}
-    >{displayNumber}</a>
+    >{displayNumber}</a>    
+}
 
-    
+
+export type ExternalLinkProps = Omit<React.ComponentPropsWithoutRef<'a'>, 'target' | 'rel'>
+
+export function ExternalLink({className, href, ...props}: ExternalLinkProps) {
+
+    return <a 
+        className={cn('hover:underline', className)}
+        href={href}
+        target='_blank'
+        rel='noopener noreferrer'
+        {...props}
+    />
 }

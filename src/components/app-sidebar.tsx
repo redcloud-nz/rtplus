@@ -13,7 +13,7 @@ import {
     SidebarHeader,
     SidebarRail,
 } from '@/components/ui/sidebar'
-import { Paths } from '@/paths'
+import * as Paths from '@/paths'
 
 
 const navTools: NavItem[] = [
@@ -139,6 +139,10 @@ const navTools: NavItem[] = [
             {
                 title: "Teams",
                 url: Paths.teams,
+            },
+            {
+                title: "Who am I?",
+                url: Paths.whoami
             },
         ],
     },

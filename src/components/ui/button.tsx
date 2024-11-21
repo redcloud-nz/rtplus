@@ -1,10 +1,13 @@
 
 import { cva, type VariantProps } from 'class-variance-authority'
+import { InfoIcon } from 'lucide-react'
 import React from 'react'
 
 import { Slot } from '@radix-ui/react-slot'
 
 import { cn } from '@/lib/utils'
+
+import { Link } from './link'
 
 
 const buttonVariants = cva(
@@ -56,6 +59,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 )
 Button.displayName = "Button"
 
-export { Button, buttonVariants }
+
+function DocumentationButton({ topic }: { topic: string }) {
+    return <Button variant="ghost" asChild>
+        <Link href={`/documentation/${topic}`}><InfoIcon/></Link>
+    </Button>
+}
+
+export { Button, buttonVariants, DocumentationButton }
 
 

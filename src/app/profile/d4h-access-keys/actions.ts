@@ -14,7 +14,7 @@ type CreateArgs =  { key: string, label: string, memberId: number, teamName: str
 /**
  * Server Action to create an access key record in the database.
  */
-export async function createAccessKey({ key, label, memberId, teamName, teamId, primary }: CreateArgs) {
+export async function createAccessKey({ key, label, primary }: CreateArgs) {
 
     const user = await currentUser()
     if(!user) throw new Error("Must be logged in to execute action 'createAccessKey'")
@@ -22,13 +22,13 @@ export async function createAccessKey({ key, label, memberId, teamName, teamId, 
     if(primary) {
         // This new key will become the primary so we need to mark all of the old ones as not primary
         prisma.d4hAccessKey.updateMany({
-            where: { userId: user.id, primary: true },
+            where: { personId: user.publicMetadata.personId, primary: true },
             data: { primary: false }
         })
     }
 
     await prisma.d4hAccessKey.create({
-        data: { userId: user.id, key, label, memberId, teamName, teamId, primary, enabled: true }
+        data: { personId: user.publicMetadata.personId, key, label, teamId: "", primary, enabled: true }
     })
 
     revalidatePath('/settings/d4h-access-keys')
@@ -47,13 +47,13 @@ export async function updateAccessKey({ id, label, primary, enabled }: UpdateArg
     if(primary) {
         // This key will become the primary so we need to mark all others as not primary
         prisma.d4hAccessKey.updateMany({
-            where: { userId: user.id, primary: true },
+            where: { personId: user.publicMetadata.personId, primary: true },
             data: { primary: false }
         })
     }
 
     await prisma.d4hAccessKey.update({
-        where: { id, userId: user.id },
+        where: { id, personId: user.publicMetadata.personId },
         data: { label, primary, enabled }
     })
 
@@ -71,7 +71,7 @@ export async function deleteAccessKey({ id }: DeleteArgs) {
     if(!user) throw new Error("Must be logged in to execute action 'deleteAccessKey'")
 
     await prisma.d4hAccessKey.delete({
-        where: { id, userId: user.id }
+        where: { id, personId: user.publicMetadata.personId }
     })
 
     revalidatePath('/settings/d4h-access-keys')

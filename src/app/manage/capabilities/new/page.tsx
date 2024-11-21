@@ -1,5 +1,5 @@
 import { NotImplemented } from '@/components/errors'
-import { Paths } from '@/paths'
+import * as Paths from '@/paths'
 
 export default async function NewCapabilityPage() {
     return <NotImplemented 

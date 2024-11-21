@@ -2,7 +2,6 @@
 
 import React from 'react'
 
-import { D4hAccessKey } from '@prisma/client'
 import { useQueries } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
@@ -10,13 +9,13 @@ import { DataTable, DataTableColumnsDropdown, DataTableControls, DataTableGroupi
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { getListResponseCombiner } from '@/lib/d4h-api/client'
-import { getTeamName } from '@/lib/d4h-api/common'
+import { D4hAccessKeys } from '@/lib/d4h-access-keys'
 import { D4hEvent, getFetchEventsQueryOptions } from '@/lib/d4h-api/event'
 import { formatDateTime } from '@/lib/utils'
 
 
 export interface ActivitiesListProps {
-    accessKeys: D4hAccessKey[]
+    accessKeys: D4hAccessKeys
 }
 
 export function ActivitiesList({ accessKeys }: ActivitiesListProps) {
@@ -24,7 +23,7 @@ export function ActivitiesList({ accessKeys }: ActivitiesListProps) {
     const now = React.useMemo(() => new Date(), [])
 
     const eventsQuery = useQueries({
-        queries: accessKeys.flatMap(accessKey => [
+        queries: accessKeys.keys.flatMap(accessKey => [
             getFetchEventsQueryOptions(accessKey, 'event', { refDate: now, scope: 'future'}),
             getFetchEventsQueryOptions(accessKey, 'exercise', { refDate: now, scope: 'future'}),
         ]),
@@ -45,7 +44,7 @@ export function ActivitiesList({ accessKeys }: ActivitiesListProps) {
             columnHelper.accessor('owner.id', {
                 id: 'team',
                 header: 'Team',
-                cell: info => getTeamName(accessKeys, info.getValue()),
+                cell: info => accessKeys.resolveTeamName(info.getValue()),
                 enableGlobalFilter: false,
                 enableGrouping: true,
                 enableSorting: true,
