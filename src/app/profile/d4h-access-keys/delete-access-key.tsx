@@ -3,8 +3,7 @@
 import React from 'react'
 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { SubmitButton, SubmitButtonLabel } from '@/components/ui/submit-button'
+import { AsyncButton, Button } from '@/components/ui/button'
 
 import { deleteAccessKey } from './actions'
 
@@ -39,13 +38,12 @@ export function DeleteAccessKeyDialog({ accessKeyId, teamName, children }: Delet
             </DialogHeader>
             <DialogFooter>
                 <Button variant="ghost" onClick={handleClose}>Cancel</Button>
-                <SubmitButton 
+                <AsyncButton 
                     variant="destructive" 
                     onClick={handleDelete}
-                >
-                    <SubmitButtonLabel activeState="ready">Delete</SubmitButtonLabel>
-                    <SubmitButtonLabel activeState="pending">Deleting</SubmitButtonLabel>
-                </SubmitButton>
+                    label="Delete"
+                    pending="Deleting"
+                />
             </DialogFooter>
         </DialogContent>
     </Dialog>

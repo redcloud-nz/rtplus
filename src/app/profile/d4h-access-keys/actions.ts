@@ -8,8 +8,6 @@ import prisma from '@/lib/prisma'
 import { assertNonNull } from '@/lib/utils'
 import * as Paths from '@/paths'
 
-
-
 type CreateArgs =  { accessKey: string, teamId: string, d4hTeamId: number }
 
 /**
