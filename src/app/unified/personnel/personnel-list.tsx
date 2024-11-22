@@ -10,9 +10,10 @@ import { DataTable, DataTableColumnsDropdown, DataTableControls, DataTableGroupi
 import { EmailLink, PhoneLink } from '@/components/ui/link'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { D4hApi, D4hListResponse } from '@/lib/d4h-api/client'
+import { useD4hAccessKeys, useTeamNameResolver} from '@/lib/d4h-access-keys/hooks'
+import { D4hListResponse, getD4hApiQueryClient } from '@/lib/d4h-api/client'
 import { D4hMember } from '@/lib/d4h-api/member'
-import { D4hAccessKeys } from '@/lib/d4h-access-keys'
+
 
 
 const StatusOptions: Record<D4hMember['status'], string> = {
@@ -23,20 +24,22 @@ const StatusOptions: Record<D4hMember['status'], string> = {
 }
 
 export interface PersonnelListProps {
-    accessKeys: D4hAccessKeys
+    
 }
 
-export function PersonnelList({ accessKeys }: PersonnelListProps) {
+export function PersonnelList() {
+    const accessKeys = useD4hAccessKeys()
+
+    const resolveTeamName = useTeamNameResolver(accessKeys)
 
     const membersQuery = useQueries({
-        queries: accessKeys.keys.map(accessKey => 
-            D4hApi.queryOptions('get', '/v3/{context}/{contextId}/members', 
+        queries: accessKeys.map(accessKey => 
+            getD4hApiQueryClient(accessKey).queryOptions('get', '/v3/{context}/{contextId}/members', 
                 {
                     params: { 
-                        path: accessKey.context,
+                        path: { context: 'team', contextId: accessKey.team.d4hTeamId },
                         query: { status: ['OPERATIONAL', 'NON_OPERATIONAL', 'OBSERVER'] }
                     },
-                    headers: accessKey.header,
                 }
             )
         ),
@@ -47,14 +50,15 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
             const isSuccess = queryResults.every(qr => qr.isSuccess)
             
             if(isSuccess) {
-                const members: D4hMember[] = []
+                const combined: D4hMember[] = []
                 for(const result of queryResults) {
-                    members.push(...(result.data as D4hListResponse<D4hMember>).results)
+
+                    combined.push(...(result.data as D4hListResponse<D4hMember>).results)
                 }
                 return {
-                    data: members.sort((a, b) => {
-                        const teamNameA = accessKeys.resolveTeamName(a.owner.id)
-                        const teamNameB = accessKeys.resolveTeamName(b.owner.id)
+                    data: combined.sort((a, b) => {
+                        const teamNameA = resolveTeamName(a.owner.id)
+                        const teamNameB = resolveTeamName(b.owner.id)
                         return teamNameA.localeCompare(teamNameB)
                     }),
                     isError, isPending, isSuccess
@@ -83,7 +87,7 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
             columnHelper.accessor('owner.id', {
                 id: 'team',
                 header: 'Team',
-                cell: info => accessKeys.resolveTeamName(info.getValue()),
+                cell: info => resolveTeamName(info.getValue()),
                 enableGlobalFilter: false,
                 enableGrouping: true,
                 enableSorting: true,
@@ -146,7 +150,7 @@ export function PersonnelList({ accessKeys }: PersonnelListProps) {
                 enableSorting: true,
             })
         ])
-    }, [accessKeys])
+    }, [resolveTeamName])
 
     const table = useReactTable({ 
         columns, 

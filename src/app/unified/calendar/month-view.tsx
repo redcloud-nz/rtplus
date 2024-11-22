@@ -8,22 +8,19 @@ import { useQueries } from '@tanstack/react-query'
 
 import { Button } from '@/components/ui/button'
 
-import { D4hAccessKeys } from '@/lib/d4h-access-keys'
 import { getListResponseCombiner } from '@/lib/d4h-api/client'
 import { D4hEvent, getFetchEventsQueryOptions } from '@/lib/d4h-api/event'
 import { cn } from '@/lib/utils'
+import { useD4hAccessKeys } from '@/lib/d4h-access-keys/hooks'
 
 
+export function MonthView() {
+    const accessKeys = useD4hAccessKeys()
 
-export interface MonthViewProps {
-    accessKeys: D4hAccessKeys
-}
-
-export function MonthView({ accessKeys }: MonthViewProps) {
     const [month, setMonth] = React.useState<Date>(DF.startOfMonth(new Date()))
 
     const eventsQuery = useQueries({
-        queries: accessKeys.keys.flatMap(accessKey => [
+        queries: accessKeys.flatMap(accessKey => [
             getFetchEventsQueryOptions(accessKey, 'event', { refDate: month, scope: 'month' }),
             getFetchEventsQueryOptions(accessKey, 'exercise', { refDate: month, scope: 'month' }),
             getFetchEventsQueryOptions(accessKey, 'incident', { refDate: month, scope: 'month' }),

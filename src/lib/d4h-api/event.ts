@@ -3,10 +3,10 @@ import * as DF from 'date-fns'
 
 import { QueryKey } from '@tanstack/react-query'
 
-import { D4hFetchClient, D4hListResponse } from './client'
+import { D4hListResponse, getD4hFetchClient } from './client'
 import { D4hPoint, DateString, ResourceId } from './common'
 
-import { D4hAccessKeys } from '../d4h-access-keys'
+import { D4hAccessKeyWithTeam } from '../d4h-access-keys'
 
 
 export interface D4hEvent {
@@ -66,7 +66,7 @@ export interface FetchEventsQueryOptions {
 
 type ParamOptions = { refDate: Date, scope: 'future' | 'year' | 'month' }
 
-export function getFetchEventsQueryOptions(accessKey: D4hAccessKeys.KeyInfo, eventType: 'event' | 'exercise' | 'incident', options: ParamOptions): FetchEventsQueryOptions {
+export function getFetchEventsQueryOptions(accessKey: D4hAccessKeyWithTeam, eventType: 'event' | 'exercise' | 'incident', options: ParamOptions): FetchEventsQueryOptions {
 
     let queryParams: { after?: string, before?: string } = {}
     if(options.scope == 'future') {
@@ -84,38 +84,40 @@ export function getFetchEventsQueryOptions(accessKey: D4hAccessKeys.KeyInfo, eve
     }
 
     const params = {
-        path: accessKey.context,
+        path: { context: 'team', contextId: accessKey.team.d4hTeamId },
         query: queryParams
     } as const
 
     const headers = { Authorization: `Bearer ${accessKey.key}` } as const
 
+    const fetchClient = getD4hFetchClient(accessKey)
+
     if(eventType == 'event') {
         return {
             queryFn: async () => {
-                const { data, error } = await D4hFetchClient.GET('/v3/{context}/{contextId}/events', { params, headers })
+                const { data, error } = await fetchClient.GET('/v3/{context}/{contextId}/events', { params })
                 if(error) throw error
                 return data as D4hListResponse<D4hEvent>
             },
-            queryKey: ['teams', accessKey.d4hTeamId, 'events', queryParams]
+            queryKey: ['teams', accessKey.team.d4hTeamId, 'events', queryParams]
         }
     } else if(eventType == 'exercise') {
         return {
             queryFn: async () => {
-                const { data, error } = await D4hFetchClient.GET('/v3/{context}/{contextId}/exercises', { params, headers })
+                const { data, error } = await fetchClient.GET('/v3/{context}/{contextId}/exercises', { params })
                 if(error) throw error
                 return data as D4hListResponse<D4hEvent>
             },
-            queryKey: ['teams', accessKey.d4hTeamId, 'exercises', queryParams]
+            queryKey: ['teams', accessKey.team.d4hTeamId, 'exercises', queryParams]
         }
     } else {
         return {
             queryFn: async () => {
-                const { data, error } = await D4hFetchClient.GET('/v3/{context}/{contextId}/incidents', { params, headers })
+                const { data, error } = await fetchClient.GET('/v3/{context}/{contextId}/incidents', { params })
                 if(error) throw error
                 return data as D4hListResponse<D4hEvent>
             },
-            queryKey: ['teams', accessKey.d4hTeamId, 'incidents', queryParams]
+            queryKey: ['teams', accessKey.team.d4hTeamId, 'incidents', queryParams]
         }
     }
 

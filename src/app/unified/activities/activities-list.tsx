@@ -9,21 +9,25 @@ import { DataTable, DataTableColumnsDropdown, DataTableControls, DataTableGroupi
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { getListResponseCombiner } from '@/lib/d4h-api/client'
-import { D4hAccessKeys } from '@/lib/d4h-access-keys'
+import {  useD4hAccessKeys, useTeamNameResolver } from '@/lib/d4h-access-keys/hooks'
 import { D4hEvent, getFetchEventsQueryOptions } from '@/lib/d4h-api/event'
 import { formatDateTime } from '@/lib/utils'
 
 
 export interface ActivitiesListProps {
-    accessKeys: D4hAccessKeys
+   
 }
 
-export function ActivitiesList({ accessKeys }: ActivitiesListProps) {
+export function ActivitiesList({}: ActivitiesListProps) {
 
     const now = React.useMemo(() => new Date(), [])
 
+    const accessKeys = useD4hAccessKeys()
+
+    const resolveTeamName = useTeamNameResolver(accessKeys)
+
     const eventsQuery = useQueries({
-        queries: accessKeys.keys.flatMap(accessKey => [
+        queries: accessKeys.flatMap(accessKey => [
             getFetchEventsQueryOptions(accessKey, 'event', { refDate: now, scope: 'future'}),
             getFetchEventsQueryOptions(accessKey, 'exercise', { refDate: now, scope: 'future'}),
         ]),
@@ -44,7 +48,7 @@ export function ActivitiesList({ accessKeys }: ActivitiesListProps) {
             columnHelper.accessor('owner.id', {
                 id: 'team',
                 header: 'Team',
-                cell: info => accessKeys.resolveTeamName(info.getValue()),
+                cell: info => resolveTeamName(info.getValue()),
                 enableGlobalFilter: false,
                 enableGrouping: true,
                 enableSorting: true,
@@ -64,7 +68,7 @@ export function ActivitiesList({ accessKeys }: ActivitiesListProps) {
                 enableSorting: true,
             })
         ])
-    }, [accessKeys])
+    }, [resolveTeamName])
 
     const table = useReactTable({ 
         columns, 

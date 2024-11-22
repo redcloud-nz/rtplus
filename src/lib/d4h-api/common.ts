@@ -19,4 +19,3 @@ export interface D4hPoint {
     type: 'Point',
     coordinates: [number, number]
 }
-

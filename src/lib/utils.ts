@@ -15,7 +15,7 @@ export function cn(...inputs: ClassValue[]) {
 export function formatDateTime(stringOrDate: string | Date) {
     const date = stringOrDate instanceof Date ? stringOrDate : new Date(stringOrDate)
 
-    return format(date, 'yyyy-MM-dd HH:mm')
+    return format(date, 'HH:mm E d MMM yyyy')
 }
 
 export function resolveAfter<R>(valueOrLazy: R | (() => R), delay: number): Promise<R> {
