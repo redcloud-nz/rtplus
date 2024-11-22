@@ -5,74 +5,72 @@ import { revalidatePath } from 'next/cache'
 import { currentUser } from '@clerk/nextjs/server'
 
 import prisma from '@/lib/prisma'
+import { assertNonNull } from '@/lib/utils'
+import * as Paths from '@/paths'
 
 
 
-
-type CreateArgs =  { key: string, label: string, memberId: number, teamName: string, teamId: number, primary: boolean }
+type CreateArgs =  { accessKey: string, teamId: string, d4hTeamId: number }
 
 /**
  * Server Action to create an access key record in the database.
  */
-export async function createAccessKey({ key, label, primary }: CreateArgs) {
+export async function createAccessKey({ accessKey, teamId, d4hTeamId }: CreateArgs) {
 
     const user = await currentUser()
     if(!user) throw new Error("Must be logged in to execute action 'createAccessKey'")
 
-    if(primary) {
-        // This new key will become the primary so we need to mark all of the old ones as not primary
-        prisma.d4hAccessKey.updateMany({
-            where: { personId: user.publicMetadata.personId, primary: true },
-            data: { primary: false }
+    const team = await prisma.team.findFirst({
+        where: { id: teamId }
+    })
+    assertNonNull(team, `Missing team record for teamId=${teamId}`)
+
+    // Create the Access Key
+    await prisma.d4hAccessKey.create({
+        data: { personId: user.publicMetadata.personId, key: accessKey, teamId, enabled: true }
+    })
+
+    if(team.d4hTeamId == 0) {
+        // Update the D4H Team ID
+        await prisma.team.update({
+            where: { id: teamId },
+            data: { d4hTeamId }
         })
     }
 
-    await prisma.d4hAccessKey.create({
-        data: { personId: user.publicMetadata.personId, key, label, teamId: "", primary, enabled: true }
-    })
-
-    revalidatePath('/settings/d4h-access-keys')
+    revalidatePath(Paths.d4hAccessKeys)
 }
 
 
-type UpdateArgs = { id: string, label: string, primary: boolean, enabled: boolean }
+type UpdateArgs = { accessKeyId: string, enabled: boolean }
 
 /**
  * Server Action to update an access key record in the database.
  */
-export async function updateAccessKey({ id, label, primary, enabled }: UpdateArgs) {
+export async function updateAccessKey({ accessKeyId, enabled }: UpdateArgs) {
     const user = await currentUser()
     if(!user) throw new Error("Must be logged in to execute action 'updateAccessKey'")
 
-    if(primary) {
-        // This key will become the primary so we need to mark all others as not primary
-        prisma.d4hAccessKey.updateMany({
-            where: { personId: user.publicMetadata.personId, primary: true },
-            data: { primary: false }
-        })
-    }
 
     await prisma.d4hAccessKey.update({
-        where: { id, personId: user.publicMetadata.personId },
-        data: { label, primary, enabled }
+        where: { id: accessKeyId, personId: user.publicMetadata.personId },
+        data: { enabled }
     })
-
-    revalidatePath('/settings/d4h-access-keys')
 }
 
 
-type DeleteArgs = { id: string }
+type DeleteArgs = { accessKeyId: string }
 
 /**
  * Server Action to delete an access key record from the database.
  */
-export async function deleteAccessKey({ id }: DeleteArgs) {
+export async function deleteAccessKey({ accessKeyId }: DeleteArgs) {
     const user = await currentUser()
     if(!user) throw new Error("Must be logged in to execute action 'deleteAccessKey'")
 
     await prisma.d4hAccessKey.delete({
-        where: { id, personId: user.publicMetadata.personId }
+        where: { id: accessKeyId, personId: user.publicMetadata.personId }
     })
 
-    revalidatePath('/settings/d4h-access-keys')
+    revalidatePath(Paths.d4hAccessKeys)
 }

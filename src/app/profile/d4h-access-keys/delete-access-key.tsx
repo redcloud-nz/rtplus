@@ -10,9 +10,11 @@ import { deleteAccessKey } from './actions'
 
 
 interface DeleteAccessKeyDialogProps {
-    accessKey: { id: string, label: string}
+    accessKeyId: string
+    teamName: string
+    children: React.ReactNode
 }
-export function DeleteAccessKeyButton({ accessKey }: DeleteAccessKeyDialogProps) {
+export function DeleteAccessKeyDialog({ accessKeyId, teamName, children }: DeleteAccessKeyDialogProps) {
     const [open, setOpen] = React.useState(false)
 
     function handleClose() {
@@ -20,19 +22,19 @@ export function DeleteAccessKeyButton({ accessKey }: DeleteAccessKeyDialogProps)
     }
 
     async function handleDelete() {
-        await deleteAccessKey({ id: accessKey.id })
-        setOpen(false)
+        await deleteAccessKey({ accessKeyId })
+       handleClose()
     }
 
     return <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-            <Button variant="ghost">Delete</Button>
+            {children}
         </DialogTrigger>
         <DialogContent>
             <DialogHeader>
                 <DialogTitle>Delete D4H Access Key</DialogTitle>
                 <DialogDescription>
-                    {`Confirm deletion of access key '${accessKey.label}'`}
+                    {`Confirm deletion of your access key for '${teamName}'.`}
                 </DialogDescription>
             </DialogHeader>
             <DialogFooter>

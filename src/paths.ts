@@ -1,14 +1,15 @@
 
 
+//  /------------------------------\
+//  |        Configuration         |
+//  \------------------------------/
+export const manage = '/manage'
 
 // Capabilities
-export const capabilities = `/manage/capabilities`
+export const capabilities = `${manage}/capabilities`
 export const newCapability = `${capabilities}/new`
 export const capability = (capabilityId: string) => `${capabilities}/${capabilityId}`
 export const editCapability = (capabilityId: string) => `${capability(capabilityId)}/edit`
-
-// Manage
-export const manage = '/manage'
 
 // People
 export const people = `${manage}/people`
@@ -36,5 +37,14 @@ export const team = (teamIdOrCode: string) => `${teams}/${teamIdOrCode}`
 export const editTeam = (teamIdOrCode: string) => `${team(teamIdOrCode)}/edit`
 export const teamMembers = (teamIdOrCode: string) => `${team(teamIdOrCode)}/members`
 
+
+//  /------------------------------\
+//  |           Profile            |
+//  \------------------------------/
+export const profile = '/profile'
+
+// D4H Access Keys
+export const d4hAccessKeys = `${profile}/d4h-access-keys`
+
 // Whoami
-export const whoami = '/profile/whoami'
+export const whoami = `${profile}/whoami`

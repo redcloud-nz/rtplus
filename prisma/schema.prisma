@@ -11,29 +11,30 @@ datasource db {
 }
 
 
-
 model D4hAccessKey {
     id              String      @default(cuid()) @id
-    userId          String                                                  // The userId provided by Auth0.
     key             String                                                  // The access key.
-    label           String                                                  // Label for the access key.
+    enabled         Boolean                                                 // If this access key is currently enabled.
     createdAt       DateTime    @default(now())
     updatedAt       DateTime    @updatedAt
-    memberId        Int                                                     // The D4H userId that this key belongs to.
-    teamId          Int                                                     // The D4H teamId that this key belongs to.
-    teamName        String                                                  // The D4H team name this this key belongs to.
-    primary         Boolean                                                 // If this is the user's primary team.
-    enabled         Boolean                                                 // If this access key is currently enabled.
+    
+    person          Person      @relation(fields: [personId], references: [id])
+    personId        String
+    team            Team        @relation(fields: [teamId], references: [id])
+    teamId          String        
 }
 
 model Person {
     id              String      @default(cuid()) @id
     name            String
     email           String
+    createdAt       DateTime    @default(now())
+    updatedAt       DateTime    @updatedAt
+
     memberships     TeamMembership[]
-    skillChecksAsAsessee    SkillCheck[] @relation("SkillCheckAssessee")
+    d4hAccessKeys   D4hAccessKey[]
+    skillChecksAsAssessee   SkillCheck[] @relation("SkillCheckAssessee")
     skillChecksAsAssessor   SkillCheck[] @relation("SkillCheckAssessor")
-    
 }
 
 model Skill {
@@ -43,7 +44,11 @@ model Skill {
     name            String
     frequency       String                              // Stored as an ISO-8601 Duration
     optional        String
+    createdAt       DateTime    @default(now())
+    updatedAt       DateTime    @updatedAt
+    
     checks          SkillCheck[]
+    
 }
 
 model SkillCheck {
@@ -61,19 +66,21 @@ model SkillCheck {
 
 model SkillGroup {
     id              String      @default(cuid()) @id
-    strand          Strand      @relation(fields: [strandId], references: [id])
-    strandId        String
+    capability      Capability  @relation(fields: [capabilityId], references: [id])
+    capabilityId    String
     name            String
     createdAt       DateTime    @default(now())
     updatedAt       DateTime    @updatedAt
+    
     skills          Skill[]
 }
 
-model Strand {
+model Capability {
     id              String      @default(cuid()) @id
     name            String
     createdAt       DateTime    @default(now())
     updatedAt       DateTime    @updatedAt   
+    
     skillGroups     SkillGroup[]  
 }
 
@@ -84,6 +91,10 @@ model Team {
     color           String
     createdAt       DateTime    @default(now())
     updatedAt       DateTime    @updatedAt
+    d4hTeamId       Int
+    d4hApiUrl       String
+    d4hWebUrl       String
+    d4hAccessKeys   D4hAccessKey[]
     memberships     TeamMembership[]
 }
 

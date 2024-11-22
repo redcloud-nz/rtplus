@@ -57,7 +57,6 @@ export default async function EditTeamPage({ params }: { params: { teamIdOrCode:
             { label: "Teams", href: Paths.teams },
             { label: team.code || team.name, href: Paths.team(team.code || team.id) },
         ]}
-        variant="list"    
     >
         <PageTitle>Edit Team</PageTitle>
         <Form action={updateTeam}>

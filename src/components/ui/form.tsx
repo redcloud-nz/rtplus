@@ -150,12 +150,16 @@ FieldMessage.displayName = "FieldMessage"
 const FormMessage = React.forwardRef<HTMLParagraphElement, Omit<React.HTMLAttributes<HTMLParagraphElement>, 'children'>>(({ className, ...props }, ref) => {
     const formContext = React.useContext(FormContext)
 
-    const { message } = formContext.formState
+    const { status, message } = formContext.formState
     if(!message) return null
 
     return <p
         ref={ref}
-        className={cn("text-sm font-medium", className)}
+        className={cn(
+            'text-sm font-medium', 
+            status == 'ERROR' && 'text-destructive',
+            className
+        )}
         {...props}
     >
         {message}

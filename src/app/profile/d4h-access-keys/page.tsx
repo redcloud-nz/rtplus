@@ -1,5 +1,6 @@
-// /settings/d4h-access-keys
+// /profile/d4h-access-keys
 
+import { PlusIcon, TrashIcon } from 'lucide-react'
 import { Metadata } from 'next'
 import React from 'react'
 
@@ -10,20 +11,19 @@ import { Unauthorized } from '@/components/errors'
 import { Show } from '@/components/show'
 
 import Alert from '@/components/ui/alert'
-import { DocumentationButton } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
 import prisma from '@/lib/prisma'
 import { formatDateTime } from '@/lib/utils'
+import * as Paths from '@/paths'
 
-import { DeleteAccessKeyButton } from './delete-access-key'
-import { NewAccessKeyButton } from './new-access-key'
-import { UpdateAccessKeyButton } from './update-access-key'
+import { EnabledSwitch } from './enabled-switch'
+import { DeleteAccessKeyDialog } from './delete-access-key'
+import { NewAccessKeyDialog } from './new-access-key'
 
 
-
-
-export const metadata: Metadata = { title: "D4H Access Keys | RT+" }
+export const metadata: Metadata = { title: "Personal D4H Access Keys | RT+" }
 
 export default async function D4hAccessKeysPage() {
     
@@ -34,9 +34,7 @@ export default async function D4hAccessKeysPage() {
         select: {
             id: true,
             key: true,
-            label: true,
             createdAt: true,
-            primary: true,
             enabled: true,
             team: {
                 select: { name: true }
@@ -45,9 +43,11 @@ export default async function D4hAccessKeysPage() {
         where: { personId: user.publicMetadata.personId }
     })
 
+    const teams = await prisma.team.findMany({})
+
     return <AppPage 
         label="D4H Access Keys" 
-        breadcrumbs={[{ label: "User Settings", href: "/user" }]}
+        breadcrumbs={[{ label: "User Profile", href: Paths.profile }]}
     >
         <PageHeader>
             <PageTitle>Personal D4H Access Keys</PageTitle>
@@ -55,8 +55,9 @@ export default async function D4hAccessKeysPage() {
                 A list of the personal D4H access keys that you have configured.
             </PageDescription>
             <PageControls>
-                <DocumentationButton topic="d4h-access-keys"/>
-                <NewAccessKeyButton/>
+                <NewAccessKeyDialog teams={teams}>
+                    <Button><PlusIcon/> Add Key</Button>
+                </NewAccessKeyDialog>
             </PageControls>
         </PageHeader>
         <Show
@@ -68,26 +69,26 @@ export default async function D4hAccessKeysPage() {
             <Table border>
                 <TableHead>
                     <TableRow>
-                        <TableHeadCell>Label</TableHeadCell>
                         <TableHeadCell>Team</TableHeadCell>
-                        <TableHeadCell>Create At</TableHeadCell>
-                        <TableHeadCell className="text-center">Primary</TableHeadCell>
+                        <TableHeadCell>Created At</TableHeadCell>
                         <TableHeadCell className="text-center">Enabled</TableHeadCell>
                         <TableHeadCell/>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {accessKeys.map(accessKey =>
+                    {accessKeys.sort((a, b) => a.team.name.localeCompare(b.team.name)).map(accessKey =>
                         <TableRow key={accessKey.id}>
-                            <TableCell>{accessKey.label}</TableCell>
                             <TableCell>{accessKey.team.name}</TableCell>
                             <TableCell>{formatDateTime(accessKey.createdAt)}</TableCell>
-                            <TableCell className="text-center">{accessKey.primary ? "YES" : null}</TableCell>
-                            <TableCell className="text-center">{accessKey.enabled ? "YES" : "NO"}</TableCell>
+                            <TableCell className="text-center">
+                                <EnabledSwitch accessKeyId={accessKey.id} defaultChecked={accessKey.enabled}/>
+                            </TableCell>
                             <TableCell className="text-right">
-                                
-                                <UpdateAccessKeyButton accessKey={accessKey}/>
-                                <DeleteAccessKeyButton accessKey={accessKey}/>
+                                <DeleteAccessKeyDialog accessKeyId={accessKey.id} teamName={accessKey.team.name}>
+                                    <Button variant="ghost">
+                                        <TrashIcon/>
+                                    </Button>
+                                </DeleteAccessKeyDialog>
                             </TableCell>
                         </TableRow>
                     )}

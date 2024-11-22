@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
-import { X } from "lucide-react"
+import { XIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -53,7 +53,7 @@ const DialogContent = React.forwardRef<React.ElementRef<typeof DialogPrimitive.C
                 'data-[state=open]:bg-accent data-[state=open]:text-muted-foreground'
                 )}
             >
-            <X className="h-4 w-4" />
+            <XIcon className="h-4 w-4" />
             <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
         </DialogPrimitive.Content>
