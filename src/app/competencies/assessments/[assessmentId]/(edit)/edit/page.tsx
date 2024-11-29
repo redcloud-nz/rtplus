@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { z } from 'zod'
 
 import { DatePicker } from '@/components/ui/date-picker'
 import { FieldControl, FieldDescription, FieldLabel, FieldMessage, Form, FormField } from '@/components/ui/form'
@@ -9,12 +10,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Description } from '@/components/ui/typography'
 
 
-import { FormState, toFormState } from '@/lib/form-state'
+import { FormState, fromErrorToFormState, toFormState } from '@/lib/form-state'
 
+const EditAssessmentSchema = z.object({
+    date: z.string().datetime(),
+    name: z.string(),
+    location: z.string(),
+    status: z.enum(['Draft', 'Complete', 'Discard'])
+})
 
 export default function AssessmentEdit({ params }: { params: { assessmentId: string }}) {
 
     async function submit(formState: FormState, formData: FormData): Promise<FormState> {
+
+        try {
+            EditAssessmentSchema.parse(Object.fromEntries(formData))
+        } catch(error) {
+            console.log(error)
+            return fromErrorToFormState(error)
+        }
+
         return toFormState("SUCCESS", "")
     }
 
@@ -62,5 +77,6 @@ export default function AssessmentEdit({ params }: { params: { assessmentId: str
                 <FieldDescription>The status of the assessment</FieldDescription>
             </FormField>
         </Form>
+        <div>{JSON.stringify(params)}</div>
     </>
 }

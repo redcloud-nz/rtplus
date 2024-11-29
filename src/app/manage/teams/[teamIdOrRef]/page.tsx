@@ -9,23 +9,41 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { ExternalLink, Link } from '@/components/ui/link'
-import { Table, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
+import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
 import prisma from '@/lib/prisma'
 import * as Paths from '@/paths'
 
 
 
-export default async function TeamPage({ params }: { params: { teamIdOrCode: string }}) {
+export default async function TeamPage({ params }: { params: { teamIdOrRef: string }}) {
 
     const user = await currentUser()
     if(!user) return <Unauthorized label="Team"/>
 
     const team = await prisma.team.findFirst({
+        select: {
+            id: true,
+            name: true,
+            ref: true,
+            color: true,
+            d4hTeamId: true,
+            d4hApiUrl: true,
+            d4hWebUrl: true,
+            memberships: {
+                select: {
+                    id: true,
+                    d4HRef: true,
+                    position: true,
+                    status: true,
+                    person: true,
+                }
+            }
+        },
         where: {
             OR: [
-                { id: params.teamIdOrCode },
-                { code: params.teamIdOrCode }
+                { id: params.teamIdOrRef },
+                { ref: params.teamIdOrRef }
             ]
         }
     })
@@ -33,7 +51,7 @@ export default async function TeamPage({ params }: { params: { teamIdOrCode: str
     if(!team) return <NotFound />
 
     return <AppPage
-        label={team.code || team.name}
+        label={team.ref || team.name}
         breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Teams", href: Paths.teams }]}
     >
         <PageHeader>
@@ -50,7 +68,7 @@ export default async function TeamPage({ params }: { params: { teamIdOrCode: str
                 <CardHeader>
                     <CardTitle>Details</CardTitle>
                     <Button variant="ghost" asChild>
-                        <Link href={Paths.editTeam(params.teamIdOrCode)}><PencilIcon/></Link>
+                        <Link href={Paths.editTeam(params.teamIdOrRef)}><PencilIcon/></Link>
                     </Button>
                 </CardHeader>
                 <CardContent>
@@ -61,8 +79,8 @@ export default async function TeamPage({ params }: { params: { teamIdOrCode: str
                         <DLTerm>Team name</DLTerm>
                         <DLDetails>{team.name}</DLDetails>
 
-                        <DLTerm>Short name/code</DLTerm>
-                        <DLDetails>{team.code}</DLDetails>
+                        <DLTerm>Short name/ref</DLTerm>
+                        <DLDetails>{team.ref}</DLDetails>
 
                         <DLTerm>Colour</DLTerm>
                         <DLDetails>{team.color}</DLDetails>
@@ -95,6 +113,15 @@ export default async function TeamPage({ params }: { params: { teamIdOrCode: str
                                 <TableHeadCell>Position</TableHeadCell>
                             </TableRow>
                         </TableHead>
+                        <TableBody>
+                            {team.memberships.map(membership => 
+                                <TableRow key={membership.id}>
+                                    <TableCell>{membership.person.name}</TableCell>
+                                    <TableCell>{membership.position}</TableCell>
+                                </TableRow>
+                            )}
+                            
+                        </TableBody>
                     </Table>
                 </CardContent>
                 

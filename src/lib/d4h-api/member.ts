@@ -1,4 +1,10 @@
-import { CustomField, DateString, ResourceId } from "./common"
+
+
+import type { TeamMembership } from '@prisma/client'
+
+import type { CustomField, DateString,  ResourceId } from './common'
+
+
 
 export interface D4hMember {
     id: number
@@ -90,3 +96,16 @@ export interface EmergencyContact {
 }
 
 export type MemberStatusType = 'OPERATIONAL' | 'NON_OPERATIONAL' | 'OBSERVER' | 'RETIRED'
+
+export type BasicD4hMember = Pick<D4hMember, 'id' | 'email' | 'name' | 'owner' | 'position' | 'ref' | 'status' >
+
+export function toTeamMembershipStatus(d4hMemberStatus: D4hMember['status']): TeamMembership['status'] {
+    const mapping = {
+        OPERATIONAL: 'Operational',
+        NON_OPERATIONAL: 'NonOperational',
+        OBSERVER: 'Observer',
+        RETIRED: 'Retired'
+    } satisfies Record<MemberStatusType, TeamMembership['status']>
+
+    return mapping[d4hMemberStatus]
+}

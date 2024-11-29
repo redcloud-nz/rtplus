@@ -16,7 +16,7 @@ export async function GET() {
                 select: { 
                     id: true,
                     name: true,
-                    code: true,
+                    ref: true,
                     d4hApiUrl: true,
                     d4hTeamId: true
                 }

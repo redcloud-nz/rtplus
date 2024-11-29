@@ -49,7 +49,7 @@ export function NewAccessKeyDialog({ children, teams }: NewAccessKeyDialogProps)
             const team = teams.find(team => team.id == fields.teamId)
             assertNonNull(team, 'Team must be selected.')
 
-            const keyRef = { accessKeyId: '', apiUrl: team.d4hApiUrl, accessKey: fields.accessKey }
+            const keyRef = { id: '', key: fields.accessKey, team }
 
             // Check that the access key allows us to connect to D4H.
             const { data, error } = await getD4hFetchClient(keyRef, { cache: false }).GET('/v3/whoami')

@@ -25,7 +25,7 @@ import * as Paths from '@/paths'
 const EditTeamFormSchema = z.object({
     teamId: z.string().cuid(),
     name: z.string().min(5).max(50),
-    code: z.string().max(10),
+    ref: z.string().max(10),
     color: z.union([z.string().regex(/^#[0-9A-F]{6}$/, "Must be a colour in RGB Hex format (eg #4682B4)"), z.literal('')]),
     d4hTeamId: z.union([z.coerce.number(), z.literal('')]),
     d4hApiUrl: z.union([z.string().url(), z.literal('')]),
@@ -34,7 +34,7 @@ const EditTeamFormSchema = z.object({
 
 export const metadata: Metadata = { title: "Edit Team | RT+" }
 
-export default async function EditTeamPage({ params }: { params: { teamIdOrCode: string }}) {
+export default async function EditTeamPage({ params }: { params: { teamIdOrRef: string }}) {
 
     const user = await currentUser()
     if(!user) throw new Error("Must be logged in to access edit team page.")
@@ -42,8 +42,8 @@ export default async function EditTeamPage({ params }: { params: { teamIdOrCode:
     const team = await prisma.team.findFirst({
         where: {
             OR: [
-                { id: params.teamIdOrCode },
-                { code: params.teamIdOrCode }
+                { id: params.teamIdOrRef },
+                { ref: params.teamIdOrRef }
             ]
         }
     })
@@ -55,7 +55,7 @@ export default async function EditTeamPage({ params }: { params: { teamIdOrCode:
         breadcrumbs={[
             { label: "Manage", href: Paths.manage },
             { label: "Teams", href: Paths.teams },
-            { label: team.code || team.name, href: Paths.team(team.code || team.id) },
+            { label: team.ref || team.name, href: Paths.team(team.ref || team.id) },
         ]}
     >
         <PageTitle>Edit Team</PageTitle>
@@ -69,10 +69,10 @@ export default async function EditTeamPage({ params }: { params: { teamIdOrCode:
                 <FieldDescription>The full name of the team.</FieldDescription>
                 <FieldMessage/>
             </FormField>
-            <FormField name="code">
+            <FormField name="ref">
                 <FieldLabel>Short name/code</FieldLabel>
                 <FieldControl>
-                    <Input name="code" className="max-w-xs" defaultValue={team.code}/>
+                    <Input name="ref" className="max-w-xs" defaultValue={team.ref || ""}/>
                 </FieldControl>
                 <FieldDescription>Short name of the team (eg NZ-RT13).</FieldDescription>
                 <FieldMessage/>
@@ -122,12 +122,11 @@ export default async function EditTeamPage({ params }: { params: { teamIdOrCode:
 
 async function updateTeam(formState: FormState, formData: FormData) {
     'use server'
-    console.log(formData)
 
     const user = await currentUser()
     if(!user) throw new Error("Must be logged in to execute action 'updateTeam'")
 
-    let teamIdOrCode: string
+    let teamIdOrRef: string
     try {
         const fields = EditTeamFormSchema.parse(Object.fromEntries(formData))
         
@@ -139,18 +138,19 @@ async function updateTeam(formState: FormState, formData: FormData) {
             return fieldError('teamName', `Team name '${fields.name}' is already taken.`)
         }
 
-        if(fields.code) {
-            const codeConfict = await prisma.team.findFirst({
-                where: { code: fields.code, id: { not: fields.teamId } }
+        const ref = fields.ref || null // Converts an empty string to null
+        if(ref) {
+            const refConflict = await prisma.team.findFirst({
+                where: { ref, id: { not: fields.teamId } }
             })
-            if(codeConfict) return fieldError('teamCode', `Team code '${fields.code}' is already taken.`)
+            if(refConflict) return fieldError('teamRef', `Team ref '${ref}' is already taken.`)
         }
 
         await prisma.team.update({
             where: { id: fields.teamId },
             data: { 
                 name: fields.name, 
-                code: fields.code, 
+                ref,
                 color: fields.color,
                 d4hTeamId: fields.d4hTeamId || 0,
                 d4hApiUrl: fields.d4hApiUrl || DefaultD4hApiUrl,
@@ -158,12 +158,12 @@ async function updateTeam(formState: FormState, formData: FormData) {
             }
         })
 
-        teamIdOrCode = fields.code || fields.teamId
+        teamIdOrRef = ref ?? fields.teamId
     } catch(error) {
         console.log(error)
         return fromErrorToFormState(error)
     }
 
     revalidatePath(Paths.teams)
-    redirect(Paths.team(teamIdOrCode))
+    redirect(Paths.team(teamIdOrRef))
 }

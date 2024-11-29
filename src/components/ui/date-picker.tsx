@@ -22,11 +22,7 @@ export interface DatePickerProps {
 
 export function DatePicker({ defaultValue = "", onChange = () => {}, placeholder = "Pick a date", value, ...props }: DatePickerProps) {
 
-    const [internalValue, setInternalValue] = React.useState<string>(defaultValue)
-
-    React.useEffect(() => {
-        if(value != internalValue && value != undefined) setInternalValue(value)
-    }, [value])
+    const [internalValue, setInternalValue] = React.useState<string>(value ?? defaultValue)
 
     function handleSelect(selected: Date | undefined) {
         const str = selected ? formatISO(selected) : ""
@@ -37,10 +33,12 @@ export function DatePicker({ defaultValue = "", onChange = () => {}, placeholder
         }
     }
 
-    const date = internalValue ? parseISO(internalValue) : undefined
+    const effectiveValue = value ?? internalValue
+
+    const date = effectiveValue ? parseISO(effectiveValue) : undefined
 
     return <>
-        <Input type="hidden" value={internalValue} {...props}/>
+        <Input type="hidden" value={effectiveValue} {...props}/>
         <Popover>
             <PopoverTrigger asChild>
                 <Button

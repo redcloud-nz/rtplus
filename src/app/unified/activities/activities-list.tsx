@@ -14,11 +14,7 @@ import { D4hEvent, getFetchEventsQueryOptions } from '@/lib/d4h-api/event'
 import { formatDateTime } from '@/lib/utils'
 
 
-export interface ActivitiesListProps {
-   
-}
-
-export function ActivitiesList({}: ActivitiesListProps) {
+export function ActivitiesList() {
 
     const now = React.useMemo(() => new Date(), [])
 

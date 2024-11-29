@@ -57,5 +57,6 @@ export default function AssessmentSkills({ params }: { params: { assessmentId: s
                 </AccordionItem>
             })}
         </Accordion>
+        <div>{JSON.stringify(params)}</div>
     </>
 }

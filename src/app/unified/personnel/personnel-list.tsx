@@ -23,9 +23,6 @@ const StatusOptions: Record<D4hMember['status'], string> = {
     RETIRED: 'Retired'
 }
 
-export interface PersonnelListProps {
-    
-}
 
 export function PersonnelList() {
     const accessKeys = useD4hAccessKeys()

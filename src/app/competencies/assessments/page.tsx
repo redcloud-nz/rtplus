@@ -2,8 +2,6 @@
 
 import { SquarePenIcon } from 'lucide-react'
 
-import { createId } from '@paralleldrive/cuid2'
-
 import { AppPage, PageControls, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 
 import { Button } from '@/components/ui/button'

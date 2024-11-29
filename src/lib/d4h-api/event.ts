@@ -88,8 +88,6 @@ export function getFetchEventsQueryOptions(accessKey: D4hAccessKeyWithTeam, even
         query: queryParams
     } as const
 
-    const headers = { Authorization: `Bearer ${accessKey.key}` } as const
-
     const fetchClient = getD4hFetchClient(accessKey)
 
     if(eventType == 'event') {

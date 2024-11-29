@@ -63,8 +63,10 @@ export type D4hListResponse<Model> = { results: Model[], page: number, pageSize:
 
 export type GetListResponseCombinerArgs<TData> = { sortFn?: (a: TData, b: TData) => number }
 
-export function getListResponseCombiner<TData>(args: GetListResponseCombinerArgs<TData> = {}): (queryResults: UseQueryResult<D4hListResponse<TData>>[]) => { data: TData[], isError: boolean, isPending: boolean, isSuccess: boolean } {
+export function getListResponseCombiner<TData>(args: GetListResponseCombinerArgs<TData> = {}): (queryResults: UseQueryResult<unknown>[]) => { data: TData[], isError: boolean, isPending: boolean, isSuccess: boolean } {
     return function listResponseCombiner(queryResults) {
+        
+
         const isError = queryResults.some(qr => qr.isError)
         const isPending = queryResults.some(qr => qr.isPending)
         const isSuccess = queryResults.every(qr => qr.isSuccess)
@@ -72,7 +74,9 @@ export function getListResponseCombiner<TData>(args: GetListResponseCombinerArgs
         if(isSuccess) {
             let rows: TData[] = []
             for(const result of queryResults) {
-                rows.push(...(result.data).results)
+                const typedData = result.data as D4hListResponse<TData>
+                
+                rows.push(...typedData.results)
             }
 
             if(args.sortFn) rows = rows.sort(args.sortFn)

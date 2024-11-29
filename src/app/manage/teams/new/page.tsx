@@ -22,7 +22,7 @@ import * as Paths from '@/paths'
 
 const CreateTeamFormSchema = z.object({
     name: z.string().min(5).max(50),
-    code: z.string().max(10),
+    ref: z.string().max(10),
     color: z.union([z.string().regex(/^#[0-9A-F]{6}$/, "Must be a colour in RGB Hex format (eg #4682B4)"), z.literal('')]),
     d4hTeamId: z.union([z.number().int("Must be an integer."), z.literal('')]),
     d4hApiUrl: z.union([z.string().url(), z.literal('')]),
@@ -51,10 +51,10 @@ export default function NewTeamPage() {
                 <FieldDescription>The full name of the team.</FieldDescription>
                 <FieldMessage/>
             </FormField>
-            <FormField name="code">
+            <FormField name="ref">
                 <FieldLabel>Short name/code</FieldLabel>
                 <FieldControl>
-                    <Input name="code" className="max-w-xs"/>
+                    <Input name="ref" className="max-w-xs"/>
                 </FieldControl>
                 <FieldDescription>Short name of the team (eg NZ-RT13).</FieldDescription>
                 <FieldMessage/>
@@ -120,17 +120,18 @@ async function createTeam(formState: FormState, formData: FormData) {
             return fieldError('teamName', `Team name '${fields.name}' is already taken.`)
         }
 
-        if(fields.code) {
-            const codeConfict = await prisma.team.findFirst({
-                where: { code: fields.code }
+        const ref = fields.ref || null
+        if(ref) {
+            const refConflict = await prisma.team.findFirst({
+                where: { ref }
             })
-            if(codeConfict) return fieldError('teamCode', `Team code '${fields.code}' is already taken.`)
+            if(refConflict) return fieldError('teamRef', `Team ref '${ref}' is already taken.`)
         }
 
         const createdTeam = await prisma.team.create({
             data: { 
                 name: fields.name, 
-                code: fields.code, 
+                ref,
                 color: fields.color,
                 d4hTeamId: fields.d4hTeamId || 0,
                 d4hApiUrl: fields.d4hApiUrl || DefaultD4hApiUrl,
@@ -138,7 +139,7 @@ async function createTeam(formState: FormState, formData: FormData) {
             }
         })
 
-        teamIdOrCode = fields.code || createdTeam.id
+        teamIdOrCode = fields.ref || createdTeam.id
     } catch(error) {
         return fromErrorToFormState(error)
     }

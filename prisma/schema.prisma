@@ -26,6 +26,7 @@ model D4hAccessKey {
 
 model Person {
     id              String      @default(cuid()) @id
+    ref             String?
     name            String
     email           String
     createdAt       DateTime    @default(now())
@@ -40,6 +41,7 @@ model Person {
 
 model Skill {
     id              String      @default(cuid()) @id
+    ref             String?     
     skillGroup      SkillGroup  @relation(fields: [skillGroupId], references: [id])
     skillGroupId    String
     name            String
@@ -67,6 +69,7 @@ model SkillCheck {
 
 model SkillGroup {
     id              String      @default(cuid()) @id
+    ref             String?     
     capability      Capability  @relation(fields: [capabilityId], references: [id])
     capabilityId    String
     name            String
@@ -78,6 +81,7 @@ model SkillGroup {
 
 model Capability {
     id              String      @default(cuid()) @id
+    ref             String?     
     name            String
     createdAt       DateTime    @default(now())
     updatedAt       DateTime    @updatedAt   
@@ -106,8 +110,8 @@ enum AssessmentStatus {
 
 model Team {
     id              String      @default(cuid()) @id
+    ref             String?     
     name            String
-    code            String
     color           String
     createdAt       DateTime    @default(now())
     updatedAt       DateTime    @updatedAt
@@ -120,10 +124,21 @@ model Team {
 
 model TeamMembership {
     id              String      @default(cuid()) @id
+    position        String
+    status          TeamMemberStatus
+    d4hMemberId     Int
+    d4HRef          String
+    createdAt       DateTime    @default(now())
+    updatedAt       DateTime    @updatedAt
     person          Person      @relation(fields: [personId], references: [id])
     personId        String
     team            Team        @relation(fields: [teamId], references: [id])
     teamId          String
-    assignedAt      DateTime    @default(now())
 }
 
+enum TeamMemberStatus {
+    Operational
+    NonOperational
+    Observer
+    Retired
+}
