@@ -27,3 +27,13 @@ export function Blockquote({ className, ...props}: React.ComponentPropsWithoutRe
 export function InlineCode({ className, ...props }: React.ComponentPropsWithoutRef<'code'>) {
     return <code className={cn('relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold', className)} {...props}/>
 }
+
+export function Description({ className, ...props }: React.ComponentPropsWithoutRef<'p'>) {
+    return <p 
+        className={cn(
+            'mt-2 text-sm text-gray-700', 
+            className
+        )} 
+        {...props}
+    />
+}

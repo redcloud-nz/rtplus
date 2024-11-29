@@ -33,6 +33,7 @@ model Person {
 
     memberships     TeamMembership[]
     d4hAccessKeys   D4hAccessKey[]
+    assessments     CompetencyAssessment[]
     skillChecksAsAssessee   SkillCheck[] @relation("SkillCheckAssessee")
     skillChecksAsAssessor   SkillCheck[] @relation("SkillCheckAssessor")
 }
@@ -47,8 +48,8 @@ model Skill {
     createdAt       DateTime    @default(now())
     updatedAt       DateTime    @updatedAt
     
+    assessments     CompetencyAssessment[]
     checks          SkillCheck[]
-    
 }
 
 model SkillCheck {
@@ -82,6 +83,25 @@ model Capability {
     updatedAt       DateTime    @updatedAt   
     
     skillGroups     SkillGroup[]  
+}
+
+model CompetencyAssessment {
+    id              String      @default(cuid()) @id
+    name            String
+    location        String
+    date            DateTime
+    status          AssessmentStatus @default(Draft)
+    createdAt       DateTime    @default(now())
+    updatedAt       DateTime    @updatedAt
+
+    assessees       Person[]
+    skills          Skill[]        
+}
+
+enum AssessmentStatus {
+    Draft
+    Complete
+    Discard
 }
 
 model Team {

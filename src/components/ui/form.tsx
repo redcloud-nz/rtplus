@@ -8,10 +8,9 @@ import { Slot } from '@radix-ui/react-slot'
 
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
+
 import { EMPTY_FORM_STATE, FormState } from '@/lib/form-state'
 import { cn } from '@/lib/utils'
-
-
 
 
 type FormContextValue = {
@@ -29,9 +28,15 @@ function Form({ action, className, ...props }: FormProps) {
     const [formState, formAction] = useFormState(action, EMPTY_FORM_STATE)
 
     return <FormContext.Provider value={{ formState }}>
-        <form action={formAction} className={cn('flex flex-col gap-4 max-w-3xl', className)} {...props}/>
+        <form 
+            action={formAction} 
+            className={cn('flex flex-col gap-4 max-w-3xl', className)}
+            data-component="Form"
+            {...props}
+        />
     </FormContext.Provider>
 }
+
 
 
 type FormFieldContextValue = {
@@ -41,14 +46,20 @@ type FormFieldContextValue = {
 
 const FormFieldContext = React.createContext<FormFieldContextValue>({} as FormFieldContextValue)
 
-export type FormFieldProps = React.ComponentPropsWithoutRef<'div'> & { name: string }
+export type FormFieldProps = React.ComponentPropsWithoutRef<'div'> & { 
+    name: string
+}
 
 const FormField = ({ className, name, ...props }: FormFieldProps) => {
     const id = React.useId()
 
     return (
         <FormFieldContext.Provider value={{ id, name }}>
-            <div className={cn('space-y-2', className)} {...props}/>
+            <div 
+                className={cn('flex flex-col gap-2 mb-2', className)}
+                data-component="FormField"
+                {...props}
+            />
         </FormFieldContext.Provider>
     )
 }
@@ -82,6 +93,7 @@ const FieldLabel = React.forwardRef<React.ElementRef<typeof LabelPrimitive.Root>
     return (
         <Label
             ref={ref}
+            data-component="FieldLabel"
             className={cn(errors && "text-destructive", className)}
             htmlFor={fieldControlId}
             {...props}
@@ -118,6 +130,7 @@ const FieldDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttrib
             ref={ref}
             id={fieldDescriptionId}
             className={cn("text-sm text-muted-foreground", className)}
+            data-component="FieldDescription"
             {...props}
         />
     )
@@ -138,6 +151,7 @@ const FieldMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes
             ref={ref}
             id={fieldMessageId}
             className={cn("text-sm font-medium text-destructive", className)}
+            data-component="FieldMessage"
             {...props}
         >
             {body}
@@ -160,6 +174,7 @@ const FormMessage = React.forwardRef<HTMLParagraphElement, Omit<React.HTMLAttrib
             status == 'ERROR' && 'text-destructive',
             className
         )}
+        data-component="FormMessage"
         {...props}
     >
         {message}
@@ -169,7 +184,11 @@ FormMessage.displayName = "FormMessage"
 
 
 export function FormFooter({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
-    return <div className={cn('mt-2 flex gap-2', className)} {...props}/>
+    return <div 
+        className={cn('mt-2 flex gap-2', className)}
+        data-component="FormFooter"
+        {...props}
+    />
 }
 
 export interface FormSubmitButtonProps {
@@ -180,7 +199,11 @@ export interface FormSubmitButtonProps {
 export function FormSubmitButton({ label, loading }: FormSubmitButtonProps) {
     const { pending } = useFormStatus()
 
-    return <Button disabled={pending} type="submit">{ pending ? loading : label}</Button>
+    return <Button 
+        data-component="FormSubmitButton"
+        disabled={pending}
+        type="submit"
+    >{ pending ? loading : label}</Button>
 }
 
 

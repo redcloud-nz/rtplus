@@ -1,4 +1,17 @@
 
+//  /------------------------------\
+//  |         Competencies         |
+//  \------------------------------/
+export const competencies = '/competencies'
+
+export const competencyAssessments = `${competencies}/assessments`
+export const competencyAssessment = (assessmentId: string) => `${competencyAssessments}/${assessmentId}`
+
+export const competencyAssessmentEdit = (assessmentId: string) => `${competencyAssessment(assessmentId)}/edit`
+export const competencyAssessmentSkills = (assessmentId: string) => `${competencyAssessment(assessmentId)}/skills`
+export const competencyAssessmentPersonnel = (assessmentId: string) => `${competencyAssessment(assessmentId)}/personnel`
+export const competencyAssessmentAssess = (assessmentId: string) => `${competencyAssessment(assessmentId)}/assess`
+
 
 //  /------------------------------\
 //  |        Configuration         |
