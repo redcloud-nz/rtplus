@@ -29,7 +29,7 @@ export const metadata: Metadata = { title: "New Person | RT+" }
 export default async function NewPersonPage() {
     return <AppPage
         label="New Person" 
-        breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "People", href: Paths.people }]}
+        breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Personnel", href: Paths.personnel }]}
     >
         <PageHeader>
             <PageTitle>New Person</PageTitle>
@@ -55,7 +55,7 @@ export default async function NewPersonPage() {
             <FormFooter>
                 <FormSubmitButton label="Create" loading="Validating"/>
                 <Button variant="ghost" asChild>
-                    <Link href={Paths.people}>Cancel</Link>
+                    <Link href={Paths.personnel}>Cancel</Link>
                 </Button>
             </FormFooter>
             <FormMessage/>
@@ -93,6 +93,6 @@ async function createPerson(formState: FormState, formData: FormData) {
         return fromErrorToFormState(error)
     }
 
-    revalidatePath(Paths.people)
+    revalidatePath(Paths.personnel)
     redirect(Paths.person(personId))
 }

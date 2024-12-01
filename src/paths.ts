@@ -5,12 +5,12 @@
 export const competencies = '/competencies'
 
 export const competencyAssessments = `${competencies}/assessments`
-export const competencyAssessment = (assessmentId: string) => `${competencyAssessments}/${assessmentId}`
+export const competencyAssessment = (aId: string) => `${competencyAssessments}/${aId}`
 
-export const competencyAssessmentEdit = (assessmentId: string) => `${competencyAssessment(assessmentId)}/edit`
-export const competencyAssessmentSkills = (assessmentId: string) => `${competencyAssessment(assessmentId)}/skills`
-export const competencyAssessmentPersonnel = (assessmentId: string) => `${competencyAssessment(assessmentId)}/personnel`
-export const competencyAssessmentAssess = (assessmentId: string) => `${competencyAssessment(assessmentId)}/assess`
+export const competencyAssessmentEdit = (aId: string) => `${competencyAssessment(aId)}/edit`
+export const competencyAssessmentSkills = (aId: string) => `${competencyAssessment(aId)}/skills`
+export const competencyAssessmentPersonnel = (aId: string) => `${competencyAssessment(aId)}/personnel`
+export const competencyAssessmentAssess = (aId: string) => `${competencyAssessment(aId)}/assess`
 
 
 //  /------------------------------\
@@ -21,34 +21,34 @@ export const manage = '/manage'
 // Capabilities
 export const capabilities = `${manage}/capabilities`
 export const newCapability = `${capabilities}/new`
-export const capability = (capabilityId: string) => `${capabilities}/${capabilityId}`
-export const editCapability = (capabilityId: string) => `${capability(capabilityId)}/edit`
+export const capability = (cId: string) => `${capabilities}/${cId}`
+export const editCapability = (cId: string) => `${capability(cId)}/edit`
 
 // People
-export const people = `${manage}/people`
-export const newPerson = `${people}/new`
-export const person = (personId: string) => `${people}/${personId}`
-export const editPerson = (personId: string) => `${person(personId)}/edit`
-export const personMemberships = (personId: string) => `${person(personId)}/memberships`
+export const personnel = `${manage}/personnel`
+export const newPerson = `${personnel}/new`
+export const person = (pId: string) => `${personnel}/${pId}`
+export const editPerson = (pId: string) => `${person(pId)}/edit`
+export const personMemberships = (pId: string) => `${person(pId)}/memberships`
 
 // Skills
-export const skills = `${manage}/skills`
-export const newSkill = `${skills}/new`
-export const skill = (skillId: string) => `${skills}/${skillId}`
-export const editSkill = (skillId: string) => `${skill(skillId)}/edit`
+export const skillsAll = `${manage}/skills`
+export const newSkill = `${manage}/skills/new`
+export const skill = (sId: string) => `${manage}/skills/${sId}`
+export const editSkill = (sId: string) => `${skill(sId)}/edit`
 
 // Skill Groups
-export const skillGroups = `${manage}/skill-groups`
-export const newSkillGroup = `${skillGroups}/new`
-export const skillGroup = (skillGroupId: string) => `${skillGroup}/${skillGroupId}`
-export const editSkillGroup = (skillGroupId: string) => `${skillGroup(skillGroupId)}/edit`
+export const skillGroupsAll = `${manage}/skill-groups`
+export const newSkillGroup = `${skillGroupsAll}/new`
+export const skillGroup = (sgId: string) => `${manage}/skill-groups/${sgId}/`
+export const editSkillGroup = (sgId: string) => `${skillGroup(sgId)}/edit`
 
 // Teams
 export const teams =  `${manage}/teams`
 export const newTeam = `${teams}/new`
-export const team = (teamIdOrCode: string) => `${teams}/${teamIdOrCode}`
-export const editTeam = (teamIdOrCode: string) => `${team(teamIdOrCode)}/edit`
-export const teamMembers = (teamIdOrCode: string) => `${team(teamIdOrCode)}/members`
+export const team = (tId: string) => `${teams}/${tId}`
+export const editTeam = (tId: string) => `${team(tId)}/edit`
+export const teamMembers = (tId: string) => `${team(tId)}/members`
 
 
 //  /------------------------------\

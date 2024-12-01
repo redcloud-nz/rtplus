@@ -8,8 +8,8 @@ import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRo
 import { DataTable, DataTableColumnsDropdown, DataTableControls, DataTableGroupingDropdown, DataTableProvider, DataTableResetButton, DataTableSearch, defineColumns} from '@/components/data-table'
 import { Skeleton } from '@/components/ui/skeleton'
 
+import {  useD4hAccessKeys, useTeamNameResolver } from '@/lib/api/d4h-access-keys'
 import { getListResponseCombiner } from '@/lib/d4h-api/client'
-import {  useD4hAccessKeys, useTeamNameResolver } from '@/lib/d4h-access-keys/hooks'
 import { D4hEvent, getFetchEventsQueryOptions } from '@/lib/d4h-api/event'
 import { formatDateTime } from '@/lib/utils'
 

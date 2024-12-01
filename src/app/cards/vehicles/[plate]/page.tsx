@@ -19,7 +19,6 @@ export default function VehicleReferenceCard({ params }: { params: { plate: stri
             { label: 'Cards', href: "/cards" },
             { label: 'Vehicles', href: "/card/vehicles" },
         ]}
-        variant="list"
     >
         <PageTitle>{vehicle.plate}</PageTitle>
         <PageDescription>{vehicle.name}</PageDescription>

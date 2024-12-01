@@ -125,16 +125,16 @@ const navTools: NavItem[] = [
                 url: "/profile/d4h-access-keys",
             },
             {
-                title: "People",
-                url: Paths.people,
+                title: "Personnel",
+                url: Paths.personnel,
             },
             {
                 title: "Skills",
-                url: Paths.skills
+                url: Paths.skillsAll
             },
             {
                 title: "Skill Groups",
-                url: Paths.skillGroups
+                url: Paths.skillGroupsAll
             },
             {
                 title: "Teams",

@@ -6,7 +6,7 @@ import { QueryKey } from '@tanstack/react-query'
 import { D4hListResponse, getD4hFetchClient } from './client'
 import { D4hPoint, DateString, ResourceId } from './common'
 
-import { D4hAccessKeyWithTeam } from '../d4h-access-keys'
+import { D4hAccessKeyWithTeam } from '../api/d4h-access-keys'
 
 
 export interface D4hEvent {

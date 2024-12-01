@@ -16,7 +16,6 @@ export default async function ReferenceCardsPage() {
 
     return <AppPage
         label="Reference Cards"
-        variant="list"
     >
         <PageTitle>Reference Cards</PageTitle>
         <PageDescription>

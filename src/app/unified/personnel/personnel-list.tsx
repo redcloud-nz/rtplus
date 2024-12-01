@@ -10,7 +10,7 @@ import { DataTable, DataTableColumnsDropdown, DataTableControls, DataTableGroupi
 import { EmailLink, PhoneLink } from '@/components/ui/link'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { useD4hAccessKeys, useTeamNameResolver} from '@/lib/d4h-access-keys/hooks'
+import { useD4hAccessKeys, useTeamNameResolver} from '@/lib/api/d4h-access-keys'
 import { D4hListResponse, getD4hApiQueryClient } from '@/lib/d4h-api/client'
 import { D4hMember } from '@/lib/d4h-api/member'
 

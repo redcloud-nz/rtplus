@@ -106,7 +106,11 @@ export function PageHeader({ className, ...props }: React.ComponentPropsWithoutR
     />
 }
 
-export function PageTitle({ className, ...props }: React.ComponentPropsWithoutRef<'h1'>) {
+export type PageTitleProps = React.ComponentPropsWithoutRef<'h1'> & {
+    objectType?: string
+}
+
+export function PageTitle({ children, className, objectType, ...props }: PageTitleProps) {
     return <Heading 
         level={1} 
         className={cn(
@@ -115,7 +119,10 @@ export function PageTitle({ className, ...props }: React.ComponentPropsWithoutRe
         )}
         data-slot="title" 
         {...props}
-    />
+    >
+        {objectType ? <div className="text-sm font-normal tracking-normal text-muted-foreground">{objectType}</div> : null}
+        {children}
+    </Heading>
 }
 
 export function PageDescription({ className, ...props }: React.ComponentPropsWithoutRef<'p'>) {

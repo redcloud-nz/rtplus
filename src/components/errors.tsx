@@ -3,6 +3,7 @@ import { AppPage, AppPageProps } from '@/components/app-page'
 import { Separator } from '@/components/ui/separator'
 
 import { cn } from '@/lib/utils'
+import { Link } from './ui/link'
 
 export function NotFound() {
 
@@ -19,7 +20,11 @@ export function NotFound() {
     </AppPage>
 }
 
-export function NotImplemented({ className, ...props }: AppPageProps) {
+export type NotImplementedProps = AppPageProps & { 
+    docUrl?: string
+}
+
+export function NotImplemented({ className, docUrl, ...props }: NotImplementedProps) {
 
     return <AppPage className={cn("flex flex-col items-center justify-center", className)} {...props}>
         <main className="flex flex-col gap-2 items-center">
@@ -27,8 +32,9 @@ export function NotImplemented({ className, ...props }: AppPageProps) {
             <div className="font-semibold text-zinc-800">Not Implemented</div>
             <Separator orientation="horizontal" className="w-40"/>
             <p>
-                This feature has not yet been implemented.
+                This page is part of a planned feature that has not yet been implemented.
             </p>
+            {docUrl ? <p>Learni more about the concept of this feature in the <Link href={docUrl}>documentation</Link>.</p> : null}
         </main>
         
     </AppPage>

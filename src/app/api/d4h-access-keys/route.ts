@@ -1,8 +1,11 @@
 
 import { currentUser } from '@clerk/nextjs/server'
 
-import { D4hAccessKeyWithTeam } from '@/lib/d4h-access-keys'
+import { createListResponse } from '@/lib/api/common'
+import type { D4hAccessKeyWithTeam } from '@/lib/api/d4h-access-keys'
 import prisma from '@/lib/prisma'
+
+
 
 export async function GET() {
     const user = await currentUser()
@@ -26,5 +29,5 @@ export async function GET() {
         where: { personId: user.publicMetadata.personId, enabled: true } 
     })
 
-    return Response.json(accessKeys)
+    return Response.json(createListResponse(accessKeys))
 }

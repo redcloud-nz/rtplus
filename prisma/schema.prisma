@@ -45,8 +45,9 @@ model Skill {
     skillGroup      SkillGroup  @relation(fields: [skillGroupId], references: [id])
     skillGroupId    String
     name            String
+    description     String
     frequency       String                              // Stored as an ISO-8601 Duration
-    optional        String
+    optional        Boolean
     createdAt       DateTime    @default(now())
     updatedAt       DateTime    @updatedAt
     

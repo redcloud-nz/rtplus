@@ -1,4 +1,5 @@
 
+import _ from 'lodash'
 import { EllipsisVerticalIcon, PencilIcon, PlusIcon } from 'lucide-react'
 
 import { currentUser } from '@clerk/nextjs/server'
@@ -15,30 +16,19 @@ import prisma from '@/lib/prisma'
 import * as Paths from '@/paths'
 
 
-
 export default async function TeamPage({ params }: { params: { teamIdOrRef: string }}) {
 
     const user = await currentUser()
     if(!user) return <Unauthorized label="Team"/>
 
+    // Get the team and all team members
     const team = await prisma.team.findFirst({
-        select: {
-            id: true,
-            name: true,
-            ref: true,
-            color: true,
-            d4hTeamId: true,
-            d4hApiUrl: true,
-            d4hWebUrl: true,
+        include: {
             memberships: {
-                select: {
-                    id: true,
-                    d4HRef: true,
-                    position: true,
-                    status: true,
-                    person: true,
+                include: {
+                    person: true
                 }
-            }
+            },
         },
         where: {
             OR: [
@@ -50,12 +40,14 @@ export default async function TeamPage({ params }: { params: { teamIdOrRef: stri
 
     if(!team) return <NotFound />
 
+    const members = _.sortBy(team.memberships, (member) => member.person.name)
+
     return <AppPage
         label={team.ref || team.name}
         breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Teams", href: Paths.teams }]}
     >
         <PageHeader>
-            <PageTitle>{team.name}</PageTitle>
+            <PageTitle objectType="Team">{team.name}</PageTitle>
             <PageControls>
                 <Button variant="ghost">
                     <EllipsisVerticalIcon/>
@@ -66,7 +58,7 @@ export default async function TeamPage({ params }: { params: { teamIdOrRef: stri
         <CardGrid>
             <Card>
                 <CardHeader>
-                    <CardTitle>Details</CardTitle>
+                    <CardTitle>Team Details</CardTitle>
                     <Button variant="ghost" asChild>
                         <Link href={Paths.editTeam(params.teamIdOrRef)}><PencilIcon/></Link>
                     </Button>
@@ -76,10 +68,10 @@ export default async function TeamPage({ params }: { params: { teamIdOrRef: stri
                         <DLTerm>RT+ ID</DLTerm>
                         <DLDetails>{team.id}</DLDetails>
 
-                        <DLTerm>Team name</DLTerm>
+                        <DLTerm>Name</DLTerm>
                         <DLDetails>{team.name}</DLDetails>
 
-                        <DLTerm>Short name/ref</DLTerm>
+                        <DLTerm>Ref</DLTerm>
                         <DLDetails>{team.ref}</DLDetails>
 
                         <DLTerm>Colour</DLTerm>
@@ -102,7 +94,7 @@ export default async function TeamPage({ params }: { params: { teamIdOrRef: stri
             </Card>
             <Card>
                 <CardHeader>
-                    <CardTitle>Members</CardTitle>
+                    <CardTitle>Team Members</CardTitle>
                     <Button variant="ghost"><PlusIcon/></Button>
                 </CardHeader>
                 <CardContent>
@@ -114,7 +106,7 @@ export default async function TeamPage({ params }: { params: { teamIdOrRef: stri
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {team.memberships.map(membership => 
+                            {members.map(membership => 
                                 <TableRow key={membership.id}>
                                     <TableCell>{membership.person.name}</TableCell>
                                     <TableCell>{membership.position}</TableCell>

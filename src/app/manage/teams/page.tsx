@@ -67,9 +67,9 @@ export default async function TeamsPage() {
                     {teams.map(team => 
                         <TableRow key={team.id}>
                             <TableCell>
-                                <Link href={Paths.team(team.code || team.id)}>{team.name}</Link>
+                                <Link href={Paths.team(team.ref || team.id)}>{team.name}</Link>
                             </TableCell>
-                            <TableCell>{team.code}</TableCell>
+                            <TableCell>{team.ref}</TableCell>
                             <TableCell className='text-center'>{team.color}</TableCell>
                             <TableCell className='text-center'>{team._count.memberships}</TableCell>
                         </TableRow>

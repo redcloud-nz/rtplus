@@ -43,10 +43,10 @@ export default async function PersonPage({ params }: { params: { personId: strin
 
     return <AppPage
         label={person.name}
-        breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "People", href: Paths.people }]}
+        breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "People", href: Paths.personnel }]}
     >
         <PageHeader>
-            <PageTitle>{person.name}</PageTitle>
+            <PageTitle objectType="Person">{person.name}</PageTitle>
             <PageControls>
                 <Button variant="ghost">
                     <EllipsisVerticalIcon/>
@@ -95,7 +95,7 @@ export default async function PersonPage({ params }: { params: { personId: strin
                         <TableBody>
                             {person.memberships.map(membership =>
                                 <TableRow key={membership.id}>
-                                    <TableCell>{membership.team.code || membership.team.name}</TableCell>
+                                    <TableCell>{membership.team.ref || membership.team.name}</TableCell>
                                 </TableRow>
                             )}
                         </TableBody>

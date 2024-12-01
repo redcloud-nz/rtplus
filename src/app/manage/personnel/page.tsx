@@ -4,10 +4,8 @@ import { PlusIcon } from 'lucide-react'
 import { Metadata } from 'next'
 import React from 'react'
 
-import { currentUser } from '@clerk/nextjs/server'
 
 import { AppPage, PageControls, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
-import { Unauthorized } from '@/components/errors'
 import { Show } from '@/components/show'
 
 import Alert from '@/components/ui/alert'
@@ -21,10 +19,10 @@ import * as Paths from '@/paths'
 export const metadata: Metadata = { title: "Teams | RT+" }
 
 export default async function PeopleListPage() {
-    const user = await currentUser()
-    if(!user) return <Unauthorized label="People"/>
 
-    const people = await prisma.person.findMany({})
+    const people = await prisma.person.findMany({
+        orderBy: { name: 'asc' }
+    })
 
     return <AppPage
         label="People" 
@@ -48,8 +46,8 @@ export default async function PeopleListPage() {
             <Table border>
                 <TableHead>
                     <TableRow>
-                        <TableHeadCell>Name</TableHeadCell>
-                        <TableHeadCell>Email</TableHeadCell>
+                        <TableHeadCell className="w-1/2">Name</TableHeadCell>
+                        <TableHeadCell className="w-1/2">Email</TableHeadCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
