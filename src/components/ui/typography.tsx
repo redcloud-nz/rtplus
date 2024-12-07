@@ -8,8 +8,8 @@ export function Heading({ className, level = 1, ...props }: HeadingProps) {
     const Element: `h${typeof level}` = `h${level}`
 
     return <Element {...props} className={cn(
-        level == 1 && 'scroll-m-20 text-3xl font-extrabold tracking-tight lg:text-4xl',
-        level == 2 && 'scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0',
+        level == 1 && 'scroll-m-20 text-2xl lg:text-4xl font-extrabold tracking-tight ',
+        level == 2 && 'scroll-m-20 border-b pb-2 text-2xl lg:text-3xl font-semibold tracking-tight first:mt-0',
         level == 3 && 'scroll-m-20 text-2xl font-semibold tracking-tight',
         level >= 4 && 'scroll-m-20 text-xl font-semibold tracking-tight',
         className

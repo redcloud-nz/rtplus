@@ -18,7 +18,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 
 import prisma from '@/lib/prisma'
 import * as Paths from '@/paths'
 
-
 export const metadata: Metadata = { title: "Teams | RT+" }
 
 export default async function TeamsPage() {

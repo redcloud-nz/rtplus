@@ -7,8 +7,8 @@ export default function AssessmentInfoPage({ params}: { params: { assessmentId: 
     return <NotImplemented
         label={params.assessmentId}
         breadcrumbs={[
-            { label: "Competencies", href: Paths.competencies }, 
-            { label: "Assessments", href: Paths.competencyAssessments },
+            { label: "Competencies", href: Paths.competencies.dashboard }, 
+            { label: "Assessments", href: Paths.competencies.assessmentList },
         ]}
     />
 }

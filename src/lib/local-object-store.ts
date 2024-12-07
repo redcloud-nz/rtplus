@@ -1,0 +1,97 @@
+'use client'
+
+import { formatISO, parseISO } from 'date-fns'
+import _ from 'lodash'
+
+const STORAGE_PREFIX = 'RTPLUS_OBJECTS'
+
+interface LocalObjectCacheData {
+    objectType: string
+    objects: Record<string, string>
+}
+
+export interface LocalObjectStoreOptions {
+    readonly storageKey?: string,
+}
+
+export class LocalObjectStore<T extends object> {
+    readonly objectType: string
+    readonly config: Required<LocalObjectStoreOptions>
+
+    constructor(objectType: string, options: LocalObjectStoreOptions) {
+        this.objectType = objectType
+        this.config = {
+            storageKey: `${STORAGE_PREFIX}_${objectType}`,
+            ...options
+        }
+    }
+
+    private getCache(): LocalObjectCacheData {
+        const fetched = localStorage.getItem(this.config.storageKey)
+   
+        if(fetched) {
+            const parsed = JSON.parse(fetched)
+            
+            return parsed as LocalObjectCacheData
+
+        } else {
+            // Not previously saved
+            return { objectType: this.objectType, objects: {} }
+        }
+    }
+
+    private updateCache(apply: (prev: LocalObjectCacheData) => LocalObjectCacheData) {
+        const prev = this.getCache()
+        const updated = apply(prev)
+
+        const serialized = JSON.stringify(updated)
+        localStorage.setItem(this.config.storageKey, serialized)
+    }
+
+    private serializeObject(obj: T): string {
+        return JSON.stringify(obj, function(key, value) {
+            if(this[key] instanceof Date)
+                return { _type: 'Date', value: formatISO(this[key]) }
+            else
+                return value
+        })
+    } 
+
+    private deserializeObject(str: string): T {
+        return JSON.parse(str, function(key, value) {
+            if(value['_type'] == 'Date') return parseISO(value['value'])
+            else return value
+        }) as T
+    }
+
+    getObject(id: string): T | null {
+        const cache = this.getCache()
+        const result = cache.objects[id] ? this.deserializeObject(cache.objects[id]) : null
+        console.log(`getObject(${id})`, result, cache.objects[id])
+        return result
+    }
+
+    setObject(id: string, value: T) {
+        console.log(`setObject(${id})`, value)
+        this.updateCache(prev => {
+            return { 
+                ...prev, 
+                objects: { 
+                    ...prev.objects, 
+                    [id]: this.serializeObject(value) 
+                }
+            }
+        })
+    }
+
+    deleteObject(id: string) {
+
+        this.updateCache(prev => ({ ...prev, objects: _.omit(prev.objects, id) }))
+    }
+
+    getAll(): T[] {
+        const cache = this.getCache()
+        const keys = Object.keys(cache.objects)
+        return keys.map(key => this.deserializeObject(cache.objects[key]))
+    }
+}

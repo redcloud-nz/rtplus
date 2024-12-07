@@ -2,16 +2,19 @@
 //  /------------------------------\
 //  |         Competencies         |
 //  \------------------------------/
-export const competencies = '/competencies'
-
-export const competencyAssessments = `${competencies}/assessments`
-export const competencyAssessment = (aId: string) => `${competencyAssessments}/${aId}`
-
-export const competencyAssessmentEdit = (aId: string) => `${competencyAssessment(aId)}/edit`
-export const competencyAssessmentSkills = (aId: string) => `${competencyAssessment(aId)}/skills`
-export const competencyAssessmentPersonnel = (aId: string) => `${competencyAssessment(aId)}/personnel`
-export const competencyAssessmentAssess = (aId: string) => `${competencyAssessment(aId)}/assess`
-
+export const competencies = {
+    dashboard: '/competencies',
+    assessmentList: '/competencies/assessments',
+    assessment: (aId: string) => ({
+        info: `/competencies/assessments/${aId}`,
+        edit: `/competencies/assessments/${aId}/edit`,
+        skills: `/competencies/assessments/${aId}/skills`,
+        personnel: `/competencies/assessments/${aId}/personnel`,
+        assess: `/competencies/assessments/${aId}/assess`,
+    } as const),
+    newAssessment: '/competencies/assessments/new-assessment',
+    reports: `/competencies/reports`
+} as const
 
 //  /------------------------------\
 //  |        Configuration         |

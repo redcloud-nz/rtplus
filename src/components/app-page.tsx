@@ -48,6 +48,7 @@ const appPageVariants = tv({
         variant: {
             default: 'flex flex-1 flex-col gap-4 p-4',
             full: 'w-full flex items-stretch *:flex-1',
+            centered: 'flex flex-col items-center justify-center'
         }
     },
     defaultVariants: {
@@ -140,7 +141,7 @@ export function PageDescription({ className, ...props }: React.ComponentPropsWit
 export function PageControls({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
     return <div
         className={cn(
-            'row-start-1 row-span-2 col-start-2 justify-self-end self-center',
+            'row-start-1 row-span-2 col-start-2 justify-self-end self-end',
             'flex gap-2',
             className
         )}

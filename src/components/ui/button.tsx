@@ -62,9 +62,10 @@ export interface AsyncButtonProps extends React.ButtonHTMLAttributes<HTMLButtonE
     label?: React.ReactNode
     pending?: React.ReactNode
     done?: React.ReactNode
+    reset?: boolean
 }
 
-export function AsyncButton({ children, className, disabled, variant, size, onClick, label, pending, done, ...props}: AsyncButtonProps) {
+export function AsyncButton({ children, className, disabled, variant, size, onClick, label, pending, done, reset, ...props}: AsyncButtonProps) {
 
     const [state, setState] = React.useState<'ready' | 'pending' | 'done'>('ready')
 
@@ -72,7 +73,7 @@ export function AsyncButton({ children, className, disabled, variant, size, onCl
         if(onClick) {
             setState('pending')
             await onClick(event)
-            setState('done')
+            setState(reset ? 'ready' : 'done')
         }
     }
 

@@ -1,7 +1,9 @@
 'use client'
 
+import { formatISO, parseISO } from 'date-fns'
 import React from 'react'
-import { z } from 'zod'
+
+import { AssessmentStatus } from '@prisma/client'
 
 import { DatePicker } from '@/components/ui/date-picker'
 import { FieldControl, FieldDescription, FieldLabel, FieldMessage, Form, FormField } from '@/components/ui/form'
@@ -9,37 +11,20 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Description } from '@/components/ui/typography'
 
+import { useAssessmentContext } from '../../../assessment-context'
 
-import { FormState, fromErrorToFormState, toFormState } from '@/lib/form-state'
+export default function AssessmentEdit({}: { params: { assessmentId: string }}) {
 
-const EditAssessmentSchema = z.object({
-    date: z.string().datetime(),
-    name: z.string(),
-    location: z.string(),
-    status: z.enum(['Draft', 'Complete', 'Discard'])
-})
+    const { value, updateValue } = useAssessmentContext()
 
-export default function AssessmentEdit({ params }: { params: { assessmentId: string }}) {
-
-    async function submit(formState: FormState, formData: FormData): Promise<FormState> {
-
-        try {
-            EditAssessmentSchema.parse(Object.fromEntries(formData))
-        } catch(error) {
-            console.log(error)
-            return fromErrorToFormState(error)
-        }
-
-        return toFormState("SUCCESS", "")
-    }
 
     return <>
         <Description>Define an assessment:</Description>
-        <Form action={submit}>
+        <Form>
             <FormField name="date">
                 <FieldLabel>Date</FieldLabel>
                 <FieldControl>
-                    <DatePicker name="date"/>
+                    <DatePicker name="date" value={formatISO(value.date)} onChange={(newValue) => updateValue({ date: parseISO(newValue) })} />
                 </FieldControl>
                 <FieldDescription>The date the assessment is being carried out.</FieldDescription>
                 <FieldMessage/>
@@ -47,7 +32,7 @@ export default function AssessmentEdit({ params }: { params: { assessmentId: str
             <FormField name="name">
                 <FieldLabel>Name</FieldLabel>
                 <FieldControl>
-                    <Input name="name"/>
+                    <Input name="name" value={value.name} onChange={(ev) => updateValue({ name: ev.target.value })}/>
                 </FieldControl>
                 <FieldDescription>The name of the assessment.</FieldDescription>
                 <FieldMessage/>
@@ -55,7 +40,7 @@ export default function AssessmentEdit({ params }: { params: { assessmentId: str
             <FormField name="location">
                 <FieldLabel>Location</FieldLabel>
                 <FieldControl>
-                    <Input name="location"/>
+                    <Input name="location" value={value.location} onChange={(ev) => updateValue({ location: ev.target.value })}/>
                 </FieldControl>
                 <FieldDescription>The location where the assessment took place.</FieldDescription>
                 <FieldMessage/>
@@ -63,7 +48,7 @@ export default function AssessmentEdit({ params }: { params: { assessmentId: str
             <FormField name="status">
                 <FieldLabel>Status</FieldLabel>
                 <FieldControl>
-                    <Select name="status">
+                    <Select name="status" value={value.status} onValueChange={(newValue) => updateValue({ status: newValue as AssessmentStatus })}>
                         <SelectTrigger className="w-full sm:w-[180px]">
                             <SelectValue/>
                         </SelectTrigger>
@@ -75,8 +60,8 @@ export default function AssessmentEdit({ params }: { params: { assessmentId: str
                     </Select>
                 </FieldControl>
                 <FieldDescription>The status of the assessment</FieldDescription>
+                <FieldMessage/>
             </FormField>
         </Form>
-        <div>{JSON.stringify(params)}</div>
     </>
 }

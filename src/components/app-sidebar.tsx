@@ -33,12 +33,16 @@ const navTools: NavItem[] = [
         icon: <PocketKnifeIcon/>,
         items: [
             {
+                title: "Dashboard",
+                url: Paths.competencies.dashboard
+            },
+            {
                 title: "Assessments",
-                url: Paths.competencyAssessments
+                url: Paths.competencies.assessmentList
             },
             {
                 title: "Report",
-                url: "/competencies/report"
+                url: Paths.competencies.reports
             }
         ]
     },

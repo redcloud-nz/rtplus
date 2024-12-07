@@ -2,6 +2,8 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const DEFAULT_PAGE_SIZE = 1000
 
+export type Id = string
+
 export interface ListResponse<TData extends object> {
     data: TData[]
     pagination: {
@@ -10,6 +12,10 @@ export interface ListResponse<TData extends object> {
         totalPages: number
         currentPage: number
     }
+}
+
+export interface ObjectResponse<TData extends object> {
+    data: TData
 }
 
 /**
@@ -26,4 +32,9 @@ export function createListResponse<TData extends object>(data: TData[]): ListRes
             currentPage: 0
         }
     }
+}
+
+
+export function createObjectResponse<TData extends object>(data: TData): ObjectResponse<TData> {
+    return { data }
 }

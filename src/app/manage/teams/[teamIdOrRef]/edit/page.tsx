@@ -48,7 +48,7 @@ export default async function EditTeamPage({ params }: { params: { teamIdOrRef: 
         }
     })
 
-    if(!team) return <NotFound/>
+    if(!team) return <NotFound label="Team"/>
 
     return <AppPage
         label="Edit"

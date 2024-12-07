@@ -21,10 +21,10 @@ const FormContext = React.createContext<FormContextValue>({ formState: EMPTY_FOR
 
 
 export type FormProps = React.HtmlHTMLAttributes<HTMLFormElement> & {
-    action: (formState: FormState, formData: FormData) => Promise<FormState>
+    action?: (formState: FormState, formData: FormData) => Promise<FormState>
 }
 
-function Form({ action, className, ...props }: FormProps) {
+function Form({ action = async () => EMPTY_FORM_STATE, className, ...props }: FormProps) {
     const [formState, formAction] = useFormState(action, EMPTY_FORM_STATE)
 
     return <FormContext.Provider value={{ formState }}>
