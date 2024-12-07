@@ -7,7 +7,7 @@ import { Team } from '@prisma/client'
 import type { TeamWithMembers } from '@/lib/api/teams'
 
 
-
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams

@@ -6,6 +6,7 @@ import prisma from '@/lib/prisma'
 
 import type { TeamWithMembers } from '@/lib/api/teams'
 
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest, { params }: { params: { teamId: string } }) {
     

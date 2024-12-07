@@ -50,6 +50,7 @@ const navTools: NavItem[] = [
         title: "D4H Unified",
         url: "/unified",
         icon: <SquareTerminalIcon/>,
+        authRequired: true,
         items: [
             {
                 title: "Activities",
@@ -115,6 +116,7 @@ const navTools: NavItem[] = [
         title: "Configuration",
         url: "/",
         icon: <Settings2Icon/>,
+        authRequired: true,
         items: [
             {
                 title: "Capabilities",
@@ -163,7 +165,9 @@ const navTools: NavItem[] = [
     }
 ]
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { signedIn: boolean }
+
+export function AppSidebar({ signedIn, ...props }: AppSidebarProps) {
     return <Sidebar collapsible="icon" {...props}>
         <SidebarHeader className="mt-2">
             <Link href="/dashboard">
@@ -178,8 +182,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </Link>
         </SidebarHeader>
         <SidebarContent>
-            <NavSection title="Tools" items={navTools} />
-            <NavSection title="General" items={navGeneral}/>
+            <NavSection title="Tools" items={navTools} signedIn={signedIn}/>
+            <NavSection title="General" items={navGeneral} signedIn={signedIn}/>
         </SidebarContent>
         <SidebarRail />
     </Sidebar>
