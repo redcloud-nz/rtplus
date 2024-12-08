@@ -67,12 +67,12 @@ export class LocalObjectStore<T extends object> {
     getObject(id: string): T | null {
         const cache = this.getCache()
         const result = cache.objects[id] ? this.deserializeObject(cache.objects[id]) : null
-        console.log(`getObject(${id})`, result, cache.objects[id])
+        console.debug(`[LocalObjectStore(${this.objectType})] getObject(${id})`, result)
         return result
     }
 
     setObject(id: string, value: T) {
-        console.log(`setObject(${id})`, value)
+        console.debug(`[LocalObjectStore(${this.objectType})] setObject(${id})`, value)
         this.updateCache(prev => {
             return { 
                 ...prev, 

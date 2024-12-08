@@ -82,7 +82,7 @@ export default function IndividualReportPage() {
                                                 <TableCell>{skill.name}</TableCell>
                                                 <TableCell>{status}</TableCell>
                                                 <TableCell>{status && format(date, 'yyyy-MM-dd')}</TableCell>
-                                                <TableCell>{status && assessor.name}</TableCell>
+                                                <TableCell className="text-muted-foreground">{status && assessor.name}</TableCell>
                                             </TableRow>
                                         })}
                                     </React.Fragment>

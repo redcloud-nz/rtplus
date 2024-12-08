@@ -57,7 +57,8 @@ export const CapabilityList: SampleCapability[] = [
         skillGroups: [
             defineGroup({ 
                 id: "cm3zhkg53002g08l4dvz0b059", 
-                name: "First Aid", 
+                name: "First Aid",
+                ref: "First-Aid",
                 skills: [
                     defineSkill({ id: "cm3zgt6k0000608l4doi665zb", name: "First Aid Certificate", description: "Hold a current first aid certificate." }),
                     defineSkill({ id: "cm3zguwzz000708l45ic3d8a6", name: "Patient Report Form", description: "Can complete a patient report form with basic observations." }),
@@ -68,6 +69,7 @@ export const CapabilityList: SampleCapability[] = [
             defineGroup({ 
                 id: "cm3zhkmi8002h08l4c2t8gjxp", 
                 name: "Soft Skills", 
+                ref: "Soft-Skills",
                 skills: [
                     defineSkill({ id: "cm3zgvtol000a08l45g47dfke", name: "Cultural Awareness", description: "Demonstrate cultural awareness.", frequency: 'P2Y' }),
                     defineSkill({ id: "cm3zgvxi8000b08l415kh7tet", name: "Psychological First Aid", description: "Demonstrate use of pschological first aid.", frequency: 'P2Y' })
@@ -75,7 +77,8 @@ export const CapabilityList: SampleCapability[] = [
             }),
             defineGroup({ 
                 id: "cm3zhkt9c002i08l4hqcaclac", 
-                name: "Other", 
+                name: "Other",
+                ref: "Foundation-Other",
                 skills: [
                     defineSkill({ id: "cm3zgw4kd000c08l44e00csxx", name: "Staff a cordon", description: "Staff a cordon with appropriate PPE and make correct descisions about access." }),
                     defineSkill({ id: "cm3zgw9im000d08l4fzc6a6rq", name: "Conduct reconaissance ", description: "Conduct reconaissance and pass on relevent information effectively."}),
@@ -89,7 +92,8 @@ export const CapabilityList: SampleCapability[] = [
             ),
             defineGroup({ 
                 id: "cm3zhky8p002j08l4a0k7dvc3", 
-                name: "Communications", 
+                name: "Communications",
+                ref: "Communications",
                 skills: [
                     defineSkill({ id: "cm3zgxtxc000k08l440ni4il0", name: "Comms Center", description: "Operate and manage a communications centre or hub." }),
                     defineSkill({ id: "cm3zgxyhg000l08l47vrzhpd0", name: "Portable Repeater", description: "Set up a portable repeater or Cross Band.", frequency: 'P2Y' }),
@@ -106,7 +110,8 @@ export const CapabilityList: SampleCapability[] = [
         skillGroups: [
             defineGroup({ 
                 id: "cm3zhl4ci002k08l40shkf9p3", 
-                name: "Knots and Lines", 
+                name: "Knots and Lines",
+                ref: "Knots",
                 skills: [
                     defineSkill({ id: "cm3zh06k4000o08l447bca3ic", name: "Single Figure 8", description: "Tie a single figure 8 knot." }),
                     defineSkill({ id: "cm3zh0d96000p08l4cb9lg7wn", name: "Figure 8 on the Bight", description: "Tie a figure 8 on the bight." }),
@@ -127,6 +132,7 @@ export const CapabilityList: SampleCapability[] = [
             defineGroup({ 
                 id: "cm3zhlbdy002l08l4241c792w", 
                 name: "Search Techniques", 
+                ref: "Search",
                 skills: [
                     defineSkill({ id: "cm3zh29b0001208l46gur0qnw", name: "Correct PPE", description: "Wear correct PPE and complete a buddy check." }),
                     defineSkill({ id: "cm3zh2dob001308l41jz24wul", name: "Rubble Crawl", description: "Rubble pile crawl with 3-points of contact." }),
@@ -140,6 +146,7 @@ export const CapabilityList: SampleCapability[] = [
             defineGroup({ 
                 id: "cm3zhlfrr002m08l4794kdobp", 
                 name: "Ladders", 
+                ref: "Ladders",
                 skills: [
                     defineSkill({ id: "cm3zh37rw001908l4gji27blh", name: "Extension Ladder", description: "Raise and lower an extension ladder." }),
                     defineSkill({ id: "cm3zh3cc4001a08l4a5b1cfvi", name: "Secure Ladder", description: "Secure head and foot of ladder." }),
@@ -151,6 +158,7 @@ export const CapabilityList: SampleCapability[] = [
             defineGroup({ 
                 id: "cm3zhlomo002o08l4hybk1jex", 
                 name: "Stretchers", 
+                ref: "Stretchers",
                 skills: [
                     defineSkill({ id: "cm3zh3u7c001e08l4bz4xb0x5", name: "Load Stretcher", description: "Load and blanket stretcher with patient secured correctly." }),
                     defineSkill({ id: "cm3zh6r4j001f08l4beyj81kh", name: "Lash Stretcher", description: "Lash a patient in to basket stretcher." }),
@@ -165,7 +173,8 @@ export const CapabilityList: SampleCapability[] = [
             ),
             defineGroup({ 
                 id: "cm3zhlkmt002n08l470jq49z5", 
-                name: "ICP", 
+                name: "ICP",
+                ref: "ICP",
                 skills: [
                     defineSkill({ id: "cm3zhabmm001o08l4flriha3h", name: "Sign in/out board", description: "Establish and maintain a sign in/out board or T-card system." })
                 ]
@@ -173,6 +182,7 @@ export const CapabilityList: SampleCapability[] = [
             defineGroup({ 
                 id: "cm3zhlul7002q08l4ehs7aoh2", 
                 name: "Lowers", 
+                ref: "Lowers",
                 skills: [
                     defineSkill({ id: "cm3zhahlc001p08l44swpcvyv", name: "Belay Anchors", description: "Establish top and/or bottom anchors for a lowering/belay system." }),
                     defineSkill({ id: "cm3zhaltj001q08l49m990gm3", name: "Belay Stretcher", description: "Use a body belay or friction hitch to lower a stretcher." }),
@@ -187,7 +197,8 @@ export const CapabilityList: SampleCapability[] = [
             }),
             defineGroup({ 
                 id: "cm3zhlzat002r08l41b9h7lqa", 
-                name: "Improvised Casualty Movement", 
+                name: "Improvised Casualty Movement",
+                ref: "Improvised-Casualty-Movement",
                 skills: [
                     defineSkill({ id: "cm3zhbmoq001y08l4h6tb5vnj", name: "Blanket/Clothing Lift", description: "Lift a patient using either a blanket lift or clothing lift. " }),
                     defineSkill({ id: "cm3zhbqqx001z08l40tfc4fxa", name: "Human Crutch", description: "Assist a patient across a room using a human crutch." }),
@@ -209,6 +220,7 @@ export const CapabilityList: SampleCapability[] = [
             defineGroup({
                 id: "cm4etjxw8000008kv210j1qmh",
                 name: "Flood Protection",
+                ref: "Flood-Protection",
                 skills: [
                     defineSkill({ id: "cm4etqhwr000008kv4vfie4vz", name: "Pumps", description: "Operate pumps (including priming and maintenance requirements)." }),
                     defineSkill({ id: "cm4etqmod000108kv3unla7jg", name: "Sand Bagging", description: "Effective sand bagging as a team or alternate flood barrier systems." }),
@@ -221,6 +233,7 @@ export const CapabilityList: SampleCapability[] = [
             defineGroup({
                 id: "cm4etku18000108kvd7knditd",
                 name: "Water Safety",
+                ref: "Water-Safety",
                 skills: [
                     defineSkill({ id: "cm4etr8xy000608kv1lbue53y", name: "Correct PPE", description: "Correct PPE work and buddy checked" }),
                     defineSkill({ id: "cm4etrd3k000708kvhe0857ny", name: "Priorities and Safety", description: "Understands or demonstrates priority of rescue (low to high risk) and reqs for upstream & downstream safety" }),
@@ -243,9 +256,10 @@ export const CapabilityList: SampleCapability[] = [
             defineGroup({
                 id: "cm4etydjb000f08kvexju27a2",
                 name: "Storm",
+                ref: "Storm",
                 skills: [
                     defineSkill({ id: "cm4eu5436000i08kvhyaf77h3", name: "Appropriate Anchors", description: "Choose appropriate anchors and rig correctly." }),
-                    defineSkill({ id: "cm4eu589b000j08kvcz4g33jw", name: "Setup Roof System", description: "Setup a roof acces system." }),
+                    defineSkill({ id: "cm4eu589b000j08kvcz4g33jw", name: "Setup Roof System", description: "Setup a roof access system." }),
                     defineSkill({ id: "cm4eu5cl4000k08kv75qaaopf", name: "Use Roof System", description: "Use a roof access system (limiting fall factor)." }),
                     defineSkill({ id: "cm4eu5gam000l08kv7mat5q3d", name: "Roof Repairs", description: "Perform temorary roof repairs." }),
                     defineSkill({ id: "cm4eu5gam000l08kv7mat5q3d", name: "Rescue from Roor", description: "Practice rescue from roof by lowering system." }),
@@ -257,6 +271,7 @@ export const CapabilityList: SampleCapability[] = [
             defineGroup({
                 id: "cm4etyvri000g08kv5h8b8uxj",
                 name: "Chainsaws",
+                ref: "Chairsaws",
                 skills: [
                     defineSkill({ id: "cm4eua4qq000q08kv2gadb749", name: "Chainsaw PPE", description: "Wears correct PPE when using a chainsaw", optional: true }),
                     defineSkill({ id: "cm4eua9fq000r08kv01oj4xuq", name: "Chainsaw Handling", description: "Can demonstrate safe chainsaw handling, functional parts, and maintenance.", optional: true }),
@@ -272,37 +287,185 @@ export const CapabilityList: SampleCapability[] = [
         id: "cm3zhils0002a08l4h3042wks", 
         name: "CDC & Welfare", 
         ref: "Welfare", 
-        skillGroups: []
+        skillGroups: [
+            defineGroup({
+                id: "cm4f5d3qu000008mnax8aftcx",
+                name: "Civil Defence Centres and Welfare",
+                ref: "CDC",
+                skills: [
+                    defineSkill({ id: "cm4f5gry0000108mn1bxq02jt", name: "Establish CDC", description: "Establish/setup a CDC as part of a team." }),
+                    defineSkill({ id: "cm4f5gwwy000208mn0o3jdzdo", name: "Staff CDC", description: "Act as a CDC staff member" }),
+                    defineSkill({ id: "cm4f5h2xb000308mncuhkbemj", name: "Needs Assessment", description: "Conduct a needs assessment." }),
+                    defineSkill({ id: "cm4f5h78l000408mn4ehla3ba", name: "Privacy", description: "Privacy measures are taken when conducting needs assessment." }),
+                    defineSkill({ id: "cm4f5hb01000508mn4i3r9j8t", name: "Animal Welfare", description: "Understand animal welfare requirements at a CDC", optional: true }),
+                ]
+            })
+        ]
     }),
     defineCapability({ 
         id: "cm3zhipze002b08l4ehrfcksr", 
         name: "Swiftwater Rescue", 
         ref: "Swiftwater", 
-        skillGroups: []
+        skillGroups: [
+            defineGroup({
+                id: "cm4f5m8vs000608mn2tkx6nch",
+                name: "Responder",
+                ref: "Swiftwater-Responder",
+                skills: []
+            }),
+            defineGroup({
+                id: "cm4f5m8vs000608mn2tkx6nch",
+                name: "Technician",
+                ref: "Swiftwater-Technician",
+                skills: []
+            }),
+            defineGroup({
+                id: "cm4f63tbc000008l52bxcdlr1",
+                name: "Technician Advanced",
+                ref: "Switftwater-Technician-Advanced",
+                skills: []
+            }),
+            defineGroup({
+                id: "cm4f65jl8000108l55ggc1u46",
+                name: "Other",
+                ref: "Swiftwater-Other",
+                skills: []
+            }),
+            defineGroup({
+                id: "cm4f6dak7000308ld9cl8dlc4",
+                name: "Non-powered Craft",
+                skills: []
+            }),
+            defineGroup({
+                id: "cm4f6df0j000408ld3kvd6rem",
+                name: "Powered Craft",
+                skills: []
+            }),
+            defineGroup({
+                id: "cm4f6dj8t000508ldgaf6eonx",
+                name: "Rescue from Vehicle",
+                skills: []
+            })
+        ]
     }),
     defineCapability({ 
         id: "cm3zhiumg002c08l48pr90up1", 
         name: "Rope Rescue", 
         ref: "Rope", 
-        skillGroups: []
+        skillGroups: [
+            defineGroup({
+                id: "cm4f6d5l9000208ld0s8valfa",
+                name: "Responder",
+                ref: "Rope-Responder",
+                skills: []
+            }),
+            defineGroup({
+                id: "cm4f6d0mt000108ld7615b55i",
+                name: "Technician",
+                ref: "Rope-Technician",
+                skills: []
+            }),
+            defineGroup({
+                id: "cm4f6cu3w000008ld35de73hk",
+                name: "Specialist",
+                ref: "Rope-Specialist",
+                skills: []
+            }),
+        ]
     }),
     defineCapability({ 
         id: "cm3zhiyz3002d08l450p818uf", 
         name: "Mass Casualty Support", 
         ref: "Mass-Casualty", 
-        skillGroups: []
+        skillGroups: [
+            defineGroup({
+                id: "cm4f6eivp000608ldc28e5x1v",
+                name: "Mass Casualty",
+                ref: "Mass-Casualty",
+                skills: [
+                    defineSkill({ id: "cm4f6mxye000808ld3hkd8p19", name: "Establish CCP", description: "Help to establish a Casualty Collection Point (including seperate area for deceased)." }),
+                    defineSkill({ id: "cm4f6n2w3000908ld6elchsvk", name: "Conduct Triage", description: "Conduct rapid traige using S.T.A.R.T. system." }),
+                    defineSkill({ id: "cm4f6n8as000a08ldald26or9", name: "Triage Tag", description: "Complete a victim triage tag." }),
+                    defineSkill({ id: "cm4f6ncgl000b08ld7dd86y24", name: "Walking Wounded", description: "Appropriately handle walking wounded." }),
+                    defineSkill({ id: "cm4f6ngqw000c08ldc46580wx", name: "Transport Patient", description: "Assist with a patient extraction/transport to CCP." }),
+                    defineSkill({ id: "cm4f6nldi000d08ldgakh8pyj", name: "Patient Care", description: "Maintain good patient care & privacy." }),
+                ]
+            }),
+            defineGroup({
+                id: "cm4f6g7gp000708ld71xyguoa",
+                name: "Medic",
+                ref: "Medic",
+                skills: [
+                    defineSkill({ id: "cm4f6nr47000e08lde71m5il2", name: "Patient Survey", description: "Conduct a primary and secondary survey." }),
+                    defineSkill({ id: "cm4f6nv3r000f08ld69fvglsc", name: "Patient Report Form", description: "Complete a patient report form." }),
+                    defineSkill({ id: "cm4f6nz0l000g08ld9e6beccd", name: "Monitor Patient", description: "Monitor a patient and record vitals." }),
+                    defineSkill({ id: "cm4f6o3mv000h08ldbmip0xp7", name: "Track Patients", description: "Track number of patients and locations." }),
+                    defineSkill({ id: "cm4f6o8d5000i08ld9ev09q48", name: "Patient Handover", description: "Conduct a handover to ambulance." }),
+                ]
+            })
+        ]
     }),
     defineCapability({ 
         id: "cm3zhj2xe002e08l464ycdj28", 
         name: "Out of Region", 
         ref: "Out-Of-Region", 
-        skillGroups: []
+        skillGroups: [
+            defineGroup({
+                id: "cm4f9j7ag000608mj3yw1a07f",
+                name: "Driving & 4WD",
+                ref: "Driving",
+                skills: [
+                    defineSkill({ id: "cm4f9ilre000208mjh3o788df", name: "Drive on road", description: "Drive a team vehicle on road." }),
+                    defineSkill({ id: "cm4f9iqav000308mjgc2hf518", name: "Drive a 4WD offroad", description: "Drive a 4WD off road." }),
+                    defineSkill({ id: "cm4f9iwx9000408mj2sv866t7", name: "Vehicle Maintenance", description: "Understand vehicle maintenance requirement (eg vehicle checks, tyre changes, etc.)" }),
+                    defineSkill({ id: "cm4f9j12z000508mj4gw1d38a", name: "Vehicle Limits", description: "Understand limits of driving in flood water approopriate to vehicle being driven." }),
+                    defineSkill({ id: "cm4f9jg5u000808mj8zwj3k50", name: "Reverse Trailer", description: "Reverse a trailer including correct hitching and checking procedures.", optional: true }),
+                    defineSkill({ id: "cm4f9jmof000908mj5csed58c", name: "Vehicle Recovery", description: "Set up and use a vehicle recovery system, anchors, winching, and towing.", optional: true }),
+                    defineSkill({ id: "cm4f9juuj000a08mjeimnf166", name: "Specialist Vehicle", description: "Operate a specialist vehicle (eg. Quad bike, Argo, side by side, etc)." }),
+                    defineSkill({ id: "cm4f9jzn4000b08mj7xz0c1sl", name: "Operate jack or winch", description: "Operate a high lift lift, tirfor winch or other specialist equipment." }),
+                ]
+            }),
+            defineGroup({
+                id: "cm4f9jbw3000708mj57qhd3jh",
+                name: "Out of Region Deployment",
+                ref: "Out-Of-Region",
+                skills: [
+                    defineSkill({ id: "cm4f9id6m000008mjgy2ic68h", name: "Deploy Out of Region", description: "Participate in an out-of-region deployment or exercise.", frequency: 'P2Y' }),
+                    defineSkill({ id: "cm4f9ihv7000108mjd6wr2911", name: "Out of Region Equipment", description: "Understands how to use the team's tents, cookers, toilets, wash stations,etc", frequency: 'P2Y' })
+                ]
+            })
+        ]
     }),
     defineCapability({ 
         id: "cm3zhj6p3002f08l40i5b9gvf", 
         name: "Leadership", 
         ref: "Leadership", 
-        skillGroups: []
+        skillGroups: [
+            defineGroup({
+                id: "cm4f9xe95000008jp9j2u02ub",
+                name: "Team Leadership",
+                ref: "Team-Leadership",
+                skills: [
+                    defineSkill({ id: "cm4f9xi1s000108jpf4w18g92", name: "Lead", description: "Lead a team or squad effectively." }),
+                    defineSkill({ id: "cm4f9xlzr000208jpeqfkfafj", name: "Briefing", description: "Deliver a GSMEAC briefing for a task." }),
+                    defineSkill({ id: "cm4f9xqak000308jp2bvzc4fv", name: "Debriefing", description: "Facilitate a DESC debrief." }),
+                    defineSkill({ id: "cm4f9xuf2000408jp6ixkfdwt", name: "Situation Report", description: "Complete a situation report or handover (written or verbal)." }),
+                ]
+            }),
+            defineGroup({
+                id: "cm4f9xymd000508jp2qfv01ba",
+                name: "Safety Officer",
+                ref: "Safety-Officer",
+                skills: [
+                    defineSkill({ id: "cm4f9y2pv000608jp51vxh5fj", name: "Base Induction", description: "Understand team base health and safety induction requirements." }),
+                    defineSkill({ id: "cm4f9ynjc000708jpft8h5zzd", name: "Safety Briefing", description: "Deliver health and safety briefing." }),
+                    defineSkill({ id: "cm4f9ysqk000808jp54le2e6e", name: "Hazard Board", description: "Write and maintain a site hazard board." }),
+                    defineSkill({ id: "cm4f9yx9n000908jpbtbwhpyu", name: "Incident Report", description: "Complete an incident report form and complete follow-up actions/investigation." }),
+                    defineSkill({ id: "cm4f9z24j000a08jp6nse5y63", name: "Monitor Well-being", description: "Monitor and manage team well-being (eg. breaks, water, energy levels)" }),
+                    defineSkill({ id: "cm4f9z6pc000b08jp5rz67ocg", name: "Rope Systems Check", description: "Can complete a pre-operation system check of a rope system", optional: true }),
+                ]
+            })
+        ]
     })
 ]
 
