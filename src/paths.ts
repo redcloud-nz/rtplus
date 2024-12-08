@@ -13,7 +13,12 @@ export const competencies = {
         assess: `/competencies/assessments/${aId}/assess`,
     } as const),
     newAssessment: '/competencies/assessments/new-assessment',
-    reports: `/competencies/reports`
+    reportsList: `/competencies/reports`,
+    reports: {
+        individual: `/competencies/reports/individual`,
+        teamSkills: `/competencies/reports/teamSkills`,
+        teamMembers: `/competencies/reports/teamMembers`,
+    }
 } as const
 
 //  /------------------------------\

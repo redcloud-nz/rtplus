@@ -41,8 +41,8 @@ const navTools: NavItem[] = [
                 url: Paths.competencies.assessmentList
             },
             {
-                title: "Report",
-                url: Paths.competencies.reports
+                title: "Reports",
+                url: Paths.competencies.reportsList
             }
         ]
     },

@@ -205,13 +205,68 @@ export const CapabilityList: SampleCapability[] = [
         id: "cm3zhhy2w002808l4dqq2dp78", 
         name: "Flood Response", 
         ref: "Flood", 
-        skillGroups: []
+        skillGroups: [
+            defineGroup({
+                id: "cm4etjxw8000008kv210j1qmh",
+                name: "Flood Protection",
+                skills: [
+                    defineSkill({ id: "cm4etqhwr000008kv4vfie4vz", name: "Pumps", description: "Operate pumps (including priming and maintenance requirements)." }),
+                    defineSkill({ id: "cm4etqmod000108kv3unla7jg", name: "Sand Bagging", description: "Effective sand bagging as a team or alternate flood barrier systems." }),
+                    defineSkill({ id: "cm4etqqsl000208kv2ogf6bj1", name: "Divert Water", description: "Divert water for salvage." }),
+                    defineSkill({ id: "cm4etqv8v000308kvcd1kc2hp", name: "Ring Dyke", description: "Take part in forming a ring dyke." }),
+                    defineSkill({ id: "cm4etqzj8000408kve4593y3y", name: "Drain Hazards", description: "Identifies hazards when clearing drains." }),
+                    defineSkill({ id: "cm4etr408000508kv5kyp8qzc", name: "Decontamination", description: "Conducts decontamination procedures", optional: true })
+                ]
+            }),
+            defineGroup({
+                id: "cm4etku18000108kvd7knditd",
+                name: "Water Safety",
+                skills: [
+                    defineSkill({ id: "cm4etr8xy000608kv1lbue53y", name: "Correct PPE", description: "Correct PPE work and buddy checked" }),
+                    defineSkill({ id: "cm4etrd3k000708kvhe0857ny", name: "Priorities and Safety", description: "Understands or demonstrates priority of rescue (low to high risk) and reqs for upstream & downstream safety" }),
+                    defineSkill({ id: "cm4etrhcu000808kv0hbxcxzt", name: "Wading Poles", description: "Use wading poles/sticks to check surface for safety." }),
+                    defineSkill({ id: "cm4etrm0q000908kv2hxb5213", name: "River Crossing", description: "Demonstrate a river crossing technique as a team" }),
+                    defineSkill({ id: "cm4etrq91000a08kvgd2l0s8g", name: "Swimming", description: "Swimming (aggressive and defensive) with correct ferry angle" }),
+                    defineSkill({ id: "cm4etrv1j000b08kvci84g5nw", name: "Throw Bags", description: "Throw bag accurately 10-15m" }),
+                    defineSkill({ id: "cm4etrze2000c08kvfw6cgr93", name: "Swim to Eddy", description: "Able to swim to an eddy" }),
+                    defineSkill({ id: "cm4ets403000d08kvgozi5u4d", name: "Tension Diagonal", description: "Can rig a tension diagonal", optional: true }),
+                    defineSkill({ id: "cm4etsb4f000e08kvhedr0qat", name: "Boat on Tether", description: "Can perform a boat on tether (4-point)" })
+                ]
+            })
+        ]
     }),
     defineCapability({ 
         id: "cm3zhig8n002908l41xmr9fhc", 
         name: "Storm Response", 
         ref: "Storm", 
-        skillGroups: []
+        skillGroups: [
+            defineGroup({
+                id: "cm4etydjb000f08kvexju27a2",
+                name: "Storm",
+                skills: [
+                    defineSkill({ id: "cm4eu5436000i08kvhyaf77h3", name: "Appropriate Anchors", description: "Choose appropriate anchors and rig correctly." }),
+                    defineSkill({ id: "cm4eu589b000j08kvcz4g33jw", name: "Setup Roof System", description: "Setup a roof acces system." }),
+                    defineSkill({ id: "cm4eu5cl4000k08kv75qaaopf", name: "Use Roof System", description: "Use a roof access system (limiting fall factor)." }),
+                    defineSkill({ id: "cm4eu5gam000l08kv7mat5q3d", name: "Roof Repairs", description: "Perform temorary roof repairs." }),
+                    defineSkill({ id: "cm4eu5gam000l08kv7mat5q3d", name: "Rescue from Roor", description: "Practice rescue from roof by lowering system." }),
+                    defineSkill({ id: "cm4eu5obb000n08kvf1427ldb", name: "Secure furniture", description: "Secure furniture/fittings, demonstrate salvage techniques." }),
+                    defineSkill({ id: "cm4eu5sy2000o08kv3cfw6i6s", name: "Window Cover", description: "Make a temporary window cover." }),
+                    defineSkill({ id: "cm4eu5x98000p08kv3j7lfur5", name: "Inspect Equipment", description: "Inspect and log use of height equipment (ropes & hardware, etc)." }),
+                ]
+            }),
+            defineGroup({
+                id: "cm4etyvri000g08kv5h8b8uxj",
+                name: "Chainsaws",
+                skills: [
+                    defineSkill({ id: "cm4eua4qq000q08kv2gadb749", name: "Chainsaw PPE", description: "Wears correct PPE when using a chainsaw", optional: true }),
+                    defineSkill({ id: "cm4eua9fq000r08kv01oj4xuq", name: "Chainsaw Handling", description: "Can demonstrate safe chainsaw handling, functional parts, and maintenance.", optional: true }),
+                    defineSkill({ id: "cm4euadti000s08kv3u1k4qvy", name: "Safe Fueling", description: "Can demonstrate safe fueling and oiling procedures", optional: true }),
+                    defineSkill({ id: "cm4euahzr000t08kv8n2mg7nq", name: "Start Procedures", description: "Can demonstrate correct cold and hot starting procedures.", optional: true }),
+                    defineSkill({ id: "cm4eualu7000u08kv6p700lw9", name: "Saw Correctly", description: "Use the saw correctly and safely when cutting", optional: true }),
+                    defineSkill({ id: "cm4euapt2000v08kvc3nu6ko0", name: "Area of Operation", description: "Has knowledge of areas of operation and escape routes", optional: true })
+                ]
+            })
+        ]
     }),
     defineCapability({ 
         id: "cm3zhils0002a08l4h3042wks", 
