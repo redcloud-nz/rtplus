@@ -43,9 +43,9 @@ export const AssessmentStore = new LocalObjectStore<CompetencyAssessmentWithRela
 
 interface AssessmentContext {
     value: CompetencyAssessmentWithRelations
-    setValue(newValue: CompetencyAssessmentWithRelations): void
-    updateValue(updated: Partial<CompetencyAssessmentWithRelations> | ((prev: CompetencyAssessmentWithRelations) => CompetencyAssessmentWithRelations)): void
-    save(): Promise<void>
+    setValue(newValue: CompetencyAssessmentWithRelations, persist?: boolean): void
+    updateValue(updated: Partial<CompetencyAssessmentWithRelations> | ((prev: CompetencyAssessmentWithRelations) => CompetencyAssessmentWithRelations), persist?: boolean): void
+    save(valueToSave?: CompetencyAssessmentWithRelations): Promise<void>
     saveStatus: 'Ready' | 'Saving' | 'Saved'
 }
 
@@ -62,19 +62,20 @@ export function AssessmentContextProvider({ assessmentId, children }: { assessme
 
     const context: AssessmentContext = {
         value,
-        setValue,
-        updateValue(updater) {
-            setSaveStatus('Ready')
-            if(typeof updater == 'function') {
-                setValue(updater(value))
-            } else {
-                setValue({ ...value, ...updater })
-            }
+        setValue(newValue, persist = false) {
+            setValue(newValue)
+            if(persist) this.save(newValue)
         },
-        async save() {
+        updateValue(updater, persist = false) {
+            setSaveStatus('Ready')
+            const newValue = typeof updater == 'function' ? updater(value) : { ...value, updater}
+            setValue(newValue)
+            if(persist) this.save(newValue)
+        },
+        async save(valueToSave = value) {
             setSaveStatus('Saving')
-            AssessmentStore.setObject(assessmentId, value)
-            await resolveAfter(null, 1000)
+            AssessmentStore.setObject(assessmentId, valueToSave)
+            await resolveAfter(null, 500)
             setSaveStatus('Saved')
         },
         saveStatus

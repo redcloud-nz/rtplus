@@ -1,5 +1,6 @@
 'use client'
 
+import _ from 'lodash'
 import React from 'react'
 
 import { createId } from '@paralleldrive/cuid2'
@@ -47,12 +48,14 @@ export default function AssessmentAssessPage({}: { params: { assessmentId: strin
     }
 
     function handleSelectSkill(skillId: string | 'NONE') {
+        console.log(`handleSelectSkill(${skillId}). selectedPersonId=${selectedPersonId}`)
         setSelectedSkillId(skillId)
         if(skillId == 'NONE' || selectedPersonId == 'NONE') setSkillCheck(null)
         else setSkillCheck(getSkillCheck(skillId, selectedPersonId))
     }
 
     function handleSelectPerson(personId: string | 'NONE') {
+        console.log(`handleSelectPerson(${personId}). selectedSkillId=${selectedSkillId}`)
         setSelectedPersonId(personId)
         if(personId == 'NONE' || selectedSkillId == 'NONE') setSkillCheck(null)
         else setSkillCheck(getSkillCheck(selectedSkillId, personId))
@@ -63,26 +66,25 @@ export default function AssessmentAssessPage({}: { params: { assessmentId: strin
     }
 
     async function handleSave() {
+        console.log(`handleSave()`, skillCheck)
         if(skillCheck == null) {
             console.error("skillCheck must be defined to be saved.")
             return
         }
 
         assessmentContext.updateValue(prev => {
-            let found = false
-            const updated = prev.skillChecks.map(item => {
-                if(item.skillId == selectedSkillId && item.assesseeId == selectedPersonId) {
-                    found = true
-                    return skillCheck
-                } else return item
-            })
-
-            return {
-                ...prev,
-                skillChecks: found ? updated : [...prev.skillChecks, skillCheck]
+           
+            if(_.some(prev.skillChecks, item => item.skillId == selectedSkillId && item.assesseeId == selectedPersonId)) {
+                const updated = prev.skillChecks.map(item => {
+                    if(item.skillId == selectedSkillId && item.assesseeId == selectedPersonId) {
+                        return skillCheck
+                    } else return item
+                })
+                return { ...prev, skillChecks: updated}
+            } else {
+                return { ...prev, skillChecks: [...prev.skillChecks, skillCheck] }
             }
-        })
-
+        }, true)
         await resolveAfter(null, 500)
     }
 
@@ -164,7 +166,7 @@ export default function AssessmentAssessPage({}: { params: { assessmentId: strin
                                     <TableCell>
                                         <a 
                                             className="hover:cursor-pointer"
-                                            onClick={() => setSelectedSkillId(skill.id)}
+                                            onClick={() => handleSelectSkill(skill.id)}
                                         >{skill.name}</a>
                                     </TableCell>
                                     <TableCell>{skillCheck.result}</TableCell>
@@ -189,7 +191,7 @@ export default function AssessmentAssessPage({}: { params: { assessmentId: strin
                                     <TableCell>
                                         <a 
                                             className="hover:cursor-pointer" 
-                                            onClick={() => setSelectedPersonId(person.id)}
+                                            onClick={() => handleSelectPerson(person.id)}
                                         >{person.name}</a>
                                     </TableCell>
                                     <TableCell>{skillCheck.result}</TableCell>
@@ -221,7 +223,7 @@ export default function AssessmentAssessPage({}: { params: { assessmentId: strin
                             <Textarea value={skillCheck?.notes} onChange={ev => handleChange({ notes: ev.target.value })}/>
                         </div>
                         <div className="flex gap-2 mt-2">
-                            <AsyncButton onClick={handleSave} label="Save" pending="Saving"/>
+                            <AsyncButton onClick={handleSave} label="Save" pending="Saving" reset/>
                             <Button variant="outline" onClick={handleReset}>Reset</Button>
                         </div>
                     </> : null}

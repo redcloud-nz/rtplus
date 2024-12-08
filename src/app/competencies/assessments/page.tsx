@@ -58,9 +58,9 @@ export default function AssessmentsListPage() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {assessmentsQuery.data.map(assessment => 
+                        {assessmentsQuery.data.map((assessment, index) => 
                             <TableRow key={assessment.id}>
-                                <TableCell><Link href={Paths.competencies.assessment(assessment.id).edit}>{assessment.name}</Link></TableCell>
+                                <TableCell><Link href={Paths.competencies.assessment(assessment.id).edit}>{assessment.name || `#${index+1}`}</Link></TableCell>
                                 <TableCell>{formatISO(assessment.date, { representation: 'date' })}</TableCell>
                                 <TableCell className="hidden md:table-cell text-center ">{assessment.skillIds.length}</TableCell>
                                 <TableCell className="hidden md:table-cell text-center">{assessment.assesseeIds.length}</TableCell>
