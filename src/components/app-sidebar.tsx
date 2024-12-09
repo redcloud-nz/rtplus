@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
-import { BookOpenIcon, InfoIcon, ListChecksIcon, NotebookTextIcon, PocketKnifeIcon, Settings2Icon, SquareTerminalIcon, UserCheckIcon, WalletCardsIcon } from "lucide-react"
+import { BookOpenIcon, InfoIcon, ListChecksIcon, NotebookTextIcon, PocketKnifeIcon, Settings2Icon, SquareTerminalIcon, UserCheckIcon, UserRoundIcon, WalletCardsIcon } from "lucide-react"
 
 import { NavItem, NavSection } from '@/components/nav-section'
 
@@ -126,10 +126,7 @@ const navTools: NavItem[] = [
                 title: "General",
                 url: "/settings",
             },
-            {
-                title: "D4H Access Keys",
-                url: "/profile/d4h-access-keys",
-            },
+            
             {
                 title: "Personnel",
                 url: Paths.personnel,
@@ -146,11 +143,24 @@ const navTools: NavItem[] = [
                 title: "Teams",
                 url: Paths.teams,
             },
+            
+        ],
+    },
+    {
+        title: "Personal",
+        url: Paths.profile,
+        icon: <UserRoundIcon/>,
+        authRequired: true,
+        items: [
+            {
+                title: "D4H Access Keys",
+                url: Paths.d4hAccessKeys,
+            },
             {
                 title: "Who am I?",
                 url: Paths.whoami
             },
-        ],
+        ]
     },
     { 
         title: "Source Code",

@@ -5,7 +5,6 @@ import { createListResponse } from '@/lib/api/common'
 import type { D4hAccessKeyWithTeam } from '@/lib/api/d4h-access-keys'
 import prisma from '@/lib/prisma'
 
-export const dynamic = 'force-dynamic'
 
 export async function GET() {
     const user = await currentUser()
