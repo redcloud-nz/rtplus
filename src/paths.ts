@@ -1,4 +1,5 @@
 
+
 //  /------------------------------\
 //  |         Competencies         |
 //  \------------------------------/
@@ -37,6 +38,7 @@ export const personnel = `${manage}/personnel`
 export const newPerson = `${personnel}/new`
 export const person = (pId: string) => `${personnel}/${pId}`
 export const editPerson = (pId: string) => `${person(pId)}/edit`
+export const personAccess = (pId: string) => `${person(pId)}/access`
 export const personMemberships = (pId: string) => `${person(pId)}/memberships`
 
 // Skills
@@ -60,12 +62,11 @@ export const teamMembers = (tId: string) => `${team(tId)}/members`
 
 
 //  /------------------------------\
-//  |           Profile            |
+//  |           Account            |
 //  \------------------------------/
-export const profile = '/profile'
-
-// D4H Access Keys
-export const d4hAccessKeys = `${profile}/d4h-access-keys`
-
-// Whoami
-export const whoami = `${profile}/whoami`
+export const account = {
+    profile: '/account/user-profile',
+    organizationList: '/account/organization-list',
+    d4hAccessKeys: '/account/d4h-access-keys',
+    whoami: '/account/whoami'
+} as const

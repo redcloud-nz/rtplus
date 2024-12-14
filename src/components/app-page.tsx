@@ -1,12 +1,9 @@
 import { tv, VariantProps } from 'tailwind-variants'
-import { LogInIcon } from 'lucide-react'
 import Link from 'next/link'
 import React from 'react'
 
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs'
 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
-import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Heading } from '@/components/ui/typography'
@@ -24,19 +21,6 @@ export function AppPageContainer({ children }: AppPageContainerProps) {
         <div className="row-start-1 col-start-1 p-2.5">
             <SidebarTrigger/>
         </div>
-        <SignedIn>
-            <div className="row-start-1 col-start-3 p-2.5">
-                <UserButton/>
-                </div>
-            </SignedIn>
-            
-            <SignedOut>
-                <div className="row-start-1 col-start-3 py-1">
-                    <SignInButton>
-                        <Button variant="ghost"><LogInIcon/> Sign In</Button>
-                    </SignInButton>
-                </div>
-            </SignedOut>
         <Separator className="row-start-2 col-span-full" orientation="horizontal"/>
         {children}
     </div>

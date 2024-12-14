@@ -1,5 +1,5 @@
 
-import { currentUser } from '@clerk/nextjs/server'
+import { auth, currentUser } from '@clerk/nextjs/server'
 
 import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 import { Unauthorized } from '@/components/errors'
@@ -12,8 +12,9 @@ import prisma from '@/lib/prisma'
 import { formatDateTime } from '@/lib/utils'
 
 
-
 export default async function WhoAmIPage() {
+
+    const { orgId } = await auth()
 
     const user = await currentUser()
     if(!user) return <Unauthorized label="Who am I?"/>
@@ -42,6 +43,9 @@ export default async function WhoAmIPage() {
                     <DL>
                         <DLTerm>Clerk User ID</DLTerm>
                         <DLDetails>{user.id}</DLDetails>
+
+                        <DLTerm>Clerk Org ID</DLTerm>
+                        <DLDetails>{orgId}</DLDetails>
 
                         <DLTerm>{`user.publicMetadata.personId`}</DLTerm>
                         <DLDetails>{''+user.publicMetadata.personId}</DLDetails>

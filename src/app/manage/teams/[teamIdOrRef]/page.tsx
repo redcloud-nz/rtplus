@@ -38,7 +38,7 @@ export default async function TeamPage({ params }: { params: { teamIdOrRef: stri
         }
     })
 
-    if(!team) return <NotFound label="Team"/>
+    if(!team) return <NotFound />
 
     const members = _.sortBy(team.memberships, (member) => member.person.name)
 

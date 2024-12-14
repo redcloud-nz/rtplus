@@ -6,14 +6,17 @@ import React from 'react'
 import { BookOpenIcon, InfoIcon, ListChecksIcon, NotebookTextIcon, PocketKnifeIcon, Settings2Icon, SquareTerminalIcon, UserCheckIcon, UserRoundIcon, WalletCardsIcon } from "lucide-react"
 
 import { NavItem, NavSection } from '@/components/nav-section'
+import { NavUser } from '@/components/nav-user'
 
 import {
     Sidebar,
     SidebarContent,
+    SidebarFooter,
     SidebarHeader,
     SidebarRail,
 } from '@/components/ui/sidebar'
 import * as Paths from '@/paths'
+
 
 
 const navTools: NavItem[] = [
@@ -146,22 +149,6 @@ const navTools: NavItem[] = [
             
         ],
     },
-    {
-        title: "Personal",
-        url: Paths.profile,
-        icon: <UserRoundIcon/>,
-        authRequired: true,
-        items: [
-            {
-                title: "D4H Access Keys",
-                url: Paths.d4hAccessKeys,
-            },
-            {
-                title: "Who am I?",
-                url: Paths.whoami
-            },
-        ]
-    },
     { 
         title: "Source Code",
         url: "https://github.com/alexwestphal/rtplus-vercel",
@@ -195,6 +182,9 @@ export function AppSidebar({ signedIn, ...props }: AppSidebarProps) {
             <NavSection title="Tools" items={navTools} signedIn={signedIn}/>
             <NavSection title="General" items={navGeneral} signedIn={signedIn}/>
         </SidebarContent>
+        <SidebarFooter>
+            <NavUser user={{ name: "Alex Westphal", email: "alexwestphal.nz@gmail.com", avatar: "" }}/>
+        </SidebarFooter>
         <SidebarRail />
     </Sidebar>
 }
