@@ -61,6 +61,8 @@ export default async function WhoAmIPage() {
                             <DLTerm>Primary Phone Number</DLTerm>
                             <DLDetails>{user.primaryPhoneNumber.phoneNumber}</DLDetails>
                         </>}
+
+                        <DLTerm></DLTerm>
                         
                     </DL>
                 </CardContent>

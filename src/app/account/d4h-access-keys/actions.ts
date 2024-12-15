@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { currentUser } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 
 import prisma from '@/lib/prisma'
 import { assertNonNull } from '@/lib/utils'
@@ -15,17 +15,16 @@ type CreateArgs =  { accessKey: string, teamId: string, d4hTeamId: number }
  */
 export async function createAccessKey({ accessKey, teamId, d4hTeamId }: CreateArgs) {
 
-    const user = await currentUser()
-    if(!user) throw new Error("Must be logged in to execute action 'createAccessKey'")
+    const { userId, orgId } = await auth.protect({ permission: 'org:d4h:personal_access' })
 
     const team = await prisma.team.findFirst({
-        where: { id: teamId }
+        where: { id: teamId, orgId  }
     })
     assertNonNull(team, `Missing team record for teamId=${teamId}`)
 
     // Create the Access Key
     await prisma.d4hAccessKey.create({
-        data: { personId: user.publicMetadata.personId, key: accessKey, teamId, enabled: true }
+        data: { orgId: orgId!!, userId, key: accessKey, teamId, enabled: true }
     })
 
     if(team.d4hTeamId == 0) {
@@ -35,8 +34,7 @@ export async function createAccessKey({ accessKey, teamId, d4hTeamId }: CreateAr
             data: { d4hTeamId }
         })
     }
-
-    revalidatePath(Paths.d4hAccessKeys)
+    revalidatePath(Paths.account.d4hAccessKeys)
 }
 
 
@@ -46,12 +44,11 @@ type UpdateArgs = { accessKeyId: string, enabled: boolean }
  * Server Action to update an access key record in the database.
  */
 export async function updateAccessKey({ accessKeyId, enabled }: UpdateArgs) {
-    const user = await currentUser()
-    if(!user) throw new Error("Must be logged in to execute action 'updateAccessKey'")
 
+    const { userId } = await auth.protect({ permission: 'org:d4h:personal_access' })
 
     await prisma.d4hAccessKey.update({
-        where: { id: accessKeyId, personId: user.publicMetadata.personId },
+        where: { id: accessKeyId, userId },
         data: { enabled }
     })
 }
@@ -63,12 +60,12 @@ type DeleteArgs = { accessKeyId: string }
  * Server Action to delete an access key record from the database.
  */
 export async function deleteAccessKey({ accessKeyId }: DeleteArgs) {
-    const user = await currentUser()
-    if(!user) throw new Error("Must be logged in to execute action 'deleteAccessKey'")
+
+    const { userId } = await auth.protect({ permission: 'org:d4h:personal_access' })
 
     await prisma.d4hAccessKey.delete({
-        where: { id: accessKeyId, personId: user.publicMetadata.personId }
+        where: { id: accessKeyId, userId }
     })
 
-    revalidatePath(Paths.d4hAccessKeys)
+    revalidatePath(Paths.account.d4hAccessKeys)
 }

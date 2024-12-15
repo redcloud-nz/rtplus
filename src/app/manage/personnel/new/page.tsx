@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import React from 'react'
 import { z } from 'zod'
 
-import { currentUser } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 
 import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 
@@ -18,6 +18,8 @@ import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
 import prisma from '@/lib/prisma'
 
 import * as Paths from '@/paths'
+import { recordEvent } from '@/lib/history'
+import { assertNonNull } from '@/lib/utils'
 
 const CreatePersonFormSchema = z.object({
     name: z.string().max(50),
@@ -66,8 +68,8 @@ export default async function NewPersonPage() {
 async function createPerson(formState: FormState, formData: FormData) {
     'use server'
 
-    const user = await currentUser()
-    if(!user) throw new Error("Must be logged in to execute action 'createPerson'")
+    const { userId, orgId } = await auth.protect({ permission: 'org:members:manage' })
+    assertNonNull(orgId, "An active organization is required to execute action 'createPerson'")
 
     let personId: string
     try {
@@ -87,6 +89,8 @@ async function createPerson(formState: FormState, formData: FormData) {
                 email: fields.email
             }
         })
+
+        await recordEvent('CreatePerson', { orgId, userId, meta: { personId: createdPerson.id } })
 
         personId = createdPerson.id
     } catch(error) {

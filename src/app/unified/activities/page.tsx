@@ -1,19 +1,18 @@
 
 import { Metadata } from 'next'
 
-import { currentUser } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 
 import { AppPage, PageDescription, PageTitle } from '@/components/app-page'
-import { Unauthorized } from '@/components/errors'
 
 import { ActivitiesList } from './activities-list'
+
 
 export const metadata: Metadata = { title: "Activities | D4H Unified | RT+" }
 
 export default async function ActivitiesPage() {
-    const user = await currentUser()
-    if(!user) return <Unauthorized label="Activities"/>
     
+    const { userId } = await auth.protect({ permission: 'org:d4h:personal_access' })
 
     return <AppPage 
         label="Activities" 

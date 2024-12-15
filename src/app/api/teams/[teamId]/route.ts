@@ -1,6 +1,8 @@
 
 import { NextRequest } from 'next/server'
 
+import { auth } from '@clerk/nextjs/server'
+
 import { createObjectResponse } from '@/lib/api/common'
 import prisma from '@/lib/prisma'
 
@@ -8,6 +10,7 @@ import type { TeamWithMembers } from '@/lib/api/teams'
 
 export async function GET(request: NextRequest, { params }: { params: { teamId: string } }) {
     
+    const { orgId } = await auth.protect()
 
     const team: TeamWithMembers | null = await prisma.team.findFirst({
         include: {
@@ -18,7 +21,8 @@ export async function GET(request: NextRequest, { params }: { params: { teamId: 
             },
         },
         where: {
-            id: params.teamId
+            id: params.teamId,
+            orgId
         }
     })
 

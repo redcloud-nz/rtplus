@@ -2,10 +2,10 @@
 import _ from 'lodash'
 import { EllipsisVerticalIcon, PencilIcon, PlusIcon } from 'lucide-react'
 
-import { currentUser } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 
 import { AppPage, PageControls, PageHeader, PageTitle } from '@/components/app-page'
-import { NotFound, Unauthorized } from '@/components/errors'
+import { NotFound } from '@/components/errors'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
@@ -18,23 +18,23 @@ import * as Paths from '@/paths'
 
 export default async function TeamPage({ params }: { params: { teamIdOrRef: string }}) {
 
-    const user = await currentUser()
-    if(!user) return <Unauthorized label="Team"/>
+    const { orgId } = await auth.protect()
 
     // Get the team and all team members
     const team = await prisma.team.findFirst({
+        where: {
+            orgId,
+            OR: [
+                { id: params.teamIdOrRef },
+                { ref: params.teamIdOrRef }
+            ]
+        },
         include: {
             memberships: {
                 include: {
                     person: true
                 }
             },
-        },
-        where: {
-            OR: [
-                { id: params.teamIdOrRef },
-                { ref: params.teamIdOrRef }
-            ]
         }
     })
 

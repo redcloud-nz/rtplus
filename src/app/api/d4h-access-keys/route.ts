@@ -1,5 +1,5 @@
 
-import { currentUser } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 
 import { createListResponse } from '@/lib/api/common'
 import type { D4hAccessKeyWithTeam } from '@/lib/api/d4h-access-keys'
@@ -7,8 +7,7 @@ import prisma from '@/lib/prisma'
 
 
 export async function GET() {
-    const user = await currentUser()
-    if(!user) return Response.error()
+    const { userId } = await auth.protect({ permission: 'org:d4h:personal_access' })
 
     const accessKeys: D4hAccessKeyWithTeam[] = await prisma.d4hAccessKey.findMany({
         select: { 
@@ -25,7 +24,7 @@ export async function GET() {
 
             }
         },
-        where: { personId: user.publicMetadata.personId, enabled: true } 
+        where: { userId, enabled: true } 
     })
 
     return Response.json(createListResponse(accessKeys))

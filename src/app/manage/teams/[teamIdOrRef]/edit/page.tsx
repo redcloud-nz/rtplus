@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import React from 'react'
 import { z } from 'zod'
 
-import { currentUser } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 
 import { AppPage, PageTitle } from '@/components/app-page'
 import { NotFound } from '@/components/errors'
@@ -17,9 +17,12 @@ import { Link } from '@/components/ui/link'
 
 import { DefaultD4hApiUrl } from '@/lib/d4h-api/client'
 import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
+import { recordEvent } from '@/lib/history'
 import prisma from '@/lib/prisma'
+import { assertNonNull } from '@/lib/utils'
 
 import * as Paths from '@/paths'
+
 
 
 const EditTeamFormSchema = z.object({
@@ -36,11 +39,11 @@ export const metadata: Metadata = { title: "Edit Team | RT+" }
 
 export default async function EditTeamPage({ params }: { params: { teamIdOrRef: string }}) {
 
-    const user = await currentUser()
-    if(!user) throw new Error("Must be logged in to access edit team page.")
+    const { orgId } = await auth.protect({ permission: 'org:teams:manage' })
 
     const team = await prisma.team.findFirst({
         where: {
+            orgId,
             OR: [
                 { id: params.teamIdOrRef },
                 { ref: params.teamIdOrRef }
@@ -123,8 +126,9 @@ export default async function EditTeamPage({ params }: { params: { teamIdOrRef: 
 async function updateTeam(formState: FormState, formData: FormData) {
     'use server'
 
-    const user = await currentUser()
-    if(!user) throw new Error("Must be logged in to execute action 'updateTeam'")
+    const { userId, orgId } = await auth.protect({ permission: 'org:teams:manage' })
+    assertNonNull(orgId, "An active organization is required to execute action 'updateTeam'")
+    
 
     let teamIdOrRef: string
     try {
@@ -146,7 +150,7 @@ async function updateTeam(formState: FormState, formData: FormData) {
             if(refConflict) return fieldError('teamRef', `Team ref '${ref}' is already taken.`)
         }
 
-        await prisma.team.update({
+        const updatedTeam = await prisma.team.update({
             where: { id: fields.teamId },
             data: { 
                 name: fields.name, 
@@ -157,6 +161,8 @@ async function updateTeam(formState: FormState, formData: FormData) {
                 d4hWebUrl: fields.d4hWebUrl
             }
         })
+
+        await recordEvent('UpdateTeam', { orgId, userId, meta: { teamId: updatedTeam.id } })
 
         teamIdOrRef = ref ?? fields.teamId
     } catch(error) {

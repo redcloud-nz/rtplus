@@ -1,13 +1,12 @@
-// /profile/d4h-access-keys
+// /account/d4h-access-keys
 
 import { PlusIcon, TrashIcon } from 'lucide-react'
 import { Metadata } from 'next'
 import React from 'react'
 
-import { currentUser } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 
 import { AppPage, PageControls, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
-import { Unauthorized } from '@/components/errors'
 import { Show } from '@/components/show'
 
 import Alert from '@/components/ui/alert'
@@ -27,27 +26,26 @@ export const metadata: Metadata = { title: "Personal D4H Access Keys | RT+" }
 
 export default async function D4hAccessKeysPage() {
     
-    const user = await currentUser()
-    if(!user) return <Unauthorized label="D4H Access Keys"/>
+    const { userId, orgId } = await auth.protect({ permission: 'org:d4h:personal_access' })
    
     const accessKeys = await prisma.d4hAccessKey.findMany({
-        select: {
-            id: true,
-            key: true,
-            createdAt: true,
-            enabled: true,
+        include: {
             team: {
-                select: { name: true }
+                select: {
+                    name: true
+                }
             }
         },
-        where: { personId: user.publicMetadata.personId }
+        where: { userId, orgId }
     })
 
-    const teams = await prisma.team.findMany({})
+    const teams = await prisma.team.findMany({
+        where: { orgId }
+    })
 
     return <AppPage 
         label="D4H Access Keys" 
-        breadcrumbs={[{ label: "User Profile", href: Paths.profile }]}
+        breadcrumbs={[{ label: "Account", href: Paths.account.profile }]}
     >
         <PageHeader>
             <PageTitle>Personal D4H Access Keys</PageTitle>

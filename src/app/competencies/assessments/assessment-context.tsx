@@ -75,7 +75,7 @@ export function AssessmentContextProvider({ assessmentId, children }: { assessme
         async save(valueToSave = value) {
             setSaveStatus('Saving')
             AssessmentStore.setObject(assessmentId, valueToSave)
-            await resolveAfter(null, 500)
+            await resolveAfter(null, 1000)
             setSaveStatus('Saved')
         },
         saveStatus

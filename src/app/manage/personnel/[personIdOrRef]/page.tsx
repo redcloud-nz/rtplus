@@ -2,10 +2,10 @@
 import { KeyRoundIcon, PencilIcon, PlusIcon, Trash2Icon } from 'lucide-react'
 import { Metadata } from 'next'
 
-import { currentUser } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 
 import { AppPage, PageControls, PageHeader, PageTitle } from '@/components/app-page'
-import { NotFound, Unauthorized } from '@/components/errors'
+import { NotFound } from '@/components/errors'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
@@ -24,8 +24,7 @@ export const metadata: Metadata = { title: "Personnel | RT+" }
 
 export default async function PersonPage({ params }: { params: { personIdOrRef: string }}) {
 
-    const user = await currentUser()
-    if(!user) return <Unauthorized label="Person"/>
+    const { userId, orgId } = await auth.protect({ permission: 'org:members:manage' })
 
     const person = await prisma.person.findFirst({
         include: {

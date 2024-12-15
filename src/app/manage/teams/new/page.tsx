@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import React from 'react'
 import { z } from 'zod'
 
-import { currentUser } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 
 import { AppPage, PageDescription, PageTitle } from '@/components/app-page'
 
@@ -19,6 +19,8 @@ import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
 import prisma from '@/lib/prisma'
 
 import * as Paths from '@/paths'
+import { recordEvent } from '@/lib/history'
+import { assertNonNull } from '@/lib/utils'
 
 const CreateTeamFormSchema = z.object({
     name: z.string().min(5).max(50),
@@ -41,7 +43,7 @@ export default function NewTeamPage() {
         ]}    
     >
         <PageTitle>New Team</PageTitle>
-        <PageDescription>Create a new team within RT+.</PageDescription>
+        <PageDescription>Create a new team within your organization.</PageDescription>
         <Form action={createTeam}>
             <FormField name="name">
                 <FieldLabel>Team name</FieldLabel>
@@ -105,8 +107,8 @@ export default function NewTeamPage() {
 async function createTeam(formState: FormState, formData: FormData) {
     'use server'
 
-    const user = await currentUser()
-    if(!user) throw new Error("Must be logged in to execute action 'createTeam'")
+    const { userId, orgId } = await auth.protect({ permission: 'org:teams:manage'})
+    assertNonNull(orgId, "An active organization is required to execute action 'createTeam'")
 
     let teamIdOrCode: string
     try {
@@ -129,7 +131,8 @@ async function createTeam(formState: FormState, formData: FormData) {
         }
 
         const createdTeam = await prisma.team.create({
-            data: { 
+            data: {
+                orgId: orgId!!,
                 name: fields.name, 
                 ref,
                 color: fields.color,
@@ -138,6 +141,8 @@ async function createTeam(formState: FormState, formData: FormData) {
                 d4hWebUrl: fields.d4hWebUrl
             }
         })
+
+        await recordEvent('CreateTeam', { orgId, userId, meta: { teamId: createdTeam.id } })
 
         teamIdOrCode = fields.ref || createdTeam.id
     } catch(error) {

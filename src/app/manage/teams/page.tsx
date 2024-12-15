@@ -4,10 +4,9 @@ import { PlusIcon } from 'lucide-react'
 import { Metadata } from 'next'
 import React from 'react'
 
-import { currentUser } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 
 import { AppPage, PageControls, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
-import { Unauthorized } from '@/components/errors'
 import { Show } from '@/components/show'
 
 import Alert from '@/components/ui/alert'
@@ -17,15 +16,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 
 
 import prisma from '@/lib/prisma'
 import * as Paths from '@/paths'
+import { Protect } from '@clerk/nextjs'
 
 export const metadata: Metadata = { title: "Teams | RT+" }
 
 export default async function TeamsPage() {
 
-    const user = await currentUser()
-    if(!user) return <Unauthorized label="Teams"/>
+    const { orgId } = await auth.protect()
 
     const teams = await prisma.team.findMany({
+        where: { orgId },
         include: {
             _count: {
                 select: { memberships: true }
@@ -41,12 +41,13 @@ export default async function TeamsPage() {
             <PageTitle>Manage Teams</PageTitle>
             <PageDescription>These are the teams that are available for use in RT+.</PageDescription>
             <PageControls>
-                <Button asChild>
-                    <Link href={Paths.newTeam}>
-                        <PlusIcon/> New Team
-                    </Link>
-                    
-                </Button>
+                <Protect permission="org:teams:manage">
+                    <Button asChild>
+                        <Link href={Paths.newTeam}>
+                            <PlusIcon/> New Team
+                        </Link>
+                    </Button>
+                </Protect>
             </PageControls>
         </PageHeader>
         <Show
