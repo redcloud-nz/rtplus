@@ -1,43 +1,65 @@
 
 
-export interface SampleCapability {
+export interface SkillPackageDef {
     id: string
     name: string
     ref?: string
-    skillGroups: SampleSkillGroup[]
+    skillGroups: SkillGroupDef[]
+    skills: SkillDef[]
 }
 
-export interface SampleSkillGroup {
+export interface SkillGroupDef {
     id: string
     name: string
     ref?: string
-    capabilityId: string
-    skills: SampleSkill[]
+    packageId: string
+    parentId: string | null
+    subGroups: SkillGroupDef[]
+    skills: SkillDef[]
 }
 
-export interface SampleSkill {
+export interface SkillDef {
     id: string
     name: string
     ref?: string
-    skillGroupId: string
+    packageId: string
+    skillGroupId: string | null
     optional: boolean
     frequency: string
     description: string
 }
 
-function defineCapability({ id, skillGroups, ...data }: Omit<SampleCapability, 'skillGroups'> & { skillGroups: Omit<SampleSkillGroup, 'capabilityId'>[] }): SampleCapability {
-    const completeSkillGroups = skillGroups.map(group => ({ ...group, capabilityId: id }))
+const PLACEHOLDER = 'PLACEHOLDER' as const
 
-    return { id, skillGroups: completeSkillGroups, ...data }
+type SkillPackageArgs = Omit<SkillPackageDef, 'skills' | 'skillGroups'> & Partial<Pick<SkillPackageDef, 'skills' | 'skillGroups'>>
+
+function definePackage({ id: packageId, ...pkg }: SkillPackageArgs): SkillPackageDef {
+    function patchSkillGroup(skillGroup: SkillGroupDef, parentId: string | null): SkillGroupDef {
+        return { 
+            ...skillGroup, 
+            packageId, 
+            parentId, 
+            skills: skillGroup.skills.map(skill => ({ ...skill, packageId, skillGroupId: skillGroup.id })), 
+            subGroups: skillGroup.subGroups.map(subGroup => patchSkillGroup(subGroup, skillGroup.id))
+        }
+    }
+
+    return { 
+        ...pkg,
+        id: packageId,
+        skillGroups: (pkg.skillGroups ?? []).map(skillGroup => patchSkillGroup(skillGroup, null)),
+        skills: (pkg.skills ?? []).map(skill => ({ ...skill, packageId, skillGroupId: null }))
+    }
 }
 
-function defineGroup({ id, skills, ...data }: Omit<SampleSkillGroup, 'capabilityId' | 'skills'> & { skills: Omit<SampleSkill, 'skillGroupId'>[] }): Omit<SampleSkillGroup, 'capabilityId'> {
-    const completeSkills = skills.map(skill => ({ ...skill, skillGroupId: id }))
+type SkillGroupArgs = Omit<SkillGroupDef, 'packageId' | 'parentId' | 'subGroups'> & Partial<Pick<SkillGroupDef, 'subGroups'>>
 
-    return { id, skills: completeSkills, ...data }
+function defineGroup({ id, skills, subGroups = [], ...data }: SkillGroupArgs): SkillGroupDef {
+
+    return { id, packageId: PLACEHOLDER, parentId: PLACEHOLDER, skills, subGroups, ...data }
 }
 
-interface SkillOptions {
+interface SkillArgs {
     id: string
     name: string
     optional?: boolean
@@ -45,12 +67,12 @@ interface SkillOptions {
     description?: string
 }
 
-function defineSkill({ id, name, optional = false, frequency = 'P1Y', description = "" }: SkillOptions): Omit<SampleSkill, 'skillGroupId'> {
-    return { id, name, optional, frequency, description }
+function defineSkill({ id, name, optional = false, frequency = 'P1Y', description = "" }: SkillArgs): SkillDef {
+    return { id, name, packageId: PLACEHOLDER, skillGroupId: PLACEHOLDER, optional, frequency, description }
 }
 
-export const CapabilityList: SampleCapability[] = [
-    defineCapability({ 
+export const PackageList: SkillPackageDef[] = [
+    definePackage({ 
         id: "cm3zhh7l3002608l42rf4ehnj", 
         name: "Foundation", 
         ref: "Foundation",
@@ -103,7 +125,7 @@ export const CapabilityList: SampleCapability[] = [
             })
         ]
     }),
-    defineCapability({ 
+    definePackage({ 
         id: "cm3zhhjld002708l47mw1fuu2", 
         name: "Light Rescue", 
         ref: "Light-Rescue", 
@@ -212,7 +234,7 @@ export const CapabilityList: SampleCapability[] = [
             })
         ]
     }),
-    defineCapability({ 
+    definePackage({ 
         id: "cm3zhhy2w002808l4dqq2dp78", 
         name: "Flood Response", 
         ref: "Flood", 
@@ -248,7 +270,7 @@ export const CapabilityList: SampleCapability[] = [
             })
         ]
     }),
-    defineCapability({ 
+    definePackage({ 
         id: "cm3zhig8n002908l41xmr9fhc", 
         name: "Storm Response", 
         ref: "Storm", 
@@ -283,7 +305,7 @@ export const CapabilityList: SampleCapability[] = [
             })
         ]
     }),
-    defineCapability({ 
+    definePackage({ 
         id: "cm3zhils0002a08l4h3042wks", 
         name: "CDC & Welfare", 
         ref: "Welfare", 
@@ -302,7 +324,7 @@ export const CapabilityList: SampleCapability[] = [
             })
         ]
     }),
-    defineCapability({ 
+    definePackage({ 
         id: "cm3zhipze002b08l4ehrfcksr", 
         name: "Swiftwater Rescue", 
         ref: "Swiftwater", 
@@ -348,7 +370,7 @@ export const CapabilityList: SampleCapability[] = [
             })
         ]
     }),
-    defineCapability({ 
+    definePackage({ 
         id: "cm3zhiumg002c08l48pr90up1", 
         name: "Rope Rescue", 
         ref: "Rope", 
@@ -373,7 +395,7 @@ export const CapabilityList: SampleCapability[] = [
             }),
         ]
     }),
-    defineCapability({ 
+    definePackage({ 
         id: "cm3zhiyz3002d08l450p818uf", 
         name: "Mass Casualty Support", 
         ref: "Mass-Casualty", 
@@ -405,7 +427,7 @@ export const CapabilityList: SampleCapability[] = [
             })
         ]
     }),
-    defineCapability({ 
+    definePackage({ 
         id: "cm3zhj2xe002e08l464ycdj28", 
         name: "Out of Region", 
         ref: "Out-Of-Region", 
@@ -436,7 +458,7 @@ export const CapabilityList: SampleCapability[] = [
             })
         ]
     }),
-    defineCapability({ 
+    definePackage({ 
         id: "cm3zhj6p3002f08l40i5b9gvf", 
         name: "Leadership", 
         ref: "Leadership", 
@@ -469,6 +491,23 @@ export const CapabilityList: SampleCapability[] = [
     })
 ]
 
-export const SkillGroupList = CapabilityList.flatMap(capability => capability.skillGroups)
+export function getGroupsInPackage(pkg: SkillPackageDef): SkillGroupDef[] {
+    return pkg.skillGroups.flatMap(getGroupsInGroup)
+}
 
-export const SkillList = SkillGroupList.flatMap(skillGroup => skillGroup.skills)
+export function getGroupsInGroup(group: SkillGroupDef): SkillGroupDef[] {
+    return [group, ...group.subGroups.flatMap(getGroupsInGroup)]
+}
+
+export function getSkillsInPackage(pkg: SkillPackageDef): SkillDef[] {
+    return [...pkg.skills, ...pkg.skillGroups.flatMap(getSkillsInGroup)]
+}
+
+export function getSkillsInGroup(group: SkillGroupDef): SkillDef[] {
+    return [...group.skills, ...group.subGroups.flatMap(getSkillsInGroup)]
+}
+
+
+const SkillGroupList = PackageList.flatMap(getGroupsInPackage)
+
+const SkillList = PackageList.flatMap(getSkillsInPackage)

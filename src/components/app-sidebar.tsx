@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
-import { BookOpenIcon, InfoIcon, ListChecksIcon, NotebookTextIcon, PocketKnifeIcon, Settings2Icon, SquareTerminalIcon, UserCheckIcon, UserRoundIcon, WalletCardsIcon } from "lucide-react"
+import { BookOpenIcon, InfoIcon, ListChecksIcon, NotebookTextIcon, PocketKnifeIcon, Settings2Icon, SquareTerminalIcon, UserCheckIcon, WalletCardsIcon } from "lucide-react"
 
 import { NavItem, NavSection } from '@/components/nav-section'
 import { NavUser } from '@/components/nav-user'
@@ -16,6 +16,7 @@ import {
     SidebarRail,
 } from '@/components/ui/sidebar'
 import * as Paths from '@/paths'
+import { Protect } from '@clerk/nextjs'
 
 
 
@@ -122,10 +123,6 @@ const navTools: NavItem[] = [
         authRequired: true,
         items: [
             {
-                title: "Capabilities",
-                url: Paths.capabilities
-            },
-            {
                 title: "General",
                 url: "/settings",
             },
@@ -141,6 +138,10 @@ const navTools: NavItem[] = [
             {
                 title: "Skill Groups",
                 url: Paths.skillGroupsAll
+            },
+            {
+                title: "Skill Packages",
+                url: Paths.skillPackages
             },
             {
                 title: "Teams",

@@ -87,7 +87,7 @@ export function AsyncButton({ children, className, disabled, variant, size, onCl
         <Loader2Icon className="mr-2 h-4 w-4 animate-spin hidden group-data-[state=pending]:inline" />
         {label ? <SubmitButtonLabel activeState="ready">{label}</SubmitButtonLabel> : null}
         {pending ? <SubmitButtonLabel activeState="pending">{pending}</SubmitButtonLabel> : null}
-        {done ? <SubmitButtonLabel activeState="ready">{done}</SubmitButtonLabel> : null}
+        {done ? <SubmitButtonLabel activeState="done">{done}</SubmitButtonLabel> : null}
         {children}
     </button>
 

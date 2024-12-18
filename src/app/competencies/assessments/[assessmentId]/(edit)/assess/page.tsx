@@ -15,7 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 import { Textarea } from '@/components/ui/textarea'
 
-import { useSkillsTreeQuery } from '@/lib/api/skills'
+import { useSkillPackagesQuery } from '@/lib/api/skills'
 import { useTeamsWithMembersQuery } from '@/lib/api/teams'
 import { WithSerializedDates } from '@/lib/serialize'
 import { resolveAfter } from '@/lib/utils'
@@ -23,13 +23,11 @@ import { resolveAfter } from '@/lib/utils'
 import { SkillCheck, useAssessmentContext } from '../../../assessment-context'
 
 
-
-
 export default function AssessmentAssessPage({}: { params: { assessmentId: string }}) {
 
     const assessmentContext = useAssessmentContext()
 
-    const skillsTreeQuery = useSkillsTreeQuery()
+    const skillPackagesQuery = useSkillPackagesQuery()
     const teamsQuery = useTeamsWithMembersQuery()
 
     const { assesseeIds, skillIds, skillChecks} = assessmentContext.value
@@ -38,7 +36,7 @@ export default function AssessmentAssessPage({}: { params: { assessmentId: strin
     const [selectedPersonId, setSelectedPersonId] = React.useState<string | 'NONE'>('NONE')
     const [skillCheck, setSkillCheck] = React.useState<SkillCheck | null>(null)
 
-    const skills = (skillsTreeQuery.data ?? []).flatMap(capability => capability.skillGroups.flatMap(skillGroup => skillGroup.skills.filter(skill => skillIds.includes(skill.id))))
+    const skills = (skillPackagesQuery.data ?? []).flatMap(skillPackage => skillPackage.skills.filter(skill => skillIds.includes(skill.id)))
     const personnel = (teamsQuery.data ?? []).flatMap(team => team.memberships.map(member => member.person).filter(person => assesseeIds.includes(person.id)))
 
     function getSkillCheck(skillId: string, assesseeId: string): WithSerializedDates<SkillCheck> {
@@ -94,11 +92,11 @@ export default function AssessmentAssessPage({}: { params: { assessmentId: strin
 
     return <>
 
-        { (skillsTreeQuery.isPending || teamsQuery.isPending) ? <div className="flex flex-col items-stretch gap-2">
+        { (skillPackagesQuery.isPending || teamsQuery.isPending) ? <div className="flex flex-col items-stretch gap-2">
             <Skeleton className="h-8"/>
             <Skeleton className="h-8"/>
         </div> : null}
-        { (skillsTreeQuery.isSuccess && teamsQuery.isSuccess) ? <Show
+        { (skillPackagesQuery.isSuccess && teamsQuery.isSuccess) ? <Show
             when={skills.length > 0 && personnel.length > 0}
             fallback={<>
                 { skills.length == 0 ? <Alert severity="info" title="No skills selected.">Go select some skills to include in the assessment.</Alert> : null}

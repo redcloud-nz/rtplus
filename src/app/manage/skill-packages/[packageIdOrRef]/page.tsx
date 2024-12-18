@@ -11,28 +11,28 @@ import prisma from '@/lib/prisma'
 
 import * as Paths from '@/paths'
 
-export default async function CapabilityPage({ params }: { params: { capabilityIdOrRef: string }}) {
+export default async function SkillPackagePage({ params }: { params: { packageIdOrRef: string }}) {
 
-    const capability = await prisma.capability.findFirst({
+    const skillPackages = await prisma.skillPackage.findFirst({
         include: {
             skillGroups: true
         },
         where: {
             OR: [
-                { id: params.capabilityIdOrRef },
-                { ref: params.capabilityIdOrRef }
+                { id: params.packageIdOrRef },
+                { ref: params.packageIdOrRef }
             ]
         }
     })
 
-    if(!capability) return <NotFound/>
+    if(!skillPackages) return <NotFound/>
 
     return <AppPage
-        label={capability.ref || capability.name} 
-        breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Capabilities", href: Paths.capabilities }]}
+        label={skillPackages.ref || skillPackages.name} 
+        breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Packages", href: Paths.skillPackages }]}
     >
         <PageHeader>
-            <PageTitle objectType="Capability">{capability.name}</PageTitle>
+            <PageTitle objectType="Skill Package">{skillPackages.name}</PageTitle>
             
         </PageHeader>
         <CardGrid>
@@ -43,13 +43,13 @@ export default async function CapabilityPage({ params }: { params: { capabilityI
                 <CardContent>
                     <DL>
                         <DLTerm>RT+ ID</DLTerm>
-                        <DLDetails>{capability.id}</DLDetails>
+                        <DLDetails>{skillPackages.id}</DLDetails>
 
                         <DLTerm>Name</DLTerm>
-                        <DLDetails>{capability.name}</DLDetails>
+                        <DLDetails>{skillPackages.name}</DLDetails>
 
                         <DLTerm>Ref</DLTerm>
-                        <DLDetails>{capability.ref}</DLDetails>
+                        <DLDetails>{skillPackages.ref}</DLDetails>
                     </DL>
                 </CardContent>
             </Card>
@@ -65,7 +65,7 @@ export default async function CapabilityPage({ params }: { params: { capabilityI
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {capability.skillGroups.map(skillGroup => 
+                            {skillPackages.skillGroups.map(skillGroup => 
                                 <TableRow key={skillGroup.id}>
                                     <TableCell>{skillGroup.name}</TableCell>
                                 </TableRow>

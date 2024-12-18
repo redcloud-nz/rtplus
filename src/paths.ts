@@ -28,10 +28,10 @@ export const competencies = {
 export const manage = '/manage'
 
 // Capabilities
-export const capabilities = `${manage}/capabilities`
-export const newCapability = `${capabilities}/new`
-export const capability = (cId: string) => `${capabilities}/${cId}`
-export const editCapability = (cId: string) => `${capability(cId)}/edit`
+export const skillPackages = `${manage}/skill-packages`
+export const newSkillPackage = `${skillPackages}/new`
+export const skillPackage = (pId: string) => `${skillPackages}/${pId}`
+export const editSkillPackage = (pId: string) => `${skillPackage(pId)}/edit`
 
 // People
 export const personnel = `${manage}/personnel`
@@ -50,7 +50,7 @@ export const editSkill = (sId: string) => `${skill(sId)}/edit`
 // Skill Groups
 export const skillGroupsAll = `${manage}/skill-groups`
 export const newSkillGroup = `${skillGroupsAll}/new`
-export const skillGroup = (sgId: string) => `${manage}/skill-groups/${sgId}/`
+export const skillGroup = (sgId: string) => `${manage}/skill-groups/${sgId}`
 export const editSkillGroup = (sgId: string) => `${skillGroup(sgId)}/edit`
 
 // Teams

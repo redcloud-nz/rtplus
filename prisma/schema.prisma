@@ -10,110 +10,139 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
-model HistoryEvent {
-    id              String      @default(cuid()) @id
-    orgId           String      // Clerk Organization ID
-    userId          String      // Clerk User ID
-    description     String
-    eventType       String
-    meta            Json
-    timestamp       DateTime    @default(now())
-}
-
 model D4hAccessKey {
-    id              String      @default(cuid()) @id
-    orgId           String      // Clerk Organization ID
-    userId          String      // Clerk User ID
-    key             String                                                  // The access key.
-    enabled         Boolean                                                 // If this access key is currently enabled.
-    createdAt       DateTime    @default(now())
-    updatedAt       DateTime    @updatedAt
+    id              String      @id @default(cuid()) 
+    orgId           String      @map("org_id")      // Clerk Organization ID
+    userId          String?     @map("user_id")    // Clerk User ID (if a personal key)                                      
+    key             String                              // The actual access key                       
+    enabled         Boolean                             // If this access key is currently enabled
+    createdAt       DateTime    @map("created_at")  @default(now())
+    updatedAt       DateTime    @map("updated_at")  @updatedAt
     
     team            Team        @relation(fields: [teamId], references: [id])
-    teamId          String        
+    teamId          String      @map("team_id")       
+    @@map("d4h_access_keys")
+}
+
+model HistoryEvent {
+    id              String              @id @default(cuid()) 
+    orgId           String              @map("org_id")          // Clerk Organization ID
+    userId          String?             @map("user_id")         // Clerk User ID (if associated with a person)
+    description     String
+    eventType       HistoryEventType    @map("event_type")      // The type of event
+    meta            Json                                        // Object associated metadata
+    timestamp       DateTime            @default(now())
+    @@map("history_events")
+}
+
+enum HistoryEventType {
+    PersonCreate
+    PersonUpdate
+    PersonDelete
+    TeamCreate
+    TeamUpdate
+    TeamDelete
+    TeamImport
+    TeamMemberAdd
+    TeamMemberRemove
+    SkillPackageImport
 }
 
 model Person {
-    id              String      @default(cuid()) @id
-    userId          String?     // Clerk User ID if there is an account associated with this person.
+    id              String      @id @default(cuid()) 
+    userId          String?     @map("user_id") // Clerk User ID if there is an account associated with this person.
     ref             String?
     name            String
     email           String
-    createdAt       DateTime    @default(now())
-    updatedAt       DateTime    @updatedAt
+    createdAt       DateTime    @map("created_at")   @default(now())
+    updatedAt       DateTime    @map("updated_at")  @updatedAt
 
     memberships     TeamMembership[]
-    assessments     CompetencyAssessment[]
-    skillChecksAsAssessee   SkillCheck[] @relation("SkillCheckAssessee")
-    skillChecksAsAssessor   SkillCheck[] @relation("SkillCheckAssessor")
+
+    // Competency Tracking
+    assessments                 CompetencyAssessment[]
+    skillChecksAsAssessee   SkillCheck[] @relation("skill_check_assessee")
+    skillChecksAsAssessor   SkillCheck[] @relation("skill_check_assessor")
+    @@map("personnel")
 }
 
 model Skill {
-    id              String      @default(cuid()) @id
-    ref             String?     
-    skillGroup      SkillGroup  @relation(fields: [skillGroupId], references: [id])
-    skillGroupId    String
+    id              String          @default(cuid()) @id
+    ref             String?
+    package         SkillPackage    @relation(fields: [packageId], references: [id])
+    packageId       String          @map("package_id")     
+    skillGroup      SkillGroup?     @relation(fields: [skillGroupId], references: [id])
+    skillGroupId    String?         @map("skill_group_id")
     name            String
     description     String
     frequency       String                              // Stored as an ISO-8601 Duration
     optional        Boolean
-    createdAt       DateTime    @default(now())
-    updatedAt       DateTime    @updatedAt
+    createdAt       DateTime        @map("created_at")  @default(now())
+    updatedAt       DateTime        @map("updated_at")  @updatedAt
     
     assessments     CompetencyAssessment[]
     checks          SkillCheck[]
+    @@map("skills")
 }
 
 model SkillCheck {
     id              String      @default(cuid()) @id
-    orgId           String      // Clerk Organization ID
-    userId          String      // Clerk User ID
+    orgId           String      @map("org_id")     // Clerk Organization ID
+    userId          String      @map("user_id")    // Clerk User ID of the user performing the check
     skill           Skill       @relation(fields: [skillId], references: [id])
-    skillId         String
-    assessee        Person      @relation("SkillCheckAssessee", fields: [assesseeId], references: [id])
-    assesseeId      String
-    assessor        Person      @relation("SkillCheckAssessor", fields: [assessorId], references: [id])
-    assessorId      String
+    skillId         String      @map("skill_id")
+    assessee        Person      @relation("skill_check_assessee", fields: [assesseeId], references: [id])
+    assesseeId      String      @map("assessee_id")
+    assessor        Person      @relation("skill_check_assessor", fields: [assessorId], references: [id])
+    assessorId      String      @map("assessor_id")
     result          String
     notes           String
-    checkedAt       DateTime    @default(now())
+    timestamp       DateTime    @default(now())
+    @@map("skill_checks")
 }
 
 model SkillGroup {
-    id              String      @default(cuid()) @id
-    ref             String?     
-    capability      Capability  @relation(fields: [capabilityId], references: [id])
-    capabilityId    String
-    name            String
-    createdAt       DateTime    @default(now())
-    updatedAt       DateTime    @updatedAt
+    id              String          @default(cuid()) @id
+    ref             String?
+    name            String    
+    package         SkillPackage    @relation(fields: [packageId], references: [id])
+    packageId       String          @map("package_id")
+    parent          SkillGroup?     @relation("parent", fields: [parentId], references: [id])
+    parentId        String?         @map("parent_id")
+    createdAt       DateTime        @map("created_at")  @default(now())
+    updatedAt       DateTime        @map("updated_at")  @updatedAt
     
+    children        SkillGroup[]    @relation("parent")
     skills          Skill[]
+    @@map("skill_groups")
 }
 
-model Capability {
+model SkillPackage {
     id              String      @default(cuid()) @id
     ref             String?     
     name            String
-    createdAt       DateTime    @default(now())
-    updatedAt       DateTime    @updatedAt   
+    createdAt       DateTime    @map("created_at")  @default(now())
+    updatedAt       DateTime    @map("updated_at")  @updatedAt   
     
-    skillGroups     SkillGroup[]  
+    skills          Skill[]
+    skillGroups     SkillGroup[]
+    @@map("skill_packages")
 }
 
 model CompetencyAssessment {
-    id              String      @default(cuid()) @id
-    orgId           String      // Clerk Organization ID
-    userId          String      // Clerk User ID
+    id              String              @default(cuid()) @id
+    orgId           String              @map("org_id")      // Clerk Organization ID
+    userId          String              @map("user_id")     // Clerk User ID
     name            String
     location        String
     date            DateTime
-    status          AssessmentStatus @default(Draft)
-    createdAt       DateTime    @default(now())
-    updatedAt       DateTime    @updatedAt
+    status          AssessmentStatus    @default(Draft)
+    createdAt       DateTime            @map("created_at")  @default(now())
+    updatedAt       DateTime            @map("updated_at")  @updatedAt
 
     assessees       Person[]
-    skills          Skill[]        
+    skills          Skill[]   
+    @@map("competency_assessments")     
 }
 
 enum AssessmentStatus {
@@ -124,32 +153,34 @@ enum AssessmentStatus {
 
 model Team {
     id              String      @default(cuid()) @id
-    orgId           String      // Clerk Organization ID
+    orgId           String      @map("org_id") // Clerk Organization ID
     ref             String?     
     name            String
     color           String
-    createdAt       DateTime    @default(now())
-    updatedAt       DateTime    @updatedAt
-    d4hTeamId       Int
-    d4hApiUrl       String
-    d4hWebUrl       String
+    createdAt       DateTime    @map("created_at") @default(now())
+    updatedAt       DateTime    @map("updated_at") @updatedAt
+    d4hTeamId       Int         @map("d4h_team_id")
+    d4hApiUrl       String      @map("d4h_api_url")
+    d4hWebUrl       String      @map("d4h_web_url")
     d4hAccessKeys   D4hAccessKey[]
     memberships     TeamMembership[]
+    @@map("teams")
 }
 
 model TeamMembership {
     id              String      @default(cuid()) @id
-    orgId           String      // Clerk Organization ID
-    position        String
+    orgId           String      @map("org_id") // Clerk Organization ID
+    position        String      
     status          TeamMemberStatus
-    d4hMemberId     Int
-    d4HRef          String
-    createdAt       DateTime    @default(now())
-    updatedAt       DateTime    @updatedAt
+    d4hMemberId     Int         @map("d4h_member_id")
+    d4HRef          String      @map("d4h_ref")
+    createdAt       DateTime    @map("created_at") @default(now())
+    updatedAt       DateTime    @map("updated_at") @updatedAt
     person          Person      @relation(fields: [personId], references: [id])
-    personId        String
+    personId        String      @map("person_id")
     team            Team        @relation(fields: [teamId], references: [id])
-    teamId          String
+    teamId          String      @map("team_id")
+    @@map("team_memberships")
 }
 
 enum TeamMemberStatus {

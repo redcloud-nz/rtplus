@@ -13,17 +13,17 @@ import prisma from '@/lib/prisma'
 import * as Paths from '@/paths'
 
 
-export default async function SkillGroupPage({ params }: { params: { skillGroupIdOrRef: string }}) {
+export default async function SkillGroupPage({ params }: { params: { groupIdOrRef: string }}) {
 
     const skillGroup = await prisma.skillGroup.findFirst({
         include: {
             skills: true,
-            capability: true,
+            package: true,
         },
         where: {
             OR: [
-                { id: params.skillGroupIdOrRef },
-                { ref: params.skillGroupIdOrRef }
+                { id: params.groupIdOrRef },
+                { ref: params.groupIdOrRef }
             ]
         }
     })
@@ -55,7 +55,7 @@ export default async function SkillGroupPage({ params }: { params: { skillGroupI
                         <DLDetails>{skillGroup.ref}</DLDetails>
 
                         <DLTerm>Capability</DLTerm>
-                        <DLDetails>{skillGroup.capability.name}</DLDetails>
+                        <DLDetails>{skillGroup.package.name}</DLDetails>
                     </DL>
                 </CardContent>
             </Card>

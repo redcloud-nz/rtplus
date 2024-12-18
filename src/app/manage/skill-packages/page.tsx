@@ -14,19 +14,19 @@ import * as Paths from '@/paths'
 
 export default async function CapabilitiesListPage() {
 
-    const capabilites = await prisma.capability.findMany({})
+    const packages = await prisma.skillPackage.findMany({})
 
     return <AppPage
-        label="Capabilities" 
+        label="Skill Packages" 
         breadcrumbs={[{ label: "Manage", href: Paths.manage }]}
     >
         <PageHeader>
-            <PageTitle>Manage Capabilities</PageTitle>
-            <PageDescription>Manage the capabilities available in RT+.</PageDescription>
+            <PageTitle>Manage Skill Packages</PageTitle>
+            <PageDescription>Manage the skill packages available in RT+.</PageDescription>
         </PageHeader>
         <Show
-            when={capabilites.length > 0}
-            fallback={<Alert severity="info" title="No capabilites defined."/>}
+            when={packages.length > 0}
+            fallback={<Alert severity="info" title="No skill packages defined."/>}
         >
             <Table border>
                 <TableHead>
@@ -35,10 +35,10 @@ export default async function CapabilitiesListPage() {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {capabilites.map(capability =>
+                    {packages.map(capability =>
                         <TableRow key={capability.id}>
                             <TableCell>
-                                <Link href={Paths.capability(capability.ref || capability.id)}>{capability.name}</Link>
+                                <Link href={Paths.skillPackage(capability.ref || capability.id)}>{capability.name}</Link>
                             </TableCell>
                         </TableRow>
                     )}

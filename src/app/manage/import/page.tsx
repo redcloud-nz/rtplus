@@ -13,12 +13,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 
 import { Description, Heading } from '@/components/ui/typography'
 
 import { useD4hAccessKeys } from '@/lib/api/d4h-access-keys'
-import { ChangeCounts } from '@/lib/change-counts'
 import { getD4hApiQueryClient, getListResponseCombiner } from '@/lib/d4h-api/client'
 import { BasicD4hMember, D4hMember } from '@/lib/d4h-api/member'
 import * as Paths from '@/paths'
 
-import { type SyncPersonnelActionResult, SyncSkillsActionResult, syncPersonnelAction, syncSkillsAction } from './actions'
+import { type SyncPersonnelActionResult, syncPersonnelAction } from './actions'
 
 
 export default function SyncPage() {    
@@ -33,7 +32,6 @@ export default function SyncPage() {
         </PageHeader>
 
         <SyncPersonnelSection className="my-4 max-w-2xl space-y-4"/>
-        <SyncSkillsSection className="my-4 max-w-2xl space-y-4"/>
     </AppPage>
 }
 
@@ -113,32 +111,3 @@ function SyncPersonnelSection({ ...props }: React.ComponentPropsWithoutRef<'sect
     </section>
 }
 
-function SyncSkillsSection({ ...props }: React.ComponentPropsWithoutRef<'section'>) {
-
-    const [result, setResult] = React.useState<SyncSkillsActionResult | null>(null)
-
-    async function handleSyncSkills() {
-        const returned = await syncSkillsAction()
-        setResult(returned)
-    }
-
-    function changeCountsToString(changeCounts: ChangeCounts) {
-        return `${changeCounts.create} created, ${changeCounts.update} updated, ${changeCounts.delete} deleted.`
-    }   
-    
-    return <section {...props}>
-        <Heading level={2}>Skills</Heading>
-        <Description>Copy or update skills from source code.</Description>
-        <AsyncButton 
-            onClick={handleSyncSkills}
-            label="Execute"
-            pending="Executing"
-        />
-        { result && <div className="my-2">
-            <div>Sync completed in {result.elapsedTime}ms:</div>
-            <div>Capabilities: {changeCountsToString(result.changeCounts.capabilities)}</div>
-            <div>Skill Groups: {changeCountsToString(result.changeCounts.skillGroups)}</div>
-            <div>Skills: {changeCountsToString(result.changeCounts.skills)}</div>
-        </div>}
-    </section>
-}
