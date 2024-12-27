@@ -16,7 +16,6 @@ import {
     SidebarRail,
 } from '@/components/ui/sidebar'
 import * as Paths from '@/paths'
-import { Protect } from '@clerk/nextjs'
 
 
 

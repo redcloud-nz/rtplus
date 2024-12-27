@@ -2,52 +2,66 @@
 
 import _ from 'lodash'
 
-import { getGroupsInPackage, getSkillsInPackage, PackageList } from '@/data/skills'
+import { auth } from '@clerk/nextjs/server'
+
+import { getGroupsInPackage, getSkillsInPackage, PackageList, SkillPackageDef } from '@/data/skills'
 import prisma from '@/lib/prisma'
-import { ChangeCountsByType, createEmptyChangeCounts as createChangeCounts } from '@/lib/change-counts'
+import { ChangeCountsByType, createChangeCounts as createChangeCounts } from '@/lib/change-counts'
+import { recordEvent } from '@/lib/history'
+import { assertNonNull } from '@/lib/utils'
+
 
 export interface ImportPackageActionResult {
     changeCounts: ChangeCountsByType<'packages' | 'skillGroups' | 'skills'>
     elapsedTime: number
 }
 
-
 export async function importPackageAction(packageIds: string[]): Promise<ImportPackageActionResult> {
+
+    const { userId, orgId } = await auth.protect()
+    assertNonNull(orgId, "An active organization is required to execute 'importPackageAction'")
 
     const startTime = Date.now()
     const changeCounts = createChangeCounts(['packages', 'skillGroups', 'skills'])
 
-    const storedPackages = await prisma.skillPackage.findMany()
-    const storedGroups = await prisma.skillGroup.findMany()
-    const storedSkills = await prisma.skill.findMany()
-
     const packagesToImport = PackageList.filter(pkg => packageIds.includes(pkg.id))
-    const groupsToImport = packagesToImport.flatMap(getGroupsInPackage)
-    const skillsToImport = packagesToImport.flatMap(getSkillsInPackage)
-
-    // Packages that are in the sample set but not the stored set
-    const packagesToAdd = _.differenceBy(packagesToImport, storedPackages, (c) => c.id)
-
-    if(packagesToAdd.length > 0) {
-        await prisma.skillPackage.createMany({
-            data: packagesToAdd.map(capability => _.pick(capability, ['id', 'name', 'ref']))
-        })
-        changeCounts.packages.create = packagesToAdd.length
-    }
 
     // Packages that could need updating
-    for(const pkg of packagesToImport) {
-        const storedPackage = storedPackages.find(c => c.id == pkg.id)
-        if(!storedPackage) continue // New package
+    for(const skillPackage of packagesToImport) {
+        const packageChangeCounts = await importPackage(skillPackage)
+        await recordEvent('SkillPackageImport', { userId, orgId, meta: { packageId: skillPackage.id, changes: packageChangeCounts } })
+    }
 
-        if(pkg.name != storedPackage.name || pkg.ref != storedPackage.ref) {
+    const elapsedTime = Date.now() - startTime
+
+    return { changeCounts, elapsedTime }
+}
+
+
+async function importPackage(skillPackage: SkillPackageDef) {
+    
+    const changeCounts = createChangeCounts(['packages', 'skillGroups', 'skills'])
+
+    const storedPackage = await prisma.skillPackage.findFirst({ where: { id: skillPackage.id } })
+
+    if(storedPackage) { // Existing package
+
+        if(skillPackage.name != storedPackage.name || skillPackage.ref != storedPackage.ref) {
             await prisma.skillPackage.update({
-                where: { id: pkg.id },
-                data: _.pick(pkg, ['name', 'ref'])
+                where: { id: skillPackage.id },
+                data: _.pick(skillPackage, ['name', 'ref'])
             })
             changeCounts.packages.update++
         }
+    } else { // New package
+        await prisma.skillPackage.create({
+            data: _.pick(skillPackage, ['id', 'name', 'ref'])
+        })
+        changeCounts.packages.create++
     }
+
+    const storedGroups = await prisma.skillGroup.findMany({ where: { packageId: skillPackage.id } })
+    const groupsToImport = getGroupsInPackage(skillPackage)
 
     // Skill Groups that are in the sample set but not in the stored set
     const groupsToAdd = _.differenceBy(groupsToImport, storedGroups, (c) => c.id)
@@ -73,6 +87,9 @@ export async function importPackageAction(packageIds: string[]): Promise<ImportP
         }
     }
 
+    const storedSkills = await prisma.skill.findMany({ where: { packageId: skillPackage.id }})
+    const skillsToImport = getSkillsInPackage(skillPackage)
+
     // Skills that are in the sample set but not in the stored set
     const skillsToAdd = _.differenceBy(skillsToImport, storedSkills, (c) => c.id)
 
@@ -97,8 +114,5 @@ export async function importPackageAction(packageIds: string[]): Promise<ImportP
         }
     }
 
-
-    const elapsedTime = Date.now() - startTime
-
-    return { changeCounts, elapsedTime }
+    return changeCounts
 }

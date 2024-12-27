@@ -13,6 +13,12 @@ import { ListResponse, ObjectResponse } from './common'
 
 export type TeamWithMembers = Team & { memberships: (TeamMembership & { person: Person })[]}
 
+export async function fetchTeam(teamId: string): Promise<WithSerializedDates<TeamWithMembers>> {
+    const response = await fetch(`/api/teams/${teamId}`)
+    const json = await response.json() as ObjectResponse<WithSerializedDates<TeamWithMembers>>
+    return json.data
+}
+
 export function useTeamsQuery(): UseQueryResult<WithSerializedDates<Team[]>> {
     return useQuery({
         queryKey: ['teams'],
@@ -38,11 +44,7 @@ export function useTeamsWithMembersQuery(): UseQueryResult<WithSerializedDates<T
 export function teamQueryOptions(teamId: string) {
     return {
         queryKey: ['teams', teamId],
-        queryFn: async () => {
-            const response = await fetch(`/api/teams/${teamId}`)
-            const json = await response.json() as ObjectResponse<WithSerializedDates<TeamWithMembers>>
-            return json.data
-        }
+        queryFn: () => fetchTeam(teamId)
     }
 }
 

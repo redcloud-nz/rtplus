@@ -508,6 +508,6 @@ export function getSkillsInGroup(group: SkillGroupDef): SkillDef[] {
 }
 
 
-const SkillGroupList = PackageList.flatMap(getGroupsInPackage)
+// const SkillGroupList = PackageList.flatMap(getGroupsInPackage)
 
-const SkillList = PackageList.flatMap(getSkillsInPackage)
+// const SkillList = PackageList.flatMap(getSkillsInPackage)

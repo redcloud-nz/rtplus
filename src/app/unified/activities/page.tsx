@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "Activities | D4H Unified | RT+" }
 
 export default async function ActivitiesPage() {
     
-    const { userId } = await auth.protect({ permission: 'org:d4h:personal_access' })
+    await auth.protect({ permission: 'org:d4h:personal_access' })
 
     return <AppPage 
         label="Activities" 

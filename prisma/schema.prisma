@@ -36,6 +36,7 @@ model HistoryEvent {
 }
 
 enum HistoryEventType {
+    AssessmentCreate
     PersonCreate
     PersonUpdate
     PersonDelete
@@ -44,6 +45,7 @@ enum HistoryEventType {
     TeamDelete
     TeamImport
     TeamMemberAdd
+    TeamMemberUpdate
     TeamMemberRemove
     SkillPackageImport
 }
@@ -173,7 +175,7 @@ model TeamMembership {
     position        String      
     status          TeamMemberStatus
     d4hMemberId     Int         @map("d4h_member_id")
-    d4HRef          String      @map("d4h_ref")
+    d4hRef          String      @map("d4h_ref")
     createdAt       DateTime    @map("created_at") @default(now())
     updatedAt       DateTime    @map("updated_at") @updatedAt
     person          Person      @relation(fields: [personId], references: [id])

@@ -4,21 +4,23 @@ import React from 'react'
 
 import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 
-import { AsyncButton } from '@/components/ui/button'
+import { AsyncButton, Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Stepper } from '@/components/ui/stepper'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
 import { PackageList, SkillGroupDef, SkillPackageDef } from '@/data/skills'
 
-import { ChangeCounts } from '@/lib/change-counts'
+import { changeCountsToString } from '@/lib/change-counts'
 import { resolveAfter } from '@/lib/utils'
+import * as Paths from '@/paths'
 
 import { importPackageAction, ImportPackageActionResult } from './actions'
+
 
 type ImportState = { status: 'Init' } | { status: 'Review', packageToImport: SkillPackageDef } | { status: 'Done', result: ImportPackageActionResult } | { status: 'Error', message: string }
 
 export default function ImportSkillPackagePage() {
-
 
     const [state, setState] = React.useState<ImportState>({ status: 'Init' })
     const [packageId, setPackageId] = React.useState<string>('')
@@ -39,9 +41,11 @@ export default function ImportSkillPackagePage() {
         setState({ status: 'Done', result })
     }
 
-    function changeCountsToString(changeCounts: ChangeCounts) {
-        return `${changeCounts.create} created, ${changeCounts.update} updated, ${changeCounts.delete} deleted.`
+    async function handleCancel() {
+        setState({ status: 'Init' })
+        setPackageId('')
     }
+
 
     function renderGroup(skillGroup: SkillGroupDef): React.ReactNode {
         return <React.Fragment key={skillGroup.id}>
@@ -61,20 +65,34 @@ export default function ImportSkillPackagePage() {
                     <TableCell className="pl-10">Skill</TableCell>
                     <TableCell>{skill.name}</TableCell>
                     <TableCell>{skill.description}</TableCell>
-                    <TableCell>{skill.frequency}</TableCell>
-                    <TableCell>{skill.optional ? 'Yes' : ''}</TableCell>
+                    <TableCell className="text-center">{skill.frequency}</TableCell>
+                    <TableCell className="text-center">{skill.optional ? 'Yes' : ''}</TableCell>
                 </TableRow>
             )}
         </React.Fragment>
     }
 
-    return <AppPage label="Import Skill Package">
+    return <AppPage 
+        label="Import Skill Package"
+        breadcrumbs={[
+            { label: 'Manage', href: Paths.manage },
+            { label: 'Imports', href: Paths.imports.list }
+        ]}
+        >
         <PageHeader>
             <PageTitle>Import Skill Package</PageTitle>
             <PageDescription>Import a skill package defined in the source code.</PageDescription>
         </PageHeader>
-        <div>
-            <div className="flex gap-2 mb-4">
+        <Stepper 
+            activeStep={['Init', 'Review', 'Done'].indexOf(state.status)}
+            steps={[
+                { name: "Select Package" },
+                { name: "Review Package" },
+                { name: "Execute" }
+            ]}
+        />
+        <div className="my-4 space-y-4">
+            { state.status == 'Init' && <>
                 <Select value={packageId} onValueChange={setPackageId} disabled={state.status != 'Init'}>
                     <SelectTrigger className="max-w-md">
                         <SelectValue placeholder="select a package to import..."/>
@@ -92,24 +110,17 @@ export default function ImportSkillPackagePage() {
                     done="Fetched"
                     disabled={!packageId}
                 />
-                { (state.status == 'Review' || state.status == 'Done') && <AsyncButton 
-                    onClick={handleImport}
-                    label="Import"
-                    pending="Importing"
-                    done="Imported"
-                    disabled={!packageId}
-                />}
-            </div>
+            </>}
             
-            { state.status == 'Review' && <div>
+            { state.status == 'Review' && <>
                 <Table border>
                     <TableHead>
                         <TableRow>
                             <TableHeadCell>Object</TableHeadCell>
                             <TableHeadCell>Name</TableHeadCell>
                             <TableHeadCell>Description</TableHeadCell>
-                            <TableHeadCell>Frequency</TableHeadCell>
-                            <TableHeadCell>Optional</TableHeadCell>
+                            <TableHeadCell className="text-center">Frequency</TableHeadCell>
+                            <TableHeadCell className="text-center">Optional</TableHeadCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -126,9 +137,18 @@ export default function ImportSkillPackagePage() {
                         {state.packageToImport.skillGroups.map(renderGroup)}
                     </TableBody>
                 </Table>
-            </div>}
+                <div className="flex gap-2">
+                    <AsyncButton
+                        onClick={handleImport}
+                        label="Import"
+                        pending="Importing"
+                        done="Imported"
+                    />
+                    <Button variant="outline" onClick={handleCancel}>Cancel</Button>
+                </div>
+               
+            </>}
 
-            
             
             { state.status == 'Done' && <div className="my-2">
                 <div>Import completed in {state.result.elapsedTime}ms:</div>

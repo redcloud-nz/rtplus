@@ -37,7 +37,7 @@ export default async function NewPersonPage() {
             <PageTitle>New Person</PageTitle>
             <PageDescription>Add a person to RT+.</PageDescription>
         </PageHeader>
-        <Form action={createPerson}>
+        <Form action={createPersonAction}>
             <FormField name="name">
                 <FieldLabel>Person name</FieldLabel>
                 <FieldControl>
@@ -65,11 +65,11 @@ export default async function NewPersonPage() {
     </AppPage>
 }
 
-async function createPerson(formState: FormState, formData: FormData) {
+async function createPersonAction(formState: FormState, formData: FormData) {
     'use server'
 
     const { userId, orgId } = await auth.protect({ permission: 'org:members:manage' })
-    assertNonNull(orgId, "An active organization is required to execute action 'createPerson'")
+    assertNonNull(orgId, "An active organization is required to execute 'createPersonAction'")
 
     let personId: string
     try {
@@ -90,7 +90,7 @@ async function createPerson(formState: FormState, formData: FormData) {
             }
         })
 
-        await recordEvent('CreatePerson', { orgId, userId, meta: { personId: createdPerson.id } })
+        await recordEvent('PersonCreate', { orgId, userId, meta: { personId: createdPerson.id } })
 
         personId = createdPerson.id
     } catch(error) {

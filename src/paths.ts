@@ -27,6 +27,12 @@ export const competencies = {
 //  \------------------------------/
 export const manage = '/manage'
 
+export const imports = {
+    list: '/manage/imports',
+    personnel: '/manage/imports/personnel',
+    skillPackage: '/manage/imports/skill-package',
+} as const
+
 // Capabilities
 export const skillPackages = `${manage}/skill-packages`
 export const newSkillPackage = `${skillPackages}/new`

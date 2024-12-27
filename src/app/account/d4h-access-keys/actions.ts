@@ -16,6 +16,7 @@ type CreateArgs =  { accessKey: string, teamId: string, d4hTeamId: number }
 export async function createAccessKey({ accessKey, teamId, d4hTeamId }: CreateArgs) {
 
     const { userId, orgId } = await auth.protect({ permission: 'org:d4h:personal_access' })
+    assertNonNull(orgId, "An active organization is required to execute 'createAccessKey")
 
     const team = await prisma.team.findFirst({
         where: { id: teamId, orgId  }
@@ -24,7 +25,7 @@ export async function createAccessKey({ accessKey, teamId, d4hTeamId }: CreateAr
 
     // Create the Access Key
     await prisma.d4hAccessKey.create({
-        data: { orgId: orgId!!, userId, key: accessKey, teamId, enabled: true }
+        data: { orgId, userId, key: accessKey, teamId, enabled: true }
     })
 
     if(team.d4hTeamId == 0) {

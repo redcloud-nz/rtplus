@@ -18,9 +18,10 @@ import { DefaultD4hApiUrl } from '@/lib/d4h-api/client'
 import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
 import prisma from '@/lib/prisma'
 
-import * as Paths from '@/paths'
 import { recordEvent } from '@/lib/history'
 import { assertNonNull } from '@/lib/utils'
+import * as Paths from '@/paths'
+
 
 const CreateTeamFormSchema = z.object({
     name: z.string().min(5).max(50),
@@ -44,7 +45,7 @@ export default function NewTeamPage() {
     >
         <PageTitle>New Team</PageTitle>
         <PageDescription>Create a new team within your organization.</PageDescription>
-        <Form action={createTeam}>
+        <Form action={createTeamAction}>
             <FormField name="name">
                 <FieldLabel>Team name</FieldLabel>
                 <FieldControl>
@@ -104,11 +105,11 @@ export default function NewTeamPage() {
     </AppPage>
 }
 
-async function createTeam(formState: FormState, formData: FormData) {
+async function createTeamAction(formState: FormState, formData: FormData) {
     'use server'
 
     const { userId, orgId } = await auth.protect({ permission: 'org:teams:manage'})
-    assertNonNull(orgId, "An active organization is required to execute action 'createTeam'")
+    assertNonNull(orgId, "An active organization is required to execute 'createTeamAction'")
 
     let teamIdOrCode: string
     try {
@@ -132,7 +133,7 @@ async function createTeam(formState: FormState, formData: FormData) {
 
         const createdTeam = await prisma.team.create({
             data: {
-                orgId: orgId!!,
+                orgId,
                 name: fields.name, 
                 ref,
                 color: fields.color,
@@ -142,7 +143,7 @@ async function createTeam(formState: FormState, formData: FormData) {
             }
         })
 
-        await recordEvent('CreateTeam', { orgId, userId, meta: { teamId: createdTeam.id } })
+        await recordEvent('TeamCreate', { orgId, userId, meta: { teamId: createdTeam.id } })
 
         teamIdOrCode = fields.ref || createdTeam.id
     } catch(error) {

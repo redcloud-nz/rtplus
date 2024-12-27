@@ -162,7 +162,7 @@ async function updateTeam(formState: FormState, formData: FormData) {
             }
         })
 
-        await recordEvent('UpdateTeam', { orgId, userId, meta: { teamId: updatedTeam.id } })
+        await recordEvent('TeamUpdate', { orgId, userId, meta: { teamId: updatedTeam.id } })
 
         teamIdOrRef = ref ?? fields.teamId
     } catch(error) {

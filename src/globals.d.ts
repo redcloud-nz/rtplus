@@ -17,7 +17,7 @@ declare global {
     }
 
     interface ClerkAuthorization {
-        permision: 'org:members:manage' | 'org:teams:manage' | 'org:d4h:personal_access'
-        role: 'org:admin' | 'org:member'
+        permision: 'org:competencies:assess' | 'org:d4h:personal_access' | 'org:members:manage' | 'org:teams:manage'
+        role: 'org:admin' | 'org:assessor'  | 'org:member'
     }
 }
