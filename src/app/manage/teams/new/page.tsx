@@ -6,6 +6,7 @@ import React from 'react'
 import { z } from 'zod'
 
 import { auth } from '@clerk/nextjs/server'
+import { createId } from '@paralleldrive/cuid2'
 
 import { AppPage, PageDescription, PageTitle } from '@/components/app-page'
 
@@ -17,10 +18,10 @@ import { Link } from '@/components/ui/link'
 import { DefaultD4hApiUrl } from '@/lib/d4h-api/client'
 import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
 import prisma from '@/lib/prisma'
-
-import { recordEvent } from '@/lib/history'
+import { EventBuilder } from '@/lib/history'
 import { assertNonNull } from '@/lib/utils'
 import * as Paths from '@/paths'
+
 
 
 const CreateTeamFormSchema = z.object({
@@ -111,6 +112,8 @@ async function createTeamAction(formState: FormState, formData: FormData) {
     const { userId, orgId } = await auth.protect({ permission: 'org:teams:manage'})
     assertNonNull(orgId, "An active organization is required to execute 'createTeamAction'")
 
+    const eventBuilder = EventBuilder.create(orgId, userId)
+
     let teamIdOrCode: string
     try {
         const fields = CreateTeamFormSchema.parse(Object.fromEntries(formData))
@@ -131,21 +134,26 @@ async function createTeamAction(formState: FormState, formData: FormData) {
             if(refConflict) return fieldError('teamRef', `Team ref '${ref}' is already taken.`)
         }
 
-        const createdTeam = await prisma.team.create({
-            data: {
-                orgId,
-                name: fields.name, 
-                ref,
-                color: fields.color,
-                d4hTeamId: fields.d4hTeamId || 0,
-                d4hApiUrl: fields.d4hApiUrl || DefaultD4hApiUrl,
-                d4hWebUrl: fields.d4hWebUrl
-            }
-        })
+        const teamId = createId()
+        await prisma.$transaction([
+            prisma.team.create({
+                data: {
+                    id: teamId,
+                    orgId,
+                    name: fields.name, 
+                    ref,
+                    color: fields.color,
+                    d4hTeamId: fields.d4hTeamId || 0,
+                    d4hApiUrl: fields.d4hApiUrl || DefaultD4hApiUrl,
+                    d4hWebUrl: fields.d4hWebUrl
+                }
+            }),
+            prisma.historyEvent.create({
+                data: eventBuilder.buildEvent('Create', 'Team', teamId)
+            })
+        ])
 
-        await recordEvent('TeamCreate', { orgId, userId, meta: { teamId: createdTeam.id } })
-
-        teamIdOrCode = fields.ref || createdTeam.id
+        teamIdOrCode = fields.ref || teamId
     } catch(error) {
         return fromErrorToFormState(error)
     }

@@ -17,7 +17,7 @@ import { Link } from '@/components/ui/link'
 
 import { DefaultD4hApiUrl } from '@/lib/d4h-api/client'
 import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
-import { recordEvent } from '@/lib/history'
+import { EventBuilder } from '@/lib/history'
 import prisma from '@/lib/prisma'
 import { assertNonNull } from '@/lib/utils'
 
@@ -129,6 +129,7 @@ async function updateTeam(formState: FormState, formData: FormData) {
     const { userId, orgId } = await auth.protect({ permission: 'org:teams:manage' })
     assertNonNull(orgId, "An active organization is required to execute action 'updateTeam'")
     
+    const eventBuilder = EventBuilder.create(orgId, userId)
 
     let teamIdOrRef: string
     try {
@@ -150,19 +151,22 @@ async function updateTeam(formState: FormState, formData: FormData) {
             if(refConflict) return fieldError('teamRef', `Team ref '${ref}' is already taken.`)
         }
 
-        const updatedTeam = await prisma.team.update({
-            where: { id: fields.teamId },
-            data: { 
-                name: fields.name, 
-                ref,
-                color: fields.color,
-                d4hTeamId: fields.d4hTeamId || 0,
-                d4hApiUrl: fields.d4hApiUrl || DefaultD4hApiUrl,
-                d4hWebUrl: fields.d4hWebUrl
-            }
-        })
-
-        await recordEvent('TeamUpdate', { orgId, userId, meta: { teamId: updatedTeam.id } })
+        await prisma.$transaction([
+            prisma.team.update({
+                where: { id: fields.teamId },
+                data: { 
+                    name: fields.name, 
+                    ref,
+                    color: fields.color,
+                    d4hTeamId: fields.d4hTeamId || 0,
+                    d4hApiUrl: fields.d4hApiUrl || DefaultD4hApiUrl,
+                    d4hWebUrl: fields.d4hWebUrl
+                }
+            }),
+            prisma.historyEvent.create({
+                data: eventBuilder.buildEvent('Update', 'Team', fields.teamId)
+            })
+        ])
 
         teamIdOrRef = ref ?? fields.teamId
     } catch(error) {

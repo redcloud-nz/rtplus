@@ -1,3 +1,5 @@
+// /manage/imports/personnel
+
 'use server'
 
 import _ from 'lodash'
@@ -6,9 +8,10 @@ import { auth } from '@clerk/nextjs/server'
 import { Person, TeamMembership } from '@prisma/client'
 
 import { ChangeCountsByType, createChangeCounts } from '@/lib/change-counts'
-import { recordEvent } from '@/lib/history'
+import { EventBuilder } from '@/lib/history'
 import prisma from '@/lib/prisma'
 import { assertNonNull } from '@/lib/utils'
+import { createId } from '@paralleldrive/cuid2'
 
 
 export interface MemberDiff { 
@@ -17,7 +20,7 @@ export interface MemberDiff {
     name: string
     membershipId?: string
     personId?: string
-    fields: Partial<Pick<TeamMembership, 'position' | 'status' | 'd4hRef'> & Pick<Person, 'name' | 'email'>>
+    fields: Partial<Pick<TeamMembership, 'position' | 'd4hStatus' | 'd4hRef'> & Pick<Person, 'name' | 'email'>>
 }
 
 export interface ImportPersonnelActionResult {
@@ -27,8 +30,8 @@ export interface ImportPersonnelActionResult {
 
 export async function importPersonnelAction(teamId: string, diffs: MemberDiff[]): Promise<ImportPersonnelActionResult> {
 
-    const { userId, orgId } = await auth.protect()
-    assertNonNull(orgId, "An active organization is required to execute 'importPackageAction'")
+    const { userId, orgId } = await auth.protect({ permission: 'org:members:manage' })
+    assertNonNull(orgId, "An active organization is required to execute 'importPersonnelAction'")
 
     const startTime = Date.now()
     const changeCounts = createChangeCounts(['personnel', 'memberships'])
@@ -52,31 +55,48 @@ export async function importPersonnelAction(teamId: string, diffs: MemberDiff[])
         throw new Error(`Missing team ${teamId}`)
     }
 
+    const eventBuilder = EventBuilder.createGrouped(orgId, userId)
+    
+    prisma.historyEvent.create({ 
+        data: eventBuilder.buildRootEvent('Import', 'Team', teamId)
+    })
+
     for(const diff of creates) {
 
         // See if there is already a matching person
-        let person = await prisma.person.findFirst({ where: { name: diff.name, email: diff.fields.email } })
+        let personId = (await prisma.person.findFirst({ select: { id: true }, where: { name: diff.name, email: diff.fields.email } }))?.id
 
-        if(!person) {
-            person = await prisma.person.create({ data: { name: diff.name, email: diff.fields.email ?? "" } })
+        if(!personId) {
+            personId = createId()
 
-            await recordEvent('PersonCreate', { orgId, userId, description: "Imported from D4H", meta: { personId: person.id } })
+            await prisma.$transaction([
+                prisma.person.create({ 
+                    data: { id: personId, name: diff.name, email: diff.fields.email ?? "" } 
+                }),
+                prisma.historyEvent.create({ 
+                    data: eventBuilder.buildEvent('Create', 'Person', personId)
+                })
+            ])
             changeCounts.personnel.create++
         }
 
-        const teamMembership = await prisma.teamMembership.create({ 
-            data: { 
-                orgId,
-                d4hMemberId: diff.d4hMemberId, 
-                position: diff.fields.position ?? "", 
-                status: diff.fields.status ?? 'NonOperational',
-                d4hRef: diff.fields.d4hRef ?? "",
-                personId: person.id,
-                teamId: team.id
-            }
-        })
-
-        await recordEvent('TeamMemberAdd', { orgId, userId, description: "Imported from D4H", meta: { membershipId: teamMembership.id } })
+        const membershipId = createId()
+        await prisma.$transaction([
+            prisma.teamMembership.create({ 
+                data: { 
+                    orgId,
+                    d4hMemberId: diff.d4hMemberId, 
+                    position: diff.fields.position ?? "", 
+                    d4hStatus: diff.fields.d4hStatus ?? 'NonOperational',
+                    d4hRef: diff.fields.d4hRef ?? "",
+                    personId: personId,
+                    teamId: team.id,
+                }
+            }),
+            prisma.historyEvent.create({ 
+                data: eventBuilder.buildEvent('Create', 'TeamMembership', membershipId) 
+            })
+        ])
         changeCounts.memberships.create++
     }
 
@@ -86,31 +106,37 @@ export async function importPersonnelAction(teamId: string, diffs: MemberDiff[])
         assertNonNull(diff.membershipId)
 
         const personData: Partial<Record<'name' | 'email', string>> = {}
-        const membershipData: Partial<Pick<TeamMembership, 'position' | 'status' | 'd4hRef'>> = {}
+        const membershipData: Partial<Pick<TeamMembership, 'position' | 'd4hStatus' | 'd4hRef'>> = {}
         if(fields.name) personData.name = fields.name
         if(fields.email) personData.email = fields.email
         if(fields.position) membershipData.position = fields.position
-        if(fields.status) membershipData.status = fields.status
-        if(fields.d4hRef) membershipData.status = fields.status
+        if(fields.d4hStatus) membershipData.d4hStatus = fields.d4hStatus
+        if(fields.d4hRef) membershipData.d4hStatus = fields.d4hStatus
     
 
         if(!_.isEmpty(personData)) {
-            await prisma.person.update({
-                where: { id: diff.personId },
-                data: personData
-            })
-
-            await recordEvent('PersonUpdate', { orgId, userId, meta: { personId: diff.personId } })
+            await prisma.$transaction([
+                prisma.person.update({
+                    where: { id: diff.personId },
+                    data: personData
+                }),
+                prisma.historyEvent.create({ 
+                    data: eventBuilder.buildEvent('Update', 'Person', diff.personId)
+                })
+            ])
             changeCounts.personnel.update++
         }
 
         if(!_.isEmpty(membershipData)) {
-            await prisma.teamMembership.update({
-                where: { id: diff.membershipId },
-                data: membershipData
-            })
-
-            await recordEvent('TeamMemberUpdate', { orgId, userId, meta: { membershipId: diff.membershipId } })
+            await prisma.$transaction([
+                prisma.teamMembership.update({
+                    where: { id: diff.membershipId },
+                    data: membershipData
+                }),
+                prisma.historyEvent.create({ 
+                    data: eventBuilder.buildEvent('Update', 'TeamMembership', diff.membershipId) 
+                })
+            ])
             changeCounts.memberships.update++
         }
     }

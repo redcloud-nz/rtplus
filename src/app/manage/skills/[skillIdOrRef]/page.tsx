@@ -12,11 +12,8 @@ export default async function SkillPage({ params }: { params: { skillIdOrRef: st
 
     const skill = await prisma.skill.findFirst({
         include: {
-            skillGroup: {
-                include: {
-                    capability: true
-                }
-            }
+            skillGroup: true,
+            package: true,
         },
         where: {
             OR: [
@@ -60,11 +57,11 @@ export default async function SkillPage({ params }: { params: { skillIdOrRef: st
                         <DLTerm>Optional</DLTerm>
                         <DLDetails>{skill.optional ? 'Yes' : 'No'}</DLDetails>
 
-                        <DLTerm>Capability</DLTerm>
-                        <DLDetails>{skill.skillGroup.capability.name}</DLDetails>
+                        <DLTerm>Package</DLTerm>
+                        <DLDetails>{skill.package.name}</DLDetails>
 
                         <DLTerm>Skill Group</DLTerm>
-                        <DLDetails>{skill.skillGroup.name}</DLDetails>
+                        <DLDetails>{skill.skillGroup?.name ?? "None"}</DLDetails>
                     </DL>
                 </CardContent>
             </Card>

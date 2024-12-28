@@ -6,6 +6,7 @@ import React from 'react'
 import { z } from 'zod'
 
 import { auth } from '@clerk/nextjs/server'
+import { createId } from '@paralleldrive/cuid2'
 
 import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 
@@ -18,8 +19,9 @@ import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
 import prisma from '@/lib/prisma'
 
 import * as Paths from '@/paths'
-import { recordEvent } from '@/lib/history'
+import { EventBuilder } from '@/lib/history'
 import { assertNonNull } from '@/lib/utils'
+
 
 const CreatePersonFormSchema = z.object({
     name: z.string().max(50),
@@ -83,16 +85,17 @@ async function createPersonAction(formState: FormState, formData: FormData) {
             return fieldError('email', `Person email '${fields.email}' is already used by person '${emailConflict.name}'`)
         }
 
-        const createdPerson = await prisma.person.create({
-            data: {
-                name: fields.name,
-                email: fields.email
-            }
-        })
-
-        await recordEvent('PersonCreate', { orgId, userId, meta: { personId: createdPerson.id } })
-
-        personId = createdPerson.id
+        const eventBuilder = EventBuilder.create(orgId, userId)
+        personId = createId()
+        
+        await prisma.$transaction([
+            prisma.person.create({
+                data: { id: personId, name: fields.name, email: fields.email }
+            }),
+            prisma.historyEvent.create({ 
+                data: eventBuilder.buildEvent('Create', 'Person', personId) 
+            })
+        ])
     } catch(error) {
         return fromErrorToFormState(error)
     }

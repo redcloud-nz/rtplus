@@ -3,7 +3,7 @@
 import { formatISO, parseISO } from 'date-fns'
 import React from 'react'
 
-import { AssessmentStatus } from '@prisma/client'
+import { CompetencyAssessmentStatus } from '@prisma/client'
 
 import { DatePicker } from '@/components/ui/date-picker'
 import { FieldControl, FieldDescription, FieldLabel, FieldMessage, Form, FormField } from '@/components/ui/form'
@@ -48,7 +48,7 @@ export default function AssessmentEdit({}: { params: { assessmentId: string }}) 
             <FormField name="status">
                 <FieldLabel>Status</FieldLabel>
                 <FieldControl>
-                    <Select name="status" value={value.status} onValueChange={(newValue) => updateValue({ status: newValue as AssessmentStatus })}>
+                    <Select name="status" value={value.status} onValueChange={(newValue) => updateValue({ status: newValue as CompetencyAssessmentStatus })}>
                         <SelectTrigger className="w-full sm:w-[180px]">
                             <SelectValue/>
                         </SelectTrigger>

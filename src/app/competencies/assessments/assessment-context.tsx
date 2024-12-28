@@ -24,6 +24,7 @@ export interface SkillCheck {
 function createEmptyAssessment(assessmentId: string): CompetencyAssessmentWithRelations {
     const now = new Date()
     return {
+        orgId: "", userId: "",
         id: assessmentId,
         name: '',
         location: '',

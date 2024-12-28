@@ -54,7 +54,7 @@ export default async function SkillGroupPage({ params }: { params: { groupIdOrRe
                         <DLTerm>Ref</DLTerm>
                         <DLDetails>{skillGroup.ref}</DLDetails>
 
-                        <DLTerm>Capability</DLTerm>
+                        <DLTerm>Package</DLTerm>
                         <DLDetails>{skillGroup.package.name}</DLDetails>
                     </DL>
                 </CardContent>

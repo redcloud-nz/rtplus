@@ -15,7 +15,7 @@ type CreateArgs =  { accessKey: string, teamId: string, d4hTeamId: number }
  */
 export async function createAccessKey({ accessKey, teamId, d4hTeamId }: CreateArgs) {
 
-    const { userId, orgId } = await auth.protect({ permission: 'org:d4h:personal_access' })
+    const { userId, orgId } = await auth.protect()
     assertNonNull(orgId, "An active organization is required to execute 'createAccessKey")
 
     const team = await prisma.team.findFirst({
@@ -46,7 +46,7 @@ type UpdateArgs = { accessKeyId: string, enabled: boolean }
  */
 export async function updateAccessKey({ accessKeyId, enabled }: UpdateArgs) {
 
-    const { userId } = await auth.protect({ permission: 'org:d4h:personal_access' })
+    const { userId } = await auth.protect()
 
     await prisma.d4hAccessKey.update({
         where: { id: accessKeyId, userId },
@@ -62,7 +62,7 @@ type DeleteArgs = { accessKeyId: string }
  */
 export async function deleteAccessKey({ accessKeyId }: DeleteArgs) {
 
-    const { userId } = await auth.protect({ permission: 'org:d4h:personal_access' })
+    const { userId } = await auth.protect()
 
     await prisma.d4hAccessKey.delete({
         where: { id: accessKeyId, userId }

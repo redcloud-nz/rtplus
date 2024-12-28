@@ -26,7 +26,7 @@ export const metadata: Metadata = { title: "Personal D4H Access Keys | RT+" }
 
 export default async function D4hAccessKeysPage() {
     
-    const { userId, orgId } = await auth.protect({ permission: 'org:d4h:personal_access' })
+    const { userId, orgId } = await auth.protect()
    
     const accessKeys = await prisma.d4hAccessKey.findMany({
         include: {
