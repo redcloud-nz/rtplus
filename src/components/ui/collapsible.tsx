@@ -1,6 +1,8 @@
-"use client"
+'use client'
 
-import * as CollapsiblePrimitive from "@radix-ui/react-collapsible"
+import * as CollapsiblePrimitive from '@radix-ui/react-collapsible'
+
+export type CollapsibleProps = CollapsiblePrimitive.CollapsibleProps & React.RefAttributes<HTMLDivElement>
 
 const Collapsible = CollapsiblePrimitive.Root
 

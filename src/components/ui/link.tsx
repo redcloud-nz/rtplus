@@ -41,12 +41,12 @@ export function PhoneLink({ phoneNumber, className, ...props}: PhoneLinkProps) {
 }
 
 
-export type ExternalLinkProps = Omit<React.ComponentPropsWithoutRef<'a'>, 'target' | 'rel'>
+export type ExternalLinkProps = Omit<React.ComponentPropsWithoutRef<'a'>, 'target' | 'rel'> & { noDecoration?: boolean }
 
-export function ExternalLink({className, href, ...props}: ExternalLinkProps) {
+export function ExternalLink({ className, href, noDecoration: noUnderline = false, ...props }: ExternalLinkProps) {
 
     return <a 
-        className={cn('hover:underline', className)}
+        className={cn(!noUnderline && 'hover:underline', className)}
         href={href}
         target='_blank'
         rel='noopener noreferrer'

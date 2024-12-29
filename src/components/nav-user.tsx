@@ -5,6 +5,7 @@ import { BadgeCheck, ChevronsUpDown, KeyRoundIcon, LogInIcon, LogOutIcon, Shield
 import { SignedIn, SignedOut, SignInButton, useClerk } from '@clerk/nextjs'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Link } from '@/components/ui/link'
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -21,11 +23,9 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 
-import { Link } from './ui/link'
+import { getUserInitials } from '@/lib/utils'
 
 import * as Paths from '@/paths'
-import { Button } from './ui/button'
-
 
 
 export interface NavUserProps {
@@ -41,6 +41,7 @@ export function NavUser({ user }: NavUserProps) {
     const { isMobile } = useSidebar()
     const clerk = useClerk()
 
+    const initials = getUserInitials(user.name)
 
     return <SidebarMenu>
         <SidebarMenuItem>
@@ -54,7 +55,7 @@ export function NavUser({ user }: NavUserProps) {
                             <Avatar className="h-8 w-8 rounded-lg">
                                 <AvatarImage src={user.avatar} alt={user.name} />
                                 <AvatarFallback className="rounded-lg">
-                                    {user.name.split(' ').slice(0,2).map(part => part.charAt(0).toUpperCase()).join('')}
+                                    {initials}
                                 </AvatarFallback>
                             </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight">
@@ -74,7 +75,7 @@ export function NavUser({ user }: NavUserProps) {
                             <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                                 <Avatar className="h-8 w-8 rounded-lg">
                                 <AvatarImage src={user.avatar} alt={user.name} />
-                                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                                <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
                                 </Avatar>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
                                 <span className="truncate font-semibold">{user.name}</span>

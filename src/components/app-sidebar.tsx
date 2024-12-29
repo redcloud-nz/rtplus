@@ -3,9 +3,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
-import { BookOpenIcon, InfoIcon, ListChecksIcon, NotebookTextIcon, PocketKnifeIcon, Settings2Icon, SquareTerminalIcon, UserCheckIcon, WalletCardsIcon } from "lucide-react"
+import { BookOpenIcon, InfoIcon, ListChecksIcon, NotebookTextIcon, PocketKnifeIcon, Settings2Icon, UserCheckIcon, WalletCardsIcon } from "lucide-react"
 
-import { NavItem, NavSection } from '@/components/nav-section'
+import { NavCollapsible, NavItem, NavSection, NavSubItem } from '@/components/nav-section'
 import { NavUser } from '@/components/nav-user'
 
 import {
@@ -16,155 +16,12 @@ import {
     SidebarRail,
 } from '@/components/ui/sidebar'
 import * as Paths from '@/paths'
+import { Protect } from '@clerk/nextjs'
 
 
+export type AppSidebarProps = React.ComponentProps<typeof Sidebar>
 
-const navTools: NavItem[] = [
-    {
-        title: "Availability",
-        url: "/availability",
-        icon: <UserCheckIcon/>,
-    },
-    {
-        title: "Checklists",
-        url: "/checklists",
-        icon: <ListChecksIcon/>
-    },
-    {
-        title: "Competencies",
-        url: "/competencies",
-        icon: <PocketKnifeIcon/>,
-        items: [
-            {
-                title: "Dashboard",
-                url: Paths.competencies.dashboard
-            },
-            {
-                title: "Assessments",
-                url: Paths.competencies.assessmentList
-            },
-            {
-                title: "Reports",
-                url: Paths.competencies.reportsList
-            }
-        ]
-    },
-    {
-        title: "D4H Unified",
-        url: "/unified",
-        icon: <SquareTerminalIcon/>,
-        authRequired: true,
-        items: [
-            {
-                title: "Activities",
-                url: "/unified/activities"
-            },
-            {
-                title: "Personnel",
-                url: "/unified/personnel",
-            },
-            {
-                title: "Calendar",
-                url: "/unified/calendar",
-            },
-            {
-                title: "Equipment",
-                url: "/unified/equipment",
-            },
-        ],
-        defaultOpen: true
-    },
-    {
-        title: "Field Operations Guide",
-        url: "/fog",
-        icon: <NotebookTextIcon/>,
-    },
-    {
-        title: "Reference Cards",
-        url: "/cards",
-        icon: <WalletCardsIcon/>
-    },
-  ]
-
-  const navGeneral: NavItem[] = [
-    {
-        title: "About",
-        url: "/about",
-        icon: <InfoIcon/>
-    },
-    {
-        title: "Documentation",
-        url: "/documentation",
-        icon: <BookOpenIcon/>,
-        // items: [
-        //     {
-        //         title: "Introduction",
-        //         url: "#",
-        //     },
-        //     {
-        //         title: "Get Started",
-        //         url: "#",
-        //     },
-        //     {
-        //         title: "Tutorials",
-        //         url: "#",
-        //     },
-        //     {
-        //         title: "Changelog",
-        //         url: "#",
-        //     },
-        // ],
-      },
-      {
-        title: "Configuration",
-        url: "/",
-        icon: <Settings2Icon/>,
-        authRequired: true,
-        items: [
-            {
-                title: "General",
-                url: "/settings",
-            },
-            
-            {
-                title: "Personnel",
-                url: Paths.personnel,
-            },
-            {
-                title: "Skills",
-                url: Paths.skillsAll
-            },
-            {
-                title: "Skill Groups",
-                url: Paths.skillGroupsAll
-            },
-            {
-                title: "Skill Packages",
-                url: Paths.skillPackages
-            },
-            {
-                title: "Teams",
-                url: Paths.teams,
-            },
-            
-        ],
-    },
-    { 
-        title: "Source Code",
-        url: "https://github.com/alexwestphal/rtplus-vercel",
-        icon: <Image
-            aria-hidden
-            src="/github.svg"
-            alt="Githib Icon"
-            width={16}
-            height={16}
-        />
-    }
-]
-
-export type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { signedIn: boolean }
-
-export function AppSidebar({ signedIn, ...props }: AppSidebarProps) {
+export function AppSidebar({ ...props }: AppSidebarProps) {
     return <Sidebar collapsible="icon" {...props}>
         <SidebarHeader className="mt-2">
             <Link href="/dashboard">
@@ -179,8 +36,34 @@ export function AppSidebar({ signedIn, ...props }: AppSidebarProps) {
             </Link>
         </SidebarHeader>
         <SidebarContent>
-            <NavSection title="Tools" items={navTools} signedIn={signedIn}/>
-            <NavSection title="General" items={navGeneral} signedIn={signedIn}/>
+            <NavSection title="Tools">
+                <Protect>
+                    <NavItem label="Availability" href="/availability" icon={<UserCheckIcon/>}/>
+                    <NavItem label="Checklists" href="/checklists" icon={<ListChecksIcon/>}/>
+                    <NavCollapsible label="Competencies" icon={<PocketKnifeIcon/>}>
+                        <NavSubItem label="Dashboard" href={Paths.competencies.dashboard}/>
+                        <NavSubItem label="Assessments" href={Paths.competencies.assessmentList}/>
+                        <NavSubItem label="Reports" href={Paths.competencies.reportsList}/>
+                    </NavCollapsible>
+                </Protect>
+                <NavItem label="Field Operations Guide" href="/fog" icon={<NotebookTextIcon/>}/>
+                <NavItem label="Reference Card" href="/cards" icon={<WalletCardsIcon/>}/>
+            </NavSection>
+            <NavSection title="General">
+                <NavItem label="About" href="/about" icon={<InfoIcon/>}/>
+                <NavItem label="Documentation" href="/documentation" icon={<BookOpenIcon/>}/>
+                <Protect role='org:admin'>
+                    <NavCollapsible label="Configuration" icon={<Settings2Icon/>}>
+                        <NavSubItem label="General" href="/settings"/>
+                        <NavSubItem label="Personnel" href={Paths.personnel}/>
+                        <NavSubItem label="Skills" href={Paths.skillsAll}/>
+                        <NavSubItem label="Skill Groups" href={Paths.skillGroupsAll}/>
+                        <NavSubItem label="Skill Packages" href={Paths.skillPackages}/>
+                        <NavSubItem label="Teams" href={Paths.teams}/>
+                    </NavCollapsible>
+                </Protect>
+                <NavItem label="Source Code" href="https://github.com/alexwestphal/rtplus-vercel" icon={<Image aria-hidden src="/github.svg" alt="Githib Icon" width={16} height={16}/>}/>
+            </NavSection>
         </SidebarContent>
         <SidebarFooter>
             <NavUser user={{ name: "Alex Westphal", email: "alexwestphal.nz@gmail.com", avatar: "" }}/>

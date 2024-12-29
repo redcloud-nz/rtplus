@@ -3,7 +3,6 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 
 import { ClerkProvider } from '@clerk/nextjs'
-import { currentUser } from '@clerk/nextjs/server'
 
 import { AppPageContainer } from '@/components/app-page'
 import { AppSidebar } from "@/components/app-sidebar"
@@ -11,8 +10,6 @@ import { FrontendProvider } from '@/components/frontend-provider'
 import { Toaster } from '@/components/ui/toaster'
 
 import './globals.css'
-
-
 
 const geistSans = localFont({
     src: "./fonts/GeistVF.woff",
@@ -31,13 +28,11 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-    const user = await currentUser()
-
     return <ClerkProvider>
         <html lang="en">
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
                 <FrontendProvider>
-                    <AppSidebar signedIn={user != null}/>
+                    <AppSidebar/>
                     <AppPageContainer>
                         {children}
                     </AppPageContainer>

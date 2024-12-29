@@ -1,3 +1,5 @@
+// /competencies/assessments
+
 'use client'
 
 import { formatISO } from 'date-fns'
@@ -29,48 +31,48 @@ export default function AssessmentsListPage() {
     return <AppPage 
         label="Assessments" 
         breadcrumbs={[{ label: "Competencies", href: Paths.competencies.dashboard }]}
+    >
+        <PageHeader>
+            <PageTitle>Competency Assessments</PageTitle>
+            <PageDescription>Your competency assessments (as assesor).</PageDescription>
+            <PageControls>
+                <Button asChild>
+                    <Link href={Paths.competencies.newAssessment}>
+                        <SquarePenIcon/> New <span className="hidden md:inline">Assessment</span>
+                    </Link>
+                </Button>
+            </PageControls>
+        </PageHeader>
+        { assessmentsQuery.isPending && <Skeleton className="h-8"/>}
+        { assessmentsQuery.isSuccess && <Show
+            when={assessmentsQuery.data.length > 0}
+            fallback={<Alert severity="info" title="No previous assessments">Add one to get started.</Alert>}
         >
-            <PageHeader>
-                <PageTitle>Competency Assessments</PageTitle>
-                <PageDescription>Your competency assessments (as assesor).</PageDescription>
-                <PageControls>
-                    <Button asChild>
-                        <Link href={Paths.competencies.newAssessment}>
-                            <SquarePenIcon/> New <span className="hidden md:inline">Assessment</span>
-                        </Link>
-                    </Button>
-                </PageControls>
-            </PageHeader>
-            { assessmentsQuery.isPending && <Skeleton className="h-8"/>}
-            { assessmentsQuery.isSuccess && <Show
-                when={assessmentsQuery.data.length > 0}
-                fallback={<Alert severity="info" title="No previous assessments">Add one to get started.</Alert>}
-            >
-                <Table border>
-                    <TableHead>
-                        <TableRow>
-                            <TableHeadCell>Name</TableHeadCell>
-                            <TableHeadCell>Date</TableHeadCell>
-                            <TableHeadCell className="w-32 hidden md:table-cell text-center">Skill Count</TableHeadCell>
-                            <TableHeadCell className="w-32 hidden md:table-cell text-center">Assessee Count</TableHeadCell>
-                            <TableHeadCell className="w-32 hidden md:table-cell text-center">Check Count</TableHeadCell>
-                            <TableHeadCell className="text-center">Status</TableHeadCell>
+            <Table border>
+                <TableHead>
+                    <TableRow>
+                        <TableHeadCell>Name</TableHeadCell>
+                        <TableHeadCell>Date</TableHeadCell>
+                        <TableHeadCell className="w-32 hidden md:table-cell text-center">Skill Count</TableHeadCell>
+                        <TableHeadCell className="w-32 hidden md:table-cell text-center">Assessee Count</TableHeadCell>
+                        <TableHeadCell className="w-32 hidden md:table-cell text-center">Check Count</TableHeadCell>
+                        <TableHeadCell className="text-center">Status</TableHeadCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {assessmentsQuery.data.map((assessment, index) => 
+                        <TableRow key={assessment.id}>
+                            <TableCell><Link href={Paths.competencies.assessment(assessment.id).edit}>{assessment.name || `#${index+1}`}</Link></TableCell>
+                            <TableCell>{formatISO(assessment.date, { representation: 'date' })}</TableCell>
+                            <TableCell className="hidden md:table-cell text-center ">{assessment.skillIds.length}</TableCell>
+                            <TableCell className="hidden md:table-cell text-center">{assessment.assesseeIds.length}</TableCell>
+                            <TableCell className="hidden md:table-cell text-center">{assessment.skillChecks.length}</TableCell>
+                            <TableCell className="text-center">{assessment.status}</TableCell>
                         </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {assessmentsQuery.data.map((assessment, index) => 
-                            <TableRow key={assessment.id}>
-                                <TableCell><Link href={Paths.competencies.assessment(assessment.id).edit}>{assessment.name || `#${index+1}`}</Link></TableCell>
-                                <TableCell>{formatISO(assessment.date, { representation: 'date' })}</TableCell>
-                                <TableCell className="hidden md:table-cell text-center ">{assessment.skillIds.length}</TableCell>
-                                <TableCell className="hidden md:table-cell text-center">{assessment.assesseeIds.length}</TableCell>
-                                <TableCell className="hidden md:table-cell text-center">{assessment.skillChecks.length}</TableCell>
-                                <TableCell className="text-center">{assessment.status}</TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </Show>
+                    )}
+                </TableBody>
+            </Table>
+        </Show>
         }
     </AppPage>
 }
