@@ -30,7 +30,7 @@ export interface ImportPersonnelActionResult {
 
 export async function importPersonnelAction(teamId: string, diffs: MemberDiff[]): Promise<ImportPersonnelActionResult> {
 
-    const { userId, orgId } = await auth.protect({ permission: 'org:members:manage' })
+    const { userId, orgId } = await auth.protect({ role: 'org:admin' })
     assertNonNull(orgId, "An active organization is required to execute 'importPersonnelAction'")
 
     const startTime = Date.now()

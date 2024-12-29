@@ -109,7 +109,7 @@ export default function NewTeamPage() {
 async function createTeamAction(formState: FormState, formData: FormData) {
     'use server'
 
-    const { userId, orgId } = await auth.protect({ permission: 'org:teams:manage'})
+    const { userId, orgId } = await auth.protect({ role: 'org:admin' })
     assertNonNull(orgId, "An active organization is required to execute 'createTeamAction'")
 
     const eventBuilder = EventBuilder.create(orgId, userId)

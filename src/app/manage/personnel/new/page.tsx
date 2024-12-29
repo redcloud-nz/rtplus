@@ -70,7 +70,7 @@ export default async function NewPersonPage() {
 async function createPersonAction(formState: FormState, formData: FormData) {
     'use server'
 
-    const { userId, orgId } = await auth.protect({ permission: 'org:members:manage' })
+    const { userId, orgId } = await auth.protect({ role: 'org:admin' })
     assertNonNull(orgId, "An active organization is required to execute 'createPersonAction'")
 
     let personId: string

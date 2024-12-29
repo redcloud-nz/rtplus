@@ -7,7 +7,7 @@ import prisma from '@/lib/prisma'
 
 
 export async function GET() {
-    const { userId } = await auth.protect({ permission: 'org:d4h:personal_access' })
+    const { userId } = await auth.protect()
 
     const accessKeys: D4hAccessKeyWithTeam[] = await prisma.d4hAccessKey.findMany({
         select: { 

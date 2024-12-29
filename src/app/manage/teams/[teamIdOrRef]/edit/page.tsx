@@ -39,7 +39,7 @@ export const metadata: Metadata = { title: "Edit Team | RT+" }
 
 export default async function EditTeamPage({ params }: { params: { teamIdOrRef: string }}) {
 
-    const { orgId } = await auth.protect({ permission: 'org:teams:manage' })
+    const { orgId } = await auth.protect({ role: 'org:admin' })
 
     const team = await prisma.team.findFirst({
         where: {

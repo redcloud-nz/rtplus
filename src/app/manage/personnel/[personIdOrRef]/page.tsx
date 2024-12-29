@@ -24,7 +24,7 @@ export const metadata: Metadata = { title: "Personnel | RT+" }
 
 export default async function PersonPage({ params }: { params: { personIdOrRef: string }}) {
 
-    await auth.protect({ permission: 'org:members:manage' })
+    await auth.protect({ role: 'org:admin' })
 
     const person = await prisma.person.findFirst({
         include: {

@@ -2,6 +2,7 @@ import { Metadata } from "next"
 
 import { AppPage, PageTitle } from "@/components/app-page"
 import { Heading, Paragraph } from "@/components/ui/typography"
+import { EmailLink } from "@/components/ui/link"
 
 
 
@@ -16,9 +17,6 @@ export default function AboutPage() {
             <Paragraph>
                 RT+ is a collection of web based tools for managing response teams. It started as a work-around to dealing with multiple teams in D4H but now includes other features independent of D4H.
             </Paragraph>
-            <Paragraph>
-                Development of RT+ is a volunteer effort led by Alex Westphal (NZ-RT11).
-            </Paragraph>
         </section>
 
         <section>
@@ -28,6 +26,7 @@ export default function AboutPage() {
                 {technologies.map(tech =>
                     <li key={tech.name}>
                         <a 
+                            className="hover:underline"
                             href={tech.url}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -39,8 +38,16 @@ export default function AboutPage() {
         <section>
             <Heading level={2}>Cost</Heading>
             <Paragraph>
-                All technologies used are either free/open-source or a currently setup with a free plan (Clerk, Neon Postgres, and Vercel).
-                Depending on future use, we may need to ask for donations to cover hosting costs.
+                Our hosting costs are kindly covered by Redcloud Development. This allows us to offer RT+ for free to any New Zealand based Response Teams.
+            </Paragraph>
+        </section>
+        <section>
+            <Heading level={2}>Development</Heading>
+            <Paragraph>
+                Development of RT+ is a volunteer effort. 
+            </Paragraph>
+            <Paragraph>
+                If you would like to contribute (design, programming, or qualitiy assurance) contact <EmailLink email="support@rtplus.nz"/>.
             </Paragraph>
         </section>
     </AppPage>

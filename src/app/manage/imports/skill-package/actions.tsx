@@ -18,7 +18,7 @@ export interface ImportPackageActionResult {
 
 export async function importPackageAction(packageIds: string[]): Promise<ImportPackageActionResult> {
 
-    const { userId, orgId } = await auth.protect()
+    const { userId, orgId } = await auth.protect({ role: 'org:admin' })
     assertNonNull(orgId, "An active organization is required to execute 'importPackageAction'")
 
     const startTime = Date.now()

@@ -72,7 +72,7 @@ export default function NewAssessmentPage() {
 async function createAssessmentAction(formState: FormState, formData: FormData) {
     'use server'
 
-    const { userId, orgId } = await auth.protect({ permission: 'org:competencies:assess' })
+    const { userId, orgId } = await auth.protect()
     assertNonNull(orgId, "An active organization is required to execute 'createAssessmentAction'")
 
     let assessmentId: string

@@ -62,7 +62,7 @@ export default function ImportPersonnelPage() {
         const diffs: MemberDiff[] = []
 
         for(const d4hMember of d4hMembers) {
-            const status = toTeamMembershipStatus(d4hMember.status)
+            const d4hStatus = toTeamMembershipStatus(d4hMember.status)
 
             const savedMember = storedTeam.memberships.find(member => member.d4hMemberId == d4hMember.id)
 
@@ -73,7 +73,7 @@ export default function ImportPersonnelPage() {
                 if(d4hMember.email.value != savedMember.person.email) fields.email = d4hMember.email.value
                 if(d4hMember.position != savedMember.position) fields.position = d4hMember.position
                 if(d4hMember.ref != savedMember.d4hRef) fields.d4hRef = d4hMember.ref
-                if(status != savedMember.status) fields.status = status
+                if(d4hStatus != savedMember.d4hStatus) fields.d4hStatus = d4hStatus
 
                 if(Object.keys(fields).length > 0) {
                     diffs.push({ type: 'Update', d4hMemberId: d4hMember.id, name: savedMember.person.name, membershipId: savedMember.id, personId: savedMember.person.id, fields })
@@ -85,7 +85,7 @@ export default function ImportPersonnelPage() {
                     email: d4hMember.email.value,
                     position: d4hMember.position,
                     d4hRef: d4hMember.ref,
-                    status,
+                    d4hStatus: d4hStatus,
                 } })
             }
         }

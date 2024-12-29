@@ -99,13 +99,13 @@ export type MemberStatusType = 'OPERATIONAL' | 'NON_OPERATIONAL' | 'OBSERVER' | 
 
 export type BasicD4hMember = Pick<D4hMember, 'id' | 'email' | 'name' | 'owner' | 'position' | 'ref' | 'status' >
 
-export function toTeamMembershipStatus(d4hMemberStatus: D4hMember['status']): TeamMembership['status'] {
+export function toTeamMembershipStatus(d4hMemberStatus: D4hMember['status']): TeamMembership['d4hStatus'] {
     const mapping = {
         OPERATIONAL: 'Operational',
         NON_OPERATIONAL: 'NonOperational',
         OBSERVER: 'Observer',
         RETIRED: 'Retired'
-    } satisfies Record<MemberStatusType, TeamMembership['status']>
+    } satisfies Record<MemberStatusType, TeamMembership['d4hStatus']>
 
     return mapping[d4hMemberStatus]
 }

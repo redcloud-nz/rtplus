@@ -41,7 +41,7 @@ export default async function TeamsPage() {
             <PageTitle>Manage Teams</PageTitle>
             <PageDescription>These are the teams that are available for use in RT+.</PageDescription>
             <PageControls>
-                <Protect permission="org:teams:manage">
+                <Protect role="org:admin">
                     <Button asChild>
                         <Link href={Paths.newTeam}>
                             <PlusIcon/> New Team
