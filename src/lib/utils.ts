@@ -37,15 +37,18 @@ export function resolveAfter<R>(valueOrLazy: R | (() => R), delay: number): Prom
  * @returns The user's initials (first letter of first and last name).
  */
 export function getUserInitials(name: string): string {
-    let parts = name.split(' ')
-    if(parts.length == 1) {
-        // Name has only one part. Use just the first letter.
-        return parts[0].charAt(0).toUpperCase()
-    } else if(parts.length == 2) {
-        // Name has only two parts
-        return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase()
-    } else {
-        // Name has three or more parts. We assume the middle ones to be middle names or Tuessenvoegsel
-        return (parts[0].charAt(0) + parts[parts.length-1].charAt(0)).toUpperCase()
+    const parts = name.split(' ')
+    switch(parts.length) {
+        case 0:
+            return ""
+        case 1:
+            // Name has only one part. Use just the first letter.
+            return parts[0].charAt(0).toUpperCase()
+        case 2:
+             // Name has only two parts
+            return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase()
+        default:
+            // Name has three or more parts. We assume the middle ones to be middle names or Tuessenvoegsel
+            return (parts[0].charAt(0) + parts[parts.length-1].charAt(0)).toUpperCase()
     }
 }
