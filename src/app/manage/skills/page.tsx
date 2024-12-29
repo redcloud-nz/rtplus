@@ -14,7 +14,7 @@ export default async function SkillListPage() {
 
     const skills = await prisma.skill.findMany({
         orderBy: { name: 'asc' },
-        include: { skillGroup: { include: { capability: true } } }
+        include: { skillGroup: true, package: true }
     })
 
     return <AppPage
@@ -33,7 +33,7 @@ export default async function SkillListPage() {
                 <TableHead>
                     <TableRow>
                         <TableHeadCell className="w-1/3">Name</TableHeadCell>
-                        <TableHeadCell className="w-1/3">Capability</TableHeadCell>
+                        <TableHeadCell className="w-1/3">Package</TableHeadCell>
                         <TableHeadCell className="w-1/3">Skill Group</TableHeadCell>
                     </TableRow>
                 </TableHead>
@@ -45,8 +45,8 @@ export default async function SkillListPage() {
                                     href={Paths.skill(skill.ref || skill.id)}
                                 >{skill.name}</Link>
                             </TableCell>
-                            <TableCell>{skill.skillGroup.capability.name}</TableCell>
-                            <TableCell>{skill.skillGroup.name}</TableCell>
+                            <TableCell>{skill.package.name}</TableCell>
+                            <TableCell>{skill.skillGroup?.name}</TableCell>
                         </TableRow>
                     )}
                 </TableBody>
