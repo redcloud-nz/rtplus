@@ -62,7 +62,7 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
                         <NavSubItem label="Teams" href={Paths.teams}/>
                     </NavCollapsible>
                 </Protect>
-                <NavItem label="Source Code" href="https://github.com/alexwestphal/rtplus-vercel" icon={<Image aria-hidden src="/github.svg" alt="Githib Icon" width={16} height={16}/>}/>
+                <NavItem label="Source Code" href="https://github.com/redcloud-nz/rtplus" icon={<Image aria-hidden src="/github.svg" alt="Githib Icon" width={16} height={16}/>}/>
             </NavSection>
         </SidebarContent>
         <SidebarFooter>

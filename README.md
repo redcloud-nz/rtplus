@@ -34,6 +34,6 @@ Depending on future use, we may need to ask for donations to cover hosting costs
 
 ## Bugs / Feature Requests
 
-File bug reports or feature requests on the [GitHub Issues Tab](https://github.com/alexwestphal/rtplus-vercel/issues).
+File bug reports or feature requests on the [GitHub Issues Tab](https://github.com/redcloud-dev/rtplus/issues).
 
 Be aware that RT+ is a volunteer effort so we can't guarantee a timeframe to fix bugs or implement features.
