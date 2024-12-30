@@ -1,9 +1,8 @@
 'use client'
 
 import React from 'react'
-import { useFormState, useFormStatus } from 'react-dom'
+import { useFormStatus } from 'react-dom'
 
-import * as LabelPrimitive from '@radix-ui/react-label'
 import { Slot } from '@radix-ui/react-slot'
 
 import { Button } from '@/components/ui/button'
@@ -20,12 +19,12 @@ type FormContextValue = {
 const FormContext = React.createContext<FormContextValue>({ formState: EMPTY_FORM_STATE })
 
 
-export type FormProps = React.HtmlHTMLAttributes<HTMLFormElement> & {
+export type FormProps = Omit<React.JSX.IntrinsicElements['form'], 'action'> & {
     action?: (formState: FormState, formData: FormData) => Promise<FormState>
 }
 
-function Form({ action = async () => EMPTY_FORM_STATE, className, ...props }: FormProps) {
-    const [formState, formAction] = useFormState(action, EMPTY_FORM_STATE)
+export function Form({ action = async () => EMPTY_FORM_STATE, className, ...props }: FormProps) {
+    const [formState, formAction] = React.useActionState(action, EMPTY_FORM_STATE)
 
     return <FormContext.Provider value={{ formState }}>
         <form 
@@ -46,11 +45,11 @@ type FormFieldContextValue = {
 
 const FormFieldContext = React.createContext<FormFieldContextValue>({} as FormFieldContextValue)
 
-export type FormFieldProps = React.ComponentPropsWithoutRef<'div'> & { 
+export type FormFieldProps = React.ComponentPropsWithRef<'div'> & { 
     name: string
 }
 
-const FormField = ({ className, name, ...props }: FormFieldProps) => {
+export function FormField({ className, name, ...props }: FormFieldProps) {
     const id = React.useId()
 
     return (
@@ -64,7 +63,7 @@ const FormField = ({ className, name, ...props }: FormFieldProps) => {
     )
 }
 
-const useFormField = () => {
+export const useFormField = () => {
     const formContext = React.useContext(FormContext)
     const fieldContext = React.useContext(FormFieldContext)
 
@@ -87,88 +86,70 @@ const useFormField = () => {
 }
 
 
-const FieldLabel = React.forwardRef<React.ElementRef<typeof LabelPrimitive.Root>, React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>>(({ className, ...props }, ref) => {
+export function FieldLabel({ className, ...props }: React.ComponentProps<typeof Label>) {
     const { errors, fieldControlId } = useFormField()
 
-    return (
-        <Label
-            ref={ref}
-            data-component="FieldLabel"
-            className={cn(errors && "text-destructive", className)}
-            htmlFor={fieldControlId}
-            {...props}
-        />
-    )
-})
-FieldLabel.displayName = "FieldLabel"
+    return <Label
+        data-component="FieldLabel"
+        className={cn(errors && "text-destructive", className)}
+        htmlFor={fieldControlId}
+        {...props}
+    />
+}
 
 
-const FieldControl = React.forwardRef<React.ElementRef<typeof Slot>, React.ComponentPropsWithoutRef<typeof Slot>>(({ ...props }, ref) => {
-  const { errors, fieldControlId, fieldDescriptionId, fieldMessageId } = useFormField()
+export function FieldControl(props: React.ComponentProps<typeof Slot>) {
+    const { errors, fieldControlId, fieldDescriptionId, fieldMessageId } = useFormField()
 
-    return (
-        <Slot
-            ref={ref}
-            id={fieldControlId}
-            aria-describedby={
-                !errors
-                    ? `${fieldDescriptionId}`
-                    : `${fieldDescriptionId} ${fieldMessageId}`
-            }
-            aria-invalid={!!errors}
-            {...props}
-        />
-    )
-})
-FieldControl.displayName = "FieldControl"
+    return <Slot
+        id={fieldControlId}
+        aria-describedby={
+            !errors
+                ? `${fieldDescriptionId}`
+                : `${fieldDescriptionId} ${fieldMessageId}`
+        }
+        aria-invalid={!!errors}
+        {...props}
+    />
+}
 
-const FieldDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(({ className, ...props }, ref) => {
+export function FieldDescription({ className, ...props }: React.ComponentPropsWithRef<'p'>) {
     const { fieldDescriptionId } = useFormField()
 
-    return (
-        <p
-            ref={ref}
-            id={fieldDescriptionId}
-            className={cn("text-sm text-muted-foreground", className)}
-            data-component="FieldDescription"
-            {...props}
-        />
-    )
-})
-FieldDescription.displayName = "FieldDescription"
+    return <p
+        id={fieldDescriptionId}
+        className={cn("text-sm text-muted-foreground", className)}
+        data-component="FieldDescription"
+        {...props}
+    />
+
+}
 
 
-const FieldMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(({ className, children, ...props }, ref) => {
+export function FieldMessage({ className, children, ...props }: React.ComponentPropsWithRef<'p'>) {
     const { errors, fieldMessageId } = useFormField()
     const body = errors ? errors[0] : children
 
-    if (!body) {
-        return null
-    }
+    if (!body) return null
 
-    return (
-        <p
-            ref={ref}
-            id={fieldMessageId}
-            className={cn("text-sm font-medium text-destructive", className)}
-            data-component="FieldMessage"
-            {...props}
-        >
-            {body}
-        </p>
-    )
-})
-FieldMessage.displayName = "FieldMessage"
+    return <p
+        id={fieldMessageId}
+        className={cn("text-sm font-medium text-destructive", className)}
+        data-component="FieldMessage"
+        {...props}
+    >
+        {body}
+    </p>
+}
 
 
-const FormMessage = React.forwardRef<HTMLParagraphElement, Omit<React.HTMLAttributes<HTMLParagraphElement>, 'children'>>(({ className, ...props }, ref) => {
+export function FormMessage({ className, ...props }: Omit<React.ComponentPropsWithRef<'p'>, 'children'>) {
     const formContext = React.useContext(FormContext)
 
     const { status, message } = formContext.formState
     if(!message) return null
 
     return <p
-        ref={ref}
         className={cn(
             'text-sm font-medium', 
             status == 'ERROR' && 'text-destructive',
@@ -179,11 +160,10 @@ const FormMessage = React.forwardRef<HTMLParagraphElement, Omit<React.HTMLAttrib
     >
         {message}
     </p>
-})
-FormMessage.displayName = "FormMessage"
+}
 
 
-export function FormFooter({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
+export function FormFooter({ className, ...props }: React.ComponentPropsWithRef<'div'>) {
     return <div 
         className={cn('mt-2 flex gap-2', className)}
         data-component="FormFooter"
@@ -191,7 +171,7 @@ export function FormFooter({ className, ...props }: React.ComponentPropsWithoutR
     />
 }
 
-export interface FormSubmitButtonProps {
+export type FormSubmitButtonProps = React.ComponentPropsWithRef<typeof Button> & {
     label: string
     loading: React.ReactNode
 }
@@ -204,16 +184,4 @@ export function FormSubmitButton({ label, loading }: FormSubmitButtonProps) {
         disabled={pending}
         type="submit"
     >{ pending ? loading : label}</Button>
-}
-
-
-export {
-  useFormField,
-  Form,
-  FieldLabel,
-  FieldControl,
-  FieldDescription,
-  FieldMessage,
-  FormField,
-  FormMessage,
 }
