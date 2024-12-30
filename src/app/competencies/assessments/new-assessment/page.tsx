@@ -1,4 +1,9 @@
-
+/*
+ *  Copyright (c) 2024 Redcloud Development, Ltd.
+ *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
+ * 
+ *  Path: /competencies/assessments/new-assessment
+ */
 
 import { redirect } from 'next/navigation'
 import React from 'react'

@@ -1,3 +1,9 @@
+/*
+ *  Copyright (c) 2024 Redcloud Development, Ltd.
+ *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
+ * 
+ *  Path: /manage/teams/[teamIdOrRef]/edit
+ */
 
 import { Metadata } from 'next'
 import { revalidatePath } from 'next/cache'

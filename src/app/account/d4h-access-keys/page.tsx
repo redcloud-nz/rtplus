@@ -1,4 +1,9 @@
-// /account/d4h-access-keys
+/*
+ *  Copyright (c) 2024 Redcloud Development, Ltd.
+ *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
+ * 
+ *  Path: /account/d4h-access-keys
+ */
 
 import { PlusIcon, TrashIcon } from 'lucide-react'
 import { Metadata } from 'next'

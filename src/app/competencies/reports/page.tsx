@@ -1,3 +1,11 @@
+/*
+ *  Copyright (c) 2024 Redcloud Development, Ltd.
+ *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
+ * 
+ *  Path: /competencies/reports
+ */
+
+
 import { AppPage, PageHeader, PageTitle } from '@/components/app-page'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
