@@ -1,13 +1,13 @@
 {
   "name": "nextjs",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "license": "MIT",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "db-push": "dotenv -e .env.local -- npx prisma db push",
     "db-migrate": "dotenv -e .env.local -- npx prisma migrate dev",
-    "build": "next build && prisma migrate deploy",
+    "build": "prisma migrate deploy && next build",
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate"
