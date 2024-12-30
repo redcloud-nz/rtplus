@@ -14,7 +14,7 @@ import { useTeamsWithMembersQuery } from '@/lib/api/teams'
 import { useAssessmentContext } from '../../../assessment-context'
 
 
-export default function AssessmentPersonnel({ }: { params: { assessmentId: string }}) {
+export default function AssessmentPersonnel() {
 
     const assessmentContext = useAssessmentContext()
     const teamsQuery = useTeamsWithMembersQuery()

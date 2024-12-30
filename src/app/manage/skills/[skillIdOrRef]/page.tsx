@@ -8,7 +8,8 @@ import prisma from '@/lib/prisma'
 
 import * as Paths from '@/paths'
 
-export default async function SkillPage({ params }: { params: { skillIdOrRef: string }}) {
+export default async function SkillPage(props: { params: Promise<{ skillIdOrRef: string }>}) {
+    const params = await props.params;
 
     const skill = await prisma.skill.findFirst({
         include: {

@@ -16,7 +16,8 @@ import prisma from '@/lib/prisma'
 import * as Paths from '@/paths'
 
 
-export default async function TeamPage({ params }: { params: { teamIdOrRef: string }}) {
+export default async function TeamPage(props: { params: Promise<{ teamIdOrRef: string }>}) {
+    const params = await props.params;
 
     const { orgId } = await auth.protect()
 

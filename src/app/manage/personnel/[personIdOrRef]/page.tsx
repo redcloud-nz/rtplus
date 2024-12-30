@@ -22,7 +22,8 @@ import * as Paths from '@/paths'
 
 export const metadata: Metadata = { title: "Personnel | RT+" }
 
-export default async function PersonPage({ params }: { params: { personIdOrRef: string }}) {
+export default async function PersonPage(props: { params: Promise<{ personIdOrRef: string }>}) {
+    const params = await props.params;
 
     await auth.protect({ role: 'org:admin' })
 

@@ -2,7 +2,8 @@ import { NotImplemented } from '@/components/errors'
 
 import * as Paths from '@/paths'
 
-export default function AssessmentInfoPage({ params}: { params: { assessmentId: string }}) {
+export default async function AssessmentInfoPage(props: { params: Promise<{ assessmentId: string }>}) {
+    const params = await props.params;
 
     return <NotImplemented
         label={params.assessmentId}

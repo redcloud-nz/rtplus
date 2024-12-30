@@ -15,7 +15,7 @@ import { SkillPackageWithGroupsAndSkills, useSkillPackagesQuery } from '@/lib/ap
 import { useAssessmentContext } from '../../../assessment-context'
 
 
-export default function AssessmentSkills({}: { params: { assessmentId: string } }) {
+export default function AssessmentSkills() {
 
     const assessmentContext = useAssessmentContext()
 

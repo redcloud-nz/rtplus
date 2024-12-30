@@ -11,7 +11,8 @@ import prisma from '@/lib/prisma'
 
 import * as Paths from '@/paths'
 
-export default async function SkillPackagePage({ params }: { params: { packageIdOrRef: string }}) {
+export default async function SkillPackagePage(props: { params: Promise<{ packageIdOrRef: string }>}) {
+    const params = await props.params
 
     const skillPackages = await prisma.skillPackage.findFirst({
         include: {

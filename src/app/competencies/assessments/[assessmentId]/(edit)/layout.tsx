@@ -15,7 +15,14 @@ import * as Paths from '@/paths'
 import { AssessmentContextProvider, useAssessmentContext } from '../../assessment-context'
 
 
-export default function AssessmentEditLayout({ children, params }: { children: React.ReactNode, params: { assessmentId: string  }}) {
+export default function AssessmentEditLayout(
+    props: { children: React.ReactNode, params: Promise<{ assessmentId: string }>}
+) {
+    const params = React.use(props.params)
+
+    const {
+        children
+    } = props;
 
     return <AssessmentContextProvider assessmentId={params.assessmentId}>
         <AppPage 
@@ -35,7 +42,6 @@ export default function AssessmentEditLayout({ children, params }: { children: R
             {children}
         </AppPage>
     </AssessmentContextProvider>
-    
 }
 
 interface NavigationProps {

@@ -8,8 +8,9 @@ import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { VehicleInfo, VehicleList } from '@/data/vehicles'
 
 
-export default function VehicleReferenceCard({ params }: { params: { plate: string} }) {
-    
+export default async function VehicleReferenceCard(props: { params: Promise<{ plate: string}> }) {
+    const params = await props.params;
+
     const vehicle = VehicleList.find(v => v.plate == params.plate)
     if(vehicle == undefined) return <NotFound/>
 

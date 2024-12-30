@@ -23,7 +23,7 @@ import { resolveAfter } from '@/lib/utils'
 import { SkillCheck, useAssessmentContext } from '../../../assessment-context'
 
 
-export default function AssessmentAssessPage({}: { params: { assessmentId: string }}) {
+export default function AssessmentAssessPage() {
 
     const assessmentContext = useAssessmentContext()
 

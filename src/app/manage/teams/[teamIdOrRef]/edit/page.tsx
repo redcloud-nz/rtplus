@@ -37,7 +37,8 @@ const EditTeamFormSchema = z.object({
 
 export const metadata: Metadata = { title: "Edit Team | RT+" }
 
-export default async function EditTeamPage({ params }: { params: { teamIdOrRef: string }}) {
+export default async function EditTeamPage(props: { params: Promise<{ teamIdOrRef: string }>}) {
+    const params = await props.params;
 
     const { orgId } = await auth.protect({ role: 'org:admin' })
 

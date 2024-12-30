@@ -13,7 +13,7 @@ import { Description } from '@/components/ui/typography'
 
 import { useAssessmentContext } from '../../../assessment-context'
 
-export default function AssessmentEdit({}: { params: { assessmentId: string }}) {
+export default function AssessmentEdit() {
 
     const { value, updateValue } = useAssessmentContext()
 

@@ -8,8 +8,9 @@ import prisma from '@/lib/prisma'
 
 import type { TeamWithMembers } from '@/lib/api/teams'
 
-export async function GET(request: NextRequest, { params }: { params: { teamId: string } }) {
-    
+export async function GET(request: NextRequest, props: { params: Promise<{ teamId: string }> }) {
+    const params = await props.params;
+
     const { orgId } = await auth.protect()
 
     const team: TeamWithMembers | null = await prisma.team.findFirst({

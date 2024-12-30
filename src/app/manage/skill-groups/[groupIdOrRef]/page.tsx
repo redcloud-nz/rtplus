@@ -13,7 +13,8 @@ import prisma from '@/lib/prisma'
 import * as Paths from '@/paths'
 
 
-export default async function SkillGroupPage({ params }: { params: { groupIdOrRef: string }}) {
+export default async function SkillGroupPage(props: { params: Promise<{ groupIdOrRef: string }>}) {
+    const params = await props.params
 
     const skillGroup = await prisma.skillGroup.findFirst({
         include: {
