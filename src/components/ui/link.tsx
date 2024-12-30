@@ -5,13 +5,12 @@ import React from 'react'
 
 import { cn } from '@/lib/utils'
 
+
 export const Link = NextLink
 
-
-export type EmailLinkProps = { email: string } & Omit<React.ComponentPropsWithoutRef<'a'>, 'href'>
+export type EmailLinkProps = Omit<React.ComponentPropsWithRef<'a'>, 'href'> & { email: string }
 
 export function EmailLink({ email, className, ...props}: EmailLinkProps) {
-
     if(email == '') return null
 
     return <a
@@ -21,7 +20,7 @@ export function EmailLink({ email, className, ...props}: EmailLinkProps) {
     >{email}</a>
 }
 
-export type PhoneLinkProps = { phoneNumber: string } & Omit<React.ComponentPropsWithoutRef<'a'>, 'href'>
+export type PhoneLinkProps =  Omit<React.ComponentPropsWithRef<'a'>, 'href'> & { phoneNumber: string }
 
 export function PhoneLink({ phoneNumber, className, ...props}: PhoneLinkProps) {
     if(phoneNumber == '') return null
@@ -41,7 +40,7 @@ export function PhoneLink({ phoneNumber, className, ...props}: PhoneLinkProps) {
 }
 
 
-export type ExternalLinkProps = Omit<React.ComponentPropsWithoutRef<'a'>, 'target' | 'rel'> & { noDecoration?: boolean }
+export type ExternalLinkProps = Omit<React.ComponentPropsWithRef<'a'>, 'target' | 'rel'> & { noDecoration?: boolean }
 
 export function ExternalLink({ className, href, noDecoration: noUnderline = false, ...props }: ExternalLinkProps) {
 

@@ -3,7 +3,7 @@
 import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 import { Show } from '@/components/show'
 
-import Alert from '@/components/ui/alert'
+import { Alert } from '@/components/ui/alert'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 

@@ -4,7 +4,7 @@ import { auth, currentUser } from '@clerk/nextjs/server'
 import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 import { Unauthorized } from '@/components/errors'
 
-import Alert from '@/components/ui/alert'
+import { Alert } from '@/components/ui/alert'
 import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 

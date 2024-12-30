@@ -13,7 +13,6 @@ export function GridList({ className, role = 'list', ...props }: GridListProps) 
     />
 }
 
-
 export type GridListItemProps = React.ComponentProps<'li'> & { asChild?: boolean}
 
 export function GridListItem({ className, asChild = false, ...props }: GridListItemProps) {

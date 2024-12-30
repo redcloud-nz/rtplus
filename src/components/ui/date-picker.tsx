@@ -57,7 +57,7 @@ export function DatePicker({ defaultValue = "", onChange = () => {}, placeholder
                     mode="single"
                     selected={date}
                     onSelect={handleSelect}
-                    initialFocus
+                    autoFocus
                 />
             </PopoverContent>
         </Popover>

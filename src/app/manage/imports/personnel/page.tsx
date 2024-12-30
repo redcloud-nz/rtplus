@@ -4,7 +4,7 @@ import React from 'react'
 
 import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 
-import Alert from '@/components/ui/alert'
+import { Alert } from '@/components/ui/alert'
 import { AsyncButton, Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Stepper } from '@/components/ui/stepper'

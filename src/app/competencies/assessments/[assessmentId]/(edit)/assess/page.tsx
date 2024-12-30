@@ -7,7 +7,7 @@ import { createId } from '@paralleldrive/cuid2'
 
 import { Show } from '@/components/show'
 
-import Alert from '@/components/ui/alert'
+import { Alert } from '@/components/ui/alert'
 import { AsyncButton, Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'

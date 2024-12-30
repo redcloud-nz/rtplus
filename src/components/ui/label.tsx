@@ -1,4 +1,3 @@
-'use client'
 
 import { cva, type VariantProps } from 'class-variance-authority'
 import React from 'react'
@@ -13,16 +12,12 @@ const labelVariants = cva(
 )
 
 
-export type LabelProps = React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & VariantProps<typeof labelVariants>
+export type LabelProps = React.ComponentPropsWithRef<typeof LabelPrimitive.Root> & VariantProps<typeof labelVariants>
 
-const Label = React.forwardRef<React.ElementRef<typeof LabelPrimitive.Root>, LabelProps>(({ className, ...props }, ref) => (
-  <LabelPrimitive.Root
-    ref={ref}
-    className={cn(labelVariants(), className)}
-    data-component="Label"
-    {...props}
-  />
-))
-Label.displayName = LabelPrimitive.Root.displayName
-
-export { Label }
+export function Label({ className, ...props }: LabelProps) {
+    return <LabelPrimitive.Root
+        className={cn(labelVariants(), className)}
+        data-component="Label"
+        {...props}
+    />
+}

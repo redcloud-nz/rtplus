@@ -10,7 +10,7 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableHeadCellProps, TableProps, TableRow } from './ui/table'
 
 import { cn } from '@/lib/utils'
-import { Input, InputProps } from './ui/input'
+import { Input } from './ui/input'
 
 // eslint-disable-next-line
 const DataTableContext = React.createContext<TanstackTable<any> | null>(null)
@@ -192,7 +192,7 @@ export function DataTableControls({ className, ...props }: React.ComponentPropsW
     )} {...props}/>
 }
 
-export function DataTableSearch(props: Omit<InputProps, 'onChange' | 'placeholder' | 'value'>) {
+export function DataTableSearch(props: Omit<React.ComponentPropsWithRef<typeof Input>, 'onChange' | 'placeholder' | 'value'>) {
     const table = useDataTable()
 
     return <Input 
