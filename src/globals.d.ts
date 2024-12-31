@@ -1,3 +1,7 @@
+/*
+ *  Copyright (c) 2024 Redcloud Development, Ltd.
+ *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
+ */
 
 import '@tanstack/react-table'
 
@@ -11,13 +15,14 @@ declare module '@tanstack/react-table' {
 
 export {}
 
+import '@clerk/nextjs'
+
 declare global {
     interface UserPublicMetadata {
         personId: string
     }
 
     interface ClerkAuthorization {
-        permision: 'org:competencies:assess' | 'org:d4h:personal_access' | 'org:members:manage' | 'org:teams:manage'
-        role: 'org:admin' | 'org:assessor'  | 'org:member'
+        role: 'org:admin' | 'org:member'
     }
 }

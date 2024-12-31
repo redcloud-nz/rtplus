@@ -1,3 +1,7 @@
+/*
+ *  Copyright (c) 2024 Redcloud Development, Ltd.
+ *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
+ */
 
 import { ArrowDownAZIcon, ArrowDownZAIcon, ChevronDownIcon, ChevronsUpDownIcon, EllipsisVerticalIcon, EyeOffIcon, GroupIcon, ListRestartIcon, UngroupIcon } from 'lucide-react'
 import React from 'react'

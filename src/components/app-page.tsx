@@ -1,4 +1,9 @@
-import { tv, VariantProps } from 'tailwind-variants'
+/*
+ *  Copyright (c) 2024 Redcloud Development, Ltd.
+ *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
+ */
+
+import { tv, type VariantProps } from 'tailwind-variants'
 import Link from 'next/link'
 import React from 'react'
 

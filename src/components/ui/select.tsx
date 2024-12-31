@@ -1,3 +1,7 @@
+/*
+ *  Copyright (c) 2024 Redcloud Development, Ltd.
+ *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
+ */
 
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
 import * as React from 'react'
@@ -5,6 +9,7 @@ import * as React from 'react'
 import * as SelectPrimitive from '@radix-ui/react-select'
 
 import { cn } from '@/lib/utils'
+
 
 export const Select = SelectPrimitive.Root
 

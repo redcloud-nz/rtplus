@@ -1,3 +1,7 @@
+/*
+ *  Copyright (c) 2024 Redcloud Development, Ltd.
+ *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
+ */
 
 import { AppPage, AppPageProps } from '@/components/app-page'
 import { Separator } from '@/components/ui/separator'
