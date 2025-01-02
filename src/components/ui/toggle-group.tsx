@@ -7,7 +7,7 @@
 
 import * as React from 'react'
 import * as ToggleGroupPrimitive from '@radix-ui/react-toggle-group'
-import { type VariantProps } from 'class-variance-authority'
+import { type VariantProps } from 'tailwind-variants'
 
 import { cn } from '@/lib/utils'
 import { toggleVariants } from '@/components/ui/toggle'
@@ -30,7 +30,7 @@ export function ToggleGroup({ className, variant, size, children, ...props }: Re
 
 
 export function ToggleGroupItem({ className, children, variant, size, ...props }: React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Item> & VariantProps<typeof toggleVariants>) {
-  const context = React.useContext(ToggleGroupContext)
+    const context = React.useContext(ToggleGroupContext)
 
     return <ToggleGroupPrimitive.Item
         className={cn(

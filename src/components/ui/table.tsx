@@ -4,14 +4,24 @@
  */
 
 import React from 'react'
+import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '@/lib/utils'
 
-export function Table({ className, border = false, ...props }: Omit<React.ComponentPropsWithRef<'table'>, 'border'> & { border?: boolean }) {
+const tableVariants = tv({
+    base: 'relative w-full overflow-auto',
+    variants: {
+        border: {
+            true: 'rounded-md border'
+        }
+    }
+})
+
+export function Table({ className, border = false, ...props }: Omit<React.ComponentPropsWithRef<'table'>, 'border'> & VariantProps<typeof tableVariants>) {
     return <div 
         className={cn(
-            'relative w-full overflow-auto',
-            border && 'rounded-md border'
+            tableVariants({ border }),
+            className
         )}
     >
         <table

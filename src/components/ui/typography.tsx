@@ -4,21 +4,30 @@
  */
 
 import { cn } from '@/lib/utils'
+import { tv, type VariantProps } from 'tailwind-variants'
 
-type HeadingProps = { level?: 1 | 2 | 3 | 4 | 5 | 6 } & React.ComponentPropsWithRef<
-  'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
->
+const headingVariants = tv({
+    variants: {
+        level: {
+            1: 'scroll-m-20 text-2xl lg:text-4xl font-extrabold tracking-tight',
+            2: 'scroll-m-20 border-b pb-2 text-2xl lg:text-3xl font-semibold tracking-tight first:mt-0',
+            3: 'scroll-m-20 text-2xl font-semibold tracking-tight',
+            4: 'scroll-m-20 text-xl font-semibold tracking-tight',
+            5: 'scroll-m-20 text-xl font-semibold tracking-tight',
+            6: 'scroll-m-20 text-xl font-semibold tracking-tight',
+        }
+    },
+    defaultVariants: {
+        level: 1
+    }
+})
+
+type HeadingProps = React.ComponentPropsWithRef<'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'> & VariantProps<typeof headingVariants>
 
 export function Heading({ className, level = 1, ...props }: HeadingProps) {
     const Element: `h${typeof level}` = `h${level}`
 
-    return <Element {...props} className={cn(
-        level == 1 && 'scroll-m-20 text-2xl lg:text-4xl font-extrabold tracking-tight ',
-        level == 2 && 'scroll-m-20 border-b pb-2 text-2xl lg:text-3xl font-semibold tracking-tight first:mt-0',
-        level == 3 && 'scroll-m-20 text-2xl font-semibold tracking-tight',
-        level >= 4 && 'scroll-m-20 text-xl font-semibold tracking-tight',
-        className
-    )}/>
+    return <Element {...props} className={cn(headingVariants({ level }), className )}/>
 }
 
 export function Paragraph({ className, ...props }: React.ComponentPropsWithRef<'p'>) {

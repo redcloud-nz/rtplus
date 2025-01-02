@@ -3,18 +3,17 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { cva, type VariantProps } from 'class-variance-authority'
 import React from 'react'
+import { tv, type VariantProps } from 'tailwind-variants'
 
 import * as LabelPrimitive from '@radix-ui/react-label'
 
 
 import { cn } from '@/lib/utils'
 
-const labelVariants = cva(
-    "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-)
-
+const labelVariants = tv({
+    base: "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+})
 
 export type LabelProps = React.ComponentPropsWithRef<typeof LabelPrimitive.Root> & VariantProps<typeof labelVariants>
 

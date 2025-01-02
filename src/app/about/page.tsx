@@ -5,11 +5,11 @@
  *  Path: /about
  */
 
-import { Metadata } from "next"
+import { Metadata } from 'next'
 
-import { AppPage, PageTitle } from "@/components/app-page"
-import { Heading, Paragraph } from "@/components/ui/typography"
-import { EmailLink } from "@/components/ui/link"
+import { AppPage, PageTitle } from '@/components/app-page'
+import { Heading, Paragraph } from '@/components/ui/typography'
+import { EmailLink } from '@/components/ui/link'
 
 
 
