@@ -17,7 +17,7 @@ export type FrontendProviderProps = Readonly<{
 
 const queryClient = new QueryClient()
 
-export function FrontendProvider({ children}: FrontendProviderProps) {
+export function FrontendProvider({ children }: FrontendProviderProps) {
     return <QueryClientProvider client={queryClient}>
         <SidebarProvider>
             <TooltipProvider>

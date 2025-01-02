@@ -11,7 +11,7 @@ import { Column, ColumnDef, ColumnHelper, createColumnHelper, flexRender, RowDat
 import { Button, ButtonProps } from './ui/button'
 import { Checkbox } from './ui/checkbox'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuGroupLabel, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu'
-import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableHeadCellProps, TableProps, TableRow } from './ui/table'
+import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from './ui/table'
 
 import { cn } from '@/lib/utils'
 import { Input } from './ui/input'
@@ -26,7 +26,7 @@ const useDataTable = () => {
     return table
 }
 
-export function DataTable(props: TableProps) {
+export function DataTable(props: React.ComponentPropsWithRef<typeof Table>) {
     const table = useDataTable()
 
     return <Table {...props}>
@@ -99,12 +99,11 @@ export function DataTable(props: TableProps) {
 }
 
 
-type ColumnHeaderProps<T> = {
+type ColumnHeaderProps<T> = React.ComponentPropsWithRef<typeof TableHeadCell> & {
     table: TanstackTable<T>
     // eslint-disable-next-line
     column: Column<T, any>
-
-} & TableHeadCellProps
+}
 
 function ColumnHeader<T>({ className, children, column, table, ...props }: ColumnHeaderProps<T>) {
 
@@ -181,39 +180,35 @@ function ColumnHeader<T>({ className, children, column, table, ...props }: Colum
     </TableHeadCell>
 }
 
-
-export type DataTableControlsProps<T> = React.ComponentPropsWithoutRef<'div'> & {
-    table: TanstackTable<T>
-
-}
-
-export function DataTableControls({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
-
-    return <div className={cn(
-        'mb-2', 
-        'flex gap-2',
-        className
-    )} {...props}/>
+export function DataTableControls({ className, ...props }: React.ComponentPropsWithRef<'div'>) {
+    return <div 
+        className={cn(
+            'mb-2', 
+            'flex gap-2',
+            className
+        )} 
+        {...props}
+    />
 }
 
 export function DataTableSearch(props: Omit<React.ComponentPropsWithRef<typeof Input>, 'onChange' | 'placeholder' | 'value'>) {
     const table = useDataTable()
 
     return <Input 
-        {...props}
         placeholder="Search&hellip;"
         value={table.getState().globalFilter}
         onChange={ev => table.setGlobalFilter(String(ev.target.value))}
+        {...props}
     />
 }
 
-export type DataTableColumnsDropdownProps = {
+type DataTableColumnsDropdownProps = {
     slotProps?: {
         Button?: Omit<ButtonProps, 'onClick'>
     }
 }
 
-export function DataTableColumnsDropdown({ slotProps = {}}: DataTableColumnsDropdownProps) {
+export function DataTableColumnsDropdown({ slotProps = {} }: DataTableColumnsDropdownProps) {
     const table = useDataTable()
 
     return <DropdownMenu >
@@ -239,7 +234,7 @@ export function DataTableColumnsDropdown({ slotProps = {}}: DataTableColumnsDrop
     </DropdownMenu>
 }
 
-export type DataTableGroupingDropdownProps = {
+type DataTableGroupingDropdownProps = {
     slotProps?: {
         Button?: Omit<ButtonProps, 'onClick'>
     }

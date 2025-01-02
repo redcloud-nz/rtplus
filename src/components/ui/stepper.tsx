@@ -8,7 +8,7 @@ import React from 'react'
 
 import { cn } from '@/lib/utils'
 
-export type StepperProps = Omit<React.ComponentProps<'nav'>, 'children'> & {
+export type StepperProps = Omit<React.ComponentPropsWithRef<'nav'>, 'children'> & {
     activeStep: number
     steps: { name: string }[]
 }
@@ -30,7 +30,7 @@ export function Stepper({ activeStep, steps, ...props }: StepperProps) {
     </nav>
 }
 
-interface StepProps {
+type StepProps = React.ComponentPropsWithRef<'li'> & {
     name: string
     status: 'Complete' | 'Current' | null
     stepIndex: number

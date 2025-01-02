@@ -5,7 +5,7 @@
 
 import {cn} from '@/lib/utils'
 
-export function Text({ className, ...props }: React.ComponentPropsWithoutRef<'p'>) {
+export function Text({ className, ...props }: React.ComponentPropsWithRef<'p'>) {
     return <p
         data-slot="text"
         {...props}
