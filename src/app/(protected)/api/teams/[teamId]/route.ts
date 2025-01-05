@@ -5,6 +5,7 @@
  *  Path: /api/teams/[teamId]
  */
 
+import { notFound } from 'next/navigation'
 import { NextRequest } from 'next/server'
 
 import { auth } from '@clerk/nextjs/server'
@@ -15,7 +16,7 @@ import prisma from '@/lib/prisma'
 import type { TeamWithMembers } from '@/lib/api/teams'
 
 export async function GET(request: NextRequest, props: { params: Promise<{ teamId: string }> }) {
-    const params = await props.params;
+    const { teamId } = await props.params
 
     const { orgId } = await auth.protect()
 
@@ -28,11 +29,10 @@ export async function GET(request: NextRequest, props: { params: Promise<{ teamI
             },
         },
         where: {
-            id: params.teamId,
+            id: teamId,
             orgId
         }
-    })
+    }) ?? notFound()
 
-    if(team) return Response.json(createObjectResponse(team))
-    else return new Response(`Team (${params.teamId}) not found.`, { status: 404 })
+    return Response.json(createObjectResponse(team))
 }

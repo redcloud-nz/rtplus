@@ -7,8 +7,6 @@
 
 import { Metadata } from 'next'
 
-import { auth } from '@clerk/nextjs/server'
-
 import { AppPage, PageDescription, PageTitle } from '@/components/app-page'
 
 import { ActivitiesList } from './activities-list'
@@ -17,8 +15,6 @@ import { ActivitiesList } from './activities-list'
 export const metadata: Metadata = { title: "Activities | D4H Unified | RT+" }
 
 export default async function ActivitiesPage() {
-    
-    await auth.protect()
 
     return <AppPage 
         label="Activities" 

@@ -7,7 +7,6 @@
 import { Metadata } from 'next'
 import React from 'react'
 
-
 import { AppPage } from '@/components/app-page'
 
 import { MonthView } from './month-view'

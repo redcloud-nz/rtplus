@@ -2,18 +2,20 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /api/d4h-access-keys
+ *  Path: /api/user/d4h-access-keys
  */
 
-import { auth } from '@clerk/nextjs/server'
+import { NextRequest } from 'next/server'
 
 import { createListResponse } from '@/lib/api/common'
 import type { D4hAccessKeyWithTeam } from '@/lib/api/d4h-access-keys'
 import prisma from '@/lib/prisma'
 
 
-export async function GET() {
-    const { userId } = await auth.protect()
+export const revalidate = 120
+
+export async function GET(request: NextRequest, props: { params: Promise<{ userId: string }> }) {
+    const { userId } =  await props.params
 
     const accessKeys: D4hAccessKeyWithTeam[] = await prisma.d4hAccessKey.findMany({
         select: { 
