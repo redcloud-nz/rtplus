@@ -17,7 +17,7 @@ import { Description } from '@/components/ui/typography'
 
 import { useTeamsWithMembersQuery } from '@/lib/api/teams'
 
-import { useAssessmentContext } from '../../../assessment-context'
+import { useAssessmentContext } from '../../assessment-context'
 
 
 export default function AssessmentPersonnel() {

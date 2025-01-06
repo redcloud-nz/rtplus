@@ -36,13 +36,13 @@ export async function GET(request: NextRequest) {
             orderBy: { name: 'asc' }
         })
 
-        return Response.json(createListResponse(teams))
+        return createListResponse(teams)
         
     } else {
         const teams: Team[] = await prisma.team.findMany({
             orderBy: { name: 'asc' }
         })
 
-        return Response.json(createListResponse(teams))
+        return createListResponse(teams)
     }
 }

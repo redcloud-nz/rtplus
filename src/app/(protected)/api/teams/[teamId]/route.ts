@@ -5,12 +5,11 @@
  *  Path: /api/teams/[teamId]
  */
 
-import { notFound } from 'next/navigation'
 import { NextRequest } from 'next/server'
 
 import { auth } from '@clerk/nextjs/server'
 
-import { createObjectResponse } from '@/lib/api/common'
+import { createNotFoundResponse, createObjectResponse } from '@/lib/api/common'
 import prisma from '@/lib/prisma'
 
 import type { TeamWithMembers } from '@/lib/api/teams'
@@ -32,7 +31,8 @@ export async function GET(request: NextRequest, props: { params: Promise<{ teamI
             id: teamId,
             orgId
         }
-    }) ?? notFound()
+    })
 
-    return Response.json(createObjectResponse(team))
+    if(team) return createObjectResponse(team)
+    else return createNotFoundResponse(`No such Team(${teamId})`)
 }

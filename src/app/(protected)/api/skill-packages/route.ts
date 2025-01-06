@@ -17,5 +17,5 @@ export async function GET() {
         }
     })
 
-    return Response.json(createListResponse(packages))
+    return createListResponse(packages)
 }

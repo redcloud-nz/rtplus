@@ -26,7 +26,7 @@ import { useTeamsWithMembersQuery } from '@/lib/api/teams'
 import { WithSerializedDates } from '@/lib/serialize'
 import { resolveAfter } from '@/lib/utils'
 
-import { SkillCheck, useAssessmentContext } from '../../../assessment-context'
+import { SkillCheck, useAssessmentContext } from '../../assessment-context'
 
 
 export default function AssessmentAssessPage() {

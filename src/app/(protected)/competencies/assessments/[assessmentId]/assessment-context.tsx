@@ -2,19 +2,13 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
+'use client'
 
 import React from 'react'
 
-import { CompetencyAssessment } from '@prisma/client'
 import { LocalObjectStore } from '@/lib/local-object-store'
 import { resolveAfter } from '@/lib/utils'
-import { WithSerializedDates } from '@/lib/serialize'
-
-export interface CompetencyAssessmentWithRelations extends CompetencyAssessment {
-    assesseeIds: string[]
-    skillIds: string[]
-    skillChecks: WithSerializedDates<SkillCheck>[]
-}
+import { CompetencyAssessmentWithRelations } from '@/lib/api/competency-assessments'
 
 export interface SkillCheck {
     id: string
@@ -24,24 +18,6 @@ export interface SkillCheck {
     result: string
     notes: string
 }
-
-function createEmptyAssessment(assessmentId: string): CompetencyAssessmentWithRelations {
-    const now = new Date()
-    return {
-        orgId: "", userId: "",
-        id: assessmentId,
-        name: '',
-        location: '',
-        date: now,
-        status: 'Draft',
-        createdAt: now,
-        updatedAt: now,
-        assesseeIds: [],
-        skillIds: [],
-        skillChecks: []
-    }
-}
-
 
 export const AssessmentStore = new LocalObjectStore<CompetencyAssessmentWithRelations>('CompetencyAssessment', {})
 
@@ -56,14 +32,9 @@ interface AssessmentContext {
 
 export const AssessmentContext = React.createContext<AssessmentContext | undefined>(undefined)
 
-export function AssessmentContextProvider({ assessmentId, children }: { assessmentId: string, children: React.ReactNode }) {
-    const [value, setValue] = React.useState(createEmptyAssessment(assessmentId))
+export function AssessmentContextProvider({ assessment, children }: { assessment: CompetencyAssessmentWithRelations, children: React.ReactNode }) {
+    const [value, setValue] = React.useState(assessment)
     const [saveStatus, setSaveStatus] = React.useState<AssessmentContext['saveStatus']>('Ready')
-
-    React.useEffect(() => {
-        const found = AssessmentStore.getObject(assessmentId)
-        if(found) setValue(found)
-    }, [assessmentId])
 
     const context: AssessmentContext = {
         value,
@@ -79,7 +50,7 @@ export function AssessmentContextProvider({ assessmentId, children }: { assessme
         },
         async save(valueToSave = value) {
             setSaveStatus('Saving')
-            AssessmentStore.setObject(assessmentId, valueToSave)
+            AssessmentStore.setObject(assessment.id, valueToSave)
             await resolveAfter(null, 1000)
             setSaveStatus('Saved')
         },

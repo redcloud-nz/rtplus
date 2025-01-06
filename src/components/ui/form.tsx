@@ -177,7 +177,7 @@ export function FormFooter({ className, ...props }: React.ComponentPropsWithRef<
 }
 
 export type FormSubmitButtonProps = React.ComponentPropsWithRef<typeof Button> & {
-    label: string
+    label: React.ReactNode
     loading: React.ReactNode
 }
 

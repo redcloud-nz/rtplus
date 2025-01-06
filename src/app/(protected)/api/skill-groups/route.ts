@@ -12,5 +12,5 @@ export async function GET() {
     
     const skillGroups = await prisma.skillGroup.findMany()
 
-    return Response.json(createListResponse(skillGroups))
+    return createListResponse(skillGroups)
 }

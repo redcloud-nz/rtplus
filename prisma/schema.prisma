@@ -27,7 +27,8 @@ model CompetencyAssessment {
     updatedAt       DateTime            @map("updated_at")  @updatedAt
 
     assessees       Person[]
-    skills          Skill[]   
+    skills          Skill[]
+    checks          SkillCheck[]
     @@map("competency_assessments")     
 }
 
@@ -131,6 +132,8 @@ model SkillCheck {
     userId          String              @map("user_id")                         // Clerk User ID of the user performing the check
     skill           Skill               @relation(fields: [skillId], references: [id])
     skillId         String              @map("skill_id")
+    assessment      CompetencyAssessment @relation(fields: [assessmentId], references: [id])
+    assessmentId    String              @map("assessment_id")
     assessee        Person              @relation("skill_check_assessee", fields: [assesseeId], references: [id])
     assesseeId      String              @map("assessee_id")
     assessor        Person              @relation("skill_check_assessor", fields: [assessorId], references: [id])

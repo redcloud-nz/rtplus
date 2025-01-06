@@ -18,7 +18,7 @@ import { Description } from '@/components/ui/typography'
 
 import { SkillPackageWithGroupsAndSkills, useSkillPackagesQuery } from '@/lib/api/skills'
 
-import { useAssessmentContext } from '../../../assessment-context'
+import { useAssessmentContext } from '../../assessment-context'
 
 
 export default function AssessmentSkills() {

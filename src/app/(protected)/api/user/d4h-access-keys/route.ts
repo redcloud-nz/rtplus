@@ -35,5 +35,5 @@ export async function GET(request: NextRequest, props: { params: Promise<{ userI
         where: { userId, enabled: true } 
     })
 
-    return Response.json(createListResponse(accessKeys))
+    return createListResponse(accessKeys)
 }

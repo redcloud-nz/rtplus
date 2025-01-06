@@ -17,5 +17,5 @@ export async function GET() {
         orderBy: { name: 'asc' }
     })
 
-    return Response.json(createListResponse(personnel))
+    return createListResponse(personnel)
 }

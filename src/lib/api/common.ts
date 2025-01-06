@@ -9,6 +9,7 @@ const DEFAULT_PAGE_SIZE = 1000
 export type Id = string
 
 export interface ListResponse<TData extends object> {
+    status: 'SUCCESS'
     data: TData[]
     pagination: {
         totalSize: number
@@ -19,15 +20,22 @@ export interface ListResponse<TData extends object> {
 }
 
 export interface ObjectResponse<TData extends object> {
+    status: 'SUCCESS'
     data: TData
+}
+
+export interface ErrorResponse {
+    status: 'ERROR'
+    message: string
 }
 
 /**
  * Create a list response which contains all records for the given query.
  */
-export function createListResponse<TData extends object>(data: TData[]): ListResponse<TData> {
+export function createListResponse<TData extends object>(data: TData[]): Response {
 
-    return { 
+    return Response.json({ 
+        status: 'SUCCESS',
         data, 
         pagination: {
             totalSize: data.length,
@@ -35,10 +43,14 @@ export function createListResponse<TData extends object>(data: TData[]): ListRes
             totalPages: 1,
             currentPage: 0
         }
-    }
+    })
 }
 
 
-export function createObjectResponse<TData extends object>(data: TData): ObjectResponse<TData> {
-    return { data }
+export function createObjectResponse<TData extends object>(data: TData): Response {
+    return Response.json({ status: 'SUCCESS', data })
+}
+
+export function createNotFoundResponse(message: string): Response {
+    return Response.json({ status: 'ERROR', message }, { status: 404, statusText: 'Not Found' })
 }

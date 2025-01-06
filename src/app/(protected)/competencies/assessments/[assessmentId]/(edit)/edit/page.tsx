@@ -17,12 +17,11 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Description } from '@/components/ui/typography'
 
-import { useAssessmentContext } from '../../../assessment-context'
+import { useAssessmentContext } from '../../assessment-context'
 
 export default function AssessmentEdit() {
 
     const { value, updateValue } = useAssessmentContext()
-
 
     return <>
         <Description>Define an assessment:</Description>
