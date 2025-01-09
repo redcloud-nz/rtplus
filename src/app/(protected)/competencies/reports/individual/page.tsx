@@ -7,8 +7,8 @@
 'use client'
 
 import { format, subDays } from 'date-fns'
-import _ from 'lodash'
 import React from 'react'
+import * as R from 'remeda'
 
 import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
@@ -52,7 +52,7 @@ export default function IndividualReportPage() {
             {skillPackagesQuery.data.map(skillPackage => {
                 
                 const skillCount = skillPackage.skills.length
-                const selectedCount = _.random(0, skillCount)
+                const selectedCount = R.randomInteger(0, skillCount)
 
                 return <AccordionItem key={skillPackage.id} value={skillPackage.id}>
                     <AccordionTrigger>
@@ -80,9 +80,9 @@ export default function IndividualReportPage() {
                                         {skillPackage.skills
                                             .filter(skill => skill.skillGroupId == skillGroup.id)
                                             .map(skill => {
-                                                const status = Statuses[_.random(0, Statuses.length-1)]
-                                                const date = subDays(new Date(), _.random(0, 400))
-                                                const assessor = personnelQuery.data[_.random(0, personnelQuery.data.length-1)]
+                                                const status = Statuses[R.randomInteger(0, Statuses.length-1)]
+                                                const date = subDays(new Date(), R.randomInteger(0, 400))
+                                                const assessor = personnelQuery.data[R.randomInteger(0, personnelQuery.data.length-1)]
 
                                                 return <TableRow key={skill.id}>
                                                     <TableCell></TableCell>

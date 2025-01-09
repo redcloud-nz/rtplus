@@ -4,7 +4,6 @@
  * 
  *  Path: /api/user/d4h-access-keys
  */
-import { NextRequest } from 'next/server'
 
 import { auth } from '@clerk/nextjs/server'
 
@@ -13,7 +12,7 @@ import type { D4hAccessKeyWithTeam } from '@/lib/api/d4h-access-keys'
 import prisma from '@/lib/prisma'
 
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     const { orgId, userId } = await auth.protect()
 
     const accessKeys: D4hAccessKeyWithTeam[] = await prisma.d4hAccessKey.findMany({

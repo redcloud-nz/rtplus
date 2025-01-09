@@ -4,7 +4,7 @@
  */
 'use server'
 
-import _ from 'lodash'
+import * as R from 'remeda'
 
 import { auth } from '@clerk/nextjs/server'
 
@@ -52,7 +52,7 @@ async function importPackage(skillPackage: SkillPackageDef, eventBuilder: EventB
 
     const storedPackage = await prisma.skillPackage.findFirst({ where: { id: skillPackage.id } })
 
-    const skillPackageData = _.pick(skillPackage, ['name', 'ref'])
+    const skillPackageData = R.pick(skillPackage, ['name', 'ref'])
 
     if(storedPackage) { // Existing package
         if(skillPackage.name != storedPackage.name || skillPackage.ref != storedPackage.ref) {
@@ -83,12 +83,12 @@ async function importPackage(skillPackage: SkillPackageDef, eventBuilder: EventB
     const groupsToImport = getGroupsInPackage(skillPackage)
 
     // Skill Groups that are in the sample set but not in the stored set
-    const groupsToAdd = _.differenceBy(groupsToImport, storedGroups, (c) => c.id)
+    const groupsToAdd = R.differenceWith(groupsToImport, storedGroups, (a, b) => a.id == b.id)
 
     if(groupsToAdd.length > 0) {
         await prisma.$transaction([
             prisma.skillGroup.createMany({ 
-                data: groupsToAdd.map(group => _.pick(group, ['id', 'ref', 'name', 'packageId', 'parentId'])) 
+                data: groupsToAdd.map(R.pick(['id', 'ref', 'name', 'packageId', 'parentId'])) 
             }),
             prisma.historyEvent.createMany({ 
                 data: groupsToAdd.map(group => eventBuilder.buildEvent('Create', 'SkillGroup', group.id)) 
@@ -106,7 +106,7 @@ async function importPackage(skillPackage: SkillPackageDef, eventBuilder: EventB
             await prisma.$transaction([
                 prisma.skillGroup.update({
                     where: { id: group.id },
-                    data: _.pick(group, ['name', 'ref', 'packageId', 'parentId'])
+                    data: R.pick(group, ['name', 'ref', 'packageId', 'parentId'])
                 }),
                 prisma.historyEvent.create({ 
                     data: eventBuilder.buildEvent('Update', 'SkillGroup', group.id) 
@@ -120,12 +120,12 @@ async function importPackage(skillPackage: SkillPackageDef, eventBuilder: EventB
     const skillsToImport = getSkillsInPackage(skillPackage)
 
     // Skills that are in the sample set but not in the stored set
-    const skillsToAdd = _.differenceBy(skillsToImport, storedSkills, (c) => c.id)
+    const skillsToAdd = R.differenceWith(skillsToImport, storedSkills, (a, b) => a.id == b.id)
 
     if(skillsToAdd.length > 0) {
         await prisma.$transaction([
             prisma.skill.createMany({
-                data: skillsToAdd.map(skill => _.pick(skill, ['id', 'name', 'ref', 'description', 'frequency', 'optional', 'packageId', 'skillGroupId']))
+                data: skillsToAdd.map(R.pick(['id', 'name', 'ref', 'description', 'frequency', 'optional', 'packageId', 'skillGroupId']))
             }),
             prisma.historyEvent.createMany({ 
                 data: skillsToAdd.map(skill => eventBuilder.buildEvent('Create', 'Skill', skill.id)) 
@@ -144,13 +144,12 @@ async function importPackage(skillPackage: SkillPackageDef, eventBuilder: EventB
             await prisma.$transaction([
                 prisma.skill.update({
                     where: { id: skill.id },
-                    data: _.pick(skill, ['name', 'ref', 'description', 'frequency', 'optional', 'skillGroupId'])
+                    data: R.pick(skill, ['name', 'ref', 'description', 'frequency', 'optional', 'skillGroupId'])
                 }),
                 prisma.historyEvent.create({ 
                     data: eventBuilder.buildEvent('Update', 'Skill', skill.id)
                 })
             ])
-            await 
             changeCounts.skills.update++
         }
     }

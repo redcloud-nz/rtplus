@@ -6,7 +6,6 @@
  */
 'use client'
 
-import _ from 'lodash'
 import React from 'react'
 
 import { createId } from '@paralleldrive/cuid2'
@@ -24,7 +23,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { useSkillPackagesQuery } from '@/lib/api/skills'
 import { useTeamsWithMembersQuery } from '@/lib/api/teams'
 import { WithSerializedDates } from '@/lib/serialize'
-import { resolveAfter } from '@/lib/utils'
 
 import { SkillCheck, useAssessmentContext } from '../../assessment-context'
 
@@ -36,7 +34,8 @@ export default function AssessmentAssessPage() {
     const skillPackagesQuery = useSkillPackagesQuery()
     const teamsQuery = useTeamsWithMembersQuery()
 
-    const { assesseeIds, skillIds, skillChecks} = assessmentContext.value
+    const { assesseeIds, skillIds} = assessmentContext.value
+    const skillChecks: SkillCheck[] = []
  
     const [selectedSkillId, setSelectedSkillId] = React.useState<string | 'NONE'>('NONE')
     const [selectedPersonId, setSelectedPersonId] = React.useState<string | 'NONE'>('NONE')
@@ -76,20 +75,20 @@ export default function AssessmentAssessPage() {
             return
         }
 
-        assessmentContext.updateValue(prev => {
+        // assessmentContext.updateValue(prev => {
            
-            if(_.some(prev.skillChecks, item => item.skillId == selectedSkillId && item.assesseeId == selectedPersonId)) {
-                const updated = prev.skillChecks.map(item => {
-                    if(item.skillId == selectedSkillId && item.assesseeId == selectedPersonId) {
-                        return skillCheck
-                    } else return item
-                })
-                return { ...prev, skillChecks: updated}
-            } else {
-                return { ...prev, skillChecks: [...prev.skillChecks, skillCheck] }
-            }
-        }, true)
-        await resolveAfter(null, 500)
+        //     if(_.some(prev.skillChecks, item => item.skillId == selectedSkillId && item.assesseeId == selectedPersonId)) {
+        //         const updated = prev.skillChecks.map(item => {
+        //             if(item.skillId == selectedSkillId && item.assesseeId == selectedPersonId) {
+        //                 return skillCheck
+        //             } else return item
+        //         })
+        //         return { ...prev, skillChecks: updated}
+        //     } else {
+        //         return { ...prev, skillChecks: [...prev.skillChecks, skillCheck] }
+        //     }
+        // }, true)
+        // await resolveAfter(null, 500)
     }
 
     function handleReset() {

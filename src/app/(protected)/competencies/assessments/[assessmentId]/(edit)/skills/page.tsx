@@ -6,9 +6,7 @@
  */
 'use client'
 
-import _ from 'lodash'
 import React from 'react'
-
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -35,7 +33,7 @@ export default function AssessmentSkills() {
             ...prev, 
             skillIds: checked
                 ? [...prev.skillIds, skillId]
-                : _.without(prev.skillIds, skillId)
+                : prev.skillIds.filter(id => id != skillId)
         }))
     }
 

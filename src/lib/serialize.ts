@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import _ from 'lodash'
+import * as R from 'remeda'
 
 export type WithSerializedDates<T> = 
     T extends Date ? string
@@ -13,9 +13,11 @@ export type WithSerializedDates<T> =
 
 
 export function withSerializedDates<T>(input: T): WithSerializedDates<T> {
-    return (input instanceof Date ? input.toISOString()
-        : Array.isArray(input) ? _.map(input, withSerializedDates)
-        : typeof input == 'object' ? _.mapValues(input, withSerializedDates)
-        : input) as WithSerializedDates<T>
+    return R.conditional(
+        [R.isDate, value => value.toISOString()],
+        [R.isArray, R.map(withSerializedDates)],
+        [R.isObjectType, R.mapValues(withSerializedDates)],
+        R.conditional.defaultCase(R.identity)
+    )(input) as WithSerializedDates<T>
 }
 

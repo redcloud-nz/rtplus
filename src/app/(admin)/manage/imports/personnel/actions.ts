@@ -5,7 +5,7 @@
 
 'use server'
 
-import _ from 'lodash'
+import { isEmpty } from 'remeda'
 
 import { auth } from '@clerk/nextjs/server'
 import { Person, TeamMembership } from '@prisma/client'
@@ -117,7 +117,7 @@ export async function importPersonnelAction(teamId: string, diffs: MemberDiff[])
         if(fields.d4hRef) membershipData.d4hStatus = fields.d4hStatus
     
 
-        if(!_.isEmpty(personData)) {
+        if(!isEmpty(personData)) {
             await prisma.$transaction([
                 prisma.person.update({
                     where: { id: diff.personId },
@@ -130,7 +130,7 @@ export async function importPersonnelAction(teamId: string, diffs: MemberDiff[])
             changeCounts.personnel.update++
         }
 
-        if(!_.isEmpty(membershipData)) {
+        if(!isEmpty(membershipData)) {
             await prisma.$transaction([
                 prisma.teamMembership.update({
                     where: { id: diff.membershipId },

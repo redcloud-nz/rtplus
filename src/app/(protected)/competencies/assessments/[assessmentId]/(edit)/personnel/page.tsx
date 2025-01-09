@@ -6,7 +6,6 @@
  */
 'use client'
 
-import { without } from 'lodash'
 import React from 'react'
 
 import { Show } from '@/components/show'
@@ -37,7 +36,7 @@ export default function AssessmentPersonnel() {
             ...prev,
             assesseeIds: checked
                 ? [...prev.assesseeIds, personId]
-                : without(prev.assesseeIds, personId)
+                : prev.assesseeIds.filter(assessId => assessId != personId)
         }))
     }
 

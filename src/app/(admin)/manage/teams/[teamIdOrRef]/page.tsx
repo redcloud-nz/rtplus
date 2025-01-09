@@ -5,8 +5,8 @@
  *  Path: /manage/teams/[teamIdOrRef]
  */
 
-import _ from 'lodash'
 import { EllipsisVerticalIcon, PencilIcon, PlusIcon } from 'lucide-react'
+import * as R from 'remeda'
 
 import { auth } from '@clerk/nextjs/server'
 
@@ -46,8 +46,6 @@ export default async function TeamPage(props: { params: Promise<{ teamIdOrRef: s
     })
 
     if(!team) return <NotFound />
-
-    const members = _.sortBy(team.memberships, (member) => member.person.name)
 
     return <AppPage
         label={team.ref || team.name}
@@ -113,11 +111,15 @@ export default async function TeamPage(props: { params: Promise<{ teamIdOrRef: s
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {members.map(membership => 
-                                <TableRow key={membership.id}>
-                                    <TableCell>{membership.person.name}</TableCell>
-                                    <TableCell>{membership.position}</TableCell>
-                                </TableRow>
+                            {R.pipe(
+                                team.memberships,
+                                R.sortBy((member) => member.person.name),
+                                R.map(membership => 
+                                    <TableRow key={membership.id}>
+                                        <TableCell>{membership.person.name}</TableCell>
+                                        <TableCell>{membership.position}</TableCell>
+                                    </TableRow>
+                                )
                             )}
                             
                         </TableBody>

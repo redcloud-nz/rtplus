@@ -6,7 +6,7 @@
 'use client'
 
 import { formatISO, parseISO } from 'date-fns'
-import _ from 'lodash'
+import * as R from 'remeda'
 
 const STORAGE_PREFIX = 'RTPLUS_OBJECTS'
 
@@ -91,7 +91,7 @@ export class LocalObjectStore<T extends object> {
 
     deleteObject(id: string) {
 
-        this.updateCache(prev => ({ ...prev, objects: _.omit(prev.objects, id) }))
+        this.updateCache(prev => ({ ...prev, objects: R.omit(prev.objects, [id]) }))
     }
 
     getAll(): T[] {

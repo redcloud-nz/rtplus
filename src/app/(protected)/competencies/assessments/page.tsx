@@ -87,7 +87,7 @@ export default async function AssessmentsListPage() {
     </AppPage>
 }
 
-async function createAssessmentAction(formState: FormState, formData: FormData): Promise<FormState> {
+async function createAssessmentAction(): Promise<FormState> {
     'use server'
 
     const { userId, orgId } = await auth.protect()

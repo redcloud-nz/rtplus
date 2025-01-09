@@ -7,8 +7,8 @@
 'use client'
 
 import { format } from 'date-fns'
-import _ from 'lodash'
 import React from 'react'
+import * as R from 'remeda'
 
 import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
@@ -73,7 +73,7 @@ export default function TeamSkillsReportPage() {
                                                 return <TableRow key={skill.id}>
                                                     <TableCell></TableCell>
                                                     <TableCell>{skill.name}</TableCell>
-                                                    <TableCell>{_.random(0, 100)}%</TableCell>
+                                                    <TableCell>{R.randomInteger(0, 100)}%</TableCell>
                                                 </TableRow>
                                             })
                                         }
