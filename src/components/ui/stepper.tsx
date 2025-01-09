@@ -23,7 +23,7 @@ export function Stepper({ activeStep, steps, ...props }: StepperProps) {
                     name={step.name}
                     stepIndex={index}
                     status={activeStep > index ? 'Complete' : activeStep == index ? 'Current' : null}
-                    isLast={index < steps.length - 1}
+                    isLast={index == steps.length - 1}
                 />
             )}
         </ol>

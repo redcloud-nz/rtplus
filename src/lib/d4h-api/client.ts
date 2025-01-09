@@ -24,8 +24,6 @@ export interface D4hClientOptions {
 }
 
 
-export const DefaultD4hApiUrl = 'https://api.team-manager.ap.d4h.com'
-
 export const D4hFetchClient = createFetchClient<paths>({ baseUrl: 'https://api.team-manager.ap.d4h.com' })
 
 export const D4hApi = createClient(D4hFetchClient)

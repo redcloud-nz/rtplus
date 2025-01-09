@@ -3,6 +3,8 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
+export const DefaultD4hApiUrl = 'https://api.team-manager.ap.d4h.com'
+
 export interface CustomField {
     id: number,
     name: string,

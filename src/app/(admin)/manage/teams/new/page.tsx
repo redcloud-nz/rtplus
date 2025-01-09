@@ -21,12 +21,13 @@ import { Form, FieldControl, FieldDescription, FormField, FieldMessage, FormSubm
 import { Input } from '@/components/ui/input'
 import { Link } from '@/components/ui/link'
 
-import { DefaultD4hApiUrl } from '@/lib/d4h-api/client'
+import { DefaultD4hApiUrl } from '@/lib/d4h-api/common'
 import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
 import prisma from '@/lib/prisma'
 import { EventBuilder } from '@/lib/history'
 import { assertNonNull } from '@/lib/utils'
 import * as Paths from '@/paths'
+
 
 
 
@@ -141,6 +142,7 @@ async function createTeamAction(formState: FormState, formData: FormData) {
         }
 
         const teamId = createId()
+
         await prisma.$transaction([
             prisma.team.create({
                 data: {

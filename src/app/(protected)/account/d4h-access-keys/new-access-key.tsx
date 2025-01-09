@@ -24,7 +24,7 @@ import { createAccessKey } from './actions'
 
 const NewAccessKeyFormSchema = z.object({
     accessKey: z.string().min(10),
-    teamId: z.string().cuid()
+    teamId: z.string().cuid2()
 })
 
 export interface NewAccessKeyDialogProps {

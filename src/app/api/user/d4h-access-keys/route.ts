@@ -4,18 +4,17 @@
  * 
  *  Path: /api/user/d4h-access-keys
  */
-
 import { NextRequest } from 'next/server'
+
+import { auth } from '@clerk/nextjs/server'
 
 import { createListResponse } from '@/lib/api/common'
 import type { D4hAccessKeyWithTeam } from '@/lib/api/d4h-access-keys'
 import prisma from '@/lib/prisma'
 
 
-export const revalidate = 120
-
-export async function GET(request: NextRequest, props: { params: Promise<{ userId: string }> }) {
-    const { userId } =  await props.params
+export async function GET(request: NextRequest) {
+    const { orgId, userId } = await auth.protect()
 
     const accessKeys: D4hAccessKeyWithTeam[] = await prisma.d4hAccessKey.findMany({
         select: { 
@@ -32,7 +31,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ userI
 
             }
         },
-        where: { userId, enabled: true } 
+        where: { orgId, userId, enabled: true } 
     })
 
     return createListResponse(accessKeys)

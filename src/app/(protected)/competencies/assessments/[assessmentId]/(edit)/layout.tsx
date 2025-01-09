@@ -5,10 +5,10 @@
  *  Path: /competencies/assessments/[assessmentId]/(edit)
  */
 
+import { notFound } from 'next/navigation'
 import React from 'react'
 
 import { auth } from '@clerk/nextjs/server'
-
 
 import { AppPage, PageControls, PageHeader, PageTitle } from '@/components/app-page'
 
@@ -17,7 +17,7 @@ import * as Paths from '@/paths'
 
 import { AssessmentContextProvider } from '../assessment-context'
 import { AssessmentNavigaton, SavingIndicator } from './assessment-navigation'
-import { notFound } from 'next/navigation'
+
 
 
 export default async function AssessmentEditLayout(props: { children: React.ReactNode, params: Promise<{ assessmentId: string }>}) {

@@ -21,7 +21,7 @@ import { Form, FieldControl, FieldDescription, FormField, FieldMessage, FormSubm
 import { HiddenInput, Input } from '@/components/ui/input'
 import { Link } from '@/components/ui/link'
 
-import { DefaultD4hApiUrl } from '@/lib/d4h-api/client'
+import { DefaultD4hApiUrl } from '@/lib/d4h-api/common'
 import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
 import { EventBuilder } from '@/lib/history'
 import prisma from '@/lib/prisma'
@@ -32,7 +32,7 @@ import * as Paths from '@/paths'
 
 
 const EditTeamFormSchema = z.object({
-    teamId: z.string().cuid(),
+    teamId: z.string().cuid2(),
     name: z.string().min(5).max(50),
     ref: z.string().max(10),
     color: z.union([z.string().regex(/^#[0-9A-F]{6}$/, "Must be a colour in RGB Hex format (eg #4682B4)"), z.literal('')]),
@@ -44,7 +44,7 @@ const EditTeamFormSchema = z.object({
 export const metadata: Metadata = { title: "Edit Team | RT+" }
 
 export default async function EditTeamPage(props: { params: Promise<{ teamIdOrRef: string }>}) {
-    const params = await props.params;
+    const params = await props.params
 
     const { orgId } = await auth.protect({ role: 'org:admin' })
 
@@ -133,7 +133,7 @@ export default async function EditTeamPage(props: { params: Promise<{ teamIdOrRe
 async function updateTeam(formState: FormState, formData: FormData) {
     'use server'
 
-    const { userId, orgId } = await auth.protect({ permission: 'org:teams:manage' })
+    const { userId, orgId } = await auth.protect({ role: 'org:admin' })
     assertNonNull(orgId, "An active organization is required to execute action 'updateTeam'")
     
     const eventBuilder = EventBuilder.create(orgId, userId)
