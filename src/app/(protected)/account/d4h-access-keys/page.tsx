@@ -41,7 +41,8 @@ export default async function D4hAccessKeysPage() {
                 }
             }
         },
-        where: { userId, orgId }
+        where: { userId, orgId },
+        orderBy: { team: { name: 'asc' } }
     })
 
     const teams = await prisma.team.findMany({

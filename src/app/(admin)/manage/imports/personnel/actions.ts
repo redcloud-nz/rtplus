@@ -60,7 +60,7 @@ export async function importPersonnelAction(teamId: string, diffs: MemberDiff[])
 
     const eventBuilder = EventBuilder.createGrouped(orgId, userId)
     
-    prisma.historyEvent.create({ 
+    await prisma.historyEvent.create({ 
         data: eventBuilder.buildRootEvent('Import', 'Team', teamId)
     })
 

@@ -20,7 +20,12 @@ export interface ImportPackageActionResult {
     elapsedTime: number
 }
 
-export async function importPackageAction(packageIds: string[]): Promise<ImportPackageActionResult> {
+/**
+ * Action to import a set of skill packages.
+ * @param packageIds IDs of the packages to import
+ * @returns The result of the import action
+ */
+export async function importPackagesAction(packageIds: string[]): Promise<ImportPackageActionResult> {
 
     const { userId, orgId } = await auth.protect({ role: 'org:admin' })
     assertNonNull(orgId, "An active organization is required to execute 'importPackageAction'")
@@ -35,7 +40,6 @@ export async function importPackageAction(packageIds: string[]): Promise<ImportP
         const eventBuilder = EventBuilder.createGrouped(orgId, userId)
 
         await importPackage(skillPackage, eventBuilder)
-        
     }
 
     const elapsedTime = Date.now() - startTime
@@ -44,22 +48,30 @@ export async function importPackageAction(packageIds: string[]): Promise<ImportP
 }
 
 
+/**
+ * Import a single skill package.
+ * @param skillPackage The skill package to import
+ * @param eventBuilder The event builder to use for creating history events
+ */
 async function importPackage(skillPackage: SkillPackageDef, eventBuilder: EventBuilder) {
 
     await prisma.historyEvent.create({ data: eventBuilder.buildRootEvent('Import', 'SkillPackage', skillPackage.id) })
     
     const changeCounts = createChangeCounts(['packages', 'skillGroups', 'skills'])
 
+    const packageData = R.pick(skillPackage, ['id', 'name', 'ref'])
+
     const storedPackage = await prisma.skillPackage.findFirst({ where: { id: skillPackage.id } })
 
-    const skillPackageData = R.pick(skillPackage, ['name', 'ref'])
+    if(storedPackage != null) { // Existing package
+        const existingData = R.pick(storedPackage, ['id', 'name', 'ref'])
 
-    if(storedPackage) { // Existing package
-        if(skillPackage.name != storedPackage.name || skillPackage.ref != storedPackage.ref) {
+        if(!R.isShallowEqual(packageData, existingData)) {
+            // Only update if one of the fields has changed
             await prisma.$transaction([
                 prisma.skillPackage.update({ 
                     where: { id: skillPackage.id }, 
-                    data: skillPackageData 
+                    data: packageData
                 }),
                 prisma.historyEvent.create({ 
                     data: eventBuilder.buildEvent('Update', 'SkillPackage', skillPackage.id)
@@ -70,7 +82,7 @@ async function importPackage(skillPackage: SkillPackageDef, eventBuilder: EventB
     } else { // New package
         await prisma.$transaction([
             prisma.skillPackage.create({ 
-                data: skillPackageData
+                data: packageData
             }),
             prisma.historyEvent.create({ 
                 data: eventBuilder.buildEvent('Create', 'SkillPackage', skillPackage.id)
@@ -79,23 +91,27 @@ async function importPackage(skillPackage: SkillPackageDef, eventBuilder: EventB
         changeCounts.packages.create++
     }
 
+    // Groups that currently exist in the database
     const storedGroups = await prisma.skillGroup.findMany({ where: { packageId: skillPackage.id } })
+
+    // Groups that are in the imported package
     const groupsToImport = getGroupsInPackage(skillPackage)
 
     // Skill Groups that are in the sample set but not in the stored set
     const groupsToAdd = R.differenceWith(groupsToImport, storedGroups, (a, b) => a.id == b.id)
 
-    if(groupsToAdd.length > 0) {
+    for(const group of groupsToAdd) {
         await prisma.$transaction([
-            prisma.skillGroup.createMany({ 
-                data: groupsToAdd.map(R.pick(['id', 'ref', 'name', 'packageId', 'parentId'])) 
+            prisma.skillGroup.create({ 
+                data: R.pick(group, ['id', 'ref', 'name', 'packageId', 'parentId']) 
             }),
-            prisma.historyEvent.createMany({ 
-                data: groupsToAdd.map(group => eventBuilder.buildEvent('Create', 'SkillGroup', group.id)) 
+            prisma.historyEvent.create({ 
+                data: eventBuilder.buildEvent('Create', 'SkillGroup', group.id) 
             })
         ])
-        changeCounts.skillGroups.create = groupsToAdd.length
     }
+    changeCounts.skillGroups.create = groupsToAdd.length
+
 
     // Skill Groups that could need updating
     for(const group of groupsToImport) {

@@ -14,6 +14,9 @@ interface CreateEventArgs {
     meta?: Record<string, number | string>
 }
 
+/**
+ * Helper class for building history events.
+ */
 export class EventBuilder {
 
     readonly orgId: string
@@ -26,23 +29,25 @@ export class EventBuilder {
         this.parentId = parentId
     }
 
+    /**
+     * Create a new EventBuilder instance.
+     */
     static create(orgId: string, userId: string | null): EventBuilder {
         return new EventBuilder(orgId, userId, null)
     }
 
+    /**
+     * Create a new EventBuilder instance with a parent event.
+     */
     static createGrouped(orgId: string, userId: string | null): EventBuilder {
        return new EventBuilder(orgId, userId, createId())
     }
 
     buildRootEvent(eventType: HistoryEventType, objectType: HistoryEventObjectType, objectId: string, { description = "", meta = {} }: CreateEventArgs = {}): HistoryEventData {
-        return { id: createId(), orgId: this.orgId, userId: this.userId, parentId: this.parentId, eventType, objectType, objectId, description, meta }
+        return { id: this.parentId!!, orgId: this.orgId, userId: this.userId, parentId: null, eventType, objectType, objectId, description, meta }
     }
 
     buildEvent(eventType: HistoryEventType, objectType: HistoryEventObjectType, objectId: string, { description = "", meta = {} }: CreateEventArgs = {}): HistoryEventData {
         return { id: createId(), orgId: this.orgId, userId: this.userId, parentId: this.parentId, eventType, objectType, objectId, description, meta }
     }
-}
-
-export function createEventData({ orgId, userId = null, }: { orgId: string, userId?: string | null }): Pick<HistoryEvent, 'orgId' | 'userId' | 'description' | 'meta'> {
-    return { orgId, userId, description: "", meta: {} }
 }

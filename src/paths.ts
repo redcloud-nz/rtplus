@@ -36,13 +36,7 @@ export const imports = {
     skillPackage: '/manage/imports/skill-package',
 } as const
 
-// Capabilities
-export const skillPackages = `${manage}/skill-packages`
-export const newSkillPackage = `${skillPackages}/new`
-export const skillPackage = (pId: string) => `${skillPackages}/${pId}`
-export const editSkillPackage = (pId: string) => `${skillPackage(pId)}/edit`
-
-// People
+// Personnel
 export const personnel = `${manage}/personnel`
 export const newPerson = `${personnel}/new`
 export const person = (pId: string) => `${personnel}/${pId}`
@@ -61,6 +55,12 @@ export const skillGroupsAll = `${manage}/skill-groups`
 export const newSkillGroup = `${skillGroupsAll}/new`
 export const skillGroup = (sgId: string) => `${manage}/skill-groups/${sgId}`
 export const editSkillGroup = (sgId: string) => `${skillGroup(sgId)}/edit`
+
+// Skill Packages
+export const skillPackages = `${manage}/skill-packages`
+export const newSkillPackage = `${skillPackages}/new`
+export const skillPackage = (pId: string) => `${skillPackages}/${pId}`
+export const editSkillPackage = (pId: string) => `${skillPackage(pId)}/edit`
 
 // Teams
 export const teams =  `${manage}/teams`

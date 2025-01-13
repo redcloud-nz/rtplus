@@ -6,7 +6,7 @@
 export interface SkillPackageDef {
     id: string
     name: string
-    ref?: string
+    ref: string | null
     skillGroups: SkillGroupDef[]
     skills: SkillDef[]
 }
@@ -14,7 +14,7 @@ export interface SkillPackageDef {
 export interface SkillGroupDef {
     id: string
     name: string
-    ref?: string
+    ref: string | null
     packageId: string
     parentId: string | null
     subGroups: SkillGroupDef[]
@@ -34,9 +34,9 @@ export interface SkillDef {
 
 const PLACEHOLDER = 'PLACEHOLDER' as const
 
-type SkillPackageArgs = Omit<SkillPackageDef, 'skills' | 'skillGroups'> & Partial<Pick<SkillPackageDef, 'skills' | 'skillGroups'>>
+type SkillPackageArgs = Omit<SkillPackageDef, 'ref' | 'skills' | 'skillGroups'> & Partial<Pick<SkillPackageDef, 'skills' | 'skillGroups'>> & { ref?: string }
 
-function definePackage({ id: packageId, ...pkg }: SkillPackageArgs): SkillPackageDef {
+function definePackage({ id: packageId, ref, ...pkg }: SkillPackageArgs): SkillPackageDef {
     function patchSkillGroup(skillGroup: SkillGroupDef, parentId: string | null): SkillGroupDef {
         return { 
             ...skillGroup, 
@@ -50,16 +50,17 @@ function definePackage({ id: packageId, ...pkg }: SkillPackageArgs): SkillPackag
     return { 
         ...pkg,
         id: packageId,
+        ref: ref ?? null,
         skillGroups: (pkg.skillGroups ?? []).map(skillGroup => patchSkillGroup(skillGroup, null)),
         skills: (pkg.skills ?? []).map(skill => ({ ...skill, packageId, skillGroupId: null }))
     }
 }
 
-type SkillGroupArgs = Omit<SkillGroupDef, 'packageId' | 'parentId' | 'subGroups'> & Partial<Pick<SkillGroupDef, 'subGroups'>>
+type SkillGroupArgs = Omit<SkillGroupDef, 'ref' | 'packageId' | 'parentId' | 'subGroups'> & Partial<Pick<SkillGroupDef, 'subGroups'>> & { ref?: string }
 
-function defineGroup({ id, skills, subGroups = [], ...data }: SkillGroupArgs): SkillGroupDef {
+function defineGroup({ id, ref, skills, subGroups = [], ...data }: SkillGroupArgs): SkillGroupDef {
 
-    return { id, packageId: PLACEHOLDER, parentId: PLACEHOLDER, skills, subGroups, ...data }
+    return { id, ref: ref ?? null, packageId: PLACEHOLDER, parentId: PLACEHOLDER, skills, subGroups, ...data }
 }
 
 interface SkillArgs {

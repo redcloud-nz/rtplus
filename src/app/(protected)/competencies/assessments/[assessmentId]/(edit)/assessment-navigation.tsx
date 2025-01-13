@@ -14,7 +14,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { cn } from '@/lib/utils'
 import * as Paths from '@/paths'
 
-import { useAssessmentContext } from '../assessment-context'
+import { useAssessmentStore } from '../assessment-store'
 
 
 interface AssessmentNavigationProps {
@@ -25,14 +25,10 @@ export function AssessmentNavigaton({ assessmentId }: AssessmentNavigationProps)
     const pathname = usePathname()
     const router = useRouter()
 
-    const context = useAssessmentContext()
-
     function handleSave() {
-        context.save()
     }
 
     function handleFinished() {
-        context.save()
         router.push(Paths.competencies.assessmentList)
     }
 
@@ -103,7 +99,7 @@ export function AssessmentNavigaton({ assessmentId }: AssessmentNavigationProps)
 }
 
 export function SavingIndicator() {
-    const { saveStatus } = useAssessmentContext()
+    const saveStatus = useAssessmentStore(state => state.saveStatus)
 
     return <>
         {saveStatus == 'Saving' ? <div className="flex items-center gap-2">

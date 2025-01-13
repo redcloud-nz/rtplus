@@ -7,6 +7,7 @@
 
 import { notFound } from 'next/navigation'
 import React from 'react'
+import * as R from 'remeda'
 
 import { auth } from '@clerk/nextjs/server'
 
@@ -15,9 +16,8 @@ import { AppPage, PageControls, PageHeader, PageTitle } from '@/components/app-p
 import prisma from '@/lib/prisma'
 import * as Paths from '@/paths'
 
-import { AssessmentContextProvider } from '../assessment-context'
 import { AssessmentNavigaton, SavingIndicator } from './assessment-navigation'
-
+import { LoadStoreData } from '../assessment-store'
 
 
 export default async function AssessmentEditLayout(props: { children: React.ReactNode, params: Promise<{ assessmentId: string }>}) {
@@ -26,7 +26,7 @@ export default async function AssessmentEditLayout(props: { children: React.Reac
     const { assessmentId } = await props.params
     const { children } = props
 
-    const { skills, assessees, ...asessment } = await prisma.competencyAssessment.findFirst({
+    const { skills, assessees, ...assessment } = await prisma.competencyAssessment.findFirst({
         where: { 
             orgId, userId,
         },
@@ -37,30 +37,27 @@ export default async function AssessmentEditLayout(props: { children: React.Reac
         }
     }) ?? notFound()
 
-    return <AssessmentContextProvider 
-        assessment={{
-            ...asessment,
-            skillIds: skills.map(skill => skill.id),
-            assesseeIds: assessees.map(assessee => assessee.id)
-        }}
+    return <AppPage 
+        label="Assess"
+        breadcrumbs={[
+            { label: "Competencies", href: Paths.competencies.dashboard }, 
+            { label: "Assessments", href: Paths.competencies.assessmentList },
+        ]}
     >
-        <AppPage 
-            label="Assess"
-            breadcrumbs={[
-                { label: "Competencies", href: Paths.competencies.dashboard }, 
-                { label: "Assessments", href: Paths.competencies.assessmentList },
-            ]}
-        >
-            <PageHeader>
-                <PageTitle>Competency Assessment</PageTitle>
-                <PageControls>
-                    <SavingIndicator/>
-                </PageControls>
-            </PageHeader>
-            <AssessmentNavigaton assessmentId={assessmentId}/>
-            {children}
-        </AppPage>
-    </AssessmentContextProvider>
+        <LoadStoreData 
+            assessment={assessment} 
+            skillIds={skills.map(R.prop('id'))}
+            assesseeIds={assessees.map(R.prop('id'))}
+        />
+        <PageHeader>
+            <PageTitle>Competency Assessment</PageTitle>
+            <PageControls>
+                <SavingIndicator/>
+            </PageControls>
+        </PageHeader>
+        <AssessmentNavigaton assessmentId={assessmentId}/>
+        {children}
+    </AppPage>
 }
 
 

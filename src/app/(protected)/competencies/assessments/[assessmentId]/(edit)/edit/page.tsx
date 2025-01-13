@@ -16,12 +16,14 @@ import { FieldControl, FieldDescription, FieldLabel, FieldMessage, Form, FormFie
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Description } from '@/components/ui/typography'
+import { useAssessmentStore } from '../../assessment-store'
 
-import { useAssessmentContext } from '../../assessment-context'
 
 export default function AssessmentEdit() {
 
-    const { value, updateValue } = useAssessmentContext()
+    const assessment = useAssessmentStore(state => state.assessment)
+    const updateAssessment = useAssessmentStore(state => state.updateAssessment)
+    if(!assessment) return
 
     return <>
         <Description>Define an assessment:</Description>
@@ -29,7 +31,7 @@ export default function AssessmentEdit() {
             <FormField name="date">
                 <FieldLabel>Date</FieldLabel>
                 <FieldControl>
-                    <DatePicker name="date" value={formatISO(value.date)} onChange={(newValue) => updateValue({ date: parseISO(newValue) })} />
+                    <DatePicker name="date" value={formatISO(assessment.date)} onChange={(newValue) => updateAssessment({ date: parseISO(newValue) })} />
                 </FieldControl>
                 <FieldDescription>The date the assessment is being carried out.</FieldDescription>
                 <FieldMessage/>
@@ -37,7 +39,7 @@ export default function AssessmentEdit() {
             <FormField name="name">
                 <FieldLabel>Name</FieldLabel>
                 <FieldControl>
-                    <Input name="name" value={value.name} onChange={(ev) => updateValue({ name: ev.target.value })}/>
+                    <Input name="name" value={assessment.name} onChange={(ev) => updateAssessment({ name: ev.target.value })}/>
                 </FieldControl>
                 <FieldDescription>The name of the assessment.</FieldDescription>
                 <FieldMessage/>
@@ -45,7 +47,7 @@ export default function AssessmentEdit() {
             <FormField name="location">
                 <FieldLabel>Location</FieldLabel>
                 <FieldControl>
-                    <Input name="location" value={value.location} onChange={(ev) => updateValue({ location: ev.target.value })}/>
+                    <Input name="location" value={assessment.location} onChange={(ev) => updateAssessment({ location: ev.target.value })}/>
                 </FieldControl>
                 <FieldDescription>The location where the assessment took place.</FieldDescription>
                 <FieldMessage/>
@@ -53,7 +55,7 @@ export default function AssessmentEdit() {
             <FormField name="status">
                 <FieldLabel>Status</FieldLabel>
                 <FieldControl>
-                    <Select name="status" value={value.status} onValueChange={(newValue) => updateValue({ status: newValue as CompetencyAssessmentStatus })}>
+                    <Select name="status" value={assessment.status} onValueChange={(newValue) => updateAssessment({ status: newValue as CompetencyAssessmentStatus })}>
                         <SelectTrigger className="w-full sm:w-[180px]">
                             <SelectValue/>
                         </SelectTrigger>

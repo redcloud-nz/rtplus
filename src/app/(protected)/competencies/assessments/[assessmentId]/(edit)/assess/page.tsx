@@ -7,8 +7,11 @@
 'use client'
 
 import React from 'react'
+import { useShallow } from 'zustand/react/shallow'
 
+import { useAuth, useUser } from '@clerk/nextjs'
 import { createId } from '@paralleldrive/cuid2'
+import { SkillCheck } from '@prisma/client'
 
 import { Show } from '@/components/show'
 
@@ -23,30 +26,33 @@ import { Textarea } from '@/components/ui/textarea'
 import { useSkillPackagesQuery } from '@/lib/api/skills'
 import { useTeamsWithMembersQuery } from '@/lib/api/teams'
 import { WithSerializedDates } from '@/lib/serialize'
+import { assertNonNull } from '@/lib/utils'
 
-import { SkillCheck, useAssessmentContext } from '../../assessment-context'
+import { ClientSkillCheck, useAssessmentStore } from '../../assessment-store'
 
 
 export default function AssessmentAssessPage() {
+    const { userId, orgId } = useAuth()
+    const { user } = useUser()
 
-    const assessmentContext = useAssessmentContext()
+    assertNonNull(userId)
+    assertNonNull(orgId)
+
+    const [assessmentId, assesseeIds, skillIds, skillChecks, getSkillCheck] = useAssessmentStore(useShallow(state => [state.assessment!!.id, state.assesseeIds, state.skillIds, state.checks, state.getSkillCheck]))
 
     const skillPackagesQuery = useSkillPackagesQuery()
     const teamsQuery = useTeamsWithMembersQuery()
-
-    const { assesseeIds, skillIds} = assessmentContext.value
-    const skillChecks: SkillCheck[] = []
  
     const [selectedSkillId, setSelectedSkillId] = React.useState<string | 'NONE'>('NONE')
     const [selectedPersonId, setSelectedPersonId] = React.useState<string | 'NONE'>('NONE')
-    const [skillCheck, setSkillCheck] = React.useState<SkillCheck | null>(null)
+    const [skillCheck, setSkillCheck] = React.useState<WithSerializedDates<SkillCheck> | null>(null)
 
     const skills = (skillPackagesQuery.data ?? []).flatMap(skillPackage => skillPackage.skills.filter(skill => skillIds.includes(skill.id)))
     const personnel = (teamsQuery.data ?? []).flatMap(team => team.memberships.map(member => member.person).filter(person => assesseeIds.includes(person.id)))
 
-    function getSkillCheck(skillId: string, assesseeId: string): WithSerializedDates<SkillCheck> {
-         return skillChecks.find(sc => sc.skillId == skillId && sc.assesseeId == assesseeId) ?? {
-            id: createId(), result: 'NotAssessed', skillId, assesseeId, assessorId: "", notes: ""
+    function emptySkillCheck(skillId: string, assesseeId: string): ClientSkillCheck {
+         return {
+            id: createId(), orgId: orgId!!, userId: userId!!, result: 'NotAssessed', assessmentId, skillId,  assesseeId, assessorId: user!!.publicMetadata.personId, notes: "", timestamp: ""
          }
     }
 
@@ -54,17 +60,17 @@ export default function AssessmentAssessPage() {
         console.log(`handleSelectSkill(${skillId}). selectedPersonId=${selectedPersonId}`)
         setSelectedSkillId(skillId)
         if(skillId == 'NONE' || selectedPersonId == 'NONE') setSkillCheck(null)
-        else setSkillCheck(getSkillCheck(skillId, selectedPersonId))
+        else setSkillCheck(getSkillCheck(skillId, selectedPersonId) ?? emptySkillCheck(skillId, selectedPersonId))
     }
 
     function handleSelectPerson(personId: string | 'NONE') {
         console.log(`handleSelectPerson(${personId}). selectedSkillId=${selectedSkillId}`)
         setSelectedPersonId(personId)
         if(personId == 'NONE' || selectedSkillId == 'NONE') setSkillCheck(null)
-        else setSkillCheck(getSkillCheck(selectedSkillId, personId))
+        else setSkillCheck(getSkillCheck(selectedSkillId, personId) ?? emptySkillCheck(selectedSkillId, personId))
     }
 
-    function handleChange(partial: Partial<SkillCheck>) {
+    function handleChange(partial: Partial<WithSerializedDates<SkillCheck>>) {
         setSkillCheck(prev => prev == null ? null : { ...prev, ...partial })
     }
 
@@ -74,25 +80,10 @@ export default function AssessmentAssessPage() {
             console.error("skillCheck must be defined to be saved.")
             return
         }
-
-        // assessmentContext.updateValue(prev => {
-           
-        //     if(_.some(prev.skillChecks, item => item.skillId == selectedSkillId && item.assesseeId == selectedPersonId)) {
-        //         const updated = prev.skillChecks.map(item => {
-        //             if(item.skillId == selectedSkillId && item.assesseeId == selectedPersonId) {
-        //                 return skillCheck
-        //             } else return item
-        //         })
-        //         return { ...prev, skillChecks: updated}
-        //     } else {
-        //         return { ...prev, skillChecks: [...prev.skillChecks, skillCheck] }
-        //     }
-        // }, true)
-        // await resolveAfter(null, 500)
     }
 
     function handleReset() {
-        setSkillCheck(getSkillCheck(selectedSkillId, selectedPersonId))
+        setSkillCheck(getSkillCheck(selectedSkillId, selectedPersonId) ?? emptySkillCheck(selectedSkillId, selectedPersonId))
     }
 
     return <>
@@ -172,7 +163,7 @@ export default function AssessmentAssessPage() {
                                             onClick={() => handleSelectSkill(skill.id)}
                                         >{skill.name}</a>
                                     </TableCell>
-                                    <TableCell>{skillCheck.result}</TableCell>
+                                    <TableCell>{skillCheck?.result}</TableCell>
                             </TableRow>
                             })}
                         </TableBody>
@@ -197,7 +188,7 @@ export default function AssessmentAssessPage() {
                                             onClick={() => handleSelectPerson(person.id)}
                                         >{person.name}</a>
                                     </TableCell>
-                                    <TableCell>{skillCheck.result}</TableCell>
+                                    <TableCell>{skillCheck?.result}</TableCell>
                                 </TableRow>
                             })}
                         </TableBody>

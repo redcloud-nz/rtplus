@@ -7,6 +7,7 @@
 'use client'
 
 import React from 'react'
+import { useShallow } from 'zustand/react/shallow'
 
 import { Show } from '@/components/show'
 
@@ -19,25 +20,18 @@ import { Description } from '@/components/ui/typography'
 
 import { useTeamsWithMembersQuery } from '@/lib/api/teams'
 
-import { useAssessmentContext } from '../../assessment-context'
-
-
+import { useAssessmentStore } from '../../assessment-store'
 
 
 export default function AssessmentPersonnel() {
 
-    const assessmentContext = useAssessmentContext()
+    const [assesseeIds, addAssessee, removeAssessee] = useAssessmentStore(useShallow(state => [state.assesseeIds, state.addAssessee, state.removeAssessee]))
     const teamsQuery = useTeamsWithMembersQuery()
     
-    const selectedPersonnel = assessmentContext.value.assesseeIds
 
     function handleSelectPerson(personId: string, checked: boolean) {
-        assessmentContext.updateValue(prev => ({
-            ...prev,
-            assesseeIds: checked
-                ? [...prev.assesseeIds, personId]
-                : prev.assesseeIds.filter(assessId => assessId != personId)
-        }))
+        if(checked) addAssessee(personId)
+        else removeAssessee(personId)
     }
 
     return <>
@@ -58,7 +52,7 @@ export default function AssessmentPersonnel() {
                     if(!team) return null
 
                     const memberCount = team.memberships.length
-                    const selectedCount = team.memberships.filter(membership => selectedPersonnel.includes(membership.personId)).length
+                    const selectedCount = team.memberships.filter(membership => assesseeIds.includes(membership.personId)).length
 
                     return <AccordionItem key={team.id} value={team.id}>
                         <AccordionTrigger>
@@ -70,7 +64,7 @@ export default function AssessmentPersonnel() {
                                 {team.memberships.map(member => {
                                     return <li key={member.personId} className="flex items-top space-x-2 py-1 px-2">
                                         <Checkbox id={`checkbox-${member.person.id}`} 
-                                            checked={selectedPersonnel.includes(member.personId) || false}
+                                            checked={assesseeIds.includes(member.personId) || false}
                                             onCheckedChange={(checked) => handleSelectPerson(member.personId, checked === true)}
                                         />
                                         <div className="grid gap-1.5 leading-none ">

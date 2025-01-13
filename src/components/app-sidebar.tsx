@@ -58,7 +58,9 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
                 <NavItem label="Documentation" href="/documentation" icon={<BookOpenIcon/>}/>
                 <Protect role='org:admin'>
                     <NavCollapsible label="Configuration" icon={<Settings2Icon/>}>
+                       
                         <NavSubItem label="General" href="/settings"/>
+                        <NavSubItem label="Imports" href={Paths.imports.list}/>
                         <NavSubItem label="Personnel" href={Paths.personnel}/>
                         <NavSubItem label="Skills" href={Paths.skillsAll}/>
                         <NavSubItem label="Skill Groups" href={Paths.skillGroupsAll}/>

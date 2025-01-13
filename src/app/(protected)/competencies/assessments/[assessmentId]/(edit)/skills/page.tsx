@@ -7,6 +7,7 @@
 'use client'
 
 import React from 'react'
+import { useShallow } from 'zustand/react/shallow'
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -15,26 +16,18 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Description } from '@/components/ui/typography'
 
 import { SkillPackageWithGroupsAndSkills, useSkillPackagesQuery } from '@/lib/api/skills'
-
-import { useAssessmentContext } from '../../assessment-context'
+import { useAssessmentStore } from '../../assessment-store'
 
 
 export default function AssessmentSkills() {
 
-    const assessmentContext = useAssessmentContext()
-
-    const selectedSkills = assessmentContext.value.skillIds
+    const [skillIds, addSkill, removeSkill] = useAssessmentStore(useShallow(state => [state.skillIds, state.addSkill, state.removeSkill]))
 
     const skillPackagesQuery = useSkillPackagesQuery()
 
     function handleSelectSkill(skillId: string, checked: boolean) {
-
-        assessmentContext.updateValue(prev => ({
-            ...prev, 
-            skillIds: checked
-                ? [...prev.skillIds, skillId]
-                : prev.skillIds.filter(id => id != skillId)
-        }))
+        if(checked) addSkill(skillId)
+        else removeSkill(skillId)
     }
 
     return <>
@@ -51,7 +44,7 @@ export default function AssessmentSkills() {
                 <SkillPackageTree
                     key={skillPackage.id}
                     skillPackage={skillPackage} 
-                    selectedSkills={selectedSkills} 
+                    selectedSkills={skillIds} 
                     handleSelectSkill={handleSelectSkill}/>
                 )}
         </Accordion> : null}

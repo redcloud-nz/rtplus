@@ -21,7 +21,7 @@ import { changeCountsToString } from '@/lib/change-counts'
 import { resolveAfter } from '@/lib/utils'
 import * as Paths from '@/paths'
 
-import { importPackageAction, ImportPackageActionResult } from './actions'
+import { importPackagesAction, ImportPackageActionResult } from './actions'
 
 
 type ImportState = { status: 'Init' } | { status: 'Review', packageToImport: SkillPackageDef } | { status: 'Done', result: ImportPackageActionResult } | { status: 'Error', message: string }
@@ -37,13 +37,15 @@ export default function ImportSkillPackagePage() {
 
         if(pkg) {
             setState({ status: 'Review', packageToImport: pkg })
+
+            console.log('Package to import:', pkg)
         }
         else setState({ status: 'Error', message: `No such SkillPackage with id = ${packageId}` })
         
     }
 
     async function handleImport() {
-        const result = await importPackageAction([packageId])
+        const result = await importPackagesAction([packageId])
         setState({ status: 'Done', result })
     }
 
