@@ -10,10 +10,13 @@ import { NotFound } from '@/components/errors'
 
 import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
+import { Link } from '@/components/ui/link'
 
+import { createWhereClause } from '@/lib/id'
 import prisma from '@/lib/prisma'
 
 import * as Paths from '@/paths'
+
 
 export default async function SkillPage(props: { params: Promise<{ skillIdOrRef: string }>}) {
     const params = await props.params;
@@ -23,12 +26,7 @@ export default async function SkillPage(props: { params: Promise<{ skillIdOrRef:
             skillGroup: true,
             package: true,
         },
-        where: {
-            OR: [
-                { id: params.skillIdOrRef },
-                { ref: params.skillIdOrRef }
-            ]
-        }
+        where: createWhereClause(params.skillIdOrRef)
     })
 
     if(!skill) return <NotFound/>
@@ -66,10 +64,14 @@ export default async function SkillPage(props: { params: Promise<{ skillIdOrRef:
                         <DLDetails>{skill.optional ? 'Yes' : 'No'}</DLDetails>
 
                         <DLTerm>Package</DLTerm>
-                        <DLDetails>{skill.package.name}</DLDetails>
+                        <DLDetails>
+                            <Link href={Paths.skillPackage(skill.package.ref || skill.package.id)}>{skill.package.name}</Link>
+                        </DLDetails>
 
                         <DLTerm>Skill Group</DLTerm>
-                        <DLDetails>{skill.skillGroup?.name ?? "None"}</DLDetails>
+                        <DLDetails>
+                            {skill.skillGroup?.name ? <Link href={Paths.skillGroup(skill.skillGroup.ref || skill.skillGroup.id)}>{skill.skillGroup.name}</Link> : 'None'}
+                        </DLDetails>
                     </DL>
                 </CardContent>
             </Card>

@@ -10,9 +10,10 @@ import { NotFound } from '@/components/errors'
 
 import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
+import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
-
+import { createWhereClause } from '@/lib/id'
 import prisma from '@/lib/prisma'
 
 import * as Paths from '@/paths'
@@ -26,12 +27,7 @@ export default async function SkillGroupPage(props: { params: Promise<{ groupIdO
             skills: true,
             package: true,
         },
-        where: {
-            OR: [
-                { id: params.groupIdOrRef },
-                { ref: params.groupIdOrRef }
-            ]
-        }
+        where: createWhereClause(params.groupIdOrRef)
     })
 
     if(!skillGroup) return <NotFound/>
@@ -61,7 +57,9 @@ export default async function SkillGroupPage(props: { params: Promise<{ groupIdO
                         <DLDetails>{skillGroup.ref}</DLDetails>
 
                         <DLTerm>Package</DLTerm>
-                        <DLDetails>{skillGroup.package.name}</DLDetails>
+                        <DLDetails>
+                            <Link href={Paths.skillPackage(skillGroup.package.ref || skillGroup.packageId)}>{skillGroup.package.name}</Link>
+                        </DLDetails>
                     </DL>
                 </CardContent>
             </Card>
@@ -79,7 +77,9 @@ export default async function SkillGroupPage(props: { params: Promise<{ groupIdO
                         <TableBody>
                             {skillGroup.skills.map(skill => 
                                 <TableRow key={skill.id}>
-                                    <TableCell>{skill.name}</TableCell>
+                                    <TableCell>
+                                        <Link href={Paths.skill(skill.ref || skill.id)}>{skill.name}</Link>
+                                    </TableCell>
                                 </TableRow>
                             )}
                         </TableBody>

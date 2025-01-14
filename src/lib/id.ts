@@ -33,3 +33,7 @@ export class UUIDValidationSet {
         this.ids.add(id)
     }
 }
+
+export function createWhereClause(uuidOrRef: string) {
+    return validateUUID(uuidOrRef) ? { id: uuidOrRef } : { ref: uuidOrRef }
+}

@@ -22,6 +22,15 @@ export function createChangeCounts<K extends string>(keys: K[]): ChangeCountsByT
     return result as ChangeCountsByType<K>
 }
 
+export function mergeChangeCounts<K extends string>(accumulator: ChangeCountsByType<K>, other: ChangeCountsByType<K>) {
+    
+    for(const key of Object.keys(accumulator) as K[]) {
+        accumulator[key].create += other[key].create
+        accumulator[key].update += other[key].update
+        accumulator[key].delete += other[key].delete
+    }
+}
+
 export function changeCountsToString(changeCounts: ChangeCounts) {
     return `${changeCounts.create} created, ${changeCounts.update} updated, ${changeCounts.delete} deleted.`
 }

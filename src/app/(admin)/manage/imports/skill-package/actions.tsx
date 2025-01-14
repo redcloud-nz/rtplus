@@ -10,7 +10,7 @@ import { auth } from '@clerk/nextjs/server'
 
 import { getGroupsInPackage, getSkillsInPackage, PackageList, SkillPackageDef } from '@/data/skills'
 import prisma from '@/lib/prisma'
-import { ChangeCountsByType, createChangeCounts as createChangeCounts } from '@/lib/change-counts'
+import { ChangeCountsByType, createChangeCounts as createChangeCounts, mergeChangeCounts } from '@/lib/change-counts'
 import { EventBuilder } from '@/lib/history'
 import { assertNonNull } from '@/lib/utils'
 
@@ -39,7 +39,8 @@ export async function importPackagesAction(packageIds: string[]): Promise<Import
     for(const skillPackage of packagesToImport) {
         const eventBuilder = EventBuilder.createGrouped(orgId, userId)
 
-        await importPackage(skillPackage, eventBuilder)
+        const packageChangeCounts = await importPackage(skillPackage, eventBuilder)
+        mergeChangeCounts(changeCounts, packageChangeCounts)
     }
 
     const elapsedTime = Date.now() - startTime
@@ -53,7 +54,7 @@ export async function importPackagesAction(packageIds: string[]): Promise<Import
  * @param skillPackage The skill package to import
  * @param eventBuilder The event builder to use for creating history events
  */
-async function importPackage(skillPackage: SkillPackageDef, eventBuilder: EventBuilder) {
+async function importPackage(skillPackage: SkillPackageDef, eventBuilder: EventBuilder): Promise<ChangeCountsByType<'packages' | 'skillGroups' | 'skills'>> {
 
     await prisma.historyEvent.create({ data: eventBuilder.buildRootEvent('Import', 'SkillPackage', skillPackage.id) })
     

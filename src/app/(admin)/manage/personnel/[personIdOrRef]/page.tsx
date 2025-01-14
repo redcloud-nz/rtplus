@@ -20,9 +20,11 @@ import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
+import { createWhereClause } from '@/lib/id'
 import prisma from '@/lib/prisma'
 import { formatDateTime } from '@/lib/utils'
 import * as Paths from '@/paths'
+
 
 
 
@@ -31,7 +33,7 @@ export const metadata: Metadata = { title: "Personnel | RT+" }
 export default async function PersonPage(props: { params: Promise<{ personIdOrRef: string }>}) {
     const params = await props.params;
 
-    await auth.protect({ role: 'org:admin' })
+    const { orgId } = await auth.protect({ role: 'org:admin' })
 
     const person = await prisma.person.findFirst({
         include: {
@@ -41,12 +43,7 @@ export default async function PersonPage(props: { params: Promise<{ personIdOrRe
                 }
             },
         },
-        where: {
-            OR: [
-                { id: params.personIdOrRef },
-                { ref: params.personIdOrRef }
-            ]
-        }
+        where: { orgId, ...createWhereClause(params.personIdOrRef) }
     })
     if(!person) return <NotFound/>
 

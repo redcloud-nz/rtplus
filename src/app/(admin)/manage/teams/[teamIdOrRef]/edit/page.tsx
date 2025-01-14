@@ -24,10 +24,12 @@ import { Link } from '@/components/ui/link'
 import { DefaultD4hApiUrl } from '@/lib/d4h-api/common'
 import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
 import { EventBuilder } from '@/lib/history'
+import { createWhereClause } from '@/lib/id'
 import prisma from '@/lib/prisma'
 import { assertNonNull } from '@/lib/utils'
 
 import * as Paths from '@/paths'
+
 
 
 
@@ -51,10 +53,7 @@ export default async function EditTeamPage(props: { params: Promise<{ teamIdOrRe
     const team = await prisma.team.findFirst({
         where: {
             orgId,
-            OR: [
-                { id: params.teamIdOrRef },
-                { ref: params.teamIdOrRef }
-            ]
+            ...createWhereClause(params.teamIdOrRef)
         }
     })
 

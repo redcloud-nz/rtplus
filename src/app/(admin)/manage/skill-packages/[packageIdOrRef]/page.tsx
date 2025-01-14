@@ -10,11 +10,14 @@ import { NotFound } from '@/components/errors'
 
 import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
+import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
+import { createWhereClause } from '@/lib/id'
 import prisma from '@/lib/prisma'
 
 import * as Paths from '@/paths'
+
 
 export default async function SkillPackagePage(props: { params: Promise<{ packageIdOrRef: string }>}) {
     const params = await props.params
@@ -23,12 +26,7 @@ export default async function SkillPackagePage(props: { params: Promise<{ packag
         include: {
             skillGroups: true
         },
-        where: {
-            OR: [
-                { id: params.packageIdOrRef },
-                { ref: params.packageIdOrRef }
-            ]
-        }
+        where: createWhereClause(params.packageIdOrRef)
     })
 
     if(!skillPackages) return <NotFound/>
@@ -73,7 +71,9 @@ export default async function SkillPackagePage(props: { params: Promise<{ packag
                         <TableBody>
                             {skillPackages.skillGroups.map(skillGroup => 
                                 <TableRow key={skillGroup.id}>
-                                    <TableCell>{skillGroup.name}</TableCell>
+                                    <TableCell>
+                                        <Link href={Paths.skillGroup(skillGroup.ref || skillGroup.id)}>{skillGroup.name}</Link>
+                                    </TableCell>
                                 </TableRow>
                             )}
                         </TableBody>

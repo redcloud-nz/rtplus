@@ -20,6 +20,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 
 
 import prisma from '@/lib/prisma'
 import * as Paths from '@/paths'
+import { createWhereClause } from '@/lib/id'
 
 
 export default async function TeamPage(props: { params: Promise<{ teamIdOrRef: string }>}) {
@@ -31,10 +32,7 @@ export default async function TeamPage(props: { params: Promise<{ teamIdOrRef: s
     const team = await prisma.team.findFirst({
         where: {
             orgId,
-            OR: [
-                { id: params.teamIdOrRef },
-                { ref: params.teamIdOrRef }
-            ]
+            ...createWhereClause(params.teamIdOrRef)
         },
         include: {
             memberships: {
@@ -42,6 +40,9 @@ export default async function TeamPage(props: { params: Promise<{ teamIdOrRef: s
                     person: true
                 }
             },
+        },
+        orderBy: {
+            name: 'asc'
         }
     })
 
