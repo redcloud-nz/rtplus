@@ -12,7 +12,6 @@ import React from 'react'
 import { z } from 'zod'
 
 import { auth } from '@clerk/nextjs/server'
-import { createId } from '@paralleldrive/cuid2'
 
 import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 
@@ -22,11 +21,11 @@ import { Input } from '@/components/ui/input'
 import { Link } from '@/components/ui/link'
 
 import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
-import prisma from '@/lib/prisma'
-
-import * as Paths from '@/paths'
 import { EventBuilder } from '@/lib/history'
+import { createUUID } from '@/lib/id'
+import prisma from '@/lib/prisma'
 import { assertNonNull } from '@/lib/utils'
+import * as Paths from '@/paths'
 
 
 const CreatePersonFormSchema = z.object({
@@ -92,11 +91,11 @@ async function createPersonAction(formState: FormState, formData: FormData) {
         }
 
         const eventBuilder = EventBuilder.create(orgId, userId)
-        personId = createId()
+        personId = createUUID()
         
         await prisma.$transaction([
             prisma.person.create({
-                data: { id: personId, name: fields.name, email: fields.email }
+                data: { id: personId, orgId, name: fields.name, email: fields.email }
             }),
             prisma.historyEvent.create({ 
                 data: eventBuilder.buildEvent('Create', 'Person', personId) 

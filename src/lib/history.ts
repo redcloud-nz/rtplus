@@ -3,8 +3,9 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { createId } from '@paralleldrive/cuid2'
 import { HistoryEvent, HistoryEventObjectType, HistoryEventType } from '@prisma/client'
+
+import { createUUID } from './id'
 
 
 export type HistoryEventData = Omit<HistoryEvent, 'timestamp' | 'meta'> & { meta: Record<string, number | string> }
@@ -40,14 +41,14 @@ export class EventBuilder {
      * Create a new EventBuilder instance with a parent event.
      */
     static createGrouped(orgId: string, userId: string | null): EventBuilder {
-       return new EventBuilder(orgId, userId, createId())
+       return new EventBuilder(orgId, userId, createUUID())
     }
 
     buildRootEvent(eventType: HistoryEventType, objectType: HistoryEventObjectType, objectId: string, { description = "", meta = {} }: CreateEventArgs = {}): HistoryEventData {
-        return { id: this.parentId!!, orgId: this.orgId, userId: this.userId, parentId: null, eventType, objectType, objectId, description, meta }
+        return { id: this.parentId!, orgId: this.orgId, userId: this.userId, parentId: null, eventType, objectType, objectId, description, meta }
     }
 
     buildEvent(eventType: HistoryEventType, objectType: HistoryEventObjectType, objectId: string, { description = "", meta = {} }: CreateEventArgs = {}): HistoryEventData {
-        return { id: createId(), orgId: this.orgId, userId: this.userId, parentId: this.parentId, eventType, objectType, objectId, description, meta }
+        return { id: createUUID(), orgId: this.orgId, userId: this.userId, parentId: this.parentId, eventType, objectType, objectId, description, meta }
     }
 }

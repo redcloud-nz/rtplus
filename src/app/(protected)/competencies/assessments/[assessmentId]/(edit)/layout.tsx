@@ -18,6 +18,7 @@ import * as Paths from '@/paths'
 
 import { AssessmentNavigaton, SavingIndicator } from './assessment-navigation'
 import { LoadStoreData } from '../assessment-store'
+import { withSerializedDates } from '@/lib/serialize'
 
 
 export default async function AssessmentEditLayout(props: { children: React.ReactNode, params: Promise<{ assessmentId: string }>}) {
@@ -26,7 +27,7 @@ export default async function AssessmentEditLayout(props: { children: React.Reac
     const { assessmentId } = await props.params
     const { children } = props
 
-    const { skills, assessees, ...assessment } = await prisma.competencyAssessment.findFirst({
+    const { skills, assessees, checks, ...assessment } = await prisma.competencyAssessment.findFirst({
         where: { 
             orgId, userId,
         },
@@ -48,6 +49,7 @@ export default async function AssessmentEditLayout(props: { children: React.Reac
             assessment={assessment} 
             skillIds={skills.map(R.prop('id'))}
             assesseeIds={assessees.map(R.prop('id'))}
+            checks={R.mapToObj(checks, c => [c.id, withSerializedDates(c)])}
         />
         <PageHeader>
             <PageTitle>Competency Assessment</PageTitle>

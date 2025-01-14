@@ -12,9 +12,9 @@ import { Person, TeamMembership } from '@prisma/client'
 
 import { ChangeCountsByType, createChangeCounts } from '@/lib/change-counts'
 import { EventBuilder } from '@/lib/history'
+import { createUUID } from '@/lib/id'
 import prisma from '@/lib/prisma'
 import { assertNonNull } from '@/lib/utils'
-import { createId } from '@paralleldrive/cuid2'
 
 
 export interface MemberDiff { 
@@ -70,11 +70,11 @@ export async function importPersonnelAction(teamId: string, diffs: MemberDiff[])
         let personId = (await prisma.person.findFirst({ select: { id: true }, where: { name: diff.name, email: diff.fields.email } }))?.id
 
         if(!personId) {
-            personId = createId()
+            personId = createUUID()
 
             await prisma.$transaction([
                 prisma.person.create({ 
-                    data: { id: personId, name: diff.name, email: diff.fields.email ?? "" } 
+                    data: { id: personId, orgId, name: diff.name, email: diff.fields.email ?? "" } 
                 }),
                 prisma.historyEvent.create({ 
                     data: eventBuilder.buildEvent('Create', 'Person', personId)
@@ -83,7 +83,7 @@ export async function importPersonnelAction(teamId: string, diffs: MemberDiff[])
             changeCounts.personnel.create++
         }
 
-        const membershipId = createId()
+        const membershipId = createUUID()
         await prisma.$transaction([
             prisma.teamMembership.create({ 
                 data: { 

@@ -9,7 +9,7 @@ import { twMerge } from 'tailwind-merge'
 
 
 
-export function assertNonNull<T>(obj: T, message: string = ""): asserts obj is NonNullable<T> {
+export function assertNonNull<T>(obj: T | null, message: string = ""): asserts obj is NonNullable<T> {
     if(obj == null) throw TypeError(message)
 }
 

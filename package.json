@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.9.6",
-    "@paralleldrive/cuid2": "^2.2.2",
     "@prisma/client": "^6.1.0",
     "@radix-ui/react-accordion": "^1.2.2",
     "@radix-ui/react-avatar": "^1.1.2",
@@ -48,6 +47,7 @@
     "tailwind-merge": "^2.5.4",
     "tailwind-variants": "^0.2.1",
     "tailwindcss-animate": "^1.0.7",
+    "uuid": "^11.0.5",
     "zod": "^3.23.8",
     "zustand": "^5.0.3"
   },

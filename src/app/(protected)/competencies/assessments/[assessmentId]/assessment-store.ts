@@ -56,7 +56,7 @@ export const useAssessmentStore = create<AssessmentStore>()(
                 }
             },
             updateAssessment(partial) {
-                set(state => ({ assessment: { ...state.assessment!!, ...partial  } }))
+                set(state => ({ assessment: { ...state.assessment!, ...partial  } }))
             },
             addAssessee(assesseeId) {
                 set(state => ({ assesseeIds: [...state.assesseeIds, assesseeId] }))
@@ -90,7 +90,7 @@ export function LoadStoreData(props: AssessmentStoreInitData) {
 
     React.useEffect(() => {
         init(props)
-    }, [])
+    }, [init, props])
 
     return React.createElement(React.Fragment)
 }

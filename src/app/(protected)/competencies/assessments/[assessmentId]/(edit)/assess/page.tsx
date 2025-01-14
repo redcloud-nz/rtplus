@@ -10,7 +10,6 @@ import React from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
 import { useAuth, useUser } from '@clerk/nextjs'
-import { createId } from '@paralleldrive/cuid2'
 import { SkillCheck } from '@prisma/client'
 
 import { Show } from '@/components/show'
@@ -25,8 +24,8 @@ import { Textarea } from '@/components/ui/textarea'
 
 import { useSkillPackagesQuery } from '@/lib/api/skills'
 import { useTeamsWithMembersQuery } from '@/lib/api/teams'
+import { createUUID } from '@/lib/id'
 import { WithSerializedDates } from '@/lib/serialize'
-import { assertNonNull } from '@/lib/utils'
 
 import { ClientSkillCheck, useAssessmentStore } from '../../assessment-store'
 
@@ -35,10 +34,8 @@ export default function AssessmentAssessPage() {
     const { userId, orgId } = useAuth()
     const { user } = useUser()
 
-    assertNonNull(userId)
-    assertNonNull(orgId)
-
-    const [assessmentId, assesseeIds, skillIds, skillChecks, getSkillCheck] = useAssessmentStore(useShallow(state => [state.assessment!!.id, state.assesseeIds, state.skillIds, state.checks, state.getSkillCheck]))
+    const [assessmentId, assesseeIds, skillIds] = useAssessmentStore(useShallow(state => [state.assessment!.id, state.assesseeIds, state.skillIds]))
+    const getSkillCheck = useAssessmentStore(state => state.getSkillCheck)
 
     const skillPackagesQuery = useSkillPackagesQuery()
     const teamsQuery = useTeamsWithMembersQuery()
@@ -52,7 +49,7 @@ export default function AssessmentAssessPage() {
 
     function emptySkillCheck(skillId: string, assesseeId: string): ClientSkillCheck {
          return {
-            id: createId(), orgId: orgId!!, userId: userId!!, result: 'NotAssessed', assessmentId, skillId,  assesseeId, assessorId: user!!.publicMetadata.personId, notes: "", timestamp: ""
+            id: createUUID(), orgId: orgId!, userId: userId!, result: 'NotAssessed', assessmentId, skillId,  assesseeId, assessorId: user!.publicMetadata.personId, notes: "", timestamp: ""
          }
     }
 

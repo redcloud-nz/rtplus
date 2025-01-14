@@ -12,7 +12,6 @@ import React from 'react'
 import { z } from 'zod'
 
 import { auth } from '@clerk/nextjs/server'
-import { createId } from '@paralleldrive/cuid2'
 
 import { AppPage, PageDescription, PageTitle } from '@/components/app-page'
 
@@ -25,6 +24,7 @@ import { DefaultD4hApiUrl } from '@/lib/d4h-api/common'
 import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
 import prisma from '@/lib/prisma'
 import { EventBuilder } from '@/lib/history'
+import { createUUID } from '@/lib/id'
 import { assertNonNull } from '@/lib/utils'
 import * as Paths from '@/paths'
 
@@ -141,7 +141,7 @@ async function createTeamAction(formState: FormState, formData: FormData) {
             if(refConflict) return fieldError('teamRef', `Team ref '${ref}' is already taken.`)
         }
 
-        const teamId = createId()
+        const teamId = createUUID()
 
         await prisma.$transaction([
             prisma.team.create({
