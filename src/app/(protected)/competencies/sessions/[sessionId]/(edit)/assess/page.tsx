@@ -7,10 +7,10 @@
 'use client'
 
 import React from 'react'
+import * as R from 'remeda'
 import { useShallow } from 'zustand/react/shallow'
 
-import { useAuth, useUser } from '@clerk/nextjs'
-import { SkillCheck } from '@prisma/client'
+import { CompetenceLevel } from '@prisma/client'
 
 import { Show } from '@/components/show'
 
@@ -24,50 +24,49 @@ import { Textarea } from '@/components/ui/textarea'
 
 import { useSkillPackagesQuery } from '@/lib/api/skills'
 import { useTeamsWithMembersQuery } from '@/lib/api/teams'
-import { createUUID } from '@/lib/id'
-import { WithSerializedDates } from '@/lib/serialize'
+import { CompetenceLevelTerms } from '@/lib/terms'
 
-import { ClientSkillCheck, useAssessmentStore } from '../../assessment-store'
+import { SkillCheck_Client, useSkillCheckStore } from '../../skill-check-store'
 
 
-export default function AssessmentAssessPage() {
-    const { userId, orgId } = useAuth()
-    const { user } = useUser()
+export default function SessionAssessPage() {
 
-    const [assessmentId, assesseeIds, skillIds] = useAssessmentStore(useShallow(state => [state.assessment!.id, state.assesseeIds, state.skillIds]))
-    const getSkillCheck = useAssessmentStore(state => state.getSkillCheck)
+    const [assesseeIds, skillIds] = useSkillCheckStore(useShallow(state => [state.assesseeIds, state.skillIds]))
+    const getSkillCheck = useSkillCheckStore(state => state.getSkillCheck)
 
     const skillPackagesQuery = useSkillPackagesQuery()
     const teamsQuery = useTeamsWithMembersQuery()
+
+    const skills = React.useMemo(
+        () => (skillPackagesQuery.data ?? []).flatMap(skillPackage => skillPackage.skills.filter(skill => skillIds.includes(skill.id))), 
+        [skillIds, skillPackagesQuery.data]
+    )
+
+    const personnel = React.useMemo(
+        () => (teamsQuery.data ?? []).flatMap(team => team.memberships.map(member => member.person).filter(person => assesseeIds.includes(person.id))),
+        [assesseeIds, teamsQuery.data]
+    )
  
     const [selectedSkillId, setSelectedSkillId] = React.useState<string | 'NONE'>('NONE')
     const [selectedPersonId, setSelectedPersonId] = React.useState<string | 'NONE'>('NONE')
-    const [skillCheck, setSkillCheck] = React.useState<WithSerializedDates<SkillCheck> | null>(null)
+    const [skillCheck, setSkillCheck] = React.useState<SkillCheck_Client | null>(null)
 
-    const skills = (skillPackagesQuery.data ?? []).flatMap(skillPackage => skillPackage.skills.filter(skill => skillIds.includes(skill.id)))
-    const personnel = (teamsQuery.data ?? []).flatMap(team => team.memberships.map(member => member.person).filter(person => assesseeIds.includes(person.id)))
-
-    function emptySkillCheck(skillId: string, assesseeId: string): ClientSkillCheck {
-         return {
-            id: createUUID(), orgId: orgId!, userId: userId!, result: 'NotAssessed', assessmentId, skillId,  assesseeId, assessorId: user!.publicMetadata.personId, notes: "", timestamp: ""
-         }
-    }
-
+    
     function handleSelectSkill(skillId: string | 'NONE') {
         console.log(`handleSelectSkill(${skillId}). selectedPersonId=${selectedPersonId}`)
         setSelectedSkillId(skillId)
         if(skillId == 'NONE' || selectedPersonId == 'NONE') setSkillCheck(null)
-        else setSkillCheck(getSkillCheck(skillId, selectedPersonId) ?? emptySkillCheck(skillId, selectedPersonId))
+        else setSkillCheck(getSkillCheck(skillId, selectedPersonId))
     }
 
     function handleSelectPerson(personId: string | 'NONE') {
         console.log(`handleSelectPerson(${personId}). selectedSkillId=${selectedSkillId}`)
         setSelectedPersonId(personId)
         if(personId == 'NONE' || selectedSkillId == 'NONE') setSkillCheck(null)
-        else setSkillCheck(getSkillCheck(selectedSkillId, personId) ?? emptySkillCheck(selectedSkillId, personId))
+        else setSkillCheck(getSkillCheck(selectedSkillId, personId))
     }
 
-    function handleChange(partial: Partial<WithSerializedDates<SkillCheck>>) {
+    function handleChange(partial: Partial<SkillCheck_Client>) {
         setSkillCheck(prev => prev == null ? null : { ...prev, ...partial })
     }
 
@@ -80,7 +79,7 @@ export default function AssessmentAssessPage() {
     }
 
     function handleReset() {
-        setSkillCheck(getSkillCheck(selectedSkillId, selectedPersonId) ?? emptySkillCheck(selectedSkillId, selectedPersonId))
+        setSkillCheck(getSkillCheck(selectedSkillId, selectedPersonId))
     }
 
     return <>
@@ -160,7 +159,7 @@ export default function AssessmentAssessPage() {
                                             onClick={() => handleSelectSkill(skill.id)}
                                         >{skill.name}</a>
                                     </TableCell>
-                                    <TableCell>{skillCheck?.result}</TableCell>
+                                    <TableCell>{skillCheck?.competenceLevel}</TableCell>
                             </TableRow>
                             })}
                         </TableBody>
@@ -185,7 +184,7 @@ export default function AssessmentAssessPage() {
                                             onClick={() => handleSelectPerson(person.id)}
                                         >{person.name}</a>
                                     </TableCell>
-                                    <TableCell>{skillCheck?.result}</TableCell>
+                                    <TableCell>{skillCheck?.competenceLevel}</TableCell>
                                 </TableRow>
                             })}
                         </TableBody>
@@ -193,18 +192,16 @@ export default function AssessmentAssessPage() {
                     { selectedSkillId != 'NONE' && selectedPersonId != 'NONE' ? <>
                         <div className="space-y-1">
                             <Label>Result</Label>
-                            <Select value={skillCheck?.result} onValueChange={newValue => handleChange({ result: newValue })}>
+                            <Select value={skillCheck?.competenceLevel} onValueChange={newValue => handleChange({ competenceLevel: newValue as CompetenceLevel })}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select competence level"/>
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectGroup>
-                                        <SelectLabel>Competency Level</SelectLabel>
-                                        <SelectItem value="NotAssessed">Not Assessed</SelectItem>
-                                        <SelectItem value="HighlyConfident">High Confident</SelectItem>
-                                        <SelectItem value="Competent">Competent</SelectItem>
-                                        <SelectItem value="NotCompletent">Not Competent</SelectItem>
-                                        <SelectItem value="NotTaught">Not Taught</SelectItem>
+                                        <SelectLabel>Competence Level</SelectLabel>
+                                        {R.entries(CompetenceLevelTerms).map(([key, label]) =>
+                                            <SelectItem key={key} value={key}>{label}</SelectItem>
+                                        )}
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>

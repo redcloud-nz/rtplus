@@ -6,24 +6,23 @@
  */
 'use client'
 
-import { formatISO, parseISO } from 'date-fns'
 import React from 'react'
 
-import { CompetencyAssessmentStatus } from '@prisma/client'
+import { SkillCheckSessionStatus } from '@prisma/client'
 
 import { DatePicker } from '@/components/ui/date-picker'
 import { FieldControl, FieldDescription, FieldLabel, FieldMessage, Form, FormField } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Description } from '@/components/ui/typography'
-import { useAssessmentStore } from '../../assessment-store'
+import { useSkillCheckStore } from '../../skill-check-store'
 
 
 export default function AssessmentEdit() {
 
-    const assessment = useAssessmentStore(state => state.assessment)
-    const updateAssessment = useAssessmentStore(state => state.updateAssessment)
-    if(!assessment) return
+    const session = useSkillCheckStore(state => state.session)
+    const updateAssessment = useSkillCheckStore(state => state.updateSession)
+    if(!session) return
 
     return <>
         <Description>Define an assessment:</Description>
@@ -31,7 +30,7 @@ export default function AssessmentEdit() {
             <FormField name="date">
                 <FieldLabel>Date</FieldLabel>
                 <FieldControl>
-                    <DatePicker name="date" value={formatISO(assessment.date)} onChange={(newValue) => updateAssessment({ date: parseISO(newValue) })} />
+                    <DatePicker name="date" value={session.date} onChange={(newValue) => updateAssessment({ date: newValue})} />
                 </FieldControl>
                 <FieldDescription>The date the assessment is being carried out.</FieldDescription>
                 <FieldMessage/>
@@ -39,23 +38,23 @@ export default function AssessmentEdit() {
             <FormField name="name">
                 <FieldLabel>Name</FieldLabel>
                 <FieldControl>
-                    <Input name="name" value={assessment.name} onChange={(ev) => updateAssessment({ name: ev.target.value })}/>
+                    <Input name="name" value={session.name} onChange={(ev) => updateAssessment({ name: ev.target.value })}/>
                 </FieldControl>
                 <FieldDescription>The name of the assessment.</FieldDescription>
                 <FieldMessage/>
             </FormField>
-            <FormField name="location">
+            {/* <FormField name="location">
                 <FieldLabel>Location</FieldLabel>
                 <FieldControl>
-                    <Input name="location" value={assessment.location} onChange={(ev) => updateAssessment({ location: ev.target.value })}/>
+                    <Input name="location" value={session.location} onChange={(ev) => updateAssessment({ location: ev.target.value })}/>
                 </FieldControl>
                 <FieldDescription>The location where the assessment took place.</FieldDescription>
                 <FieldMessage/>
-            </FormField>
+            </FormField> */}
             <FormField name="status">
                 <FieldLabel>Status</FieldLabel>
                 <FieldControl>
-                    <Select name="status" value={assessment.status} onValueChange={(newValue) => updateAssessment({ status: newValue as CompetencyAssessmentStatus })}>
+                    <Select name="status" value={session.status} onValueChange={(newValue) => updateAssessment({ status: newValue as SkillCheckSessionStatus })}>
                         <SelectTrigger className="w-full sm:w-[180px]">
                             <SelectValue/>
                         </SelectTrigger>

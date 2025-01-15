@@ -14,20 +14,21 @@ import { auth } from '@clerk/nextjs/server'
 import { AppPage, PageControls, PageHeader, PageTitle } from '@/components/app-page'
 
 import prisma from '@/lib/prisma'
+import { withSerializedDates } from '@/lib/serialize'
 import * as Paths from '@/paths'
 
-import { AssessmentNavigaton, SavingIndicator } from './assessment-navigation'
-import { LoadStoreData } from '../assessment-store'
-import { withSerializedDates } from '@/lib/serialize'
+import { SkillCheckSessionNavigation, SavingIndicator } from './skill-check-session-navigation'
+import { LoadStoreData } from '../skill-check-store'
 
 
-export default async function AssessmentEditLayout(props: { children: React.ReactNode, params: Promise<{ assessmentId: string }>}) {
+
+export default async function SkillCheckSessionEditLayout(props: { children: React.ReactNode, params: Promise<{ sessionId: string }>}) {
     const { orgId, userId } = await auth.protect()
 
-    const { assessmentId } = await props.params
+    const { sessionId } = await props.params
     const { children } = props
 
-    const { skills, assessees, checks, ...assessment } = await prisma.competencyAssessment.findFirst({
+    const { skills, assessees, checks, ...assessment } = await prisma.skillCheckSession.findFirst({
         where: { 
             orgId, userId,
         },
@@ -42,11 +43,11 @@ export default async function AssessmentEditLayout(props: { children: React.Reac
         label="Assess"
         breadcrumbs={[
             { label: "Competencies", href: Paths.competencies.dashboard }, 
-            { label: "Assessments", href: Paths.competencies.assessmentList },
+            { label: "Sessions", href: Paths.competencies.sessionList },
         ]}
     >
         <LoadStoreData 
-            assessment={assessment} 
+            session={withSerializedDates(assessment)} 
             skillIds={skills.map(R.prop('id'))}
             assesseeIds={assessees.map(R.prop('id'))}
             checks={R.mapToObj(checks, c => [c.id, withSerializedDates(c)])}
@@ -57,7 +58,7 @@ export default async function AssessmentEditLayout(props: { children: React.Reac
                 <SavingIndicator/>
             </PageControls>
         </PageHeader>
-        <AssessmentNavigaton assessmentId={assessmentId}/>
+        <SkillCheckSessionNavigation sessionId={sessionId}/>
         {children}
     </AppPage>
 }

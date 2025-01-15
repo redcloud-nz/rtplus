@@ -14,14 +14,14 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { cn } from '@/lib/utils'
 import * as Paths from '@/paths'
 
-import { useAssessmentStore } from '../assessment-store'
+import { useSkillCheckStore } from '../skill-check-store'
 
 
-interface AssessmentNavigationProps {
-    assessmentId: string
+interface SkillCheckSessionNavigationProps {
+    sessionId: string
 }
 
-export function AssessmentNavigaton({ assessmentId }: AssessmentNavigationProps) {
+export function SkillCheckSessionNavigation({ sessionId }: SkillCheckSessionNavigationProps) {
     const pathname = usePathname()
     const router = useRouter()
 
@@ -29,14 +29,14 @@ export function AssessmentNavigaton({ assessmentId }: AssessmentNavigationProps)
     }
 
     function handleFinished() {
-        router.push(Paths.competencies.assessmentList)
+        router.push(Paths.competencies.sessionList)
     }
 
     const steps = [
-        { id: 'edit', label: "Basic", tooltip: "Define the assessment", href: Paths.competencies.assessment(assessmentId).edit },
-        { id: 'skills',label: "Skills", tooltip: "Select skills to assess", href: Paths.competencies.assessment(assessmentId).skills },
-        { id: 'personnel', label: "Personnel", tooltip: "Select personnel to assess", href: Paths.competencies.assessment(assessmentId).personnel },
-        { id: 'assess', label: "Assess", tooltip: "Record assessments", href: Paths.competencies.assessment(assessmentId).assess },
+        { id: 'edit', label: "Basic", tooltip: "Define the session", href: Paths.competencies.session(sessionId).edit },
+        { id: 'skills',label: "Skills", tooltip: "Select skills to assess", href: Paths.competencies.session(sessionId).skills },
+        { id: 'personnel', label: "Personnel", tooltip: "Select personnel to assess", href: Paths.competencies.session(sessionId).personnel },
+        { id: 'assess', label: "Assess", tooltip: "Record skill checks", href: Paths.competencies.session(sessionId).assess },
     ]
 
     return <nav className="">
@@ -99,14 +99,14 @@ export function AssessmentNavigaton({ assessmentId }: AssessmentNavigationProps)
 }
 
 export function SavingIndicator() {
-    const saveStatus = useAssessmentStore(state => state.saveStatus)
+    const status = useSkillCheckStore(state => state.status)
 
     return <>
-        {saveStatus == 'Saving' ? <div className="flex items-center gap-2">
+        {status == 'Saving' ? <div className="flex items-center gap-2">
             <Loader2Icon className="h-6 w-6 animate-spin" />
             <span className="hidden md:inline">Saving</span>
         </div> : null}
-        {saveStatus == 'Saved' ? <div className="flex items-center gap-2">
+        {status == 'Saved' ? <div className="flex items-center gap-2">
             <CheckIcon className="h-6 w-6" /> 
             <span className="hidden md:inline">Saved</span>
         </div> : null}

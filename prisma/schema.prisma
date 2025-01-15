@@ -8,23 +8,6 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
-model CompetencyAssessment {
-  id        String                     @id @default(uuid()) @db.Uuid
-  orgId     String                     @map("org_id") @db.VarChar(50)
-  userId    String                     @map("user_id") @db.VarChar(50)
-  name      String
-  location  String
-  date      DateTime
-  status    CompetencyAssessmentStatus @default(Draft)
-  createdAt DateTime                   @default(now()) @map("created_at")
-  updatedAt DateTime                   @updatedAt @map("updated_at")
-  assessees Person[]                   @relation("competency_assessment_to_assessee")
-  skills    Skill[]                    @relation("competency_assessment_to_skill")
-  checks    SkillCheck[]               @relation("skill_check_to_competency_assessment")            
-
-  @@map("competency_assessments")
-}
-
 model D4hAccessKey {
   id        String   @id @default(uuid()) @db.Uuid
   orgId     String   @map("org_id") @db.VarChar(50)
@@ -57,60 +40,77 @@ model HistoryEvent {
 }
 
 model Person {
-  id                    String                 @id @default(uuid()) @db.Uuid
-  orgId                 String                 @map("org_id") @db.VarChar(50)
-  userId                String?                @map("user_id") @db.VarChar(50)
-  ref                   String?                @db.VarChar(100)
-  name                  String
-  email                 String
-  createdAt             DateTime               @default(now()) @map("created_at")
-  updatedAt             DateTime               @updatedAt @map("updated_at")
-  status                RecordStatus           @default(Active)
-  skillChecksAsAssessee SkillCheck[]           @relation("skill_check_to_assessee")
-  skillChecksAsAssessor SkillCheck[]           @relation("skill_check_to_assessor")
-  memberships           TeamMembership[]       @relation("team_membership_to_person")
-  assessments           CompetencyAssessment[] @relation("competency_assessment_to_assessee")
+  id                           String              @id @default(uuid()) @db.Uuid
+  orgId                        String              @map("org_id") @db.VarChar(50)
+  userId                       String?             @map("user_id") @db.VarChar(50)
+  ref                          String?             @db.VarChar(100)
+  name                         String
+  email                        String
+  createdAt                    DateTime            @default(now()) @map("created_at")
+  updatedAt                    DateTime            @updatedAt @map("updated_at")
+  status                       RecordStatus        @default(Active)
+  skillChecksAsAssessee        SkillCheck[]        @relation("skill_check_to_assessee")
+  skillChecksAsAssessor        SkillCheck[]        @relation("skill_check_to_assessor")
+  memberships                  TeamMembership[]    @relation("team_membership_to_person")
+  skillCheckSessionsAsAssessee SkillCheckSession[] @relation("skill_check_session_to_assessee")
+  skillCheckSessionsAsAssessor SkillCheckSession[] @relation("skill_check_session_to_assessor")
 
   @@map("personnel")
 }
 
 model Skill {
-  id           String                 @id @default(uuid()) @db.Uuid
-  ref          String?                @db.VarChar(100)
-  packageId    String                 @map("package_id") @db.Uuid
-  skillGroupId String?                @map("skill_group_id") @db.Uuid
-  name         String
-  description  String
-  frequency    String
-  optional     Boolean
-  createdAt    DateTime               @default(now()) @map("created_at")
-  updatedAt    DateTime               @updatedAt @map("updated_at")
-  status       RecordStatus           @default(Active)
-  checks       SkillCheck[]           @relation("skill_check_to_skill")
-  package      SkillPackage           @relation("skill_to_skill_package", fields: [packageId], references: [id])
-  skillGroup   SkillGroup?            @relation("skill_to_skill_group", fields: [skillGroupId], references: [id])
-  assessments  CompetencyAssessment[] @relation("competency_assessment_to_skill")
+  id                 String              @id @default(uuid()) @db.Uuid
+  ref                String?             @db.VarChar(100)
+  packageId          String              @map("package_id") @db.Uuid
+  skillGroupId       String?             @map("skill_group_id") @db.Uuid
+  name               String
+  description        String
+  frequency          String
+  optional           Boolean
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
+  status             RecordStatus        @default(Active)
+  checks             SkillCheck[]        @relation("skill_check_to_skill")
+  package            SkillPackage        @relation("skill_to_skill_package", fields: [packageId], references: [id])
+  skillGroup         SkillGroup?         @relation("skill_to_skill_group", fields: [skillGroupId], references: [id])
+  skillCheckSessions SkillCheckSession[] @relation("skill_check_session_to_skill")
 
   @@map("skills")
 }
 
 model SkillCheck {
-  id           String   @id @default(uuid()) @db.Uuid
-  orgId        String   @map("org_id") @db.VarChar(50)
-  userId       String   @map("user_id") @db.VarChar(50)
-  assessmentId String   @map("assessment_id") @db.Uuid
-  skillId      String   @map("skill_id") @db.Uuid
-  assesseeId   String   @map("assessee_id") @db.Uuid
-  assessorId   String   @map("assessor_id") @db.Uuid
-  result       String
-  notes        String
-  timestamp    DateTime @default(now())
-  assessment   CompetencyAssessment @relation("skill_check_to_competency_assessment", fields: [assessmentId], references: [id])
-  assessee     Person   @relation("skill_check_to_assessee", fields: [assesseeId], references: [id])
-  assessor     Person   @relation("skill_check_to_assessor", fields: [assessorId], references: [id])
-  skill        Skill    @relation("skill_check_to_skill", fields: [skillId], references: [id])
+  id              String            @id @default(uuid()) @db.Uuid
+  orgId           String            @map("org_id") @db.VarChar(50)
+  userId          String            @map("user_id") @db.VarChar(50)
+  sessionId       String            @map("session_id") @db.Uuid
+  skillId         String            @map("skill_id") @db.Uuid
+  assesseeId      String            @map("assessee_id") @db.Uuid
+  assessorId      String            @map("assessor_id") @db.Uuid
+  competenceLevel CompetenceLevel   @map("competence_level")
+  notes           String
+  timestamp       DateTime          @default(now())
+  session         SkillCheckSession @relation("skill_check_to_skill_check_session", fields: [sessionId], references: [id])
+  assessee        Person            @relation("skill_check_to_assessee", fields: [assesseeId], references: [id])
+  assessor        Person            @relation("skill_check_to_assessor", fields: [assessorId], references: [id])
+  skill           Skill             @relation("skill_check_to_skill", fields: [skillId], references: [id])
 
   @@map("skill_checks")
+}
+
+model SkillCheckSession {
+  id         String                  @id @default(uuid()) @db.Uuid
+  orgId      String                  @map("org_id") @db.VarChar(50)
+  userId     String                  @map("user_id") @db.VarChar(50)
+  assessorId String                  @map("assessor_id") @db.Uuid
+  name       String
+  date       DateTime
+  status     SkillCheckSessionStatus @default(Draft)
+  createdAt  DateTime                @default(now()) @map("created_at")
+  updatedAt  DateTime                @updatedAt @map("updated_at")
+  assessor   Person                  @relation("skill_check_session_to_assessor", fields: [assessorId], references: [id])
+  assessees  Person[]                @relation("skill_check_session_to_assessee")
+  skills     Skill[]                 @relation("skill_check_session_to_skill")
+  checks     SkillCheck[]            @relation("skill_check_to_skill_check_session")
 }
 
 model SkillGroup {
@@ -179,22 +179,24 @@ model TeamMembership {
   @@map("team_memberships")
 }
 
+enum CompetenceLevel {
+    NotAssessed
+    NotTaught
+    NotCompetent
+    Competent
+    HighlyConfident
+}
+
 enum RecordStatus {
   Active
   Inactive
 }
 
-enum CompetencyAssessmentStatus {
-  Draft
-  Complete
-  Discard
-}
-
 enum HistoryEventObjectType {
-  CompetencyAssessment
   D4hAccessKey
   Person
   Skill
+  SkillCheckSession
   SkillGroup
   SkillPackage
   Team
@@ -207,6 +209,12 @@ enum HistoryEventType {
   Delete
   Import
   Update
+}
+
+enum SkillCheckSessionStatus {
+  Draft
+  Complete
+  Discard
 }
 
 enum TeamMemberStatus {

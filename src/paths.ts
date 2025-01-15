@@ -8,15 +8,15 @@
 //  \------------------------------/
 export const competencies = {
     dashboard: '/competencies',
-    assessmentList: '/competencies/assessments',
-    assessment: (aId: string) => ({
-        info: `/competencies/assessments/${aId}`,
-        edit: `/competencies/assessments/${aId}/edit`,
-        skills: `/competencies/assessments/${aId}/skills`,
-        personnel: `/competencies/assessments/${aId}/personnel`,
-        assess: `/competencies/assessments/${aId}/assess`,
+    sessionList: '/competencies/sessions',
+    session: (aId: string) => ({
+        info: `/competencies/sessions/${aId}`,
+        edit: `/competencies/sessions/${aId}/edit`,
+        skills: `/competencies/sessions/${aId}/skills`,
+        personnel: `/competencies/sessions/${aId}/personnel`,
+        assess: `/competencies/sessions/${aId}/assess`,
     } as const),
-    newAssessment: '/competencies/assessments/new-assessment',
+    newSession: '/competencies/sessions/new-session',
     reportsList: `/competencies/reports`,
     reports: {
         individual: `/competencies/reports/individual`,

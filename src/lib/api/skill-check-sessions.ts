@@ -5,11 +5,10 @@
 
 'use client'
 
-import { CompetencyAssessment } from '@prisma/client'
+import { SkillCheckSession } from '@prisma/client'
 
 
-
-export interface CompetencyAssessmentWithRelations extends CompetencyAssessment {
+export interface SkillCheckSessionWithRelations extends SkillCheckSession{
     assesseeIds: string[]
     skillIds: string[]
 }

@@ -20,12 +20,12 @@ import { Description } from '@/components/ui/typography'
 
 import { useTeamsWithMembersQuery } from '@/lib/api/teams'
 
-import { useAssessmentStore } from '../../assessment-store'
+import { useSkillCheckStore } from '../../skill-check-store'
 
 
 export default function AssessmentPersonnel() {
 
-    const [assesseeIds, addAssessee, removeAssessee] = useAssessmentStore(useShallow(state => [state.assesseeIds, state.addAssessee, state.removeAssessee]))
+    const [assesseeIds, addAssessee, removeAssessee] = useSkillCheckStore(useShallow(state => [state.assesseeIds, state.addAssessee, state.removeAssessee]))
     const teamsQuery = useTeamsWithMembersQuery()
     
 

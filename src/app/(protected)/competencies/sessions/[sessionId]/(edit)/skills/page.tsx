@@ -16,12 +16,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Description } from '@/components/ui/typography'
 
 import { SkillPackageWithGroupsAndSkills, useSkillPackagesQuery } from '@/lib/api/skills'
-import { useAssessmentStore } from '../../assessment-store'
+import { useSkillCheckStore } from '../../skill-check-store'
 
 
 export default function AssessmentSkills() {
 
-    const [skillIds, addSkill, removeSkill] = useAssessmentStore(useShallow(state => [state.skillIds, state.addSkill, state.removeSkill]))
+    const [skillIds, addSkill, removeSkill] = useSkillCheckStore(useShallow(state => [state.skillIds, state.addSkill, state.removeSkill]))
 
     const skillPackagesQuery = useSkillPackagesQuery()
 

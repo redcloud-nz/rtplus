@@ -3,11 +3,12 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
+import { BookOpenIcon, InfoIcon, ListChecksIcon, NotebookTextIcon, PocketKnifeIcon, Settings2Icon, UserCheckIcon, WalletCardsIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
-import { BookOpenIcon, InfoIcon, ListChecksIcon, NotebookTextIcon, PocketKnifeIcon, Settings2Icon, UserCheckIcon, WalletCardsIcon } from "lucide-react"
+import { Protect } from '@clerk/nextjs'
 
 import { NavCollapsible, NavItem, NavSection, NavSubItem } from '@/components/nav-section'
 import { NavUser } from '@/components/nav-user'
@@ -20,7 +21,7 @@ import {
     SidebarRail,
 } from '@/components/ui/sidebar'
 import * as Paths from '@/paths'
-import { Protect } from '@clerk/nextjs'
+
 
 
 export type AppSidebarProps = React.ComponentProps<typeof Sidebar>
@@ -46,7 +47,7 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
                     <NavItem label="Checklists" href="/checklists" icon={<ListChecksIcon/>}/>
                     <NavCollapsible label="Competencies" icon={<PocketKnifeIcon/>}>
                         <NavSubItem label="Dashboard" href={Paths.competencies.dashboard}/>
-                        <NavSubItem label="Assessments" href={Paths.competencies.assessmentList}/>
+                        <NavSubItem label="Assessments" href={Paths.competencies.sessionList}/>
                         <NavSubItem label="Reports" href={Paths.competencies.reportsList}/>
                     </NavCollapsible>
                 </Protect>

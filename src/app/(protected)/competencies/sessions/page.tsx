@@ -9,7 +9,7 @@ import { formatISO } from 'date-fns'
 import { SquarePenIcon } from 'lucide-react'
 import { redirect } from 'next/navigation'
 
-import { auth } from '@clerk/nextjs/server'
+import { auth, currentUser } from '@clerk/nextjs/server'
 
 import { AppPage, PageControls, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 import { Show } from '@/components/show'
@@ -26,11 +26,11 @@ import { FormState } from '@/lib/form-state'
 import { Form, FormSubmitButton } from '@/components/ui/form'
 
 
-export default async function AssessmentsListPage() {
+export default async function SkillCheckSessionListPage() {
 
     const { orgId, userId } = await auth.protect()
 
-    const assessments = await prisma.competencyAssessment.findMany({
+    const assessments = await prisma.skillCheckSession.findMany({
         where: { orgId, userId },
         include: {
             _count: {
@@ -40,14 +40,14 @@ export default async function AssessmentsListPage() {
     })
 
     return <AppPage 
-        label="Assessments" 
+        label="Sessions" 
         breadcrumbs={[{ label: "Competencies", href: Paths.competencies.dashboard }]}
     >
         <PageHeader>
             <PageTitle>Competency Assessments</PageTitle>
             <PageDescription>Your competency assessments (as assesor).</PageDescription>
             <PageControls>
-                <Form action={createAssessmentAction}>
+                <Form action={createSessionAction}>
                     <FormSubmitButton
                         label={<><SquarePenIcon/> New <span className="hidden md:inline">Assessment</span></>}
                         loading="Creating"
@@ -73,7 +73,7 @@ export default async function AssessmentsListPage() {
                 <TableBody>
                     {assessments.map((assessment, index) => 
                         <TableRow key={assessment.id}>
-                            <TableCell><Link href={Paths.competencies.assessment(assessment.id).edit}>{assessment.name || `#${index+1}`}</Link></TableCell>
+                            <TableCell><Link href={Paths.competencies.session(assessment.id).edit}>{assessment.name || `#${index+1}`}</Link></TableCell>
                             <TableCell>{formatISO(assessment.date, { representation: 'date' })}</TableCell>
                             <TableCell className="hidden md:table-cell text-center ">{assessment._count.skills}</TableCell>
                             <TableCell className="hidden md:table-cell text-center">{assessment._count.assessees}</TableCell>
@@ -87,15 +87,17 @@ export default async function AssessmentsListPage() {
     </AppPage>
 }
 
-async function createAssessmentAction(): Promise<FormState> {
+async function createSessionAction(): Promise<FormState> {
     'use server'
 
     const { userId, orgId } = await auth.protect()
+    const user = await currentUser()!
     assertNonNull(orgId, "An active organization is required to execute 'createAssessmentAction'")
+    assertNonNull(user)
 
     const year = new Date().getFullYear()
 
-    const assessments = await prisma.competencyAssessment.findMany({
+    const assessments = await prisma.skillCheckSession.findMany({
         select: { id: true, name: true },
         where: { orgId, userId, name: { startsWith: `${year} #`} },
     })
@@ -108,14 +110,14 @@ async function createAssessmentAction(): Promise<FormState> {
         }
     }
 
-    const createdAssessment = await prisma.competencyAssessment.create({
+    const createdAssessment = await prisma.skillCheckSession.create({
         data: {
             userId, orgId,
+            assessorId: user.publicMetadata.personId,
             date: new Date(),
             name: `${year} #${highestNum+1}`,
-            location: ''
         }
     })
 
-    redirect(Paths.competencies.assessment(createdAssessment.id).edit)
+    redirect(Paths.competencies.session(createdAssessment.id).edit)
 }

@@ -22,7 +22,7 @@ export default async function CompetenciesDashboard() {
         <div className="flex gap-2">
             <Link 
                 className="w-40 border rounded-md p-2 text-center font-semibold hover:bg-slate-100"
-                href={Paths.competencies.assessmentList}
+                href={Paths.competencies.sessionList}
             >Assessments</Link>
             <Link 
                 className="w-40 border rounded-md p-2 text-center font-semibold hover:bg-slate-100"

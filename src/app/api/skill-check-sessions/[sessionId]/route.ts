@@ -2,7 +2,7 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /api/competency-assessments/[assessmentId]
+ *  Path: /api/skill-check-sessions/[sessionId]
  */
 
 import { NextRequest } from 'next/server'
@@ -14,11 +14,11 @@ import prisma from '@/lib/prisma'
 
 
  
-export async function GET(request: NextRequest, props: { params: Promise<{ assessmentId: string }> }) {
+export async function GET(request: NextRequest, props: { params: Promise<{ sessionId: string }> }) {
     const { orgId, userId } = await auth.protect()
-    const { assessmentId } = await props.params
+    const { sessionId } = await props.params
 
-    const assessment = await prisma.competencyAssessment.findFirst({
+    const session = await prisma.skillCheckSession.findFirst({
         where: { 
             orgId, userId,
         },
@@ -29,6 +29,6 @@ export async function GET(request: NextRequest, props: { params: Promise<{ asses
         }
     })
 
-    if(assessment) return createObjectResponse(assessment)
-    else return createNotFoundResponse(`No such CompetencyAssessment(${assessmentId})`)
+    if(session) return createObjectResponse(session)
+    else return createNotFoundResponse(`No such SkillCheckSession(${sessionId})`)
 }
