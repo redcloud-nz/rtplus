@@ -22,7 +22,7 @@ export type AppPageContainerProps = {
 }
 
 export function AppPageContainer({ children }: AppPageContainerProps) {
-    return <div className="h-screen flex-1 grid grid-rows-[48px_1px_1fr] grid-cols-[48px_1fr_auto]">
+    return <div className="h-screen flex-1 grid grid-rows-[48px_1px_1fr_1px_48px] grid-cols-[48px_1fr_auto]">
         <div className="row-start-1 col-start-1 p-2.5">
             <SidebarTrigger/>
         </div>
@@ -32,12 +32,16 @@ export function AppPageContainer({ children }: AppPageContainerProps) {
 }
 
 const appPageVariants = tv({
-    base: 'row-start-3 col-span-full overflow-y-auto',
+    base: 'col-span-full overflow-y-auto',
     variants: {
         variant: {
             default: 'flex flex-1 flex-col gap-4 p-4',
             full: 'w-full flex items-stretch *:flex-1',
             centered: 'flex flex-col items-center justify-center'
+        },
+        hasFooter: {
+            true: 'row-start-3 row-end-3',
+            false: 'row-start-3 row-end-5'
         }
     },
     defaultVariants: {
@@ -50,9 +54,10 @@ export type PageBreadcrumbs = { label: string, href: string }[]
 export type AppPageProps = React.ComponentProps<"main"> & VariantProps<typeof appPageVariants> & {
     breadcrumbs?: PageBreadcrumbs
     label: string
+    footer?: React.ReactNode
 }
 
-export function AppPage({ breadcrumbs = [], children, className, label, variant = 'default', ...props }: AppPageProps) {
+export function AppPage({ breadcrumbs = [], children, className, label, footer, variant = 'default', ...props }: AppPageProps) {
     return <>
         <div className="row-start-1 flex items-center h-12 gap-2 pr-2">
             <Separator orientation="vertical" className="h-4"/>
@@ -79,9 +84,13 @@ export function AppPage({ breadcrumbs = [], children, className, label, variant 
                 }
             </Breadcrumb>
         </div>
-        <main className={cn(appPageVariants({ variant, className }))} {...props}>
+        <main className={cn(appPageVariants({ variant, hasFooter: !!footer, className }))} {...props}>
             {children}
         </main>
+        {footer && <>
+            <Separator className="row-start-4 col-span-full" orientation="horizontal"/>
+            <footer className="row-start-5 col-span-full bg-background">{footer}</footer>
+        </>}
     </>
 }
 

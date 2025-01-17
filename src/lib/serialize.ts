@@ -17,7 +17,7 @@ export function withSerializedDates<T>(input: T): WithSerializedDates<T> {
         [R.isDate, value => value.toISOString()],
         [R.isArray, R.map(withSerializedDates)],
         [R.isObjectType, R.mapValues(withSerializedDates)],
-        R.conditional.defaultCase(R.identity)
+        R.conditional.defaultCase(x => x)
     )(input) as WithSerializedDates<T>
 }
 

@@ -118,7 +118,11 @@ export default async function PersonPage(props: { params: Promise<{ personIdOrRe
                         <TableBody>
                             {person.memberships.map(membership =>
                                 <TableRow key={membership.id}>
-                                    <TableCell>{membership.team.ref || membership.team.name}</TableCell>
+                                    <TableCell>
+                                        <Link href={Paths.team(membership.team.ref || membership.team.id)}>
+                                            {membership.team.ref || membership.team.name}
+                                        </Link>
+                                    </TableCell>
                                 </TableRow>
                             )}
                         </TableBody>

@@ -117,7 +117,9 @@ export default async function TeamPage(props: { params: Promise<{ teamIdOrRef: s
                                 R.sortBy((member) => member.person.name),
                                 R.map(membership => 
                                     <TableRow key={membership.id}>
-                                        <TableCell>{membership.person.name}</TableCell>
+                                        <TableCell>
+                                            <Link href={Paths.person(membership.person.id)}>{membership.person.name}</Link>
+                                        </TableCell>
                                         <TableCell>{membership.position}</TableCell>
                                     </TableRow>
                                 )

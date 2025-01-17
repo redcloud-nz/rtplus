@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { BookOpenIcon, InfoIcon, ListChecksIcon, NotebookTextIcon, PocketKnifeIcon, Settings2Icon, UserCheckIcon, WalletCardsIcon } from 'lucide-react'
+import { BookOpenIcon, CombineIcon, InfoIcon, ListChecksIcon, NotebookTextIcon, PocketKnifeIcon, Settings2Icon, UserCheckIcon, WalletCardsIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
@@ -53,6 +53,12 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
                 </Protect>
                 <NavItem label="Field Operations Guide" href="/fog" icon={<NotebookTextIcon/>}/>
                 <NavItem label="Reference Card" href="/cards" icon={<WalletCardsIcon/>}/>
+                <NavCollapsible label="Unified" icon={<CombineIcon/>}>
+                    <NavItem label="Activites" href="/unified/activites"/>
+                    <NavItem label="Calendar" href="/unified/calendar"/>
+                    <NavItem label="Personnel" href="/unified/personnel"/>
+                </NavCollapsible>
+                
             </NavSection>
             <NavSection title="General">
                 <NavItem label="About" href="/about" icon={<InfoIcon/>}/>

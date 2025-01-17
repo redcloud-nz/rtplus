@@ -40,7 +40,7 @@ export default async function SkillCheckSessionListPage() {
     })
 
     return <AppPage 
-        label="Sessions" 
+        label="Assessment Sessions" 
         breadcrumbs={[{ label: "Competencies", href: Paths.competencies.dashboard }]}
     >
         <PageHeader>
@@ -110,13 +110,16 @@ async function createSessionAction(): Promise<FormState> {
         }
     }
 
+    const data = {
+        userId, orgId,
+        assessorId: user.publicMetadata.personId,
+        date: new Date(),
+        name: `${year} #${highestNum+1}`,
+    }
+    console.log(data)
+
     const createdAssessment = await prisma.skillCheckSession.create({
-        data: {
-            userId, orgId,
-            assessorId: user.publicMetadata.personId,
-            date: new Date(),
-            name: `${year} #${highestNum+1}`,
-        }
+        data
     })
 
     redirect(Paths.competencies.session(createdAssessment.id).edit)
