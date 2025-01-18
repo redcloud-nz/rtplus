@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /manage/skills/[skillIdOrRef]
+ *  Path: //skills/[skillIdOrRef]
  */
 
 import { AppPage, PageHeader, PageTitle } from '@/components/app-page'
@@ -33,7 +33,7 @@ export default async function SkillPage(props: { params: Promise<{ skillIdOrRef:
 
     return <AppPage
         label={skill.ref || skill.name}
-        breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Skills", href: Paths.skillsAll }]}
+        breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Skills", href: Paths.skillsList }]}
     >
         <PageHeader>
             <PageTitle objectType="Skill">{skill.name}</PageTitle>

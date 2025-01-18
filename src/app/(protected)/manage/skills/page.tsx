@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /manage/skills
+ *  Path: /competencies/skills
  */
 
 import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
@@ -25,7 +25,7 @@ export default async function SkillListPage() {
 
     return <AppPage
         label="Skills"
-        breadcrumbs={[{ label: "Manage", href: Paths.manage }]}
+        breadcrumbs={[{ label: "Competencies", href: Paths.competencies.dashboard }]}
     >
         <PageHeader>
             <PageTitle>Manage Skills</PageTitle>

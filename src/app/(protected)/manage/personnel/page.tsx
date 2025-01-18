@@ -20,6 +20,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 
 
 import prisma from '@/lib/prisma'
 import * as Paths from '@/paths'
+import { Protect } from '@clerk/nextjs'
 
 export const metadata: Metadata = { title: "Teams | RT+" }
 
@@ -30,18 +31,20 @@ export default async function PeopleListPage() {
     })
 
     return <AppPage
-        label="People" 
+        label="Personnel" 
         breadcrumbs={[{ label: "Manage", href: Paths.manage }]}
     >
         <PageHeader>
             <PageTitle>Manage People</PageTitle>
             <PageDescription>These are the people that available for use in RT+.</PageDescription>
             <PageControls>
-                <Button asChild>
-                    <Link href={Paths.newPerson}>
-                        <PlusIcon/> New Person
-                    </Link>
-                </Button>
+                <Protect role="org:admin">
+                    <Button asChild>
+                        <Link href={Paths.newPerson}>
+                            <PlusIcon/> New Person
+                        </Link>
+                    </Button>
+                </Protect>
             </PageControls>
         </PageHeader>
         <Show 

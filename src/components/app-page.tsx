@@ -7,7 +7,6 @@ import { tv, type VariantProps } from 'tailwind-variants'
 import Link from 'next/link'
 import React from 'react'
 
-
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
@@ -15,17 +14,20 @@ import { Heading } from '@/components/ui/typography'
 
 import { cn } from '@/lib/utils'
 
+import { HeaderControls } from './header-controls'
 
 
 export type AppPageContainerProps = {
     children: React.ReactNode
+    hasSidebar?: boolean
 }
 
-export function AppPageContainer({ children }: AppPageContainerProps) {
+export function AppPageContainer({ children, hasSidebar }: AppPageContainerProps) {
     return <div className="h-screen flex-1 grid grid-rows-[48px_1px_1fr_1px_48px] grid-cols-[48px_1fr_auto]">
-        <div className="row-start-1 col-start-1 p-2.5">
-            <SidebarTrigger/>
+        <div className="row-start-1 col-start-1 flex justify-center items-center pl-1">
+            { hasSidebar ? <SidebarTrigger/> : "RT+" }
         </div>
+        <HeaderControls className="row-start-1 col-start-3"/>
         <Separator className="row-start-2 col-span-full" orientation="horizontal"/>
         {children}
     </div>
@@ -59,7 +61,7 @@ export type AppPageProps = React.ComponentProps<"main"> & VariantProps<typeof ap
 
 export function AppPage({ breadcrumbs = [], children, className, label, footer, variant = 'default', ...props }: AppPageProps) {
     return <>
-        <div className="row-start-1 flex items-center h-12 gap-2 pr-2">
+        <div className="row-start-1 col-start-2 flex items-center h-12 gap-2 pr-2">
             <Separator orientation="vertical" className="h-4"/>
             <Breadcrumb className="px-2">
                 {breadcrumbs.length > 0

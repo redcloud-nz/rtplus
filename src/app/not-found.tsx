@@ -5,8 +5,11 @@
  *  Path: /
  */
 
+import { AppPageContainer } from '@/components/app-page'
 import { NotFound } from '@/components/errors'
 
 export default function NotFoundPage() {
-    return <NotFound/>
+    return <AppPageContainer>
+        <NotFound/>
+    </AppPageContainer>
 }

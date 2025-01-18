@@ -5,12 +5,16 @@
  *  Path: /manage/skill-packages/new
  */
 
+import { auth } from '@clerk/nextjs/server'
+
 import { NotImplemented } from '@/components/errors'
 import * as Paths from '@/paths'
 
 export default async function NewSkillPackagePage() {
+    auth.protect({ role: 'org:admin' })
+
     return <NotImplemented 
         label="Skill Package" 
-        breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Skill Packages", href: Paths.skillPackages }]}
+        breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Skill Packages", href: Paths.skillPackagesList }]}
     />
 }

@@ -5,21 +5,21 @@
 
 'use client'
 
-import { PanelLeft } from 'lucide-react'
+import { PanelLeftIcon } from 'lucide-react'
 import React from 'react'
 import { tv, type VariantProps} from 'tailwind-variants'
 
 import { Slot } from '@radix-ui/react-slot'
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
-import { Sheet, SheetContent } from '@/components/ui/sheet'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-
 import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
+
+import { Button } from './button'
+import { Input } from './input'
+import { Separator } from './separator'
+import { Sheet, SheetContent } from './sheet'
+import { Skeleton } from './skeleton'
+import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
 
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
@@ -208,20 +208,26 @@ export function Sidebar({ side = "left", variant = "sidebar", collapsible = "off
 export function SidebarTrigger({ className, onClick, ...props }: React.ComponentPropsWithRef<'button'>) {
     const { toggleSidebar } = useSidebar()
 
-    return <Button
-        data-sidebar="trigger"
-        variant="ghost"
-        size="icon"
-        className={cn("h-7 w-7", className)}
-        onClick={(event) => {
-            onClick?.(event)
-            toggleSidebar()
-        }}
-        {...props}
-    >
-    <PanelLeft />
-        <span className="sr-only">Toggle Sidebar</span>
-    </Button>
+    return <Tooltip>
+        <TooltipTrigger asChild>
+            <Button
+                data-sidebar="trigger"
+                variant="ghost"
+                size="icon"
+                onClick={(event) => {
+                    onClick?.(event)
+                    toggleSidebar()
+                }}
+                {...props}
+            >
+                <PanelLeftIcon />
+                <span className="sr-only">Toggle Sidebar</span>
+            </Button>
+        </TooltipTrigger>
+        <TooltipContent>Toggle Sidebar</TooltipContent>
+    </Tooltip>
+    
+    
 }
 
 

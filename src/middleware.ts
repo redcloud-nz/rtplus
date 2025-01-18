@@ -9,15 +9,9 @@ import { clerkMiddleware, ClerkMiddlewareAuth } from '@clerk/nextjs/server'
 
 const patterns: { pattern: URLPattern, handler: (auth: ClerkMiddlewareAuth, req: NextRequest, match: NonNullable<ReturnType<typeof URLPattern.prototype.exec>>) => Promise<Response | void> }[] = [
     {
-        pattern: new URLPattern({ pathname: '/(account|availability/checklists/competencies/unified)/(.*)' }),
+        pattern: new URLPattern({ pathname: '/(account|availability/checklists/competencies/manage/unified)/(.*)' }),
         handler: async (auth) => {
             await auth.protect()
-        }
-    },
-    {
-        pattern: new URLPattern({ pathname: '/(manage)/(.*)' }),
-        handler: async (auth) => {
-            await auth.protect({ role: 'org:admin' })
         }
     }
 ]

@@ -34,7 +34,7 @@ export default async function SkillGroupPage(props: { params: Promise<{ groupIdO
 
     return <AppPage
         label={skillGroup.ref || skillGroup.name} 
-        breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Skill Groups", href: Paths.skillGroupsAll }]}
+        breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Skill Groups", href: Paths.skillGroupsList }]}
     >
         <PageHeader>
             <PageTitle objectType="Skill Group">{skillGroup.name}</PageTitle>

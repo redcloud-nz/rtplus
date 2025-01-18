@@ -10,8 +10,6 @@ import localFont from 'next/font/local'
 
 import { ClerkProvider } from '@clerk/nextjs'
 
-import { AppPageContainer } from '@/components/app-page'
-import { AppSidebar } from "@/components/app-sidebar"
 import { FrontendProvider } from '@/components/frontend-provider'
 import { Toaster } from '@/components/ui/toaster'
 
@@ -38,10 +36,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <html lang="en">
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
                 <FrontendProvider>
-                    <AppSidebar/>
-                    <AppPageContainer>
-                        {children}
-                    </AppPageContainer>
+                    {children}
                     <Toaster/>
                 </FrontendProvider>
             </body>

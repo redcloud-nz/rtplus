@@ -3,33 +3,22 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { BookOpenIcon, CombineIcon, InfoIcon, ListChecksIcon, NotebookTextIcon, PocketKnifeIcon, Settings2Icon, UserCheckIcon, WalletCardsIcon } from 'lucide-react'
+import { BookOpenIcon, InfoIcon} from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
-import { Protect } from '@clerk/nextjs'
 
-import { NavCollapsible, NavItem, NavSection, NavSubItem } from '@/components/nav-section'
-import { NavUser } from '@/components/nav-user'
+import { NavItem, NavSection } from '@/components/nav-section'
 
-import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarHeader,
-    SidebarRail,
-} from '@/components/ui/sidebar'
-import * as Paths from '@/paths'
-
-
+import { Sidebar, SidebarContent, SidebarHeader, SidebarRail } from '@/components/ui/sidebar'
 
 export type AppSidebarProps = React.ComponentProps<typeof Sidebar>
 
-export function AppSidebar({ ...props }: AppSidebarProps) {
+export function AppSidebar({ children, ...props }: AppSidebarProps) {
     return <Sidebar collapsible="icon" {...props}>
         <SidebarHeader className="mt-2">
-            <Link href="/dashboard">
+            <Link href="/">
                 <Image
                     className="dark:invert"
                     src="/logo.svg"
@@ -41,46 +30,13 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
             </Link>
         </SidebarHeader>
         <SidebarContent>
-            <NavSection title="Tools">
-                <Protect>
-                    <NavItem label="Availability" href="/availability" icon={<UserCheckIcon/>}/>
-                    <NavItem label="Checklists" href="/checklists" icon={<ListChecksIcon/>}/>
-                    <NavCollapsible label="Competencies" icon={<PocketKnifeIcon/>}>
-                        <NavSubItem label="Dashboard" href={Paths.competencies.dashboard}/>
-                        <NavSubItem label="Assessments" href={Paths.competencies.sessionList}/>
-                        <NavSubItem label="Reports" href={Paths.competencies.reportsList}/>
-                    </NavCollapsible>
-                </Protect>
-                <NavItem label="Field Operations Guide" href="/fog" icon={<NotebookTextIcon/>}/>
-                <NavItem label="Reference Card" href="/cards" icon={<WalletCardsIcon/>}/>
-                <NavCollapsible label="Unified" icon={<CombineIcon/>}>
-                    <NavItem label="Activites" href="/unified/activites"/>
-                    <NavItem label="Calendar" href="/unified/calendar"/>
-                    <NavItem label="Personnel" href="/unified/personnel"/>
-                </NavCollapsible>
-                
-            </NavSection>
+            {children}
             <NavSection title="General">
                 <NavItem label="About" href="/about" icon={<InfoIcon/>}/>
                 <NavItem label="Documentation" href="/documentation" icon={<BookOpenIcon/>}/>
-                <Protect role='org:admin'>
-                    <NavCollapsible label="Configuration" icon={<Settings2Icon/>}>
-                       
-                        <NavSubItem label="General" href="/settings"/>
-                        <NavSubItem label="Imports" href={Paths.imports.list}/>
-                        <NavSubItem label="Personnel" href={Paths.personnel}/>
-                        <NavSubItem label="Skills" href={Paths.skillsAll}/>
-                        <NavSubItem label="Skill Groups" href={Paths.skillGroupsAll}/>
-                        <NavSubItem label="Skill Packages" href={Paths.skillPackages}/>
-                        <NavSubItem label="Teams" href={Paths.teams}/>
-                    </NavCollapsible>
-                </Protect>
                 <NavItem label="Source Code" href="https://github.com/redcloud-nz/rtplus" icon={<Image aria-hidden src="/github.svg" alt="Githib Icon" width={16} height={16}/>}/>
             </NavSection>
         </SidebarContent>
-        <SidebarFooter>
-            <NavUser user={{ name: "Alex Westphal", email: "alexwestphal.nz@gmail.com", avatar: "" }}/>
-        </SidebarFooter>
         <SidebarRail />
     </Sidebar>
 }

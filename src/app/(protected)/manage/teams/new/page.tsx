@@ -43,6 +43,7 @@ const CreateTeamFormSchema = z.object({
 export const metadata: Metadata = { title: "New Team | RT+" }
 
 export default function NewTeamPage() {
+    auth.protect({ role: 'org:admin' })
 
     return <AppPage
         label="New Team"
