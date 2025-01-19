@@ -25,7 +25,6 @@ import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
 import prisma from '@/lib/prisma'
 import { EventBuilder } from '@/lib/history'
 import { createUUID } from '@/lib/id'
-import { assertNonNull } from '@/lib/utils'
 import * as Paths from '@/paths'
 
 
@@ -43,7 +42,7 @@ const CreateTeamFormSchema = z.object({
 export const metadata: Metadata = { title: "New Team | RT+" }
 
 export default function NewTeamPage() {
-    auth.protect({ role: 'org:admin' })
+    auth.protect()
 
     return <AppPage
         label="New Team"
@@ -117,10 +116,9 @@ export default function NewTeamPage() {
 async function createTeamAction(formState: FormState, formData: FormData) {
     'use server'
 
-    const { userId, orgId } = await auth.protect({ role: 'org:admin' })
-    assertNonNull(orgId, "An active organization is required to execute 'createTeamAction'")
+    const { userId } = await auth.protect()
 
-    const eventBuilder = EventBuilder.create(orgId, userId)
+    const eventBuilder = EventBuilder.create(userId)
 
     let teamIdOrCode: string
     try {
@@ -148,7 +146,6 @@ async function createTeamAction(formState: FormState, formData: FormData) {
             prisma.team.create({
                 data: {
                     id: teamId,
-                    orgId,
                     name: fields.name, 
                     ref,
                     color: fields.color,

@@ -8,7 +8,7 @@
 import { useShallow } from 'zustand/react/shallow'
 
 import { AsyncButton} from '@/components/ui/button'
-import { useSkillCheckStore } from '../skill-check-store'
+import { useSkillCheckStore } from './skill-check-store'
 
 
 

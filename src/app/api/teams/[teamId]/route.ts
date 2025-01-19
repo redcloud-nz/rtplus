@@ -17,11 +17,11 @@ import type { TeamWithMembers } from '@/lib/api/teams'
 export async function GET(request: NextRequest, props: { params: Promise<{ teamId: string }> }) {
     const { teamId } = await props.params
 
-    const { orgId } = await auth.protect()
+    await auth.protect()
 
     const team: TeamWithMembers | null = await prisma.team.findFirst({
         include: {
-            memberships: {
+            d4hTeamMemberships: {
                 include: {
                     person: true
                 }
@@ -29,7 +29,6 @@ export async function GET(request: NextRequest, props: { params: Promise<{ teamI
         },
         where: {
             id: teamId,
-            orgId
         }
     })
 

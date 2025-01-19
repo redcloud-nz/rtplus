@@ -8,7 +8,7 @@
 
 import '@/lib/serialize'
 
-import { Person, Team, TeamMembership } from '@prisma/client'
+import { Person, Team, D4hTeamMembership } from '@prisma/client'
 import { useQuery, UseQueryResult } from '@tanstack/react-query'
 
 import type { WithSerializedDates } from '@/lib/serialize'
@@ -16,7 +16,7 @@ import type { WithSerializedDates } from '@/lib/serialize'
 
 import { ListResponse, ObjectResponse } from './common'
 
-export type TeamWithMembers = Team & { memberships: (TeamMembership & { person: Person })[]}
+export type TeamWithMembers = Team & { d4hTeamMemberships: (D4hTeamMembership & { person: Person })[]}
 
 export async function fetchTeam(teamId: string): Promise<WithSerializedDates<TeamWithMembers>> {
     const response = await fetch(`/api/teams/${teamId}`)

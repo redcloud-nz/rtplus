@@ -27,13 +27,12 @@ export const metadata: Metadata = { title: "Teams | RT+" }
 
 export default async function TeamsPage() {
 
-    const { orgId } = await auth.protect()
+    await auth.protect()
 
     const teams = await prisma.team.findMany({
-        where: { orgId },
         include: {
             _count: {
-                select: { memberships: true }
+                select: { d4hTeamMemberships: true }
             }
         }
     })
@@ -76,7 +75,7 @@ export default async function TeamsPage() {
                             </TableCell>
                             <TableCell>{team.ref}</TableCell>
                             <TableCell className='text-center'>{team.color}</TableCell>
-                            <TableCell className='text-center'>{team._count.memberships}</TableCell>
+                            <TableCell className='text-center'>{team._count.d4hTeamMemberships}</TableCell>
                         </TableRow>
                     )}
                 </TableBody>

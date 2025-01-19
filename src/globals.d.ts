@@ -5,6 +5,8 @@
 
 import '@tanstack/react-table'
 
+import { PermissionSet } from './lib/permissions'
+
 declare module '@tanstack/react-table' {
     // eslint-disable-next-line
     interface ColumnMeta<TData extends RowData, TValue> {
@@ -20,9 +22,10 @@ import '@clerk/nextjs'
 declare global {
     interface UserPublicMetadata {
         personId: string
+        permissions: PermissionSet
     }
-
-    interface ClerkAuthorization {
-        role: 'org:admin' | 'org:member'
+    interface CustomJwtSessionClaims {
+        personId: string
+        permissions: PermissionSet
     }
 }

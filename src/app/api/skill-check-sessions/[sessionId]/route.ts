@@ -15,13 +15,11 @@ import prisma from '@/lib/prisma'
 
  
 export async function GET(request: NextRequest, props: { params: Promise<{ sessionId: string }> }) {
-    const { orgId, userId } = await auth.protect()
+    const { userId } = await auth.protect()
     const { sessionId } = await props.params
 
     const session = await prisma.skillCheckSession.findFirst({
-        where: { 
-            orgId, userId,
-        },
+        where: { userId },
         include: {
             skills: { select: { id: true } },
             assessees: { select: { id: true } }

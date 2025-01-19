@@ -70,7 +70,7 @@ export default function ImportPersonnelPage() {
         for(const d4hMember of d4hMembers) {
             const d4hStatus = toTeamMembershipStatus(d4hMember.status)
 
-            const savedMember = storedTeam.memberships.find(member => member.d4hMemberId == d4hMember.id)
+            const savedMember = storedTeam.d4hTeamMemberships.find(member => member.d4hMemberId == d4hMember.id)
 
             if(savedMember) {
                 // Already exists, check if updates are required

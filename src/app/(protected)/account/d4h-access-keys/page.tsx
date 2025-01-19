@@ -31,7 +31,7 @@ export const metadata: Metadata = { title: "Personal D4H Access Keys | RT+" }
 
 export default async function D4hAccessKeysPage() {
     
-    const { userId, orgId } = await auth.protect()
+    const { userId } = await auth.protect()
    
     const accessKeys = await prisma.d4hAccessKey.findMany({
         include: {
@@ -41,13 +41,11 @@ export default async function D4hAccessKeysPage() {
                 }
             }
         },
-        where: { userId, orgId },
+        where: { userId },
         orderBy: { team: { name: 'asc' } }
     })
 
-    const teams = await prisma.team.findMany({
-        where: { orgId }
-    })
+    const teams = await prisma.team.findMany()
 
     return <AppPage 
         label="D4H Access Keys" 

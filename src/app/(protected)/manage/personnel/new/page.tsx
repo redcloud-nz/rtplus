@@ -24,7 +24,6 @@ import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
 import { EventBuilder } from '@/lib/history'
 import { createUUID } from '@/lib/id'
 import prisma from '@/lib/prisma'
-import { assertNonNull } from '@/lib/utils'
 import * as Paths from '@/paths'
 
 
@@ -75,8 +74,7 @@ export default async function NewPersonPage() {
 async function createPersonAction(formState: FormState, formData: FormData) {
     'use server'
 
-    const { userId, orgId } = await auth.protect({ role: 'org:admin' })
-    assertNonNull(orgId, "An active organization is required to execute 'createPersonAction'")
+    const { userId } = await auth.protect()
 
     let personId: string
     try {
@@ -90,12 +88,12 @@ async function createPersonAction(formState: FormState, formData: FormData) {
             return fieldError('email', `Person email '${fields.email}' is already used by person '${emailConflict.name}'`)
         }
 
-        const eventBuilder = EventBuilder.create(orgId, userId)
+        const eventBuilder = EventBuilder.create(userId)
         personId = createUUID()
         
         await prisma.$transaction([
             prisma.person.create({
-                data: { id: personId, orgId, name: fields.name, email: fields.email }
+                data: { id: personId, name: fields.name, email: fields.email }
             }),
             prisma.historyEvent.create({ 
                 data: eventBuilder.buildEvent('Create', 'Person', personId) 

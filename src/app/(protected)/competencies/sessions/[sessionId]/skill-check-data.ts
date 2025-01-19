@@ -8,8 +8,8 @@ import type { SkillCheck, SkillCheckSession } from '@prisma/client'
 import type { WithSerializedDates } from '@/lib/serialize'
 
 
-export type SkillCheck_Client = WithSerializedDates<Omit<SkillCheck, 'orgId' | 'userId' | 'sessionId' | 'assessorId'>>
-export type SkillCheckSession_Client = WithSerializedDates<Omit<SkillCheckSession, 'orgId' | 'userId' | 'createdAt' | 'updatedAt'>>
+export type SkillCheck_Client = WithSerializedDates<Omit<SkillCheck, 'userId' | 'sessionId' | 'assessorId'>>
+export type SkillCheckSession_Client = WithSerializedDates<Omit<SkillCheckSession, 'userId' | 'createdAt' | 'updatedAt'>>
 
 export type SkillCheckDiff = 
     { type: 'UPDATE_SESSION', session: SkillCheckSession_Client } | 

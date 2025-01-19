@@ -19,17 +19,16 @@ type CreateArgs =  { accessKey: string, teamId: string, d4hTeamId: number }
  */
 export async function createAccessKey({ accessKey, teamId, d4hTeamId }: CreateArgs) {
 
-    const { userId, orgId } = await auth.protect()
-    assertNonNull(orgId, "An active organization is required to execute 'createAccessKey")
+    const { userId } = await auth.protect()
 
     const team = await prisma.team.findFirst({
-        where: { id: teamId, orgId  }
+        where: { id: teamId }
     })
     assertNonNull(team, `Missing team record for teamId=${teamId}`)
 
     // Create the Access Key
     await prisma.d4hAccessKey.create({
-        data: { orgId, userId, key: accessKey, teamId, enabled: true }
+        data: { userId, key: accessKey, teamId, enabled: true }
     })
 
     if(team.d4hTeamId == 0) {

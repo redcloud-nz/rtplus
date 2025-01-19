@@ -6,15 +6,14 @@
 
 import { auth } from '@clerk/nextjs/server'
 
-import { SkillCheckDiff } from './skill-check-data'
 import prisma from '@/lib/prisma'
 
-export async function saveSessionAction(sessionId: string, diffs: SkillCheckDiff[]) {
+export async function saveSessionAction(sessionId: string) {
    
-    const { userId, orgId } = await auth.protect()
+    const { userId } = await auth.protect()
 
     const existingSession = await prisma.skillCheckSession.findFirst({ 
-        where: { orgId, userId, id: sessionId },
+        where: { userId, id: sessionId },
         include: { 
             checks: true, 
             assessees: true, 

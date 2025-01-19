@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024 Redcloud Development, Ltd.
+ *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
@@ -20,12 +20,10 @@ interface CreateEventArgs {
  */
 export class EventBuilder {
 
-    readonly orgId: string
     readonly userId: string | null
     readonly parentId: string | null
 
-    private constructor(orgId: string, userId: string | null, parentId: string | null) {
-        this.orgId = orgId
+    private constructor(userId: string | null, parentId: string | null) {
         this.userId = userId
         this.parentId = parentId
     }
@@ -33,22 +31,22 @@ export class EventBuilder {
     /**
      * Create a new EventBuilder instance.
      */
-    static create(orgId: string, userId: string | null): EventBuilder {
-        return new EventBuilder(orgId, userId, null)
+    static create(userId: string | null): EventBuilder {
+        return new EventBuilder(userId, null)
     }
 
     /**
      * Create a new EventBuilder instance with a parent event.
      */
-    static createGrouped(orgId: string, userId: string | null): EventBuilder {
-       return new EventBuilder(orgId, userId, createUUID())
+    static createGrouped(userId: string | null): EventBuilder {
+       return new EventBuilder(userId, createUUID())
     }
 
     buildRootEvent(eventType: HistoryEventType, objectType: HistoryEventObjectType, objectId: string, { description = "", meta = {} }: CreateEventArgs = {}): HistoryEventData {
-        return { id: this.parentId!, orgId: this.orgId, userId: this.userId, parentId: null, eventType, objectType, objectId, description, meta }
+        return { id: this.parentId!, userId: this.userId, parentId: null, eventType, objectType, objectId, description, meta }
     }
 
     buildEvent(eventType: HistoryEventType, objectType: HistoryEventObjectType, objectId: string, { description = "", meta = {} }: CreateEventArgs = {}): HistoryEventData {
-        return { id: createUUID(), orgId: this.orgId, userId: this.userId, parentId: this.parentId, eventType, objectType, objectId, description, meta }
+        return { id: createUUID(), userId: this.userId, parentId: this.parentId, eventType, objectType, objectId, description, meta }
     }
 }

@@ -12,7 +12,6 @@ import { getGroupsInPackage, getSkillsInPackage, PackageList, SkillPackageDef } 
 import prisma from '@/lib/prisma'
 import { ChangeCountsByType, createChangeCounts as createChangeCounts, mergeChangeCounts } from '@/lib/change-counts'
 import { EventBuilder } from '@/lib/history'
-import { assertNonNull } from '@/lib/utils'
 
 
 export interface ImportPackageActionResult {
@@ -27,8 +26,7 @@ export interface ImportPackageActionResult {
  */
 export async function importPackagesAction(packageIds: string[]): Promise<ImportPackageActionResult> {
 
-    const { userId, orgId } = await auth.protect({ role: 'org:admin' })
-    assertNonNull(orgId, "An active organization is required to execute 'importPackageAction'")
+    const { userId } = await auth.protect({ role: 'org:admin' })
 
     const startTime = Date.now()
     const changeCounts = createChangeCounts(['packages', 'skillGroups', 'skills'])
@@ -37,7 +35,7 @@ export async function importPackagesAction(packageIds: string[]): Promise<Import
 
     // Packages that could need updating
     for(const skillPackage of packagesToImport) {
-        const eventBuilder = EventBuilder.createGrouped(orgId, userId)
+        const eventBuilder = EventBuilder.createGrouped(userId)
 
         const packageChangeCounts = await importPackage(skillPackage, eventBuilder)
         mergeChangeCounts(changeCounts, packageChangeCounts)

@@ -10,7 +10,6 @@ datasource db {
 
 model D4hAccessKey {
   id        String   @id @default(uuid()) @db.Uuid
-  orgId     String   @map("org_id") @db.VarChar(50)
   userId    String?  @map("user_id") @db.VarChar(50)
   key       String
   enabled   Boolean
@@ -22,9 +21,25 @@ model D4hAccessKey {
   @@map("d4h_access_keys")
 }
 
+model D4hTeamMembership {
+  id          String           @id @default(uuid()) @db.Uuid
+  position    String
+  d4hStatus   TeamMemberStatus @map("d4h_status")
+  d4hMemberId Int              @map("d4h_member_id")
+  d4hRef      String           @map("d4h_ref")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+  status      RecordStatus     @default(Active)
+  personId    String           @map("person_id") @db.Uuid
+  teamId      String           @map("team_id") @db.Uuid
+  person      Person           @relation("d4h_team_membership_to_person", fields: [personId], references: [id])
+  team        Team             @relation("d4h_team_membership_to_team", fields: [teamId], references: [id])
+
+  @@map("d4h_team_memberships")
+}
+
 model HistoryEvent {
   id          String                 @id @default(uuid()) @db.Uuid
-  orgId       String                 @map("org_id") @db.VarChar(50)
   userId      String?                @map("user_id") @db.VarChar(50)
   description String
   eventType   HistoryEventType       @map("event_type")
@@ -41,7 +56,6 @@ model HistoryEvent {
 
 model Person {
   id                           String              @id @default(uuid()) @db.Uuid
-  orgId                        String              @map("org_id") @db.VarChar(50)
   userId                       String?             @map("user_id") @db.VarChar(50)
   ref                          String?             @db.VarChar(100)
   name                         String
@@ -51,7 +65,7 @@ model Person {
   status                       RecordStatus        @default(Active)
   skillChecksAsAssessee        SkillCheck[]        @relation("skill_check_to_assessee")
   skillChecksAsAssessor        SkillCheck[]        @relation("skill_check_to_assessor")
-  memberships                  TeamMembership[]    @relation("team_membership_to_person")
+  d4hTeamMemberships           D4hTeamMembership[] @relation("d4h_team_membership_to_person")
   skillCheckSessionsAsAssessee SkillCheckSession[] @relation("skill_check_session_to_assessee")
   skillCheckSessionsAsAssessor SkillCheckSession[] @relation("skill_check_session_to_assessor")
 
@@ -80,7 +94,6 @@ model Skill {
 
 model SkillCheck {
   id              String            @id @default(uuid()) @db.Uuid
-  orgId           String            @map("org_id") @db.VarChar(50)
   userId          String            @map("user_id") @db.VarChar(50)
   sessionId       String            @map("session_id") @db.Uuid
   skillId         String            @map("skill_id") @db.Uuid
@@ -99,7 +112,6 @@ model SkillCheck {
 
 model SkillCheckSession {
   id         String                  @id @default(uuid()) @db.Uuid
-  orgId      String                  @map("org_id") @db.VarChar(50)
   userId     String                  @map("user_id") @db.VarChar(50)
   assessorId String                  @map("assessor_id") @db.Uuid
   name       String
@@ -144,39 +156,20 @@ model SkillPackage {
 }
 
 model Team {
-  id            String           @id @default(cuid()) @db.Uuid
-  orgId         String           @map("org_id") @db.VarChar(50)
-  ref           String?          @db.VarChar(100)
-  name          String
-  color         String           @db.VarChar(10)
-  createdAt     DateTime         @default(now()) @map("created_at")
-  updatedAt     DateTime         @updatedAt @map("updated_at")
-  status        RecordStatus     @default(Active)
-  d4hTeamId     Int              @map("d4h_team_id")
-  d4hApiUrl     String           @map("d4h_api_url")
-  d4hWebUrl     String           @map("d4h_web_url")
-  d4hAccessKeys D4hAccessKey[]   @relation("access_key_to_team")
-  memberships   TeamMembership[] @relation("team_membership_to_team")
+  id                 String              @id @default(cuid()) @db.Uuid
+  ref                String?             @db.VarChar(100)
+  name               String
+  color              String              @db.VarChar(10)
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
+  status             RecordStatus        @default(Active)
+  d4hTeamId          Int                 @map("d4h_team_id")
+  d4hApiUrl          String              @map("d4h_api_url")
+  d4hWebUrl          String              @map("d4h_web_url")
+  d4hAccessKeys      D4hAccessKey[]      @relation("access_key_to_team")
+  d4hTeamMemberships D4hTeamMembership[] @relation("d4h_team_membership_to_team")
 
   @@map("teams")
-}
-
-model TeamMembership {
-  id          String           @id @default(uuid()) @db.Uuid
-  orgId       String           @map("org_id") @db.VarChar(50)
-  position    String
-  d4hStatus   TeamMemberStatus @map("d4h_status")
-  d4hMemberId Int              @map("d4h_member_id")
-  d4hRef      String           @map("d4h_ref")
-  createdAt   DateTime         @default(now()) @map("created_at")
-  updatedAt   DateTime         @updatedAt @map("updated_at")
-  status      RecordStatus     @default(Active)
-  personId    String           @map("person_id") @db.Uuid
-  teamId      String           @map("team_id") @db.Uuid
-  person      Person           @relation("team_membership_to_person", fields: [personId], references: [id])
-  team        Team             @relation("team_membership_to_team", fields: [teamId], references: [id])
-
-  @@map("team_memberships")
 }
 
 enum CompetenceLevel {

@@ -28,10 +28,10 @@ import { Form, FormSubmitButton } from '@/components/ui/form'
 
 export default async function SkillCheckSessionListPage() {
 
-    const { orgId, userId } = await auth.protect()
+    const { userId } = await auth.protect()
 
     const assessments = await prisma.skillCheckSession.findMany({
-        where: { orgId, userId },
+        where: { userId },
         include: {
             _count: {
                 select: { skills: true, assessees: true, checks: true }
@@ -73,7 +73,7 @@ export default async function SkillCheckSessionListPage() {
                 <TableBody>
                     {assessments.map((assessment, index) => 
                         <TableRow key={assessment.id}>
-                            <TableCell><Link href={Paths.competencies.session(assessment.id).edit}>{assessment.name || `#${index+1}`}</Link></TableCell>
+                            <TableCell><Link href={Paths.competencies.session(assessment.id)}>{assessment.name || `#${index+1}`}</Link></TableCell>
                             <TableCell>{formatISO(assessment.date, { representation: 'date' })}</TableCell>
                             <TableCell className="hidden md:table-cell text-center ">{assessment._count.skills}</TableCell>
                             <TableCell className="hidden md:table-cell text-center">{assessment._count.assessees}</TableCell>
@@ -90,16 +90,15 @@ export default async function SkillCheckSessionListPage() {
 async function createSessionAction(): Promise<FormState> {
     'use server'
 
-    const { userId, orgId } = await auth.protect()
+    const { userId } = await auth.protect()
     const user = await currentUser()!
-    assertNonNull(orgId, "An active organization is required to execute 'createAssessmentAction'")
     assertNonNull(user)
 
     const year = new Date().getFullYear()
 
     const assessments = await prisma.skillCheckSession.findMany({
         select: { id: true, name: true },
-        where: { orgId, userId, name: { startsWith: `${year} #`} },
+        where: { userId, name: { startsWith: `${year} #`} },
     })
 
     let highestNum = 0
@@ -111,16 +110,16 @@ async function createSessionAction(): Promise<FormState> {
     }
 
     const data = {
-        userId, orgId,
+        userId,
         assessorId: user.publicMetadata.personId,
         date: new Date(),
         name: `${year} #${highestNum+1}`,
     }
     console.log(data)
 
-    const createdAssessment = await prisma.skillCheckSession.create({
+    const createdSession = await prisma.skillCheckSession.create({
         data
     })
 
-    redirect(Paths.competencies.session(createdAssessment.id).edit)
+    redirect(Paths.competencies.session(createdSession.id))
 }

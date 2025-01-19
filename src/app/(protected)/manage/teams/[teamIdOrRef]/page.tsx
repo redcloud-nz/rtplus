@@ -26,16 +26,15 @@ import { createWhereClause } from '@/lib/id'
 export default async function TeamPage(props: { params: Promise<{ teamIdOrRef: string }>}) {
     const params = await props.params;
 
-    const { orgId } = await auth.protect()
+    await auth.protect()
 
     // Get the team and all team members
     const team = await prisma.team.findFirst({
         where: {
-            orgId,
             ...createWhereClause(params.teamIdOrRef)
         },
         include: {
-            memberships: {
+            d4hTeamMemberships: {
                 include: {
                     person: true
                 }
@@ -113,7 +112,7 @@ export default async function TeamPage(props: { params: Promise<{ teamIdOrRef: s
                         </TableHead>
                         <TableBody>
                             {R.pipe(
-                                team.memberships,
+                                team.d4hTeamMemberships,
                                 R.sortBy((member) => member.person.name),
                                 R.map(membership => 
                                     <TableRow key={membership.id}>

@@ -8,37 +8,36 @@
 
 import React from 'react'
 
-import { SkillCheckSessionStatus } from '@prisma/client'
+import { type SkillCheckSessionStatus } from '@prisma/client'
 
 import { DatePicker } from '@/components/ui/date-picker'
 import { FieldControl, FieldDescription, FieldLabel, FieldMessage, Form, FormField } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Description } from '@/components/ui/typography'
-import { useSkillCheckStore } from '../../skill-check-store'
+
+import { useSkillCheckStore } from './skill-check-store'
 
 
-export default function AssessmentEdit() {
+export function InfoTabContent() {
 
     const session = useSkillCheckStore(state => state.session)
     const updateAssessment = useSkillCheckStore(state => state.updateSession)
     if(!session) return
 
     return <>
-        <Description>Define an assessment:</Description>
         <Form>
             <FormField name="name">
-                <FieldLabel>Name</FieldLabel>
+                <FieldLabel>Session Name</FieldLabel>
                 <FieldControl>
-                    <Input name="name" value={session.name} onChange={(ev) => updateAssessment({ name: ev.target.value })}/>
+                    <Input name="name" value={session.name} onChange={(ev) => updateAssessment({ ...session, name: ev.target.value })}/>
                 </FieldControl>
                 <FieldDescription>The name of the assessment.</FieldDescription>
                 <FieldMessage/>
             </FormField>
             <FormField name="date">
-                <FieldLabel>Date</FieldLabel>
+                <FieldLabel>Session Date</FieldLabel>
                 <FieldControl>
-                    <DatePicker name="date" value={session.date} onChange={(newValue) => updateAssessment({ date: newValue})} />
+                    <DatePicker name="date" value={session.date} onChange={(newValue) => updateAssessment({ ...session, date: newValue})} />
                 </FieldControl>
                 <FieldDescription>The date the assessment is being carried out.</FieldDescription>
                 <FieldMessage/>
@@ -46,7 +45,7 @@ export default function AssessmentEdit() {
             <FormField name="status">
                 <FieldLabel>Status</FieldLabel>
                 <FieldControl>
-                    <Select name="status" value={session.status} onValueChange={(newValue) => updateAssessment({ status: newValue as SkillCheckSessionStatus })}>
+                    <Select name="status" value={session.status} onValueChange={(newValue) => updateAssessment({ ...session, status: newValue as SkillCheckSessionStatus })}>
                         <SelectTrigger className="w-full sm:w-[180px]">
                             <SelectValue/>
                         </SelectTrigger>

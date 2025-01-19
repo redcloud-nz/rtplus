@@ -13,7 +13,7 @@ import prisma from '@/lib/prisma'
 
 
 export async function GET() {
-    const { orgId, userId } = await auth.protect()
+    const { userId } = await auth.protect()
 
     const accessKeys: D4hAccessKeyWithTeam[] = await prisma.d4hAccessKey.findMany({
         select: { 
@@ -30,7 +30,7 @@ export async function GET() {
 
             }
         },
-        where: { orgId, userId, enabled: true } 
+        where: { userId, enabled: true } 
     })
 
     return createListResponse(accessKeys)

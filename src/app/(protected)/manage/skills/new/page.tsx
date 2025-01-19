@@ -11,7 +11,7 @@ import { NotImplemented } from '@/components/errors'
 import * as Paths from '@/paths'
 
 export default async function NewSkillPage() {
-    await auth.protect({ role: 'org:admin' })
+    await auth.protect()
 
     return <NotImplemented 
         label="New Skill" 

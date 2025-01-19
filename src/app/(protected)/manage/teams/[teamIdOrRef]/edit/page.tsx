@@ -26,7 +26,6 @@ import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
 import { EventBuilder } from '@/lib/history'
 import { createWhereClause } from '@/lib/id'
 import prisma from '@/lib/prisma'
-import { assertNonNull } from '@/lib/utils'
 
 import * as Paths from '@/paths'
 
@@ -48,13 +47,10 @@ export const metadata: Metadata = { title: "Edit Team | RT+" }
 export default async function EditTeamPage(props: { params: Promise<{ teamIdOrRef: string }>}) {
     const params = await props.params
 
-    const { orgId } = await auth.protect({ role: 'org:admin' })
+    await auth.protect()
 
     const team = await prisma.team.findFirst({
-        where: {
-            orgId,
-            ...createWhereClause(params.teamIdOrRef)
-        }
+        where: createWhereClause(params.teamIdOrRef)
     })
 
     if(!team) return <NotFound label="Team"/>
@@ -132,10 +128,9 @@ export default async function EditTeamPage(props: { params: Promise<{ teamIdOrRe
 async function updateTeam(formState: FormState, formData: FormData) {
     'use server'
 
-    const { userId, orgId } = await auth.protect({ role: 'org:admin' })
-    assertNonNull(orgId, "An active organization is required to execute action 'updateTeam'")
+    const { userId } = await auth.protect()
     
-    const eventBuilder = EventBuilder.create(orgId, userId)
+    const eventBuilder = EventBuilder.create(userId)
 
     let teamIdOrRef: string
     try {

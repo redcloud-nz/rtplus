@@ -16,7 +16,7 @@ import { Description } from '@/components/ui/typography'
 
 import { SkillPackageWithGroupsAndSkills, useSkillPackagesQuery } from '@/lib/api/skills'
 
-import { useSkillCheckStore } from '../skill-check-store'
+import { useSkillCheckStore } from './skill-check-store'
 
 
 export function SkillsTabContent() {

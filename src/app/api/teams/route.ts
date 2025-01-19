@@ -16,18 +16,16 @@ import type { TeamWithMembers } from '@/lib/api/teams'
 
 
 export async function GET(request: NextRequest) {
-    const { orgId } = await auth.protect()
+    await auth.protect()
 
     const searchParams = request.nextUrl.searchParams
     const includeMembers = searchParams.has('members')
 
     if(includeMembers) {
         const teams: TeamWithMembers[] = await prisma.team.findMany({
-            where: {
-                orgId
-            },
+            where: {},
             include: {
-                memberships: {
+                d4hTeamMemberships: {
                     include: {
                         person: true
                     }

@@ -19,7 +19,7 @@ import { Description } from '@/components/ui/typography'
 
 import { useTeamsWithMembersQuery } from '@/lib/api/teams'
 
-import { useSkillCheckStore } from '../skill-check-store'
+import { useSkillCheckStore } from './skill-check-store'
 
 
 export function PersonnelTabContent() {
@@ -50,8 +50,8 @@ export function PersonnelTabContent() {
                 {teamsQuery.data.map(team => {
                     if(!team) return null
 
-                    const memberCount = team.memberships.length
-                    const selectedCount = team.memberships.filter(membership => assesseeIds.includes(membership.personId)).length
+                    const memberCount = team.d4hTeamMemberships.length
+                    const selectedCount = team.d4hTeamMemberships.filter(membership => assesseeIds.includes(membership.personId)).length
 
                     return <AccordionItem key={team.id} value={team.id}>
                         <AccordionTrigger>
@@ -60,7 +60,7 @@ export function PersonnelTabContent() {
                         </AccordionTrigger>
                         <AccordionContent>
                             <ul className="pl-2">
-                                {team.memberships.map(member => {
+                                {team.d4hTeamMemberships.map(member => {
                                     return <li key={member.personId} className="flex items-top space-x-2 py-1 px-2">
                                         <Checkbox id={`checkbox-${member.person.id}`} 
                                             checked={assesseeIds.includes(member.personId) || false}

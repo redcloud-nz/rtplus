@@ -11,7 +11,7 @@ import { NotImplemented } from '@/components/errors'
 import * as Paths from '@/paths'
 
 export default async function NewSkillPackagePage() {
-    auth.protect({ role: 'org:admin' })
+    auth.protect()
 
     return <NotImplemented 
         label="Skill Package" 

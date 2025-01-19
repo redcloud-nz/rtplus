@@ -10,13 +10,7 @@ export const competencies = {
     configuration: '/competencies/configuration',
     dashboard: '/competencies',
     sessionList: '/competencies/sessions',
-    session: (aId: string) => ({
-        info: `/competencies/sessions/${aId}`,
-        edit: `/competencies/sessions/${aId}/edit`,
-        skills: `/competencies/sessions/${aId}/skills`,
-        personnel: `/competencies/sessions/${aId}/personnel`,
-        assess: `/competencies/sessions/${aId}/assess`,
-    } as const),
+    session: (sId: string) => `/competencies/sessions/${sId}`,
     newSession: '/competencies/sessions/new-session',
     reportsList: `/competencies/reports`,
     reports: {

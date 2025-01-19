@@ -8,8 +8,6 @@
 import { KeyRoundIcon, PencilIcon, PlusIcon, Trash2Icon } from 'lucide-react'
 import { Metadata } from 'next'
 
-import { auth } from '@clerk/nextjs/server'
-
 import { AppPage, PageControls, PageHeader, PageTitle } from '@/components/app-page'
 import { NotFound } from '@/components/errors'
 
@@ -26,24 +24,20 @@ import { formatDateTime } from '@/lib/utils'
 import * as Paths from '@/paths'
 
 
-
-
 export const metadata: Metadata = { title: "Personnel | RT+" }
 
 export default async function PersonPage(props: { params: Promise<{ personIdOrRef: string }>}) {
     const params = await props.params;
 
-    const { orgId } = await auth.protect({ role: 'org:admin' })
-
     const person = await prisma.person.findFirst({
         include: {
-            memberships: {
+            d4hTeamMemberships: {
                 include: {
                     team: true
                 }
             },
         },
-        where: { orgId, ...createWhereClause(params.personIdOrRef) }
+        where: createWhereClause(params.personIdOrRef)
     })
     if(!person) return <NotFound/>
 
@@ -116,7 +110,7 @@ export default async function PersonPage(props: { params: Promise<{ personIdOrRe
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {person.memberships.map(membership =>
+                            {person.d4hTeamMemberships.map(membership =>
                                 <TableRow key={membership.id}>
                                     <TableCell>
                                         <Link href={Paths.team(membership.team.ref || membership.team.id)}>
