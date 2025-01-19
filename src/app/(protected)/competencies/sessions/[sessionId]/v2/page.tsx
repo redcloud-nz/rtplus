@@ -21,10 +21,11 @@ import * as Paths from '@/paths'
 
 import { LoadStoreData } from '../skill-check-store'
 
-import { InfoTabContent } from './InfoTabContent'
-import { SkillsTabContent } from './SkillsTabContext'
-
-
+import { AssessTabContent } from './assess-tab-content'
+import { InfoTabContent } from './info-tab-content'
+import { PersonnelTabContent } from './personnel-tab-content'
+import { SkillsTabContent } from './skills-tab-content'
+import { SaveFooter } from './save-footer'
 
 export default async function SessionPage(props: { params: Promise<{ sessionId: string }>}) {
     const params = await props.params;
@@ -50,9 +51,7 @@ export default async function SessionPage(props: { params: Promise<{ sessionId: 
             { label: "Competencies", href: Paths.competencies.dashboard }, 
             { label: "Assessment Sessions", href: Paths.competencies.sessionList },
         ]}
-        footer={<>
-            Footer
-        </>}
+        footer={<SaveFooter/>}
     >
         <LoadStoreData 
             session={withSerializedDates(assessment)} 
@@ -66,12 +65,19 @@ export default async function SessionPage(props: { params: Promise<{ sessionId: 
                 <TabsTrigger value="Skills">Skills</TabsTrigger>
                 <TabsTrigger value="Personnel">Personnel</TabsTrigger>
                 <TabsTrigger value="Assess">Assess</TabsTrigger>
+                <TabsTrigger value="Transcript">Transcript</TabsTrigger>
             </TabsList>
             <TabsContent value="Info">
                 <InfoTabContent/>
             </TabsContent>
             <TabsContent value='Skills'>
                 <SkillsTabContent/>
+            </TabsContent>
+            <TabsContent value='Personnel'>
+                <PersonnelTabContent/>
+            </TabsContent>
+            <TabsContent value='Assess'>
+                <AssessTabContent/>
             </TabsContent>
         </Tabs>
         

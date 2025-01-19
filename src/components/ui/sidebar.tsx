@@ -17,9 +17,10 @@ import { cn } from '@/lib/utils'
 import { Button } from './button'
 import { Input } from './input'
 import { Separator } from './separator'
-import { Sheet, SheetContent } from './sheet'
+import { Sheet, SheetContent, SheetTitle } from './sheet'
 import { Skeleton } from './skeleton'
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
+import { VisuallyHidden } from './visually-hidden'
 
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
@@ -157,6 +158,10 @@ export function Sidebar({ side = "left", variant = "sidebar", collapsible = "off
                 } as React.CSSProperties}
                 side={side}
             >
+                <VisuallyHidden>
+                    <SheetTitle id="sidebar-title">RT+ Sidebar</SheetTitle>
+                </VisuallyHidden>
+                
                 <div className="flex h-full w-full flex-col">{children}</div>
             </SheetContent>
         </Sheet>

@@ -44,7 +44,7 @@ export default async function SkillCheckSessionListPage() {
         breadcrumbs={[{ label: "Competencies", href: Paths.competencies.dashboard }]}
     >
         <PageHeader>
-            <PageTitle>Competency Assessments</PageTitle>
+            <PageTitle>Sessions</PageTitle>
             <PageDescription>Your competency assessments (as assesor).</PageDescription>
             <PageControls>
                 <Form action={createSessionAction}>

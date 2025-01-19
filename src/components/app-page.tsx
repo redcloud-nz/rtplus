@@ -42,8 +42,8 @@ const appPageVariants = tv({
             centered: 'flex flex-col items-center justify-center'
         },
         hasFooter: {
-            true: 'row-start-3 row-end-3',
-            false: 'row-start-3 row-end-5'
+            true: 'row-start-3',
+            false: 'row-start-3 row-span-3'
         }
     },
     defaultVariants: {
@@ -91,7 +91,7 @@ export function AppPage({ breadcrumbs = [], children, className, label, footer, 
         </main>
         {footer && <>
             <Separator className="row-start-4 col-span-full" orientation="horizontal"/>
-            <footer className="row-start-5 col-span-full bg-background">{footer}</footer>
+            <footer className="flex items-center p-1 row-start-5 col-span-full bg-background">{footer}</footer>
         </>}
     </>
 }
@@ -129,7 +129,7 @@ export function PageTitle({ children, className, objectType, ...props }: PageTit
 export function PageDescription({ className, ...props }: React.ComponentPropsWithoutRef<'p'>) {
     return <p 
         className={cn(
-            'mt-2 text-sm text-gray-700', 
+            'mt-2 text-sm text-gray-700 hidden md:block', 
             'row-start-2',
             className
         )} 
