@@ -4,12 +4,31 @@
  */
 
 import * as React from 'react'
+import { tv, VariantProps } from 'tailwind-variants'
 
 import { cn } from '@/lib/utils'
+import { LoaderCircle } from 'lucide-react'
 
-export function Skeleton({ className, ...props }: React.ComponentPropsWithRef<'div'>) {
+const skeletonStyles = tv({
+    base: 'rounded-md bg-muted animate-pulse',
+    variants: {
+        variant: {
+            default: '',
+            text: 'text-sm flex justify-center items-center color-muted-foreground',
+            spinner: 'flex justify-center items-center',
+        }
+    },
+})
+
+export type SkeletonProps = React.ComponentPropsWithRef<'div'> & VariantProps<typeof skeletonStyles>
+
+export function Skeleton({ className, children, variant = 'default', ...props }: SkeletonProps) {
+
     return <div
-        className={cn("animate-pulse rounded-md bg-muted", className)}
+        className={cn(skeletonStyles({ variant }), className)}
         {...props}
-    />
+    >
+        {variant == 'text' && children}
+        {variant == 'spinner' && <LoaderCircle className="animate-spin h-5 w-5"/>}
+    </div>
 }

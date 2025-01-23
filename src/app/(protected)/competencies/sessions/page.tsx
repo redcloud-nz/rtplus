@@ -9,21 +9,21 @@ import { formatISO } from 'date-fns'
 import { SquarePenIcon } from 'lucide-react'
 import { redirect } from 'next/navigation'
 
-import { auth, currentUser } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 
-import { AppPage, PageControls, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, PageControls, PageHeader, PageTitle } from '@/components/app-page'
 import { Show } from '@/components/show'
 
 import { Alert } from '@/components/ui/alert'
+import { Form, FormSubmitButton } from '@/components/ui/form'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
+import { FormState } from '@/lib/form-state'
 import prisma from '@/lib/prisma'
-import { assertNonNull } from '@/lib/utils'
 
 import * as Paths from '@/paths'
-import { FormState } from '@/lib/form-state'
-import { Form, FormSubmitButton } from '@/components/ui/form'
+
 
 
 export default async function SkillCheckSessionListPage() {
@@ -40,16 +40,15 @@ export default async function SkillCheckSessionListPage() {
     })
 
     return <AppPage 
-        label="Assessment Sessions" 
+        label="My Sessions" 
         breadcrumbs={[{ label: "Competencies", href: Paths.competencies.dashboard }]}
     >
         <PageHeader>
             <PageTitle>Sessions</PageTitle>
-            <PageDescription>Your competency assessments (as assesor).</PageDescription>
             <PageControls>
                 <Form action={createSessionAction}>
                     <FormSubmitButton
-                        label={<><SquarePenIcon/> New <span className="hidden md:inline">Assessment</span></>}
+                        label={<><SquarePenIcon/> New <span className="hidden md:inline">Session</span></>}
                         loading="Creating"
                     />
                 </Form>
@@ -57,7 +56,7 @@ export default async function SkillCheckSessionListPage() {
         </PageHeader>
        <Show
             when={assessments.length > 0}
-            fallback={<Alert severity="info" title="No previous assessments">Add one to get started.</Alert>}
+            fallback={<Alert severity="info" title="No existing sessions.">Add one to get started.</Alert>}
         >
             <Table border>
                 <TableHead>
@@ -90,9 +89,8 @@ export default async function SkillCheckSessionListPage() {
 async function createSessionAction(): Promise<FormState> {
     'use server'
 
-    const { userId } = await auth.protect()
-    const user = await currentUser()!
-    assertNonNull(user)
+    const { userId, sessionClaims } = await auth.protect()
+    const assessorId = sessionClaims.personId
 
     const year = new Date().getFullYear()
 
@@ -111,7 +109,7 @@ async function createSessionAction(): Promise<FormState> {
 
     const data = {
         userId,
-        assessorId: user.publicMetadata.personId,
+        assessorId,
         date: new Date(),
         name: `${year} #${highestNum+1}`,
     }

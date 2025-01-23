@@ -22,6 +22,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 
 import prisma from '@/lib/prisma'
 import * as Paths from '@/paths'
 import { Protect } from '@clerk/nextjs'
+import { ColorValue } from '@/components/ui/color'
 
 export const metadata: Metadata = { title: "Teams | RT+" }
 
@@ -34,7 +35,8 @@ export default async function TeamsPage() {
             _count: {
                 select: { d4hTeamMemberships: true }
             }
-        }
+        },
+        orderBy: { name: 'asc' }
     })
     
     return <AppPage 
@@ -74,7 +76,7 @@ export default async function TeamsPage() {
                                 <Link href={Paths.team(team.ref || team.id)}>{team.name}</Link>
                             </TableCell>
                             <TableCell>{team.ref}</TableCell>
-                            <TableCell className='text-center'>{team.color}</TableCell>
+                            <TableCell className='text-center'><ColorValue value={team.color}/></TableCell>
                             <TableCell className='text-center'>{team._count.d4hTeamMemberships}</TableCell>
                         </TableRow>
                     )}

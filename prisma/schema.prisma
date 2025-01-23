@@ -93,19 +93,19 @@ model Skill {
 }
 
 model SkillCheck {
-  id              String            @id @default(uuid()) @db.Uuid
-  userId          String            @map("user_id") @db.VarChar(50)
-  sessionId       String            @map("session_id") @db.Uuid
-  skillId         String            @map("skill_id") @db.Uuid
-  assesseeId      String            @map("assessee_id") @db.Uuid
-  assessorId      String            @map("assessor_id") @db.Uuid
-  competenceLevel CompetenceLevel   @map("competence_level")
+  id              String             @id @default(uuid()) @db.Uuid
+  userId          String             @map("user_id") @db.VarChar(50)
+  sessionId       String?            @map("session_id") @db.Uuid
+  skillId         String             @map("skill_id") @db.Uuid
+  assesseeId      String             @map("assessee_id") @db.Uuid
+  assessorId      String             @map("assessor_id") @db.Uuid
+  competenceLevel CompetenceLevel    @map("competence_level")
   notes           String
-  timestamp       DateTime          @default(now())
-  session         SkillCheckSession @relation("skill_check_to_skill_check_session", fields: [sessionId], references: [id])
-  assessee        Person            @relation("skill_check_to_assessee", fields: [assesseeId], references: [id])
-  assessor        Person            @relation("skill_check_to_assessor", fields: [assessorId], references: [id])
-  skill           Skill             @relation("skill_check_to_skill", fields: [skillId], references: [id])
+  timestamp       DateTime           @default(now())
+  session         SkillCheckSession? @relation("skill_check_to_skill_check_session", fields: [sessionId], references: [id])
+  assessee        Person             @relation("skill_check_to_assessee", fields: [assesseeId], references: [id])
+  assessor        Person             @relation("skill_check_to_assessor", fields: [assessorId], references: [id])
+  skill           Skill              @relation("skill_check_to_skill", fields: [skillId], references: [id])
 
   @@map("skill_checks")
 }

@@ -5,7 +5,7 @@
  *  Path: /competencies
  */
 
-import { LayoutDashboardIcon, ListPlusIcon, ScrollIcon, Settings2Icon } from 'lucide-react'
+import { LayoutDashboardIcon, ListPlusIcon, PencilIcon, ScrollIcon, Settings2Icon, SquarePenIcon } from 'lucide-react'
 import type { Metadata } from 'next'
 
 import { AppPageContainer } from '@/components/app-page'
@@ -25,6 +25,7 @@ export default async function CompetenciesLayout({ children }: Readonly<{ childr
         <AppSidebar>
             <NavSection title="Competencies">
                 <NavItem label="Dashboard" href={Paths.competencies.dashboard} icon={<LayoutDashboardIcon/>}/>
+                <NavItem label="Record" href={Paths.competencies.record} icon={<SquarePenIcon/>}/>
                 <NavItem label="Sessions" href={Paths.competencies.sessionList} icon={<ListPlusIcon/>}/>
                 <NavItem label="Reports" href={Paths.competencies.reportsList} icon={<ScrollIcon/>}/>
                 <NavCollapsible label="Configuration" icon={<Settings2Icon/>}>

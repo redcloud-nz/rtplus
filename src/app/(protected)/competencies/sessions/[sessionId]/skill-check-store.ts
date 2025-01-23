@@ -4,16 +4,15 @@
  */
 'use client'
 
-
 import * as React from 'react'
 import * as R from 'remeda'
 import { create } from 'zustand'
 
 import { createUUID } from '@/lib/id'
-import { resolveAfter } from '@/lib/utils'
 
 import { appendDiff, SkillCheck_Client, SkillCheckDiff, SkillCheckSession_Client } from './skill-check-data'
-
+import { saveSessionAction } from './save-session-action'
+import { assertNonNull } from '@/lib/utils'
 
 /**
  * Store for the current competency assessment.
@@ -95,14 +94,18 @@ export const useSkillCheckStore = create<SkillCheckStore>()(
                 addDiff({ type: 'REMOVE_SKILL', skillId })
             },
             updateSkillCheck(check) {
-                set({ ... R.piped(R.prop('checks'), R.set(check.id, check)) })
+                set(state => ({ checks: { ...state.checks, [check.id]: check } }))
                 addDiff({ type: 'UPDATE_CHECK', check })
             },
             async save() {
                 set({ status: 'Saving', changeCount: 0 })
-                await resolveAfter(null, 1000)
-                // Save the assessment data to the server
-                set({ status: 'Saved', _diffs: [] })
+
+                const { session, _diffs } = get()
+                assertNonNull(session, 'Session is required to save')
+                
+                await saveSessionAction(session.id, _diffs)
+
+                set({ status: 'Saved', _diffs: [], changeCount: 0 })
             },
         }
     }

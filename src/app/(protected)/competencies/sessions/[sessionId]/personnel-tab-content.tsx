@@ -35,7 +35,7 @@ export function PersonnelTabContent() {
 
     return <>
         <Description>Select the personnel to be assessed:</Description>
-        { (teamsQuery.isPending || teamsQuery.isPending) ? <div className="flex flex-col items-stretch gap-2">
+        { teamsQuery.isPending ? <div className="flex flex-col items-stretch gap-2">
                 <Skeleton className="h-8"/>
                 <Skeleton className="h-8"/>
                 <Skeleton className="h-8"/>

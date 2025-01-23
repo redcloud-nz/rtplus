@@ -24,6 +24,11 @@ export async function GET(request: NextRequest, props: { params: Promise<{ teamI
             d4hTeamMemberships: {
                 include: {
                     person: true
+                },
+                orderBy: {
+                    person: {
+                        name: 'asc'
+                    }
                 }
             },
         },

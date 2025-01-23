@@ -26,6 +26,7 @@ import { InfoTabContent } from './info-tab-content'
 import { PersonnelTabContent } from './personnel-tab-content'
 import { SkillsTabContent } from './skills-tab-content'
 import { SaveFooter } from './save-footer'
+import { TranscriptTabContent } from './transcript-tab-context'
 
 export default async function SessionPage(props: { params: Promise<{ sessionId: string }>}) {
 
@@ -75,6 +76,9 @@ export default async function SessionPage(props: { params: Promise<{ sessionId: 
             </TabsContent>
             <TabsContent value='Assess'>
                 <AssessTabContent/>
+            </TabsContent>
+            <TabsContent value='Transcript'>
+                <TranscriptTabContent/>
             </TabsContent>
         </Tabs>
         

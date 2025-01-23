@@ -16,48 +16,50 @@ export const metadata: Metadata = { title: "About | RT+" }
 
 export default function AboutPage() {
     return <AppPageContainer>
-        <AppPage label="About" className="flex flex-col gap-8 max-w-4xl">
-        <PageTitle>About</PageTitle>
+        <AppPage label="About">
         
-        <section>
-            <Heading level={2}>Introduction</Heading>
-            <Paragraph>
-                RT+ is a collection of web based tools for managing response teams. It started as a work-around to dealing with multiple teams in D4H but now includes other features independent of D4H.
-            </Paragraph>
-        </section>
+            <div className="container mx-auto max-w-4xl flex flex-col gap-8">
+                <PageTitle>About</PageTitle>
+                <section>
+                    <Heading level={2}>Introduction</Heading>
+                    <Paragraph>
+                        RT+ is a collection of web based tools for managing response teams. It started as a work-around to dealing with multiple teams in D4H but now includes other features independent of D4H.
+                    </Paragraph>
+                </section>
 
-        <section>
-            <Heading level={2}>Technology</Heading>
-            <Paragraph>RT+ is build using a number of cutting edge web technologies:</Paragraph>
-            <ul className="list-disc ml-4 mt-4">
-                {technologies.map(tech =>
-                    <li key={tech.name}>
-                        <a 
-                            className="hover:underline"
-                            href={tech.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >{tech.name}</a> - <span>{tech.description}</span>
-                    </li>
-                )}   
-            </ul>
-        </section>
-        <section>
-            <Heading level={2}>Cost</Heading>
-            <Paragraph>
-                Our hosting costs are kindly covered by Redcloud Development. This allows us to offer RT+ for free to any New Zealand based Response Teams.
-            </Paragraph>
-        </section>
-        <section>
-            <Heading level={2}>Development</Heading>
-            <Paragraph>
-                Development of RT+ is a volunteer effort. 
-            </Paragraph>
-            <Paragraph>
-                If you would like to contribute (design, programming, or qualitiy assurance) contact <EmailLink email="support@rtplus.nz"/>.
-            </Paragraph>
-        </section>
-    </AppPage>
+                <section>
+                    <Heading level={2}>Technology</Heading>
+                    <Paragraph>RT+ is build using a number of cutting edge web technologies:</Paragraph>
+                    <ul className="list-disc ml-8 mt-4">
+                        {technologies.map(tech =>
+                            <li key={tech.name}>
+                                <a 
+                                    className="hover:underline"
+                                    href={tech.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >{tech.name}</a> - <span>{tech.description}</span>
+                            </li>
+                        )}   
+                    </ul>
+                </section>
+                <section>
+                    <Heading level={2}>Cost</Heading>
+                    <Paragraph>
+                        Our hosting costs are kindly covered by Redcloud Development. This allows us to offer RT+ for free to any New Zealand based Response Teams.
+                    </Paragraph>
+                </section>
+                <section>
+                    <Heading level={2}>Development</Heading>
+                    <Paragraph>
+                        Development of RT+ is a volunteer effort. 
+                    </Paragraph>
+                    <Paragraph>
+                        If you would like to contribute (design, programming, or qualitiy assurance) contact <EmailLink email="support@rtplus.nz"/>.
+                    </Paragraph>
+                </section>
+            </div>
+        </AppPage>
     </AppPageContainer>
     
 }

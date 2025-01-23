@@ -30,13 +30,11 @@ import prisma from '@/lib/prisma'
 import * as Paths from '@/paths'
 
 
-
-
 const EditTeamFormSchema = z.object({
-    teamId: z.string().cuid2(),
+    teamId: z.string().uuid(),
     name: z.string().min(5).max(50),
     ref: z.string().max(10),
-    color: z.union([z.string().regex(/^#[0-9A-F]{6}$/, "Must be a colour in RGB Hex format (eg #4682B4)"), z.literal('')]),
+    color: z.union([z.string().regex(/^#[0-9a-fA-F]{6}$/, "Must be a colour in RGB Hex format (eg #4682B4)"), z.literal('')]),
     d4hTeamId: z.union([z.coerce.number(), z.literal('')]),
     d4hApiUrl: z.union([z.string().url(), z.literal('')]),
     d4hWebUrl: z.union([z.string().url(), z.literal('')]),
@@ -158,7 +156,7 @@ async function updateTeam(formState: FormState, formData: FormData) {
                 data: { 
                     name: fields.name, 
                     ref,
-                    color: fields.color,
+                    color: fields.color.toUpperCase(),
                     d4hTeamId: fields.d4hTeamId || 0,
                     d4hApiUrl: fields.d4hApiUrl || DefaultD4hApiUrl,
                     d4hWebUrl: fields.d4hWebUrl

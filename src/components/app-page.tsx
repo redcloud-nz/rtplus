@@ -64,26 +64,21 @@ export function AppPage({ breadcrumbs = [], children, className, label, footer, 
         <div className="row-start-1 col-start-2 flex items-center h-12 gap-2 pr-2">
             <Separator orientation="vertical" className="h-4"/>
             <Breadcrumb className="px-2">
-                {breadcrumbs.length > 0
-                    ? <BreadcrumbList>
-                        {breadcrumbs.map((breadcrumb, index) => <React.Fragment key={index}>
+                <BreadcrumbList>
+                    {breadcrumbs.map((breadcrumb, index) => 
+                        <React.Fragment key={index}>
                             <BreadcrumbItem className="hidden md:block">
                                 <BreadcrumbLink asChild>
                                     <Link href={breadcrumb.href}>{breadcrumb.label}</Link>
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbSeparator className="hidden md:block"/>
-                        </React.Fragment>)}
-                        <BreadcrumbItem>
-                            <BreadcrumbPage>{label}</BreadcrumbPage>
-                        </BreadcrumbItem>
-                    </BreadcrumbList>
-                    : <BreadcrumbList>
-                        <BreadcrumbItem>
-                            <BreadcrumbPage>{label}</BreadcrumbPage>
-                        </BreadcrumbItem>
-                    </BreadcrumbList>
-                }
+                        </React.Fragment>
+                    )}
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>{label}</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>    
             </Breadcrumb>
         </div>
         <main className={cn(appPageVariants({ variant, hasFooter: !!footer, className }))} {...props}>

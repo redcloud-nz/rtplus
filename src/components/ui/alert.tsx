@@ -4,7 +4,7 @@
  */
 
 import { CircleCheckIcon, TriangleAlertIcon, InfoIcon, CircleXIcon } from 'lucide-react'
-import { tv } from 'tailwind-variants'
+import { tv, VariantProps } from 'tailwind-variants'
 
 import { cn } from '@/lib/utils'
 
@@ -45,9 +45,6 @@ const alertStyles = tv({
                 description: 'text-red-700'
             },
         }
-    },
-    defaultVariants: {
-        severity: 'info'
     }
 })
 
@@ -58,9 +55,9 @@ const alertIcons = {
     error: CircleXIcon
 }
 
-export type AlertProps = { severity: AlertSeverity, title: string } & React.ComponentPropsWithRef<'div'>
+export type AlertProps = React.ComponentPropsWithRef<'div'> & VariantProps<typeof alertStyles> &{ title: string } 
 
-export function Alert({className, children, severity, title, ...props}: AlertProps) {
+export function Alert({className, children, severity = 'info', title, ...props}: AlertProps) {
 
     const slots = alertStyles({ severity })
     const Icon = alertIcons[severity]

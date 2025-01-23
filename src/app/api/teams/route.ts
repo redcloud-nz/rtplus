@@ -8,11 +8,11 @@
 import { NextRequest } from 'next/server'
 
 import { auth } from '@clerk/nextjs/server'
+import type { Team } from '@prisma/client'
 
 import { createListResponse } from '@/lib/api/common'
-import prisma from '@/lib/prisma'
-import { Team } from '@prisma/client'
 import type { TeamWithMembers } from '@/lib/api/teams'
+import prisma from '@/lib/prisma'
 
 
 export async function GET(request: NextRequest) {
@@ -28,6 +28,11 @@ export async function GET(request: NextRequest) {
                 d4hTeamMemberships: {
                     include: {
                         person: true
+                    },
+                    orderBy: {
+                        person: {
+                            name: 'asc'
+                        }
                     }
                 },
             },

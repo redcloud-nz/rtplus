@@ -25,7 +25,7 @@ export default async function SkillListPage() {
 
     return <AppPage
         label="Skills"
-        breadcrumbs={[{ label: "Competencies", href: Paths.competencies.dashboard }]}
+        breadcrumbs={[{ label: "Manage", href: Paths.manage }]}
     >
         <PageHeader>
             <PageTitle>Manage Skills</PageTitle>

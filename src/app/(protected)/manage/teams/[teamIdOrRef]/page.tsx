@@ -21,6 +21,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 
 import prisma from '@/lib/prisma'
 import * as Paths from '@/paths'
 import { createWhereClause } from '@/lib/id'
+import { ColorValue } from '@/components/ui/color'
 
 
 export default async function TeamPage(props: { params: Promise<{ teamIdOrRef: string }>}) {
@@ -80,7 +81,7 @@ export default async function TeamPage(props: { params: Promise<{ teamIdOrRef: s
                         <DLDetails>{team.ref}</DLDetails>
 
                         <DLTerm>Colour</DLTerm>
-                        <DLDetails>{team.color}</DLDetails>
+                        <DLDetails><ColorValue value={team.color}/></DLDetails>
 
                         {team.d4hTeamId > 0 && <>
                             <DLTerm>D4H Team ID</DLTerm>

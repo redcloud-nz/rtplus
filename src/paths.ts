@@ -3,6 +3,8 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
+
+
 //  /------------------------------\
 //  |         Competencies         |
 //  \------------------------------/
@@ -12,6 +14,7 @@ export const competencies = {
     sessionList: '/competencies/sessions',
     session: (sId: string) => `/competencies/sessions/${sId}`,
     newSession: '/competencies/sessions/new-session',
+    record: '/competencies/record',
     reportsList: `/competencies/reports`,
     reports: {
         individual: `/competencies/reports/individual`,
@@ -81,3 +84,18 @@ export const account = {
     d4hAccessKeys: '/account/d4h-access-keys',
     whoami: '/account/whoami'
 } as const
+
+
+
+export const documentation = {
+    index: '/documentation',
+    glossary: '/documentation/glossary',
+    competencies: '/documentation/competencies',
+    personnel: '/documentation/personnel',
+    skills: '/documentation/skills',
+    skillGroups: '/documentation/skill-groups',
+    skillPackages: '/documentation/skill-packages',
+    teams: '/documentation/teams',
+    unified: '/documentation/unified',
+    account: '/documentation/account',
+}

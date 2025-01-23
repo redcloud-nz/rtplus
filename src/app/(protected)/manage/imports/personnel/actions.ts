@@ -33,7 +33,7 @@ export interface ImportPersonnelActionResult {
 
 export async function importPersonnelAction(teamId: string, diffs: MemberDiff[]): Promise<ImportPersonnelActionResult> {
 
-    const { userId } = await auth.protect({ role: 'org:admin' })
+    const { userId } = await auth.protect()
 
     const startTime = Date.now()
     const changeCounts = createChangeCounts(['personnel', 'memberships'])
