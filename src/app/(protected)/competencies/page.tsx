@@ -8,7 +8,7 @@
 import { AppPage, PageHeader, PageTitle } from '@/components/app-page'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-import prisma from '@/lib/prisma'
+import prisma from '@/lib/server/prisma'
 
 
 export default async function CompetenciesDashboard() {

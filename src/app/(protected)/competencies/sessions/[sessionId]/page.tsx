@@ -14,28 +14,27 @@ import { AppPage } from '@/components/app-page'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import { authenticated } from '@/lib/auth'
-import prisma from '@/lib/prisma'
+import { authenticated } from '@/lib/server/auth'
 import { withSerializedDates } from '@/lib/serialize'
+import prisma from '@/lib/server/prisma'
 import * as Paths from '@/paths'
-
-import { LoadStoreData } from './skill-check-store'
 
 import { AssessTabContent } from './assess-tab-content'
 import { InfoTabContent } from './info-tab-content'
 import { PersonnelTabContent } from './personnel-tab-content'
-import { SkillsTabContent } from './skills-tab-content'
 import { SaveFooter } from './save-footer'
+import { LoadStoreData } from './skill-check-store'
+import { SkillsTabContent } from './skills-tab-content'
 import { TranscriptTabContent } from './transcript-tab-context'
 
 
 export default async function SessionPage(props: { params: Promise<{ sessionId: string }>}) {
-
-    const { userPersonId } = await authenticated()
-
     const { sessionId } = await props.params
 
-    const { skills, assessees, checks, ...assessment } = await prisma.skillCheckSession.findFirst({
+    const { userPersonId } = await authenticated()
+    
+
+    const { skills, assessees, checks, ...assessment } = await prisma.skillCheckSession.findUnique({
         where: { assessorId: userPersonId, id: sessionId },
         include: {
             skills: { select: { id: true } },

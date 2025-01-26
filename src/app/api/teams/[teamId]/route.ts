@@ -10,9 +10,10 @@ import { NextRequest } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 
 import { createNotFoundResponse, createObjectResponse } from '@/lib/api/common'
-import prisma from '@/lib/prisma'
-
 import type { TeamWithMembers } from '@/lib/api/teams'
+import prisma from '@/lib/server/prisma'
+
+
 
 export async function GET(request: NextRequest, props: { params: Promise<{ teamId: string }> }) {
     const { teamId } = await props.params

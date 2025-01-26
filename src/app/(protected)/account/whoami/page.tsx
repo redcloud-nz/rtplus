@@ -13,8 +13,8 @@ import { Alert } from '@/components/ui/alert'
 import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 
-import { authenticated } from '@/lib/auth'
-import prisma from '@/lib/prisma'
+import { authenticated } from '@/lib/server/auth'
+import prisma from '@/lib/server/prisma'
 import { formatDateTime } from '@/lib/utils'
 
 

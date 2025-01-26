@@ -7,14 +7,15 @@
 
 import { isEmpty } from 'remeda'
 
-import { auth } from '@clerk/nextjs/server'
 import { Person, TeamMembershipD4hInfo } from '@prisma/client'
 
 import { ChangeCountsByType, createChangeCounts } from '@/lib/change-counts'
 import { EventBuilder } from '@/lib/history'
 import { createUUID } from '@/lib/id'
-import prisma from '@/lib/prisma'
+import { authenticated } from '@/lib/server/auth'
+import prisma from '@/lib/server/prisma'
 import { assertNonNull } from '@/lib/utils'
+
 
 
 export interface MemberDiff { 
@@ -34,7 +35,7 @@ export interface ImportPersonnelActionResult {
 
 export async function importPersonnelAction(teamId: string, diffs: MemberDiff[]): Promise<ImportPersonnelActionResult> {
 
-    const { userId } = await auth.protect()
+    const { userPersonId } = await authenticated()
 
     const startTime = Date.now()
     const changeCounts = createChangeCounts(['personnel', 'memberships'])
@@ -59,7 +60,7 @@ export async function importPersonnelAction(teamId: string, diffs: MemberDiff[])
         throw new Error(`Missing team ${teamId}`)
     }
 
-    const eventBuilder = EventBuilder.createGrouped(userId)
+    const eventBuilder = EventBuilder.createGrouped(userPersonId)
     
     await prisma.historyEvent.create({ 
         data: eventBuilder.buildRootEvent('Import', 'Team', teamId)

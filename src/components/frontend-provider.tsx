@@ -5,11 +5,16 @@
 
 'use client'
 
+import * as React from 'react'
+
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+import { init, printConsoleMessage } from '@/cli/init'
 
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/toaster'
 import { TooltipProvider } from '@/components/ui/tooltip'
+
 
 export type FrontendProviderProps = Readonly<{
     children: React.ReactNode
@@ -18,6 +23,12 @@ export type FrontendProviderProps = Readonly<{
 const queryClient = new QueryClient()
 
 export function FrontendProvider({ children }: FrontendProviderProps) {
+    React.useEffect(() => {
+        printConsoleMessage()
+
+        Object.assign(window, { init })
+    }, [])
+
     return <QueryClientProvider client={queryClient}>
         <SidebarProvider>
             <TooltipProvider>
@@ -27,3 +38,4 @@ export function FrontendProvider({ children }: FrontendProviderProps) {
         <Toaster/>
     </QueryClientProvider>
 }
+

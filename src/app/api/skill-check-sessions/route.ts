@@ -10,8 +10,8 @@ import { NextRequest } from 'next/server'
 import { SkillCheckSession } from '@prisma/client'
 
 import { createListResponse } from '@/lib/api/common'
-import { authenticated } from '@/lib/auth'
-import prisma from '@/lib/prisma'
+import { authenticated } from '@/lib/server/auth'
+import prisma from '@/lib/server/prisma'
 
 
  

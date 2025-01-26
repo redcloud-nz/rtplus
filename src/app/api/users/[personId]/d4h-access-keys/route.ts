@@ -9,7 +9,7 @@ import { NextRequest } from 'next/server'
 
 import { createListResponse } from '@/lib/api/common'
 import type { D4hAccessKeyWithTeam } from '@/lib/api/d4h-access-keys'
-import prisma from '@/lib/prisma'
+import prisma from '@/lib/server/prisma'
 import { validateUUID } from '@/lib/id'
 
 

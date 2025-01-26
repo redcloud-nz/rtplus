@@ -25,7 +25,7 @@ import { DefaultD4hApiUrl } from '@/lib/d4h-api/common'
 import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
 import { EventBuilder } from '@/lib/history'
 import { createWhereClause } from '@/lib/id'
-import prisma from '@/lib/prisma'
+import prisma from '@/lib/server/prisma'
 
 import * as Paths from '@/paths'
 

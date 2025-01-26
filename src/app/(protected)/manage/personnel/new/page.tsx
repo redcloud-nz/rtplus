@@ -23,7 +23,7 @@ import { Link } from '@/components/ui/link'
 import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
 import { EventBuilder } from '@/lib/history'
 import { createUUID } from '@/lib/id'
-import prisma from '@/lib/prisma'
+import prisma from '@/lib/server/prisma'
 import * as Paths from '@/paths'
 
 

@@ -7,8 +7,8 @@
 import { parseISO } from 'date-fns'
 import * as R from 'remeda'
 
-import { authenticated } from '@/lib/auth'
-import prisma from '@/lib/prisma'
+import { authenticated } from '@/lib/server/auth'
+import prisma from '@/lib/server/prisma'
 
 import { type SkillCheckDiff } from './skill-check-data'
 

@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /competencies/assessments
+ *  Path: /competencies/sessions
  */
 
 import { formatISO } from 'date-fns'
@@ -17,9 +17,9 @@ import { Form, FormSubmitButton } from '@/components/ui/form'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
-import { authenticated } from '@/lib/auth'
+import { authenticated } from '@/lib/server/auth'
 import { FormState } from '@/lib/form-state'
-import prisma from '@/lib/prisma'
+import prisma from '@/lib/server/prisma'
 
 import * as Paths from '@/paths'
 

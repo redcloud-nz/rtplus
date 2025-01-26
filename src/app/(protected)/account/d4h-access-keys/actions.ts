@@ -6,10 +6,11 @@
 
 import { revalidatePath } from 'next/cache'
 
-import prisma from '@/lib/prisma'
+import prisma from '@/lib/server/prisma'
+import { authenticated } from '@/lib/server/auth'
 import { assertNonNull } from '@/lib/utils'
 import * as Paths from '@/paths'
-import { authenticated } from '@/lib/auth'
+
 
 type CreateArgs =  { accessKey: string, teamId: string, d4hTeamId: number }
 

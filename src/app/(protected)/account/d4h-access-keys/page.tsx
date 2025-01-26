@@ -16,8 +16,8 @@ import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
-import { authenticated } from '@/lib/auth'
-import prisma from '@/lib/prisma'
+import { authenticated } from '@/lib/server/auth'
+import prisma from '@/lib/server/prisma'
 import { formatDateTime } from '@/lib/utils'
 import * as Paths from '@/paths'
 

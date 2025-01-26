@@ -14,7 +14,7 @@ import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
 import { createWhereClause } from '@/lib/id'
-import prisma from '@/lib/prisma'
+import prisma from '@/lib/server/prisma'
 
 import * as Paths from '@/paths'
 

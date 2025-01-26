@@ -13,7 +13,7 @@ import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { Link } from '@/components/ui/link'
 
 import { createWhereClause } from '@/lib/id'
-import prisma from '@/lib/prisma'
+import prisma from '@/lib/server/prisma'
 
 import * as Paths from '@/paths'
 

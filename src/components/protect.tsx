@@ -6,7 +6,7 @@
 import * as React from 'react'
 
 import { PrefixedSkillPackagePermission, PrefixedSystemPermission, PrefixedTeamPermission } from '@/lib/permissions'
-import { authenticated } from '@/lib/auth'
+import { authenticated } from '@/lib/server/auth'
 
 type ProtectSkillPackageProps = { permission: PrefixedSkillPackagePermission, skillPackageId: string }
 type ProtectSystemProps = { permission: PrefixedSystemPermission }

@@ -19,7 +19,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { createWhereClause } from '@/lib/id'
-import prisma from '@/lib/prisma'
+import prisma from '@/lib/server/prisma'
 import { formatDateTime } from '@/lib/utils'
 import * as Paths from '@/paths'
 

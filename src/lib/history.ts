@@ -23,8 +23,8 @@ export class EventBuilder {
     readonly personId: string | null
     readonly parentId: string | null
 
-    private constructor(personid: string | null, parentId: string | null) {
-        this.personId = personid
+    private constructor(personId: string | null, parentId: string | null) {
+        this.personId = personId
         this.parentId = parentId
     }
 

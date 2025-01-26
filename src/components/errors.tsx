@@ -57,3 +57,17 @@ export function Unauthorized({ ...props }: AppPageProps) {
         
     </AppPage>
 }
+
+export function Forbidden({ ...props }: AppPageProps) {
+    return <AppPage variant="centered" {...props}>
+        <div className="flex flex-col gap-2 items-center">
+            <div className="font-semibold text-2xl text-zinc-800">403</div>
+            <div className="font-semibold text-zinc-800">Forbidden</div>
+            <Separator orientation="horizontal" className="w-40"/>
+            <p>
+                You do not have permission to access this page.
+            </p>
+        </div>
+        
+    </AppPage>
+}

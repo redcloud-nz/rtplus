@@ -9,7 +9,7 @@ import * as R from 'remeda'
 import { auth } from '@clerk/nextjs/server'
 
 import { getGroupsInPackage, getSkillsInPackage, PackageList, SkillPackageDef } from '@/data/skills'
-import prisma from '@/lib/prisma'
+import prisma from '@/lib/server/prisma'
 import { ChangeCountsByType, createChangeCounts as createChangeCounts, mergeChangeCounts } from '@/lib/change-counts'
 import { EventBuilder } from '@/lib/history'
 

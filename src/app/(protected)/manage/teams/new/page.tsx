@@ -22,7 +22,7 @@ import { Link } from '@/components/ui/link'
 
 import { DefaultD4hApiUrl } from '@/lib/d4h-api/common'
 import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
-import prisma from '@/lib/prisma'
+import prisma from '@/lib/server/prisma'
 import { EventBuilder } from '@/lib/history'
 import { createUUID } from '@/lib/id'
 import * as Paths from '@/paths'

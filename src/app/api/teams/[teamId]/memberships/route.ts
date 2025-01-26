@@ -8,8 +8,9 @@
 import { NextRequest } from 'next/server'
 
 import { createListResponse } from '@/lib/api/common'
-import prisma from '@/lib/prisma'
 import { TeamMembershipDetails } from '@/lib/api/teams'
+import prisma from '@/lib/server/prisma'
+
 
 export async function GET(request: NextRequest, props: { params: Promise<{ teamId: string }> }) {
     const { teamId } = await props.params

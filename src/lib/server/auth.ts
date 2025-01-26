@@ -6,7 +6,7 @@
 
 import { auth } from '@clerk/nextjs/server'
 
-import { hasPermissionInternal, PrefixedPermission, PrefixedSkillPackagePermission, PrefixedSystemPermission, PrefixedTeamPermission } from './permissions'
+import { hasPermissionInternal, PrefixedPermission, PrefixedSkillPackagePermission, PrefixedSystemPermission, PrefixedTeamPermission } from '../permissions'
 
 type ClerkAuthObject = Awaited<ReturnType<typeof auth.protect>>
 
