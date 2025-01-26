@@ -29,7 +29,6 @@ import { findSkillCheck, useSkillCheckStore } from './skill-check-store'
 
 
 
-
 export function AssessTabContent() {
 
     const [assesseeIds, skillIds, checks, updateSkillCheck] = useSkillCheckStore(useShallow(state => [state.assesseeIds, state.skillIds, state.checks, state.updateSkillCheck]))
@@ -47,7 +46,7 @@ export function AssessTabContent() {
     )
 
     const personnel = React.useMemo(
-        () => (teamsQuery.data ?? []).flatMap(team => team.d4hTeamMemberships.map(member => member.person).filter(person => assesseeIds.includes(person.id))),
+        () => (teamsQuery.data ?? []).flatMap(team => team.teamMemberships.map(member => member.person).filter(person => assesseeIds.includes(person.id))),
         [assesseeIds, teamsQuery.data]
     )
  

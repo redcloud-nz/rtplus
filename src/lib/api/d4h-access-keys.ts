@@ -6,8 +6,6 @@
 
 'use client'
 
-import React from 'react'
-
 import type { D4hAccessKey, Team } from '@prisma/client'
 import { type DefinedUseQueryResult, useQuery } from '@tanstack/react-query'
 
@@ -21,7 +19,7 @@ export function useD4hAccessKeysQuery(): DefinedUseQueryResult<D4hAccessKeyWithT
     return useQuery({
         queryKey: ['user', 'd4hAccessKeys'],
         queryFn: async () => {
-            const response = await fetch(`/api/user/d4h-access-keys`)
+            const response = await fetch(`/api/users/me/d4h-access-keys`)
             const json = await response.json() as ListResponse<D4hAccessKeyWithTeam>
             return json.data
         },
@@ -32,14 +30,4 @@ export function useD4hAccessKeysQuery(): DefinedUseQueryResult<D4hAccessKeyWithT
 export function useD4hAccessKeys(): D4hAccessKeyWithTeam[] {
     const query = useD4hAccessKeysQuery()
     return query.data ?? []
-}
-
-export function useTeamNameResolver(accessKeys: D4hAccessKeyWithTeam[]): (d4hTeamId: number) => string {
-    return React.useMemo(() => {
-        const lookupMap: Record<number, string> = {}
-        for(const accessKey of accessKeys) {
-            lookupMap[accessKey.team.d4hTeamId] = accessKey.team.ref || accessKey.team.name
-        }
-        return (d4hTeamId) => lookupMap[d4hTeamId] ?? "Unknown"
-    }, [accessKeys])
 }

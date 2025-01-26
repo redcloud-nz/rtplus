@@ -21,9 +21,10 @@ export async function GET(request: NextRequest, props: { params: Promise<{ teamI
 
     const team: TeamWithMembers | null = await prisma.team.findFirst({
         include: {
-            d4hTeamMemberships: {
+            teamMemberships: {
                 include: {
-                    person: true
+                    person: true,
+                    d4hInfo: true
                 },
                 orderBy: {
                     person: {

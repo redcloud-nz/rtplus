@@ -88,7 +88,7 @@ export function getFetchEventsQueryOptions(accessKey: D4hAccessKeyWithTeam, even
     }
 
     const params = {
-        path: { context: 'team', contextId: accessKey.team.d4hTeamId },
+        path: { context: 'team', contextId: accessKey.team.d4hTeamId! },
         query: queryParams
     } as const
 

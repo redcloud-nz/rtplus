@@ -31,9 +31,6 @@ import { recordSkillCheckAction } from './record-skill-check-action'
 
 
 
-
-
-
 export default function RecordSkillCheckPage() {
 
     const skillPackagesQuery = useSkillPackagesQuery()
@@ -105,7 +102,7 @@ export default function RecordSkillCheckPage() {
                                 {teamsQuery.data?.map(team =>
                                     <SelectGroup key={team.id}>
                                         <SelectLabel>{team.name}</SelectLabel>
-                                        {team.d4hTeamMemberships.map(membership =>
+                                        {team.teamMemberships.map(membership =>
                                             <SelectItem key={membership.id} value={membership.person.id}>{membership.person.name}</SelectItem>
                                         )}
                                     </SelectGroup>

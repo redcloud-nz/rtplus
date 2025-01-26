@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import type { D4hTeamMembership } from '@prisma/client'
+import type { TeamMembershipD4hInfo } from '@prisma/client'
 
 import type { CustomField, DateString,  ResourceId } from './common'
 
@@ -102,13 +102,13 @@ export type MemberStatusType = 'OPERATIONAL' | 'NON_OPERATIONAL' | 'OBSERVER' | 
 
 export type BasicD4hMember = Pick<D4hMember, 'id' | 'email' | 'name' | 'owner' | 'position' | 'ref' | 'status' >
 
-export function toTeamMembershipStatus(d4hMemberStatus: D4hMember['status']): D4hTeamMembership['d4hStatus'] {
+export function toTeamMembershipStatus(d4hMemberStatus: D4hMember['status']): TeamMembershipD4hInfo['d4hStatus'] {
     const mapping = {
         OPERATIONAL: 'Operational',
         NON_OPERATIONAL: 'NonOperational',
         OBSERVER: 'Observer',
         RETIRED: 'Retired'
-    } satisfies Record<MemberStatusType, D4hTeamMembership['d4hStatus']>
+    } satisfies Record<MemberStatusType, TeamMembershipD4hInfo['d4hStatus']>
 
     return mapping[d4hMemberStatus]
 }

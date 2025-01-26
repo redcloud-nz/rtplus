@@ -7,19 +7,19 @@
 import { parseISO } from 'date-fns'
 import * as R from 'remeda'
 
-import { auth } from '@clerk/nextjs/server'
-
+import { authenticated } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 
 import { type SkillCheckDiff } from './skill-check-data'
 
 
+
 export async function saveSessionAction(sessionId: string, diffs: SkillCheckDiff[]) {
    
-    const { userId } = await auth.protect()
+    const { userPersonId } = await authenticated()
 
     const existingSession = await prisma.skillCheckSession.findUnique({
-        where: { id: sessionId, userId: userId }
+        where: { id: sessionId, assessorId: userPersonId }
     })
     if(!existingSession) {
         throw new Error(`Session not found for sessionId=${sessionId}`)
@@ -48,7 +48,7 @@ export async function saveSessionAction(sessionId: string, diffs: SkillCheckDiff
                 upsert: updatedChecks.map(check => ({
                     where: { id: check.id },
                     update: R.pick(check, ['competenceLevel', 'notes', 'timestamp']),
-                    create: { ...check, userId, assessorId: existingSession.assessorId }
+                    create: { ...check, assessorId: existingSession.assessorId }
                 }))
             }
         }

@@ -12,17 +12,19 @@ import React from 'react'
 import { auth } from '@clerk/nextjs/server'
 
 import { AppPage, PageControls, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
+import { Protect } from '@/components/protect'
 import { Show } from '@/components/show'
 
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { ColorValue } from '@/components/ui/color'
 import { Link } from '@/components//ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
 import prisma from '@/lib/prisma'
 import * as Paths from '@/paths'
-import { Protect } from '@clerk/nextjs'
-import { ColorValue } from '@/components/ui/color'
+
+
 
 export const metadata: Metadata = { title: "Teams | RT+" }
 
@@ -33,7 +35,7 @@ export default async function TeamsPage() {
     const teams = await prisma.team.findMany({
         include: {
             _count: {
-                select: { d4hTeamMemberships: true }
+                select: { teamMemberships: true }
             }
         },
         orderBy: { name: 'asc' }
@@ -47,7 +49,7 @@ export default async function TeamsPage() {
             <PageTitle>Manage Teams</PageTitle>
             <PageDescription>These are the teams that are available for use in RT+.</PageDescription>
             <PageControls>
-                <Protect role="org:admin">
+                <Protect permission="system:write">
                     <Button asChild>
                         <Link href={Paths.newTeam}>
                             <PlusIcon/> New Team
@@ -77,7 +79,7 @@ export default async function TeamsPage() {
                             </TableCell>
                             <TableCell>{team.ref}</TableCell>
                             <TableCell className='text-center'><ColorValue value={team.color}/></TableCell>
-                            <TableCell className='text-center'>{team._count.d4hTeamMemberships}</TableCell>
+                            <TableCell className='text-center'>{team._count.teamMemberships}</TableCell>
                         </TableRow>
                     )}
                 </TableBody>

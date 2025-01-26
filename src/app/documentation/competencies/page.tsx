@@ -58,7 +58,7 @@ export default function CompetenciesDocumentation() {
             
             <section className="mb-8">
                 <Heading level={2}>Recording</Heading>
-                <Paragraph>Skill Checks are recorded using "Skill Check Sessions".</Paragraph>
+                <Paragraph>Skill Checks are recorded using &lsquo;Skill Check Sessions&rsquo;.</Paragraph>
 
                
             </section>

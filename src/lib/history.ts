@@ -20,11 +20,11 @@ interface CreateEventArgs {
  */
 export class EventBuilder {
 
-    readonly userId: string | null
+    readonly personId: string | null
     readonly parentId: string | null
 
-    private constructor(userId: string | null, parentId: string | null) {
-        this.userId = userId
+    private constructor(personid: string | null, parentId: string | null) {
+        this.personId = personid
         this.parentId = parentId
     }
 
@@ -43,10 +43,10 @@ export class EventBuilder {
     }
 
     buildRootEvent(eventType: HistoryEventType, objectType: HistoryEventObjectType, objectId: string, { description = "", meta = {} }: CreateEventArgs = {}): HistoryEventData {
-        return { id: this.parentId!, userId: this.userId, parentId: null, eventType, objectType, objectId, description, meta }
+        return { id: this.parentId!, personId: this.personId, parentId: null, eventType, objectType, objectId, description, meta }
     }
 
     buildEvent(eventType: HistoryEventType, objectType: HistoryEventObjectType, objectId: string, { description = "", meta = {} }: CreateEventArgs = {}): HistoryEventData {
-        return { id: createUUID(), userId: this.userId, parentId: this.parentId, eventType, objectType, objectId, description, meta }
+        return { id: createUUID(), personId: this.personId, parentId: this.parentId, eventType, objectType, objectId, description, meta }
     }
 }

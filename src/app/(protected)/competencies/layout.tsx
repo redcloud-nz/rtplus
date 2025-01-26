@@ -5,7 +5,7 @@
  *  Path: /competencies
  */
 
-import { LayoutDashboardIcon, ListPlusIcon, PencilIcon, ScrollIcon, Settings2Icon, SquarePenIcon } from 'lucide-react'
+import { LayoutDashboardIcon, ListPlusIcon, ScrollIcon, Settings2Icon, SquarePenIcon } from 'lucide-react'
 import type { Metadata } from 'next'
 
 import { AppPageContainer } from '@/components/app-page'

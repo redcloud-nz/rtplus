@@ -12,10 +12,12 @@ import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRo
 import { DataTable, DataTableColumnsDropdown, DataTableControls, DataTableGroupingDropdown, DataTableProvider, DataTableResetButton, DataTableSearch, defineColumns} from '@/components/data-table'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import {  useD4hAccessKeys, useTeamNameResolver } from '@/lib/api/d4h-access-keys'
+import {  useD4hAccessKeys } from '@/lib/api/d4h-access-keys'
+import { useTeamNameResolver } from '@/lib/api/teams'
 import { getListResponseCombiner } from '@/lib/d4h-api/client'
 import { D4hEvent, getFetchEventsQueryOptions } from '@/lib/d4h-api/event'
 import { formatDateTime } from '@/lib/utils'
+
 
 
 export function ActivitiesList() {
@@ -24,7 +26,7 @@ export function ActivitiesList() {
 
     const accessKeys = useD4hAccessKeys()
 
-    const resolveTeamName = useTeamNameResolver(accessKeys)
+    const resolveTeamName = useTeamNameResolver()
 
     const eventsQuery = useQueries({
         queries: accessKeys.flatMap(accessKey => [

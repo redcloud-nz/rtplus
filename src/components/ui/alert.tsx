@@ -8,9 +8,6 @@ import { tv, VariantProps } from 'tailwind-variants'
 
 import { cn } from '@/lib/utils'
 
-
-type AlertSeverity = 'info' | 'success' | 'warning' | 'error'
-
 const alertStyles = tv({
     slots: {
         root: 'rounded-md p-4',

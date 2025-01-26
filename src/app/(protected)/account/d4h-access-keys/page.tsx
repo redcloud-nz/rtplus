@@ -7,9 +7,7 @@
 
 import { PlusIcon, TrashIcon } from 'lucide-react'
 import { Metadata } from 'next'
-import React from 'react'
-
-import { auth } from '@clerk/nextjs/server'
+import * as React from 'react'
 
 import { AppPage, PageControls, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 import { Show } from '@/components/show'
@@ -18,6 +16,7 @@ import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
+import { authenticated } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { formatDateTime } from '@/lib/utils'
 import * as Paths from '@/paths'
@@ -31,7 +30,7 @@ export const metadata: Metadata = { title: "Personal D4H Access Keys | RT+" }
 
 export default async function D4hAccessKeysPage() {
     
-    const { userId } = await auth.protect()
+    const { userPersonId } = await authenticated()
    
     const accessKeys = await prisma.d4hAccessKey.findMany({
         include: {
@@ -41,7 +40,7 @@ export default async function D4hAccessKeysPage() {
                 }
             }
         },
-        where: { userId },
+        where: { ownerId: userPersonId },
         orderBy: { team: { name: 'asc' } }
     })
 

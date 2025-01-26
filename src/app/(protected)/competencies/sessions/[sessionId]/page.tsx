@@ -2,19 +2,19 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /competencies/sessions/[sessionId]/v2
+ *  Path: /competencies/sessions/[sessionId]
  */
 
 import { notFound } from 'next/navigation'
 import * as React from 'react'
 import * as R from 'remeda'
 
-import { auth } from '@clerk/nextjs/server'
 
 import { AppPage } from '@/components/app-page'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
+import { authenticated } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { withSerializedDates } from '@/lib/serialize'
 import * as Paths from '@/paths'
@@ -28,14 +28,15 @@ import { SkillsTabContent } from './skills-tab-content'
 import { SaveFooter } from './save-footer'
 import { TranscriptTabContent } from './transcript-tab-context'
 
+
 export default async function SessionPage(props: { params: Promise<{ sessionId: string }>}) {
 
-    const { userId } = await auth.protect()
+    const { userPersonId } = await authenticated()
 
     const { sessionId } = await props.params
 
     const { skills, assessees, checks, ...assessment } = await prisma.skillCheckSession.findFirst({
-        where: { userId, id: sessionId },
+        where: { assessorId: userPersonId, id: sessionId },
         include: {
             skills: { select: { id: true } },
             assessees: { select: { id: true } },

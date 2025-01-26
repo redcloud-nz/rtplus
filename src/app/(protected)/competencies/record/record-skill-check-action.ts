@@ -1,15 +1,17 @@
 /*
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
- * 
- *  Path: /competencies/record
  */
 'use server'
 
-import { FormState } from '@/lib/form-state'
+import { redirect } from 'next/navigation'
 import { z } from 'zod'
 
-import { auth } from '@clerk/nextjs/server'
+import { authenticated } from '@/lib/auth'
+import { FormState, fromErrorToFormState } from '@/lib/form-state'
+import prisma from '@/lib/prisma'
+
+import * as Paths from '@/paths'
 
 
 const RecordSkillCheckFormSchema = z.object({
@@ -21,8 +23,23 @@ const RecordSkillCheckFormSchema = z.object({
 
 export async function recordSkillCheckAction(formState: FormState, formData: FormData): Promise<FormState> {
     
+    const { userPersonId } = await authenticated()
 
-    const { userId, sessionClaims: { personId: assessorId } } = await auth.protect()
+    try {
+        const fields = RecordSkillCheckFormSchema.parse(Object.entries(formData))
 
-    return formState
+        await prisma.skillCheck.create({
+            data: {
+                skillId: fields.skillId,
+                assesseeId: fields.assesseeId,
+                assessorId: userPersonId,
+                competenceLevel: fields.competenceLevel,
+                notes: fields.notes,
+            }
+        })
+    } catch(error) {
+        return fromErrorToFormState(error)
+    }
+
+    redirect(Paths.competencies.dashboard)
 }

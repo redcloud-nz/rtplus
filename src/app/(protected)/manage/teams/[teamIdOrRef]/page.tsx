@@ -25,7 +25,7 @@ import { ColorValue } from '@/components/ui/color'
 
 
 export default async function TeamPage(props: { params: Promise<{ teamIdOrRef: string }>}) {
-    const params = await props.params;
+    const params = await props.params
 
     await auth.protect()
 
@@ -35,8 +35,9 @@ export default async function TeamPage(props: { params: Promise<{ teamIdOrRef: s
             ...createWhereClause(params.teamIdOrRef)
         },
         include: {
-            d4hTeamMemberships: {
+            teamMemberships: {
                 include: {
+                    d4hInfo: true,
                     person: true
                 }
             },
@@ -83,7 +84,7 @@ export default async function TeamPage(props: { params: Promise<{ teamIdOrRef: s
                         <DLTerm>Colour</DLTerm>
                         <DLDetails><ColorValue value={team.color}/></DLDetails>
 
-                        {team.d4hTeamId > 0 && <>
+                        {team.d4hTeamId && team.d4hTeamId > 0 && <>
                             <DLTerm>D4H Team ID</DLTerm>
                             <DLDetails>{team.d4hTeamId}</DLDetails>
                         </>}
@@ -113,14 +114,14 @@ export default async function TeamPage(props: { params: Promise<{ teamIdOrRef: s
                         </TableHead>
                         <TableBody>
                             {R.pipe(
-                                team.d4hTeamMemberships,
+                                team.teamMemberships,
                                 R.sortBy((member) => member.person.name),
                                 R.map(membership => 
                                     <TableRow key={membership.id}>
                                         <TableCell>
                                             <Link href={Paths.person(membership.person.id)}>{membership.person.name}</Link>
                                         </TableCell>
-                                        <TableCell>{membership.position}</TableCell>
+                                        <TableCell>{membership.d4hInfo?.position}</TableCell>
                                     </TableRow>
                                 )
                             )}

@@ -2,7 +2,6 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /imports/personnel
  */
 'use client'
 
@@ -17,21 +16,21 @@ import { Stepper } from '@/components/ui/stepper'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
 import { D4hAccessKeyWithTeam, useD4hAccessKeysQuery } from '@/lib/api/d4h-access-keys'
-import { fetchTeam } from '@/lib/api/teams'
+import { fetchTeamMemberships } from '@/lib/api/teams'
 import { changeCountsToString } from '@/lib/change-counts'
 import { D4hListResponse, getD4hFetchClient } from '@/lib/d4h-api/client'
 import { D4hMember, toTeamMembershipStatus } from '@/lib/d4h-api/member'
 import { assertNonNull } from '@/lib/utils'
 import * as Paths from '@/paths'
 
-import { type ImportPersonnelActionResult, importPersonnelAction, type MemberDiff } from './actions'
+import { type ImportPersonnelActionResult, importPersonnelAction, type MemberDiff } from './import-personnel-action'
+
 
 
 
 type ImportState = { status: 'Init' } | { status: 'Review', team: D4hAccessKeyWithTeam['team'], diffs: MemberDiff[] } | { status: 'Done', result: ImportPersonnelActionResult } | { status: 'Error', message: string, canRetry?: boolean }
 
-
-export default function ImportPersonnelPage() {    
+export function ImportPersonnel() {    
 
     const { data: accessKeys } = useD4hAccessKeysQuery()
 
@@ -50,7 +49,7 @@ export default function ImportPersonnelPage() {
         try {
             const { data, error } = await getD4hFetchClient(accessKey).GET('/v3/{context}/{contextId}/members', { 
                 params: {
-                    path: { context: 'team', contextId: accessKey.team.d4hTeamId },
+                    path: { context: 'team', contextId: accessKey.team.d4hTeamId! },
                     query: { status: ['OPERATIONAL', 'NON_OPERATIONAL'] }
                 }
             })
@@ -63,23 +62,23 @@ export default function ImportPersonnelPage() {
             setState({ status: 'Error', message: ''+ex })
         }
     
-        const storedTeam = await fetchTeam(teamId)
+        const teamMemberships = await fetchTeamMemberships(teamId)
 
         const diffs: MemberDiff[] = []
 
         for(const d4hMember of d4hMembers) {
             const d4hStatus = toTeamMembershipStatus(d4hMember.status)
 
-            const savedMember = storedTeam.d4hTeamMemberships.find(member => member.d4hMemberId == d4hMember.id)
+            const savedMember = teamMemberships.find(member => member.d4hInfo?.d4hMemberId == d4hMember.id)
 
             if(savedMember) {
                 // Already exists, check if updates are required
                 const fields: MemberDiff['fields'] = {}
                 if(d4hMember.name != savedMember.person.name) fields.name = d4hMember.name
                 if(d4hMember.email.value != savedMember.person.email) fields.email = d4hMember.email.value
-                if(d4hMember.position != savedMember.position) fields.position = d4hMember.position
-                if(d4hMember.ref != savedMember.d4hRef) fields.d4hRef = d4hMember.ref
-                if(d4hStatus != savedMember.d4hStatus) fields.d4hStatus = d4hStatus
+                if(savedMember.d4hInfo == null || d4hMember.position != savedMember.d4hInfo.position) fields.position = d4hMember.position
+                if(savedMember.d4hInfo == null ||d4hMember.ref != savedMember.d4hInfo.d4hRef) fields.d4hRef = d4hMember.ref
+                if(savedMember.d4hInfo == null || d4hStatus != savedMember.d4hInfo.d4hStatus) fields.d4hStatus = d4hStatus
 
                 if(Object.keys(fields).length > 0) {
                     diffs.push({ type: 'Update', d4hMemberId: d4hMember.id, name: savedMember.person.name, membershipId: savedMember.id, personId: savedMember.person.id, fields })

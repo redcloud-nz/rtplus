@@ -27,7 +27,7 @@ export function TranscriptTabContent() {
     const teamsQuery = useTeamsWithMembersQuery()
 
     const getAssesseeName = React.useMemo(() => {
-        const teamMembers = (teamsQuery.data ?? [])?.flatMap(team => team.d4hTeamMemberships)
+        const teamMembers = (teamsQuery.data ?? [])?.flatMap(team => team.teamMemberships)
         return (assesseeId: string) => {
             const member = teamMembers.find(member => member.person.id === assesseeId)
             return member ? member.person.name: assesseeId

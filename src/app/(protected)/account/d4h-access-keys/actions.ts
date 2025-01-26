@@ -6,11 +6,10 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { auth } from '@clerk/nextjs/server'
-
 import prisma from '@/lib/prisma'
 import { assertNonNull } from '@/lib/utils'
 import * as Paths from '@/paths'
+import { authenticated } from '@/lib/auth'
 
 type CreateArgs =  { accessKey: string, teamId: string, d4hTeamId: number }
 
@@ -19,7 +18,7 @@ type CreateArgs =  { accessKey: string, teamId: string, d4hTeamId: number }
  */
 export async function createAccessKey({ accessKey, teamId, d4hTeamId }: CreateArgs) {
 
-    const { userId } = await auth.protect()
+    const { userPersonId } = await authenticated()
 
     const team = await prisma.team.findFirst({
         where: { id: teamId }
@@ -28,7 +27,7 @@ export async function createAccessKey({ accessKey, teamId, d4hTeamId }: CreateAr
 
     // Create the Access Key
     await prisma.d4hAccessKey.create({
-        data: { userId, key: accessKey, teamId, enabled: true }
+        data: { ownerId: userPersonId, key: accessKey, teamId, enabled: true }
     })
 
     if(team.d4hTeamId == 0) {
@@ -49,10 +48,10 @@ type UpdateArgs = { accessKeyId: string, enabled: boolean }
  */
 export async function updateAccessKey({ accessKeyId, enabled }: UpdateArgs) {
 
-    const { userId } = await auth.protect()
+    const { userPersonId } = await authenticated()
 
     await prisma.d4hAccessKey.update({
-        where: { id: accessKeyId, userId },
+        where: { id: accessKeyId, ownerId: userPersonId },
         data: { enabled }
     })
 }
@@ -65,10 +64,10 @@ type DeleteArgs = { accessKeyId: string }
  */
 export async function deleteAccessKey({ accessKeyId }: DeleteArgs) {
 
-    const { userId } = await auth.protect()
+    const { userPersonId } = await authenticated()
 
     await prisma.d4hAccessKey.delete({
-        where: { id: accessKeyId, userId }
+        where: { id: accessKeyId, ownerId: userPersonId }
     })
 
     revalidatePath(Paths.account.d4hAccessKeys)

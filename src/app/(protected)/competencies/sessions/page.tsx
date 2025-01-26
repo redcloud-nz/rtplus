@@ -9,8 +9,6 @@ import { formatISO } from 'date-fns'
 import { SquarePenIcon } from 'lucide-react'
 import { redirect } from 'next/navigation'
 
-import { auth } from '@clerk/nextjs/server'
-
 import { AppPage, PageControls, PageHeader, PageTitle } from '@/components/app-page'
 import { Show } from '@/components/show'
 
@@ -19,19 +17,19 @@ import { Form, FormSubmitButton } from '@/components/ui/form'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
+import { authenticated } from '@/lib/auth'
 import { FormState } from '@/lib/form-state'
 import prisma from '@/lib/prisma'
 
 import * as Paths from '@/paths'
 
 
-
 export default async function SkillCheckSessionListPage() {
 
-    const { userId } = await auth.protect()
+    const { userPersonId } = await authenticated()
 
     const assessments = await prisma.skillCheckSession.findMany({
-        where: { userId },
+        where: { assessorId: userPersonId },
         include: {
             _count: {
                 select: { skills: true, assessees: true, checks: true }
@@ -89,14 +87,13 @@ export default async function SkillCheckSessionListPage() {
 async function createSessionAction(): Promise<FormState> {
     'use server'
 
-    const { userId, sessionClaims } = await auth.protect()
-    const assessorId = sessionClaims.personId
+    const { userPersonId } = await authenticated()
 
     const year = new Date().getFullYear()
 
     const assessments = await prisma.skillCheckSession.findMany({
         select: { id: true, name: true },
-        where: { userId, name: { startsWith: `${year} #`} },
+        where: { assessorId: userPersonId, name: { startsWith: `${year} #`} },
     })
 
     let highestNum = 0
@@ -107,16 +104,12 @@ async function createSessionAction(): Promise<FormState> {
         }
     }
 
-    const data = {
-        userId,
-        assessorId,
-        date: new Date(),
-        name: `${year} #${highestNum+1}`,
-    }
-    console.log(data)
-
     const createdSession = await prisma.skillCheckSession.create({
-        data
+        data: {
+            assessorId: userPersonId,
+            date: new Date(),
+            name: `${year} #${highestNum+1}`,
+        }
     })
 
     redirect(Paths.competencies.session(createdSession.id))

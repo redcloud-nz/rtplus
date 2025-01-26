@@ -8,25 +8,26 @@
 import { currentUser } from '@clerk/nextjs/server'
 
 import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
-import { Unauthorized } from '@/components/errors'
 
 import { Alert } from '@/components/ui/alert'
 import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 
+import { authenticated } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { formatDateTime } from '@/lib/utils'
 
 
+
 export default async function WhoAmIPage() {
 
-    const user = await currentUser()
-    if(!user) return <Unauthorized label="Who am I?"/>
+    const { userPersonId } = await authenticated()
+    const user = (await currentUser())!
 
-    const person = user.publicMetadata.personId
-        ? await prisma.person.findFirst({
+    const person = userPersonId
+        ? await prisma.person.findUnique({
             where: {
-                id: user.publicMetadata.personId
+                id: userPersonId
             }
         })
         : null
@@ -48,8 +49,6 @@ export default async function WhoAmIPage() {
                         <DLTerm>Clerk User ID</DLTerm>
                         <DLDetails>{user.id}</DLDetails>
 
-                        <DLTerm>{`user.publicMetadata.personId`}</DLTerm>
-                        <DLDetails>{''+user.publicMetadata.personId}</DLDetails>
                         {user.fullName && <>
                             <DLTerm>Full Name</DLTerm>
                             <DLDetails>{user.fullName}</DLDetails>
@@ -63,7 +62,7 @@ export default async function WhoAmIPage() {
                             <DLDetails>{user.primaryPhoneNumber.phoneNumber}</DLDetails>
                         </>}
 
-                        <DLTerm></DLTerm>
+                        <DLTerm>Public Metadata</DLTerm>
                         
                     </DL>
                 </CardContent>
@@ -92,6 +91,18 @@ export default async function WhoAmIPage() {
                         </DL>
                         : <Alert severity="warning" title="No matching person found."/>
                     }
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Public Metadata</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <pre>
+                        <code>
+                            {JSON.stringify(user.publicMetadata, null, 2)}
+                        </code>
+                    </pre>
                 </CardContent>
             </Card>
         </CardGrid>

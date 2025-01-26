@@ -25,9 +25,10 @@ export async function GET(request: NextRequest) {
         const teams: TeamWithMembers[] = await prisma.team.findMany({
             where: {},
             include: {
-                d4hTeamMemberships: {
+                teamMemberships: {
                     include: {
-                        person: true
+                        person: true,
+                        d4hInfo: true
                     },
                     orderBy: {
                         person: {

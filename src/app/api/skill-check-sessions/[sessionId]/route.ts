@@ -7,19 +7,16 @@
 
 import { NextRequest } from 'next/server'
 
-import { auth } from '@clerk/nextjs/server'
-
 import { createNotFoundResponse, createObjectResponse } from '@/lib/api/common'
 import prisma from '@/lib/prisma'
 
 
  
 export async function GET(request: NextRequest, props: { params: Promise<{ sessionId: string }> }) {
-    const { userId } = await auth.protect()
     const { sessionId } = await props.params
 
     const session = await prisma.skillCheckSession.findFirst({
-        where: { userId },
+        where: { id: sessionId },
         include: {
             skills: { select: { id: true } },
             assessees: { select: { id: true } }

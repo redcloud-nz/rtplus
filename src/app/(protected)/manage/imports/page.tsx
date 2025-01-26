@@ -24,7 +24,7 @@ export default function ImportsPage() {
         </PageHeader>
        <GridList className="mt-4">
             <GridListItem asChild>
-                <Link href="/manage/imports/personnel">
+                <Link href="/manage/imports/personnel-from-d4h">
                     <div className="flex items-center space-x-3">
                         <h3 className="truncate text-sm font-medium text-gray-900">Import Personnel from D4H</h3>
                     </div>

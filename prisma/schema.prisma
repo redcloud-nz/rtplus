@@ -10,40 +10,24 @@ datasource db {
 
 model D4hAccessKey {
   id        String   @id @default(uuid()) @db.Uuid
-  userId    String?  @map("user_id") @db.VarChar(50)
   key       String
   enabled   Boolean
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  ownerId   String?  @map("owner_id") @db.Uuid
   teamId    String   @map("team_id") @db.Uuid
+  owner     Person?  @relation("d4h_access_key_to_owner", fields: [ownerId], references: [id])
   team      Team     @relation("access_key_to_team", fields: [teamId], references: [id])
 
   @@map("d4h_access_keys")
 }
 
-model D4hTeamMembership {
-  id          String           @id @default(uuid()) @db.Uuid
-  position    String
-  d4hStatus   TeamMemberStatus @map("d4h_status")
-  d4hMemberId Int              @map("d4h_member_id")
-  d4hRef      String           @map("d4h_ref")
-  createdAt   DateTime         @default(now()) @map("created_at")
-  updatedAt   DateTime         @updatedAt @map("updated_at")
-  status      RecordStatus     @default(Active)
-  personId    String           @map("person_id") @db.Uuid
-  teamId      String           @map("team_id") @db.Uuid
-  person      Person           @relation("d4h_team_membership_to_person", fields: [personId], references: [id])
-  team        Team             @relation("d4h_team_membership_to_team", fields: [teamId], references: [id])
-
-  @@map("d4h_team_memberships")
-}
-
 model HistoryEvent {
   id          String                 @id @default(uuid()) @db.Uuid
-  userId      String?                @map("user_id") @db.VarChar(50)
   description String
   eventType   HistoryEventType       @map("event_type")
   objectType  HistoryEventObjectType @map("object_type")
+  personId    String?                @map("person_id") @db.Uuid
   objectId    String                 @map("object_id") @db.Uuid
   parentId    String?                @map("parent_id") @db.Uuid
   meta        Json
@@ -55,19 +39,23 @@ model HistoryEvent {
 }
 
 model Person {
-  id                           String              @id @default(uuid()) @db.Uuid
-  userId                       String?             @map("user_id") @db.VarChar(50)
-  ref                          String?             @db.VarChar(100)
+  id                           String                  @id @default(uuid()) @db.Uuid
+  ref                          String?                 @db.VarChar(100)
   name                         String
   email                        String
-  createdAt                    DateTime            @default(now()) @map("created_at")
-  updatedAt                    DateTime            @updatedAt @map("updated_at")
-  status                       RecordStatus        @default(Active)
-  skillChecksAsAssessee        SkillCheck[]        @relation("skill_check_to_assessee")
-  skillChecksAsAssessor        SkillCheck[]        @relation("skill_check_to_assessor")
-  d4hTeamMemberships           D4hTeamMembership[] @relation("d4h_team_membership_to_person")
-  skillCheckSessionsAsAssessee SkillCheckSession[] @relation("skill_check_session_to_assessee")
-  skillCheckSessionsAsAssessor SkillCheckSession[] @relation("skill_check_session_to_assessor")
+  createdAt                    DateTime                 @default(now()) @map("created_at")
+  updatedAt                    DateTime                 @updatedAt @map("updated_at")
+  status                       RecordStatus             @default(Active)
+  clerkUserId                  String?                  @map("clerk_user_id") @db.VarChar(50)
+  d4hAccessKeys                D4hAccessKey[]           @relation("d4h_access_key_to_owner")
+  skillChecksAsAssessee        SkillCheck[]             @relation("skill_check_to_assessee")
+  skillChecksAsAssessor        SkillCheck[]             @relation("skill_check_to_assessor")
+  skillCheckSessionsAsAssessee SkillCheckSession[]      @relation("skill_check_session_to_assessee")
+  skillCheckSessionsAsAssessor SkillCheckSession[]      @relation("skill_check_session_to_assessor")
+  skillPackagePermissions      SkillPackagePermission[] @relation("skill_package_permission_to_person")
+  systemPermissions            SystemPermission?        @relation("system_permission_to_person")
+  teamMemberships              TeamMembership[]         @relation("team_membership_to_person")
+  teamPermissions              TeamPermission[]         @relation("team_permission_to_person")
 
   @@map("personnel")
 }
@@ -94,7 +82,6 @@ model Skill {
 
 model SkillCheck {
   id              String             @id @default(uuid()) @db.Uuid
-  userId          String             @map("user_id") @db.VarChar(50)
   sessionId       String?            @map("session_id") @db.Uuid
   skillId         String             @map("skill_id") @db.Uuid
   assesseeId      String             @map("assessee_id") @db.Uuid
@@ -112,7 +99,6 @@ model SkillCheck {
 
 model SkillCheckSession {
   id         String                  @id @default(uuid()) @db.Uuid
-  userId     String                  @map("user_id") @db.VarChar(50)
   assessorId String                  @map("assessor_id") @db.Uuid
   name       String
   date       DateTime
@@ -143,33 +129,92 @@ model SkillGroup {
 }
 
 model SkillPackage {
-  id          String       @id @default(uuid()) @db.Uuid
-  ref         String?      @db.VarChar(100)
+  id          String                   @id @default(uuid()) @db.Uuid
+  ref         String?                  @db.VarChar(100)
   name        String
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
-  status      RecordStatus @default(Active)
-  skillGroups SkillGroup[] @relation("skill_group_to_skill_package")
-  skills      Skill[]      @relation("skill_to_skill_package")
+  createdAt   DateTime                 @default(now()) @map("created_at")
+  updatedAt   DateTime                 @updatedAt @map("updated_at")
+  status      RecordStatus             @default(Active)
+  skillGroups SkillGroup[]             @relation("skill_group_to_skill_package")
+  skills      Skill[]                  @relation("skill_to_skill_package")
+  permissions SkillPackagePermission[] @relation("skill_package_permission_to_skill_package")
 
   @@map("skill_packages")
 }
 
+model SkillPackagePermission {
+  id             String       @id @default(uuid()) @db.Uuid
+  personId       String       @map("person_id") @db.Uuid
+  skillPackageId String       @map("skill_package_id") @db.Uuid
+  permissions    String[]
+  person         Person       @relation("skill_package_permission_to_person", fields: [personId], references: [id])
+  skillPackage   SkillPackage @relation("skill_package_permission_to_skill_package", fields: [skillPackageId], references: [id])
+
+  @@map("skill_package_permissions")
+}
+
+model SystemPermission {
+    id          String   @id @default(uuid()) @db.Uuid
+    personId    String   @map("person_id") @db.Uuid @unique
+    permissions String[]
+    person      Person   @relation("system_permission_to_person", fields: [personId], references: [id])
+
+    @@map("system_permissions")
+}
+
 model Team {
-  id                 String              @id @default(cuid()) @db.Uuid
-  ref                String?             @db.VarChar(100)
-  name               String
-  color              String              @db.VarChar(10)
-  createdAt          DateTime            @default(now()) @map("created_at")
-  updatedAt          DateTime            @updatedAt @map("updated_at")
-  status             RecordStatus        @default(Active)
-  d4hTeamId          Int                 @map("d4h_team_id")
-  d4hApiUrl          String              @map("d4h_api_url")
-  d4hWebUrl          String              @map("d4h_web_url")
-  d4hAccessKeys      D4hAccessKey[]      @relation("access_key_to_team")
-  d4hTeamMemberships D4hTeamMembership[] @relation("d4h_team_membership_to_team")
+  id              String           @id @default(uuid()) @db.Uuid
+  ref             String?          @db.VarChar(100)
+  name            String
+  color           String           @db.VarChar(10)
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  status          RecordStatus     @default(Active)
+  d4hTeamId       Int?             @map("d4h_team_id")
+  d4hApiUrl       String           @map("d4h_api_url")
+  d4hWebUrl       String           @map("d4h_web_url")
+  d4hAccessKeys   D4hAccessKey[]   @relation("access_key_to_team")
+  teamMemberships TeamMembership[] @relation("team_membership_to_team")
+  teamPermissions TeamPermission[] @relation("team_permission_to_team") 
 
   @@map("teams")
+}
+
+model TeamMembership {
+  id          String                 @id @default(uuid()) @db.Uuid
+  createdAt   DateTime               @default(now()) @map("created_at")
+  updatedAt   DateTime               @updatedAt @map("updated_at")
+  status      RecordStatus           @default(Active)
+  personId    String                 @map("person_id") @db.Uuid
+  teamId      String                 @map("team_id") @db.Uuid
+  person      Person                 @relation("team_membership_to_person", fields: [personId], references: [id])
+  team        Team                   @relation("team_membership_to_team", fields: [teamId], references: [id])
+  d4hInfo     TeamMembershipD4hInfo? @relation("team_membership_to_d4h_info")
+
+  @@map("team_memberships")
+}
+
+model TeamMembershipD4hInfo {
+    id               String               @id @default(uuid()) @db.Uuid
+    position         String
+    d4hStatus        D4hTeamMemberStatus  @map("d4h_status")
+    d4hMemberId      Int                  @map("d4h_member_id")
+    d4hRef           String               @map("d4h_ref")
+    teamMembershipId String               @map("team_membership_id") @db.Uuid @unique
+    teamMembership   TeamMembership       @relation("team_membership_to_d4h_info", fields: [teamMembershipId], references: [id])                  
+
+    @@map("team_memberships_d4h_info")
+}
+
+model TeamPermission {
+    id          String       @id @default(uuid()) @db.Uuid
+    personId    String       @map("person_id") @db.Uuid
+    teamId      String       @map("team_id") @db.Uuid
+    permissions String[]
+    person      Person       @relation("team_permission_to_person", fields: [personId], references: [id])
+    team        Team         @relation("team_permission_to_team", fields: [teamId], references: [id])
+
+    @@map("team_permission")
 }
 
 enum CompetenceLevel {
@@ -180,9 +225,11 @@ enum CompetenceLevel {
     HighlyConfident
 }
 
-enum RecordStatus {
-  Active
-  Inactive
+enum D4hTeamMemberStatus {
+  Operational
+  NonOperational
+  Observer
+  Retired
 }
 
 enum HistoryEventObjectType {
@@ -192,8 +239,10 @@ enum HistoryEventObjectType {
   SkillCheckSession
   SkillGroup
   SkillPackage
+  SkillPackagePermission
   Team
   TeamMembership
+  TeamPermission
 }
 
 enum HistoryEventType {
@@ -204,15 +253,14 @@ enum HistoryEventType {
   Update
 }
 
+enum RecordStatus {
+  Active
+  Inactive
+}
+
 enum SkillCheckSessionStatus {
   Draft
   Complete
   Discard
 }
 
-enum TeamMemberStatus {
-  Operational
-  NonOperational
-  Observer
-  Retired
-}

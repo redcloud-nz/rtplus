@@ -31,7 +31,7 @@ export default async function PersonPage(props: { params: Promise<{ personIdOrRe
 
     const person = await prisma.person.findFirst({
         include: {
-            d4hTeamMemberships: {
+            teamMemberships: {
                 include: {
                     team: true
                 }
@@ -110,7 +110,7 @@ export default async function PersonPage(props: { params: Promise<{ personIdOrRe
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {person.d4hTeamMemberships.map(membership =>
+                            {person.teamMemberships.map(membership =>
                                 <TableRow key={membership.id}>
                                     <TableCell>
                                         <Link href={Paths.team(membership.team.ref || membership.team.id)}>

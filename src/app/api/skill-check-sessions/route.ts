@@ -7,15 +7,16 @@
 
 import { NextRequest } from 'next/server'
 
-import { auth } from '@clerk/nextjs/server'
 import { SkillCheckSession } from '@prisma/client'
 
 import { createListResponse } from '@/lib/api/common'
+import { authenticated } from '@/lib/auth'
 import prisma from '@/lib/prisma'
+
 
  
 export async function GET(request: NextRequest) {
-    const { userId } = await auth.protect()
+    const { userPersonId } = await authenticated()
 
     const searchParams = request.nextUrl.searchParams
     const status = searchParams.get('status') as SkillCheckSession['status']
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
 
     const assessments: SkillCheckSession[] = await prisma.skillCheckSession.findMany({
         where: { 
-            userId,
+            assessorId: userPersonId,
             ... status ? { status } : {}
         }
     })

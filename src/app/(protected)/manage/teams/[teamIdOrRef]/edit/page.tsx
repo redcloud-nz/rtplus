@@ -91,7 +91,7 @@ export default async function EditTeamPage(props: { params: Promise<{ teamIdOrRe
             <FormField name="d4hTeamId">
                 <FieldLabel>D4H Team ID</FieldLabel>
                 <FieldControl>
-                    <Input name="d4hTeamId" className="max-w-xs" type="number" defaultValue={team.d4hTeamId}/>
+                    <Input name="d4hTeamId" className="max-w-xs" type="number" defaultValue={team.d4hTeamId ?? ""}/>
                 </FieldControl>
                 <FieldDescription>D4H Team ID (If known).</FieldDescription>
                 <FieldMessage/>

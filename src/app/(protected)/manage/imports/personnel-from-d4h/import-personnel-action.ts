@@ -8,7 +8,7 @@
 import { isEmpty } from 'remeda'
 
 import { auth } from '@clerk/nextjs/server'
-import { Person, D4hTeamMembership } from '@prisma/client'
+import { Person, TeamMembershipD4hInfo } from '@prisma/client'
 
 import { ChangeCountsByType, createChangeCounts } from '@/lib/change-counts'
 import { EventBuilder } from '@/lib/history'
@@ -19,11 +19,12 @@ import { assertNonNull } from '@/lib/utils'
 
 export interface MemberDiff { 
     type: 'Create' | 'Update' | 'Delete',
-    d4hMemberId: number
-    name: string
-    membershipId?: string
-    personId?: string
-    fields: Partial<Pick<D4hTeamMembership, 'position' | 'd4hStatus' | 'd4hRef'> & Pick<Person, 'name' | 'email'>>
+    personId?: string,
+    membershipId?: string,
+    d4hMemberId: number,
+    name: string,
+    fields: Partial<Pick<Person, 'name' | 'email'> & Pick<TeamMembershipD4hInfo, 'position' | 'd4hStatus' | 'd4hRef'>>,
+  
 }
 
 export interface ImportPersonnelActionResult {
@@ -45,9 +46,10 @@ export async function importPersonnelAction(teamId: string, diffs: MemberDiff[])
     const team = await prisma.team.findFirst({
         where: { id: teamId },
         include: { 
-            d4hTeamMemberships: { 
+            teamMemberships: { 
                 include: { 
-                    person: true 
+                    person: true,
+                    d4hInfo: true
                 }
             } 
         },
@@ -84,14 +86,17 @@ export async function importPersonnelAction(teamId: string, diffs: MemberDiff[])
 
         const membershipId = createUUID()
         await prisma.$transaction([
-            prisma.d4hTeamMembership.create({ 
+            prisma.teamMembership.create({ 
                 data: { 
-                    d4hMemberId: diff.d4hMemberId, 
-                    position: diff.fields.position ?? "", 
-                    d4hStatus: diff.fields.d4hStatus ?? 'NonOperational',
-                    d4hRef: diff.fields.d4hRef ?? "",
+                    id: membershipId,
                     personId: personId,
                     teamId: team.id,
+                    d4hInfo: { create: { 
+                        d4hMemberId: diff.d4hMemberId,
+                        position: diff.fields.position ?? "", 
+                        d4hStatus: diff.fields.d4hStatus ?? 'NonOperational',
+                        d4hRef: diff.fields.d4hRef ?? "",
+                    } }
                 }
             }),
             prisma.historyEvent.create({ 
@@ -107,12 +112,12 @@ export async function importPersonnelAction(teamId: string, diffs: MemberDiff[])
         assertNonNull(diff.membershipId)
 
         const personData: Partial<Record<'name' | 'email', string>> = {}
-        const membershipData: Partial<Pick<D4hTeamMembership, 'position' | 'd4hStatus' | 'd4hRef'>> = {}
+        const membershipData: Partial<Pick<TeamMembershipD4hInfo, 'position' | 'd4hStatus' | 'd4hRef'>> = {}
         if(fields.name) personData.name = fields.name
         if(fields.email) personData.email = fields.email
         if(fields.position) membershipData.position = fields.position
         if(fields.d4hStatus) membershipData.d4hStatus = fields.d4hStatus
-        if(fields.d4hRef) membershipData.d4hStatus = fields.d4hStatus
+        if(fields.d4hRef) membershipData.d4hRef = fields.d4hRef
     
 
         if(!isEmpty(personData)) {
@@ -130,9 +135,21 @@ export async function importPersonnelAction(teamId: string, diffs: MemberDiff[])
 
         if(!isEmpty(membershipData)) {
             await prisma.$transaction([
-                prisma.d4hTeamMembership.update({
+                prisma.teamMembership.update({
                     where: { id: diff.membershipId },
-                    data: membershipData
+                    data: { 
+                        d4hInfo: { 
+                            upsert: {
+                                update: membershipData,
+                                create: { 
+                                    d4hMemberId: diff.d4hMemberId,
+                                    position: diff.fields.position ?? "",
+                                    d4hStatus: diff.fields.d4hStatus ?? 'NonOperational',
+                                    d4hRef: diff.fields.d4hRef ?? "",
+                                }
+                            }
+                        } 
+                    }
                 }),
                 prisma.historyEvent.create({ 
                     data: eventBuilder.buildEvent('Update', 'TeamMembership', diff.membershipId) 

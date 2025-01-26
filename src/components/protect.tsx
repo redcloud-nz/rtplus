@@ -5,27 +5,38 @@
 
 import * as React from 'react'
 
-import { auth } from '@clerk/nextjs/server'
+import { PrefixedSkillPackagePermission, PrefixedSystemPermission, PrefixedTeamPermission } from '@/lib/permissions'
+import { authenticated } from '@/lib/auth'
 
-import { hasPermission, Permission } from '@/lib/permissions'
+type ProtectSkillPackageProps = { permission: PrefixedSkillPackagePermission, skillPackageId: string }
+type ProtectSystemProps = { permission: PrefixedSystemPermission }
+type ProtectTeamProps = { permission: PrefixedTeamPermission, teamId: string }
 
-
-export interface ProtectProps {
+export type ProtectProps = {
     children: React.ReactNode
     fallback?: React.ReactNode
-    permission: Permission
-    teamId?: string
-}
+} & (ProtectSkillPackageProps | ProtectSystemProps | ProtectTeamProps)
 
-export async function Protect({ children, fallback, permission, teamId = 'system' }: ProtectProps): Promise<React.JSX.Element | null> {
+export async function Protect(props: ProtectProps): Promise<React.JSX.Element | null> {
 
-    const { sessionClaims } = await auth()
+    const { hasPermission } = await authenticated()
 
-    const authorized = <>{children}</>
-    const unauthorized = fallback ? <>{fallback}</> : null
+    const authorized = <>{props.children}</>
+    const unauthorized = props.fallback ? <>{props.fallback}</> : null
 
-    if(!sessionClaims) return unauthorized
+    if(props.permission.startsWith('skill-package:')) {
+        const { permission, skillPackageId } = props as ProtectSkillPackageProps
 
-    if(hasPermission(sessionClaims, teamId, permission)) return authorized
-    else return unauthorized
+        return hasPermission(permission, skillPackageId) ? authorized : unauthorized
+    } else if(props.permission.startsWith('system:')) {
+        const { permission } = props as ProtectSystemProps
+
+        return hasPermission(permission) ? authorized : unauthorized
+    } else if(props.permission.startsWith('team:')) {
+        const { permission, teamId } = props as ProtectTeamProps
+
+        return hasPermission(permission, teamId) ? authorized : unauthorized
+    } else {
+        throw new Error(`Unknown permission prefix: ${props.permission}`)
+    }
 }
