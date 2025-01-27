@@ -13,6 +13,7 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { NavItem, NavSection } from '@/components/nav-section'
 
 import * as Paths from '@/paths'
+import { Protect } from '@/components/protect'
 
 
 export const metadata: Metadata = {
@@ -25,7 +26,9 @@ export default async function ManageLayout({ children }: Readonly<{ children: Re
         <AppSidebar>
             <NavSection title="Manage">
                 <NavItem label="General Settings" href="/settings" icon={<SettingsIcon/>}/>
-                <NavItem label="Imports" href={Paths.imports.list} icon={<ImportIcon/>}/>
+                <Protect permission="system:write">
+                    <NavItem label="Imports" href={Paths.imports.list} icon={<ImportIcon/>}/>
+                </Protect>
                 <NavItem label="Personnel" href={Paths.personnel} icon={<UsersIcon/>}/>
                 <NavItem label="Skills" href={Paths.skillsList} icon={<PocketKnifeIcon/>}/>
                 <NavItem label="Skill Groups" href={Paths.skillGroupsList} icon={<GroupIcon/>}/>

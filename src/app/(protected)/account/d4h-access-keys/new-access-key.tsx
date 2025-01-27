@@ -5,6 +5,7 @@
 'use client'
 
 import React from 'react'
+import * as R from 'remeda'
 import { z } from 'zod'
 
 import { Team } from '@prisma/client'
@@ -105,9 +106,11 @@ export function NewAccessKeyDialog({ children, teams }: NewAccessKeyDialogProps)
                             <SelectContent>
                                 <SelectGroup>
                                     <SelectLabel>Teams</SelectLabel>
-                                    {teams.map(team => 
-                                        <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>
-                                    )}
+                                    {R  .sortBy(teams, team => team.name)
+                                        .map(team => 
+                                            <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>
+                                        )
+                                    }
                                 </SelectGroup>
                             </SelectContent>
                         </Select>

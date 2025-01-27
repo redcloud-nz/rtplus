@@ -21,7 +21,7 @@ import { changeCountsToString } from '@/lib/change-counts'
 import { resolveAfter } from '@/lib/utils'
 import * as Paths from '@/paths'
 
-import { importPackagesAction, ImportPackageActionResult } from './import-packages-action'
+import { importPackagesAction, type ImportPackageActionResult } from './import-packages-action'
 
 
 type ImportState = { status: 'Init' } | { status: 'Review', packageToImport: SkillPackageDef } | { status: 'Done', result: ImportPackageActionResult } | { status: 'Error', message: string }

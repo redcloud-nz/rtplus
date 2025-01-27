@@ -31,6 +31,8 @@ export function hasPermissionInternal(sessionClaims: CustomJwtSessionClaims | nu
     if(sessionClaims === null) return false
     const { rt_ssp: skillPackagePermissions, rt_sp: systemPermissions, rt_tp: teamPermissions } = sessionClaims
 
+    if(systemPermissions.includes('write')) return true
+
     if(permission.startsWith('skill-package:')) {
         const shortPermission = permission.substring('skill-package:'.length) as SkillPackagePermission
         

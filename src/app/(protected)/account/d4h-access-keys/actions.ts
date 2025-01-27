@@ -26,9 +26,11 @@ export async function createAccessKey({ accessKey, teamId, d4hTeamId }: CreateAr
     })
     assertNonNull(team, `Missing team record for teamId=${teamId}`)
 
+    const data = { ownerId: userPersonId, key: accessKey, teamId, enabled: true }
+
     // Create the Access Key
     await prisma.d4hAccessKey.create({
-        data: { ownerId: userPersonId, key: accessKey, teamId, enabled: true }
+        data: data
     })
 
     if(team.d4hTeamId == 0) {
@@ -55,6 +57,8 @@ export async function updateAccessKey({ accessKeyId, enabled }: UpdateArgs) {
         where: { id: accessKeyId, ownerId: userPersonId },
         data: { enabled }
     })
+
+    revalidatePath(Paths.account.d4hAccessKeys)
 }
 
 

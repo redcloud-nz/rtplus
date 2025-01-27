@@ -51,14 +51,6 @@ export default function NewTeamPage() {
                 <FieldDescription>Short name of the team (eg NZ-RT13).</FieldDescription>
                 <FieldMessage/>
             </FormField>
-            <FormField name="slug">
-                <FieldLabel>Team Slug</FieldLabel>
-                <FieldControl>
-                    <Input name="slug" className="max-w-xs"/>
-                </FieldControl>
-                <FieldDescription>Unique identifier for the team that can be used in a URL.</FieldDescription>
-                <FieldMessage/>
-            </FormField>
             <FormField name="color">
                 <FieldLabel>Team colour</FieldLabel>
                 <FieldControl>

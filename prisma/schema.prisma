@@ -40,8 +40,8 @@ model HistoryEvent {
 
 model Person {
   id                           String                   @id @default(uuid()) @db.Uuid
-  slug                         String?                  @db.VarChar(100)
-  name                         String                   @unique
+  slug                         String?                  @db.VarChar(100) @unique
+  name                         String                   @db.VarChar(100)
   email                        String
   createdAt                    DateTime                 @default(now()) @map("created_at")
   updatedAt                    DateTime                 @updatedAt @map("updated_at")
@@ -62,7 +62,7 @@ model Person {
 
 model Skill {
   id                 String              @id @default(uuid()) @db.Uuid
-  slug               String?             @db.VarChar(100)
+  slug               String?             @db.VarChar(100) @unique
   packageId          String              @map("package_id") @db.Uuid
   skillGroupId       String?             @map("skill_group_id") @db.Uuid
   name               String

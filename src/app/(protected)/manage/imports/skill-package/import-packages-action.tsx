@@ -6,13 +6,12 @@
 
 import * as R from 'remeda'
 
-import { auth } from '@clerk/nextjs/server'
-
 import { getGroupsInPackage, getSkillsInPackage, PackageList, SkillPackageDef } from '@/data/skills'
-import prisma from '@/lib/server/prisma'
+
 import { ChangeCountsByType, createChangeCounts as createChangeCounts, mergeChangeCounts } from '@/lib/change-counts'
 import { EventBuilder } from '@/lib/history'
-
+import { authenticated } from '@/lib/server/auth'
+import prisma from '@/lib/server/prisma'
 
 export interface ImportPackageActionResult {
     changeCounts: ChangeCountsByType<'packages' | 'skillGroups' | 'skills'>
@@ -26,7 +25,10 @@ export interface ImportPackageActionResult {
  */
 export async function importPackagesAction(packageIds: string[]): Promise<ImportPackageActionResult> {
 
-    const { userId } = await auth.protect({ role: 'org:admin' })
+    const { userPersonId, hasPermission } = await authenticated()
+    if(!hasPermission('system:write')) {
+        throw new Error('Unauthorized')
+    }
 
     const startTime = Date.now()
     const changeCounts = createChangeCounts(['packages', 'skillGroups', 'skills'])
@@ -35,7 +37,7 @@ export async function importPackagesAction(packageIds: string[]): Promise<Import
 
     // Packages that could need updating
     for(const skillPackage of packagesToImport) {
-        const eventBuilder = EventBuilder.createGrouped(userId)
+        const eventBuilder = EventBuilder.createGrouped(userPersonId)
 
         const packageChangeCounts = await importPackage(skillPackage, eventBuilder)
         mergeChangeCounts(changeCounts, packageChangeCounts)

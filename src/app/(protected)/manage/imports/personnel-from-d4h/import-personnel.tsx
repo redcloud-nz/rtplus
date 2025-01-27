@@ -7,8 +7,6 @@
 
 import React from 'react'
 
-import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
-
 import { Alert } from '@/components/ui/alert'
 import { AsyncButton, Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -21,10 +19,8 @@ import { changeCountsToString } from '@/lib/change-counts'
 import { D4hListResponse, getD4hFetchClient } from '@/lib/d4h-api/client'
 import { D4hMember, toTeamMembershipStatus } from '@/lib/d4h-api/member'
 import { assertNonNull } from '@/lib/utils'
-import * as Paths from '@/paths'
 
 import { type ImportPersonnelActionResult, importPersonnelAction, type MemberDiff } from './import-personnel-action'
-
 
 
 
@@ -111,17 +107,7 @@ export function ImportPersonnel() {
         }
     }
 
-    return <AppPage
-        label="Personnel"
-        breadcrumbs={[
-            { label: 'Manage', href: Paths.manage },
-            { label: 'Imports', href: Paths.imports.list },
-        ]}
-    >
-        <PageHeader>
-            <PageTitle>Import Personnel</PageTitle>
-            <PageDescription>Import personnel from D4H.</PageDescription>
-        </PageHeader>
+    return <>
         <Stepper 
             activeStep={['Init', 'Review', 'Done'].indexOf(state.status)}
             steps={[
@@ -203,9 +189,6 @@ export function ImportPersonnel() {
                 <Alert severity="error" title={state.message}/>
             </>}
         </div>
-
-        
-        {/* { result && <div className="my-2">Sync completed in {result.elapsedTime}ms, {result.insertCount} personnel inserted, {result.updateCount} personnel updated </div>} */}
-    </AppPage>
+    </>
 }
 

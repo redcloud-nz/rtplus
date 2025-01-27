@@ -35,7 +35,7 @@ export default async function EditTeamPage(props: { params: Promise<{ teamId: st
     await authenticated()
 
     const team = await prisma.team.findUnique({
-        where: { slug: teamId }
+        where: { id: teamId },
     })
 
     if(!team) return <NotFound label="Team"/>

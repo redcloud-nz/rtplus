@@ -20,7 +20,7 @@ const patterns: { pattern: URLPattern, handler: (auth: ClerkMiddlewareAuth, req:
         }
     },
     {
-        pattern: new URLPattern({ pathname: '/api/(personnel|skill-check-sessions|skill-groups|skills)(/.*)?' }),
+        pattern: new URLPattern({ pathname: '/api/(personnel|skills|skill-check-sessions|skill-groups|skill-packages)(/.*)?' }),
         handler: async (auth) => {
             const { userId } = await auth()
             if(!userId) return new Response('Unauthorized', { status: 401 })
@@ -50,14 +50,15 @@ const patterns: { pattern: URLPattern, handler: (auth: ClerkMiddlewareAuth, req:
         handler: async (auth, req, match) => {
             const { userId, sessionClaims } = await auth()
            
-            if(userId) return new Response('Unauthorized', { status: 401 })
+            if(!userId) return new Response('Unauthorized', { status: 401 })
             const userPersonId = sessionClaims!.rt_pid
             
-
             const extractedPersonId = match.pathname.groups[0]
 
             if(extractedPersonId == 'me') {
-                return NextResponse.rewrite(`/api/users/${userPersonId}${match.pathname.groups[1] || ''}`)
+                const url = req.nextUrl.clone()
+                url.pathname = `/api/users/${userPersonId}${match.pathname.groups[1] || ''}`
+                return NextResponse.rewrite(url)
             }
 
             if(extractedPersonId == undefined || !validateUUID(extractedPersonId)) {

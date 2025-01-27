@@ -69,9 +69,8 @@ const subApps: { title: string, href: string, icon?: typeof ClockIcon, iconForeg
 
 const dataCards: { name: string, initials: string, href: string, bgColor: string }[] = [
     { name: 'Teams', initials: 'T', href: Paths.teams.list, bgColor: 'bg-pink-600' },
-    { name: 'Personnel', initials: 'P', href: '/mamange/personnel', bgColor: 'bg-purple-600' },
-    { name: 'Templates', initials: 'T', href: '#', bgColor: 'bg-yellow-500' },
-    { name: 'React Components', initials: 'RC', href: '#', bgColor: 'bg-green-500' },
+    { name: 'Personnel', initials: 'P', href: Paths.personnel, bgColor: 'bg-purple-600' },
+    { name: 'Skill Packages', initials: 'SP', href: Paths.skillPackagesList, bgColor: 'bg-yellow-500' },
 ]
 
 export default function HomePage() {

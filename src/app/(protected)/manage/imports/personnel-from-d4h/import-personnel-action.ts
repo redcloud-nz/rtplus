@@ -35,7 +35,8 @@ export interface ImportPersonnelActionResult {
 
 export async function importPersonnelAction(teamId: string, diffs: MemberDiff[]): Promise<ImportPersonnelActionResult> {
 
-    const { userPersonId } = await authenticated()
+    const { userPersonId, hasPermission } = await authenticated()
+    if(!hasPermission('team:write', teamId)) throw new Error('Unauthorized')
 
     const startTime = Date.now()
     const changeCounts = createChangeCounts(['personnel', 'memberships'])
@@ -44,7 +45,7 @@ export async function importPersonnelAction(teamId: string, diffs: MemberDiff[])
     const updates = diffs.filter(diff => diff.type == 'Update')
     //const deletes = diffs.filter(diff => diff.type == 'Delete')
 
-    const team = await prisma.team.findFirst({
+    const team = await prisma.team.findUnique({
         where: { id: teamId },
         include: { 
             teamMemberships: { 
