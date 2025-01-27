@@ -6,6 +6,7 @@
 import { HistoryEvent, HistoryEventObjectType, HistoryEventType } from '@prisma/client'
 
 import { createUUID } from './id'
+import { validate } from 'uuid'
 
 
 export type HistoryEventData = Omit<HistoryEvent, 'timestamp' | 'meta'> & { meta: Record<string, number | string> }
@@ -26,20 +27,23 @@ export class EventBuilder {
     private constructor(personId: string | null, parentId: string | null) {
         this.personId = personId
         this.parentId = parentId
+
+        if(!validate(personId)) throw new Error(`Invalid UUID: ${personId}`)
     }
 
     /**
      * Create a new EventBuilder instance.
      */
-    static create(userId: string | null): EventBuilder {
-        return new EventBuilder(userId, null)
+    static create(personId: string | null): EventBuilder {
+        
+        return new EventBuilder(personId, null)
     }
 
     /**
      * Create a new EventBuilder instance with a parent event.
      */
-    static createGrouped(userId: string | null): EventBuilder {
-       return new EventBuilder(userId, createUUID())
+    static createGrouped(personId: string | null): EventBuilder {
+       return new EventBuilder(personId, createUUID())
     }
 
     buildRootEvent(eventType: HistoryEventType, objectType: HistoryEventObjectType, objectId: string, { description = "", meta = {} }: CreateEventArgs = {}): HistoryEventData {

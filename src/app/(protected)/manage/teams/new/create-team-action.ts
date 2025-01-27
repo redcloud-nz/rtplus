@@ -1,0 +1,84 @@
+/*
+ *  Copyright (c) 2025 Redcloud Development, Ltd.
+ *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
+ * 
+ */
+'use server'
+
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
+import { z } from 'zod'
+
+import { DefaultD4hApiUrl } from '@/lib/d4h-api/common'
+import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
+import { EventBuilder } from '@/lib/history'
+import { createUUID } from '@/lib/id'
+import { authenticated } from '@/lib/server/auth'
+import prisma from '@/lib/server/prisma'
+
+import * as Paths from '@/paths'
+
+
+
+const CreateTeamFormSchema = z.object({
+    name: z.string().min(5).max(50),
+    ref: z.string().max(10),
+    color: z.union([z.string().regex(/^#[0-9A-F]{6}$/, "Must be a colour in RGB Hex format (eg #4682B4)"), z.literal('')]),
+    d4hTeamId: z.union([z.number().int("Must be an integer."), z.literal('')]),
+    d4hApiUrl: z.union([z.string().url(), z.literal('')]),
+    d4hWebUrl: z.union([z.string().url(), z.literal('')]),
+})
+
+export async function createTeamAction(formState: FormState, formData: FormData): Promise<FormState> {
+
+    const { userPersonId } = await authenticated()
+
+    const eventBuilder = EventBuilder.create(userPersonId)
+
+    let teamIdOrSlug: string
+    try {
+        const fields = CreateTeamFormSchema.parse(Object.fromEntries(formData))
+        
+        // Make sure the team name and team code are unique
+        const nameConfict = await prisma.team.findFirst({
+            where: { name: fields.name}
+        })
+        if(nameConfict) {
+            return fieldError('teamName', `Team name '${fields.name}' is already taken.`)
+        }
+
+        const ref = fields.ref || null
+        if(ref) {
+            const refConflict = await prisma.team.findFirst({
+                where: { ref }
+            })
+            if(refConflict) return fieldError('teamRef', `Team ref '${ref}' is already taken.`)
+        }
+
+        const teamId = createUUID()
+
+        await prisma.$transaction([
+            prisma.team.create({
+                data: {
+                    id: teamId,
+                    name: fields.name, 
+                    ref,
+                    color: fields.color,
+                    d4hTeamId: fields.d4hTeamId || 0,
+                    d4hApiUrl: fields.d4hApiUrl || DefaultD4hApiUrl,
+                    d4hWebUrl: fields.d4hWebUrl
+                }
+            }),
+            prisma.historyEvent.create({
+                data: eventBuilder.buildEvent('Create', 'Team', teamId)
+            })
+        ])
+
+        teamIdOrSlug = fields.ref || teamId
+    } catch(error) {
+        return fromErrorToFormState(error)
+    }
+
+    revalidatePath(Paths.teams.list)
+    redirect(Paths.teams.team(teamIdOrSlug).index)
+}

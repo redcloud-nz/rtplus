@@ -9,8 +9,6 @@ import { PlusIcon } from 'lucide-react'
 import { Metadata } from 'next'
 import React from 'react'
 
-import { auth } from '@clerk/nextjs/server'
-
 import { AppPage, PageControls, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 import { Protect } from '@/components/protect'
 import { Show } from '@/components/show'
@@ -28,9 +26,7 @@ import * as Paths from '@/paths'
 
 export const metadata: Metadata = { title: "Teams | RT+" }
 
-export default async function TeamsPage() {
-
-    await auth.protect()
+export default async function TeamsListPage() {
 
     const teams = await prisma.team.findMany({
         include: {
@@ -51,7 +47,7 @@ export default async function TeamsPage() {
             <PageControls>
                 <Protect permission="system:write">
                     <Button asChild>
-                        <Link href={Paths.newTeam}>
+                        <Link href={Paths.teams.new}>
                             <PlusIcon/> New Team
                         </Link>
                     </Button>
@@ -75,7 +71,7 @@ export default async function TeamsPage() {
                     {teams.map(team => 
                         <TableRow key={team.id}>
                             <TableCell>
-                                <Link href={Paths.team(team.ref || team.id)}>{team.name}</Link>
+                                <Link href={Paths.teams.team(team.id).index}>{team.name}</Link>
                             </TableCell>
                             <TableCell>{team.ref}</TableCell>
                             <TableCell className='text-center'><ColorValue value={team.color}/></TableCell>

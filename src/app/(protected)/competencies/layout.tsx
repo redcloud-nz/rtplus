@@ -33,7 +33,7 @@ export default async function CompetenciesLayout({ children }: Readonly<{ childr
                     <NavSubItem label="Skills" href={Paths.skillsList}/>
                     <NavSubItem label="Skill Groups" href={Paths.skillGroupsList}/>
                     <NavSubItem label="Skill Packages" href={Paths.skillPackagesList}/>
-                    <NavSubItem label="Teams" href={Paths.teams}/>
+                    <NavSubItem label="Teams" href={Paths.teams.list}/>
                 </NavCollapsible>
             </NavSection>
         </AppSidebar>

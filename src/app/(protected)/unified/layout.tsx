@@ -26,7 +26,7 @@ export default async function D4HUnifiedLayout({ children }: Readonly<{ children
             <NavSection title="D4H Unified">
                 <NavItem label="Personnel" href={Paths.unified.personnel} icon={<UsersIcon/>}/>
 
-                <NavItem label="Calendar" href={Paths.teams} icon={<CalendarDaysIcon/>}/>
+                <NavItem label="Calendar" href={Paths.unified.calendar} icon={<CalendarDaysIcon/>}/>
             </NavSection>
         </AppSidebar>
         <AppPageContainer hasSidebar>

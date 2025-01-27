@@ -5,7 +5,7 @@
  *  Path: /manage
  */
 
-import { BoxesIcon, GroupIcon, ImportIcon, PocketKnifeIcon, SettingsIcon, UsersIcon } from 'lucide-react'
+import { BoxesIcon, GroupIcon, ImportIcon, PocketKnifeIcon, SettingsIcon, ShieldHalfIcon, UsersIcon } from 'lucide-react'
 import type { Metadata } from 'next'
 
 import { AppPageContainer } from '@/components/app-page'
@@ -30,7 +30,7 @@ export default async function ManageLayout({ children }: Readonly<{ children: Re
                 <NavItem label="Skills" href={Paths.skillsList} icon={<PocketKnifeIcon/>}/>
                 <NavItem label="Skill Groups" href={Paths.skillGroupsList} icon={<GroupIcon/>}/>
                 <NavItem label="Skill Packages" href={Paths.skillPackagesList} icon={<BoxesIcon/>}/>
-                <NavItem label="Teams" href={Paths.teams}/>
+                <NavItem label="Teams" href={Paths.teams.list} icon={<ShieldHalfIcon/>}/>
             </NavSection>
         </AppSidebar>
         <AppPageContainer hasSidebar>

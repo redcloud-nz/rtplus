@@ -57,7 +57,7 @@ export default async function EditTeamPage(props: { params: Promise<{ teamIdOrRe
         label="Edit"
         breadcrumbs={[
             { label: "Manage", href: Paths.manage },
-            { label: "Teams", href: Paths.teams },
+            { label: "Teams", href: Paths.teams.list },
             { label: team.ref || team.name, href: Paths.team(team.ref || team.id) },
         ]}
     >
@@ -115,7 +115,7 @@ export default async function EditTeamPage(props: { params: Promise<{ teamIdOrRe
             <FormFooter>
                 <FormSubmitButton label="Update" loading="Validating"/>
                 <Button variant="ghost" asChild>
-                    <Link href={Paths.teams}>Cancel</Link>
+                    <Link href={Paths.teams.team(team.id).index}>Cancel</Link>
                 </Button>
             </FormFooter>
             <FormMessage/>
@@ -173,6 +173,7 @@ async function updateTeam(formState: FormState, formData: FormData) {
         return fromErrorToFormState(error)
     }
 
-    revalidatePath(Paths.teams)
-    redirect(Paths.team(teamIdOrRef))
+    revalidatePath(Paths.teams.list)
+    revalidatePath(Paths.teams.team(teamIdOrRef).index)
+    redirect(Paths.teams.team(teamIdOrRef).index)
 }

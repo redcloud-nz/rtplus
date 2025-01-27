@@ -2,38 +2,33 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /manage/teams/[teamIdOrRef]
+ *  Path: /manage/teams/[teamId]
  */
 
 import { EllipsisVerticalIcon, PencilIcon, PlusIcon } from 'lucide-react'
 import * as R from 'remeda'
 
-import { auth } from '@clerk/nextjs/server'
-
 import { AppPage, PageControls, PageHeader, PageTitle } from '@/components/app-page'
 import { NotFound } from '@/components/errors'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
+import { ColorValue } from '@/components/ui/color'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { ExternalLink, Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
 import prisma from '@/lib/server/prisma'
 import * as Paths from '@/paths'
-import { createWhereClause } from '@/lib/id'
-import { ColorValue } from '@/components/ui/color'
 
 
-export default async function TeamPage(props: { params: Promise<{ teamIdOrRef: string }>}) {
-    const params = await props.params
 
-    await auth.protect()
+export default async function TeamPage(props: { params: Promise<{ teamId: string }>}) {
+    const { teamId } = await props.params
+
 
     // Get the team and all team members
-    const team = await prisma.team.findFirst({
-        where: {
-            ...createWhereClause(params.teamIdOrRef)
-        },
+    const team = await prisma.team.findUnique({
+        where: { id: teamId },
         include: {
             teamMemberships: {
                 include: {
@@ -42,16 +37,13 @@ export default async function TeamPage(props: { params: Promise<{ teamIdOrRef: s
                 }
             },
         },
-        orderBy: {
-            name: 'asc'
-        }
     })
 
     if(!team) return <NotFound />
 
     return <AppPage
         label={team.ref || team.name}
-        breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Teams", href: Paths.teams }]}
+        breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Teams", href: Paths.teams.list }]}
     >
         <PageHeader>
             <PageTitle objectType="Team">{team.name}</PageTitle>
@@ -67,7 +59,7 @@ export default async function TeamPage(props: { params: Promise<{ teamIdOrRef: s
                 <CardHeader>
                     <CardTitle>Team Details</CardTitle>
                     <Button variant="ghost" asChild>
-                        <Link href={Paths.editTeam(params.teamIdOrRef)}><PencilIcon/></Link>
+                        <Link href={Paths.teams.team(teamId).index}><PencilIcon/></Link>
                     </Button>
                 </CardHeader>
                 <CardContent>
@@ -84,10 +76,8 @@ export default async function TeamPage(props: { params: Promise<{ teamIdOrRef: s
                         <DLTerm>Colour</DLTerm>
                         <DLDetails><ColorValue value={team.color}/></DLDetails>
 
-                        {team.d4hTeamId && team.d4hTeamId > 0 && <>
-                            <DLTerm>D4H Team ID</DLTerm>
-                            <DLDetails>{team.d4hTeamId}</DLDetails>
-                        </>}
+                        <DLTerm>D4H Team ID</DLTerm>
+                        <DLDetails>{team.d4hTeamId}</DLDetails>
 
                         <DLTerm>D4H API URL</DLTerm>
                         <DLDetails>{team.d4hApiUrl}</DLDetails>
