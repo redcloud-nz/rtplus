@@ -8,7 +8,7 @@ import { UUIDValidationSet } from '@/lib/id'
 export interface SkillPackageDef {
     id: string
     name: string
-    ref: string | null
+    slug: string | null
     skillGroups: SkillGroupDef[]
     skills: SkillDef[]
 }
@@ -16,7 +16,7 @@ export interface SkillPackageDef {
 export interface SkillGroupDef {
     id: string
     name: string
-    ref: string | null
+    slug: string | null
     packageId: string
     parentId: string | null
     subGroups: SkillGroupDef[]
@@ -26,7 +26,7 @@ export interface SkillGroupDef {
 export interface SkillDef {
     id: string
     name: string
-    ref?: string
+    slug?: string
     packageId: string
     skillGroupId: string | null
     optional: boolean
@@ -38,9 +38,9 @@ const PLACEHOLDER = 'PLACEHOLDER' as const
 
 const vSet = new UUIDValidationSet()
 
-type SkillPackageArgs = Omit<SkillPackageDef, 'ref' | 'skills' | 'skillGroups'> & Partial<Pick<SkillPackageDef, 'skills' | 'skillGroups'>> & { ref?: string }
+type SkillPackageArgs = Omit<SkillPackageDef, 'slug' | 'skills' | 'skillGroups'> & Partial<Pick<SkillPackageDef, 'skills' | 'skillGroups'>> & { slug?: string }
 
-function definePackage({ id: packageId, ref, ...pkg }: SkillPackageArgs): SkillPackageDef {
+function definePackage({ id: packageId, slug, ...pkg }: SkillPackageArgs): SkillPackageDef {
     function patchSkillGroup(skillGroup: SkillGroupDef, parentId: string | null): SkillGroupDef {
         return { 
             ...skillGroup, 
@@ -56,44 +56,45 @@ function definePackage({ id: packageId, ref, ...pkg }: SkillPackageArgs): SkillP
     return { 
         ...pkg,
         id: packageId,
-        ref: ref ?? null,
+        slug: slug ?? null,
         skillGroups: (pkg.skillGroups ?? []).map(skillGroup => patchSkillGroup(skillGroup, null)),
         skills: (pkg.skills ?? []).map(skill => ({ ...skill, packageId, skillGroupId: null }))
     }
 }
 
-type SkillGroupArgs = Omit<SkillGroupDef, 'ref' | 'packageId' | 'parentId' | 'subGroups'> & Partial<Pick<SkillGroupDef, 'subGroups'>> & { ref?: string }
+type SkillGroupArgs = Omit<SkillGroupDef, 'slug' | 'packageId' | 'parentId' | 'subGroups'> & Partial<Pick<SkillGroupDef, 'subGroups'>> & { slug?: string }
 
-function defineGroup({id, ref, skills, subGroups = [], ...data }: SkillGroupArgs): SkillGroupDef {
+function defineGroup({id, slug, skills, subGroups = [], ...data }: SkillGroupArgs): SkillGroupDef {
     vSet.validate(id)
 
-    return { id, ref: ref ?? null, packageId: PLACEHOLDER, parentId: PLACEHOLDER, skills, subGroups, ...data }
+    return { id, slug: slug ?? null, packageId: PLACEHOLDER, parentId: PLACEHOLDER, skills, subGroups, ...data }
 }
 
 interface SkillArgs {
     id: string
     name: string
+    slug?: string
     optional?: boolean
     frequency?: string
     description?: string
 }
 
-function defineSkill({ id, name, optional = false, frequency = 'P1Y', description = "" }: SkillArgs): SkillDef {
+function defineSkill({ id, name, slug, optional = false, frequency = 'P1Y', description = "" }: SkillArgs): SkillDef {
     vSet.validate(id)
 
-    return { id, name, packageId: PLACEHOLDER, skillGroupId: PLACEHOLDER, optional, frequency, description }
+    return { id, name, slug, packageId: PLACEHOLDER, skillGroupId: PLACEHOLDER, optional, frequency, description }
 }
 
 export const PackageList: SkillPackageDef[] = [
     definePackage({ 
         id: "729d82a9-a4e1-41c2-9452-bc6a041dbad5", 
         name: "Foundation", 
-        ref: "Foundation",
+        slug: "Foundation",
         skillGroups: [
             defineGroup({ 
                 id: "37c63e6d-db66-40bf-b524-c3a2f88a2793", 
                 name: "First Aid",
-                ref: "First-Aid",
+                slug: "First-Aid",
                 skills: [
                     defineSkill({ id: "82581b82-1e54-46e0-97b4-9e774bac653f", name: "First Aid Certificate", description: "Hold a current first aid certificate." }),
                     defineSkill({ id: "984022b5-7e36-4179-aa72-183c31be72bd", name: "Patient Report Form", description: "Can complete a patient report form with basic observations." }),
@@ -104,7 +105,7 @@ export const PackageList: SkillPackageDef[] = [
             defineGroup({ 
                 id: "2c6f6a20-0621-49c9-8a67-1e03e4cbe7a8", 
                 name: "Soft Skills", 
-                ref: "Soft-Skills",
+                slug: "Soft-Skills",
                 skills: [
                     defineSkill({ id: "adf47ffc-2200-4c7c-b47f-f7fc8b632692", name: "Cultural Awareness", description: "Demonstrate cultural awareness.", frequency: 'P2Y' }),
                     defineSkill({ id: "4a2a15e9-4242-49e6-a469-c9c552812797", name: "Psychological First Aid", description: "Demonstrate use of psychological first aid.", frequency: 'P2Y' })
@@ -113,7 +114,7 @@ export const PackageList: SkillPackageDef[] = [
             defineGroup({ 
                 id: "23170811-034e-46af-8161-76eec3db0114", 
                 name: "Other",
-                ref: "Foundation-Other",
+                slug: "Foundation-Other",
                 skills: [
                     defineSkill({ id: "a2f4e52f-0836-4031-8558-7c066cb0c35f", name: "Staff a cordon", description: "Staff a cordon with appropriate PPE and make correct decisions about access." }),
                     defineSkill({ id: "7ffcae57-6c41-4c96-b9d5-6dfbde583d64", name: "Conduct reconnaissance", description: "Conduct reconnaissance and pass on relevant information effectively."}),
@@ -128,7 +129,7 @@ export const PackageList: SkillPackageDef[] = [
             defineGroup({ 
                 id: "bac3e167-bcc1-40c4-93e7-e10eff5440c5", 
                 name: "Communications",
-                ref: "Communications",
+                slug: "Communications",
                 skills: [
                     defineSkill({ id: "f802d82b-96f5-4b79-8c97-e7ee2b6f0a4f", name: "Comms Center", description: "Operate and manage a communications centre or hub." }),
                     defineSkill({ id: "ceb18650-c8c6-4c8d-aee6-1b8200096890", name: "Portable Repeater", description: "Set up a portable repeater or Cross Band.", frequency: 'P2Y' }),
@@ -141,12 +142,12 @@ export const PackageList: SkillPackageDef[] = [
     definePackage({ 
         id: "04d86835-f898-45cd-bf8a-7254a819437a", 
         name: "Light Rescue", 
-        ref: "Light-Rescue", 
+        slug: "Light-Rescue", 
         skillGroups: [
             defineGroup({ 
                 id: "65b1a42b-ede1-451c-8951-a07101224b15", 
                 name: "Knots and Lines",
-                ref: "Knots",
+                slug: "Knots",
                 skills: [
                     defineSkill({ id: "2c6f03d9-72cc-4398-8777-083875eb9d76", name: "Single Figure 8", description: "Tie a single figure 8 knot." }),
                     defineSkill({ id: "440a9fc8-1f05-44b8-b213-ec5fc95caf10", name: "Figure 8 on the Bight", description: "Tie a figure 8 on the bight." }),
@@ -167,7 +168,7 @@ export const PackageList: SkillPackageDef[] = [
             defineGroup({ 
                 id: "d3b71571-eaa8-409f-a42d-9ceb7c03a1ff", 
                 name: "Search Techniques", 
-                ref: "Search",
+                slug: "Search",
                 skills: [
                     defineSkill({ id: "f82342f8-bedc-46e7-becc-6df961290d88", name: "Correct PPE", description: "Wear correct PPE and complete a buddy check." }),
                     defineSkill({ id: "87542a1e-8764-4f98-9e57-8322e1ad191c", name: "Rubble Crawl", description: "Rubble pile crawl with 3-points of contact." }),
@@ -181,7 +182,7 @@ export const PackageList: SkillPackageDef[] = [
             defineGroup({ 
                 id: "1798714f-e135-42b2-b793-4c4ccecaa572", 
                 name: "Ladders", 
-                ref: "Ladders",
+                slug: "Ladders",
                 skills: [
                     defineSkill({ id: "50d39290-efb7-42ad-8a47-ae301216126d", name: "Extension Ladder", description: "Raise and lower an extension ladder." }),
                     defineSkill({ id: "7c701e44-9fef-494b-a964-2bf3a099ab0b", name: "Secure Ladder", description: "Secure head and foot of ladder." }),
@@ -193,7 +194,7 @@ export const PackageList: SkillPackageDef[] = [
             defineGroup({ 
                 id: "a0403b3e-ee04-4932-b87d-66bf70dfb56d", 
                 name: "Stretchers", 
-                ref: "Stretchers",
+                slug: "Stretchers",
                 skills: [
                     defineSkill({ id: "d89c7087-dbc2-4d69-a5ea-0dc977f0b468", name: "Load Stretcher", description: "Load and blanket stretcher with patient secured correctly." }),
                     defineSkill({ id: "9664efca-3ba0-4842-87f5-5a000d66e09e", name: "Lash Stretcher", description: "Lash a patient in to basket stretcher." }),
@@ -209,7 +210,7 @@ export const PackageList: SkillPackageDef[] = [
             defineGroup({ 
                 id: "5039c135-d76a-4018-8222-40b414c4f816", 
                 name: "ICP",
-                ref: "ICP",
+                slug: "ICP",
                 skills: [
                     defineSkill({ id: "f488201c-e44b-479c-93d0-ef4d7a24c33c", name: "Sign in/out board", description: "Establish and maintain a sign in/out board or T-card system." })
                 ]
@@ -217,7 +218,7 @@ export const PackageList: SkillPackageDef[] = [
             defineGroup({ 
                 id: "21b2c038-0827-49e3-8999-c875df2ff1ce", 
                 name: "Lowers", 
-                ref: "Lowers",
+                slug: "Lowers",
                 skills: [
                     defineSkill({ id: "a480ecf7-6080-4ded-880a-006c79f7318e", name: "Belay Anchors", description: "Establish top and/or bottom anchors for a lowering/belay system." }),
                     defineSkill({ id: "51897a32-7fe0-4f09-bd02-02ac67ab7cde", name: "Belay Stretcher", description: "Use a body belay or friction hitch to lower a stretcher." }),
@@ -233,7 +234,7 @@ export const PackageList: SkillPackageDef[] = [
             defineGroup({ 
                 id: "0efa6e4a-f954-45ee-961c-4425c4ec08cb", 
                 name: "Improvised Casualty Movement",
-                ref: "Improvised-Casualty-Movement",
+                slug: "Improvised-Casualty-Movement",
                 skills: [
                     defineSkill({ id: "c161d197-fa71-4e37-8666-f88fb1d66c3f", name: "Blanket/Clothing Lift", description: "Lift a patient using either a blanket lift or clothing lift. " }),
                     defineSkill({ id: "a0f1ae50-bb03-437b-bb72-dbc33704f928", name: "Human Crutch", description: "Assist a patient across a room using a human crutch." }),
@@ -250,12 +251,12 @@ export const PackageList: SkillPackageDef[] = [
     definePackage({ 
         id: "c7746384-e443-46e6-9217-18142be12c1f", 
         name: "Flood Response", 
-        ref: "Flood", 
+        slug: "Flood", 
         skillGroups: [
             defineGroup({
                 id: "9a46c2d3-4719-49db-be74-622b0ae60619",
                 name: "Flood Protection",
-                ref: "Flood-Protection",
+                slug: "Flood-Protection",
                 skills: [
                     defineSkill({ id: "57b5c4bb-912f-46fe-ac4d-aa0c9374d249", name: "Pumps", description: "Operate pumps (including priming and maintenance requirements)." }),
                     defineSkill({ id: "08395761-a4c4-4c41-b181-b34e0ac6c922", name: "Sand Bagging", description: "Effective sand bagging as a team or alternate flood barrier systems." }),
@@ -268,7 +269,7 @@ export const PackageList: SkillPackageDef[] = [
             defineGroup({
                 id: "a8c8384f-9eb0-4115-a249-ab52a85f8f53",
                 name: "Water Safety",
-                ref: "Water-Safety",
+                slug: "Water-Safety",
                 skills: [
                     defineSkill({ id: "10790bc7-30d9-41a0-80d9-32ae959184b4", name: "Correct PPE", description: "Correct PPE work and buddy checked" }),
                     defineSkill({ id: "776b2888-7d0a-47d9-8806-5b743f0c21cd", name: "Priorities and Safety", description: "Understands or demonstrates priority of rescue (low to high risk) and reqs for upstream & downstream safety" }),
@@ -286,12 +287,12 @@ export const PackageList: SkillPackageDef[] = [
     definePackage({ 
         id: "1402fccc-bbf5-4079-81fc-0adab7c426cd", 
         name: "Storm Response", 
-        ref: "Storm", 
+        slug: "Storm", 
         skillGroups: [
             defineGroup({
                 id: "e8083684-0cad-467c-8278-118616b3b1dc",
                 name: "Storm",
-                ref: "Storm",
+                slug: "Storm",
                 skills: [
                     defineSkill({ id: "ab6f7774-bb9e-471a-8196-4eb9255370f3", name: "Appropriate Anchors", description: "Choose appropriate anchors and rig correctly." }),
                     defineSkill({ id: "6b3b1fb3-0df0-4ca3-9265-de6e5f678138", name: "Setup Roof System", description: "Setup a roof access system." }),
@@ -306,7 +307,7 @@ export const PackageList: SkillPackageDef[] = [
             defineGroup({
                 id: "fd3204ee-915b-456a-96c6-0e47dcf93d62",
                 name: "Chainsaws",
-                ref: "Chairsaws",
+                slug: "Chairsaws",
                 skills: [
                     defineSkill({ id: "39e04a84-a94a-4de1-a3f6-a432f37c7764", name: "Chainsaw PPE", description: "Wears correct PPE when using a chainsaw", optional: true }),
                     defineSkill({ id: "12aa9ded-76af-4937-9a83-5892fc217251", name: "Chainsaw Handling", description: "Can demonstrate safe chainsaw handling, functional parts, and maintenance.", optional: true }),
@@ -321,12 +322,12 @@ export const PackageList: SkillPackageDef[] = [
     definePackage({ 
         id: "94536808-8754-40fc-a215-6deec25e58d7", 
         name: "CDC & Welfare", 
-        ref: "Welfare", 
+        slug: "Welfare", 
         skillGroups: [
             defineGroup({
                 id: "06bbacf1-a5ce-49bd-a488-f30f9ffb0ff3",
                 name: "Civil Defence Centres and Welfare",
-                ref: "CDC",
+                slug: "CDC",
                 skills: [
                     defineSkill({ id: "bbef6076-181b-4f72-8bc0-5b3a4a70067f", name: "Establish CDC", description: "Establish/setup a CDC as part of a team." }),
                     defineSkill({ id: "969d21fb-8e18-458e-8e65-6235b02a1dbf", name: "Staff CDC", description: "Act as a CDC staff member" }),
@@ -340,30 +341,30 @@ export const PackageList: SkillPackageDef[] = [
     definePackage({ 
         id: "33afba28-f132-4391-bedb-eab4a5105fde", 
         name: "Swiftwater Rescue", 
-        ref: "Swiftwater", 
+        slug: "Swiftwater", 
         skillGroups: [
             defineGroup({
                 id: "8b7f895b-5d6e-4973-bbb0-e741196afe9a",
                 name: "Responder",
-                ref: "Swiftwater-Responder",
+                slug: "Swiftwater-Responder",
                 skills: []
             }),
             defineGroup({
                 id: "c5dc9a6b-96ed-4290-8b28-d9f5a74bf339",
                 name: "Technician",
-                ref: "Swiftwater-Technician",
+                slug: "Swiftwater-Technician",
                 skills: []
             }),
             defineGroup({
                 id: "d2faf53f-2365-4743-b5e4-bd42a417058c",
                 name: "Technician Advanced",
-                ref: "Switftwater-Technician-Advanced",
+                slug: "Switftwater-Technician-Advanced",
                 skills: []
             }),
             defineGroup({
                 id: "384b7998-ac78-456f-89df-6c8cf452be0d",
                 name: "Other",
-                ref: "Swiftwater-Other",
+                slug: "Swiftwater-Other",
                 skills: []
             }),
             defineGroup({
@@ -386,24 +387,24 @@ export const PackageList: SkillPackageDef[] = [
     definePackage({ 
         id: "008c4441-3119-4fff-b16e-7f88ee6fba48", 
         name: "Rope Rescue", 
-        ref: "Rope", 
+        slug: "Rope", 
         skillGroups: [
             defineGroup({
                 id: "019e9647-ff86-45a1-aae2-259be7322b88",
                 name: "Responder",
-                ref: "Rope-Responder",
+                slug: "Rope-Responder",
                 skills: []
             }),
             defineGroup({
                 id: "455d90c4-baae-41ab-85e1-e570fce58bea",
                 name: "Technician",
-                ref: "Rope-Technician",
+                slug: "Rope-Technician",
                 skills: []
             }),
             defineGroup({
                 id: "c471e862-b068-467a-a267-6bbafb7aa8ff",
                 name: "Specialist",
-                ref: "Rope-Specialist",
+                slug: "Rope-Specialist",
                 skills: []
             }),
         ]
@@ -411,12 +412,12 @@ export const PackageList: SkillPackageDef[] = [
     definePackage({ 
         id: "7e68ea5d-d17f-426b-a991-6478a2a57f40", 
         name: "Mass Casualty Support", 
-        ref: "Mass-Casualty", 
+        slug: "Mass-Casualty", 
         skillGroups: [
             defineGroup({
                 id: "c2f50c53-cd0f-439d-92b0-e0a87cfa9d69",
                 name: "Mass Casualty",
-                ref: "Mass-Casualty",
+                slug: "Mass-Casualty",
                 skills: [
                     defineSkill({ id: "bb8602f4-bebb-4ac4-a3f0-0b7aff7c50f9", name: "Establish CCP", description: "Help to establish a Casualty Collection Point (including seperate area for deceased)." }),
                     defineSkill({ id: "5e336cf0-ab5d-45b1-a93a-e989be4fe91a", name: "Conduct Triage", description: "Conduct rapid traige using S.T.A.R.T. system." }),
@@ -429,7 +430,7 @@ export const PackageList: SkillPackageDef[] = [
             defineGroup({
                 id: "1cceb937-b8b1-40ac-b01b-ad75d8e75170",
                 name: "Medic",
-                ref: "Medic",
+                slug: "Medic",
                 skills: [
                     defineSkill({ id: "25cbb65b-2983-40c0-a324-70a5a2b249a4", name: "Patient Survey", description: "Conduct a primary and secondary survey." }),
                     defineSkill({ id: "f4ae3d5a-c43f-4b97-ac28-3c4da6175ee4", name: "Patient Report Form", description: "Complete a patient report form." }),
@@ -443,12 +444,12 @@ export const PackageList: SkillPackageDef[] = [
     definePackage({ 
         id: "ef13f4ee-de20-4384-82d9-8fd842e4cbf7", 
         name: "Out of Region", 
-        ref: "Out-Of-Region", 
+        slug: "Out-Of-Region", 
         skillGroups: [
             defineGroup({
                 id: "01ab9f72-deda-4a05-801f-5e3280e1ff39",
                 name: "Driving & 4WD",
-                ref: "Driving",
+                slug: "Driving",
                 skills: [
                     defineSkill({ id: "36712cb9-9cca-49de-9905-fd00671a9286", name: "Drive on road", description: "Drive a team vehicle on road." }),
                     defineSkill({ id: "dc7b223c-33d9-4412-9861-abea31a810e2", name: "Drive a 4WD offroad", description: "Drive a 4WD off road." }),
@@ -463,7 +464,7 @@ export const PackageList: SkillPackageDef[] = [
             defineGroup({
                 id: "6aa34ccd-8875-421d-a8ef-131dcb1abe3e",
                 name: "Out of Region Deployment",
-                ref: "Out-Of-Region",
+                slug: "Out-Of-Region",
                 skills: [
                     defineSkill({ id: "b215175b-31cb-4d14-847f-0ead5fdc9c03", name: "Deploy Out of Region", description: "Participate in an out-of-region deployment or exercise.", frequency: 'P2Y' }),
                     defineSkill({ id: "e2ec94c4-47ee-47fa-9927-d4385850aad0", name: "Out of Region Equipment", description: "Understands how to use the team's tents, cookers, toilets, wash stations,etc", frequency: 'P2Y' })
@@ -474,12 +475,12 @@ export const PackageList: SkillPackageDef[] = [
     definePackage({ 
         id: "6207d93f-ada3-4ef6-bc6b-a5ebc46daa89", 
         name: "Leadership", 
-        ref: "Leadership", 
+        slug: "Leadership", 
         skillGroups: [
             defineGroup({
                 id: "80deca5f-7bd2-4f02-b542-6a6f2e08c99f",
                 name: "Team Leadership",
-                ref: "Team-Leadership",
+                slug: "Team-Leadership",
                 skills: [
                     defineSkill({ id: "4515c1c4-cbbe-4ad4-8bff-bc1a8167847f", name: "Lead", description: "Lead a team or squad effectively." }),
                     defineSkill({ id: "2b9f8d1b-bc8d-4100-ac17-cd2839afb6a4", name: "Briefing", description: "Deliver a GSMEAC briefing for a task." }),
@@ -490,7 +491,7 @@ export const PackageList: SkillPackageDef[] = [
             defineGroup({
                 id: "d54a7a9d-8fc9-45dc-bef2-7db17d50a3b4",
                 name: "Safety Officer",
-                ref: "Safety-Officer",
+                slug: "Safety-Officer",
                 skills: [
                     defineSkill({ id: "afe2964d-08a0-4350-a8e6-1a7405860444", name: "Base Induction", description: "Understand team base health and safety induction requirements." }),
                     defineSkill({ id: "8d423031-c7b1-4bd9-9586-9114ad5b31cb", name: "Safety Briefing", description: "Deliver health and safety briefing." }),

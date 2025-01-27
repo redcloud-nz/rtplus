@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /manage/personnel/[personIdOrRef]
+ *  Path: /manage/personnel/[personId]
  */
 
 import { KeyRoundIcon, PencilIcon, PlusIcon, Trash2Icon } from 'lucide-react'
@@ -18,18 +18,18 @@ import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
-import { createWhereClause } from '@/lib/id'
+import { validateUUID } from '@/lib/id'
 import prisma from '@/lib/server/prisma'
 import { formatDateTime } from '@/lib/utils'
 import * as Paths from '@/paths'
 
-
 export const metadata: Metadata = { title: "Personnel | RT+" }
 
-export default async function PersonPage(props: { params: Promise<{ personIdOrRef: string }>}) {
-    const params = await props.params;
+export default async function PersonPage(props: { params: Promise<{ personId: string }>}) {
+    const { personId } = await props.params
+    if(!validateUUID(personId)) throw new Error(`Invalid personId (${personId}) in path`)
 
-    const person = await prisma.person.findFirst({
+    const person = await prisma.person.findUnique({
         include: {
             teamMemberships: {
                 include: {
@@ -37,7 +37,7 @@ export default async function PersonPage(props: { params: Promise<{ personIdOrRe
                 }
             },
         },
-        where: createWhereClause(params.personIdOrRef)
+        where: { id: personId }
     })
     if(!person) return <NotFound/>
 
@@ -51,7 +51,7 @@ export default async function PersonPage(props: { params: Promise<{ personIdOrRe
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Button variant="outline" size="icon">
-                            <Link href={Paths.personAccess(person.ref || person.id)}>
+                            <Link href={Paths.personAccess(person.id)}>
                                 <KeyRoundIcon/>
                             </Link>
                         </Button>
@@ -75,7 +75,7 @@ export default async function PersonPage(props: { params: Promise<{ personIdOrRe
                 <CardHeader>
                     <CardTitle>Details</CardTitle>
                     <Button variant="ghost" asChild>
-                        <Link href={Paths.editPerson(params.personIdOrRef)}><PencilIcon/></Link>
+                        <Link href={Paths.editPerson(personId)}><PencilIcon/></Link>
                     </Button>
                 </CardHeader>
                 <CardContent>
@@ -113,8 +113,8 @@ export default async function PersonPage(props: { params: Promise<{ personIdOrRe
                             {person.teamMemberships.map(membership =>
                                 <TableRow key={membership.id}>
                                     <TableCell>
-                                        <Link href={Paths.team(membership.team.ref || membership.team.id)}>
-                                            {membership.team.ref || membership.team.name}
+                                        <Link href={Paths.teams.team(membership.team.id).index}>
+                                            {membership.team.shortName || membership.team.name}
                                         </Link>
                                     </TableCell>
                                 </TableRow>

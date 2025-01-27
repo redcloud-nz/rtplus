@@ -72,10 +72,10 @@ const teamsPrefix = `${manage}/teams`
 export const teams = {
     list: teamsPrefix,
     new: `${teamsPrefix}/new`,
-    team: (tId: string) => ({
-        index: `${teamsPrefix}/${tId}`,
-        edit: `${teamsPrefix}/${tId}/edit`,
-        members: `${teamsPrefix}/${tId}/members`,
+    team: (teamId: string) => ({
+        index: `${teamsPrefix}/${teamId}`,
+        edit: `${teamsPrefix}/${teamId}/edit`,
+        members: `${teamsPrefix}/${teamId}/members`,
     } as const),
 } as const
 

@@ -43,12 +43,20 @@ export default function NewTeamPage() {
                 <FieldDescription>The full name of the team.</FieldDescription>
                 <FieldMessage/>
             </FormField>
-            <FormField name="ref">
-                <FieldLabel>Short name/code</FieldLabel>
+            <FormField name="shortName">
+                <FieldLabel>Short name</FieldLabel>
                 <FieldControl>
-                    <Input name="ref" className="max-w-xs"/>
+                    <Input name="shortName" className="max-w-xs"/>
                 </FieldControl>
                 <FieldDescription>Short name of the team (eg NZ-RT13).</FieldDescription>
+                <FieldMessage/>
+            </FormField>
+            <FormField name="slug">
+                <FieldLabel>Team Slug</FieldLabel>
+                <FieldControl>
+                    <Input name="slug" className="max-w-xs"/>
+                </FieldControl>
+                <FieldDescription>Unique identifier for the team that can be used in a URL.</FieldDescription>
                 <FieldMessage/>
             </FormField>
             <FormField name="color">

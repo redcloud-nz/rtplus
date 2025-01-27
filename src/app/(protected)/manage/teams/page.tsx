@@ -62,7 +62,7 @@ export default async function TeamsListPage() {
                 <TableHead>
                     <TableRow>
                         <TableHeadCell>Name</TableHeadCell>
-                        <TableHeadCell>Code</TableHeadCell>
+                        <TableHeadCell>Short Name</TableHeadCell>
                         <TableHeadCell className="text-center">Colour</TableHeadCell>
                         <TableHeadCell className='text-center'>Members</TableHeadCell>
                     </TableRow>
@@ -73,7 +73,7 @@ export default async function TeamsListPage() {
                             <TableCell>
                                 <Link href={Paths.teams.team(team.id).index}>{team.name}</Link>
                             </TableCell>
-                            <TableCell>{team.ref}</TableCell>
+                            <TableCell>{team.shortName}</TableCell>
                             <TableCell className='text-center'><ColorValue value={team.color}/></TableCell>
                             <TableCell className='text-center'>{team._count.teamMemberships}</TableCell>
                         </TableRow>

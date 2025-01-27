@@ -108,7 +108,7 @@ export function useTeamNameResolver(): (d4hTeamId: number) => string {
     return React.useMemo(() => {
         const lookupMap: Record<number, string> = {}
         for(const team of teamsQuery.data ?? []) {
-            if(team.d4hTeamId) lookupMap[team.d4hTeamId] = team.ref || team.name
+            if(team.d4hTeamId) lookupMap[team.d4hTeamId] = team.shortName || team.name
         }
         return (d4hTeamId) => lookupMap[d4hTeamId] ?? "Unknown"
     }, [teamsQuery.data])

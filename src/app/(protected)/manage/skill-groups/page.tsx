@@ -47,7 +47,7 @@ export default async function SkillGroupListPage() {
                         <TableRow key={skillGroup.id}>
                             <TableCell>
                                 <Link 
-                                    href={Paths.skillGroup(skillGroup.ref || skillGroup.id)}
+                                    href={Paths.skillGroup(skillGroup.id)}
                                 >{skillGroup.name}</Link>
                             </TableCell>
                             <TableCell>{skillGroup.package.name}</TableCell>

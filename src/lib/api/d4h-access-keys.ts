@@ -12,7 +12,7 @@ import { type DefinedUseQueryResult, useQuery } from '@tanstack/react-query'
 import { ListResponse } from './common' 
 
 
-export type D4hAccessKeyWithTeam = Pick<D4hAccessKey, 'id' | 'key'> & { team: Pick<Team, 'id' | 'name' | 'ref' | 'd4hApiUrl' | 'd4hTeamId'> }
+export type D4hAccessKeyWithTeam = D4hAccessKey & { team: Team }
 
 
 export function useD4hAccessKeysQuery(): DefinedUseQueryResult<D4hAccessKeyWithTeam[]> {

@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: //skills/[skillIdOrRef]
+ *  Path: //skills/[skillId]
  */
 
 import { AppPage, PageHeader, PageTitle } from '@/components/app-page'
@@ -11,28 +11,29 @@ import { NotFound } from '@/components/errors'
 import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { Link } from '@/components/ui/link'
+import { validateUUID } from '@/lib/id'
 
-import { createWhereClause } from '@/lib/id'
 import prisma from '@/lib/server/prisma'
 
 import * as Paths from '@/paths'
 
 
-export default async function SkillPage(props: { params: Promise<{ skillIdOrRef: string }>}) {
-    const params = await props.params;
+export default async function SkillPage(props: { params: Promise<{ skillId: string }>}) {
+    const { skillId } = await props.params
+    if(!validateUUID(skillId)) throw new Error(`Invalid skillId (${skillId}) in path`)
 
-    const skill = await prisma.skill.findFirst({
+    const skill = await prisma.skill.findUnique({
         include: {
             skillGroup: true,
             package: true,
         },
-        where: createWhereClause(params.skillIdOrRef)
+        where: { id: skillId }
     })
 
     if(!skill) return <NotFound/>
 
     return <AppPage
-        label={skill.ref || skill.name}
+        label={skill.name}
         breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Skills", href: Paths.skillsList }]}
     >
         <PageHeader>
@@ -51,9 +52,6 @@ export default async function SkillPage(props: { params: Promise<{ skillIdOrRef:
                         <DLTerm>Name</DLTerm>
                         <DLDetails>{skill.name}</DLDetails>
 
-                        <DLTerm>Ref</DLTerm>
-                        <DLDetails>{skill.ref}</DLDetails>
-
                         <DLTerm>Description</DLTerm>
                         <DLDetails>{skill.description}</DLDetails>
 
@@ -65,12 +63,12 @@ export default async function SkillPage(props: { params: Promise<{ skillIdOrRef:
 
                         <DLTerm>Package</DLTerm>
                         <DLDetails>
-                            <Link href={Paths.skillPackage(skill.package.ref || skill.package.id)}>{skill.package.name}</Link>
+                            <Link href={Paths.skillPackage(skill.package.id)}>{skill.package.name}</Link>
                         </DLDetails>
 
                         <DLTerm>Skill Group</DLTerm>
                         <DLDetails>
-                            {skill.skillGroup?.name ? <Link href={Paths.skillGroup(skill.skillGroup.ref || skill.skillGroup.id)}>{skill.skillGroup.name}</Link> : 'None'}
+                            {skill.skillGroup?.name ? <Link href={Paths.skillGroup(skill.skillGroup.id)}>{skill.skillGroup.name}</Link> : 'None'}
                         </DLDetails>
                     </DL>
                 </CardContent>

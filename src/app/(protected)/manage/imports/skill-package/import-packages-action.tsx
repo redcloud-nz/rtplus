@@ -58,12 +58,12 @@ async function importPackage(skillPackage: SkillPackageDef, eventBuilder: EventB
     
     const changeCounts = createChangeCounts(['packages', 'skillGroups', 'skills'])
 
-    const packageData = R.pick(skillPackage, ['id', 'name', 'ref'])
+    const packageData = R.pick(skillPackage, ['id', 'name', 'slug'])
 
     const storedPackage = await prisma.skillPackage.findFirst({ where: { id: skillPackage.id } })
 
     if(storedPackage != null) { // Existing package
-        const existingData = R.pick(storedPackage, ['id', 'name', 'ref'])
+        const existingData = R.pick(storedPackage, ['id', 'name', 'slug'])
 
         if(!R.isShallowEqual(packageData, existingData)) {
             // Only update if one of the fields has changed
@@ -102,7 +102,7 @@ async function importPackage(skillPackage: SkillPackageDef, eventBuilder: EventB
     for(const group of groupsToAdd) {
         await prisma.$transaction([
             prisma.skillGroup.create({ 
-                data: R.pick(group, ['id', 'ref', 'name', 'packageId', 'parentId']) 
+                data: R.pick(group, ['id', 'slug', 'name', 'packageId', 'parentId']) 
             }),
             prisma.historyEvent.create({ 
                 data: eventBuilder.buildEvent('Create', 'SkillGroup', group.id) 
@@ -121,7 +121,7 @@ async function importPackage(skillPackage: SkillPackageDef, eventBuilder: EventB
             await prisma.$transaction([
                 prisma.skillGroup.update({
                     where: { id: group.id },
-                    data: R.pick(group, ['name', 'ref', 'packageId', 'parentId'])
+                    data: R.pick(group, ['name', 'slug', 'packageId', 'parentId'])
                 }),
                 prisma.historyEvent.create({ 
                     data: eventBuilder.buildEvent('Update', 'SkillGroup', group.id) 
@@ -140,7 +140,7 @@ async function importPackage(skillPackage: SkillPackageDef, eventBuilder: EventB
     if(skillsToAdd.length > 0) {
         await prisma.$transaction([
             prisma.skill.createMany({
-                data: skillsToAdd.map(R.pick(['id', 'name', 'ref', 'description', 'frequency', 'optional', 'packageId', 'skillGroupId']))
+                data: skillsToAdd.map(R.pick(['id', 'name', 'slug', 'description', 'frequency', 'optional', 'packageId', 'skillGroupId']))
             }),
             prisma.historyEvent.createMany({ 
                 data: skillsToAdd.map(skill => eventBuilder.buildEvent('Create', 'Skill', skill.id)) 
@@ -155,11 +155,11 @@ async function importPackage(skillPackage: SkillPackageDef, eventBuilder: EventB
         const storedSkill = storedSkills.find(c => c.id == skill.id)
         if(!storedSkill) continue // New skill
 
-        if(skill.name != storedSkill.name || skill.ref != storedSkill.ref || skill.description != storedSkill.description || skill.frequency != storedSkill.frequency || skill.optional != storedSkill.optional) {
+        if(skill.name != storedSkill.name || skill.slug != storedSkill.slug || skill.description != storedSkill.description || skill.frequency != storedSkill.frequency || skill.optional != storedSkill.optional) {
             await prisma.$transaction([
                 prisma.skill.update({
                     where: { id: skill.id },
-                    data: R.pick(skill, ['name', 'ref', 'description', 'frequency', 'optional', 'skillGroupId'])
+                    data: R.pick(skill, ['name', 'slug', 'description', 'frequency', 'optional', 'skillGroupId'])
                 }),
                 prisma.historyEvent.create({ 
                     data: eventBuilder.buildEvent('Update', 'Skill', skill.id)

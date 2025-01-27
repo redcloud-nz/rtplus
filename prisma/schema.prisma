@@ -39,9 +39,9 @@ model HistoryEvent {
 }
 
 model Person {
-  id                           String                  @id @default(uuid()) @db.Uuid
-  ref                          String?                 @db.VarChar(100)
-  name                         String
+  id                           String                   @id @default(uuid()) @db.Uuid
+  slug                         String?                  @db.VarChar(100)
+  name                         String                   @unique
   email                        String
   createdAt                    DateTime                 @default(now()) @map("created_at")
   updatedAt                    DateTime                 @updatedAt @map("updated_at")
@@ -62,7 +62,7 @@ model Person {
 
 model Skill {
   id                 String              @id @default(uuid()) @db.Uuid
-  ref                String?             @db.VarChar(100)
+  slug               String?             @db.VarChar(100)
   packageId          String              @map("package_id") @db.Uuid
   skillGroupId       String?             @map("skill_group_id") @db.Uuid
   name               String
@@ -100,7 +100,7 @@ model SkillCheck {
 model SkillCheckSession {
   id         String                  @id @default(uuid()) @db.Uuid
   assessorId String                  @map("assessor_id") @db.Uuid
-  name       String
+  name       String                  @db.VarChar(100)
   date       DateTime
   status     SkillCheckSessionStatus @default(Draft)
   createdAt  DateTime                @default(now()) @map("created_at")
@@ -113,8 +113,8 @@ model SkillCheckSession {
 
 model SkillGroup {
   id        String       @id @default(uuid()) @db.Uuid
-  ref       String?      @db.VarChar(100)
-  name      String
+  slug      String?      @db.VarChar(100) @unique
+  name      String       @db.VarChar(100)
   packageId String       @map("package_id") @db.Uuid
   parentId  String?      @map("parent_id") @db.Uuid
   createdAt DateTime     @default(now()) @map("created_at")
@@ -130,8 +130,8 @@ model SkillGroup {
 
 model SkillPackage {
   id          String                   @id @default(uuid()) @db.Uuid
-  ref         String?                  @db.VarChar(100)
-  name        String
+  slug        String?                  @db.VarChar(100) @unique
+  name        String                   @db.VarChar(100)
   createdAt   DateTime                 @default(now()) @map("created_at")
   updatedAt   DateTime                 @updatedAt @map("updated_at")
   status      RecordStatus             @default(Active)
@@ -164,8 +164,9 @@ model SystemPermission {
 
 model Team {
   id              String           @id @default(uuid()) @db.Uuid
-  ref             String?          @db.VarChar(100)
-  name            String
+  slug            String?          @db.VarChar(100) @unique
+  name            String           @db.VarChar(100)
+  shortName       String           @db.VarChar(50)
   color           String           @db.VarChar(10)
   createdAt       DateTime         @default(now()) @map("created_at")
   updatedAt       DateTime         @updatedAt @map("updated_at")

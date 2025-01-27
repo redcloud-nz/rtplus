@@ -2,16 +2,11 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /manage/teams/[teamIdOrRef]/edit
+ *  Path: /manage/teams/[teamSlug]/edit
  */
 
 import { Metadata } from 'next'
-import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
 import React from 'react'
-import { z } from 'zod'
-
-import { auth } from '@clerk/nextjs/server'
 
 import { AppPage, PageTitle } from '@/components/app-page'
 import { NotFound } from '@/components/errors'
@@ -22,33 +17,25 @@ import { HiddenInput, Input } from '@/components/ui/input'
 import { Link } from '@/components/ui/link'
 
 import { DefaultD4hApiUrl } from '@/lib/d4h-api/common'
-import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
-import { EventBuilder } from '@/lib/history'
-import { createWhereClause } from '@/lib/id'
+import { validateUUID } from '@/lib/id'
+import { authenticated } from '@/lib/server/auth'
 import prisma from '@/lib/server/prisma'
 
 import * as Paths from '@/paths'
 
+import { updateTeamAction } from './update-team-action'
 
-const EditTeamFormSchema = z.object({
-    teamId: z.string().uuid(),
-    name: z.string().min(5).max(50),
-    ref: z.string().max(10),
-    color: z.union([z.string().regex(/^#[0-9a-fA-F]{6}$/, "Must be a colour in RGB Hex format (eg #4682B4)"), z.literal('')]),
-    d4hTeamId: z.union([z.coerce.number(), z.literal('')]),
-    d4hApiUrl: z.union([z.string().url(), z.literal('')]),
-    d4hWebUrl: z.union([z.string().url(), z.literal('')]),
-})
 
 export const metadata: Metadata = { title: "Edit Team | RT+" }
 
-export default async function EditTeamPage(props: { params: Promise<{ teamIdOrRef: string }>}) {
-    const params = await props.params
+export default async function EditTeamPage(props: { params: Promise<{ teamId: string }>}) {
+    const { teamId } = await props.params
+    if(!validateUUID(teamId)) throw new Error(`Invalid teamId (${teamId}) in path`)
 
-    await auth.protect()
+    await authenticated()
 
-    const team = await prisma.team.findFirst({
-        where: createWhereClause(params.teamIdOrRef)
+    const team = await prisma.team.findUnique({
+        where: { slug: teamId }
     })
 
     if(!team) return <NotFound label="Team"/>
@@ -58,11 +45,11 @@ export default async function EditTeamPage(props: { params: Promise<{ teamIdOrRe
         breadcrumbs={[
             { label: "Manage", href: Paths.manage },
             { label: "Teams", href: Paths.teams.list },
-            { label: team.ref || team.name, href: Paths.team(team.ref || team.id) },
+            { label: team.shortName || team.name, href: Paths.teams.team(teamId).index },
         ]}
     >
         <PageTitle>Edit Team</PageTitle>
-        <Form action={updateTeam}>
+        <Form action={updateTeamAction}>
             <HiddenInput name="teamId" value={team.id}/>
             <FormField name="name">
                 <FieldLabel>Team name</FieldLabel>
@@ -72,10 +59,10 @@ export default async function EditTeamPage(props: { params: Promise<{ teamIdOrRe
                 <FieldDescription>The full name of the team.</FieldDescription>
                 <FieldMessage/>
             </FormField>
-            <FormField name="ref">
-                <FieldLabel>Short name/code</FieldLabel>
+            <FormField name="shortName">
+                <FieldLabel>Short name</FieldLabel>
                 <FieldControl>
-                    <Input name="ref" className="max-w-xs" defaultValue={team.ref || ""}/>
+                    <Input name="shortName" className="max-w-xs" defaultValue={team.shortName || ""}/>
                 </FieldControl>
                 <FieldDescription>Short name of the team (eg NZ-RT13).</FieldDescription>
                 <FieldMessage/>
@@ -115,65 +102,10 @@ export default async function EditTeamPage(props: { params: Promise<{ teamIdOrRe
             <FormFooter>
                 <FormSubmitButton label="Update" loading="Validating"/>
                 <Button variant="ghost" asChild>
-                    <Link href={Paths.teams.team(team.id).index}>Cancel</Link>
+                    <Link href={Paths.teams.team(teamId).index}>Cancel</Link>
                 </Button>
             </FormFooter>
             <FormMessage/>
         </Form>
     </AppPage>
-}
-
-async function updateTeam(formState: FormState, formData: FormData) {
-    'use server'
-
-    const { userId } = await auth.protect()
-    
-    const eventBuilder = EventBuilder.create(userId)
-
-    let teamIdOrRef: string
-    try {
-        const fields = EditTeamFormSchema.parse(Object.fromEntries(formData))
-        
-        // Make sure the team name and team code are unique (excluding the current record)
-        const nameConfict = await prisma.team.findFirst({
-            where: { name: fields.name, id: { not: fields.teamId }}
-        })
-        if(nameConfict) {
-            return fieldError('teamName', `Team name '${fields.name}' is already taken.`)
-        }
-
-        const ref = fields.ref || null // Converts an empty string to null
-        if(ref) {
-            const refConflict = await prisma.team.findFirst({
-                where: { ref, id: { not: fields.teamId } }
-            })
-            if(refConflict) return fieldError('teamRef', `Team ref '${ref}' is already taken.`)
-        }
-
-        await prisma.$transaction([
-            prisma.team.update({
-                where: { id: fields.teamId },
-                data: { 
-                    name: fields.name, 
-                    ref,
-                    color: fields.color.toUpperCase(),
-                    d4hTeamId: fields.d4hTeamId || 0,
-                    d4hApiUrl: fields.d4hApiUrl || DefaultD4hApiUrl,
-                    d4hWebUrl: fields.d4hWebUrl
-                }
-            }),
-            prisma.historyEvent.create({
-                data: eventBuilder.buildEvent('Update', 'Team', fields.teamId)
-            })
-        ])
-
-        teamIdOrRef = ref ?? fields.teamId
-    } catch(error) {
-        console.log(error)
-        return fromErrorToFormState(error)
-    }
-
-    revalidatePath(Paths.teams.list)
-    revalidatePath(Paths.teams.team(teamIdOrRef).index)
-    redirect(Paths.teams.team(teamIdOrRef).index)
 }

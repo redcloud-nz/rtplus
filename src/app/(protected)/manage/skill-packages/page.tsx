@@ -17,9 +17,9 @@ import prisma from '@/lib/server/prisma'
 import * as Paths from '@/paths'
 
 
-export default async function CapabilitiesListPage() {
+export default async function SkillPackageListPage() {
 
-    const packages = await prisma.skillPackage.findMany({})
+    const skillPackages = await prisma.skillPackage.findMany({})
 
     return <AppPage
         label="Skill Packages" 
@@ -30,7 +30,7 @@ export default async function CapabilitiesListPage() {
             <PageDescription>Manage the skill packages available in RT+.</PageDescription>
         </PageHeader>
         <Show
-            when={packages.length > 0}
+            when={skillPackages.length > 0}
             fallback={<Alert severity="info" title="No skill packages defined."/>}
         >
             <Table border>
@@ -40,10 +40,10 @@ export default async function CapabilitiesListPage() {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {packages.map(capability =>
-                        <TableRow key={capability.id}>
+                    {skillPackages.map(skillPackage =>
+                        <TableRow key={skillPackage.id}>
                             <TableCell>
-                                <Link href={Paths.skillPackage(capability.ref || capability.id)}>{capability.name}</Link>
+                                <Link href={Paths.skillPackage(skillPackage.id)}>{skillPackage.name}</Link>
                             </TableCell>
                         </TableRow>
                     )}

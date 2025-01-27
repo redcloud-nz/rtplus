@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /manage/teams/[teamId]
+ *  Path: /manage/teams/[teamSlug]
  */
 
 import { EllipsisVerticalIcon, PencilIcon, PlusIcon } from 'lucide-react'
@@ -22,13 +22,13 @@ import * as Paths from '@/paths'
 
 
 
-export default async function TeamPage(props: { params: Promise<{ teamId: string }>}) {
-    const { teamId } = await props.params
+export default async function TeamPage(props: { params: Promise<{ teamSlug: string }>}) {
+    const { teamSlug } = await props.params
 
 
     // Get the team and all team members
-    const team = await prisma.team.findUnique({
-        where: { id: teamId },
+    const team = await prisma.team.findFirst({
+        where: { slug: teamSlug },
         include: {
             teamMemberships: {
                 include: {
@@ -42,7 +42,7 @@ export default async function TeamPage(props: { params: Promise<{ teamId: string
     if(!team) return <NotFound />
 
     return <AppPage
-        label={team.ref || team.name}
+        label={team.shortName || team.name}
         breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Teams", href: Paths.teams.list }]}
     >
         <PageHeader>
@@ -59,7 +59,7 @@ export default async function TeamPage(props: { params: Promise<{ teamId: string
                 <CardHeader>
                     <CardTitle>Team Details</CardTitle>
                     <Button variant="ghost" asChild>
-                        <Link href={Paths.teams.team(teamId).index}><PencilIcon/></Link>
+                        <Link href={Paths.teams.team(teamSlug).index}><PencilIcon/></Link>
                     </Button>
                 </CardHeader>
                 <CardContent>
@@ -70,8 +70,8 @@ export default async function TeamPage(props: { params: Promise<{ teamId: string
                         <DLTerm>Name</DLTerm>
                         <DLDetails>{team.name}</DLDetails>
 
-                        <DLTerm>Ref</DLTerm>
-                        <DLDetails>{team.ref}</DLDetails>
+                        <DLTerm>Slug</DLTerm>
+                        <DLDetails>{team.slug}</DLDetails>
 
                         <DLTerm>Colour</DLTerm>
                         <DLDetails><ColorValue value={team.color}/></DLDetails>

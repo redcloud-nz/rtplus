@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /manage/skil-groups/[groupIdOrRef]
+ *  Path: /manage/skill-packages/[skillPackageId]
  */
 
 import { AppPage, PageHeader, PageTitle } from '@/components/app-page'
@@ -13,31 +13,34 @@ import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
-import { createWhereClause } from '@/lib/id'
+import { validateUUID } from '@/lib/id'
 import prisma from '@/lib/server/prisma'
 
 import * as Paths from '@/paths'
 
 
-export default async function SkillGroupPage(props: { params: Promise<{ groupIdOrRef: string }>}) {
-    const params = await props.params
+export default async function SkillPackagePage(props: { params: Promise<{ skillPackageId: string }>}) {
+    const {skillPackageId } = await props.params
+    if(!validateUUID(skillPackageId)) throw new Error(`Invalid skillPackageId (${skillPackageId}) in path`)
 
-    const skillGroup = await prisma.skillGroup.findFirst({
+    const skillPackages = await prisma.skillPackage.findFirst({
         include: {
-            skills: true,
-            package: true,
+            skillGroups: true
         },
-        where: createWhereClause(params.groupIdOrRef)
+        where: { id: skillPackageId}
     })
 
-    if(!skillGroup) return <NotFound/>
+    if(!skillPackages) return <NotFound/>
 
     return <AppPage
-        label={skillGroup.ref || skillGroup.name} 
-        breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Skill Groups", href: Paths.skillGroupsList }]}
+        label={skillPackages.name} 
+        breadcrumbs={[
+            { label: "Manage", href: Paths.manage }, 
+            { label: "Packages", href: Paths.skillPackagesList }
+        ]}
     >
         <PageHeader>
-            <PageTitle objectType="Skill Group">{skillGroup.name}</PageTitle>
+            <PageTitle objectType="Skill Package">{skillPackages.name}</PageTitle>
             
         </PageHeader>
         <CardGrid>
@@ -48,24 +51,16 @@ export default async function SkillGroupPage(props: { params: Promise<{ groupIdO
                 <CardContent>
                     <DL>
                         <DLTerm>RT+ ID</DLTerm>
-                        <DLDetails>{skillGroup.id}</DLDetails>
+                        <DLDetails>{skillPackages.id}</DLDetails>
 
                         <DLTerm>Name</DLTerm>
-                        <DLDetails>{skillGroup.name}</DLDetails>
-
-                        <DLTerm>Ref</DLTerm>
-                        <DLDetails>{skillGroup.ref}</DLDetails>
-
-                        <DLTerm>Package</DLTerm>
-                        <DLDetails>
-                            <Link href={Paths.skillPackage(skillGroup.package.ref || skillGroup.packageId)}>{skillGroup.package.name}</Link>
-                        </DLDetails>
+                        <DLDetails>{skillPackages.name}</DLDetails>
                     </DL>
                 </CardContent>
             </Card>
             <Card>
                 <CardHeader>
-                    <CardTitle>Skills</CardTitle>
+                    <CardTitle>Skill Groups</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <Table>
@@ -75,10 +70,10 @@ export default async function SkillGroupPage(props: { params: Promise<{ groupIdO
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {skillGroup.skills.map(skill => 
-                                <TableRow key={skill.id}>
+                            {skillPackages.skillGroups.map(skillGroup => 
+                                <TableRow key={skillGroup.id}>
                                     <TableCell>
-                                        <Link href={Paths.skill(skill.ref || skill.id)}>{skill.name}</Link>
+                                        <Link href={Paths.skillGroup(skillGroup.id)}>{skillGroup.name}</Link>
                                     </TableCell>
                                 </TableRow>
                             )}

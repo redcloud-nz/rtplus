@@ -21,7 +21,7 @@ import { changeCountsToString } from '@/lib/change-counts'
 import { resolveAfter } from '@/lib/utils'
 import * as Paths from '@/paths'
 
-import { importPackagesAction, ImportPackageActionResult } from './actions'
+import { importPackagesAction, ImportPackageActionResult } from './import-packages-action'
 
 
 type ImportState = { status: 'Init' } | { status: 'Review', packageToImport: SkillPackageDef } | { status: 'Done', result: ImportPackageActionResult } | { status: 'Error', message: string }
@@ -61,7 +61,7 @@ export default function ImportSkillPackagePage() {
                 <TableCell className="pl-6">Group</TableCell>
                 <TableCell>
                     <div>{skillGroup.name}</div>
-                    <div><span className="text-muted-foreground">ref:</span> {skillGroup.ref}</div>
+                    <div><span className="text-muted-foreground">ref:</span> {skillGroup.slug}</div>
                 </TableCell>
                 <TableCell><span className="text-muted-foreground">ID:</span> {skillGroup.id}</TableCell>
                 <TableCell></TableCell>
@@ -136,7 +136,7 @@ export default function ImportSkillPackagePage() {
                             <TableCell>Package</TableCell>
                             <TableCell>
                                 <div>{state.packageToImport.name}</div>
-                                <div><span className="text-muted-foreground">ref:</span> {state.packageToImport.ref}</div>
+                                <div><span className="text-muted-foreground">ref:</span> {state.packageToImport.slug}</div>
                             </TableCell>
                             <TableCell><span className="text-muted-foreground">ID:</span> {state.packageToImport.id}</TableCell>
                             <TableCell></TableCell>
