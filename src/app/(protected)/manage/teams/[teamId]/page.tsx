@@ -17,7 +17,7 @@ import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { ExternalLink, Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
-import prisma from '@/lib/server/prisma'
+import prisma from '@/server/prisma'
 import * as Paths from '@/paths'
 
 

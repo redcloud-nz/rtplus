@@ -8,7 +8,7 @@
 import { NextRequest } from 'next/server'
 
 import { createNotFoundResponse, createObjectResponse } from '@/lib/api/common'
-import prisma from '@/lib/server/prisma'
+import prisma from '@/server/prisma'
 
 
  

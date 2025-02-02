@@ -11,7 +11,7 @@ import { auth } from '@clerk/nextjs/server'
 
 import { createNotFoundResponse, createObjectResponse } from '@/lib/api/common'
 import type { TeamWithMembers } from '@/lib/api/teams'
-import prisma from '@/lib/server/prisma'
+import prisma from '@/server/prisma'
 
 
 

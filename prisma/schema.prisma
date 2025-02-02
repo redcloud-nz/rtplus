@@ -215,7 +215,7 @@ model TeamPermission {
     person      Person       @relation("team_permission_to_person", fields: [personId], references: [id])
     team        Team         @relation("team_permission_to_team", fields: [teamId], references: [id])
 
-    @@map("team_permission")
+    @@map("team_permissions")
 }
 
 enum CompetenceLevel {
@@ -264,4 +264,3 @@ enum SkillCheckSessionStatus {
   Complete
   Discard
 }
-

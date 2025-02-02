@@ -11,7 +11,7 @@ import { createListResponse } from '@/lib/api/common'
 import type { D4hAccessKeyWithTeam } from '@/lib/api/d4h-access-keys'
 
 import { validateUUID } from '@/lib/id'
-import prisma from '@/lib/server/prisma'
+import prisma from '@/server/prisma'
 
 
 

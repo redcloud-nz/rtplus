@@ -18,15 +18,15 @@ import { Link } from '@/components/ui/link'
 
 import { DefaultD4hApiUrl } from '@/lib/d4h-api/common'
 import { validateUUID } from '@/lib/id'
-import { authenticated } from '@/lib/server/auth'
-import prisma from '@/lib/server/prisma'
+import { authenticated } from '@/server/auth'
+import prisma from '@/server/prisma'
 
 import * as Paths from '@/paths'
 
 import { updateTeamAction } from './update-team-action'
 
 
-export const metadata: Metadata = { title: "Edit Team | RT+" }
+export const metadata: Metadata = { title: "Edit Team" }
 
 export default async function EditTeamPage(props: { params: Promise<{ teamId: string }>}) {
     const { teamId } = await props.params

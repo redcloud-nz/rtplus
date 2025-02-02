@@ -5,7 +5,7 @@
 
 import '@tanstack/react-table'
 
-import type { SkillPackagePermission, SystemPermission, TeamPermission } from './lib/permissions'
+import type { SessionPermissionClaims, ShortPermissions, SkillPackagePermissionKey, SystemPermissionKey, TeamPermissionKey } from './server/permissions'
 
 declare module '@tanstack/react-table' {
     // eslint-disable-next-line
@@ -22,14 +22,14 @@ import '@clerk/nextjs'
 declare global {
     interface UserPublicMetadata {
         userPersonId: string
-        skillPackagePermissions: Record<string, SkillPackagePermission[]>
-        systemPermissions: SystemPermission[]
-        teamPermissions: Record<string, TeamPermission[]>
+        skillPackagePermissions: Record<string, ShortPermissions>
+        systemPermissions: ShortPermissions
+        teamPermissions: Record<string, ShortPermissions>
     }
     interface CustomJwtSessionClaims {
         rt_pid: string
-        rt_ssp: Record<string, SkillPackagePermission[]>
-        rt_sp: SystemPermission[]
-        rt_tp: Record<string, TeamPermission[]>
+        rt_ssp: Record<string, ShortPermissions>
+        rt_sp: ShortPermissions
+        rt_tp: Record<string, ShortPermissions>
     }
 }

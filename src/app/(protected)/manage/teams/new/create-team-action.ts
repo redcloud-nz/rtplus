@@ -13,8 +13,8 @@ import { DefaultD4hApiUrl } from '@/lib/d4h-api/common'
 import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
 import { EventBuilder } from '@/lib/history'
 import { createUUID } from '@/lib/id'
-import { authenticated } from '@/lib/server/auth'
-import prisma from '@/lib/server/prisma'
+import { authenticated } from '@/server/auth'
+import prisma from '@/server/prisma'
 
 import * as Paths from '@/paths'
 

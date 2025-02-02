@@ -12,7 +12,7 @@ import type { Team } from '@prisma/client'
 
 import { createListResponse } from '@/lib/api/common'
 import type { TeamWithMembers } from '@/lib/api/teams'
-import prisma from '@/lib/server/prisma'
+import prisma from '@/server/prisma'
 
 
 export async function GET(request: NextRequest) {

@@ -16,7 +16,10 @@ import * as Paths from '@/paths'
 
 
 export const metadata: Metadata = {
-    title: "RT+ Competencies",
+    title: {
+        template: "%s | Competencies | RT+",
+        default: "Competencies | RT+",
+    },
     description: "RT+ Competency management and tracking",
 };
 

@@ -5,11 +5,12 @@
  *  Path: /manage/personnel/[personId]
  */
 
-import { KeyRoundIcon, PencilIcon, PlusIcon, Trash2Icon } from 'lucide-react'
+import { KeyRoundIcon, PencilIcon } from 'lucide-react'
 import { Metadata } from 'next'
 
 import { AppPage, PageControls, PageHeader, PageTitle } from '@/components/app-page'
 import { NotFound } from '@/components/errors'
+import { Protect } from '@/components/protect'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
@@ -19,17 +20,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { validateUUID } from '@/lib/id'
-import prisma from '@/lib/server/prisma'
 import { formatDateTime } from '@/lib/utils'
 import * as Paths from '@/paths'
+import prisma from '@/server/prisma'
+
 
 export const metadata: Metadata = { title: "Personnel | RT+" }
 
 export default async function PersonPage(props: { params: Promise<{ personId: string }>}) {
     const { personId } = await props.params
-    if(!validateUUID(personId)) throw new Error(`Invalid personId (${personId}) in path`)
 
-    const person = await prisma.person.findUnique({
+    const person = validateUUID(personId) ? await prisma.person.findUnique({
         include: {
             teamMemberships: {
                 include: {
@@ -38,7 +39,7 @@ export default async function PersonPage(props: { params: Promise<{ personId: st
             },
         },
         where: { id: personId }
-    })
+    }) : null
     if(!person) return <NotFound/>
 
     return <AppPage
@@ -58,14 +59,14 @@ export default async function PersonPage(props: { params: Promise<{ personId: st
                     </TooltipTrigger>
                     <TooltipContent side="bottom">RT+ Access</TooltipContent>
                 </Tooltip>
-                <Tooltip>
+                {/* <Tooltip>
                     <TooltipTrigger asChild>
                         <Button variant="outline" size="icon">
                             <Trash2Icon/>
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent side="bottom">Delete Person</TooltipContent>
-                </Tooltip>
+                </Tooltip> */}
                 
                 
             </PageControls>
@@ -74,9 +75,11 @@ export default async function PersonPage(props: { params: Promise<{ personId: st
             <Card>
                 <CardHeader>
                     <CardTitle>Details</CardTitle>
-                    <Button variant="ghost" asChild>
-                        <Link href={Paths.editPerson(personId)}><PencilIcon/></Link>
-                    </Button>
+                    <Protect permission="system:write">
+                        <Button variant="ghost" asChild>
+                            <Link href={Paths.editPerson(personId)}><PencilIcon/></Link>
+                        </Button>
+                    </Protect>
                 </CardHeader>
                 <CardContent>
                     <DL>
@@ -100,7 +103,10 @@ export default async function PersonPage(props: { params: Promise<{ personId: st
             <Card>
                 <CardHeader>
                     <CardTitle>Memberships</CardTitle>
-                    <Button variant="ghost"><PlusIcon/></Button>
+                    {/* <Protect permission="system:write">
+                        <Button variant="ghost"><PlusIcon/></Button>
+                    </Protect> */}
+                   
                 </CardHeader>
                 <CardContent>
                     <Table>

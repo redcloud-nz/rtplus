@@ -68,6 +68,7 @@ const subApps: { title: string, href: string, icon?: typeof ClockIcon, iconForeg
 ]
 
 const dataCards: { name: string, initials: string, href: string, bgColor: string }[] = [
+    { name: 'Manage', initials: 'M', href: Paths.manage, bgColor: 'bg-blue-500' },
     { name: 'Teams', initials: 'T', href: Paths.teams.list, bgColor: 'bg-pink-600' },
     { name: 'Personnel', initials: 'P', href: Paths.personnel, bgColor: 'bg-purple-600' },
     { name: 'Skill Packages', initials: 'SP', href: Paths.skillPackagesList, bgColor: 'bg-yellow-500' },

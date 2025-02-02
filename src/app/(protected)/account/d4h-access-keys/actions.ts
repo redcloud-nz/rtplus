@@ -6,8 +6,8 @@
 
 import { revalidatePath } from 'next/cache'
 
-import prisma from '@/lib/server/prisma'
-import { authenticated } from '@/lib/server/auth'
+import prisma from '@/server/prisma'
+import { authenticated } from '@/server/auth'
 import { assertNonNull } from '@/lib/utils'
 import * as Paths from '@/paths'
 

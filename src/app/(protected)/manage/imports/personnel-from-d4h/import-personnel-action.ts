@@ -12,8 +12,8 @@ import { Person, TeamMembershipD4hInfo } from '@prisma/client'
 import { ChangeCountsByType, createChangeCounts } from '@/lib/change-counts'
 import { EventBuilder } from '@/lib/history'
 import { createUUID } from '@/lib/id'
-import { authenticated } from '@/lib/server/auth'
-import prisma from '@/lib/server/prisma'
+import { authenticated } from '@/server/auth'
+import prisma from '@/server/prisma'
 import { assertNonNull } from '@/lib/utils'
 
 

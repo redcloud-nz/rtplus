@@ -9,7 +9,7 @@ import { NextRequest } from 'next/server'
 
 import { createListResponse } from '@/lib/api/common'
 import { validateUUID } from '@/lib/id'
-import prisma from '@/lib/server/prisma'
+import prisma from '@/server/prisma'
 
 
 

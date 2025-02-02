@@ -17,9 +17,9 @@ import { Form, FormSubmitButton } from '@/components/ui/form'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
-import { authenticated } from '@/lib/server/auth'
+import { authenticated } from '@/server/auth'
 import { FormState } from '@/lib/form-state'
-import prisma from '@/lib/server/prisma'
+import prisma from '@/server/prisma'
 
 import * as Paths from '@/paths'
 

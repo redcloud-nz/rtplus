@@ -21,7 +21,7 @@ import * as Paths from '@/paths'
 import { createTeamAction } from './create-team-action'
 
 
-export const metadata: Metadata = { title: "New Team | RT+" }
+export const metadata: Metadata = { title: "New Team" }
 
 export default function NewTeamPage() {
 

@@ -9,7 +9,7 @@ import { NextRequest } from 'next/server'
 
 import { createListResponse } from '@/lib/api/common'
 import { TeamMembershipDetails } from '@/lib/api/teams'
-import prisma from '@/lib/server/prisma'
+import prisma from '@/server/prisma'
 
 
 export async function GET(request: NextRequest, props: { params: Promise<{ teamId: string }> }) {

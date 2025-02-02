@@ -10,8 +10,8 @@ import { getGroupsInPackage, getSkillsInPackage, PackageList, SkillPackageDef } 
 
 import { ChangeCountsByType, createChangeCounts as createChangeCounts, mergeChangeCounts } from '@/lib/change-counts'
 import { EventBuilder } from '@/lib/history'
-import { authenticated } from '@/lib/server/auth'
-import prisma from '@/lib/server/prisma'
+import { authenticated } from '@/server/auth'
+import prisma from '@/server/prisma'
 
 export interface ImportPackageActionResult {
     changeCounts: ChangeCountsByType<'packages' | 'skillGroups' | 'skills'>

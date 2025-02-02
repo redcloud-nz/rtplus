@@ -7,7 +7,7 @@
 
 
 import { createListResponse } from '@/lib/api/common'
-import prisma from '@/lib/server/prisma'
+import prisma from '@/server/prisma'
 
 export async function GET() {
 

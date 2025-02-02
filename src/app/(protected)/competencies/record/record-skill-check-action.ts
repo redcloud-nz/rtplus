@@ -7,9 +7,9 @@
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 
-import { authenticated } from '@/lib/server/auth'
+import { authenticated } from '@/server/auth'
 import { FormState, fromErrorToFormState } from '@/lib/form-state'
-import prisma from '@/lib/server/prisma'
+import prisma from '@/server/prisma'
 
 import * as Paths from '@/paths'
 

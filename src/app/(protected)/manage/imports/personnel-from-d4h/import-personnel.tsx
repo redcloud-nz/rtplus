@@ -21,6 +21,7 @@ import { D4hMember, toTeamMembershipStatus } from '@/lib/d4h-api/member'
 import { assertNonNull } from '@/lib/utils'
 
 import { type ImportPersonnelActionResult, importPersonnelAction, type MemberDiff } from './import-personnel-action'
+import { Show } from '@/components/show'
 
 
 
@@ -28,17 +29,17 @@ type ImportState = { status: 'Init' } | { status: 'Review', team: D4hAccessKeyWi
 
 export function ImportPersonnel() {    
 
-    const { data: accessKeys } = useD4hAccessKeysQuery()
+    const accessKeysQuery = useD4hAccessKeysQuery()
 
     const [state, setState] = React.useState<ImportState>({ status: 'Init' })
     const [teamId, setTeamId] = React.useState<string>('')
 
     React.useEffect(() => {
-        if(accessKeys.length == 1) setTeamId(accessKeys[0].team.id)
-    }, [accessKeys])
+        if(accessKeysQuery.data.length == 1) setTeamId(accessKeysQuery.data[0].team.id)
+    }, [accessKeysQuery.data])
 
     async function handleFetch() {
-        const accessKey = accessKeys.find(key => key.team.id == teamId)
+        const accessKey = accessKeysQuery.data.find(key => key.team.id == teamId)
         assertNonNull(accessKey)
 
         let d4hMembers: D4hMember[] = []
@@ -118,25 +119,32 @@ export function ImportPersonnel() {
         />
 
         <div className="my-4 space-y-4">
-            {state.status == 'Init' && <>
-                <Select value={teamId} onValueChange={setTeamId}>
-                    <SelectTrigger className="max-w-md">
-                        <SelectValue placeholder="Select a team to import..."/>
-                    </SelectTrigger>
-                    <SelectContent>
-                        {accessKeys.map(accessKey =>
-                            <SelectItem key={accessKey.id} value={accessKey.team.id}>{accessKey.team.name}</SelectItem>
-                        )}
-                    </SelectContent>
-                </Select>
-                <AsyncButton
-                    onClick={handleFetch}
-                    label="Fetch"
-                    pending="Fetching"
-                    done="Fetched"
-                    disabled={!teamId}
-                />
-            </>}
+            {state.status == 'Init' && 
+                accessKeysQuery.isSuccess ? <Show  
+                    when={accessKeysQuery.data.length > 0}
+                    fallback={<Alert severity="info" title="No personal access keys defined."/>}
+                >
+                    <Select value={teamId} onValueChange={setTeamId}>
+                        <SelectTrigger className="max-w-md">
+                            <SelectValue placeholder="Select a team to import..."/>
+                        </SelectTrigger>
+                        <SelectContent>
+                            {accessKeysQuery.data.map(accessKey =>
+                                <SelectItem key={accessKey.id} value={accessKey.team.id}>{accessKey.team.name}</SelectItem>
+                            )}
+                        </SelectContent>
+                    </Select>
+                    <AsyncButton
+                        onClick={handleFetch}
+                        label="Fetch"
+                        pending="Fetching"
+                        done="Fetched"
+                        disabled={!teamId}
+                    />
+                </Show> 
+                : <>    
+                    <div>Loading...</div>
+                </>}
 
             {state.status == 'Review' && <>
                 <div className="text-sm">{`The following changes to team '${state.team.name}' will be applied:`}</div>

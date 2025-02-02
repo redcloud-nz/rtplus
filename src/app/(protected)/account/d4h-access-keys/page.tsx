@@ -16,8 +16,8 @@ import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
-import { authenticated } from '@/lib/server/auth'
-import prisma from '@/lib/server/prisma'
+import { authenticated } from '@/server/auth'
+import prisma from '@/server/prisma'
 import { formatDateTime } from '@/lib/utils'
 import * as Paths from '@/paths'
 
@@ -26,7 +26,7 @@ import { DeleteAccessKeyDialog } from './delete-access-key'
 import { NewAccessKeyDialog } from './new-access-key'
 
 
-export const metadata: Metadata = { title: "Personal D4H Access Keys | RT+" }
+export const metadata: Metadata = { title: "My D4H Access Keys" }
 
 export default async function D4hAccessKeysPage() {
     

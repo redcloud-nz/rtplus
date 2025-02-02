@@ -12,7 +12,10 @@ import { AppPageContainer } from '@/components/app-page'
 
 
 export const metadata: Metadata = {
-    title: "RT+ | Checklists",
+    title: {
+        template: "% | Checklists | RT+",
+        default: "Checklists | RT+",
+    },
     description: "RT+ Checklists",
 };
 

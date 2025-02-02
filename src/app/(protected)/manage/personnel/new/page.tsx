@@ -23,8 +23,9 @@ import { Link } from '@/components/ui/link'
 import { fieldError, FormState, fromErrorToFormState } from '@/lib/form-state'
 import { EventBuilder } from '@/lib/history'
 import { createUUID } from '@/lib/id'
-import prisma from '@/lib/server/prisma'
+import prisma from '@/server/prisma'
 import * as Paths from '@/paths'
+import { authenticated } from '@/server/auth'
 
 
 const CreatePersonFormSchema = z.object({
@@ -32,7 +33,7 @@ const CreatePersonFormSchema = z.object({
     email: z.string().email()
 })
 
-export const metadata: Metadata = { title: "New Person | RT+" }
+export const metadata: Metadata = { title: "New Person" }
 
 export default async function NewPersonPage() {
     return <AppPage
@@ -74,7 +75,7 @@ export default async function NewPersonPage() {
 async function createPersonAction(formState: FormState, formData: FormData) {
     'use server'
 
-    const { userId } = await auth.protect()
+    const { userPersonId} = await authenticated()
 
     let personId: string
     try {
@@ -88,7 +89,7 @@ async function createPersonAction(formState: FormState, formData: FormData) {
             return fieldError('email', `Person email '${fields.email}' is already used by person '${emailConflict.name}'`)
         }
 
-        const eventBuilder = EventBuilder.create(userId)
+        const eventBuilder = EventBuilder.create(userPersonId)
         personId = createUUID()
         
         await prisma.$transaction([

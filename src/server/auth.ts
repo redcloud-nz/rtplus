@@ -6,7 +6,7 @@
 
 import { auth } from '@clerk/nextjs/server'
 
-import { hasPermissionInternal, PrefixedPermission, PrefixedSkillPackagePermission, PrefixedSystemPermission, PrefixedTeamPermission } from '../permissions'
+import { checkSessionPermissions, PermissionKey, SkillPackagePermissionKey, SystemPermissionKey, TeamPermissionKey } from './permissions'
 
 type ClerkAuthObject = Awaited<ReturnType<typeof auth.protect>>
 
@@ -16,9 +16,9 @@ export interface RTPlusAuthObject {
     readonly userPersonId: string
 
     
-    hasPermission(permission: PrefixedSkillPackagePermission, skillPackageId: string): boolean
-    hasPermission(permission: PrefixedSystemPermission): boolean
-    hasPermission(permission: PrefixedTeamPermission, teamId: string): boolean
+    hasPermission(permission: SkillPackagePermissionKey, skillPackageId: string): boolean
+    hasPermission(permission: SystemPermissionKey): boolean
+    hasPermission(permission: TeamPermissionKey, teamId: string): boolean
 }
 
 export async function authenticated(): Promise<RTPlusAuthObject> {
@@ -27,8 +27,8 @@ export async function authenticated(): Promise<RTPlusAuthObject> {
     return {
         authObject: clerkAuthObject,
         userPersonId: clerkAuthObject.sessionClaims.rt_pid,
-        hasPermission(permission: PrefixedPermission, id?: string): boolean {
-            return hasPermissionInternal(clerkAuthObject.sessionClaims, permission, id)
+        hasPermission(permission: PermissionKey, id?: string): boolean {
+            return checkSessionPermissions(clerkAuthObject.sessionClaims, permission, id)
         },
     }
 }

@@ -4,8 +4,8 @@
  */
 'use server'
 
-import { authenticated } from '@/lib/server/auth'
-import prisma from '@/lib/server/prisma'
+import { authenticated } from '@/server/auth'
+import prisma from '@/server/prisma'
 
 export async function getPersonnelCountAction(): Promise<number> {
 

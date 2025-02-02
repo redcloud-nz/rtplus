@@ -16,7 +16,10 @@ import * as Paths from '@/paths'
 
 
 export const metadata: Metadata = {
-    title: "RT+ | D4H Unified",
+    title: {
+        template: "%s | D4H Unified | RT+",
+        default: "D4H Unified | RT+",
+    },
     description: "Alternate views of the data stored in D4H Team Manager. Unified across multiple teams",
 };
 

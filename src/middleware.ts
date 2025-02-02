@@ -7,8 +7,8 @@ import { NextRequest, NextResponse, URLPattern } from 'next/server'
 
 import { clerkMiddleware, ClerkMiddlewareAuth } from '@clerk/nextjs/server'
 
-import { hasPermission } from './lib/permissions'
 import { validateUUID } from './lib/id'
+import { hasPermission } from './server/permissions'
 
 
 

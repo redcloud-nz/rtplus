@@ -27,7 +27,11 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-    title: "RT+",
+    applicationName: "RT+",
+    title: {
+        template: "%s | RT+",
+        default: "RT+",
+    },
     description: "RT+ App",
 };
 

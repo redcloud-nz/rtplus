@@ -18,11 +18,11 @@ import { Button } from '@/components/ui/button'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
-import prisma from '@/lib/server/prisma'
+import prisma from '@/server/prisma'
 import * as Paths from '@/paths'
 import { Protect } from '@clerk/nextjs'
 
-export const metadata: Metadata = { title: "Teams | RT+" }
+export const metadata: Metadata = { title: "Teams" }
 
 export default async function PeopleListPage() {
 

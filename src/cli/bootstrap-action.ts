@@ -7,9 +7,9 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { Person } from '@prisma/client'
 
-import { WritePermission } from '@/lib/permissions'
-import { authenticated } from '@/lib/server/auth'
-import prisma from '@/lib/server/prisma'
+import { Permissions } from '@/server/permissions'
+import { authenticated } from '@/server/auth'
+import prisma from '@/server/prisma'
 
 
 
@@ -39,7 +39,7 @@ export async function bootstrapAction(): Promise<BootstrapActionResult> {
                 clerkUserId: user.id,
                 systemPermissions: {
                     create: {
-                        permissions: [WritePermission]
+                        permissions: [Permissions.SystemWrite]
                     }
                 }
             }

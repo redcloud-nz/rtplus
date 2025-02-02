@@ -17,7 +17,10 @@ import { Protect } from '@/components/protect'
 
 
 export const metadata: Metadata = {
-    title: "RT+ | Manage",
+    title: {
+        template: "%s | Manage | RT+",
+        default: "Manage | RT+",
+    },
     description: "RT+ Data Management",
 };
 

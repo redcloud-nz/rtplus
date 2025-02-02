@@ -5,12 +5,12 @@
 
 import * as React from 'react'
 
-import { PrefixedSkillPackagePermission, PrefixedSystemPermission, PrefixedTeamPermission } from '@/lib/permissions'
-import { authenticated } from '@/lib/server/auth'
+import { SkillPackagePermissionKey, SystemPermissionKey, TeamPermissionKey } from '@/server/permissions'
+import { authenticated } from '@/server/auth'
 
-type ProtectSkillPackageProps = { permission: PrefixedSkillPackagePermission, skillPackageId: string }
-type ProtectSystemProps = { permission: PrefixedSystemPermission }
-type ProtectTeamProps = { permission: PrefixedTeamPermission, teamId: string }
+type ProtectSkillPackageProps = { permission: SkillPackagePermissionKey, skillPackageId: string }
+type ProtectSystemProps = { permission: SystemPermissionKey }
+type ProtectTeamProps = { permission: TeamPermissionKey, teamId: string }
 
 export type ProtectProps = {
     children: React.ReactNode

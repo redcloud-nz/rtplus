@@ -14,9 +14,9 @@ import { AppPage } from '@/components/app-page'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import { authenticated } from '@/lib/server/auth'
+import { authenticated } from '@/server/auth'
 import { withSerializedDates } from '@/lib/serialize'
-import prisma from '@/lib/server/prisma'
+import prisma from '@/server/prisma'
 import * as Paths from '@/paths'
 
 import { AssessTabContent } from './assess-tab-content'
