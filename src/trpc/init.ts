@@ -3,16 +3,30 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import { initTRPC } from '@trpc/server'
 import { cache } from 'react'
 import superjson from 'superjson'
 
-export const createTRPCContext = () => {
-    return { userId: 'user_123' }
-}
+import { auth } from '@clerk/nextjs/server'
+import {  initTRPC, TRPCError } from '@trpc/server'
+import { CreateNextContextOptions } from '@trpc/server/adapters/next'
 
-// Avoid exporing the entire t-object
-const t = initTRPC.create({
+import { createAuthObject } from '@/server/auth'
+import prisma from '@/server/prisma'
+
+
+export const createTRPCContext = cache(async () => {
+    const authObject = await auth()
+
+    return { 
+        prisma,
+        ...createAuthObject(authObject)
+    }
+})
+
+export type Context = Awaited<ReturnType<typeof createTRPCContext>>
+
+// Avoid exporting the entire t-object
+const t = initTRPC.context<Context>().create({
     transformer: superjson
 })
 
@@ -20,4 +34,16 @@ const t = initTRPC.create({
 // Base router and procedure helpers
 export const createTRPCRouter = t.router
 export const createCallerFactor = t.createCallerFactory
-export const baseProcedure = t.procedure
+
+export const publicProcedure = t.procedure
+
+export const authenticatedProcedure = t.procedure.use((opts) => {
+    
+    if (opts.ctx.authObject.userId === null) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+    }
+
+    return opts.next({
+        ctx: opts.ctx
+    })
+})

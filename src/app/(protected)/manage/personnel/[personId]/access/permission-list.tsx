@@ -2,35 +2,28 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
+'use client'
 
-import { TrashIcon } from 'lucide-react'
 
-import { Protect } from '@/components/protect'
+import { ClientProtect } from '@/components/protect'
 import { Show } from '@/components/show'
 
 import { Alert } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
-import type { PersonPermissions } from '@/server/data/personnel'
-import type { SystemPermissionKey, TeamPermissionKey } from '@/server/permissions'
+import { trpc } from '@/trpc/client'
 
 import {  DeletePermissionButton } from './delete-permission'
 
 
-
-
-
 interface PermissionListProps {
     personId: string
-    personPermissions: PersonPermissions
 }
 
-export function PermissionList({ personId, personPermissions }: PermissionListProps) {
+export function PermissionList({ personId }: PermissionListProps) {
+    const [{ skillPackagePermissions, systemPermissions, teamPermissions }] = trpc.permissions.person.useSuspenseQuery({ personId })
 
-    const systemPermissions = (personPermissions.systemPermissions?.permissions ?? []) as SystemPermissionKey[]
-
-    const isEmpty = systemPermissions.length === 0 && personPermissions.teamPermissions.length === 0
+    const isEmpty = skillPackagePermissions.length == 0 && systemPermissions.length === 0 && teamPermissions.length === 0
 
     return <Show
         when={!isEmpty}
@@ -45,33 +38,50 @@ export function PermissionList({ personId, personPermissions }: PermissionListPr
                 </TableRow>
             </TableHead>
             <TableBody>
+                {skillPackagePermissions.map(({ skillPackage, permissions }) =>
+                    permissions.map(permissionKey =>
+                        <TableRow key={`${skillPackage.id}:${permissionKey}`}>
+                            <TableCell>{permissionKey}</TableCell>
+                            <TableCell>{skillPackage.name}</TableCell>
+                            <TableCell className="text-right pr-0">
+                                <ClientProtect permission="team:write" teamId={skillPackage.id} allowSystem>
+                                    <DeletePermissionButton
+                                        personId={personId}
+                                        permissionKey={permissionKey}
+                                        objectId={skillPackage.id}
+                                    />
+                                </ClientProtect>
+                            </TableCell>
+                        </TableRow>
+                    )
+                )}
                 {systemPermissions.map(permissionKey =>
                     <TableRow key={permissionKey}>
                         <TableCell>{permissionKey}</TableCell>
                         <TableCell></TableCell>
                         <TableCell className="text-right pr-0">
-                            <Protect permission="system:write">
+                            <ClientProtect permission="system:write">
                                 <DeletePermissionButton
                                     personId={personId}
                                     permissionKey="system:write"
                                 />
-                            </Protect>
+                            </ClientProtect>
                         </TableCell>
                     </TableRow>
                 )}
-                {personPermissions.teamPermissions.map(({ team, permissions }) =>
-                    (permissions as TeamPermissionKey[]).map(permissionKey =>
+                {teamPermissions.map(({ team, permissions }) =>
+                    permissions.map(permissionKey =>
                         <TableRow key={`${team.id}:${permissionKey}`}>
                             <TableCell>{permissionKey}</TableCell>
                             <TableCell>{team.name}</TableCell>
                             <TableCell className="text-right pr-0">
-                                <Protect permission="team:write" teamId={team.id}>
+                                <ClientProtect permission="team:write" teamId={team.id} allowSystem>
                                     <DeletePermissionButton
                                         personId={personId}
                                         permissionKey={permissionKey}
                                         objectId={team.id}
                                     />
-                                </Protect>
+                                </ClientProtect>
                             </TableCell>
                         </TableRow>
                     )

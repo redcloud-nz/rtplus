@@ -33,27 +33,23 @@ export const PermissionKeyToShortKeyMap: Record<PermissionKey, ShortKey> = {
     'team:write': 'w',
 }
 
-export interface SessionPermissionClaims {
-    rt_ssp: Record<string, ShortPermissions>
-    rt_sp: ShortPermissions
-    rt_tp: Record<string, ShortPermissions>
-}
+export type CompactPermissions = Pick<CustomJwtSessionClaims, 'rt_ssp' | 'rt_sp' | 'rt_tp'>
 
-export function hasPermission(sessionClaims: CustomJwtSessionClaims | null, permission: SkillPackagePermissionKey, skillPackageId: string): boolean;
-export function hasPermission(sessionClaims: CustomJwtSessionClaims | null, permission: SystemPermissionKey): boolean;
-export function hasPermission(sessionClaims: CustomJwtSessionClaims | null, permission: TeamPermissionKey, teamId: string): boolean;
-export function hasPermission(sessionClaims: CustomJwtSessionClaims | null, permission: PermissionKey, id?: string): boolean {
+export function hasPermission(sessionClaims: CompactPermissions | null, permission: SkillPackagePermissionKey, skillPackageId: string): boolean;
+export function hasPermission(sessionClaims: CompactPermissions | null, permission: SystemPermissionKey): boolean;
+export function hasPermission(sessionClaims: CompactPermissions | null, permission: TeamPermissionKey, teamId: string): boolean;
+export function hasPermission(sessionClaims: CompactPermissions | null, permission: PermissionKey, id?: string): boolean {
     return checkSessionPermissions(sessionClaims, permission, id)
 }
 
 /**
  * Check if the provided session claims have the required permission.
- * @param sessionClaims Claims to check for permissions
+ * @param compactPermissions Claims to check for permissions
  * @param permission Requested permission
  * @param id Permission target id or '*' for any
  * @returns True if the session has the required permission, false otherwise
  */
-export function checkSessionPermissions(sessionClaims: SessionPermissionClaims | null, permission: PermissionKey, id?: string): boolean {
+export function checkSessionPermissions(sessionClaims: CompactPermissions | null, permission: PermissionKey, id?: string): boolean {
     if(sessionClaims === null) return false
     const { rt_ssp: skillPackagePermissions, rt_sp: systemPermissions, rt_tp: teamPermissions } = sessionClaims
 

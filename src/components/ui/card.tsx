@@ -3,18 +3,37 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
+import { LoaderCircleIcon } from 'lucide-react'
 import * as React from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
 
 import { cn } from '@/lib/utils'
 
-export function Card({ className, ...props }: React.ComponentPropsWithRef<'div'>) {
+
+type CardProps = React.ComponentPropsWithRef<'div'> & {
+    boundary?: boolean
+}
+
+export function Card({ boundary, className, children, ...props }: CardProps) {
     return <div
         className={cn(
             "rounded-lg border bg-card text-card-foreground shadow-sm",
             className
         )}
         {...props}
-    />
+    >
+        { boundary 
+            ? <ErrorBoundary fallback={<div>Something went wrong.</div>}>
+                <React.Suspense fallback={<div className="h-full w-full flex items-center justify-center">
+                        <LoaderCircleIcon className="animate-spin"/>
+                    </div>}>
+                  {children}
+                </React.Suspense>
+            </ErrorBoundary>
+            : children
+        }
+    </div>
+
 }
 
 export function CardHeader({ className, ...props }: React.ComponentPropsWithRef<'div'>) {

@@ -3,17 +3,19 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import { z } from 'zod'
-import { baseProcedure, createTRPCRouter } from '../init'
+import { createTRPCRouter } from '../init'
+
+import { currentUserRouter } from './current-user'
+import { permissionsRouter } from './permissions'
+import { personnelRouter } from './personnel'
+import { teamsRouter } from './teams'
+
 
 export const appRouter = createTRPCRouter({
-    hello: baseProcedure
-        .input(z.object({ 
-            text: z.string() 
-        }))
-        .query(async ({ input }) => {
-            return { greeting: `Hello, ${input.text}!` }
-        })
+    currentUser: currentUserRouter,
+    permissions: permissionsRouter,
+    personnel: personnelRouter,
+    teams: teamsRouter
 })
 
 export type AppRouter = typeof appRouter

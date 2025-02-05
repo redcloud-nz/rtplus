@@ -17,7 +17,7 @@ import type { AppRouter } from './routers/_app'
 
 export const trpc = createTRPCReact<AppRouter>()
 
-let clientQueryClientSingleton: QueryClient;
+let clientQueryClientSingleton: QueryClient
 function getQueryClient() {
     if(isServer) {
         // Server, always make a new query client

@@ -10,7 +10,6 @@ import { Metadata } from 'next'
 
 import { AppPage, PageControls, PageHeader, PageTitle } from '@/components/app-page'
 import { NotFound } from '@/components/errors'
-import { Protect } from '@/components/protect'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
@@ -23,6 +22,7 @@ import { validateUUID } from '@/lib/id'
 import { formatDateTime } from '@/lib/utils'
 import * as Paths from '@/paths'
 import prisma from '@/server/prisma'
+import { ServerProtect } from '@/server/protect'
 
 
 export const metadata: Metadata = { title: "Personnel | RT+" }
@@ -75,11 +75,11 @@ export default async function PersonPage(props: { params: Promise<{ personId: st
             <Card>
                 <CardHeader>
                     <CardTitle>Details</CardTitle>
-                    <Protect permission="system:write">
+                    <ServerProtect permission="system:write">
                         <Button variant="ghost" asChild>
                             <Link href={Paths.editPerson(personId)}><PencilIcon/></Link>
                         </Button>
-                    </Protect>
+                    </ServerProtect>
                 </CardHeader>
                 <CardContent>
                     <DL>

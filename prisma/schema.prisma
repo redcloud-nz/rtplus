@@ -143,18 +143,17 @@ model SkillPackage {
 }
 
 model SkillPackagePermission {
-  id             String       @id @default(uuid()) @db.Uuid
   personId       String       @map("person_id") @db.Uuid
   skillPackageId String       @map("skill_package_id") @db.Uuid
   permissions    String[]
   person         Person       @relation("skill_package_permission_to_person", fields: [personId], references: [id])
   skillPackage   SkillPackage @relation("skill_package_permission_to_skill_package", fields: [skillPackageId], references: [id])
 
+  @@id([personId, skillPackageId])
   @@map("skill_package_permissions")
 }
 
 model SystemPermission {
-    id          String   @id @default(uuid()) @db.Uuid
     personId    String   @map("person_id") @db.Uuid @unique
     permissions String[]
     person      Person   @relation("system_permission_to_person", fields: [personId], references: [id])
@@ -196,7 +195,6 @@ model TeamMembership {
 }
 
 model TeamMembershipD4hInfo {
-    id               String               @id @default(uuid()) @db.Uuid
     position         String
     d4hStatus        D4hTeamMemberStatus  @map("d4h_status")
     d4hMemberId      Int                  @map("d4h_member_id")
@@ -208,13 +206,13 @@ model TeamMembershipD4hInfo {
 }
 
 model TeamPermission {
-    id          String       @id @default(uuid()) @db.Uuid
     personId    String       @map("person_id") @db.Uuid
     teamId      String       @map("team_id") @db.Uuid
     permissions String[]
     person      Person       @relation("team_permission_to_person", fields: [personId], references: [id])
     team        Team         @relation("team_permission_to_team", fields: [teamId], references: [id])
 
+    @@id([personId, teamId])
     @@map("team_permissions")
 }
 

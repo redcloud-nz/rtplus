@@ -10,7 +10,7 @@ import { Metadata } from 'next'
 import React from 'react'
 
 import { AppPage, PageControls, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
-import { Protect } from '@/components/protect'
+import { ServerProtect } from '@/server/protect'
 import { Show } from '@/components/show'
 
 import { Alert } from '@/components/ui/alert'
@@ -45,13 +45,13 @@ export default async function TeamsListPage() {
             <PageTitle>Manage Teams</PageTitle>
             <PageDescription>These are the teams that are available for use in RT+.</PageDescription>
             <PageControls>
-                <Protect permission="system:write">
+                <ServerProtect permission="system:write">
                     <Button asChild>
                         <Link href={Paths.teams.new}>
                             <PlusIcon/> New Team
                         </Link>
                     </Button>
-                </Protect>
+                </ServerProtect>
             </PageControls>
         </PageHeader>
         <Show
