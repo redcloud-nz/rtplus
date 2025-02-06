@@ -20,12 +20,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 import { Textarea } from '@/components/ui/textarea'
 
-import { useSkillPackagesQuery } from '@/lib/api/skills'
-import { useTeamsWithMembersQuery } from '@/lib/api/teams'
 import { CompetenceLevelTerms } from '@/lib/terms'
+import { trpc } from '@/trpc/client'
 
 import { type SkillCheck_Client } from './skill-check-data'
 import { findSkillCheck, useSkillCheckStore } from './skill-check-store'
+
 
 
 
@@ -37,8 +37,8 @@ export function AssessTabContent() {
         return findSkillCheck(R.values(checks), skillId, assesseeId)
     }
 
-    const skillPackagesQuery = useSkillPackagesQuery()
-    const teamsQuery = useTeamsWithMembersQuery()
+    const skillPackagesQuery = trpc.skillPackages.all.useQuery()
+    const teamsQuery = trpc.teams.listWithMembers.useQuery()
 
     const skills = React.useMemo(
         () => (skillPackagesQuery.data ?? []).flatMap(skillPackage => skillPackage.skills.filter(skill => skillIds.includes(skill.id))), 

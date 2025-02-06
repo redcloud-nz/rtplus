@@ -12,14 +12,15 @@ import { useQueries } from '@tanstack/react-query'
 
 import { Button } from '@/components/ui/button'
 
-import { useD4hAccessKeys } from '@/lib/api/d4h-access-keys'
 import { getListResponseCombiner } from '@/lib/d4h-api/client'
 import { D4hEvent, getFetchEventsQueryOptions } from '@/lib/d4h-api/event'
 import { cn } from '@/lib/utils'
+import { trpc } from '@/trpc/client'
 
 
 export function MonthView() {
-    const accessKeys = useD4hAccessKeys()
+    const accessKeysQuery = trpc.currentUser.d4hAccessKeys.useQuery()
+    const accessKeys = accessKeysQuery.data ?? []
 
     const [month, setMonth] = React.useState<Date>(DF.startOfMonth(new Date()))
 

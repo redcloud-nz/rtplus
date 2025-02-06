@@ -7,20 +7,27 @@
 import { Metadata } from 'next'
 import React from 'react'
 
-import { AppPage } from '@/components/app-page'
+import { AppPage, PageBoundary } from '@/components/app-page'
 
 import { MonthView } from './month-view'
+import { HydrateClient, trpc } from '@/trpc/server'
 
 
 export const metadata: Metadata = { title: "Calendar | D4H Unified | RT+" }
 
 export default async function CalendarPage() {
+    void trpc.currentUser.d4hAccessKeys.prefetch()
+
     return <AppPage
         label="Calendar"
         breadcrumbs={[{ label: "D4h Unified", href: "/unified" }]}
         variant="full"
     >
-        <MonthView/>
+        <HydrateClient>
+            <PageBoundary>
+                <MonthView/>
+            </PageBoundary>
+        </HydrateClient>
     </AppPage>
 }
 

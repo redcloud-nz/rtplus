@@ -11,8 +11,6 @@ import { redirect } from 'next/navigation'
 import React from 'react'
 import { z } from 'zod'
 
-import { auth } from '@clerk/nextjs/server'
-
 import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 
 import { Button } from '@/components/ui/button'

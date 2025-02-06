@@ -7,14 +7,13 @@
 import * as React from 'react'
 import * as R from 'remeda'
 
-import { useSkillPackagesQuery } from '@/lib/api/skills'
-import { useTeamsWithMembersQuery } from '@/lib/api/teams'
-
 import { Alert } from '@/components/ui/alert'
 
 import { Show } from '@/components/show'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
+
+import { trpc } from '@/trpc/client'
 
 import { useSkillCheckStore } from './skill-check-store'
 
@@ -23,8 +22,8 @@ export function TranscriptTabContent() {
 
     const checks = useSkillCheckStore(state => state.checks)
 
-    const skillPackagesQuery = useSkillPackagesQuery()
-    const teamsQuery = useTeamsWithMembersQuery()
+    const skillPackagesQuery = trpc.skillPackages.all.useQuery()
+    const teamsQuery = trpc.teams.listWithMembers.useQuery()
 
     const getAssesseeName = React.useMemo(() => {
         const teamMembers = (teamsQuery.data ?? [])?.flatMap(team => team.teamMemberships)

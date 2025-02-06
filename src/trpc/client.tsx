@@ -15,6 +15,9 @@ import { makeQueryClient } from './query-client'
 import type { AppRouter } from './routers/_app'
 
 
+export * from './types'
+
+
 export const trpc = createTRPCReact<AppRouter>()
 
 let clientQueryClientSingleton: QueryClient

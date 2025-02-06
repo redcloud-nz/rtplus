@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils'
 
 import { HeaderControls } from './header-controls'
 
+export { PageBoundary } from './app-page-boundary'
 
 export type AppPageContainerProps = {
     children: React.ReactNode

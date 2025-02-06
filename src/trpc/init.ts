@@ -8,7 +8,6 @@ import superjson from 'superjson'
 
 import { auth } from '@clerk/nextjs/server'
 import {  initTRPC, TRPCError } from '@trpc/server'
-import { CreateNextContextOptions } from '@trpc/server/adapters/next'
 
 import { createAuthObject } from '@/server/auth'
 import prisma from '@/server/prisma'
@@ -27,7 +26,8 @@ export type Context = Awaited<ReturnType<typeof createTRPCContext>>
 
 // Avoid exporting the entire t-object
 const t = initTRPC.context<Context>().create({
-    transformer: superjson
+    transformer: superjson,
+    errorFormatter: ({ shape }) => shape
 })
 
 

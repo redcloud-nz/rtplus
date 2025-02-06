@@ -11,6 +11,13 @@ import { getPersonPermissions } from './permissions'
 
 
 export const currentUserRouter = createTRPCRouter({
+    d4hAccessKeys: authenticatedProcedure
+        .query(async ({ ctx }) => {
+            return ctx.prisma.d4hAccessKey.findMany({ 
+                where: { ownerId: ctx.userPersonId },
+                include: { team: true }
+            })
+        }),
     get: authenticatedProcedure
         .query(async ({ ctx }) => {
             return ctx.prisma.person.findUnique({ 

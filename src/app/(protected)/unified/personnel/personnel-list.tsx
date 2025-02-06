@@ -14,11 +14,10 @@ import { DataTable, DataTableColumnsDropdown, DataTableControls, DataTableGroupi
 import { EmailLink, PhoneLink } from '@/components/ui/link'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { useD4hAccessKeys } from '@/lib/api/d4h-access-keys'
-import { useTeamNameResolver } from '@/lib/api/teams'
 import { D4hListResponse, getD4hApiQueryClient } from '@/lib/d4h-api/client'
 import { D4hMember } from '@/lib/d4h-api/member'
-
+import { createTeamNameResolver } from '@/lib/team-name-resolver'
+import { trpc } from '@/trpc/client'
 
 
 
@@ -31,12 +30,15 @@ const StatusOptions: Record<D4hMember['status'], string> = {
 
 
 export function PersonnelList() {
-    const accessKeys = useD4hAccessKeys()
+    const accessKeysQuery = trpc.currentUser.d4hAccessKeys.useQuery(undefined, { initialData: [] })
 
-    const resolveTeamName = useTeamNameResolver()
+    const resolveTeamName = React.useMemo(() => 
+        createTeamNameResolver(accessKeysQuery.data.map(key => key.team)), 
+        [accessKeysQuery.data]
+    )
 
     const membersQuery = useQueries({
-        queries: accessKeys.map(accessKey => 
+        queries: accessKeysQuery.data.map(accessKey => 
             getD4hApiQueryClient(accessKey).queryOptions('get', '/v3/{context}/{contextId}/members', 
                 {
                     params: { 

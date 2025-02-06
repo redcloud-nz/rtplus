@@ -34,7 +34,7 @@ export default async function ReportCompetenciesPage() {
                 </TableRow>
                 <TableRow>
                     <TableCell>
-                        <Link href={Paths.competencies.reports.individual}>Team Skills</Link>
+                        <Link href={Paths.competencies.reports.teamSkills}>Team Skills</Link>
                     </TableCell>
                     <TableCell>A report of the teams skills as the percentage of members currently competent.</TableCell>
                 </TableRow>

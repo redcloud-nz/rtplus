@@ -12,7 +12,7 @@ import { AppPage, PageDescription, PageTitle } from '@/components/app-page'
 import { PersonnelList } from './personnel-list'
 
 
-export const metadata: Metadata = { title: "Personnel | D4H Unified | RT+" }
+export const metadata: Metadata = { title: "Personnel" }
 
 export default async function PersonnelPage() {
 

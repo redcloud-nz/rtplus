@@ -7,15 +7,17 @@
 
 import React from 'react'
 
-import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, PageBoundary, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 
 import * as Paths from '@/paths'
 
 import { ImportPersonnel } from './import-personnel'
+import { HydrateClient, trpc } from '@/trpc/server'
 
 
 
-export default async function ImportPersonnelPage() {    
+export default async function ImportPersonnelPage() {   
+    void trpc.currentUser.d4hAccessKeys.prefetch()
 
     return <AppPage
         label="Personnel From D4H"
@@ -28,6 +30,11 @@ export default async function ImportPersonnelPage() {
             <PageTitle>Import Personnel</PageTitle>
             <PageDescription>Import personnel from D4H.</PageDescription>
         </PageHeader>
+        <HydrateClient>
+            <PageBoundary>
+                <ImportPersonnel/>
+            </PageBoundary>
+        </HydrateClient>
         <ImportPersonnel/>
     </AppPage>
 }

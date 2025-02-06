@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { checkSessionPermissions, CompactPermissions } from './permissions'
+import { checkSessionPermissions, CompactPermissions, PermissionKey } from './permissions'
 
 const IDs = [
     '7a019dd1-2ffe-42ce-8f3e-76b24ea4ad40',
@@ -91,7 +91,7 @@ describe('checkSessionPermissions', () => {
 
     it('should throw an error for unknown permission prefix', () => {
         expect(() => {
-            checkSessionPermissions(sessionClaims, 'unknown:permission' as any);
+            checkSessionPermissions(sessionClaims, 'unknown:permission' as PermissionKey);
         }).toThrow('Unknown permission prefix: unknown:permission');
     })
 });

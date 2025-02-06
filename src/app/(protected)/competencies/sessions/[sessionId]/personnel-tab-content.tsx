@@ -17,15 +17,15 @@ import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Description } from '@/components/ui/typography'
 
-import { useTeamsWithMembersQuery } from '@/lib/api/teams'
 
 import { useSkillCheckStore } from './skill-check-store'
+import { trpc } from '@/trpc/client'
 
 
 export function PersonnelTabContent() {
 
     const [assesseeIds, addAssessee, removeAssessee] = useSkillCheckStore(useShallow(state => [state.assesseeIds, state.addAssessee, state.removeAssessee]))
-    const teamsQuery = useTeamsWithMembersQuery()
+    const teamsQuery = trpc.teams.listWithMembers.useQuery()
     
 
     function handleSelectPerson(personId: string, checked: boolean) {

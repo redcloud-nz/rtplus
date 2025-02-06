@@ -24,8 +24,8 @@ export const competencies = {
     reportsList: `/competencies/reports`,
     reports: {
         individual: `/competencies/reports/individual`,
-        teamSkills: `/competencies/reports/teamSkills`,
-        teamMembers: `/competencies/reports/teamMembers`,
+        teamSkills: `/competencies/reports/team-skills`,
+        teamMembers: `/competencies/reports/team-members`,
     },
 } as const
 

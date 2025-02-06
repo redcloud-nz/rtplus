@@ -12,24 +12,22 @@ import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRo
 import { DataTable, DataTableColumnsDropdown, DataTableControls, DataTableGroupingDropdown, DataTableProvider, DataTableResetButton, DataTableSearch, defineColumns} from '@/components/data-table'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import {  useD4hAccessKeys } from '@/lib/api/d4h-access-keys'
-import { useTeamNameResolver } from '@/lib/api/teams'
 import { getListResponseCombiner } from '@/lib/d4h-api/client'
 import { D4hEvent, getFetchEventsQueryOptions } from '@/lib/d4h-api/event'
+import { createTeamNameResolver } from '@/lib/team-name-resolver'
 import { formatDateTime } from '@/lib/utils'
+import { trpc } from '@/trpc/client'
+
 
 
 
 export function ActivitiesList() {
+    const accessKeysQuery = trpc.currentUser.d4hAccessKeys.useQuery(undefined, { initialData: [] })
 
     const now = React.useMemo(() => new Date(), [])
 
-    const accessKeys = useD4hAccessKeys()
-
-    const resolveTeamName = useTeamNameResolver()
-
     const eventsQuery = useQueries({
-        queries: accessKeys.flatMap(accessKey => [
+        queries: accessKeysQuery.data.flatMap(accessKey => [
             getFetchEventsQueryOptions(accessKey, 'event', { refDate: now, scope: 'future'}),
             getFetchEventsQueryOptions(accessKey, 'exercise', { refDate: now, scope: 'future'}),
         ]),
@@ -37,6 +35,7 @@ export function ActivitiesList() {
     })
 
     const columns = React.useMemo(() => {
+        const resolveTeamName = createTeamNameResolver(accessKeysQuery.data.map(key => key.team))
         return defineColumns<D4hEvent>(columnHelper => [
             columnHelper.accessor('referenceDescription', {
                 id: 'title',
@@ -70,7 +69,7 @@ export function ActivitiesList() {
                 enableSorting: true,
             })
         ])
-    }, [resolveTeamName])
+    }, [accessKeysQuery.data])
 
     const table = useReactTable({ 
         columns, 

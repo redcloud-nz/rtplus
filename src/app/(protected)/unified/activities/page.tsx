@@ -11,11 +11,11 @@ import { AppPage, PageDescription, PageTitle } from '@/components/app-page'
 
 import { ActivitiesList } from './activities-list'
 
-
 export const metadata: Metadata = { title: "Activities" }
 
 
 export default async function ActivitiesPage() {
+
     return <AppPage 
         label="Activities" 
         breadcrumbs={[{ label: "D4H Unified", href: "/unified" }]}

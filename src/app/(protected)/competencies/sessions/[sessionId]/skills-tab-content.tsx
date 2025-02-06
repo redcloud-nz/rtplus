@@ -5,7 +5,7 @@
  */
 'use client'
 
-import React from 'react'
+import * as React from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
@@ -14,16 +14,15 @@ import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Description } from '@/components/ui/typography'
 
-import { SkillPackageWithGroupsAndSkills, useSkillPackagesQuery } from '@/lib/api/skills'
-
 import { useSkillCheckStore } from './skill-check-store'
+import { SkillPackageWithGroupsAndSkills, trpc } from '@/trpc/client'
 
 
 export function SkillsTabContent() {
 
     const [skillIds, addSkill, removeSkill] = useSkillCheckStore(useShallow(state => [state.skillIds, state.addSkill, state.removeSkill]))
 
-    const skillPackagesQuery = useSkillPackagesQuery()
+    const skillPackagesQuery = trpc.skillPackages.all.useQuery()
 
     function handleSelectSkill(skillId: string, checked: boolean) {
         if(checked) addSkill(skillId)

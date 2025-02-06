@@ -5,7 +5,7 @@
 
 import '@tanstack/react-table'
 
-import type { SessionPermissionClaims, ShortPermissions, SkillPackagePermissionKey, SystemPermissionKey, TeamPermissionKey } from './server/permissions'
+import type { ShortPermissions } from './server/permissions'
 
 declare module '@tanstack/react-table' {
     // eslint-disable-next-line

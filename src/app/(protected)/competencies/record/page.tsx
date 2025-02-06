@@ -21,20 +21,18 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 
-import { SkillPackageWithGroupsAndSkills, useSkillPackagesQuery } from '@/lib/api/skills'
-import { useTeamsWithMembersQuery } from '@/lib/api/teams'
 import { CompetenceLevelTerms } from '@/lib/terms'
 
 import * as Paths from '@/paths'
+import { SkillPackageWithGroupsAndSkills, trpc } from '@/trpc/client'
 
 import { recordSkillCheckAction } from './record-skill-check-action'
 
 
-
 export default function RecordSkillCheckPage() {
 
-    const skillPackagesQuery = useSkillPackagesQuery()
-    const teamsQuery = useTeamsWithMembersQuery()
+    const skillPackagesQuery = trpc.skillPackages.all.useQuery()
+    const teamsQuery = trpc.teams.listWithMembers.useQuery()
     
     function renderSkillPackageSelectItems(skillPackage: SkillPackageWithGroupsAndSkills) {
         return <React.Fragment key={skillPackage.id}>

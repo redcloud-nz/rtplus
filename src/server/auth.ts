@@ -41,7 +41,7 @@ export function createAuthObject(authObject: ClerkAuthObject): RTPlusAuthObject 
             authObject,
             userPersonId: '',
             permissions: { rt_ssp: {}, rt_sp: '', rt_tp: {} },
-            hasPermission(permission: PermissionKey, id?: string): boolean {
+            hasPermission(): boolean {
                 return false
             },
         }

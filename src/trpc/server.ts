@@ -13,6 +13,9 @@ import { createCallerFactor, createTRPCContext } from './init'
 import { makeQueryClient } from './query-client'
 import { appRouter } from './routers/_app'
 
+
+export * from './types'
+
 // Create a stable getter for the query client
 export const getQueryClient = cache(makeQueryClient)
 
