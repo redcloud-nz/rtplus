@@ -24,7 +24,7 @@ type Props = { params: Promise<{ personId: string }> }
 export async function generateMetadata({ params }: Props) {
     const { personId } = await params
 
-    const person = await trpc.personnel.get({ personId })
+    const person = await trpc.personnel.byId({ personId })
 
     return person ? { title: `Access & Permissions | ${person.name}` } : { title: "Person Not Found" }
 }
@@ -35,7 +35,7 @@ export default async function PersonAccessPage(props: Props) {
 
     void trpc.permissions.person.prefetch({ personId })
 
-    const person = await trpc.personnel.get({ personId })
+    const person = await trpc.personnel.byId({ personId })
     if(!person) return <NotFound/>
 
     return <AppPage

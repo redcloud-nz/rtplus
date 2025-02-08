@@ -9,14 +9,7 @@ import { authenticatedProcedure, createTRPCRouter } from '../init'
 
 
 export const personnelRouter = createTRPCRouter({
-    list: authenticatedProcedure
-        .query(async ({ ctx }) => {
-            return ctx.prisma.person.findMany({ 
-                where: { status: 'Active' },
-                select: { id: true, name: true, slug: true, email: true, status: true }
-            })
-        }),
-    get: authenticatedProcedure
+    byId: authenticatedProcedure
         .input(z.object({ personId: z.string().uuid() }))
         .query(async ({ input, ctx }) => {
             return ctx.prisma.person.findUnique({ 
@@ -24,5 +17,12 @@ export const personnelRouter = createTRPCRouter({
                 select: { id: true, name: true, slug: true, email: true, status: true }
             })
         }),
-    
+
+    list: authenticatedProcedure
+        .query(async ({ ctx }) => {
+            return ctx.prisma.person.findMany({ 
+                where: { status: 'Active' },
+                select: { id: true, name: true, slug: true, email: true, status: true }
+            })
+        }),
 })
