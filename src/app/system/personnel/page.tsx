@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /manage/personnel
+ *  Path: /system/personnel
  */
 
 import { PlusIcon } from 'lucide-react'

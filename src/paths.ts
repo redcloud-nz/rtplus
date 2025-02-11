@@ -3,31 +3,6 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-export const availability = {
-    index: '/availability',
-} as const
-
-export const checklists = {
-    index: '/checklists',
-} as const
-
-//  /------------------------------\
-//  |         Competencies         |
-//  \------------------------------/
-export const competencies = {
-    configuration: '/competencies/configuration',
-    dashboard: '/competencies',
-    sessionList: '/competencies/sessions',
-    session: (sId: string) => `/competencies/sessions/${sId}`,
-    newSession: '/competencies/sessions/new-session',
-    record: '/competencies/record',
-    reportsList: `/competencies/reports`,
-    reports: {
-        individual: `/competencies/reports/individual`,
-        teamSkills: `/competencies/reports/team-skills`,
-        teamMembers: `/competencies/reports/team-members`,
-    },
-} as const
 
 //  /------------------------------\
 //  |        Configuration         |
@@ -66,7 +41,33 @@ export const newSkillPackage = `${skillPackagesList}/new`
 export const skillPackage = (pId: string) => `${skillPackagesList}/${pId}`
 export const editSkillPackage = (pId: string) => `${skillPackage(pId)}/edit`
 
-// Teams
+// Team
+
+export const team = (teamSlug: string) => {
+    const base = `/team/${teamSlug}` as const
+    const competenciesBase = `${base}/competencies` as const
+
+    return {
+        index: base,
+        availability: `${base}/availability`,
+        checklists: `${base}/checklists`,
+        competencies: {
+            dashboard: competenciesBase,
+            sessionList: `${competenciesBase}/sessions`,
+            session: (sessionId: string) => `${competenciesBase}/sessions/${sessionId}`,
+            newSession: `${competenciesBase}/sessions/new`,
+            record: '/competencies/record',
+            reportsList: `${competenciesBase}/reports`,
+            reports: {
+                individual: `${competenciesBase}/reports/individual`,
+                teamSkills: `${competenciesBase}/reports/team-skills`,
+                teamMembers: `${competenciesBase}/reports/team-members`,
+            },
+        },
+        dashboard: `${base}/dashboard`,
+        members: `${base}/members`
+    } as const
+}
 
 const teamsPrefix = `${manage}/teams`
 export const teams = {
@@ -91,10 +92,10 @@ export const unified = {
 //  |           Account            |
 //  \------------------------------/
 export const account = {
-    profile: '/account/user-profile',
-    organizationList: '/account/organization-list',
-    d4hAccessKeys: '/account/d4h-access-keys',
-    whoami: '/account/whoami'
+    profile: '/me/user-profile',
+    organizationList: '/me/organization-list',
+    d4hAccessKeys: '/me/d4h-access-keys',
+    whoami: '/me/whoami'
 } as const
 
 

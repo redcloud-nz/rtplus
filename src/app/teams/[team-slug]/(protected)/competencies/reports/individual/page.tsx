@@ -2,27 +2,31 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /competencies/reports/individual
+ *  Path: /team/[team-slug]/competencies/reports/individual
  */
 
 import { format} from 'date-fns'
 import React from 'react'
 
+import { TeamParams } from '@/app/teams/[team-slug]'
 import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 
 import * as Paths from '@/paths'
 
-
 import IndividualReport from './individual-report'
 
 
-export default function IndividualReportPage() {
+
+export default async function IndividualReportPage(props: { params: Promise<TeamParams>}) {
+
+    const { 'team-slug': teamSlug } = await props.params
+    const competenciesPath = Paths.team(teamSlug).competencies
 
     return <AppPage 
         label="Individual"
         breadcrumbs={[
-            { label: "Competencies", href: Paths.competencies.dashboard },
-            { label: "Reports", href: Paths.competencies.reportsList }
+            { label: "Competencies", href: competenciesPath.dashboard },
+            { label: "Reports", href: competenciesPath.reportsList }
         ]}
     >
         <PageHeader>

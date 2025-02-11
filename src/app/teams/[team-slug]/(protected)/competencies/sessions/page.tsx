@@ -9,6 +9,9 @@ import { formatISO } from 'date-fns'
 import { SquarePenIcon } from 'lucide-react'
 import { redirect } from 'next/navigation'
 
+import { auth } from '@clerk/nextjs/server'
+
+import { TeamParams } from '@/app/teams/[team-slug]'
 import { AppPage, PageControls, PageHeader, PageTitle } from '@/components/app-page'
 import { Show } from '@/components/show'
 
@@ -24,7 +27,12 @@ import prisma from '@/server/prisma'
 import * as Paths from '@/paths'
 
 
-export default async function SkillCheckSessionListPage() {
+
+
+export default async function SkillCheckSessionListPage(props: { params: Promise<TeamParams>}) {
+
+    const { 'team-slug': teamSlug } = await props.params
+    const competenciesPath = Paths.team(teamSlug).competencies
 
     const { userPersonId } = await authenticated()
 
@@ -39,7 +47,7 @@ export default async function SkillCheckSessionListPage() {
 
     return <AppPage 
         label="My Sessions" 
-        breadcrumbs={[{ label: "Competencies", href: Paths.competencies.dashboard }]}
+        breadcrumbs={[{ label: "Competencies", href: competenciesPath.dashboard }]}
     >
         <PageHeader>
             <PageTitle>Sessions</PageTitle>
@@ -70,7 +78,7 @@ export default async function SkillCheckSessionListPage() {
                 <TableBody>
                     {assessments.map((assessment, index) => 
                         <TableRow key={assessment.id}>
-                            <TableCell><Link href={Paths.competencies.session(assessment.id)}>{assessment.name || `#${index+1}`}</Link></TableCell>
+                            <TableCell><Link href={competenciesPath.session(assessment.id)}>{assessment.name || `#${index+1}`}</Link></TableCell>
                             <TableCell>{formatISO(assessment.date, { representation: 'date' })}</TableCell>
                             <TableCell className="hidden md:table-cell text-center ">{assessment._count.skills}</TableCell>
                             <TableCell className="hidden md:table-cell text-center">{assessment._count.assessees}</TableCell>
@@ -87,7 +95,8 @@ export default async function SkillCheckSessionListPage() {
 async function createSessionAction(): Promise<FormState> {
     'use server'
 
-    const { userPersonId } = await authenticated()
+    const { sessionClaims, orgSlug } = await auth.protect()
+    const userPersonId = sessionClaims.rt_sp
 
     const year = new Date().getFullYear()
 
@@ -112,5 +121,5 @@ async function createSessionAction(): Promise<FormState> {
         }
     })
 
-    redirect(Paths.competencies.session(createdSession.id))
+    redirect(Paths.team(orgSlug!).competencies.session(createdSession.id))
 }

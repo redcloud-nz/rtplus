@@ -6,6 +6,7 @@
  */
 
 
+import { TeamParams } from '@/app/teams/[team-slug]'
 import { AppPage, PageHeader, PageTitle } from '@/components/app-page'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
@@ -13,8 +14,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 
 import * as Paths from '@/paths'
 
 
-export default async function ReportCompetenciesPage() {
-    return <AppPage label="Reports" breadcrumbs={[{ label: "Competencies", href: Paths.competencies.dashboard}]}>
+
+export default async function ReportCompetenciesPage(props: { params: Promise<TeamParams>}) {
+    const { 'team-slug': teamSlug } = await props.params
+    const competenciesPath = Paths.team(teamSlug).competencies
+
+    return <AppPage label="Reports" breadcrumbs={[{ label: "Competencies", href: competenciesPath.dashboard}]}>
         <PageHeader>
             <PageTitle>Competency Reports</PageTitle>
         </PageHeader>
@@ -28,13 +33,13 @@ export default async function ReportCompetenciesPage() {
             <TableBody>
                 <TableRow>
                     <TableCell>
-                        <Link href={Paths.competencies.reports.individual}>Individual</Link>
+                        <Link href={competenciesPath.reports.individual}>Individual</Link>
                     </TableCell>
                     <TableCell>A report of an individuals competencies.</TableCell>
                 </TableRow>
                 <TableRow>
                     <TableCell>
-                        <Link href={Paths.competencies.reports.teamSkills}>Team Skills</Link>
+                        <Link href={competenciesPath.reports.teamSkills}>Team Skills</Link>
                     </TableCell>
                     <TableCell>A report of the teams skills as the percentage of members currently competent.</TableCell>
                 </TableRow>

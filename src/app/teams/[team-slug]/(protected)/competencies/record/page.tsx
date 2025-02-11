@@ -2,7 +2,7 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /competencies/record
+ *  Path: /team/[team-slug]/competencies/record
  */
 'use client'
 
@@ -11,6 +11,7 @@ import * as R from 'remeda'
 
 import { Skill, SkillGroup } from '@prisma/client'
 
+import { TeamParams } from '@/app/teams/[team-slug]'
 import { AppPage, PageHeader, PageTitle } from '@/components/app-page'
 import { Show } from '@/components/show'
 
@@ -29,7 +30,11 @@ import { SkillPackageWithGroupsAndSkills, trpc } from '@/trpc/client'
 import { recordSkillCheckAction } from './record-skill-check-action'
 
 
-export default function RecordSkillCheckPage() {
+
+export default async function RecordSkillCheckPage({ params }: { params: Promise<TeamParams>}) {
+    const { 'team-slug': teamSlug } = await params
+
+    const competenciesPath = Paths.team(teamSlug).competencies
 
     const skillPackagesQuery = trpc.skillPackages.all.useQuery()
     const teamsQuery = trpc.teams.listWithMembers.useQuery()
@@ -58,7 +63,7 @@ export default function RecordSkillCheckPage() {
 
     return <AppPage
         label="Single Check"
-        breadcrumbs={[{ label: 'Competencies', href: Paths.competencies.dashboard }]}
+        breadcrumbs={[{ label: 'Competencies', href: competenciesPath.dashboard }]}
     >
         <PageHeader>
             <PageTitle>Record Skill Check</PageTitle>
@@ -143,7 +148,7 @@ export default function RecordSkillCheckPage() {
             <FormFooter>
                 <FormSubmitButton label="Submit" loading="Submitting"/>
                 <Button variant="ghost" asChild>
-                    <Link href={Paths.competencies.dashboard}>Cancel</Link>
+                    <Link href={competenciesPath.dashboard}>Cancel</Link>
                 </Button>
             </FormFooter>
             <FormMessage/>

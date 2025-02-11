@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse, URLPattern } from 'next/server'
 
-import { clerkMiddleware, ClerkMiddlewareAuth } from '@clerk/nextjs/server'
+import { clerkMiddleware, ClerkMiddlewareAuth, createRouteMatcher } from '@clerk/nextjs/server'
 
 import { validateUUID } from './lib/id'
 import { hasPermission } from './server/permissions'
@@ -72,18 +72,34 @@ const patterns: { pattern: URLPattern, handler: (auth: ClerkMiddlewareAuth, req:
     }
 ]
 
-export default clerkMiddleware(async (auth, req) => {
+const isProtectedRoute = createRouteMatcher(['/teams/(.*)/(.*)'])
 
-    for(const pattern of patterns) {
-        const match = pattern.pattern.exec(req.nextUrl)
-        if(match != null) {
-            const result = await pattern.handler(auth, req, match)
-            if(result != undefined) {
-                return result
-            }
+export default clerkMiddleware(
+    async (auth, req) => {
+        if(isProtectedRoute(req)) await auth.protect()
+
+        // for(const pattern of patterns) {
+        //     const match = pattern.pattern.exec(req.nextUrl)
+        //     if(match != null) {
+        //         const result = await pattern.handler(auth, req, match)
+        //         if(result != undefined) {
+        //             return result
+        //         }
+        //     }
+        // }
+    },
+    {
+        organizationSyncOptions: {
+            organizationPatterns: [
+                '/teams/:slug/(.*)'
+            ],
+            personalAccountPatterns: [
+                '/me',
+                '/me/(.*)'
+            ]
         }
     }
-})
+)
 
 export const config = {
     matcher: [

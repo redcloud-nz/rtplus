@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /competencies
+ *  Path: /me
  */
 
 import { BadgeCheckIcon, KeyRoundIcon, ShieldQuestionIcon } from 'lucide-react'
@@ -17,13 +17,13 @@ import * as Paths from '@/paths'
 
 export const metadata: Metadata = {
     title: {
-        template: "%s | My Account | RT+",
-        default: "My Account | RT+",
+        template: "%s | Me | RT+",
+        default: "Me | RT+",
     },
     description: "RT+ Account Management",
 };
 
-export default async function AccountLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function AccountLayout({ children }: { children: React.ReactNode }) {
     return <>
         <AppSidebar>
             <NavSection title="My Account">

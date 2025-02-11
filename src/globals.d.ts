@@ -27,6 +27,7 @@ declare global {
         teamPermissions: Record<string, ShortPermissions>
     }
     interface CustomJwtSessionClaims {
+        org_name: string
         rt_pid: string
         rt_ssp: Record<string, ShortPermissions>
         rt_sp: ShortPermissions
