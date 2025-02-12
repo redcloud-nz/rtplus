@@ -9,42 +9,28 @@ import { pick } from 'remeda'
 import { auth } from '@clerk/nextjs/server'
 import { AuthObject as ClerkAuthObject } from '@clerk/backend'
 
-import { checkSessionPermissions, CompactPermissions, PermissionKey, SkillPackagePermissionKey, SystemPermissionKey, TeamPermissionKey } from './permissions'
+import { checkSessionPermissions, CompactPermissions, PermissionKey, SystemPermissionKey, TeamPermissionKey } from '../lib/permissions'
 
 
 export interface RTPlusAuthObject {
-    readonly authObject: ClerkAuthObject
     readonly userPersonId: string
     readonly permissions: CompactPermissions
     
-    hasPermission(permission: SkillPackagePermissionKey, skillPackageId: string): boolean
     hasPermission(permission: SystemPermissionKey): boolean
     hasPermission(permission: TeamPermissionKey, teamId: string): boolean
 }
 
 
-
-
-
 export function createAuthObject(authObject: ClerkAuthObject): RTPlusAuthObject {
-    if(authObject.userId) 
+    if(authObject.userId == null) throw new Error("User is not authenticated")
+
         return {
-            authObject,
             userPersonId: authObject.sessionClaims.rt_pid,
-            permissions: pick(authObject.sessionClaims, ['rt_ssp', 'rt_sp', 'rt_tp']),
+            permissions: pick(authObject.sessionClaims, ['rt_sp', 'rt_tp']),
             hasPermission(permission: PermissionKey, id?: string): boolean {
                 return checkSessionPermissions(authObject.sessionClaims, permission, id)
-            },
+            }
         } 
-    else 
-        return {
-            authObject,
-            userPersonId: '',
-            permissions: { rt_ssp: {}, rt_sp: '', rt_tp: {} },
-            hasPermission(): boolean {
-                return false
-            },
-        }
 }
 
 export async function authenticated(): Promise<RTPlusAuthObject> {

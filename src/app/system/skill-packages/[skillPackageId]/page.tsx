@@ -35,7 +35,7 @@ export default async function SkillPackagePage(props: { params: Promise<{ skillP
     return <AppPage
         label={skillPackages.name} 
         breadcrumbs={[
-            { label: "Manage", href: Paths.manage }, 
+            { label: "Manage", href: Paths.system }, 
             { label: "Packages", href: Paths.skillPackagesList }
         ]}
     >

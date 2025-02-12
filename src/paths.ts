@@ -3,11 +3,10 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-
 //  /------------------------------\
 //  |        Configuration         |
 //  \------------------------------/
-export const manage = '/manage'
+export const system = '/system'
 
 export const imports = {
     list: '/manage/imports',
@@ -16,7 +15,7 @@ export const imports = {
 } as const
 
 // Personnel
-export const personnel = `${manage}/personnel`
+export const personnel = `${system}/personnel`
 export const newPerson = `${personnel}/new`
 export const person = (pId: string) => `${personnel}/${pId}`
 export const editPerson = (pId: string) => `${person(pId)}/edit`
@@ -24,27 +23,30 @@ export const personAccess = (pId: string) => `${person(pId)}/access`
 export const personMemberships = (pId: string) => `${person(pId)}/memberships`
 
 // Skills
-export const skillsList = `${manage}/skills`
-export const newSkill = `${manage}/skills/new`
-export const skill = (sId: string) => `${manage}/skills/${sId}`
+export const skillsList = `${system}/skills`
+export const newSkill = `${system}/skills/new`
+export const skill = (sId: string) => `${system}/skills/${sId}`
 export const editSkill = (sId: string) => `${skill(sId)}/edit`
 
 // Skill Groups
-export const skillGroupsList = `${manage}/skill-groups`
+export const skillGroupsList = `${system}/skill-groups`
 export const newSkillGroup = `${skillGroupsList}/new`
-export const skillGroup = (sgId: string) => `${manage}/skill-groups/${sgId}`
+export const skillGroup = (sgId: string) => `${system}/skill-groups/${sgId}`
 export const editSkillGroup = (sgId: string) => `${skillGroup(sgId)}/edit`
 
 // Skill Packages
-export const skillPackagesList = `${manage}/skill-packages`
+export const skillPackagesList = `${system}/skill-packages`
 export const newSkillPackage = `${skillPackagesList}/new`
 export const skillPackage = (pId: string) => `${skillPackagesList}/${pId}`
 export const editSkillPackage = (pId: string) => `${skillPackage(pId)}/edit`
 
+// Switch Team
+export const switchTeam = `/switch-team`
+
 // Team
 
 export const team = (teamSlug: string) => {
-    const base = `/team/${teamSlug}` as const
+    const base = `/teams/${teamSlug}` as const
     const competenciesBase = `${base}/competencies` as const
 
     return {
@@ -56,7 +58,7 @@ export const team = (teamSlug: string) => {
             sessionList: `${competenciesBase}/sessions`,
             session: (sessionId: string) => `${competenciesBase}/sessions/${sessionId}`,
             newSession: `${competenciesBase}/sessions/new`,
-            record: '/competencies/record',
+            record: `${competenciesBase}/record`,
             reportsList: `${competenciesBase}/reports`,
             reports: {
                 individual: `${competenciesBase}/reports/individual`,
@@ -69,7 +71,7 @@ export const team = (teamSlug: string) => {
     } as const
 }
 
-const teamsPrefix = `${manage}/teams`
+const teamsPrefix = `${system}/teams`
 export const teams = {
     list: teamsPrefix,
     new: `${teamsPrefix}/new`,

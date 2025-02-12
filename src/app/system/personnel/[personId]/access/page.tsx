@@ -41,7 +41,7 @@ export default async function PersonAccessPage(props: Props) {
     return <AppPage
         label="Access & Permissions"
         breadcrumbs={[
-            { label: "Manage", href: Paths.manage }, 
+            { label: "Manage", href: Paths.system }, 
             { label: "Personnel", href: Paths.personnel },
             { label: person.name, href: Paths.person(personId) }
         ]}

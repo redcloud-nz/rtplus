@@ -2,11 +2,12 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /manage
+ *  Path: /system
  */
 
 import { BoxesIcon, GroupIcon, ImportIcon, PocketKnifeIcon, SettingsIcon, ShieldHalfIcon, UsersIcon } from 'lucide-react'
 import type { Metadata } from 'next'
+
 
 import { AppPageContainer } from '@/components/app-page'
 import { AppSidebar } from "@/components/app-sidebar"
@@ -18,16 +19,16 @@ import { ServerProtect } from '@/server/protect'
 
 export const metadata: Metadata = {
     title: {
-        template: "%s | Manage | RT+",
-        default: "Manage | RT+",
+        template: "%s | Configure | RT+",
+        default: "Configure | RT+",
     },
-    description: "RT+ Data Management",
+    description: "RT+ Configuration",
 };
 
-export default async function ManageLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function SystemConfigLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     return <>
         <AppSidebar>
-            <NavSection title="Manage">
+            <NavSection title="Configuration">
                 <NavItem label="General Settings" href="/settings" icon={<SettingsIcon/>}/>
                 <ServerProtect permission="system:write">
                     <NavItem label="Imports" href={Paths.imports.list} icon={<ImportIcon/>}/>

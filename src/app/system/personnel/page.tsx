@@ -32,7 +32,7 @@ export default async function PeopleListPage() {
 
     return <AppPage
         label="Personnel" 
-        breadcrumbs={[{ label: "Manage", href: Paths.manage }]}
+        breadcrumbs={[{ label: "Manage", href: Paths.system }]}
     >
         <PageHeader>
             <PageTitle>Manage People</PageTitle>

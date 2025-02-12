@@ -5,7 +5,7 @@
 
 import { tv, type VariantProps } from 'tailwind-variants'
 import Link from 'next/link'
-import React from 'react'
+import React, { ComponentProps } from 'react'
 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { Separator } from '@/components/ui/separator'
@@ -21,14 +21,22 @@ export { PageBoundary } from './app-page-boundary'
 export type AppPageContainerProps = {
     children: React.ReactNode
     hasSidebar?: boolean
+    slotProps?: {
+        headerControls?: ComponentProps<typeof HeaderControls>
+    }
 }
 
-export function AppPageContainer({ children, hasSidebar }: AppPageContainerProps) {
+export function AppPageContainer({ children, hasSidebar, slotProps = {} }: AppPageContainerProps) {
+    slotProps = {headerControls: {}, ...slotProps }
+
     return <div className="h-screen flex-1 grid grid-rows-[48px_1px_1fr_1px_48px] grid-cols-[48px_1fr_auto]">
         <div className="row-start-1 col-start-1 flex justify-center items-center pl-1">
             { hasSidebar ? <SidebarTrigger/> : "RT+" }
         </div>
-        <HeaderControls className="row-start-1 col-start-3"/>
+        <HeaderControls 
+            className={cn("row-start-1 col-start-3", slotProps.headerControls?.className)}
+            {...slotProps.headerControls}
+        />
         <Separator className="row-start-2 col-span-full" orientation="horizontal"/>
         {children}
     </div>

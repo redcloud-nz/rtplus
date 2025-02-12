@@ -39,7 +39,7 @@ export default async function TeamsListPage() {
     
     return <AppPage 
         label="Teams"
-        breadcrumbs={[{ label: "Manage", href: Paths.manage }]}
+        breadcrumbs={[{ label: "Manage", href: Paths.system }]}
     >
         <PageHeader>
             <PageTitle>Manage Teams</PageTitle>

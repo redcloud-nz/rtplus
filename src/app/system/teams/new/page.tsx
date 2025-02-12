@@ -28,7 +28,7 @@ export default function NewTeamPage() {
     return <AppPage
         label="New Team"
         breadcrumbs={[
-            { label: "Manage", href: Paths.manage },
+            { label: "Manage", href: Paths.system },
             { label: "Teams", href: Paths.teams.list }
         ]}    
     >

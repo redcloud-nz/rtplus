@@ -22,7 +22,7 @@ export default async function ImportPersonnelPage() {
     return <AppPage
         label="Personnel From D4H"
         breadcrumbs={[
-            { label: 'Manage', href: Paths.manage },
+            { label: 'Manage', href: Paths.system },
             { label: 'Imports', href: Paths.imports.list },
         ]}
     >

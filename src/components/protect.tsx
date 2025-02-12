@@ -5,10 +5,9 @@
 
 import * as React from 'react'
 
-import { hasPermission, SkillPackagePermissionKey, SystemPermissionKey, TeamPermissionKey } from '@/server/permissions'
+import { hasPermission, isSystemPermission, isTeamPermission, SystemPermissionKey, TeamPermissionKey } from '@/lib/permissions'
 import { trpc } from '@/trpc/client'
 
-type ProtectSkillPackageProps = { permission: SkillPackagePermissionKey, skillPackageId: string }
 type ProtectSystemProps = { permission: SystemPermissionKey }
 type ProtectTeamProps = { permission: TeamPermissionKey, teamId: string }
 
@@ -16,7 +15,7 @@ export type ProtectProps = {
     children: React.ReactNode
     fallback?: React.ReactNode
     allowSystem?: boolean
-} & (ProtectSkillPackageProps | ProtectSystemProps | ProtectTeamProps)
+} & (ProtectSystemProps | ProtectTeamProps)
 
 export function ClientProtect(props: ProtectProps) {
 
@@ -29,15 +28,11 @@ export function ClientProtect(props: ProtectProps) {
 
         if(props.allowSystem && hasPermission(permissionsQuery.data, 'system:write')) return authorized
 
-        if(props.permission.startsWith('skill-package:')) {
-            const { permission, skillPackageId } = props as ProtectSkillPackageProps
-
-            return hasPermission(permissionsQuery.data, permission, skillPackageId) ? authorized : unauthorized
-        } else if(props.permission.startsWith('system:')) {
+        if(isSystemPermission(props.permission)) {
             const { permission } = props as ProtectSystemProps
 
             return hasPermission(permissionsQuery.data, permission) ? authorized : unauthorized
-        } else if(props.permission.startsWith('team:')) {
+        } else if(isTeamPermission(props.permission)) {
             const { permission, teamId } = props as ProtectTeamProps
 
             return hasPermission(permissionsQuery.data, permission, teamId) ? authorized : unauthorized

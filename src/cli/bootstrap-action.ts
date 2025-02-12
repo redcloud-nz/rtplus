@@ -7,7 +7,7 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { Person } from '@prisma/client'
 
-import { Permissions } from '@/server/permissions'
+import { Permissions } from '@/lib/permissions'
 import { authenticated } from '@/server/auth'
 import prisma from '@/server/prisma'
 

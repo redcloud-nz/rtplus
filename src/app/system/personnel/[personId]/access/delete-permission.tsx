@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { cn } from '@/lib/utils'
-import type { PermissionKey } from '@/server/permissions'
+import type { PermissionKey } from '@/lib/permissions'
 import { trpc } from '@/trpc/client'
 
 

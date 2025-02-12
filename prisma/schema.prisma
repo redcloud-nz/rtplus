@@ -52,7 +52,6 @@ model Person {
   skillChecksAsAssessor        SkillCheck[]             @relation("skill_check_to_assessor")
   skillCheckSessionsAsAssessee SkillCheckSession[]      @relation("skill_check_session_to_assessee")
   skillCheckSessionsAsAssessor SkillCheckSession[]      @relation("skill_check_session_to_assessor")
-  skillPackagePermissions      SkillPackagePermission[] @relation("skill_package_permission_to_person")
   systemPermissions            SystemPermission?        @relation("system_permission_to_person")
   teamMemberships              TeamMembership[]         @relation("team_membership_to_person")
   teamPermissions              TeamPermission[]         @relation("team_permission_to_person")
@@ -137,20 +136,8 @@ model SkillPackage {
   status      RecordStatus             @default(Active)
   skillGroups SkillGroup[]             @relation("skill_group_to_skill_package")
   skills      Skill[]                  @relation("skill_to_skill_package")
-  permissions SkillPackagePermission[] @relation("skill_package_permission_to_skill_package")
 
   @@map("skill_packages")
-}
-
-model SkillPackagePermission {
-  personId       String       @map("person_id") @db.Uuid
-  skillPackageId String       @map("skill_package_id") @db.Uuid
-  permissions    String[]
-  person         Person       @relation("skill_package_permission_to_person", fields: [personId], references: [id])
-  skillPackage   SkillPackage @relation("skill_package_permission_to_skill_package", fields: [skillPackageId], references: [id])
-
-  @@id([personId, skillPackageId])
-  @@map("skill_package_permissions")
 }
 
 model SystemPermission {

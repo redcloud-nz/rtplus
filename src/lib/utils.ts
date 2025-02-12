@@ -41,7 +41,8 @@ export function resolveAfter<R>(valueOrLazy: R | (() => R), delay: number): Prom
  * @param name The user's full name
  * @returns The user's initials (first letter of first and last name).
  */
-export function getUserInitials(name: string): string {
+export function getUserInitials(name: string | null): string {
+    if( name == null) return "" 
     const parts = name.split(' ')
     switch(parts.length) {
         case 0:

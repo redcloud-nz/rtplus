@@ -43,7 +43,7 @@ export default async function EditTeamPage(props: { params: Promise<{ teamId: st
     return <AppPage
         label="Edit"
         breadcrumbs={[
-            { label: "Manage", href: Paths.manage },
+            { label: "Manage", href: Paths.system },
             { label: "Teams", href: Paths.teams.list },
             { label: team.shortName || team.name, href: Paths.teams.team(teamId).index },
         ]}

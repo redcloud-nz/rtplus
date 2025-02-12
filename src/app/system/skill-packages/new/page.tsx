@@ -16,7 +16,7 @@ export default async function NewSkillPackagePage() {
     return <NotImplemented 
         label="Skill Package" 
         breadcrumbs={[
-            { label: "Manage", href: Paths.manage }, 
+            { label: "Manage", href: Paths.system }, 
             { label: "Skill Packages", href: Paths.skillPackagesList }
         ]}
     />

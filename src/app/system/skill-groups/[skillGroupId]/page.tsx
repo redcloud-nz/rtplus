@@ -35,7 +35,7 @@ export default async function SkillGroupPage(props: { params: Promise<{ skillGro
 
     return <AppPage
         label={skillGroup.name} 
-        breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Skill Groups", href: Paths.skillGroupsList }]}
+        breadcrumbs={[{ label: "Manage", href: Paths.system }, { label: "Skill Groups", href: Paths.skillGroupsList }]}
     >
         <PageHeader>
             <PageTitle objectType="Skill Group">{skillGroup.name}</PageTitle>

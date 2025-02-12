@@ -2,12 +2,13 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /competencies
+ *  Path: /teams/[team-slug]/competencies
  */
 
 import { AppPage, PageHeader, PageTitle } from '@/components/app-page'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
+import * as Paths from '@/paths'
 import prisma from '@/server/prisma'
 
 

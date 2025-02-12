@@ -34,7 +34,7 @@ export default async function SkillPage(props: { params: Promise<{ skillId: stri
 
     return <AppPage
         label={skill.name}
-        breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Skills", href: Paths.skillsList }]}
+        breadcrumbs={[{ label: "Manage", href: Paths.system }, { label: "Skills", href: Paths.skillsList }]}
     >
         <PageHeader>
             <PageTitle objectType="Skill">{skill.name}</PageTitle>

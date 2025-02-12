@@ -7,10 +7,10 @@ import { z } from 'zod'
 
 import { TRPCError } from '@trpc/server'
 
-import { authenticatedProcedure, Context, createTRPCRouter } from '../init'
-import { SkillPackagePermissionKey, SystemPermissionKey, TeamPermissionKey } from '@/server/permissions'
+import { authenticatedProcedure, AuthenticatedContext, createTRPCRouter } from '../init'
+import { SystemPermissionKey, TeamPermissionKey } from '@/lib/permissions'
 
-export async function getPersonPermissions(ctx: Context, personId: string) {
+export async function getPersonPermissions(ctx: AuthenticatedContext, personId: string) {
     const person = await ctx.prisma.person.findUnique({
         where: { id: personId },
         include: {
@@ -22,20 +22,12 @@ export async function getPersonPermissions(ctx: Context, personId: string) {
                 }
             },
             systemPermissions: true,
-            skillPackagePermissions: {
-                include: {
-                    skillPackage: {
-                        select: { id: true, name: true, slug: true, status: true }
-                    }
-                }
-            }
         }
     })
 
     if(person === null) throw new TRPCError({ code: 'NOT_FOUND' })
 
     return {
-        skillPackagePermissions: person.skillPackagePermissions.map(({ skillPackage, permissions }) => ({ skillPackage, permissions: permissions as SkillPackagePermissionKey[]})),
         systemPermissions: (person.systemPermissions?.permissions ?? []) as SystemPermissionKey[],
         teamPermissions: person.teamPermissions.map(({ team, permissions }) => ({ team, permissions: permissions as TeamPermissionKey[] }))
     }
@@ -61,27 +53,6 @@ export const permissionsRouter = createTRPCRouter({
                     create: { permissions: ['system:write'], person: { connect: { id: personId }} },
                     update: { permissions: { push: 'system:write' } }
                 })
-            } else if(permissionKey.startsWith('skill-package:')) {
-                const skillPackageId = input.objectId
-                if(!skillPackageId) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Skill Package ID is required for skill package permissions' })
-
-                // Only people with skill-package:write permission (for the skill package) or system:write can assign skill package permissions
-                if(!(ctx.hasPermission('skill-package:write', skillPackageId) || ctx.hasPermission('system:write'))) throw new TRPCError({ code: 'FORBIDDEN' })
-
-                await ctx.prisma.skillPackagePermission.upsert({
-                    where: { 
-                        personId_skillPackageId: { personId, skillPackageId }
-                    },
-                    create: { 
-                        permissions: [permissionKey], 
-                        person: { connect: { id: personId }}, 
-                        skillPackage: { connect: { id: skillPackageId }}
-                    },
-                    update: { 
-                        permissions: { push: permissionKey }
-                    }
-                })
-
             } else if(input.permissionKey.startsWith('team:')) {
                 const teamId = input.objectId
                 
@@ -124,27 +95,6 @@ export const permissionsRouter = createTRPCRouter({
                     })
                 }
                 
-            } else if(permissionKey.startsWith('skill-package:')) {
-                const skillPackageId = input.objectId
-                if(!skillPackageId) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Skill Package ID is required for skill package permissions' })
-
-                // Only people with skill-package:write permission (for the skill package) or system:write can remove skill package permissions
-                if(!(ctx.hasPermission('skill-package:write', skillPackageId) || ctx.hasPermission('system:write'))) throw new TRPCError({ code: 'FORBIDDEN' })
-
-                const existing = await ctx.prisma.skillPackagePermission.findUnique({
-                    where: { 
-                        personId_skillPackageId: { personId, skillPackageId }
-                    },
-                })
-
-                if(existing) {
-                    await ctx.prisma.skillPackagePermission.update({
-                        where: { 
-                            personId_skillPackageId: { personId, skillPackageId }
-                        },
-                        data: { permissions: { set: existing.permissions.filter(p => p !== permissionKey) }}
-                    })
-                }
             } else if(permissionKey.startsWith('team')) {
                 const teamId = input.objectId
                 if(!teamId) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Team ID is required for team permissions' })

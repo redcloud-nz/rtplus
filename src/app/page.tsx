@@ -5,16 +5,9 @@
  *  Path: /
  */
 
-import { ClockIcon, CombineIcon, ListChecksIcon, NotebookTextIcon, PocketKnifeIcon, WalletCardsIcon } from 'lucide-react'
 import Image from 'next/image'
 
-
 import { AppPage, AppPageContainer } from '@/components/app-page'
-import { Link } from '@/components/ui/link'
-import { cn } from '@/lib/utils'
-
-import * as Paths from '@/paths'
-
 
 
 export default function PublicHomePage() {

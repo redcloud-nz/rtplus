@@ -15,6 +15,6 @@ export default async function NewSkillPage() {
 
     return <NotImplemented 
         label="New Skill" 
-        breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Skills", href: Paths.skillsList }]}
+        breadcrumbs={[{ label: "Manage", href: Paths.system }, { label: "Skills", href: Paths.skillsList }]}
     />
 }

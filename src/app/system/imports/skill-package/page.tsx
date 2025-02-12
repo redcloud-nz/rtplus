@@ -83,7 +83,7 @@ export default function ImportSkillPackagePage() {
     return <AppPage 
         label="Import Skill Package"
         breadcrumbs={[
-            { label: 'Manage', href: Paths.manage },
+            { label: 'Manage', href: Paths.system },
             { label: 'Imports', href: Paths.imports.list }
         ]}
         >

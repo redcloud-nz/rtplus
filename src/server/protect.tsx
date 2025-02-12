@@ -5,10 +5,9 @@
 
 import * as React from 'react'
 
-import { SkillPackagePermissionKey, SystemPermissionKey, TeamPermissionKey } from '@/server/permissions'
+import { isSystemPermission, isTeamPermission, SystemPermissionKey, TeamPermissionKey } from '@/lib/permissions'
 import { authenticated } from '@/server/auth'
 
-type ProtectSkillPackageProps = { permission: SkillPackagePermissionKey, skillPackageId: string }
 type ProtectSystemProps = { permission: SystemPermissionKey }
 type ProtectTeamProps = { permission: TeamPermissionKey, teamId: string }
 
@@ -16,7 +15,7 @@ export type ProtectProps = {
     children: React.ReactNode
     fallback?: React.ReactNode
     allowSystem?: boolean
-} & (ProtectSkillPackageProps | ProtectSystemProps | ProtectTeamProps)
+} & (ProtectSystemProps | ProtectTeamProps)
 
 export async function ServerProtect(props: ProtectProps): Promise<React.JSX.Element | null> {
 
@@ -25,17 +24,10 @@ export async function ServerProtect(props: ProtectProps): Promise<React.JSX.Elem
     const authorized = <>{props.children}</>
     const unauthorized = props.fallback ? <>{props.fallback}</> : null
 
-    if(props.permission.startsWith('skill-package:')) {
-        const { permission, skillPackageId } = props as ProtectSkillPackageProps
+    if(isSystemPermission(props.permission)) {
+        return hasPermission(props.permission) ? authorized : unauthorized
 
-        if(props.allowSystem && hasPermission('system:write')) return authorized
-
-        return hasPermission(permission, skillPackageId) ? authorized : unauthorized
-    } else if(props.permission.startsWith('system:')) {
-        const { permission } = props as ProtectSystemProps
-
-        return hasPermission(permission) ? authorized : unauthorized
-    } else if(props.permission.startsWith('team:')) {
+    } else if(isTeamPermission(props.permission)) {
         const { permission, teamId } = props as ProtectTeamProps
 
         if(props.allowSystem && hasPermission('system:write')) return authorized

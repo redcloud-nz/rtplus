@@ -36,7 +36,7 @@ export const metadata: Metadata = { title: "New Person" }
 export default async function NewPersonPage() {
     return <AppPage
         label="New Person" 
-        breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Personnel", href: Paths.personnel }]}
+        breadcrumbs={[{ label: "Manage", href: Paths.system }, { label: "Personnel", href: Paths.personnel }]}
     >
         <PageHeader>
             <PageTitle>New Person</PageTitle>

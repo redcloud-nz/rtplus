@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
-import { PermissionKey, TeamPermissionKey } from '@/server/permissions'
+import { PermissionKey, TeamPermissionKey } from '@/lib/permissions'
 import { trpc } from '@/trpc/client'
 import { Show } from '@/components/show'
 

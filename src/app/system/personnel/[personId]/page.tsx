@@ -44,7 +44,7 @@ export default async function PersonPage(props: { params: Promise<{ personId: st
 
     return <AppPage
         label={person.name}
-        breadcrumbs={[{ label: "Manage", href: Paths.manage }, { label: "Personnel", href: Paths.personnel }]}
+        breadcrumbs={[{ label: "Manage", href: Paths.system }, { label: "Personnel", href: Paths.personnel }]}
     >
         <PageHeader>
             <PageTitle objectType="Person">{person.name}</PageTitle>
