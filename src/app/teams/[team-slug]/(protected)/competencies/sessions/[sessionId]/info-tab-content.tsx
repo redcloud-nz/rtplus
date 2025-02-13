@@ -11,7 +11,7 @@ import React from 'react'
 import { type SkillCheckSessionStatus } from '@prisma/client'
 
 import { DatePicker } from '@/components/ui/date-picker'
-import { FieldControl, FieldDescription, FieldLabel, FieldMessage, Form, FormField } from '@/components/ui/form'
+import { FieldControl, FieldDescription, FieldLabel, FieldMessage, Form, FormField } from '@/components/ui/action-form'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 

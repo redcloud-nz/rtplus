@@ -88,6 +88,29 @@ export function AsyncButton({ children, className, disabled, variant, size, onCl
 
 }
 
+export interface SubmitButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+    state: 'ready' | 'pending' | 'done'
+    label?: React.ReactNode
+    pending?: React.ReactNode
+    done?: React.ReactNode
+}
+
+export function SubmitButton({ children, className, disabled, variant, size, state, label, pending, done, ...props}: SubmitButtonProps) {
+    return <button
+        className={cn('group', buttonVariants({ variant, size, className }))}
+        disabled={state != 'ready' || disabled}
+        data-state={state}
+        {...props}
+    >
+        <Loader2Icon className="mr-2 h-4 w-4 animate-spin hidden group-data-[state=pending]:inline" />
+        {label ? <SubmitButtonLabel activeState="ready">{label}</SubmitButtonLabel> : null}
+        {pending ? <SubmitButtonLabel activeState="pending">{pending}</SubmitButtonLabel> : null}
+        {done ? <SubmitButtonLabel activeState="done">{done}</SubmitButtonLabel> : null}
+        {children}
+    </button>
+}
+
+
 export type SubmitButtonLabelProps = React.ComponentPropsWithRef<'span'> & {
     activeState: 'ready' | 'pending' | 'done'
 }

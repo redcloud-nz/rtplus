@@ -8,12 +8,12 @@ import * as R from 'remeda'
 import { validateUUID } from './id'
 
 export const Permissions = {
-    ManagePersonnel: 'system:personnel',
-    ManageSkillPackages: 'system:skill-packages',
-    ManageTeams: 'system:teams',
+    ManagePersonnel: 'system:manage-personnel',
+    ManageSkillPackages: 'system:manage-skill-packages',
+    ManageTeams: 'system:manage-teams',
     SystemWrite: 'system:write',
-    TeamAssessCompetencies: 'team:assess',
-    TeamMembers: 'team:members',
+    TeamAssessCompetencies: 'team:assess-skills',
+    TeamMembers: 'team:manage-members',
     TeamRead: 'team:read',
     TeamWrite: 'team:write',
 } as const
@@ -40,15 +40,15 @@ export type SystemShortPermissions = `${'p' | ''}${'s' | ''}${'t' | ''}${'w' | '
 export type TeamShortPermissions = '' | `${'a' | ''}${'m' | ''}r${'w' | ''}`
 
 export const SystemPermissionKeyToShortKeyMap: Record<SystemPermissionKey, SystemShortKey> = {
-    'system:personnel': 'p',
-    'system:skill-packages': 's',
-    'system:teams': 't',
+    'system:manage-personnel': 'p',
+    'system:manage-skill-packages': 's',
+    'system:manage-teams': 't',
     'system:write': 'w',
 }
 
 export const TeamPermissionKeyToShortKeyMap: Record<TeamPermissionKey, TeamShortKey> = {
-    'team:assess': 'a',
-    'team:members': 'm',
+    'team:assess-skills': 'a',
+    'team:manage-members': 'm',
     'team:read': 'r',
     'team:write': 'w',
 }

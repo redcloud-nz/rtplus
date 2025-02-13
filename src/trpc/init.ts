@@ -11,6 +11,7 @@ import {  initTRPC, TRPCError } from '@trpc/server'
 
 import { createAuthObject, RTPlusAuthObject } from '@/server/auth'
 import prisma from '@/server/prisma'
+import { ZodError } from 'zod'
 
 
 export const createTRPCContext = cache(async () => {
@@ -26,7 +27,13 @@ type Context = Awaited<ReturnType<typeof createTRPCContext>>
 // Avoid exporting the entire t-object
 const t = initTRPC.context<Context>().create({
     transformer: superjson,
-    errorFormatter: ({ shape }) => shape
+    errorFormatter(opts) {
+        const { shape, error } = opts
+        return {
+            ...shape,
+            cause: error.cause,
+        }
+    }
 })
 
 

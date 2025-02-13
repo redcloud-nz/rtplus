@@ -13,7 +13,7 @@ import { Skill, SkillGroup } from '@prisma/client'
 import { Show } from '@/components/show'
 
 import { Button } from '@/components/ui/button'
-import { FieldControl, FieldDescription, FieldLabel, FieldMessage, Form, FormField, FormFooter, FormMessage, FormSubmitButton } from '@/components/ui/form'
+import { FieldControl, FieldDescription, FieldLabel, FieldMessage, Form, FormField, FormFooter, FormMessage, FormSubmitButton } from '@/components/ui/action-form'
 import { Link } from '@/components/ui/link'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'

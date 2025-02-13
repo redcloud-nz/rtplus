@@ -6,39 +6,58 @@
 //  /------------------------------\
 //  |        Configuration         |
 //  \------------------------------/
-export const system = '/system'
+export const config = {
+    index: '/config',
+    teams: {
+        index: '/config/teams',
+        new: '/config/teams/new',
+        team: (teamSlug: string) => ({
+            index: `/config/teams/${teamSlug}`,
+            edit: `/config/teams/${teamSlug}/edit`,
+            members: `/config/teams/${teamSlug}/members`,
+        } as const),
+    },
+    personnel: {
+        index: '/config/personnel',
+        new: '/config/personnel/new',
+        person: (personId: string) => ({
+            index: `/config/personnel/${personId}`,
+            edit: `/config/personnel/${personId}/edit`,
+            access: `/config/personnel/${personId}/access`,
+            memberships: `/config/personnel/${personId}/memberships`,
+        } as const),
+    },
+    skills: {
+        index: '/config/skills',
+        new: '/config/skills/new',
+        skill: (skillId: string) => ({
+            index: `/config/skills/${skillId}`,
+            edit: `/config/skills/${skillId}/edit`,
+        } as const),
+    },
+    skillGroups: {
+        index: '/config/skill-groups',
+        new: '/config/skill-groups/new',
+        skillGroup: (skillGroupId: string) => ({
+            index: `/config/skill-groups/${skillGroupId}`,
+            edit: `/config/skill-groups/${skillGroupId}/edit`,
+        } as const),
+    },
+    skillPackages: {
+        index: '/config/skill-packages',
+        new: '/config/skill-packages/new',
+        skillPackage: (skillPackageId: string) => ({
+            index: `/config/skill-packages/${skillPackageId}`,
+            edit: `/config/skill-packages/${skillPackageId}/edit`,
+        } as const),
+    },
+}
 
 export const imports = {
-    list: '/manage/imports',
-    personnel: '/manage/imports/personnel',
-    skillPackage: '/manage/imports/skill-package',
+    list: '/config/imports',
+    personnel: '/config/imports/personnel',
+    skillPackage: '/config/imports/skill-package',
 } as const
-
-// Personnel
-export const personnel = `${system}/personnel`
-export const newPerson = `${personnel}/new`
-export const person = (pId: string) => `${personnel}/${pId}`
-export const editPerson = (pId: string) => `${person(pId)}/edit`
-export const personAccess = (pId: string) => `${person(pId)}/access`
-export const personMemberships = (pId: string) => `${person(pId)}/memberships`
-
-// Skills
-export const skillsList = `${system}/skills`
-export const newSkill = `${system}/skills/new`
-export const skill = (sId: string) => `${system}/skills/${sId}`
-export const editSkill = (sId: string) => `${skill(sId)}/edit`
-
-// Skill Groups
-export const skillGroupsList = `${system}/skill-groups`
-export const newSkillGroup = `${skillGroupsList}/new`
-export const skillGroup = (sgId: string) => `${system}/skill-groups/${sgId}`
-export const editSkillGroup = (sgId: string) => `${skillGroup(sgId)}/edit`
-
-// Skill Packages
-export const skillPackagesList = `${system}/skill-packages`
-export const newSkillPackage = `${skillPackagesList}/new`
-export const skillPackage = (pId: string) => `${skillPackagesList}/${pId}`
-export const editSkillPackage = (pId: string) => `${skillPackage(pId)}/edit`
 
 // Switch Team
 export const switchTeam = `/switch-team`
@@ -70,17 +89,6 @@ export const team = (teamSlug: string) => {
         members: `${base}/members`
     } as const
 }
-
-const teamsPrefix = `${system}/teams`
-export const teams = {
-    list: teamsPrefix,
-    new: `${teamsPrefix}/new`,
-    team: (teamId: string) => ({
-        index: `${teamsPrefix}/${teamId}`,
-        edit: `${teamsPrefix}/${teamId}/edit`,
-        members: `${teamsPrefix}/${teamId}/members`,
-    } as const),
-} as const
 
 export const unified = {
     index: '/unified',

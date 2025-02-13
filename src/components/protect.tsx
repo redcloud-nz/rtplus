@@ -2,6 +2,7 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
+'use client'
 
 import * as React from 'react'
 
@@ -17,7 +18,7 @@ export type ProtectProps = {
     allowSystem?: boolean
 } & (ProtectSystemProps | ProtectTeamProps)
 
-export function ClientProtect(props: ProtectProps) {
+export function Protect(props: ProtectProps) {
 
     const permissionsQuery = trpc.currentUser.compactPermissions.useQuery(undefined, { staleTime: 1000 * 60 * 10 })
 

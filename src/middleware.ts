@@ -7,7 +7,7 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
 
-const isProtectedRoute = createRouteMatcher(['/system/(.*)', '/teams/(.*)/(.*)'])
+const isProtectedRoute = createRouteMatcher(['/config/(.*)', '/teams/(.*)/(.*)'])
 
 export default clerkMiddleware(
     async (auth, req) => {

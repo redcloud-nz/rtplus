@@ -20,6 +20,9 @@ export {}
 import '@clerk/nextjs'
 
 declare global {
+    interface OrganizationPublicMetadata {
+        teamId: string
+    }
     interface UserPublicMetadata {
         userPersonId: string
         systemPermissions: SystemShortPermissions

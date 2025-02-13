@@ -38,7 +38,7 @@ function getUrl() {
         else return 'http://localhost:3000'
     })()
 
-    return `${base}/api/trpc`
+    return `${base}/trpc`
 }
 
 export function TRPCProvider({ children }: { children: React.ReactNode }) {

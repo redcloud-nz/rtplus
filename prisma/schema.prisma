@@ -129,7 +129,7 @@ model SkillGroup {
 
 model SkillPackage {
   id          String                   @id @default(uuid()) @db.Uuid
-  slug        String?                  @db.VarChar(100) @unique
+  slug        String                   @db.VarChar(100) @unique
   name        String                   @db.VarChar(100)
   createdAt   DateTime                 @default(now()) @map("created_at")
   updatedAt   DateTime                 @updatedAt @map("updated_at")
@@ -151,7 +151,7 @@ model SystemPermission {
 model Team {
   id              String           @id @default(uuid()) @db.Uuid
   clerkOrgId      String           @map("clerk_org_id") @db.VarChar(50) @unique
-  slug            String?          @db.VarChar(100) @unique
+  slug            String           @db.VarChar(100) @unique
   name            String           @db.VarChar(100)
   shortName       String           @db.VarChar(50)
   color           String           @db.VarChar(10)

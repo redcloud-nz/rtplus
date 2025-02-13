@@ -16,7 +16,7 @@ import { AppPage, PageControls, PageHeader, PageTitle } from '@/components/app-p
 import { Show } from '@/components/show'
 
 import { Alert } from '@/components/ui/alert'
-import { Form, FormSubmitButton } from '@/components/ui/form'
+import { Form, FormSubmitButton } from '@/components/ui/action-form'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 

@@ -1,192 +1,200 @@
 /*
- *  Copyright (c) 2024 Redcloud Development, Ltd.
+ *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
-
 'use client'
 
-import React from 'react'
-import { useFormStatus } from 'react-dom'
+import { Loader2Icon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import * as React from 'react'
+import {
+    Controller,
+    ControllerProps,
+    FieldPath,
+    FieldValues,
+    useFormContext,
+  } from 'react-hook-form'
+import { VariantProps } from 'tailwind-variants'
 
+import * as LabelPrimitive from '@radix-ui/react-label'
 import { Slot } from '@radix-ui/react-slot'
 
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-
-import { EMPTY_FORM_STATE, FormState } from '@/lib/form-state'
 import { cn } from '@/lib/utils'
 
-
-type FormContextValue = {
-    formState: FormState
-}
-
-const FormContext = React.createContext<FormContextValue>({ formState: EMPTY_FORM_STATE })
+import { Button, buttonVariants } from './button'
+import { Label } from './label'
 
 
-export type FormProps = Omit<React.JSX.IntrinsicElements['form'], 'action'> & {
-    action?: (formState: FormState, formData: FormData) => Promise<FormState>
-}
-
-export function Form({ action = async () => EMPTY_FORM_STATE, className, ...props }: FormProps) {
-    const [formState, formAction] = React.useActionState(action, EMPTY_FORM_STATE)
-
-    return <FormContext.Provider value={{ formState }}>
-        <form 
-            action={formAction} 
-            className={cn('flex flex-col gap-4 max-w-3xl', className)}
-            data-component="Form"
-            {...props}
-        />
-    </FormContext.Provider>
-}
+export { FormProvider } from 'react-hook-form'
 
 
-
-type FormFieldContextValue = {
-    id: string
-    name: string
+type FormFieldContextValue<TFieldValues extends FieldValues = FieldValues, TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>> = {
+    name: TName
 }
 
 const FormFieldContext = React.createContext<FormFieldContextValue>({} as FormFieldContextValue)
 
-export type FormFieldProps = React.ComponentPropsWithRef<'div'> & { 
-    name: string
-}
-
-export function FormField({ className, name, ...props }: FormFieldProps) {
-    const id = React.useId()
-
-    return (
-        <FormFieldContext.Provider value={{ id, name }}>
-            <div 
-                className={cn('flex flex-col gap-2 mb-2', className)}
-                data-component="FormField"
-                {...props}
-            />
-        </FormFieldContext.Provider>
-    )
+export function FormField<TFieldValues extends FieldValues = FieldValues, TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>>({ ...props }: ControllerProps<TFieldValues, TName>) {
+    return <FormFieldContext.Provider value={{ name: props.name }}>
+        <Controller {...props} />
+    </FormFieldContext.Provider>
 }
 
 export const useFormField = () => {
-    const formContext = React.useContext(FormContext)
     const fieldContext = React.useContext(FormFieldContext)
+    const itemContext = React.useContext(FormItemContext)
+    const { getFieldState, formState } = useFormContext()
 
-    if(!formContext) {
-        throw new Error("useForm should be used within <Form>")
-    }
+    const fieldState = getFieldState(fieldContext.name, formState)
 
     if (!fieldContext) {
         throw new Error("useFormField should be used within <FormField>")
     }
 
+    const { id } = itemContext
+
     return {
-        id: fieldContext.id,
+        id,
         name: fieldContext.name,
-        fieldControlId: `${fieldContext.id}-field-control`,
-        fieldDescriptionId: `${fieldContext.id}-field-description`,
-        fieldMessageId: `${fieldContext.id}-field-message`,
-        errors: formContext.formState.fieldErrors[fieldContext.name]
+        formItemId: `${id}-form-item`,
+        formDescriptionId: `${id}-form-item-description`,
+        formMessageId: `${id}-form-item-message`,
+        ...fieldState,
     }
 }
 
+type FormItemContextValue = {
+    id: string
+}
 
-export function FieldLabel({ className, ...props }: React.ComponentProps<typeof Label>) {
-    const { errors, fieldControlId } = useFormField()
+const FormItemContext = React.createContext<FormItemContextValue>(
+    {} as FormItemContextValue
+)
+
+export function FormItem({ className, ...props }: React.ComponentPropsWithRef<'div'>) {
+    const id = React.useId()
+
+    return <FormItemContext.Provider value={{ id }}>
+        <div className={cn("space-y-2", className)} {...props} />
+    </FormItemContext.Provider>
+}
+
+
+export function FormLabel({ className, ...props }: React.ComponentPropsWithRef<typeof LabelPrimitive.Root>) {
+    const { error, formItemId } = useFormField()
 
     return <Label
-        data-component="FieldLabel"
-        className={cn(errors && "text-destructive", className)}
-        htmlFor={fieldControlId}
+        className={cn(error && "text-destructive", className)}
+        htmlFor={formItemId}
         {...props}
     />
 }
 
-
-export function FieldControl(props: React.ComponentProps<typeof Slot>) {
-    const { errors, fieldControlId, fieldDescriptionId, fieldMessageId } = useFormField()
+export function FormControl({ ...props }:  React.ComponentPropsWithoutRef<typeof Slot>) {
+    const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
 
     return <Slot
-        id={fieldControlId}
+        id={formItemId}
         aria-describedby={
-            !errors
-                ? `${fieldDescriptionId}`
-                : `${fieldDescriptionId} ${fieldMessageId}`
+            !error
+            ? `${formDescriptionId}`
+            : `${formDescriptionId} ${formMessageId}`
         }
-        aria-invalid={!!errors}
+        aria-invalid={!!error}
         {...props}
-    />
+        />
 }
 
-export function FieldDescription({ className, ...props }: React.ComponentPropsWithRef<'p'>) {
-    const { fieldDescriptionId } = useFormField()
+export function FormDescription({ className, ...props }: React.ComponentPropsWithRef<'p'>) {
+    const { formDescriptionId } = useFormField()
 
     return <p
-        id={fieldDescriptionId}
+        id={formDescriptionId}
         className={cn("text-sm text-muted-foreground", className)}
-        data-component="FieldDescription"
         {...props}
     />
-
 }
 
-
-export function FieldMessage({ className, children, ...props }: React.ComponentPropsWithRef<'p'>) {
-    const { errors, fieldMessageId } = useFormField()
-    const body = errors ? errors[0] : children
+export function FormMessage({ className, children, ...props }: React.ComponentPropsWithRef<'p'>) {
+    const { error, formMessageId } = useFormField()
+    const body = error ? String(error?.message) : children
 
     if (!body) return null
 
     return <p
-        id={fieldMessageId}
+        id={formMessageId}
         className={cn("text-sm font-medium text-destructive", className)}
-        data-component="FieldMessage"
         {...props}
-    >
+        >
         {body}
     </p>
 }
 
 
-export function FormMessage({ className, ...props }: Omit<React.ComponentPropsWithRef<'p'>, 'children'>) {
-    const formContext = React.useContext(FormContext)
+export interface FormSubmitButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+    labels?: {
+        ready?: React.ReactNode
+        validating?: React.ReactNode
+        submitting?: React.ReactNode
+        submitted?: React.ReactNode
+    }
+}
 
-    const { status, message } = formContext.formState
-    if(!message) return null
+const defaultLabels = {
+    ready: 'Submit',
+    validating: 'Validating...',
+    submitting: 'Submitting...',
+    submitted: 'Submitted',
+}
 
-    return <p
-        className={cn(
-            'text-sm font-medium', 
-            status == 'ERROR' && 'text-destructive',
-            className
-        )}
-        data-component="FormMessage"
+export function FormSubmitButton({ children, className, disabled, variant, size, labels = {}, ...props}: FormSubmitButtonProps) {
+    labels = { ...defaultLabels, ...labels }
+
+    const { formState: { isSubmitted, isSubmitSuccessful, isSubmitting, isValidating } } = useFormContext()
+
+    return <button
+        className={cn('group', buttonVariants({ variant, size, className }))}
+        disabled={disabled || isValidating || isSubmitting || (isSubmitted && isSubmitSuccessful)}
+        data-state={
+            isValidating ? 'validating' :
+            isSubmitting ? 'submitting' :
+            (isSubmitted && isSubmitSuccessful) ? 'submitted' : 
+            "ready"
+        }
         {...props}
     >
-        {message}
-    </p>
+        <Loader2Icon className="mr-2 h-4 w-4 animate-spin hidden group-data-[state=validating]:inline group-data-[state=submitting]:inline" />
+        {labels.ready ? <FormSubmitButtonLabel activeState="ready">{labels.ready}</FormSubmitButtonLabel> : null}
+        {labels.validating ? <FormSubmitButtonLabel activeState="validating">{labels.validating}</FormSubmitButtonLabel> : null}
+        {labels.submitting ? <FormSubmitButtonLabel activeState="submitting">{labels.submitting}</FormSubmitButtonLabel> : null}
+        {labels.submitted ? <FormSubmitButtonLabel activeState="submitted">{labels.submitted}</FormSubmitButtonLabel> : null}
+        {children}
+    </button>
+}
+
+export type FormSubmitButtonLabelProps = React.ComponentPropsWithRef<'span'> & {
+    activeState: 'ready' | 'validating' | 'submitting' | 'submitted'
+}
+
+export function FormSubmitButtonLabel({ children, className, activeState, ...props }: FormSubmitButtonLabelProps) {
+    return <span className={cn(
+        'hidden', 
+        activeState == 'ready' && 'group-data-[state=ready]:inline', 
+        activeState == 'validating' && 'group-data-[state=validating]:inline', 
+        activeState == 'submitting' && 'group-data-[state=submitting]:inline', 
+        activeState == 'submitted' && 'group-data-[state=submitted]:inline', 
+        className
+    )} {...props}>{children}</span>
 }
 
 
-export function FormFooter({ className, ...props }: React.ComponentPropsWithRef<'div'>) {
-    return <div 
-        className={cn('mt-2 flex gap-2', className)}
-        data-component="FormFooter"
-        {...props}
-    />
-}
+export function FormCancelButton({ children = "Cancel", onClick, variant = 'ghost', ...props }: React.ComponentPropsWithRef<typeof Button>) {
+    const router = useRouter()
 
-export type FormSubmitButtonProps = React.ComponentPropsWithRef<typeof Button> & {
-    label: React.ReactNode
-    loading: React.ReactNode
-}
+    function handleClick(event: React.MouseEvent<HTMLButtonElement>) {
+        if (onClick) onClick(event)
+        router.back()
+    }
 
-export function FormSubmitButton({ label, loading }: FormSubmitButtonProps) {
-    const { pending } = useFormStatus()
-
-    return <Button 
-        data-component="FormSubmitButton"
-        disabled={pending}
-        type="submit"
-    >{ pending ? loading : label}</Button>
+    return <Button variant={variant} onClick={handleClick}>Cancel</Button>
 }

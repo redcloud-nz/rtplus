@@ -11,3 +11,10 @@ export type SkillPackageWithGroupsAndSkills = SkillPackage & {
     skillGroups: SkillGroup[]
     skills: Skill[]
 }
+
+export class FieldConflictError extends Error {
+    constructor(fieldName: string) {
+        super(fieldName)
+        this.name = 'FieldConflictError'
+    }
+}

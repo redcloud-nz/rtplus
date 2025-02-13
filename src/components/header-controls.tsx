@@ -105,7 +105,7 @@ export function HeaderControls({ children, className,  ...props}: HeaderControls
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                                <Link href={Paths.system}>
+                                <Link href={Paths.config.index}>
                                     <WrenchIcon/>
                                     Configuration
                                 </Link>

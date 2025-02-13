@@ -12,9 +12,10 @@ import { cn } from '@/lib/utils'
 
 type CardProps = React.ComponentPropsWithRef<'div'> & {
     boundary?: boolean
+    loading?: boolean
 }
 
-export function Card({ boundary, className, children, ...props }: CardProps) {
+export function Card({ boundary, className, children, loading = false, ...props }: CardProps) {
     return <div
         className={cn(
             "rounded-lg border bg-card text-card-foreground shadow-sm",
@@ -24,14 +25,20 @@ export function Card({ boundary, className, children, ...props }: CardProps) {
     >
         { boundary 
             ? <ErrorBoundary fallback={<div>Something went wrong.</div>}>
-                <React.Suspense fallback={<div className="h-full w-full flex items-center justify-center">
+                <React.Suspense 
+                    fallback={<div className="h-full w-full flex items-center justify-center">
                         <LoaderCircleIcon className="animate-spin"/>
-                    </div>}>
-                  {children}
+                    </div>}
+                >
+                    {children}
                 </React.Suspense>
             </ErrorBoundary>
+            : loading ? <div className="h-full w-full flex items-center justify-center">
+                <LoaderCircleIcon className=" w-10 h-10 animate-spin"/>
+            </div>
             : children
         }
+       
     </div>
 
 }
