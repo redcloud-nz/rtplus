@@ -19,6 +19,8 @@ import { trpc } from '@/trpc/client'
 
 
 export function CreatePersonForm() {
+
+
     const form = useForm<CreatePersonFormData>({
         resolver: zodResolver(createPersonFormSchema),
         defaultValues: {
@@ -28,6 +30,7 @@ export function CreatePersonForm() {
     })
 
     const router = useRouter()
+    const utils = trpc.useUtils()
     const { toast } = useToast()
     
     const mutation = trpc.personnel.createPerson.useMutation({
@@ -41,6 +44,7 @@ export function CreatePersonForm() {
                 title: `${newPerson.name} created`,
                 description: 'The person has been created successfully.',
             })
+            utils.personnel.invalidate()
             router.push(Paths.config.personnel.person(newPerson.id).index)
         }
     })

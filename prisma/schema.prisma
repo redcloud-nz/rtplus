@@ -1,210 +1,124 @@
+// Copyright (c) 2025 Redcloud Development, Ltd.
+// Licensed under the MIT License. See LICENSE.md in the project root for license information.
+//
+// Schema for the rtplus Database.
+
 generator client {
-  provider = "prisma-client-js"
+   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
+    provider  = "postgresql"
+    url       = env("POSTGRES_PRISMA_URL")
+    directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
+// defines an API key that a user can use to access the D4H API.
 model D4hAccessKey {
-  id        String   @id @default(uuid()) @db.Uuid
-  key       String
-  enabled   Boolean
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  ownerId   String?  @map("owner_id") @db.Uuid
-  teamId    String   @map("team_id") @db.Uuid
-  owner     Person?  @relation("d4h_access_key_to_owner", fields: [ownerId], references: [id])
-  team      Team     @relation("access_key_to_team", fields: [teamId], references: [id])
+    id        String   @id @default(uuid()) @db.Uuid
+    teamId    String   @map("team_id") @db.Uuid
+    userId    String?  @map("user_id") @db.Uuid
+    key       String
+    enabled   Boolean
+    createdAt DateTime @default(now()) @map("created_at")
 
-  @@map("d4h_access_keys")
+    // Relations
+    user      User?    @relation("d4h_access_key_to_user", fields: [userId], references: [id])
+    team      Team     @relation("d4h_access_key_to_team", fields: [teamId], references: [id])
+
+    @@map("d4h_access_keys")
 }
 
-model HistoryEvent {
-  id          String                 @id @default(uuid()) @db.Uuid
-  description String
-  eventType   HistoryEventType       @map("event_type")
-  objectType  HistoryEventObjectType @map("object_type")
-  personId    String?                @map("person_id") @db.Uuid
-  objectId    String                 @map("object_id") @db.Uuid
-  parentId    String?                @map("parent_id") @db.Uuid
-  meta        Json
-  timestamp   DateTime               @default(now())
-  parent      HistoryEvent?          @relation("history_event_to_parent", fields: [parentId], references: [id])
-  children    HistoryEvent[]         @relation("history_event_to_parent")
-
-  @@map("history_events")
-}
-
+/// defines an individual person that may or may not be connected to a user.
 model Person {
-  id                           String                   @id @default(uuid()) @db.Uuid
-  clerkUserId                  String?                  @map("clerk_user_id") @db.VarChar(50) @unique
-  slug                         String?                  @db.VarChar(100) @unique
-  name                         String                   @db.VarChar(100)
-  email                        String
-  createdAt                    DateTime                 @default(now()) @map("created_at")
-  updatedAt                    DateTime                 @updatedAt @map("updated_at")
-  status                       RecordStatus             @default(Active)
-  d4hAccessKeys                D4hAccessKey[]           @relation("d4h_access_key_to_owner")
-  skillChecksAsAssessee        SkillCheck[]             @relation("skill_check_to_assessee")
-  skillChecksAsAssessor        SkillCheck[]             @relation("skill_check_to_assessor")
-  skillCheckSessionsAsAssessee SkillCheckSession[]      @relation("skill_check_session_to_assessee")
-  skillCheckSessionsAsAssessor SkillCheckSession[]      @relation("skill_check_session_to_assessor")
-  systemPermissions            SystemPermission?        @relation("system_permission_to_person")
-  teamMemberships              TeamMembership[]         @relation("team_membership_to_person")
-  teamPermissions              TeamPermission[]         @relation("team_permission_to_person")
+    id                           String              @id @default(uuid()) @db.Uuid
+    slug                         String?             @db.VarChar(100) @unique
+    name                         String              @db.VarChar(100)
+    email                        String
+    status                       RecordStatus        @default(Active)
+  
+    // Relations
+    changeLogs                   PersonChangeLog[]   @relation("person_change_log_to_person")
+    skillChecksAsAssessee        SkillCheck[]        @relation("skill_check_to_assessee")
+    skillChecksAsAssessor        SkillCheck[]        @relation("skill_check_to_assessor")
+    skillCheckSessionsAsAssessee SkillCheckSession[] @relation("skill_check_session_to_assessee")
+    skillCheckSessionsAsAssessor SkillCheckSession[] @relation("skill_check_session_to_assessor")
+    teamMemberships              TeamMembership[]    @relation("team_membership_to_person")
+    user                         User?               @relation("user_to_person")
 
-  @@map("personnel")
+    @@map("personnel")
 }
 
-model Skill {
-  id                 String              @id @default(uuid()) @db.Uuid
-  slug               String?             @db.VarChar(100) @unique
-  packageId          String              @map("package_id") @db.Uuid
-  skillGroupId       String?             @map("skill_group_id") @db.Uuid
-  name               String
-  description        String
-  frequency          String
-  optional           Boolean
-  createdAt          DateTime            @default(now()) @map("created_at")
-  updatedAt          DateTime            @updatedAt @map("updated_at")
-  status             RecordStatus        @default(Active)
-  checks             SkillCheck[]        @relation("skill_check_to_skill")
-  package            SkillPackage        @relation("skill_to_skill_package", fields: [packageId], references: [id])
-  skillGroup         SkillGroup?         @relation("skill_to_skill_group", fields: [skillGroupId], references: [id])
-  skillCheckSessions SkillCheckSession[] @relation("skill_check_session_to_skill")
+enum PersonChangeEvent {
+    Create
+    Update
+    Delete
+}
 
-  @@map("skills")
+model PersonChangeLog {
+    id          String            @id @default(uuid()) @db.Uuid
+    personId    String            @map("person_id") @db.Uuid
+    userId      String            @map("user_id") @db.Uuid
+    event       PersonChangeEvent
+    description String            @default("")
+    meta        Json              @default("{}")
+    fields      Json              @default("{}")
+    timestamp   DateTime          @default(now())
+    person      Person            @relation("person_change_log_to_person", fields: [personId], references: [id])
+    user        User              @relation("person_change_log_to_user", fields: [userId], references: [id])
+
+    @@map("personnel_change_log")
+}
+
+enum RecordStatus {
+    Active
+    Inactive
+    Deleted
+}
+
+/// defines an individual skill that can be assessed.
+model Skill {
+    id                 String              @id @default(uuid()) @db.Uuid
+    slug               String?             @db.VarChar(100) @unique
+    skillPackageId     String              @map("skill_package_id") @db.Uuid
+    skillGroupId       String?             @map("skill_group_id") @db.Uuid
+    name               String
+    description        String
+    frequency          String
+    optional           Boolean
+    status             RecordStatus        @default(Active)
+
+    // Relations
+    checks             SkillCheck[]        @relation("skill_check_to_skill")
+    skillPackage       SkillPackage        @relation("skill_to_skill_package", fields: [skillPackageId], references: [id])
+    skillGroup         SkillGroup?         @relation("skill_to_skill_group", fields: [skillGroupId], references: [id])
+    skillCheckSessions SkillCheckSession[] @relation("skill_check_session_to_skill")
+
+    @@map("skills")
 }
 
 model SkillCheck {
-  id              String             @id @default(uuid()) @db.Uuid
-  sessionId       String?            @map("session_id") @db.Uuid
-  skillId         String             @map("skill_id") @db.Uuid
-  assesseeId      String             @map("assessee_id") @db.Uuid
-  assessorId      String             @map("assessor_id") @db.Uuid
-  competenceLevel CompetenceLevel    @map("competence_level")
-  notes           String
-  timestamp       DateTime           @default(now())
-  session         SkillCheckSession? @relation("skill_check_to_skill_check_session", fields: [sessionId], references: [id])
-  assessee        Person             @relation("skill_check_to_assessee", fields: [assesseeId], references: [id])
-  assessor        Person             @relation("skill_check_to_assessor", fields: [assessorId], references: [id])
-  skill           Skill              @relation("skill_check_to_skill", fields: [skillId], references: [id])
+    id              String                    @id @default(uuid()) @db.Uuid
+    sessionId       String?                   @map("session_id") @db.Uuid
+    skillId         String                    @map("skill_id") @db.Uuid
+    assesseeId      String                    @map("assessee_id") @db.Uuid
+    assessorId      String                    @map("assessor_id") @db.Uuid
+    userId          String                    @map("user_id") @db.Uuid
+    competenceLevel SkillCheckCompetenceLevel @map("competence_level")
+    notes           String
+    timestamp       DateTime                  @default(now())
 
-  @@map("skill_checks")
+    // Relations
+    session         SkillCheckSession?        @relation("skill_check_to_skill_check_session", fields: [sessionId], references: [id])
+    assessee        Person                    @relation("skill_check_to_assessee", fields: [assesseeId], references: [id])
+    assessor        Person                    @relation("skill_check_to_assessor", fields: [assessorId], references: [id])
+    skill           Skill                     @relation("skill_check_to_skill", fields: [skillId], references: [id])
+    user            User                      @relation("skill_check_to_user", fields: [userId], references: [id])
+
+    @@map("skill_checks")
 }
 
-model SkillCheckSession {
-  id         String                  @id @default(uuid()) @db.Uuid
-  assessorId String                  @map("assessor_id") @db.Uuid
-  name       String                  @db.VarChar(100)
-  date       DateTime
-  status     SkillCheckSessionStatus @default(Draft)
-  createdAt  DateTime                @default(now()) @map("created_at")
-  updatedAt  DateTime                @updatedAt @map("updated_at")
-  assessor   Person                  @relation("skill_check_session_to_assessor", fields: [assessorId], references: [id])
-  assessees  Person[]                @relation("skill_check_session_to_assessee")
-  skills     Skill[]                 @relation("skill_check_session_to_skill")
-  checks     SkillCheck[]            @relation("skill_check_to_skill_check_session")
-}
-
-model SkillGroup {
-  id        String       @id @default(uuid()) @db.Uuid
-  slug      String?      @db.VarChar(100) @unique
-  name      String       @db.VarChar(100)
-  packageId String       @map("package_id") @db.Uuid
-  parentId  String?      @map("parent_id") @db.Uuid
-  createdAt DateTime     @default(now()) @map("created_at")
-  updatedAt DateTime     @updatedAt @map("updated_at")
-  status    RecordStatus @default(Active)
-  package   SkillPackage @relation("skill_group_to_skill_package", fields: [packageId], references: [id])
-  parent    SkillGroup?  @relation("skill_group_to_parent", fields: [parentId], references: [id])
-  children  SkillGroup[] @relation("skill_group_to_parent")
-  skills    Skill[]      @relation("skill_to_skill_group")
-
-  @@map("skill_groups")
-}
-
-model SkillPackage {
-  id          String                   @id @default(uuid()) @db.Uuid
-  slug        String                   @db.VarChar(100) @unique
-  name        String                   @db.VarChar(100)
-  createdAt   DateTime                 @default(now()) @map("created_at")
-  updatedAt   DateTime                 @updatedAt @map("updated_at")
-  status      RecordStatus             @default(Active)
-  skillGroups SkillGroup[]             @relation("skill_group_to_skill_package")
-  skills      Skill[]                  @relation("skill_to_skill_package")
-
-  @@map("skill_packages")
-}
-
-model SystemPermission {
-    personId    String   @map("person_id") @db.Uuid @unique
-    permissions String[]
-    person      Person   @relation("system_permission_to_person", fields: [personId], references: [id])
-
-    @@map("system_permissions")
-}
-
-model Team {
-  id              String           @id @default(uuid()) @db.Uuid
-  clerkOrgId      String           @map("clerk_org_id") @db.VarChar(50) @unique
-  slug            String           @db.VarChar(100) @unique
-  name            String           @db.VarChar(100)
-  shortName       String           @db.VarChar(50)
-  color           String           @db.VarChar(10)
-  createdAt       DateTime         @default(now()) @map("created_at")
-  updatedAt       DateTime         @updatedAt @map("updated_at")
-  status          RecordStatus     @default(Active)
-  d4hTeamId       Int?             @map("d4h_team_id")
-  d4hApiUrl       String           @map("d4h_api_url")
-  d4hWebUrl       String           @map("d4h_web_url")
-  d4hAccessKeys   D4hAccessKey[]   @relation("access_key_to_team")
-  teamMemberships TeamMembership[] @relation("team_membership_to_team")
-  teamPermissions TeamPermission[] @relation("team_permission_to_team") 
-
-  @@map("teams")
-}
-
-model TeamMembership {
-  id          String                 @id @default(uuid()) @db.Uuid
-  createdAt   DateTime               @default(now()) @map("created_at")
-  updatedAt   DateTime               @updatedAt @map("updated_at")
-  status      RecordStatus           @default(Active)
-  personId    String                 @map("person_id") @db.Uuid
-  teamId      String                 @map("team_id") @db.Uuid
-  person      Person                 @relation("team_membership_to_person", fields: [personId], references: [id])
-  team        Team                   @relation("team_membership_to_team", fields: [teamId], references: [id])
-  d4hInfo     TeamMembershipD4hInfo? @relation("team_membership_to_d4h_info")
-
-  @@map("team_memberships")
-}
-
-model TeamMembershipD4hInfo {
-    position         String
-    d4hStatus        D4hTeamMemberStatus  @map("d4h_status")
-    d4hMemberId      Int                  @map("d4h_member_id")
-    d4hRef           String               @map("d4h_ref")
-    teamMembershipId String               @map("team_membership_id") @db.Uuid @unique
-    teamMembership   TeamMembership       @relation("team_membership_to_d4h_info", fields: [teamMembershipId], references: [id])                  
-
-    @@map("team_memberships_d4h_info")
-}
-
-model TeamPermission {
-    personId    String       @map("person_id") @db.Uuid
-    teamId      String       @map("team_id") @db.Uuid
-    permissions String[]
-    person      Person       @relation("team_permission_to_person", fields: [personId], references: [id])
-    team        Team         @relation("team_permission_to_team", fields: [teamId], references: [id])
-
-    @@id([personId, teamId])
-    @@map("team_permissions")
-}
-
-enum CompetenceLevel {
+enum SkillCheckCompetenceLevel {
     NotAssessed
     NotTaught
     NotCompetent
@@ -212,41 +126,246 @@ enum CompetenceLevel {
     HighlyConfident
 }
 
-enum D4hTeamMemberStatus {
-  Operational
-  NonOperational
-  Observer
-  Retired
-}
+model SkillCheckSession {
+    id            String                  @id @default(uuid()) @db.Uuid
+    assessorId    String                  @map("assessor_id") @db.Uuid
+    userId        String                  @map("user_id") @db.Uuid
+    name          String                  @db.VarChar(100)
+    date          DateTime
+    sessionStatus SkillCheckSessionStatus @default(Draft)
+    createdAt     DateTime                @default(now()) @map("created_at")
+    updatedAt     DateTime                @updatedAt @map("updated_at")
 
-enum HistoryEventObjectType {
-  D4hAccessKey
-  Person
-  Skill
-  SkillCheckSession
-  SkillGroup
-  SkillPackage
-  SkillPackagePermission
-  Team
-  TeamMembership
-  TeamPermission
-}
-
-enum HistoryEventType {
-  Clone
-  Create
-  Delete
-  Import
-  Update
-}
-
-enum RecordStatus {
-  Active
-  Inactive
+    // Relations
+    assessor      Person                  @relation("skill_check_session_to_assessor", fields: [assessorId], references: [id])
+    assessees     Person[]                @relation("skill_check_session_to_assessee")
+    checks        SkillCheck[]            @relation("skill_check_to_skill_check_session")
+    skills        Skill[]                 @relation("skill_check_session_to_skill")
+    user          User                    @relation("skill_check_session_to_user", fields: [userId], references: [id])
 }
 
 enum SkillCheckSessionStatus {
-  Draft
-  Complete
-  Discard
+    Draft
+    Complete
+    Discard
+}
+
+enum SkillCheckStatus {
+    Draft
+    Complete
+    Discard
+}
+
+/// defines a group of skills within a skill package.
+model SkillGroup {
+    id             String       @id @default(uuid()) @db.Uuid
+    slug           String?      @db.VarChar(100) @unique
+    name           String       @db.VarChar(100)
+    skillPackageId String       @map("skill_package_id") @db.Uuid
+    parentId       String?      @map("parent_id") @db.Uuid
+    status         RecordStatus @default(Active)
+
+    // Relations
+    skillPackage   SkillPackage @relation("skill_group_to_skill_package", fields: [skillPackageId], references: [id])
+    parent         SkillGroup?  @relation("skill_group_to_parent", fields: [parentId], references: [id])
+    children       SkillGroup[] @relation("skill_group_to_parent")
+    skills         Skill[]      @relation("skill_to_skill_group")
+
+    @@map("skill_groups")
+}
+
+/// defines a package of skills that can be assessed.
+model SkillPackage {
+    id          String                  @id @default(uuid()) @db.Uuid
+    slug        String                  @db.VarChar(100) @unique
+    name        String                  @db.VarChar(100)
+    status      RecordStatus            @default(Active)
+
+    // Relations
+    changeLogs  SkillPackageChangeLog[] @relation("skill_package_change_log_to_skill_package")
+    skillGroups SkillGroup[]            @relation("skill_group_to_skill_package")
+    skills      Skill[]                 @relation("skill_to_skill_package")
+
+    @@map("skill_packages")
+}
+
+enum SkillPackageChangeEvent {
+    Create
+    Delete
+    Update
+    CreateSkill
+    DeleteSkill
+    UpdateSkill
+    CreateGroup
+    DeleteGroup
+    UpdateGroup
+}
+
+model SkillPackageChangeLog {
+    id             String                  @id @default(uuid()) @db.Uuid()
+    skillPackageId String                  @map("skill_package_id") @db.Uuid
+    userId         String                  @map("user_id") @db.Uuid
+    event          SkillPackageChangeEvent
+    description    String                  @default("")
+    meta           Json                    @default("{}")
+    fields         Json                    @default("{}")
+    timestamp      DateTime                @default(now())
+
+    // Relations
+    skillPackage   SkillPackage            @relation("skill_package_change_log_to_skill_package", fields: [skillPackageId], references: [id])
+    user           User                    @relation("skill_package_change_log_to_user", fields: [userId], references: [id])
+
+    @@map("skill_packages_change_log")
+}
+
+model Team {
+    id              String           @id @default(uuid()) @db.Uuid
+    clerkOrgId      String           @map("clerk_org_id") @db.VarChar(50) @unique
+    slug            String           @db.VarChar(100) @unique
+    name            String           @db.VarChar(100)
+    shortName       String           @db.VarChar(50)
+    color           String           @db.VarChar(10)
+    status          RecordStatus     @default(Active)
+
+    // Relations
+    d4hAccessKeys   D4hAccessKey[]   @relation("d4h_access_key_to_team")
+    d4hInfo         TeamD4hInfo?     @relation("team_d4h_info_to_team")
+    changeLogs      TeamChangeLog[]  @relation("team_change_log_to_team")       
+    teamMemberships TeamMembership[] @relation("team_membership_to_team")
+    teamPermissions TeamPermission[] @relation("team_permission_to_team")
+
+    @@map("teams")
+}
+
+enum TeamChangeEvent {
+    Create
+    Delete
+    Update
+    AddMember
+    UpdateMember
+    RemoveMember
+}
+
+model TeamChangeLog {
+    id          String          @id @default(uuid()) @db.Uuid
+    teamId      String          @map("team_id") @db.Uuid
+    userId      String          @map("user_id") @db.Uuid
+    event       TeamChangeEvent
+    description String          @default("")
+    meta        Json            @default("{}")
+    fields      Json            @default("{}")
+    timestamp   DateTime        @default(now())
+
+    // Relations
+    team        Team            @relation("team_change_log_to_team", fields: [teamId], references: [id])
+    user        User            @relation("team_change_log_to_user", fields: [userId], references: [id])
+
+    @@map("teams_change_log")
+}
+
+model TeamD4hInfo {
+    teamId    String       @map("team_id") @db.Uuid @unique
+    d4hTeamId Int          @map("d4h_team_id")
+    d4hApiUrl String       @map("d4h_api_url")
+    d4hWebUrl String       @map("d4h_web_url")
+    status    RecordStatus @default(Active)
+
+    // Relations
+    team      Team         @relation("team_d4h_info_to_team", fields:[teamId], references: [id])
+
+    @@map("team_d4h_info")
+}
+
+model TeamMembership {
+    id          String                 @id @default(uuid()) @db.Uuid
+    personId    String                 @map("person_id") @db.Uuid
+    teamId      String                 @map("team_id") @db.Uuid
+    status      RecordStatus           @default(Active)
+  
+    // Relations
+    d4hInfo     TeamMembershipD4hInfo? @relation("team_membership_to_d4h_info")
+    person      Person                 @relation("team_membership_to_person", fields: [personId], references: [id])
+    team        Team                   @relation("team_membership_to_team", fields: [teamId], references: [id])
+
+    @@map("team_memberships")
+}
+
+model TeamMembershipD4hInfo {
+    teamMembershipId String                  @map("team_membership_id") @db.Uuid @unique
+    position         String
+    d4hStatus        TeamMembershipD4hStatus @map("d4h_status")
+    d4hMemberId      Int                     @map("d4h_member_id")
+    d4hRef           String                  @map("d4h_ref")
+
+    // Relations
+    teamMembership   TeamMembership          @relation("team_membership_to_d4h_info", fields: [teamMembershipId], references: [id])                  
+
+    @@map("team_memberships_d4h_info")
+}
+
+enum TeamMembershipD4hStatus {
+    Operational
+    NonOperational
+    Observer
+    Retired
+}
+
+model TeamPermission {
+    userId      String   @map("user_id") @db.Uuid
+    teamId      String   @map("team_id") @db.Uuid
+    permissions String[]
+
+    // Relations
+    team        Team     @relation("team_permission_to_team", fields: [teamId], references: [id])
+    user        User     @relation("team_permission_to_user", fields: [userId], references: [id])
+
+    @@id([userId, teamId])
+    @@map("team_permissions")
+}
+
+/// defines user that can log in and interact with the system. May or may not be connected to a person.
+model User {
+    id                 String                      @id @default(uuid()) @db.Uuid
+    personId           String?                     @map("person_id") @db.Uuid @unique
+    clerkUserId        String?                     @map("clerk_user_id") @db.VarChar(50) @unique
+    name               String
+    email              String
+    systemPermissions  String[]
+    status             RecordStatus                @default(Active)
+
+    // Relations
+    changeLogs             UserChangeLog[]         @relation("user_change_log_to_user")
+    d4hAccessKeys          D4hAccessKey[]          @relation("d4h_access_key_to_user")
+    person                 Person?                 @relation("user_to_person", fields: [personId], references: [id])
+    personChangeLogs       PersonChangeLog[]       @relation("person_change_log_to_user")
+    skillChecks            SkillCheck[]            @relation("skill_check_to_user")
+    skillCheckSessions     SkillCheckSession[]     @relation("skill_check_session_to_user")
+    skillPackageChangeLogs SkillPackageChangeLog[] @relation("skill_package_change_log_to_user")
+    teamChangeLogs         TeamChangeLog[]         @relation("team_change_log_to_user")
+    teamPermissions        TeamPermission[]        @relation("team_permission_to_user")
+
+    @@map("users")
+}
+
+enum UserChangeEvent {
+    Create
+    Update
+    Delete
+    AddPermission
+    RemovePermission
+}
+
+model UserChangeLog {
+    id          String          @id @default(uuid()) @db.Uuid
+    userId      String          @map("user_id") @db.Uuid
+    event       UserChangeEvent
+    description String          @default("")
+    meta        Json            @default("{}")
+    fields      Json            @default("{}")
+    timestamp   DateTime        @default(now())
+
+    // Relations
+    user        User            @relation("user_change_log_to_user", fields: [userId], references: [id])
+
+    @@map("users_change_log")
 }

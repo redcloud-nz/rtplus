@@ -9,7 +9,7 @@ import { assertNonNull } from '@/lib/utils'
 
 import { authenticatedProcedure, createTRPCRouter } from '../init'
 
-import { getPersonPermissions } from './permissions'
+import { getUserPermissions } from './permissions'
 
 
 export const currentUserRouter = createTRPCRouter({
@@ -21,15 +21,17 @@ export const currentUserRouter = createTRPCRouter({
 
     permissions: authenticatedProcedure
         .query(({ ctx }) => {
-            return getPersonPermissions(ctx, ctx.userPersonId)
+            return getUserPermissions(ctx, ctx.userId)
         }),
 
     person: authenticatedProcedure
-    .query(async ({ ctx }) => {
-        return ctx.prisma.person.findUnique({ 
-            where: { id: ctx.userPersonId }
-        })
-    }),
+        .query(async ({ ctx }) => {
+            const user = await ctx.prisma.user.findUnique({ 
+                where: { id: ctx.userId },
+                include: { person: true }
+            })
+            return user?.person
+        }),
 
 
     // D4H Access Key
@@ -37,7 +39,7 @@ export const currentUserRouter = createTRPCRouter({
     d4hAccessKeys: authenticatedProcedure
         .query(async ({ ctx }) => {
             return ctx.prisma.d4hAccessKey.findMany({ 
-                where: { ownerId: ctx.userPersonId },
+                where: { userId: ctx.userId },
                 include: { team: true }
             })
         }),
@@ -57,20 +59,12 @@ export const currentUserRouter = createTRPCRouter({
             // Create the access key
             await ctx.prisma.d4hAccessKey.create({
                 data: {
-                    ownerId: ctx.userPersonId, 
+                    userId: ctx.userId, 
                     key: input.accessKey, 
                     teamId: input.teamId, 
                     enabled: true
                 }
             })
-
-            if(team.d4hTeamId == 0) {
-                // Update the D4H Team ID
-                await ctx.prisma.team.update({
-                    where: { id: input.teamId },
-                    data: { d4hTeamId: input.d4hTeamId }
-                })
-            }
         }),
 
     deleteD4hAccessKey: authenticatedProcedure
@@ -80,7 +74,7 @@ export const currentUserRouter = createTRPCRouter({
         .mutation(async ({ ctx, input }) => {
 
             await ctx.prisma.d4hAccessKey.delete({
-                where: { id: input.accessKeyId, ownerId: ctx.userPersonId }
+                where: { id: input.accessKeyId, userId: ctx.userId }
             })
         }),
 
@@ -92,7 +86,7 @@ export const currentUserRouter = createTRPCRouter({
         .mutation(async ({ ctx, input }) => {
 
             await ctx.prisma.d4hAccessKey.update({
-                where: { id: input.accessKeyId, ownerId: ctx.userPersonId },
+                where: { id: input.accessKeyId, userId: ctx.userId },
                 data: { enabled: input.enabled }
             })
         })

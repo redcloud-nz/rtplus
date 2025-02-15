@@ -24,13 +24,15 @@ declare global {
         teamId: string
     }
     interface UserPublicMetadata {
-        userPersonId: string
+        userId: string
+        userPersonId: string | undefined
         systemPermissions: SystemShortPermissions
         teamPermissions: Record<string, TeamShortPermissions>
     }
     interface CustomJwtSessionClaims {
         org_name: string
-        rt_pid: string
+        rt_uid: string
+        rt_pid: string | undefined
         rt_sp: SystemShortPermissions
         rt_tp: Record<string, TeamShortPermissions>
     }

@@ -20,12 +20,12 @@ export default async function SkillGroupListPage() {
 
     const skillGroups = await prisma.skillGroup.findMany({
         orderBy: { name: 'asc' },
-        include: { package: true }
+        include: { skillPackage: true }
     })
 
     return <AppPage
         label="Skill Groups"
-        breadcrumbs={[{ label: "Confugre", href: Paths.config.index }]}
+        breadcrumbs={[{ label: "Configure", href: Paths.config.index }]}
     >
         <PageHeader>
             <PageTitle>Manage Skill Groups</PageTitle>
@@ -50,7 +50,7 @@ export default async function SkillGroupListPage() {
                                     href={Paths.config.skillGroups.skillGroup(skillGroup.id).index}
                                 >{skillGroup.name}</Link>
                             </TableCell>
-                            <TableCell>{skillGroup.package.name}</TableCell>
+                            <TableCell>{skillGroup.skillPackage.name}</TableCell>
                         </TableRow>
                     )}
                 </TableBody>

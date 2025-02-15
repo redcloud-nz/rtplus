@@ -32,7 +32,18 @@ export const personnelRouter = createTRPCRouter({
             const emailConflict = await ctx.prisma.person.findFirst({ where: { email: input.email } })
             if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists.', cause: new FieldConflictError('email') })
 
-            return await ctx.prisma.person.create({ data: { name: input.name, email: input.email } })
+            return await ctx.prisma.person.create({ 
+                data: { 
+                    ...input,
+                    changeLogs: { 
+                        create: { 
+                            userId: ctx.userId,
+                            event: 'Create',
+                            fields: input
+                        }
+                    }
+                } 
+            })
         }),
 
     list: authenticatedProcedure

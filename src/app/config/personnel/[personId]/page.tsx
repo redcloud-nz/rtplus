@@ -19,7 +19,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { validateUUID } from '@/lib/id'
-import { formatDateTime } from '@/lib/utils'
 import * as Paths from '@/paths'
 import prisma from '@/server/prisma'
 import { ServerProtect } from '@/server/protect'
@@ -44,7 +43,10 @@ export default async function PersonPage(props: { params: Promise<{ personId: st
 
     return <AppPage
         label={person.name}
-        breadcrumbs={[{ label: "Manage", href: Paths.system }, { label: "Personnel", href: Paths.personnel }]}
+        breadcrumbs={[
+            { label: "Manage", href: Paths.config.index }, 
+            { label: "Personnel", href: Paths.config.personnel.index }
+        ]}
     >
         <PageHeader>
             <PageTitle objectType="Person">{person.name}</PageTitle>
@@ -52,7 +54,7 @@ export default async function PersonPage(props: { params: Promise<{ personId: st
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Button variant="outline" size="icon">
-                            <Link href={Paths.personAccess(person.id)}>
+                            <Link href={Paths.config.personnel.person(person.id).access}>
                                 <KeyRoundIcon/>
                             </Link>
                         </Button>
@@ -77,7 +79,7 @@ export default async function PersonPage(props: { params: Promise<{ personId: st
                     <CardTitle>Details</CardTitle>
                     <ServerProtect permission="system:write">
                         <Button variant="ghost" asChild>
-                            <Link href={Paths.editPerson(personId)}><PencilIcon/></Link>
+                            <Link href={Paths.config.personnel.person(personId).edit}><PencilIcon/></Link>
                         </Button>
                     </ServerProtect>
                 </CardHeader>
@@ -91,12 +93,6 @@ export default async function PersonPage(props: { params: Promise<{ personId: st
                         
                         <DLTerm>Email</DLTerm>
                         <DLDetails>{person.email}</DLDetails>
-
-                        <DLTerm>Created</DLTerm>
-                        <DLDetails>{formatDateTime(person.createdAt)}</DLDetails>
-
-                        <DLTerm>Updated</DLTerm>
-                        <DLDetails>{formatDateTime(person.updatedAt)}</DLDetails>
                     </DL>
                 </CardContent>
             </Card>
@@ -119,7 +115,7 @@ export default async function PersonPage(props: { params: Promise<{ personId: st
                             {person.teamMemberships.map(membership =>
                                 <TableRow key={membership.id}>
                                     <TableCell>
-                                        <Link href={Paths.teams.team(membership.team.id).index}>
+                                        <Link href={Paths.config.teams.team(membership.team.id).index}>
                                             {membership.team.shortName || membership.team.name}
                                         </Link>
                                     </TableCell>

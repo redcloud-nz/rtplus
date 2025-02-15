@@ -23,7 +23,7 @@ export default async function SkillPackageListPage() {
 
     return <AppPage
         label="Skill Packages" 
-        breadcrumbs={[{ label: "Configre", href: Paths.config.index}]}
+        breadcrumbs={[{ label: "Configre", href: Paths.config.index }]}
     >
         <PageHeader>
             <PageTitle>Manage Skill Packages</PageTitle>

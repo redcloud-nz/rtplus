@@ -26,7 +26,7 @@ export default async function SkillGroupPage(props: { params: Promise<{ skillGro
     const skillGroup = await prisma.skillGroup.findUnique({
         include: {
             skills: true,
-            package: true,
+            skillPackage: true,
         },
         where: { id: skillGroupId}
     })
@@ -59,7 +59,7 @@ export default async function SkillGroupPage(props: { params: Promise<{ skillGro
 
                         <DLTerm>Package</DLTerm>
                         <DLDetails>
-                            <Link href={Paths.config.skillPackages.skillPackage(skillGroup.packageId).index}>{skillGroup.package.name}</Link>
+                            <Link href={Paths.config.skillPackages.skillPackage(skillGroup.skillPackageId).index}>{skillGroup.skillPackage.name}</Link>
                         </DLDetails>
                     </DL>
                 </CardContent>

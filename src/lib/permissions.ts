@@ -18,6 +18,7 @@ export const Permissions = {
     TeamWrite: 'team:write',
 } as const
 
+export const PermissionList = ['system:manage-personnel', 'system:manage-skill-packages', 'system:manage-teams', 'system:write', 'team:assess-skills', 'team:manage-members', 'team:read', 'team:write'] as const
 
 export type SystemPermissionKey = typeof Permissions.ManagePersonnel | typeof Permissions.ManageSkillPackages | typeof Permissions.ManageTeams | typeof Permissions.SystemWrite
 export type TeamPermissionKey =  typeof Permissions.TeamAssessCompetencies | typeof Permissions.TeamMembers | typeof Permissions.TeamRead | typeof Permissions.TeamWrite

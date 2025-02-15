@@ -3,33 +3,35 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
+import * as R from 'remeda'
 import { z } from 'zod'
 
 import { TRPCError } from '@trpc/server'
 
 import { authenticatedProcedure, AuthenticatedContext, createTRPCRouter } from '../init'
-import { SystemPermissionKey, TeamPermissionKey } from '@/lib/permissions'
+import { isSystemPermission, isTeamPermission, PermissionKey, SystemPermissionKey, TeamPermissionKey } from '@/lib/permissions'
 
-export async function getPersonPermissions(ctx: AuthenticatedContext, personId: string) {
-    const person = await ctx.prisma.person.findUnique({
-        where: { id: personId },
-        include: {
-            teamPermissions: {
-                include: {
-                    team: {
-                        select: { id: true, name: true, shortName: true, slug: true, status: true }
-                    }
-                }
-            },
-            systemPermissions: true,
-        }
-    })
+export async function getUserPermissions(ctx: AuthenticatedContext, userId: string) {
 
-    if(person === null) throw new TRPCError({ code: 'NOT_FOUND' })
+    const [user, teamPermissions] = await Promise.all([
+        ctx.prisma.user.findUnique({
+            where: { id: userId, status: 'Active' },
+        }),
+        ctx.prisma.teamPermission.findMany({
+            where: { userId, team: { status: 'Active' } },
+            include: { team: true }
+        })
+    ])
+
+
+    if(user === null) throw new TRPCError({ code: 'NOT_FOUND' })
 
     return {
-        systemPermissions: (person.systemPermissions?.permissions ?? []) as SystemPermissionKey[],
-        teamPermissions: person.teamPermissions.map(({ team, permissions }) => ({ team, permissions: permissions as TeamPermissionKey[] }))
+        systemPermissions: (user.systemPermissions) as SystemPermissionKey[],
+        teamPermissions: teamPermissions.map(({ team, permissions }) => ({ 
+            team: R.pick(team, ['id', 'name', 'shortName', 'slug']),
+            permissions: permissions as TeamPermissionKey[]
+        }))
     }
 }
 
@@ -37,24 +39,28 @@ export const permissionsRouter = createTRPCRouter({
 
     person: authenticatedProcedure
         .input(z.object({ personId: z.string().uuid() }))
-        .query(({ input, ctx }) => getPersonPermissions(ctx, input.personId)),
+        .query(({ input, ctx }) => getUserPermissions(ctx, input.personId)),
 
     addPermission: authenticatedProcedure
-        .input(z.object({ personId: z.string().uuid(), permissionKey: z.string(), objectId: z.string().uuid().optional() }))
+        .input(z.object({ 
+            userId: z.string().uuid(), 
+            permissionKey: z.string().transform(p => p as PermissionKey), 
+            teamId: z.string().uuid().optional()
+        }))
         .mutation(async ({ input, ctx }) => {
-            const { personId, permissionKey } = input
+            const { userId, permissionKey, teamId } = input
+            
 
-            if(permissionKey === 'system:write') {
-                // Only people with system:write permission can assign system:write permission
+            if(isSystemPermission(permissionKey)) {
+                // Only people with system:write permission can assign system permission
                 if(!ctx.hasPermission('system:write')) throw new TRPCError({ code: 'FORBIDDEN' })
 
-                await ctx.prisma.systemPermission.upsert({
-                    where: { personId: personId },
-                    create: { permissions: ['system:write'], person: { connect: { id: personId }} },
-                    update: { permissions: { push: 'system:write' } }
+                await ctx.prisma.user.update({
+                    where: { id: userId },
+                    data: { systemPermissions: { push: permissionKey }}
                 })
-            } else if(input.permissionKey.startsWith('team:')) {
-                const teamId = input.objectId
+
+            } else if(isTeamPermission(permissionKey)) {
                 
                 if(!teamId) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Team ID is required for team permissions' })
                 
@@ -63,11 +69,11 @@ export const permissionsRouter = createTRPCRouter({
                
                 await ctx.prisma.teamPermission.upsert({
                     where: { 
-                        personId_teamId: { personId, teamId }
+                        userId_teamId: { userId, teamId }
                     },
                     create: { 
                         permissions: [permissionKey], 
-                        person: { connect: { id: personId }}, 
+                        user: { connect: { id: userId }}, 
                         team: { connect: { id: teamId }}
                     },
                     update: { 
@@ -78,25 +84,31 @@ export const permissionsRouter = createTRPCRouter({
         }),
 
     removePermission: authenticatedProcedure
-        .input(z.object({ personId: z.string().uuid(), permissionKey: z.string(), objectId: z.string().uuid().optional() }))
+        .input(z.object({ 
+            userId: z.string().uuid(), 
+            permissionKey: z.string().transform(p => p as PermissionKey), 
+            teamId: z.string().uuid().optional() 
+        }))
         .mutation(async ({ input, ctx }) => {
-            const { personId, permissionKey } = input
+            const { userId, permissionKey, teamId } = input
 
-            if(permissionKey === 'system:write') {
-                // Only people with system:write permission can remove system:write permission
+            if(isSystemPermission(permissionKey)) {
+                // Only people with system:write permission can remove system permissions
                 if(!ctx.hasPermission('system:write')) throw new TRPCError({ code: 'FORBIDDEN' })
 
-                const existing = await ctx.prisma.systemPermission.findUnique({ where: { personId }})
+                const existing = await ctx.prisma.user.findUnique({ 
+                    where: { id: userId },
+                    select: { systemPermissions: true }
+                })
 
                 if(existing) {
-                    await ctx.prisma.systemPermission.update({
-                        where: { personId },
-                        data: { permissions: { set: existing.permissions.filter(p => p !== 'system:write') }}
+                    await ctx.prisma.user.update({
+                        where: { id: userId },
+                        data: { systemPermissions: { set: existing.systemPermissions.filter(p => p !== permissionKey) }}
                     })
                 }
                 
-            } else if(permissionKey.startsWith('team')) {
-                const teamId = input.objectId
+            } else if(isTeamPermission(permissionKey)) {
                 if(!teamId) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Team ID is required for team permissions' })
 
                 // Only people with team:write permission (for the team) or system:write can remove team permissions
@@ -104,14 +116,14 @@ export const permissionsRouter = createTRPCRouter({
 
                 const existing = await ctx.prisma.teamPermission.findUnique({
                     where: { 
-                        personId_teamId: { personId, teamId }
+                        userId_teamId: { userId, teamId }
                     },
                 })
 
                 if(existing) {
                     await ctx.prisma.teamPermission.update({
                         where: { 
-                            personId_teamId: { personId, teamId }
+                            userId_teamId: { userId, teamId }
                         },
                         data: { permissions: { set: existing.permissions.filter(p => p !== permissionKey) }}
                     })

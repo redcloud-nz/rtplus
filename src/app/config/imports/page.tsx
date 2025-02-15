@@ -16,7 +16,7 @@ export default function ImportsPage() {
 
     return <AppPage
         label="Imports"
-        breadcrumbs={[{ label: "Manage", href: Paths.system }]}
+        breadcrumbs={[{ label: "Manage", href: Paths.imports.index }]}
     >
         <PageHeader>
             <PageTitle>Import</PageTitle>

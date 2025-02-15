@@ -54,7 +54,7 @@ export const config = {
 }
 
 export const imports = {
-    list: '/config/imports',
+    index: '/config/imports',
     personnel: '/config/imports/personnel',
     skillPackage: '/config/imports/skill-package',
 } as const

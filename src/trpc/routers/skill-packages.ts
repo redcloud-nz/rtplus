@@ -34,28 +34,11 @@ export const skillPackagesRouter = createTRPCRouter({
         }),
 
     list: authenticatedProcedure
-        .input(z.object({
-            permission:
-                z.enum(['skill-package:write']).optional()
-                .describe("Filter by the user's permission level (with respect to the skill package)")
-        }))
-        .query(async ({ ctx, input }) => {
-            if(input.permission) {
-                const permissions = await ctx.prisma.skillPackagePermission.findMany({
-                    where: {
-                        personId: ctx.userPersonId,
-                        permissions: { has: input.permission }
-                    },
-                    include: {
-                        skillPackage: true
-                    }
-                })
-                return permissions
-                    .filter(({ skillPackage }) => skillPackage.status === 'Active')
-                    .map(({ skillPackage }) => skillPackage)
-            } else {
-                return ctx.prisma.skillPackage.findMany({ where: { status: 'Active' } })
-            }
+        .query(async ({ ctx }) => {
+            return ctx.prisma.skillPackage.findMany({ 
+                where: { status: 'Active' },
+                orderBy: { name: 'asc' },
+            })
         }),
     
     

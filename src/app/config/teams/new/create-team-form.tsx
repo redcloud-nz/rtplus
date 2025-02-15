@@ -9,12 +9,10 @@ import { useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 
-import { Button } from '@/components/ui/button'
 import { FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormProvider, FormSubmitButton } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
 import { useToast } from '@/hooks/use-toast'
-import { DefaultD4hApiUrl } from '@/lib/d4h-api/common'
 import { CreateTeamFormData, createTeamFormSchema } from '@/lib/forms/create-team'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
@@ -22,6 +20,7 @@ import { trpc } from '@/trpc/client'
 
 
 export function CreateTeamForm() {
+    const utils = trpc.useUtils();
 
     const form = useForm<CreateTeamFormData>({
         resolver: zodResolver(createTeamFormSchema),
@@ -30,9 +29,6 @@ export function CreateTeamForm() {
             shortName: '',
             slug: '',
             color: '',
-            d4hTeamId: '',
-            d4hApiUrl: DefaultD4hApiUrl,
-            d4hWebUrl: ''
         }
     })
 
@@ -46,6 +42,7 @@ export function CreateTeamForm() {
             }
         },
         onSuccess: (newTeam) => {
+            utils.teams.invalidate()
             toast({
                 title: `${newTeam.name} created`,
                 description: 'The team has been created successfully.',
@@ -108,7 +105,7 @@ export function CreateTeamForm() {
                     <FormMessage/>
                 </FormItem>}
             />
-            <FormField
+            {/* <FormField
                 control={form.control}
                 name="d4hTeamId"
                 render={({ field }) => <FormItem>
@@ -143,7 +140,7 @@ export function CreateTeamForm() {
                     <FormDescription>The Web URL of the D4H Team Manager for the team.</FormDescription>
                     <FormMessage/>
                 </FormItem>}
-            />
+            /> */}
             <FormSubmitButton
                 labels={{
                     ready: 'Create',

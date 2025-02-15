@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /manage/skill-packages/[skillPackageId]
+ *  Path: /config/skill-packages/[skillPackageId]
  */
 
 import { AppPage, PageHeader, PageTitle } from '@/components/app-page'
@@ -35,8 +35,8 @@ export default async function SkillPackagePage(props: { params: Promise<{ skillP
     return <AppPage
         label={skillPackages.name} 
         breadcrumbs={[
-            { label: "Manage", href: Paths.system }, 
-            { label: "Packages", href: Paths.skillPackagesList }
+            { label: "Configure", href: Paths.config.index }, 
+            { label: "Packages", href: Paths.config.skillPackages.index }
         ]}
     >
         <PageHeader>
@@ -73,7 +73,7 @@ export default async function SkillPackagePage(props: { params: Promise<{ skillP
                             {skillPackages.skillGroups.map(skillGroup => 
                                 <TableRow key={skillGroup.id}>
                                     <TableCell>
-                                        <Link href={Paths.skillGroup(skillGroup.id)}>{skillGroup.name}</Link>
+                                        <Link href={Paths.config.skillGroups.skillGroup(skillGroup.id).index}>{skillGroup.name}</Link>
                                     </TableCell>
                                 </TableRow>
                             )}

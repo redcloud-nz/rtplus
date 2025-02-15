@@ -28,7 +28,7 @@ export function AddPermissionDialog({ personId }: AddPermissionDialogProps) {
     const [permissions] = trpc.permissions.person.useSuspenseQuery({ personId })
     const [currentUserPermissions] = trpc.currentUser.permissions.useSuspenseQuery()
 
-    const [allTeams] = trpc.teams.list.useSuspenseQuery({})
+    const [allTeams] = trpc.teams.all.useSuspenseQuery({})
 
     const hasSystemWritePermission = currentUserPermissions.systemPermissions.includes('system:write')
     const availableTeams = hasSystemWritePermission ? allTeams : permissions.teamPermissions.filter(perm => perm.permissions.includes('team:write')).map(({ team }) => team)

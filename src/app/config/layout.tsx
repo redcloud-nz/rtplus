@@ -31,7 +31,7 @@ export default async function SystemConfigLayout({ children }: Readonly<{ childr
             <NavSection title="Configuration">
                 <NavItem label="General Settings" href="/settings" icon={<SettingsIcon/>}/>
                 <ServerProtect permission="system:write">
-                    <NavItem label="Imports" href={Paths.imports.list} icon={<ImportIcon/>}/>
+                    <NavItem label="Imports" href={Paths.imports.index} icon={<ImportIcon/>}/>
                 </ServerProtect>
                 <NavItem label="Personnel" href={Paths.config.personnel.index} icon={<UsersIcon/>}/>
                 <NavItem label="Skills" href={Paths.config.skills.index} icon={<PocketKnifeIcon/>}/>

@@ -25,13 +25,11 @@ interface UpdateTeamFormProps {
 }
 
 export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
+    const utils = trpc.useUtils();
 
     const form = useForm<UpdateTeamFormData>({
         resolver: zodResolver(updateTeamFormSchema),
-        defaultValues: {
-            ...team,
-            d4hTeamId: team.d4hTeamId || '',
-        },
+        defaultValues: team,
     })
 
     const router = useRouter()
@@ -48,6 +46,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                 title: `${updatedTeam.name} updated`,
                 description: 'The team has been updated successfully.',
             })
+            utils.teams.invalidate()
             router.push(Paths.config.teams.team(updatedTeam.slug).index)
         }
     })
@@ -111,7 +110,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                     <FormMessage/>
                 </FormItem>}
             />
-            <FormField
+            {/* <FormField
                 control={form.control}
                 name="d4hTeamId"
                 render={({ field }) => <FormItem>
@@ -146,7 +145,7 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                     <FormDescription>The Web URL of the D4H Team Manager for the team.</FormDescription>
                     <FormMessage/>
                 </FormItem>}
-            />
+            /> */}
             <FormSubmitButton
                 labels={{
                     ready: 'Create',

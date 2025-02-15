@@ -10,34 +10,59 @@ import { auth } from '@clerk/nextjs/server'
 import { AuthObject as ClerkAuthObject } from '@clerk/backend'
 
 import { checkSessionPermissions, CompactPermissions, PermissionKey, SystemPermissionKey, TeamPermissionKey } from '../lib/permissions'
+import { assertNonNull } from '@/lib/utils'
 
 
 export interface RTPlusAuthObject {
-    readonly userPersonId: string
+    readonly userId: string
+    readonly userPersonId?: string
+    readonly clerkUserId: string
+    readonly teamSlug?: string
     readonly permissions: CompactPermissions
     
     hasPermission(permission: SystemPermissionKey): boolean
     hasPermission(permission: TeamPermissionKey, teamId: string): boolean
+
+}
+
+interface AuthenticatedOptions {
+    requirePerson?: boolean
+    requireTeam?: boolean
 }
 
 
-export function createAuthObject(authObject: ClerkAuthObject): RTPlusAuthObject {
-    if(authObject.userId == null) throw new Error("User is not authenticated")
+export function createRTPlusAuth(clerkAuth: ClerkAuthObject, options: AuthenticatedOptions): RTPlusAuthObject {
+    if(clerkAuth.userId == null) throw new Error("User is not authenticated")
 
-        return {
-            userPersonId: authObject.sessionClaims.rt_pid,
-            permissions: pick(authObject.sessionClaims, ['rt_sp', 'rt_tp']),
-            hasPermission(permission: PermissionKey, id?: string): boolean {
-                return checkSessionPermissions(authObject.sessionClaims, permission, id)
-            }
-        } 
+    options = { requirePerson: false, requireTeam: false , ...options}
+
+    const teamSlug = clerkAuth.orgSlug
+    const userPersonId = clerkAuth.sessionClaims.rt_pid
+
+    if(options.requireTeam && teamSlug == undefined) throw new Error("User is not associated with a team")
+    if(options.requirePerson && userPersonId == undefined) throw new Error("User is not associated with a person")
+
+
+    return {
+        userId: clerkAuth.sessionClaims.rt_uid,
+        userPersonId,
+        clerkUserId: clerkAuth.userId,
+        teamSlug,
+        permissions: pick(clerkAuth.sessionClaims, ['rt_sp', 'rt_tp']),
+        hasPermission(permission: PermissionKey, id?: string): boolean {
+            return checkSessionPermissions(clerkAuth.sessionClaims, permission, id)
+        }
+    } 
 }
 
-export async function authenticated(): Promise<RTPlusAuthObject> {
+
+
+export async function authenticated(options: AuthenticatedOptions = {}): Promise<RTPlusAuthObject> {
+
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     require('server-only');
 
-    const clerkAuthObject = await auth.protect()
+    const clerkAuth = await auth.protect()
 
-    return createAuthObject(clerkAuthObject)
+    return createRTPlusAuth(clerkAuth, options)
 }

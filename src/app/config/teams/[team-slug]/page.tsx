@@ -36,6 +36,7 @@ export default async function TeamPage(props: { params: Promise<{ 'team-slug': s
 
     const team = await prisma.team.findUnique({
         where: { slug: teamSlug },
+        include: { d4hInfo: true }
     })
 
     if(!team) return <NotFound />
@@ -89,16 +90,18 @@ export default async function TeamPage(props: { params: Promise<{ 'team-slug': s
                         <DLTerm>Colour</DLTerm>
                         <DLDetails><ColorValue value={team.color}/></DLDetails>
 
-                        <DLTerm>D4H Team ID</DLTerm>
-                        <DLDetails>{team.d4hTeamId}</DLDetails>
+                        {team.d4hInfo && <>
+                            <DLTerm>D4H Team ID</DLTerm>
+                            <DLDetails>{team.d4hInfo.d4hTeamId}</DLDetails>
 
-                        <DLTerm>D4H API URL</DLTerm>
-                        <DLDetails>{team.d4hApiUrl}</DLDetails>
+                            <DLTerm>D4H API URL</DLTerm>
+                            <DLDetails>{team.d4hInfo.d4hApiUrl}</DLDetails>
 
-                        <DLTerm>D4H Web URL</DLTerm>
-                        <DLDetails>
-                            <ExternalLink href={team.d4hWebUrl}>{team.d4hWebUrl}</ExternalLink>
-                        </DLDetails>
+                            <DLTerm>D4H Web URL</DLTerm>
+                            <DLDetails>
+                                <ExternalLink href={team.d4hInfo.d4hWebUrl}>{team.d4hInfo.d4hWebUrl}</ExternalLink>
+                            </DLDetails>
+                        </>}
                     </DL>
                 </CardContent>
             </Card>

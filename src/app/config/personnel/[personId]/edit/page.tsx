@@ -30,9 +30,9 @@ export default async function EditPersonPage(props: { params: Promise<{ personId
     return <NotImplemented 
         label="Edit"
         breadcrumbs={[
-            { label: "Manage", href: Paths.system }, 
-            { label: "Personnel", href: Paths.personnel },
-            { label: person.name, href: Paths.person(person.id) }
+            { label: "Configure", href: Paths.config.index }, 
+            { label: "Personnel", href: Paths.config.personnel.index },
+            { label: person.name, href: Paths.config.personnel.person(person.id).index }
         ]}
     />
 }

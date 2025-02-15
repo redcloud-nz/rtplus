@@ -2,7 +2,7 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /manage/personnel/[personId]/access
+ *  Path: /configure/personnel/[personId]/access
  */
 
 import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
@@ -41,9 +41,9 @@ export default async function PersonAccessPage(props: Props) {
     return <AppPage
         label="Access & Permissions"
         breadcrumbs={[
-            { label: "Manage", href: Paths.system }, 
-            { label: "Personnel", href: Paths.personnel },
-            { label: person.name, href: Paths.person(personId) }
+            { label: "Configure", href: Paths.config.index }, 
+            { label: "Personnel", href: Paths.config.personnel.index },
+            { label: person.name, href: Paths.config.personnel.person(personId).index }
         ]}
     >
         <PageHeader>

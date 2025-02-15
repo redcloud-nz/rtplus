@@ -3,10 +3,11 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
+import * as R from 'remeda'
 import { z } from 'zod'
 
 import { clerkClient } from '@clerk/nextjs/server'
-import { Team } from '@prisma/client'
+import { Prisma, Team } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
 import { createTeamFormSchema } from '@/lib/forms/create-team'
@@ -18,7 +19,30 @@ import { updateTeamFormSchema } from '@/lib/forms/update-team'
 
 
 export const teamsRouter = createTRPCRouter({
-
+    all: authenticatedProcedure
+        .input(z.object({
+            permission: 
+                z.enum(['team:assess', 'team:read', 'team:write']).optional()
+                .describe("Filter by the user's permission level (with respect to the team)")
+        }).optional())
+        .query(async ({ ctx, input = {} }): Promise<Team[]> => {
+            if(input.permission) {
+                const permissions = await ctx.prisma.teamPermission.findMany({ 
+                    where: {
+                        userId: ctx.userId,
+                        permissions: { has: input.permission }
+                    },
+                    include: {
+                        team: true
+                    }
+                 })
+                 return permissions
+                    .filter(({ team }) => team.status === 'Active')
+                    .map(({ team }) => team)
+            } else {
+                return await ctx.prisma.team.findMany({ where: { status: 'Active' } })
+            }
+        }),
     byId: authenticatedProcedure
         .input(z.object({ 
             teamId: z.string().uuid()
@@ -60,33 +84,17 @@ export const teamsRouter = createTRPCRouter({
             })
 
             return await ctx.prisma.team.create({ 
-                data: { ...input, id: teamId, d4hTeamId: input.d4hTeamId || 0, clerkOrgId: organization.id } 
-            })
-        }),
-
-    list: authenticatedProcedure
-        .input(z.object({
-            permission: 
-                z.enum(['team:assess', 'team:read', 'team:write']).optional()
-                .describe("Filter by the user's permission level (with respect to the team)")
-        }).optional())
-        .query(async ({ ctx, input = {} }): Promise<Team[]> => {
-            if(input.permission) {
-                const permissions = await ctx.prisma.teamPermission.findMany({ 
-                    where: {
-                        personId: ctx.userPersonId,
-                        permissions: { has: input.permission }
-                    },
-                    include: {
-                        team: true
+                data: { 
+                    ...input, id: teamId, clerkOrgId: organization.id,
+                    changeLogs: { 
+                        create: { 
+                            userId: ctx.userId,
+                            event: 'Create',
+                            fields: input
+                        }
                     }
-                 })
-                 return permissions
-                    .filter(({ team }) => team.status === 'Active')
-                    .map(({ team }) => team)
-            } else {
-                return await ctx.prisma.team.findMany({ where: { status: 'Active' } })
-            }
+                }
+            })
         }),
 
     listWithMembers: authenticatedProcedure
@@ -99,7 +107,7 @@ export const teamsRouter = createTRPCRouter({
             if(input.permission) {
                 const permissions = await ctx.prisma.teamPermission.findMany({ 
                     where: {
-                        personId: ctx.userPersonId,
+                        userId: ctx.userId,
                         permissions: { has: input.permission }
                     },
                     include: {
@@ -170,19 +178,42 @@ export const teamsRouter = createTRPCRouter({
         .mutation(async ({ ctx, input }) => {
             if(!(ctx.hasPermission('system:manage-teams') || ctx.hasPermission("team:write", input.id))) throw new TRPCError({ code: 'FORBIDDEN', message: 'system:manage-teams or team:write permission is required to update a team.' })
         
-            const nameConflict = await ctx.prisma.team.findFirst({ where: { name: input.name } })
-            if(nameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('name') })
+            const existing = await ctx.prisma.team.findUnique({ where: { id: input.id } })
+            if(!existing) throw new TRPCError({ code: 'NOT_FOUND' })
 
-            const shortNameConflict = await ctx.prisma.team.findFirst({ where: { shortName: input.shortName } })
-            if(shortNameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('shortName') })
+            if(input.name != existing.name) {
+                const nameConflict = await ctx.prisma.team.findFirst({ where: { name: input.name } })
+                if(nameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('name') })
+            }
 
-            const slugConflict = await ctx.prisma.team.findFirst({ where: { slug: input.slug } })
-            if(slugConflict) throw new TRPCError({ code: 'CONFLICT', cause:new FieldConflictError('slug') })
+            if(input.shortName != existing.shortName) {
+                const shortNameConflict = await ctx.prisma.team.findFirst({ where: { shortName: input.shortName } })
+                if(shortNameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('shortName') })
+            }
             
+            if(input.slug != existing.slug) {
+                const slugConflict = await ctx.prisma.team.findFirst({ where: { slug: input.slug } })
+                if(slugConflict) throw new TRPCError({ code: 'CONFLICT', cause:new FieldConflictError('slug') })
+            }
+
+            const { id, ...data } = input
+
+            R.keys(data).forEach(key => {
+                if(data[key] === existing[key]) delete data[key]
+            })
 
             return await ctx.prisma.team.update({ 
-                where: { id: input.id },
-                data: { ...input, d4hTeamId: input.d4hTeamId || 0 } 
+                where: { id },
+                data: { 
+                    ...data,
+                    changeLogs: { 
+                        create: { 
+                            userId: ctx.userId,
+                            event: 'Update',
+                            fields: data
+                        }
+                    }
+                } 
             })
         }),
 })

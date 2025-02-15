@@ -5,7 +5,7 @@
 'use client'
 
 
-import { ClientProtect } from '@/components/protect'
+import { Protect } from '@/components/protect'
 import { Show } from '@/components/show'
 
 import { Alert } from '@/components/ui/alert'
@@ -21,9 +21,9 @@ interface PermissionListProps {
 }
 
 export function PermissionList({ personId }: PermissionListProps) {
-    const [{ skillPackagePermissions, systemPermissions, teamPermissions }] = trpc.permissions.person.useSuspenseQuery({ personId })
+    const [{ systemPermissions, teamPermissions }] = trpc.permissions.person.useSuspenseQuery({ personId })
 
-    const isEmpty = skillPackagePermissions.length == 0 && systemPermissions.length === 0 && teamPermissions.length === 0
+    const isEmpty = systemPermissions.length === 0 && teamPermissions.length === 0
 
     return <Show
         when={!isEmpty}
@@ -38,34 +38,17 @@ export function PermissionList({ personId }: PermissionListProps) {
                 </TableRow>
             </TableHead>
             <TableBody>
-                {skillPackagePermissions.map(({ skillPackage, permissions }) =>
-                    permissions.map(permissionKey =>
-                        <TableRow key={`${skillPackage.id}:${permissionKey}`}>
-                            <TableCell>{permissionKey}</TableCell>
-                            <TableCell>{skillPackage.name}</TableCell>
-                            <TableCell className="text-right pr-0">
-                                <ClientProtect permission="team:write" teamId={skillPackage.id} allowSystem>
-                                    <DeletePermissionButton
-                                        personId={personId}
-                                        permissionKey={permissionKey}
-                                        objectId={skillPackage.id}
-                                    />
-                                </ClientProtect>
-                            </TableCell>
-                        </TableRow>
-                    )
-                )}
                 {systemPermissions.map(permissionKey =>
                     <TableRow key={permissionKey}>
                         <TableCell>{permissionKey}</TableCell>
                         <TableCell></TableCell>
                         <TableCell className="text-right pr-0">
-                            <ClientProtect permission="system:write">
+                            <Protect permission="system:write">
                                 <DeletePermissionButton
                                     personId={personId}
                                     permissionKey="system:write"
                                 />
-                            </ClientProtect>
+                            </Protect>
                         </TableCell>
                     </TableRow>
                 )}
@@ -75,13 +58,13 @@ export function PermissionList({ personId }: PermissionListProps) {
                             <TableCell>{permissionKey}</TableCell>
                             <TableCell>{team.name}</TableCell>
                             <TableCell className="text-right pr-0">
-                                <ClientProtect permission="team:write" teamId={team.id} allowSystem>
+                                <Protect permission="team:write" teamId={team.id} allowSystem>
                                     <DeletePermissionButton
                                         personId={personId}
                                         permissionKey={permissionKey}
                                         objectId={team.id}
                                     />
-                                </ClientProtect>
+                                </Protect>
                             </TableCell>
                         </TableRow>
                     )

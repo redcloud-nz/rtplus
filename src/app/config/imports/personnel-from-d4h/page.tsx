@@ -4,7 +4,7 @@
  * 
  *  Path: /imports/personnel-from-d4h
  */
-
+ 
 import React from 'react'
 
 import { AppPage, PageBoundary, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
@@ -22,8 +22,8 @@ export default async function ImportPersonnelPage() {
     return <AppPage
         label="Personnel From D4H"
         breadcrumbs={[
-            { label: 'Manage', href: Paths.system },
-            { label: 'Imports', href: Paths.imports.list },
+            { label: 'Manage', href: Paths.config.index },
+            { label: 'Imports', href: Paths.imports.index },
         ]}
     >
         <PageHeader>

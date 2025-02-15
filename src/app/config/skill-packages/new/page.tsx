@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /manage/skill-packages/new
+ *  Path: /config/skill-packages/new
  */
 
 import { auth } from '@clerk/nextjs/server'
@@ -16,7 +16,7 @@ export default async function NewSkillPackagePage() {
     return <NotImplemented 
         label="Skill Package" 
         breadcrumbs={[
-            { label: "Manage", href: Paths.config.index }, 
+            { label: "Configure", href: Paths.config.index }, 
             { label: "Skill Packages", href: Paths.config.skillPackages.index }
         ]}
     />

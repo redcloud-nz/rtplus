@@ -9,16 +9,15 @@ import superjson from 'superjson'
 import { auth } from '@clerk/nextjs/server'
 import {  initTRPC, TRPCError } from '@trpc/server'
 
-import { createAuthObject, RTPlusAuthObject } from '@/server/auth'
+import { createRTPlusAuth, RTPlusAuthObject } from '@/server/auth'
 import prisma from '@/server/prisma'
-import { ZodError } from 'zod'
 
 
 export const createTRPCContext = cache(async () => {
-    const authObject = await auth()
+    const clerkAuth = await auth()
     return { 
         prisma,
-        authObject,
+        clerkAuth,
     }
 })
 
@@ -45,35 +44,37 @@ export type PublicContext = Context
 
 export const publicProcedure = t.procedure
 
-export type AuthenticatedContext = Context & RTPlusAuthObject
+export type AuthenticatedContext = Omit<Context, 'clerkAuth'> & RTPlusAuthObject
 
 export const authenticatedProcedure = t.procedure.use((opts) => {
-    
-    if (opts.ctx.authObject.userId === null) {
+    const { clerkAuth, ...ctx} = opts.ctx
+
+    if (clerkAuth.userId === null) {
         throw new TRPCError({ code: 'UNAUTHORIZED' })
     }
 
     return opts.next({
         ctx: {
-            ...opts.ctx,
-            ...createAuthObject(opts.ctx.authObject)
+            ...ctx,
+            ...createRTPlusAuth(clerkAuth)
         } satisfies AuthenticatedContext
     })
 })
 
-export type AuthenticatedTeamContext = AuthenticatedContext & { orgId: string }
+export type AuthenticatedTeamContext = AuthenticatedContext & { clerkOrgId: string }
 
 export const teamProcedure = t.procedure.use((opts) => {
+    const { clerkAuth, ...ctx } = opts.ctx
     
-    if (opts.ctx.authObject.userId == null || opts.ctx.authObject.orgId == null) {
+    if (clerkAuth.userId == null || clerkAuth.orgId == null) {
         throw new TRPCError({ code: 'UNAUTHORIZED' })
     }
 
     return opts.next({
         ctx: { 
-            ...opts.ctx, 
-            ...createAuthObject(opts.ctx.authObject),
-            orgId: opts.ctx.authObject.orgId
+            ...ctx, 
+            ...createRTPlusAuth(clerkAuth),
+            clerkOrgId: clerkAuth.orgId
         } satisfies AuthenticatedTeamContext,
         
     })

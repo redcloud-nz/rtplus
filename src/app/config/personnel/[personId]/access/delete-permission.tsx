@@ -33,9 +33,9 @@ export function DeletePermissionButton({ personId, permissionKey, objectId }: De
 
     function handleDeletePermission() {
         mutation.mutate({
-            personId,
+            userId: personId,
             permissionKey,
-            objectId
+            teamId: objectId
         })
     }
 
