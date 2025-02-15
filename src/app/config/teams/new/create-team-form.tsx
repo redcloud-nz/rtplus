@@ -35,7 +35,7 @@ export function CreateTeamForm() {
     const router = useRouter()
     const { toast } = useToast()
 
-    const mutation = trpc.teams.createTeam.useMutation({
+    const mutation = trpc.teams.create.useMutation({
         onError: (error) => {
             if(error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof CreateTeamFormData, { message: error.shape.message })

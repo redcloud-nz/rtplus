@@ -58,7 +58,7 @@ export const teamsRouter = createTRPCRouter({
             return ctx.prisma.team.findUnique({ where: { slug: input.slug } })
         }),
 
-    createTeam: authenticatedProcedure
+    create: authenticatedProcedure
         .input(createTeamFormSchema)
         .mutation(async ({ ctx, input }) => {
             if(!ctx.hasPermission('system:manage-teams')) 

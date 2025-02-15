@@ -21,7 +21,7 @@ const Statuses = ['', 'Highly Confident', 'Competent', 'Competent', 'Competent',
 
 export default function IndividualReport() {
     const skillPackagesQuery = trpc.skillPackages.all.useQuery()
-    const personnelQuery = trpc.personnel.list.useQuery()
+    const personnelQuery = trpc.personnel.all.useQuery()
 
     const getRandomPerson = () => {
         if(personnelQuery.data && personnelQuery.data.length > 0) {

@@ -33,7 +33,7 @@ export function CreatePersonForm() {
     const utils = trpc.useUtils()
     const { toast } = useToast()
     
-    const mutation = trpc.personnel.createPerson.useMutation({
+    const mutation = trpc.personnel.create.useMutation({
         onError: (error) => {
             if(error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof CreatePersonFormData, { message: error.shape.message })

@@ -10,7 +10,10 @@ import { teamProcedure, createTRPCRouter } from '../init'
 
 
 export const competenciesRouter = createTRPCRouter({
-    
+
+    /**
+     * Record an individual skill check
+     */
     recordSkillCheck: teamProcedure
         .input(z.object({
             skillId: z.string().uuid(),
@@ -22,9 +25,10 @@ export const competenciesRouter = createTRPCRouter({
             try {
                 await ctx.prisma.skillCheck.create({
                     data: {
+                        userId: ctx.userId,
                         skillId: input.skillId,
                         assesseeId: input.assesseeId,
-                        assessorId: ctx.userPersonId,
+                        assessorId: ctx.userPersonId!,
                         competenceLevel: input.competenceLevel,
                         notes: input.notes,
                     }
@@ -32,6 +36,74 @@ export const competenciesRouter = createTRPCRouter({
             } catch(error ) {
                 return new TRPCError({ code: 'BAD_REQUEST', message: ''+error })
             }
-        })
+        }),
+
+    sessions: {
+
+        all: teamProcedure
+            .query(async ({ ctx }) => {
+                const sessions = await ctx.prisma.skillCheckSession.findMany({
+                    where: { userId: ctx.userId },
+                    include: {
+                        _count: {
+                            select: { skills: true, assessees: true, checks: true }
+                        }
+                    }
+                })
+
+                return sessions
+            }),
+
+        byId: teamProcedure
+            .input(z.object({ 
+                sessionId: z.string().uuid()
+            }))
+            .query(async ({ ctx, input }) => {
+                const session = await ctx.prisma.skillCheckSession.findUnique({
+                    where: { id: input.sessionId },
+                    include: {
+                        _count: {
+                            select: { skills: true, assessees: true, checks: true }
+                        }
+                    }
+                })
+
+                return session
+            }),
+
+        /**
+         * Create a new skill check session.
+         */
+        create: teamProcedure
+            .mutation(async ({ ctx }) => {
+                const year = new Date().getFullYear()
+
+                const sessions = await ctx.prisma.skillCheckSession.findMany({
+                    select: { id: true, name: true },
+                    where: { userId: ctx.userId, name: { startsWith: `${year} #` } }
+                })
+
+                let higestSessionNumber = 0
+                for (const session of sessions) {
+                    const number = parseInt(session.name.split(' ')[1])
+                    if (number > higestSessionNumber) {
+                        higestSessionNumber = number
+                    }
+                }
+
+                const newSessionNumber = higestSessionNumber + 1
+
+                const newSession = await ctx.prisma.skillCheckSession.create({
+                    data: {
+                        userId: ctx.userId,
+                        assessorId: ctx.userPersonId!,
+                        date: new Date(),
+                        name: `${year} #${newSessionNumber}`
+                    }
+                })
+
+                return newSession
+            }),
+    }
 })
 

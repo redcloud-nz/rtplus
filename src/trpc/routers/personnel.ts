@@ -11,9 +11,23 @@ import { createPersonFormSchema } from '@/lib/forms/create-person'
 
 import { authenticatedProcedure, createTRPCRouter } from '../init'
 import { FieldConflictError } from '../types'
+import { updatePersonFormSchema } from '@/lib/forms/update-person'
 
-
+/**
+ * TRPC router for personnel management.
+ */
 export const personnelRouter = createTRPCRouter({
+    all: authenticatedProcedure
+        .input(z.object({
+            status: z.enum(['Active', 'Inactive']).optional().default('Active')
+        }).optional().default({}))
+        .query(async ({ ctx, input }) => {
+            return ctx.prisma.person.findMany({ 
+                where: { status: input.status },
+                select: { id: true, name: true, slug: true, email: true, status: true },
+                orderBy: { name: 'asc' }
+            })
+        }),
     byId: authenticatedProcedure
         .input(z.object({ personId: z.string().uuid() }))
         .query(async ({ input, ctx }) => {
@@ -23,7 +37,7 @@ export const personnelRouter = createTRPCRouter({
             })
         }),
 
-    createPerson: authenticatedProcedure
+    create: authenticatedProcedure
         .input(createPersonFormSchema)
         .mutation(async ({ input, ctx }) => {
             if(!(ctx.hasPermission('system:manage-personnel') || ctx.hasPermission('team:manage-members', '*'))) 
@@ -32,7 +46,7 @@ export const personnelRouter = createTRPCRouter({
             const emailConflict = await ctx.prisma.person.findFirst({ where: { email: input.email } })
             if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists.', cause: new FieldConflictError('email') })
 
-            return await ctx.prisma.person.create({ 
+            const newUser = await ctx.prisma.person.create({ 
                 data: { 
                     ...input,
                     changeLogs: { 
@@ -44,13 +58,40 @@ export const personnelRouter = createTRPCRouter({
                     }
                 } 
             })
+
+            return newUser
         }),
 
-    list: authenticatedProcedure
-        .query(async ({ ctx }) => {
-            return ctx.prisma.person.findMany({ 
-                where: { status: 'Active' },
-                select: { id: true, name: true, slug: true, email: true, status: true }
+    update: authenticatedProcedure
+        .meta({ 
+            description: 'Update a person.',
+            permissions: ['system:manage-personnel']
+        })
+        .input(updatePersonFormSchema)
+        .mutation(async ({ input, ctx, }) => {
+            if(!ctx.hasPermission('system:manage-personnel')) 
+                throw new TRPCError({ code: 'FORBIDDEN', message: 'system:manage-people permission is required to update a person.' })
+
+            const existingPerson = await ctx.prisma.person.findUnique({ where: { id: input.id } })
+            if(!existingPerson) throw new TRPCError({ code: 'NOT_FOUND', message: 'Person not found.' })
+
+            if(input.email != existingPerson?.email) {
+                const emailConflict = await ctx.prisma.person.findFirst({ where: { email: input.email } })
+                if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists.', cause: new FieldConflictError('email') })
+            }
+
+            const updatedPerson = await ctx.prisma.person.update({ 
+                where: { id: input.id },
+                data: { 
+                    ...input,
+                    changeLogs: { 
+                        create: { 
+                            userId: ctx.userId,
+                            event: 'Update',
+                            fields: input
+                        }
+                    }
+                } 
             })
-        }),
+        })
 })
