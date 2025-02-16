@@ -2,16 +2,16 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /manage/skills/new
+ *  Path: /manage/skills/--new
  */
 
-import { auth } from '@clerk/nextjs/server'
 
 import { NotImplemented } from '@/components/errors'
 import * as Paths from '@/paths'
+import { authenticated } from '@/server/auth'
 
 export default async function NewSkillPage() {
-    await auth.protect()
+    await authenticated()
 
     return <NotImplemented 
         label="New Skill" 

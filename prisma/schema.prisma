@@ -13,7 +13,7 @@ datasource db {
     directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
-// defines an API key that a user can use to access the D4H API.
+/// defines an API key that a user can use to access the D4H API.
 model D4hAccessKey {
     id        String   @id @default(uuid()) @db.Uuid
     teamId    String   @map("team_id") @db.Uuid
@@ -32,7 +32,7 @@ model D4hAccessKey {
 /// defines an individual person that may or may not be connected to a user.
 model Person {
     id                           String              @id @default(uuid()) @db.Uuid
-    slug                         String?             @db.VarChar(100) @unique
+    slug                         String              @db.VarChar(100) @unique
     name                         String              @db.VarChar(100)
     email                        String
     status                       RecordStatus        @default(Active)
@@ -55,6 +55,7 @@ enum PersonChangeEvent {
     Delete
 }
 
+/// defines a change to a person record.
 model PersonChangeLog {
     id          String            @id @default(uuid()) @db.Uuid
     personId    String            @map("person_id") @db.Uuid
@@ -70,6 +71,7 @@ model PersonChangeLog {
     @@map("personnel_change_log")
 }
 
+/// defines the current status of a record.
 enum RecordStatus {
     Active
     Inactive
@@ -79,7 +81,7 @@ enum RecordStatus {
 /// defines an individual skill that can be assessed.
 model Skill {
     id                 String              @id @default(uuid()) @db.Uuid
-    slug               String?             @db.VarChar(100) @unique
+    slug               String              @db.VarChar(100) @unique
     skillPackageId     String              @map("skill_package_id") @db.Uuid
     skillGroupId       String?             @map("skill_group_id") @db.Uuid
     name               String
@@ -159,7 +161,7 @@ enum SkillCheckStatus {
 /// defines a group of skills within a skill package.
 model SkillGroup {
     id             String       @id @default(uuid()) @db.Uuid
-    slug           String?      @db.VarChar(100) @unique
+    slug           String       @db.VarChar(100) @unique
     name           String       @db.VarChar(100)
     skillPackageId String       @map("skill_package_id") @db.Uuid
     parentId       String?      @map("parent_id") @db.Uuid
@@ -201,6 +203,7 @@ enum SkillPackageChangeEvent {
     UpdateGroup
 }
 
+// defines a change to a skill package record.
 model SkillPackageChangeLog {
     id             String                  @id @default(uuid()) @db.Uuid()
     skillPackageId String                  @map("skill_package_id") @db.Uuid
@@ -218,6 +221,7 @@ model SkillPackageChangeLog {
     @@map("skill_packages_change_log")
 }
 
+// defines a response team or similar high level organizational unit.
 model Team {
     id              String           @id @default(uuid()) @db.Uuid
     clerkOrgId      String           @map("clerk_org_id") @db.VarChar(50) @unique
@@ -246,6 +250,7 @@ enum TeamChangeEvent {
     RemoveMember
 }
 
+/// defines a change to a team record.
 model TeamChangeLog {
     id          String          @id @default(uuid()) @db.Uuid
     teamId      String          @map("team_id") @db.Uuid
@@ -310,6 +315,7 @@ enum TeamMembershipD4hStatus {
     Retired
 }
 
+/// defines permissions that a user has on a specific team.
 model TeamPermission {
     userId      String   @map("user_id") @db.Uuid
     teamId      String   @map("team_id") @db.Uuid
@@ -355,6 +361,7 @@ enum UserChangeEvent {
     RemovePermission
 }
 
+/// defines a change to a user record.
 model UserChangeLog {
     id          String          @id @default(uuid()) @db.Uuid
     userId      String          @map("user_id") @db.Uuid

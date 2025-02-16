@@ -12,6 +12,7 @@ export const skillPackagesRouter = createTRPCRouter({
         .query(async ({ ctx }) => {
             return ctx.prisma.skillPackage.findMany({ 
                 where: { status: 'Active' },
+                orderBy: { name: 'asc' },
                 include: {
                     skillGroups: true,
                     skills: true
@@ -31,15 +32,5 @@ export const skillPackagesRouter = createTRPCRouter({
                     skills: true
                 }
             })
-        }),
-
-    list: authenticatedProcedure
-        .query(async ({ ctx }) => {
-            return ctx.prisma.skillPackage.findMany({ 
-                where: { status: 'Active' },
-                orderBy: { name: 'asc' },
-            })
-        }),
-    
-    
+        }),    
 })

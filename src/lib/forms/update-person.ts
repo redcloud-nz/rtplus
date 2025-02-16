@@ -4,9 +4,11 @@
 */
 
 import { z } from 'zod'
+import { zodSlug } from '../validation'
 
 export const updatePersonFormSchema = z.object({
     id: z.string().uuid(),
+    slug: zodSlug,
     name: z.string().min(5).max(100),
     email: z.string().email(),
 })

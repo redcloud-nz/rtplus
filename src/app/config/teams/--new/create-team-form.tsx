@@ -5,29 +5,34 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import * as React from 'react'
 import { useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormProvider, FormSubmitButton } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import { Input, SlugInput } from '@/components/ui/input'
 
 import { useToast } from '@/hooks/use-toast'
 import { CreateTeamFormData, createTeamFormSchema } from '@/lib/forms/create-team'
+import { createRandomSlug } from '@/lib/id'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
 
+
 export function CreateTeamForm() {
-    const utils = trpc.useUtils();
+    const utils = trpc.useUtils()
+
+    const defaultSlug = React.useMemo(() => createRandomSlug(), [])
 
     const form = useForm<CreateTeamFormData>({
         resolver: zodResolver(createTeamFormSchema),
         defaultValues: {
             name: '',
             shortName: '',
-            slug: '',
+            slug: defaultSlug,
             color: '',
         }
     })
@@ -85,9 +90,10 @@ export function CreateTeamForm() {
                 control={form.control}
                 name="slug"
                 render={({ field }) => <FormItem>
+                   
                     <FormLabel>Slug</FormLabel>
                     <FormControl>
-                        <Input maxLength={100} {...field}/>
+                        <SlugInput {...field} onChange={(ev, newValue) => field.onChange(newValue)}/>
                     </FormControl>
                     <FormDescription>URL-friendly identifier for the team.</FormDescription>
                     <FormMessage/>

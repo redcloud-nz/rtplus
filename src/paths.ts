@@ -10,7 +10,7 @@ export const config = {
     index: '/config',
     teams: {
         index: '/config/teams',
-        new: '/config/teams/new',
+        new: '/config/teams/--new',
         team: (teamSlug: string) => ({
             index: `/config/teams/${teamSlug}`,
             edit: `/config/teams/${teamSlug}/edit`,
@@ -19,7 +19,7 @@ export const config = {
     },
     personnel: {
         index: '/config/personnel',
-        new: '/config/personnel/new',
+        new: '/config/personnel/--new',
         person: (personId: string) => ({
             index: `/config/personnel/${personId}`,
             edit: `/config/personnel/${personId}/edit`,
@@ -29,7 +29,7 @@ export const config = {
     },
     skills: {
         index: '/config/skills',
-        new: '/config/skills/new',
+        new: '/config/skills/--new',
         skill: (skillId: string) => ({
             index: `/config/skills/${skillId}`,
             edit: `/config/skills/${skillId}/edit`,
@@ -37,7 +37,7 @@ export const config = {
     },
     skillGroups: {
         index: '/config/skill-groups',
-        new: '/config/skill-groups/new',
+        new: '/config/skill-groups/--new',
         skillGroup: (skillGroupId: string) => ({
             index: `/config/skill-groups/${skillGroupId}`,
             edit: `/config/skill-groups/${skillGroupId}/edit`,
@@ -45,7 +45,7 @@ export const config = {
     },
     skillPackages: {
         index: '/config/skill-packages',
-        new: '/config/skill-packages/new',
+        new: '/config/skill-packages/--new',
         skillPackage: (skillPackageId: string) => ({
             index: `/config/skill-packages/${skillPackageId}`,
             edit: `/config/skill-packages/${skillPackageId}/edit`,
@@ -76,7 +76,6 @@ export const team = (teamSlug: string) => {
             dashboard: competenciesBase,
             sessionList: `${competenciesBase}/sessions`,
             session: (sessionId: string) => `${competenciesBase}/sessions/${sessionId}`,
-            newSession: `${competenciesBase}/sessions/new`,
             record: `${competenciesBase}/record`,
             reportsList: `${competenciesBase}/reports`,
             reports: {

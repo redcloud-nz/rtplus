@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
+import { customAlphabet } from 'nanoid'
 import { v4 as uuidv4, validate } from 'uuid'
 
 /**
@@ -36,4 +37,10 @@ export class UUIDValidationSet {
 
 export function createWhereClause(uuidOrRef: string) {
     return validateUUID(uuidOrRef) ? { id: uuidOrRef } : { ref: uuidOrRef }
+}
+
+
+export function createRandomSlug() {
+    const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 8)
+    return nanoid()
 }

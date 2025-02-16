@@ -5,6 +5,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import * as React from 'react'
 import { useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -16,15 +17,18 @@ import { useToast } from '@/hooks/use-toast'
 import { CreatePersonFormData, createPersonFormSchema } from '@/lib/forms/create-person'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
+import { createRandomSlug } from '@/lib/id'
 
 
 export function CreatePersonForm() {
 
+    const defaultSlug = React.useMemo(() => createRandomSlug(), [])
 
     const form = useForm<CreatePersonFormData>({
         resolver: zodResolver(createPersonFormSchema),
         defaultValues: {
             name: '',
+            slug: defaultSlug,
             email: ''
         }
     })
@@ -51,6 +55,11 @@ export function CreatePersonForm() {
 
     return <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="max-w-xl space-y-8">
+            <FormField
+                control={form.control}
+                name="slug"
+                render={({ field }) => <Input type="hidden" {...field}/>}
+            />
             <FormField
                 control={form.control}
                 name="name"

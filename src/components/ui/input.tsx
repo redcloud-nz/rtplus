@@ -27,3 +27,21 @@ export function Input({ className, type, ...props }: React.ComponentPropsWithRef
 export function HiddenInput({ name, value }: Omit<React.ComponentPropsWithRef<'input'>, 'type'>) {
     return <input type="hidden" name={name} value={value}/>
 }
+
+
+type SlugInputProps = Omit<React.ComponentPropsWithRef<'input'>, 'onChange' | 'type'> & { onChange?: (ev: React.ChangeEvent<HTMLInputElement>, newValue: string) => void }
+
+export function SlugInput(props: SlugInputProps) {
+    return <Input 
+        type="text" 
+        maxLength={100}
+        data-component="SlugInput"
+        {...props}
+        onChange={ev => {
+            if(props.onChange) {
+                props.onChange(ev, ev.target.value.replace(/[^a-zA-Z0-9-]/g, ''))
+            }
+        }}
+    />
+
+}

@@ -4,12 +4,13 @@
 */
 
 import { z } from 'zod'
+import { zodColor, zodSlug } from '../validation'
 
 export const createTeamFormSchema = z.object({
     name: z.string().min(5).max(100),
     shortName: z.string().max(20),
-    slug: z.string().max(100).regex(/^[a-z0-9-]+$/, "Must be lowercase alphanumeric with hyphens."),
-    color: z.union([z.string().regex(/^#[0-9A-F]{6}$/, "Must be a colour in RGB Hex format (eg #4682B4)"), z.literal('')]),
+    slug: zodSlug,
+    color: z.union([zodColor, z.literal('')]),
     // d4hTeamId: z.union([z.number().int("Must be an integer."), z.literal('')]),
     // d4hApiUrl: z.union([z.string().url(), z.literal('')]),
     // d4hWebUrl: z.union([z.string().url(), z.literal('')]),
