@@ -88,6 +88,7 @@ model Skill {
     description        String
     frequency          String
     optional           Boolean
+    sequence           Int
     status             RecordStatus        @default(Active)
 
     // Relations
@@ -165,6 +166,7 @@ model SkillGroup {
     name           String       @db.VarChar(100)
     skillPackageId String       @map("skill_package_id") @db.Uuid
     parentId       String?      @map("parent_id") @db.Uuid
+    sequence       Int
     status         RecordStatus @default(Active)
 
     // Relations
@@ -181,6 +183,7 @@ model SkillPackage {
     id          String                  @id @default(uuid()) @db.Uuid
     slug        String                  @db.VarChar(100) @unique
     name        String                  @db.VarChar(100)
+    sequence    Int
     status      RecordStatus            @default(Active)
 
     // Relations

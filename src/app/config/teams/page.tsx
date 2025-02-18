@@ -46,7 +46,7 @@ export default async function TeamsListPage() {
             <PageTitle>Manage Teams</PageTitle>
             <PageDescription>These are the teams that are available for use in RT+.</PageDescription>
             <PageControls>
-                <ServerProtect permission="system:write">
+                <ServerProtect permission="system:manage-teams">
                     <Button asChild>
                         <Link href={Paths.config.teams.new}>
                             <PlusIcon/> New Team

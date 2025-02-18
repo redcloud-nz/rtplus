@@ -93,5 +93,6 @@ export const personnelRouter = createTRPCRouter({
                     }
                 } 
             })
+            return updatedPerson
         })
 })

@@ -45,6 +45,7 @@ export const config = {
     },
     skillPackages: {
         index: '/config/skill-packages',
+        import : '/config/skill-packages/--import',
         new: '/config/skill-packages/--new',
         skillPackage: (skillPackageId: string) => ({
             index: `/config/skill-packages/${skillPackageId}`,

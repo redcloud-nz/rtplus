@@ -5,16 +5,22 @@
  *  Path: /config/skill-packages
  */
 
-import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
+import { ImportIcon } from 'lucide-react'
+
+import { AppPage, PageControls, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 import { Show } from '@/components/show'
 
 import { Alert } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
 import prisma from '@/server/prisma'
+import { ServerProtect } from '@/server/protect'
 
 import * as Paths from '@/paths'
+
+
 
 
 export default async function SkillPackageListPage() {
@@ -28,6 +34,16 @@ export default async function SkillPackageListPage() {
         <PageHeader>
             <PageTitle>Manage Skill Packages</PageTitle>
             <PageDescription>Manage the skill packages available in RT+.</PageDescription>
+            <PageControls>
+                <ServerProtect permission="system:manage-skill-packages">
+                    <Button variant="ghost" asChild>
+                        <Link href={Paths.config.skillPackages.import}>
+                            <ImportIcon/>
+                        </Link>
+                    </Button>
+                </ServerProtect>
+                
+            </PageControls>
         </PageHeader>
         <Show
             when={skillPackages.length > 0}

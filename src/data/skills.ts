@@ -3,12 +3,13 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { UUIDValidationSet } from '@/lib/id'
+import { createRandomSlug, UUIDValidationSet } from '@/lib/id'
 
 export interface SkillPackageDef {
     id: string
     name: string
-    slug: string | null
+    slug: string
+    sequence: number
     skillGroups: SkillGroupDef[]
     skills: SkillDef[]
 }
@@ -16,9 +17,10 @@ export interface SkillPackageDef {
 export interface SkillGroupDef {
     id: string
     name: string
-    slug: string | null
-    packageId: string
+    slug: string
+    skillPackageId: string
     parentId: string | null
+    sequence: number
     subGroups: SkillGroupDef[]
     skills: SkillDef[]
 }
@@ -26,48 +28,52 @@ export interface SkillGroupDef {
 export interface SkillDef {
     id: string
     name: string
-    slug?: string
-    packageId: string
+    slug: string
+    skillPackageId: string
     skillGroupId: string | null
     optional: boolean
     frequency: string
     description: string
+    sequence: number
 }
 
 const PLACEHOLDER = 'PLACEHOLDER' as const
 
 const vSet = new UUIDValidationSet()
 
-type SkillPackageArgs = Omit<SkillPackageDef, 'slug' | 'skills' | 'skillGroups'> & Partial<Pick<SkillPackageDef, 'skills' | 'skillGroups'>> & { slug?: string }
+type SkillPackageArgs = Omit<SkillPackageDef, | 'skills' | 'skillGroups'> & Partial<Pick<SkillPackageDef, 'skills' | 'skillGroups'>>
 
-function definePackage({ id: packageId, slug, ...pkg }: SkillPackageArgs): SkillPackageDef {
-    function patchSkillGroup(skillGroup: SkillGroupDef, parentId: string | null): SkillGroupDef {
+function definePackage({ id: skillPackageId, slug, ...pkg }: SkillPackageArgs): SkillPackageDef {
+    function patchSkill(skill: SkillDef, skillGroupId: string | null, sequence: number): SkillDef {
+        return { ...skill, skillPackageId, skillGroupId, sequence }
+    }
+    function patchSkillGroup(skillGroup: SkillGroupDef, parentId: string | null, sequence: number): SkillGroupDef {
         return { 
             ...skillGroup, 
-            packageId, 
+            skillPackageId, 
             parentId, 
-            skills: skillGroup.skills.map(skill => ({ ...skill, packageId, skillGroupId: skillGroup.id })), 
-            subGroups: skillGroup.subGroups.map(subGroup => patchSkillGroup(subGroup, skillGroup.id))
+            subGroups: skillGroup.subGroups.map((subGroup, subGroupIndex) => patchSkillGroup(subGroup, skillGroup.id, subGroupIndex+1)),
+            skills: skillGroup.skills.map((skill, skillIndex) => patchSkill(skill, skillGroup.id, skillIndex+1)), 
         }
     }
 
-    vSet.validate(packageId)
+    vSet.validate(skillPackageId)
 
     return { 
         ...pkg,
-        id: packageId,
-        slug: slug ?? null,
-        skillGroups: (pkg.skillGroups ?? []).map(skillGroup => patchSkillGroup(skillGroup, null)),
-        skills: (pkg.skills ?? []).map(skill => ({ ...skill, packageId, skillGroupId: null }))
+        id: skillPackageId,
+        slug,
+        skillGroups: (pkg.skillGroups ?? []).map((skillGroup, groupIndex) => patchSkillGroup(skillGroup, null, groupIndex+1)),
+        skills: (pkg.skills ?? []).map((skill, skillIndex) => patchSkill(skill, null, skillIndex+1))
     }
 }
 
-type SkillGroupArgs = Omit<SkillGroupDef, 'slug' | 'packageId' | 'parentId' | 'subGroups'> & Partial<Pick<SkillGroupDef, 'subGroups'>> & { slug?: string }
+type SkillGroupArgs = Omit<SkillGroupDef, 'skillPackageId' | 'parentId' | 'sequence' | 'subGroups'> & Partial<Pick<SkillGroupDef, 'subGroups'>>
 
 function defineGroup({id, slug, skills, subGroups = [], ...data }: SkillGroupArgs): SkillGroupDef {
     vSet.validate(id)
 
-    return { id, slug: slug ?? null, packageId: PLACEHOLDER, parentId: PLACEHOLDER, skills, subGroups, ...data }
+    return { id, slug: slug ?? null, skillPackageId: PLACEHOLDER, parentId: PLACEHOLDER, sequence: -1, skills, subGroups, ...data }
 }
 
 interface SkillArgs {
@@ -79,10 +85,10 @@ interface SkillArgs {
     description?: string
 }
 
-function defineSkill({ id, name, slug, optional = false, frequency = 'P1Y', description = "" }: SkillArgs): SkillDef {
+function defineSkill({ id, name, slug = createRandomSlug(), optional = false, frequency = 'P1Y', description = "" }: SkillArgs): SkillDef {
     vSet.validate(id)
 
-    return { id, name, slug, packageId: PLACEHOLDER, skillGroupId: PLACEHOLDER, optional, frequency, description }
+    return { id, name, slug, skillPackageId: PLACEHOLDER, skillGroupId: PLACEHOLDER, optional, frequency, description, sequence: -1 }
 }
 
 export const PackageList: SkillPackageDef[] = [
@@ -90,6 +96,7 @@ export const PackageList: SkillPackageDef[] = [
         id: "729d82a9-a4e1-41c2-9452-bc6a041dbad5", 
         name: "Foundation", 
         slug: "Foundation",
+        sequence: 1,
         skillGroups: [
             defineGroup({ 
                 id: "37c63e6d-db66-40bf-b524-c3a2f88a2793", 
@@ -143,6 +150,7 @@ export const PackageList: SkillPackageDef[] = [
         id: "04d86835-f898-45cd-bf8a-7254a819437a", 
         name: "Light Rescue", 
         slug: "Light-Rescue", 
+        sequence: 2,
         skillGroups: [
             defineGroup({ 
                 id: "65b1a42b-ede1-451c-8951-a07101224b15", 
@@ -248,10 +256,11 @@ export const PackageList: SkillPackageDef[] = [
             })
         ]
     }),
-    definePackage({ 
+    definePackage({
         id: "c7746384-e443-46e6-9217-18142be12c1f", 
         name: "Flood Response", 
         slug: "Flood", 
+        sequence: 3,
         skillGroups: [
             defineGroup({
                 id: "9a46c2d3-4719-49db-be74-622b0ae60619",
@@ -288,6 +297,7 @@ export const PackageList: SkillPackageDef[] = [
         id: "1402fccc-bbf5-4079-81fc-0adab7c426cd", 
         name: "Storm Response", 
         slug: "Storm", 
+        sequence: 4,
         skillGroups: [
             defineGroup({
                 id: "e8083684-0cad-467c-8278-118616b3b1dc",
@@ -323,6 +333,7 @@ export const PackageList: SkillPackageDef[] = [
         id: "94536808-8754-40fc-a215-6deec25e58d7", 
         name: "CDC & Welfare", 
         slug: "Welfare", 
+        sequence: 5,
         skillGroups: [
             defineGroup({
                 id: "06bbacf1-a5ce-49bd-a488-f30f9ffb0ff3",
@@ -342,6 +353,7 @@ export const PackageList: SkillPackageDef[] = [
         id: "33afba28-f132-4391-bedb-eab4a5105fde", 
         name: "Swiftwater Rescue", 
         slug: "Swiftwater", 
+        sequence: 6,
         skillGroups: [
             defineGroup({
                 id: "8b7f895b-5d6e-4973-bbb0-e741196afe9a",
@@ -370,16 +382,19 @@ export const PackageList: SkillPackageDef[] = [
             defineGroup({
                 id: "3ac8cd9d-3561-4b39-a453-e1cc4e312c3a",
                 name: "Non-powered Craft",
+                slug: "Swiftwater-Non-Powered-Craft",
                 skills: []
             }),
             defineGroup({
                 id: "157c6abb-467b-48ea-bf24-b52d12e008e3",
                 name: "Powered Craft",
+                slug: "Swiftwater-Powered-Craft",
                 skills: []
             }),
             defineGroup({
                 id: "eeb978ab-0ea6-4ae9-bd97-a11970d85ad4",
                 name: "Rescue from Vehicle",
+                slug: "Swiftwater-Rescue-Vehicle",
                 skills: []
             })
         ]
@@ -388,6 +403,7 @@ export const PackageList: SkillPackageDef[] = [
         id: "008c4441-3119-4fff-b16e-7f88ee6fba48", 
         name: "Rope Rescue", 
         slug: "Rope", 
+        sequence: 7,
         skillGroups: [
             defineGroup({
                 id: "019e9647-ff86-45a1-aae2-259be7322b88",
@@ -413,6 +429,7 @@ export const PackageList: SkillPackageDef[] = [
         id: "7e68ea5d-d17f-426b-a991-6478a2a57f40", 
         name: "Mass Casualty Support", 
         slug: "Mass-Casualty", 
+        sequence: 8,
         skillGroups: [
             defineGroup({
                 id: "c2f50c53-cd0f-439d-92b0-e0a87cfa9d69",
@@ -445,6 +462,7 @@ export const PackageList: SkillPackageDef[] = [
         id: "ef13f4ee-de20-4384-82d9-8fd842e4cbf7", 
         name: "Out of Region", 
         slug: "Out-Of-Region", 
+        sequence: 9,
         skillGroups: [
             defineGroup({
                 id: "01ab9f72-deda-4a05-801f-5e3280e1ff39",
@@ -476,6 +494,7 @@ export const PackageList: SkillPackageDef[] = [
         id: "6207d93f-ada3-4ef6-bc6b-a5ebc46daa89", 
         name: "Leadership", 
         slug: "Leadership", 
+        sequence: 10,
         skillGroups: [
             defineGroup({
                 id: "80deca5f-7bd2-4f02-b542-6a6f2e08c99f",
