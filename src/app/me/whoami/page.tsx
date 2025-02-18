@@ -15,19 +15,26 @@ import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 
 import { authenticated } from '@/server/auth'
 import prisma from '@/server/prisma'
-import { formatDateTime } from '@/lib/utils'
 
 
 
 export default async function WhoAmIPage() {
 
-    const { userPersonId } = await authenticated()
-    const user = (await currentUser())!
+    const { userId, userPersonId } = await authenticated()
+    const clerkUser = (await currentUser())!
 
     const person = userPersonId
         ? await prisma.person.findUnique({
             where: {
                 id: userPersonId
+            }
+        })
+        : null
+
+    const user = userId
+        ? await prisma.user.findUnique({
+            where: {
+                id: userId
             }
         })
         : null
@@ -47,24 +54,36 @@ export default async function WhoAmIPage() {
                 <CardContent>
                     <DL>
                         <DLTerm>Clerk User ID</DLTerm>
-                        <DLDetails>{user.id}</DLDetails>
+                        <DLDetails>{clerkUser.id}</DLDetails>
 
-                        {user.fullName && <>
+                        {clerkUser.fullName && <>
                             <DLTerm>Full Name</DLTerm>
-                            <DLDetails>{user.fullName}</DLDetails>
+                            <DLDetails>{clerkUser.fullName}</DLDetails>
                         </>}
-                        {user.primaryEmailAddress && <>
+                        {clerkUser.primaryEmailAddress && <>
                             <DLTerm>Primary Email Address</DLTerm>
-                            <DLDetails>{user.primaryEmailAddress.emailAddress}</DLDetails>
+                            <DLDetails>{clerkUser.primaryEmailAddress.emailAddress}</DLDetails>
                         </>}
-                        {user.primaryPhoneNumber && <>
+                        {clerkUser.primaryPhoneNumber && <>
                             <DLTerm>Primary Phone Number</DLTerm>
-                            <DLDetails>{user.primaryPhoneNumber.phoneNumber}</DLDetails>
+                            <DLDetails>{clerkUser.primaryPhoneNumber.phoneNumber}</DLDetails>
                         </>}
 
                         <DLTerm>Public Metadata</DLTerm>
                         
                     </DL>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Public Metadata</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <pre className="font-mono text-sm">
+                        <code>
+                            {JSON.stringify(clerkUser.publicMetadata, null, 2)}
+                        </code>
+                    </pre>
                 </CardContent>
             </Card>
             <Card>
@@ -82,12 +101,6 @@ export default async function WhoAmIPage() {
                             
                             <DLTerm>Email</DLTerm>
                             <DLDetails>{person.email}</DLDetails>
-
-                            <DLTerm>Created</DLTerm>
-                            <DLDetails>{formatDateTime(person.createdAt)}</DLDetails>
-
-                            <DLTerm>Updated</DLTerm>
-                            <DLDetails>{formatDateTime(person.updatedAt)}</DLDetails>
                         </DL>
                         : <Alert severity="warning" title="No matching person found."/>
                     }
@@ -95,14 +108,22 @@ export default async function WhoAmIPage() {
             </Card>
             <Card>
                 <CardHeader>
-                    <CardTitle>Public Metadata</CardTitle>
+                    <CardTitle>User</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <pre>
-                        <code>
-                            {JSON.stringify(user.publicMetadata, null, 2)}
-                        </code>
-                    </pre>
+                    {user
+                        ? <DL>
+                            <DLTerm>User ID</DLTerm>
+                            <DLDetails>{user.id}</DLDetails>
+                            
+                            <DLTerm>User name</DLTerm>
+                            <DLDetails>{user.name}</DLDetails>
+
+                            <DLTerm>Email</DLTerm>
+                            <DLDetails>{user.email}</DLDetails>
+                        </DL>
+                        : <Alert severity="warning" title="No matching user found."/>
+                    }
                 </CardContent>
             </Card>
         </CardGrid>

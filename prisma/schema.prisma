@@ -59,14 +59,14 @@ enum PersonChangeEvent {
 model PersonChangeLog {
     id          String            @id @default(uuid()) @db.Uuid
     personId    String            @map("person_id") @db.Uuid
-    userId      String            @map("user_id") @db.Uuid
+    actorId     String            @map("actor_id") @db.Uuid
     event       PersonChangeEvent
     description String            @default("")
     meta        Json              @default("{}")
     fields      Json              @default("{}")
     timestamp   DateTime          @default(now())
     person      Person            @relation("person_change_log_to_person", fields: [personId], references: [id])
-    user        User              @relation("person_change_log_to_user", fields: [userId], references: [id])
+    actor        User              @relation("person_change_log_to_actor", fields: [actorId], references: [id])
 
     @@map("personnel_change_log")
 }
@@ -210,7 +210,7 @@ enum SkillPackageChangeEvent {
 model SkillPackageChangeLog {
     id             String                  @id @default(uuid()) @db.Uuid()
     skillPackageId String                  @map("skill_package_id") @db.Uuid
-    userId         String                  @map("user_id") @db.Uuid
+    actorId        String                 @map("actor_id") @db.Uuid
     event          SkillPackageChangeEvent
     description    String                  @default("")
     meta           Json                    @default("{}")
@@ -219,7 +219,7 @@ model SkillPackageChangeLog {
 
     // Relations
     skillPackage   SkillPackage            @relation("skill_package_change_log_to_skill_package", fields: [skillPackageId], references: [id])
-    user           User                    @relation("skill_package_change_log_to_user", fields: [userId], references: [id])
+    actor          User                    @relation("skill_package_change_log_to_actor", fields: [actorId], references: [id])
 
     @@map("skill_packages_change_log")
 }
@@ -257,7 +257,7 @@ enum TeamChangeEvent {
 model TeamChangeLog {
     id          String          @id @default(uuid()) @db.Uuid
     teamId      String          @map("team_id") @db.Uuid
-    userId      String          @map("user_id") @db.Uuid
+    actorId     String          @map("actor_id") @db.Uuid
     event       TeamChangeEvent
     description String          @default("")
     meta        Json            @default("{}")
@@ -266,7 +266,7 @@ model TeamChangeLog {
 
     // Relations
     team        Team            @relation("team_change_log_to_team", fields: [teamId], references: [id])
-    user        User            @relation("team_change_log_to_user", fields: [userId], references: [id])
+    actor       User            @relation("team_change_log_to_actor", fields: [actorId], references: [id])
 
     @@map("teams_change_log")
 }
@@ -337,6 +337,7 @@ model User {
     id                 String                      @id @default(uuid()) @db.Uuid
     personId           String?                     @map("person_id") @db.Uuid @unique
     clerkUserId        String?                     @map("clerk_user_id") @db.VarChar(50) @unique
+    clerkStatus        String                       
     name               String
     email              String
     systemPermissions  String[]
@@ -346,12 +347,13 @@ model User {
     changeLogs             UserChangeLog[]         @relation("user_change_log_to_user")
     d4hAccessKeys          D4hAccessKey[]          @relation("d4h_access_key_to_user")
     person                 Person?                 @relation("user_to_person", fields: [personId], references: [id])
-    personChangeLogs       PersonChangeLog[]       @relation("person_change_log_to_user")
+    personChangeLogs       PersonChangeLog[]       @relation("person_change_log_to_actor")
     skillChecks            SkillCheck[]            @relation("skill_check_to_user")
     skillCheckSessions     SkillCheckSession[]     @relation("skill_check_session_to_user")
-    skillPackageChangeLogs SkillPackageChangeLog[] @relation("skill_package_change_log_to_user")
-    teamChangeLogs         TeamChangeLog[]         @relation("team_change_log_to_user")
+    skillPackageChangeLogs SkillPackageChangeLog[] @relation("skill_package_change_log_to_actor")
+    teamChangeLogs         TeamChangeLog[]         @relation("team_change_log_to_actor")
     teamPermissions        TeamPermission[]        @relation("team_permission_to_user")
+    userChangeLogs         UserChangeLog[]         @relation("user_change_log_to_actor")
 
     @@map("users")
 }
@@ -368,6 +370,7 @@ enum UserChangeEvent {
 model UserChangeLog {
     id          String          @id @default(uuid()) @db.Uuid
     userId      String          @map("user_id") @db.Uuid
+    actorId     String          @map("actor_id") @db.Uuid
     event       UserChangeEvent
     description String          @default("")
     meta        Json            @default("{}")
@@ -376,6 +379,7 @@ model UserChangeLog {
 
     // Relations
     user        User            @relation("user_change_log_to_user", fields: [userId], references: [id])
+    actor       User            @relation("user_change_log_to_actor", fields: [actorId], references: [id])
 
     @@map("users_change_log")
 }

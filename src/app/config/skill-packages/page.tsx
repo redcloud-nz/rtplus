@@ -22,14 +22,13 @@ import * as Paths from '@/paths'
 
 
 
-
 export default async function SkillPackageListPage() {
 
     const skillPackages = await prisma.skillPackage.findMany({})
 
     return <AppPage
         label="Skill Packages" 
-        breadcrumbs={[{ label: "Configre", href: Paths.config.index }]}
+        breadcrumbs={[{ label: "Configure", href: Paths.config.index }]}
     >
         <PageHeader>
             <PageTitle>Manage Skill Packages</PageTitle>

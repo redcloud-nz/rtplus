@@ -51,7 +51,7 @@ export const personnelRouter = createTRPCRouter({
                     ...input,
                     changeLogs: { 
                         create: { 
-                            userId: ctx.userId,
+                            actorId: ctx.userId,
                             event: 'Create',
                             fields: input
                         }
@@ -86,7 +86,7 @@ export const personnelRouter = createTRPCRouter({
                     ...input,
                     changeLogs: { 
                         create: { 
-                            userId: ctx.userId,
+                            actorId: ctx.userId,
                             event: 'Update',
                             fields: input
                         }

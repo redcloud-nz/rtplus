@@ -21,9 +21,10 @@ import * as Paths from '@/paths'
 
 export type HeaderControlsProps = React.ComponentPropsWithRef<'div'> & {
     children?: React.ReactNode
+    showSignIn?: boolean
 }
 
-export function HeaderControls({ children, className,  ...props}: HeaderControlsProps) {
+export function HeaderControls({ children, className, showSignIn = true, ...props}: HeaderControlsProps) {
 
     const { orgSlug } = useAuth()
     const { user } = useUser()
@@ -127,11 +128,11 @@ export function HeaderControls({ children, className,  ...props}: HeaderControls
                     </DropdownMenuContent>
                 </DropdownMenu>
             </>
-            : <>
+            : (showSignIn && <>
                 <SignInButton>
                     <Button variant="outline"><LogInIcon/> Sign In</Button>
                 </SignInButton>
-            </>
+            </>)
         }
     </div>
 }

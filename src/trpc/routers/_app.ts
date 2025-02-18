@@ -5,12 +5,13 @@
 
 import { createTRPCRouter } from '../init'
 
+import { currentTeamRouter } from './current-team'
 import { currentUserRouter } from './current-user'
 import { permissionsRouter } from './permissions'
 import { personnelRouter } from './personnel'
 import { skillPackagesRouter } from './skill-packages'
-import { currentTeamRouter } from './current-team'
 import { teamsRouter } from './teams'
+import { usersRouter } from './users'
 
 
 export const appRouter = createTRPCRouter({
@@ -19,7 +20,8 @@ export const appRouter = createTRPCRouter({
     permissions: permissionsRouter,
     personnel: personnelRouter,
     skillPackages: skillPackagesRouter,
-    teams: teamsRouter
+    teams: teamsRouter,
+    users: usersRouter
 })
 
 export type AppRouter = typeof appRouter

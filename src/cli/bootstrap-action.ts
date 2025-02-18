@@ -5,50 +5,75 @@
 'use server'
 
 import { currentUser } from '@clerk/nextjs/server'
-import { Person } from '@prisma/client'
+import { Person, User } from '@prisma/client'
 
-import { Permissions } from '@/lib/permissions'
+import { createUUID } from '@/lib/id'
 import { authenticated } from '@/server/auth'
 import prisma from '@/server/prisma'
-
 
 
 interface BootstrapActionResult {
     success: boolean
     person?: Person
+    user?: User
 }
 
 export async function bootstrapAction(): Promise<BootstrapActionResult> {
     
-    const { userPersonId, hasPermission } = await authenticated()
+    const { userId, userPersonId = createUUID(), hasPermission, permissions } = await authenticated()
     const user = (await currentUser())!
 
     if (!hasPermission('system:write')) {
         throw 'You do not have permission to bootstrap the system'
     }
 
-    const personCount = await prisma.person.count()
+    const userCount = await prisma.user.count()
 
+    let createdUser: User | undefined = undefined
     let createdPerson: Person | undefined = undefined
-    if(personCount == 0 && userPersonId != undefined) {
+    if(userCount == 0 && userId != undefined) {
+        const name = (user.firstName ?? '') + ' ' + (user.lastName ?? '')
+        const email = user.primaryEmailAddress?.emailAddress ?? ''
+
         createdPerson = await prisma.person.create({
             data: {
                 id: userPersonId,
-                name: (user.firstName ?? '') + ' ' + (user.lastName ?? ''),
-                email: user.primaryEmailAddress?.emailAddress ?? '',
-                clerkUserId: user.id,
-                systemPermissions: {
+                slug: userPersonId,
+                name, email,
+            }
+        })
+
+        createdUser = await prisma.user.create({
+            data: {
+                id: userId,
+                personId: userPersonId,
+                name, email,
+                changeLogs: {
                     create: {
-                        permissions: [Permissions.SystemWrite]
+                        actorId: userId,
+                        event: 'Create',
+                        fields: { personId: userPersonId, name, email }
                     }
                 }
             }
         })
+
+        await prisma.personChangeLog.create({
+            data: {
+                actorId: userId,
+                personId: userPersonId,
+                event: 'Create',
+                fields: { name, email }
+            }
+        })
+
+        
     }
 
     return { 
-        success: createdPerson != undefined,
-        person: createdPerson
+        success: createdUser != undefined,
+        person: createdPerson,
+        user: createdUser
     }
 
 }

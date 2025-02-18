@@ -71,10 +71,10 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
 
     if(storedPackage) {
         // Existing Package
-        const existingData = R.pick(storedPackage, ['id', 'name', 'slug', 'sequence'])
+        const existingData = R.pick(storedPackage, ['name', 'slug', 'sequence'])
         const changes = R.pipe(
             skillPackage, 
-            R.pick(['id', 'name', 'slug', 'sequence']),
+            R.pick(['name', 'slug', 'sequence']),
             R.entries(), 
             R.filter(([key, value]) => value !== existingData[key]),
             R.fromEntries()
@@ -89,7 +89,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
                     changeLogs: {
                         create: {
                             event: 'Update',
-                            userId: ctx.userId,
+                            actorId: ctx.userId,
                             timestamp: new Date(),
                             fields: changes,
                             description: "Imported skill package"
@@ -101,7 +101,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
         }
     } else {
         // New Package
-        const fields = R.pick(skillPackage, ['name', 'slug', 'sequence'])
+        const fields = R.pick(skillPackage, ['id', 'name', 'slug', 'sequence'])
 
         await ctx.prisma.skillPackage.create({ 
             data: {
@@ -109,7 +109,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
                 changeLogs: {
                     create: {
                         event: 'Create',
-                        userId: ctx.userId,
+                        actorId: ctx.userId,
                         timestamp: new Date(),
                         fields: fields,
                         description: "Import skill package"
@@ -137,12 +137,15 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
         const timestamp = new Date()
         await ctx.prisma.$transaction([
             ctx.prisma.skillGroup.createMany({ 
-                data: groupsToAdd,
+                data: groupsToAdd.map(group => ({
+                    ...group,
+                    skillPackageId: skillPackage.id
+                }))
             }),
             ctx.prisma.skillPackageChangeLog.createMany({ 
                 data: groupsToAdd.map(group => ({
                     event: 'CreateGroup',
-                    userId: ctx.userId,
+                    actorId: ctx.userId,
                     skillPackageId: group.skillPackageId,
                     timestamp,
                     fields: group,
@@ -175,7 +178,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
                 ctx.prisma.skillPackageChangeLog.create({
                     data: {
                         event: 'UpdateGroup',
-                        userId: ctx.userId,
+                        actorId: ctx.userId,
                         skillPackageId: group.skillPackageId,
                         timestamp: new Date(),
                         fields: changes,
@@ -211,7 +214,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
             ctx.prisma.skillPackageChangeLog.createMany({ 
                 data: skillsToAdd.map(skill => ({
                     event: 'CreateSkill',
-                    userId: ctx.userId,
+                    actorId: ctx.userId,
                     skillPackageId: skillPackage.id,
                     timestamp,
                     fields: { ...skill },
@@ -225,8 +228,39 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
 
     // Skills that could need updating
     for(const skill of skillsToImport) {
+        const storedSkill = storedSkills.find(c => c.id == skill.id)
+        if(!storedSkill) continue // New skill
 
+        const changes = R.pipe(
+            skill, 
+            R.pick(['name', 'sequence', 'description', 'skillGroupId']),
+            R.entries(), 
+            R.filter(([key, value]) => value !== storedSkill[key]),
+            R.fromEntries()
+        )
+
+        if(!R.isEmpty(changes)) {
+            await ctx.prisma.$transaction([
+                ctx.prisma.skill.update({
+                    where: { id: skill.id },
+                    data: changes
+                }),
+                ctx.prisma.skillPackageChangeLog.create({
+                    data: {
+                        event: 'UpdateSkill',
+                        actorId: ctx.userId,
+                        skillPackageId: skillPackage.id,
+                        timestamp: new Date(),
+                        fields: changes,
+                        description: "Imported skill package"
+                    }
+                })
+            ])
+            changeCounts.skills.update
+        }
     }
+
+    // TODO - Delete skills that are no longer in the package
 
     return changeCounts
 }

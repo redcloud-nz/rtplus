@@ -7,7 +7,7 @@ import * as R from 'remeda'
 import { z } from 'zod'
 
 import { clerkClient } from '@clerk/nextjs/server'
-import { Prisma, Team } from '@prisma/client'
+import { Team } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
 import { createTeamFormSchema } from '@/lib/forms/create-team'
@@ -88,7 +88,7 @@ export const teamsRouter = createTRPCRouter({
                     ...input, id: teamId, clerkOrgId: organization.id,
                     changeLogs: { 
                         create: { 
-                            userId: ctx.userId,
+                            actorId: ctx.userId,
                             event: 'Create',
                             fields: input
                         }
@@ -208,7 +208,7 @@ export const teamsRouter = createTRPCRouter({
                     ...data,
                     changeLogs: { 
                         create: { 
-                            userId: ctx.userId,
+                            actorId: ctx.userId,
                             event: 'Update',
                             fields: data
                         }
