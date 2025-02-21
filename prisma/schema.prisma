@@ -23,8 +23,8 @@ model D4hAccessKey {
     createdAt DateTime @default(now()) @map("created_at")
 
     // Relations
-    user      User?    @relation("d4h_access_key_to_user", fields: [userId], references: [id])
-    team      Team     @relation("d4h_access_key_to_team", fields: [teamId], references: [id])
+    user      User?    @relation("d4h_access_key_to_user", fields: [userId], references: [id], onDelete: Cascade)
+    team      Team     @relation("d4h_access_key_to_team", fields: [teamId], references: [id], onDelete: Cascade)
 
     @@map("d4h_access_keys")
 }
@@ -59,14 +59,14 @@ enum PersonChangeEvent {
 model PersonChangeLog {
     id          String            @id @default(uuid()) @db.Uuid
     personId    String            @map("person_id") @db.Uuid
-    actorId     String            @map("actor_id") @db.Uuid
+    actorId     String?            @map("actor_id") @db.Uuid
     event       PersonChangeEvent
     description String            @default("")
     meta        Json              @default("{}")
     fields      Json              @default("{}")
     timestamp   DateTime          @default(now())
-    person      Person            @relation("person_change_log_to_person", fields: [personId], references: [id])
-    actor        User              @relation("person_change_log_to_actor", fields: [actorId], references: [id])
+    person      Person            @relation("person_change_log_to_person", fields: [personId], references: [id], onDelete: Cascade)
+    actor       User?             @relation("person_change_log_to_actor", fields: [actorId], references: [id], onDelete: SetNull)
 
     @@map("personnel_change_log")
 }
@@ -93,8 +93,8 @@ model Skill {
 
     // Relations
     checks             SkillCheck[]        @relation("skill_check_to_skill")
-    skillPackage       SkillPackage        @relation("skill_to_skill_package", fields: [skillPackageId], references: [id])
-    skillGroup         SkillGroup?         @relation("skill_to_skill_group", fields: [skillGroupId], references: [id])
+    skillPackage       SkillPackage        @relation("skill_to_skill_package", fields: [skillPackageId], references: [id], onDelete: Cascade)
+    skillGroup         SkillGroup?         @relation("skill_to_skill_group", fields: [skillGroupId], references: [id], onDelete: SetNull)
     skillCheckSessions SkillCheckSession[] @relation("skill_check_session_to_skill")
 
     @@map("skills")
@@ -112,11 +112,11 @@ model SkillCheck {
     timestamp       DateTime                  @default(now())
 
     // Relations
-    session         SkillCheckSession?        @relation("skill_check_to_skill_check_session", fields: [sessionId], references: [id])
-    assessee        Person                    @relation("skill_check_to_assessee", fields: [assesseeId], references: [id])
-    assessor        Person                    @relation("skill_check_to_assessor", fields: [assessorId], references: [id])
-    skill           Skill                     @relation("skill_check_to_skill", fields: [skillId], references: [id])
-    user            User                      @relation("skill_check_to_user", fields: [userId], references: [id])
+    session         SkillCheckSession?        @relation("skill_check_to_skill_check_session", fields: [sessionId], references: [id], onDelete: SetNull)
+    assessee        Person                    @relation("skill_check_to_assessee", fields: [assesseeId], references: [id], onDelete: Cascade)
+    assessor        Person                    @relation("skill_check_to_assessor", fields: [assessorId], references: [id], onDelete: Restrict)
+    skill           Skill                     @relation("skill_check_to_skill", fields: [skillId], references: [id], onDelete: Cascade)
+    user            User                      @relation("skill_check_to_user", fields: [userId], references: [id], onDelete: Restrict)
 
     @@map("skill_checks")
 }
@@ -140,11 +140,11 @@ model SkillCheckSession {
     updatedAt     DateTime                @updatedAt @map("updated_at")
 
     // Relations
-    assessor      Person                  @relation("skill_check_session_to_assessor", fields: [assessorId], references: [id])
+    assessor      Person                  @relation("skill_check_session_to_assessor", fields: [assessorId], references: [id], onDelete: Restrict)
     assessees     Person[]                @relation("skill_check_session_to_assessee")
     checks        SkillCheck[]            @relation("skill_check_to_skill_check_session")
     skills        Skill[]                 @relation("skill_check_session_to_skill")
-    user          User                    @relation("skill_check_session_to_user", fields: [userId], references: [id])
+    user          User                    @relation("skill_check_session_to_user", fields: [userId], references: [id], onDelete: Restrict)
 }
 
 enum SkillCheckSessionStatus {
@@ -170,8 +170,8 @@ model SkillGroup {
     status         RecordStatus @default(Active)
 
     // Relations
-    skillPackage   SkillPackage @relation("skill_group_to_skill_package", fields: [skillPackageId], references: [id])
-    parent         SkillGroup?  @relation("skill_group_to_parent", fields: [parentId], references: [id])
+    skillPackage   SkillPackage @relation("skill_group_to_skill_package", fields: [skillPackageId], references: [id], onDelete: Cascade)
+    parent         SkillGroup?  @relation("skill_group_to_parent", fields: [parentId], references: [id], onDelete: SetNull)
     children       SkillGroup[] @relation("skill_group_to_parent")
     skills         Skill[]      @relation("skill_to_skill_group")
 
@@ -210,7 +210,7 @@ enum SkillPackageChangeEvent {
 model SkillPackageChangeLog {
     id             String                  @id @default(uuid()) @db.Uuid()
     skillPackageId String                  @map("skill_package_id") @db.Uuid
-    actorId        String                 @map("actor_id") @db.Uuid
+    actorId        String?                 @map("actor_id") @db.Uuid
     event          SkillPackageChangeEvent
     description    String                  @default("")
     meta           Json                    @default("{}")
@@ -218,8 +218,8 @@ model SkillPackageChangeLog {
     timestamp      DateTime                @default(now())
 
     // Relations
-    skillPackage   SkillPackage            @relation("skill_package_change_log_to_skill_package", fields: [skillPackageId], references: [id])
-    actor          User                    @relation("skill_package_change_log_to_actor", fields: [actorId], references: [id])
+    skillPackage   SkillPackage            @relation("skill_package_change_log_to_skill_package", fields: [skillPackageId], references: [id], onDelete: Cascade)
+    actor          User?                   @relation("skill_package_change_log_to_actor", fields: [actorId], references: [id], onDelete: SetNull)
 
     @@map("skill_packages_change_log")
 }
@@ -257,7 +257,7 @@ enum TeamChangeEvent {
 model TeamChangeLog {
     id          String          @id @default(uuid()) @db.Uuid
     teamId      String          @map("team_id") @db.Uuid
-    actorId     String          @map("actor_id") @db.Uuid
+    actorId     String?          @map("actor_id") @db.Uuid
     event       TeamChangeEvent
     description String          @default("")
     meta        Json            @default("{}")
@@ -265,8 +265,8 @@ model TeamChangeLog {
     timestamp   DateTime        @default(now())
 
     // Relations
-    team        Team            @relation("team_change_log_to_team", fields: [teamId], references: [id])
-    actor       User            @relation("team_change_log_to_actor", fields: [actorId], references: [id])
+    team        Team            @relation("team_change_log_to_team", fields: [teamId], references: [id], onDelete: Cascade)
+    actor       User?           @relation("team_change_log_to_actor", fields: [actorId], references: [id], onDelete: SetNull)
 
     @@map("teams_change_log")
 }
@@ -279,7 +279,7 @@ model TeamD4hInfo {
     status    RecordStatus @default(Active)
 
     // Relations
-    team      Team         @relation("team_d4h_info_to_team", fields:[teamId], references: [id])
+    team      Team         @relation("team_d4h_info_to_team", fields:[teamId], references: [id], onDelete: Cascade)
 
     @@map("team_d4h_info")
 }
@@ -292,8 +292,8 @@ model TeamMembership {
   
     // Relations
     d4hInfo     TeamMembershipD4hInfo? @relation("team_membership_to_d4h_info")
-    person      Person                 @relation("team_membership_to_person", fields: [personId], references: [id])
-    team        Team                   @relation("team_membership_to_team", fields: [teamId], references: [id])
+    person      Person                 @relation("team_membership_to_person", fields: [personId], references: [id], onDelete: Cascade)
+    team        Team                   @relation("team_membership_to_team", fields: [teamId], references: [id], onDelete: Cascade)
 
     @@map("team_memberships")
 }
@@ -306,7 +306,7 @@ model TeamMembershipD4hInfo {
     d4hRef           String                  @map("d4h_ref")
 
     // Relations
-    teamMembership   TeamMembership          @relation("team_membership_to_d4h_info", fields: [teamMembershipId], references: [id])                  
+    teamMembership   TeamMembership          @relation("team_membership_to_d4h_info", fields: [teamMembershipId], references: [id], onDelete: Cascade)                  
 
     @@map("team_memberships_d4h_info")
 }
@@ -325,8 +325,8 @@ model TeamPermission {
     permissions String[]
 
     // Relations
-    team        Team     @relation("team_permission_to_team", fields: [teamId], references: [id])
-    user        User     @relation("team_permission_to_user", fields: [userId], references: [id])
+    team        Team     @relation("team_permission_to_team", fields: [teamId], references: [id], onDelete: Cascade)
+    user        User     @relation("team_permission_to_user", fields: [userId], references: [id], onDelete: Cascade)
 
     @@id([userId, teamId])
     @@map("team_permissions")
@@ -334,20 +334,21 @@ model TeamPermission {
 
 /// defines user that can log in and interact with the system. May or may not be connected to a person.
 model User {
-    id                 String                      @id @default(uuid()) @db.Uuid
-    personId           String?                     @map("person_id") @db.Uuid @unique
-    clerkUserId        String?                     @map("clerk_user_id") @db.VarChar(50) @unique
-    clerkStatus        String                       
-    name               String
-    email              String
-    systemPermissions  String[]
-    status             RecordStatus                @default(Active)
+    id                     String                  @id @default(uuid()) @db.Uuid
+    personId               String?                 @map("person_id") @db.Uuid @unique
+    clerkUserId            String?                 @map("clerk_user_id") @db.VarChar(50) @unique
+    onboardingStatus       UserOnboardingStatus    @map("onboarding_status")
+    name                   String
+    email                  String
+    systemPermissions      String[]
+    status                 RecordStatus            @default(Active)
 
     // Relations
     changeLogs             UserChangeLog[]         @relation("user_change_log_to_user")
     d4hAccessKeys          D4hAccessKey[]          @relation("d4h_access_key_to_user")
-    person                 Person?                 @relation("user_to_person", fields: [personId], references: [id])
+    person                 Person?                 @relation("user_to_person", fields: [personId], references: [id], onDelete: SetNull)
     personChangeLogs       PersonChangeLog[]       @relation("person_change_log_to_actor")
+    policyAcceptances      UserPolicyAcceptance[]  @relation("user_policy_acceptance_to_user")
     skillChecks            SkillCheck[]            @relation("skill_check_to_user")
     skillCheckSessions     SkillCheckSession[]     @relation("skill_check_session_to_user")
     skillPackageChangeLogs SkillPackageChangeLog[] @relation("skill_package_change_log_to_actor")
@@ -370,7 +371,7 @@ enum UserChangeEvent {
 model UserChangeLog {
     id          String          @id @default(uuid()) @db.Uuid
     userId      String          @map("user_id") @db.Uuid
-    actorId     String          @map("actor_id") @db.Uuid
+    actorId     String?         @map("actor_id") @db.Uuid
     event       UserChangeEvent
     description String          @default("")
     meta        Json            @default("{}")
@@ -378,8 +379,28 @@ model UserChangeLog {
     timestamp   DateTime        @default(now())
 
     // Relations
-    user        User            @relation("user_change_log_to_user", fields: [userId], references: [id])
-    actor       User            @relation("user_change_log_to_actor", fields: [actorId], references: [id])
+    user        User            @relation("user_change_log_to_user", fields: [userId], references: [id], onDelete: Cascade)
+    actor       User?           @relation("user_change_log_to_actor", fields: [actorId], references: [id], onDelete: SetNull)
 
     @@map("users_change_log")
+}
+
+enum UserOnboardingStatus {
+    NotStarted
+    Invited
+    Decline
+    Complete
+}
+
+model UserPolicyAcceptance {
+    id            String   @id @default(uuid()) @db.Uuid
+    userId        String   @map("user_id") @db.Uuid
+    policyKey     String   @map("policy_key") @db.VarChar(50)
+    policyVersion Int      @map("policy_version")
+    acceptedAt    DateTime @map("accepted_at") @default(now())
+
+    // Relations
+    user          User     @relation("user_policy_acceptance_to_user", fields: [userId], references: [id], onDelete: Cascade)
+
+    @@map("user_policy_acceptances")
 }

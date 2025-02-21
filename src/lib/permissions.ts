@@ -6,6 +6,7 @@
 import * as R from 'remeda'
 
 import { validateUUID } from './id'
+import { TeamPermission } from '@prisma/client'
 
 export const Permissions = {
     ManagePersonnel: 'system:manage-personnel',
@@ -47,11 +48,25 @@ export const SystemPermissionKeyToShortKeyMap: Record<SystemPermissionKey, Syste
     'system:write': 'w',
 }
 
+export const SystemShortKeyToPermissionKeyMap: Record<SystemShortKey, SystemPermissionKey> = {
+    'p': 'system:manage-personnel',
+    's': 'system:manage-skill-packages',
+    't': 'system:manage-teams',
+    'w': 'system:write',
+}
+
 export const TeamPermissionKeyToShortKeyMap: Record<TeamPermissionKey, TeamShortKey> = {
     'team:assess-skills': 'a',
     'team:manage-members': 'm',
     'team:read': 'r',
     'team:write': 'w',
+}
+
+export const TeamShortKeyToPermissionKeyMap: Record<TeamShortKey, TeamPermissionKey> = {
+    'a': 'team:assess-skills',
+    'm': 'team:manage-members',
+    'r': 'team:read',
+    'w': 'team:write',
 }
 
 export type CompactPermissions = Pick<CustomJwtSessionClaims, 'rt_sp' | 'rt_tp'>
@@ -90,4 +105,20 @@ export function checkSessionPermissions(sessionClaims: CompactPermissions | null
     }
 
     throw new Error(`Unknown permission prefix: ${permission}`)
+}
+
+export function buildCompactSystemPermissions(permissions: SystemPermissionKey[]): UserPublicMetadata['systemPermissions'] {
+    return permissions.map(p => SystemPermissionKeyToShortKeyMap[p]).sort().join('') as SystemShortPermissions
+}
+
+export function buildCompactTeamPermissions(permissions: TeamPermission[]): UserPublicMetadata['teamPermissions'] {
+    const result: UserPublicMetadata['teamPermissions'] = {}
+
+    for(const tp of permissions) {
+        const shortId = tp.teamId.substring(0, 8)
+        const shortPermissions = (tp.permissions as TeamPermissionKey[]).map(p => TeamPermissionKeyToShortKeyMap[p]).sort().join('') as TeamShortPermissions
+        result[shortId] = shortPermissions
+    }
+
+    return result
 }

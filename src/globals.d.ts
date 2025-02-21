@@ -5,6 +5,8 @@
 
 import '@tanstack/react-table'
 
+import { UserOnboardingStatus } from '@prisma/client'
+
 import type { SystemShortPermissions, TeamShortPermissions } from './lib/permissions'
 
 declare module '@tanstack/react-table' {
@@ -28,6 +30,7 @@ declare global {
         userPersonId: string | undefined
         systemPermissions: SystemShortPermissions
         teamPermissions: Record<string, TeamShortPermissions>
+        onboardingStatus: UserOnboardingStatus
     }
     interface CustomJwtSessionClaims {
         org_name: string
@@ -35,5 +38,6 @@ declare global {
         rt_pid: string | undefined
         rt_sp: SystemShortPermissions
         rt_tp: Record<string, TeamShortPermissions>
+        rt_uos: UserOnboardingStatus
     }
 }

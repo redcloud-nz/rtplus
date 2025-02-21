@@ -22,13 +22,16 @@ import * as Paths from '@/paths'
 export type HeaderControlsProps = React.ComponentPropsWithRef<'div'> & {
     children?: React.ReactNode
     showSignIn?: boolean
+    hidden?: boolean
 }
 
-export function HeaderControls({ children, className, showSignIn = true, ...props}: HeaderControlsProps) {
+export function HeaderControls({ children, className, hidden, showSignIn = true, ...props}: HeaderControlsProps) {
 
     const { orgSlug } = useAuth()
     const { user } = useUser()
     const clerk = useClerk()
+
+    if(hidden) return null
   
     return <div className={cn("flex gap-1 items-center px-1", className)} {...props}>
         {children}

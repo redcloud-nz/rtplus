@@ -23,11 +23,8 @@ export async function getUserPermissions(ctx: AuthenticatedContext, userId: stri
         })
     ])
 
-
-    if(user === null) throw new TRPCError({ code: 'NOT_FOUND' })
-
     return {
-        systemPermissions: (user.systemPermissions) as SystemPermissionKey[],
+        systemPermissions: (user?.systemPermissions ?? []) as SystemPermissionKey[],
         teamPermissions: teamPermissions.map(({ team, permissions }) => ({ 
             team: R.pick(team, ['id', 'name', 'shortName', 'slug']),
             permissions: permissions as TeamPermissionKey[]

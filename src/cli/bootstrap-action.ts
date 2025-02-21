@@ -10,6 +10,7 @@ import { Person, User } from '@prisma/client'
 import { createUUID } from '@/lib/id'
 import { authenticated } from '@/server/auth'
 import prisma from '@/server/prisma'
+import { SystemShortKey, SystemShortKeyToPermissionKeyMap } from '@/lib/permissions'
 
 
 interface BootstrapActionResult {
@@ -21,7 +22,7 @@ interface BootstrapActionResult {
 export async function bootstrapAction(): Promise<BootstrapActionResult> {
     
     const { userId, userPersonId = createUUID(), hasPermission, permissions } = await authenticated()
-    const user = (await currentUser())!
+    const clerkUser = (await currentUser())!
 
     if (!hasPermission('system:write')) {
         throw 'You do not have permission to bootstrap the system'
@@ -32,8 +33,8 @@ export async function bootstrapAction(): Promise<BootstrapActionResult> {
     let createdUser: User | undefined = undefined
     let createdPerson: Person | undefined = undefined
     if(userCount == 0 && userId != undefined) {
-        const name = (user.firstName ?? '') + ' ' + (user.lastName ?? '')
-        const email = user.primaryEmailAddress?.emailAddress ?? ''
+        const name = (clerkUser.firstName ?? '') + ' ' + (clerkUser.lastName ?? '')
+        const email = clerkUser.primaryEmailAddress?.emailAddress ?? ''
 
         createdPerson = await prisma.person.create({
             data: {
@@ -47,7 +48,10 @@ export async function bootstrapAction(): Promise<BootstrapActionResult> {
             data: {
                 id: userId,
                 personId: userPersonId,
+                clerkUserId: clerkUser.id,
                 name, email,
+                onboardingStatus: 'Complete',
+                systemPermissions: { set: permissions.rt_sp.split('').map(k => SystemShortKeyToPermissionKeyMap[k as SystemShortKey]) },
                 changeLogs: {
                     create: {
                         actorId: userId,

@@ -3,6 +3,8 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
+import { PolicyKeyType } from "./lib/policy"
+
 //  /------------------------------\
 //  |        Configuration         |
 //  \------------------------------/
@@ -59,6 +61,11 @@ export const imports = {
     personnel: '/config/imports/personnel',
     skillPackage: '/config/imports/skill-package',
 } as const
+
+export const policies = {
+    index: '/policies',
+    policy: (policyKey: PolicyKeyType) => `/policies/${policyKey}`,
+}
 
 // Switch Team
 export const switchTeam = `/switch-team`
