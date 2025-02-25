@@ -8,6 +8,7 @@ import * as React from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 
 import { cn } from '@/lib/utils'
+import { Alert } from './alert'
 
 
 type CardProps = React.ComponentPropsWithRef<'div'> & {
@@ -38,7 +39,6 @@ export function Card({ boundary, className, children, loading = false, ...props 
             </div>
             : children
         }
-       
     </div>
 
 }
@@ -84,4 +84,23 @@ export function CardGrid({ className, ...props}: React.ComponentPropsWithRef<'di
         className={cn("grid grid-cols-1 lg:grid-cols-2 gap-4", className)}
         {...props}
     />
+}
+
+export function CardBoundary({ children}: { children: React.ReactNode }) {
+
+    return <ErrorBoundary 
+        fallback={<Card>
+            <Alert severity="error" title="An error occurred"/>
+        </Card>}
+    >
+        <React.Suspense 
+            fallback={<Card>
+                <div className="h-full w-full flex items-center justify-center">
+                    <LoaderCircleIcon className="animate-spin"/>
+                </div>
+            </Card>}
+        >
+            {children}
+        </React.Suspense>
+    </ErrorBoundary>
 }

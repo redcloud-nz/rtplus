@@ -59,7 +59,7 @@ enum PersonChangeEvent {
 model PersonChangeLog {
     id          String            @id @default(uuid()) @db.Uuid
     personId    String            @map("person_id") @db.Uuid
-    actorId     String?            @map("actor_id") @db.Uuid
+    actorId     String?           @map("actor_id") @db.Uuid
     event       PersonChangeEvent
     description String            @default("")
     meta        Json              @default("{}")
@@ -257,7 +257,7 @@ enum TeamChangeEvent {
 model TeamChangeLog {
     id          String          @id @default(uuid()) @db.Uuid
     teamId      String          @map("team_id") @db.Uuid
-    actorId     String?          @map("actor_id") @db.Uuid
+    actorId     String?         @map("actor_id") @db.Uuid
     event       TeamChangeEvent
     description String          @default("")
     meta        Json            @default("{}")

@@ -5,6 +5,8 @@
  *  Path: /account/whoami
  */
 
+import { Metadata } from 'next'
+
 import { currentUser } from '@clerk/nextjs/server'
 
 import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
@@ -17,6 +19,10 @@ import { authenticated } from '@/server/auth'
 import prisma from '@/server/prisma'
 
 
+
+export const metadata: Metadata = {
+    title: "Who am I?"
+}
 
 export default async function WhoAmIPage() {
 

@@ -33,10 +33,9 @@ export async function getUserPermissions(ctx: AuthenticatedContext, userId: stri
 }
 
 export const permissionsRouter = createTRPCRouter({
-
-    person: authenticatedProcedure
-        .input(z.object({ personId: z.string().uuid() }))
-        .query(({ input, ctx }) => getUserPermissions(ctx, input.personId)),
+    user: authenticatedProcedure
+        .input(z.object({ userId: z.string().uuid() }))
+        .query(({ input, ctx }) => getUserPermissions(ctx, input.userId)),
 
     addPermission: authenticatedProcedure
         .input(z.object({ 

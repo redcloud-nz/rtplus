@@ -13,7 +13,8 @@ const alertStyles = tv({
         root: 'rounded-md p-4',
         icon: 'h-5 w-5',
         title: 'text-sm font-medium',
-        description: 'mt-2 text-sm'
+        description: 'mt-2 text-sm',
+        action: 'ml-4 self-center flex-shrink-0'
     },
     variants: {
         severity: {
@@ -52,9 +53,9 @@ const alertIcons = {
     error: CircleXIcon
 }
 
-export type AlertProps = React.ComponentPropsWithRef<'div'> & VariantProps<typeof alertStyles> &{ title: string } 
+export type AlertProps = React.ComponentPropsWithRef<'div'> & VariantProps<typeof alertStyles> &{ action?: React.ReactNode, title: string } 
 
-export function Alert({className, children, severity = 'info', title, ...props}: AlertProps) {
+export function Alert({ action, className, children, severity = 'info', title, ...props}: AlertProps) {
 
     const slots = alertStyles({ severity })
     const Icon = alertIcons[severity]
@@ -64,10 +65,11 @@ export function Alert({className, children, severity = 'info', title, ...props}:
             <div className="flex-shrink-0">
                 <Icon aria-hidden="true" className={slots.icon()} />
             </div>
-            <div className="ml-3">
+            <div className="ml-3 flex-grow">
                 <h3 className={slots.title()}>{title}</h3>
                 { children && <div className={slots.description()}>{children}</div>}
             </div>
+            {action ? <div className={slots.action()}>{action}</div> : null}
         </div>
     </div>
 }

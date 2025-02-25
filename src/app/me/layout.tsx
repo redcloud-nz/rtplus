@@ -18,7 +18,7 @@ import * as Paths from '@/paths'
 export const metadata: Metadata = {
     title: {
         template: "%s | Me | RT+",
-        default: "Me | RT+",
+        default: "Me",
     },
     description: "RT+ Account Management",
 };

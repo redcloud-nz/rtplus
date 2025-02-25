@@ -23,7 +23,7 @@ import prisma from '@/server/prisma'
 import * as Paths from '@/paths'
 
 
-export const metadata: Metadata = { title: "Teams" }
+export const metadata: Metadata = { title: "Personnel" }
 
 export default async function PeopleListPage() {
 

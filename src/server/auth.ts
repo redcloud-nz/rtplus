@@ -10,14 +10,13 @@ import { auth } from '@clerk/nextjs/server'
 import { AuthObject as ClerkAuthObject } from '@clerk/backend'
 
 import { checkSessionPermissions, CompactPermissions, PermissionKey, SystemPermissionKey, TeamPermissionKey } from '../lib/permissions'
-import { assertNonNull } from '@/lib/utils'
 
 
 export interface RTPlusAuthObject {
     readonly userId: string
-    readonly userPersonId?: string
+    readonly userPersonId: string | null
     readonly clerkUserId: string
-    readonly teamSlug?: string
+    readonly teamSlug: string | null
     readonly permissions: CompactPermissions
     
     hasPermission(permission: SystemPermissionKey): boolean
@@ -31,16 +30,16 @@ interface AuthenticatedOptions {
 }
 
 
-export function createRTPlusAuth(clerkAuth: ClerkAuthObject, options: AuthenticatedOptions): RTPlusAuthObject {
+export function createRTPlusAuth(clerkAuth: ClerkAuthObject, options: AuthenticatedOptions = {}): RTPlusAuthObject {
     if(clerkAuth.userId == null) throw new Error("User is not authenticated")
 
     options = { requirePerson: false, requireTeam: false , ...options}
 
-    const teamSlug = clerkAuth.orgSlug
-    const userPersonId = clerkAuth.sessionClaims.rt_pid
+    const teamSlug = clerkAuth.orgSlug ?? null
+    const userPersonId = clerkAuth.sessionClaims.rt_pid ?? null
 
-    if(options.requireTeam && teamSlug == undefined) throw new Error("User is not associated with a team")
-    if(options.requirePerson && userPersonId == undefined) throw new Error("User is not associated with a person")
+    if(options.requireTeam && teamSlug == null) throw new Error("User is not associated with a team")
+    if(options.requirePerson && userPersonId == null) throw new Error("User is not associated with a person")
 
 
     return {

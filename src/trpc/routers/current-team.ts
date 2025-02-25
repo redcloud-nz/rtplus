@@ -12,9 +12,10 @@ export const currentTeamRouter = createTRPCRouter({
 
     members: teamProcedure
         .query(async ({ ctx }) => {
+            if(!ctx.teamSlug) throw new Error('No current team.')
           
             const team = await ctx.prisma.team.findUnique({ 
-                where: { clerkOrgId: ctx.orgId },
+                where: { clerkOrgId: ctx.teamSlug },
                 include: {
                     teamMemberships: {
                         include: {
@@ -28,7 +29,7 @@ export const currentTeamRouter = createTRPCRouter({
                 }
             })
 
-            if(!team) throw new Error(`Missing active team for orgId='${ctx.orgId}'`)
+            if(!team) throw new Error(`Missing active team for teamSlug='${ctx.teamSlug}'`)
 
             return team.teamMemberships
         })

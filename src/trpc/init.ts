@@ -9,8 +9,10 @@ import superjson from 'superjson'
 import { auth } from '@clerk/nextjs/server'
 import {  initTRPC, TRPCError } from '@trpc/server'
 
+import { NilUUID } from '@/lib/id'
 import { createRTPlusAuth, RTPlusAuthObject } from '@/server/auth'
 import prisma from '@/server/prisma'
+
 
 
 export const createTRPCContext = cache(async () => {
@@ -58,6 +60,17 @@ export const authenticatedProcedure = t.procedure.use((opts) => {
             ...ctx,
             ...createRTPlusAuth(clerkAuth)
         } satisfies AuthenticatedContext
+    })
+})
+
+export const prefetchableProcedure = t.procedure.use((opts) => {
+    const { clerkAuth, ...ctx} = opts.ctx
+
+    return opts.next({
+        ctx: {
+            ...ctx,
+            userId: clerkAuth.sessionClaims?.rt_uid ?? NilUUID,
+        }
     })
 })
 

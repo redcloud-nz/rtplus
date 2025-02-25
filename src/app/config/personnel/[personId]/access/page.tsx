@@ -2,20 +2,20 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /configure/personnel/[personId]/access
+ *  Path: /config/personnel/[personId]/access
  */
 
 import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 import { NotFound } from '@/components/errors'
-import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
+import { CardBoundary, CardGrid } from '@/components/ui/card'
 
 
 import * as Paths from '@/paths'
 import { HydrateClient, trpc } from '@/trpc/server'
 
-import { AddPermissionDialog } from './add-permission'
-import { PermissionList } from './permission-list'
-
+import { MissingUserAlert } from './missing-user-alert'
+import { PersonAccessCard } from './user-access-card'
+import { UserPermissionsCard } from './user-permissions-card'
 
 
 
@@ -33,10 +33,15 @@ export async function generateMetadata({ params }: Props) {
 export default async function PersonAccessPage(props: Props) {
     const { personId } = await props.params
 
-    void trpc.permissions.person.prefetch({ personId })
+    
 
-    const person = await trpc.personnel.byId({ personId })
+    const [person, user] = await Promise.all([  
+        trpc.personnel.byId({ personId }),
+        trpc.users.byPersonId({ personId })
+    ])
     if(!person) return <NotFound/>
+
+    if(user) void trpc.permissions.user.prefetch({ userId: user.id })
 
     return <AppPage
         label="Access & Permissions"
@@ -51,28 +56,18 @@ export default async function PersonAccessPage(props: Props) {
             <PageDescription>Manage the access and permissions for {person.name}.</PageDescription>
         </PageHeader>
 
-        <HydrateClient>
-            <CardGrid>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Access</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        
-                    </CardContent>
-                </Card>
-                <Card boundary>
-                    <CardHeader>
-                        <CardTitle>Permissions</CardTitle>
-                        <AddPermissionDialog personId={personId}/>
-                    </CardHeader>
-                    <CardContent>
-                        <PermissionList personId={personId}/>
-                    </CardContent>
-                </Card>
-            </CardGrid>
-        </HydrateClient>
-
-        
+        { user 
+            ? <HydrateClient>
+                <CardGrid>
+                    <CardBoundary>
+                        <PersonAccessCard person={person}/>
+                    </CardBoundary>
+                    <CardBoundary>
+                        <UserPermissionsCard userId={user?.id}/>
+                    </CardBoundary>
+                </CardGrid>
+            </HydrateClient>
+            : <MissingUserAlert person={person}/>
+        }
     </AppPage>
 }

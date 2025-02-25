@@ -24,7 +24,7 @@ import prisma from '@/server/prisma'
 import { ServerProtect } from '@/server/protect'
 
 
-export const metadata: Metadata = { title: "Personnel | RT+" }
+export const metadata: Metadata = { title: "Personnel" }
 
 export default async function PersonPage(props: { params: Promise<{ personId: string }>}) {
     const { personId } = await props.params

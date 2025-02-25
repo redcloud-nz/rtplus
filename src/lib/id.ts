@@ -23,6 +23,8 @@ export function validateUUID(id: string): boolean {
     return validate(id)
 }
 
+export const NilUUID = '00000000-0000-0000-0000-000000000000'
+
 export class UUIDValidationSet {
 
     private readonly ids = new Set<string>()
