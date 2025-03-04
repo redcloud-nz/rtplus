@@ -6,18 +6,22 @@
 
 import React from 'react'
 
+import { useQueryClient } from '@tanstack/react-query'
+
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { AsyncButton, Button } from '@/components/ui/button'
+import { removeAccessToken } from '@/lib/d4h-access-tokens'
 
-import { deleteAccessKey } from './actions'
+
 
 
 interface DeleteAccessKeyDialogProps {
     accessKeyId: string
-    teamName: string
     children: React.ReactNode
 }
-export function DeleteAccessKeyDialog({ accessKeyId, teamName, children }: DeleteAccessKeyDialogProps) {
+export function DeleteAccessTokenDialog({ accessKeyId, children }: DeleteAccessKeyDialogProps) {
+    const queryClient = useQueryClient()
+
     const [open, setOpen] = React.useState(false)
 
     function handleClose() {
@@ -25,8 +29,9 @@ export function DeleteAccessKeyDialog({ accessKeyId, teamName, children }: Delet
     }
 
     async function handleDelete() {
-        await deleteAccessKey({ accessKeyId })
-       handleClose()
+        removeAccessToken(accessKeyId)
+        queryClient.invalidateQueries({ queryKey: ['d4h-access-tokens'] })
+        handleClose()
     }
 
     return <Dialog open={open} onOpenChange={setOpen}>
@@ -37,7 +42,7 @@ export function DeleteAccessKeyDialog({ accessKeyId, teamName, children }: Delet
             <DialogHeader>
                 <DialogTitle>Delete D4H Access Key</DialogTitle>
                 <DialogDescription>
-                    {`Confirm deletion of your access key for '${teamName}'.`}
+                    {`Confirm deletion of your access token.`}
                 </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -47,6 +52,7 @@ export function DeleteAccessKeyDialog({ accessKeyId, teamName, children }: Delet
                     onClick={handleDelete}
                     label="Delete"
                     pending="Deleting"
+                    done="Deleted"
                 />
             </DialogFooter>
         </DialogContent>

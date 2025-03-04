@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
+import { connect } from "http2"
 import { PolicyKeyType } from "./lib/policy"
 
 //  /------------------------------\
@@ -15,6 +16,7 @@ export const config = {
         new: '/config/teams/--new',
         team: (teamSlug: string) => ({
             index: `/config/teams/${teamSlug}`,
+            d4h: `/config/teams/${teamSlug}/d4h`,
             edit: `/config/teams/${teamSlug}/edit`,
             members: `/config/teams/${teamSlug}/members`,
         } as const),
@@ -108,11 +110,12 @@ export const unified = {
 //  /------------------------------\
 //  |           Account            |
 //  \------------------------------/
-export const account = {
-    profile: '/me/user-profile',
-    organizationList: '/me/organization-list',
-    d4hAccessKeys: '/me/d4h-access-keys',
-    whoami: '/me/whoami'
+export const personal = {
+    index: '/personal/user-profile',
+    organizationList: '/personal/organization-list',
+    d4hAccessTokens: '/personal/d4h-access-tokens',
+    whoami: '/personal/whoami',
+    userProfile: '/personal/user-profile',
 } as const
 
 

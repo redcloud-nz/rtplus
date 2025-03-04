@@ -8,50 +8,52 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Team } from '@prisma/client'
+import { Team, TeamD4hInfo } from '@prisma/client'
 
 
 import { FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormProvider, FormSubmitButton } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
 import { useToast } from '@/hooks/use-toast'
-import { UpdateTeamFormData, updateTeamFormSchema } from '@/lib/forms/update-team'
+import { UpdateTeamD4hFormData, updateTeamD4hFormSchema } from '@/lib/forms/update-team-d4h'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
-interface UpdateTeamFormProps {
+
+interface UpdateTeamD4hFormProps {
     team: Team
+    d4hInfo: Pick<TeamD4hInfo, 'd4hTeamId' | 'd4hApiUrl' | 'd4hWebUrl'> | null
 }
 
-export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
-    const utils = trpc.useUtils();
+export function UpdateTeamD4hForm({ team, d4hInfo }: UpdateTeamD4hFormProps) {
+    const utils = trpc.useUtils()
 
-    const form = useForm<UpdateTeamFormData>({
-        resolver: zodResolver(updateTeamFormSchema),
-        defaultValues: team,
+    const form = useForm<UpdateTeamD4hFormData>({
+        resolver: zodResolver(updateTeamD4hFormSchema),
+        defaultValues: d4hInfo ?? {
+            teamId: team.id,
+            d4hTeamId: 0,
+            d4hApiUrl: '',
+            d4hWebUrl: '',
+        },
     })
 
     const router = useRouter()
-    const { toast } = useToast()
 
-    const mutation = trpc.teams.updateTeam.useMutation({
+    const mutation = trpc.teams.updateTeamD4h.useMutation({
         onError: (error) => {
             if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof UpdateTeamFormData, { message: `Team ${error.shape.cause.message} is already taken.` })
+                form.setError(error.shape.cause.message as keyof UpdateTeamD4hFormData, { message: `Team ${error.shape.cause.message} is already taken.` })
             }
         },
-        onSuccess: (updatedTeam) => {
-            toast({
-                title: `${updatedTeam.name} updated`,
-                description: 'The team has been updated successfully.',
-            })
+        onSuccess: () => {
             utils.teams.invalidate()
-            router.push(Paths.config.teams.team(updatedTeam.slug).index)
+            router.push(Paths.config.teams.team(team.slug).index)
         }
     })
 
-    function onSubmit(formData: UpdateTeamFormData) {
+    function onSubmit(formData: UpdateTeamD4hFormData) {
         mutation.mutate(formData)
     }
 
@@ -59,54 +61,43 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
         <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-xl space-y-8">
             <FormField
                 control={form.control}
-                name="id"
+                name="teamId"
                 render={({ field }) => <Input type="hidden" {...field}/>}
             />
+            
             <FormField
                 control={form.control}
-                name="name"
+                name="d4hTeamId"
                 render={({ field }) => <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>D4H Team ID</FormLabel>
                     <FormControl>
-                        <Input maxLength={100} {...field}/>
+                        <Input className="max-w-xs" type="number" {...field}/>
                     </FormControl>
-                    <FormDescription>The full name of the team.</FormDescription>
+                    <FormDescription>D4H Team ID (If known).</FormDescription>
                     <FormMessage/>
                 </FormItem>}
             />
             <FormField
                 control={form.control}
-                name="shortName"
+                name="d4hApiUrl"
                 render={({ field }) => <FormItem>
-                    <FormLabel>Short name</FormLabel>
+                    <FormLabel>D4H API URL</FormLabel>
                     <FormControl>
-                        <Input maxLength={20} {...field}/>
+                        <Input {...field}/>
                     </FormControl>
-                    <FormDescription>Short name of the team (eg NZ-RT13).</FormDescription>
+                    <FormDescription>Base URL of the D4H Team Manager API for the team.</FormDescription>
                     <FormMessage/>
                 </FormItem>}
             />
             <FormField
                 control={form.control}
-                name="slug"
+                name="d4hWebUrl"
                 render={({ field }) => <FormItem>
-                    <FormLabel>Slug</FormLabel>
+                    <FormLabel>D4H Web URL</FormLabel>
                     <FormControl>
-                        <Input maxLength={100} {...field}/>
+                        <Input {...field}/>
                     </FormControl>
-                    <FormDescription>URL-friendly identifier for the team.</FormDescription>
-                    <FormMessage/>
-                </FormItem>}
-            />
-            <FormField
-                control={form.control}
-                name="color"
-                render={({ field }) => <FormItem>
-                    <FormLabel>Colour</FormLabel>
-                    <FormControl>
-                        <Input className="max-w-xs" maxLength={7} {...field}/>
-                    </FormControl>
-                    <FormDescription>Highlight colour applied to help differentiate from other teams (optional).</FormDescription>
+                    <FormDescription>The Web URL of the D4H Team Manager for the team.</FormDescription>
                     <FormMessage/>
                 </FormItem>}
             />

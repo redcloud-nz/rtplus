@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /account/whoami
+ *  Path: /personal/whoami
  */
 
 import { Metadata } from 'next'
@@ -15,6 +15,7 @@ import { Alert } from '@/components/ui/alert'
 import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 
+import * as Paths from '@/paths'
 import { authenticated } from '@/server/auth'
 import prisma from '@/server/prisma'
 
@@ -47,6 +48,7 @@ export default async function WhoAmIPage() {
 
     return <AppPage
         label="Who am I?"
+        breadcrumbs={[{ label: "Personal", href: Paths.personal.index }]}
     >
         <PageHeader>
             <PageTitle>Who am I?</PageTitle>

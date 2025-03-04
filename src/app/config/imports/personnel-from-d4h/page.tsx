@@ -17,7 +17,7 @@ import { HydrateClient, trpc } from '@/trpc/server'
 
 
 export default async function ImportPersonnelPage() {   
-    void trpc.currentUser.d4hAccessKeys.prefetch()
+    void trpc.d4hAccessKeys.myAccessKeys.prefetch()
 
     return <AppPage
         label="Personnel From D4H"

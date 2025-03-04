@@ -9,9 +9,10 @@ import { twMerge } from 'tailwind-merge'
 
 
 
-export function assertNonNull<T>(obj: T | null, message: string = ""): asserts obj is NonNullable<T> {
+export function assertNonNull<T>(obj: T | null | undefined, message: string = ""): asserts obj is NonNullable<T> {
     if(obj == null) throw TypeError(message)
 }
+
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))

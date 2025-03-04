@@ -84,7 +84,7 @@ export function UserPermissionsCard({ userId }: { userId: string }) {
                                     <TableCell>{permissionKey}</TableCell>
                                     <TableCell>{team.name}</TableCell>
                                     <TableCell className="text-right pr-0">
-                                        <Protect permission="team:write" teamId={team.id} allowSystem>
+                                        <Protect permission="team:write" teamId={team.id} system="system:manage-teams">
                                             <DeletePermissionButton
                                                 userId={userId}
                                                 permissionKey={permissionKey}

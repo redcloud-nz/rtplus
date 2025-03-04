@@ -11,9 +11,6 @@ export const createTeamFormSchema = z.object({
     shortName: z.string().max(20),
     slug: zodSlug,
     color: z.union([zodColor, z.literal('')]),
-    // d4hTeamId: z.union([z.number().int("Must be an integer."), z.literal('')]),
-    // d4hApiUrl: z.union([z.string().url(), z.literal('')]),
-    // d4hWebUrl: z.union([z.string().url(), z.literal('')]),
 })
 
 export type CreateTeamFormData = z.infer<typeof createTeamFormSchema>

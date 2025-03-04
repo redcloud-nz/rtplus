@@ -91,21 +91,21 @@ export function HeaderControls({ children, className, hidden, showSignIn = true,
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
                             <DropdownMenuItem asChild>
-                                <Link href={Paths.account.profile}>
+                                <Link href={Paths.personal.index}>
                                     <BadgeCheckIcon />
                                     Profile
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                                <Link href={Paths.account.whoami}>
+                                <Link href={Paths.personal.whoami}>
                                     <ShieldQuestionIcon />
                                     Who am I?
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                                <Link href={Paths.account.d4hAccessKeys}>
+                                <Link href={Paths.personal.d4hAccessTokens}>
                                     <KeyRoundIcon/>
-                                    D4H Access Keys
+                                    D4H Access Tokens
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>

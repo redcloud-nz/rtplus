@@ -7,43 +7,42 @@
 import createFetchClient, { Client } from 'openapi-fetch'
 import createClient, { OpenapiQueryClient } from 'openapi-react-query'
 
+import { Team, TeamD4hInfo } from '@prisma/client'
 import { UseQueryResult } from '@tanstack/react-query'
 
+import { D4hAccessToken } from '../d4h-access-tokens'
 import type { paths } from './schema'
-import { Team } from '@prisma/client'
+import { getD4hServer } from './servers'
+
 
 
 export interface D4hKeyRef {
     id: string
     key: string
-    team: Pick<Team, 'd4hApiUrl' | 'd4hTeamId'>
+    team: Team
+    d4hInfo: TeamD4hInfo
 }
 
 export interface D4hClientOptions {
     cache?: boolean
 }
 
-
-export const D4hFetchClient = createFetchClient<paths>({ baseUrl: 'https://api.team-manager.ap.d4h.com' })
-
-export const D4hApi = createClient(D4hFetchClient)
-
 export type D4hFetchClient =  Client<paths, `${string}/${string}`>
 
-const fetchClients = new Map<string, D4hFetchClient>()
+const cachedFetchClients = new Map<string, D4hFetchClient>()
 
-export function getD4hFetchClient(keyRef: D4hKeyRef, { cache = false }: D4hClientOptions = {}): D4hFetchClient {
-    let fetchClient = cache ? fetchClients.get(keyRef.id) : undefined
+export function getD4hFetchClient(accessToken: D4hAccessToken, { cache = true }: D4hClientOptions = {}): D4hFetchClient {
+    const server = getD4hServer(accessToken.serverCode)
+    let fetchClient = cachedFetchClients.get(accessToken.id)
     if(!fetchClient) {
-        fetchClient = createFetchClient({ baseUrl: keyRef.team.d4hApiUrl })
+        fetchClient = createFetchClient({ baseUrl: server.apiUrl })
         fetchClient.use({
             onRequest({ request }) {
-                request.headers.set('Authorization', `Bearer ${keyRef.key}`)
+                request.headers.set('Authorization', `Bearer ${accessToken.value}`)
                 return request
             }
         })
-
-        if(cache) fetchClients.set(keyRef.id, fetchClient)
+        if(cache) cachedFetchClients.set(accessToken.id, fetchClient)
     }
     return fetchClient
 }
@@ -53,11 +52,11 @@ export type D4hApiQueryClient = OpenapiQueryClient<paths, `${string}/${string}`>
 
 const queryClients = new Map<string, D4hApiQueryClient>()
 
-export function getD4hApiQueryClient(keyRef: D4hKeyRef, { cache = true }: D4hClientOptions = {}): D4hApiQueryClient {
-    let queryClient = cache ? queryClients.get(keyRef.id) : undefined
+export function getD4hApiQueryClient(accessToken: D4hAccessToken, { cache = true }: D4hClientOptions = {}): D4hApiQueryClient {
+    let queryClient = cache ? queryClients.get(accessToken.id) : undefined
     if(!queryClient) {
-        queryClient = createClient(getD4hFetchClient(keyRef, { cache }))
-        if(cache) queryClients.set(keyRef.id, queryClient)
+        queryClient = createClient(getD4hFetchClient(accessToken, { cache }))
+        if(cache) queryClients.set(accessToken.id, queryClient)
     }
     return queryClient
 }

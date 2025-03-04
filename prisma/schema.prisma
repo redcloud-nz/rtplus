@@ -13,22 +13,6 @@ datasource db {
     directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
-/// defines an API key that a user can use to access the D4H API.
-model D4hAccessKey {
-    id        String   @id @default(uuid()) @db.Uuid
-    teamId    String   @map("team_id") @db.Uuid
-    userId    String?  @map("user_id") @db.Uuid
-    key       String
-    enabled   Boolean
-    createdAt DateTime @default(now()) @map("created_at")
-
-    // Relations
-    user      User?    @relation("d4h_access_key_to_user", fields: [userId], references: [id], onDelete: Cascade)
-    team      Team     @relation("d4h_access_key_to_team", fields: [teamId], references: [id], onDelete: Cascade)
-
-    @@map("d4h_access_keys")
-}
-
 /// defines an individual person that may or may not be connected to a user.
 model Person {
     id                           String              @id @default(uuid()) @db.Uuid
@@ -235,7 +219,6 @@ model Team {
     status          RecordStatus     @default(Active)
 
     // Relations
-    d4hAccessKeys   D4hAccessKey[]   @relation("d4h_access_key_to_team")
     d4hInfo         TeamD4hInfo?     @relation("team_d4h_info_to_team")
     changeLogs      TeamChangeLog[]  @relation("team_change_log_to_team")       
     teamMemberships TeamMembership[] @relation("team_membership_to_team")
@@ -272,11 +255,10 @@ model TeamChangeLog {
 }
 
 model TeamD4hInfo {
-    teamId    String       @map("team_id") @db.Uuid @unique
-    d4hTeamId Int          @map("d4h_team_id")
-    d4hApiUrl String       @map("d4h_api_url")
-    d4hWebUrl String       @map("d4h_web_url")
-    status    RecordStatus @default(Active)
+    teamId     String       @map("team_id") @db.Uuid @unique
+    d4hTeamId  Int          @map("d4h_team_id")
+    serverCode String       @map("server_code")
+    status     RecordStatus @default(Active)
 
     // Relations
     team      Team         @relation("team_d4h_info_to_team", fields:[teamId], references: [id], onDelete: Cascade)
@@ -345,7 +327,6 @@ model User {
 
     // Relations
     changeLogs             UserChangeLog[]         @relation("user_change_log_to_user")
-    d4hAccessKeys          D4hAccessKey[]          @relation("d4h_access_key_to_user")
     person                 Person?                 @relation("user_to_person", fields: [personId], references: [id], onDelete: SetNull)
     personChangeLogs       PersonChangeLog[]       @relation("person_change_log_to_actor")
     policyAcceptances      UserPolicyAcceptance[]  @relation("user_policy_acceptance_to_user")

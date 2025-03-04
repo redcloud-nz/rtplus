@@ -91,19 +91,19 @@ export function NavUser({ user }: NavUserProps) {
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
                             <DropdownMenuItem asChild>
-                                <Link href={Paths.account.profile}>
+                                <Link href={Paths.personal.index}>
                                     <BadgeCheck />
                                     Profile
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                                <Link href={Paths.account.d4hAccessKeys}>
+                                <Link href={Paths.personal.d4hAccessKeys}>
                                     <KeyRoundIcon/>
                                     D4H Access Keys
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                                <Link href={Paths.account.whoami}>
+                                <Link href={Paths.personal.whoami}>
                                     <ShieldQuestionIcon />
                                     Who am I?
                                 </Link>

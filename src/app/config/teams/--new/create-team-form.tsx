@@ -56,12 +56,12 @@ export function CreateTeamForm() {
         }
     })
 
-    function onSubmit(formData: CreateTeamFormData) {
-        mutation.mutate(formData)
+    async function handleSubmit(formData: CreateTeamFormData) {
+        mutation.mutateAsync(formData)
     }
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className='max-w-xl space-y-8'>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className='max-w-xl space-y-8'>
             <FormField
                 control={form.control}
                 name="name"
@@ -111,42 +111,6 @@ export function CreateTeamForm() {
                     <FormMessage/>
                 </FormItem>}
             />
-            {/* <FormField
-                control={form.control}
-                name="d4hTeamId"
-                render={({ field }) => <FormItem>
-                    <FormLabel>D4H Team ID</FormLabel>
-                    <FormControl>
-                        <Input className="max-w-xs" type="number" {...field}/>
-                    </FormControl>
-                    <FormDescription>D4H Team ID (If known).</FormDescription>
-                    <FormMessage/>
-                </FormItem>}
-            />
-            <FormField
-                control={form.control}
-                name="d4hApiUrl"
-                render={({ field }) => <FormItem>
-                    <FormLabel>D4H API URL</FormLabel>
-                    <FormControl>
-                        <Input {...field}/>
-                    </FormControl>
-                    <FormDescription>Base URL of the D4H Team Manager API for the team.</FormDescription>
-                    <FormMessage/>
-                </FormItem>}
-            />
-            <FormField
-                control={form.control}
-                name="d4hWebUrl"
-                render={({ field }) => <FormItem>
-                    <FormLabel>D4H Web URL</FormLabel>
-                    <FormControl>
-                        <Input {...field}/>
-                    </FormControl>
-                    <FormDescription>The Web URL of the D4H Team Manager for the team.</FormDescription>
-                    <FormMessage/>
-                </FormItem>}
-            /> */}
             <FormSubmitButton
                 labels={{
                     ready: 'Create',

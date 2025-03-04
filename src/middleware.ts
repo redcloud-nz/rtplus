@@ -43,8 +43,8 @@ export default clerkMiddleware(
                 '/teams/:slug/(.*)'
             ],
             personalAccountPatterns: [
-                '/me',
-                '/me/(.*)'
+                '/personal',
+                '/personal/(.*)'
             ]
         }
     }

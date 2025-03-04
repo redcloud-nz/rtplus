@@ -152,15 +152,16 @@ export function FormSubmitButton({ children, className, disabled, variant, size,
 
     const { formState: { isSubmitted, isSubmitSuccessful, isSubmitting, isValidating } } = useFormContext()
 
-    return <button
+    const state = isValidating ? 'validating' :
+        isSubmitting ? 'submitting' :
+        (isSubmitted && isSubmitSuccessful) ? 'submitted' : 
+        "ready"
+
+    return <><button
         className={cn('group', buttonVariants({ variant, size, className }))}
         disabled={disabled || isValidating || isSubmitting || (isSubmitted && isSubmitSuccessful)}
-        data-state={
-            isValidating ? 'validating' :
-            isSubmitting ? 'submitting' :
-            (isSubmitted && isSubmitSuccessful) ? 'submitted' : 
-            "ready"
-        }
+        data-state={state}
+        type="submit"
         {...props}
     >
         <Loader2Icon className="mr-2 h-4 w-4 animate-spin hidden group-data-[state=validating]:inline group-data-[state=submitting]:inline" />
@@ -170,6 +171,8 @@ export function FormSubmitButton({ children, className, disabled, variant, size,
         {labels.submitted ? <FormSubmitButtonLabel activeState="submitted">{labels.submitted}</FormSubmitButtonLabel> : null}
         {children}
     </button>
+    {state}
+    </>
 }
 
 export type FormSubmitButtonLabelProps = React.ComponentPropsWithRef<'span'> & {
@@ -192,9 +195,10 @@ export function FormCancelButton({ children = "Cancel", onClick, variant = 'ghos
     const router = useRouter()
 
     function handleClick(event: React.MouseEvent<HTMLButtonElement>) {
+        event.preventDefault()
         if (onClick) onClick(event)
-        router.back()
+        else router.back()
     }
 
-    return <Button variant={variant} onClick={handleClick}>Cancel</Button>
+    return <Button variant={variant} type="button" onClick={handleClick} {...props}>Cancel</Button>
 }

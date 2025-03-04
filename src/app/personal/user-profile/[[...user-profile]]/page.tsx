@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /account/user-profile
+ *  Path: /personal/user-profile
  */
 
 import { UserProfile } from '@clerk/nextjs'
@@ -13,9 +13,13 @@ import * as Paths from '@/paths'
 
 export default function UserProfilePage() {
 
-    return <AppPage variant="centered" label="User Profile">
+    return <AppPage 
+        variant="centered" 
+        label="User Profile"
+        breadcrumbs={[{ label: "Personal", href: Paths.personal.index }]}
+    >
         <UserProfile
-            path={Paths.account.profile}
+            path={Paths.personal.index}
         />
     </AppPage>
 }

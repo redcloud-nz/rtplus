@@ -19,11 +19,13 @@ import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { ExternalLink, Link } from '@/components/ui/link'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
+import { authenticated } from '@/server/auth'
 import prisma from '@/server/prisma'
 import * as Paths from '@/paths'
 
-
 import { TeamMembersCard } from './team-members-card'
+import { TeamOptionsMenu } from './team-options-menu'
+
 
 
 export const metadata: Metadata = {
@@ -33,6 +35,7 @@ export const metadata: Metadata = {
 
 export default async function TeamPage(props: { params: Promise<{ 'team-slug': string }>}) {
     const { 'team-slug': teamSlug } = await props.params
+    const { hasPermission } = await authenticated()
 
     const team = await prisma.team.findUnique({
         where: { slug: teamSlug },
@@ -41,19 +44,25 @@ export default async function TeamPage(props: { params: Promise<{ 'team-slug': s
 
     if(!team) return <NotFound />
 
+    const hasTeamWritePermission = hasPermission('system:manage-teams') || hasPermission(`team:write`, team.id)
+
     return <AppPage
         label={team.shortName || team.name}
         breadcrumbs={[
-            { label: "Configuration", href: Paths.config.index }, 
+            { label: "Configure", href: Paths.config.index }, 
             { label: "Teams", href: Paths.config.teams.index }
         ]}
     >
         <PageHeader>
             <PageTitle objectType="Team">{team.name}</PageTitle>
             <PageControls>
-                <Button variant="ghost">
-                    <EllipsisVerticalIcon/>
-                </Button>
+                <TeamOptionsMenu
+                    hasD4hInfo={!!team.d4hInfo}
+                    hasTeamWritePermission={hasTeamWritePermission}
+                    teamId={team.id}
+                    teamSlug={teamSlug}
+                    trigger={<Button variant="ghost"><EllipsisVerticalIcon/></Button>}
+                />
             </PageControls>
         </PageHeader>
         
@@ -90,18 +99,20 @@ export default async function TeamPage(props: { params: Promise<{ 'team-slug': s
                         <DLTerm>Colour</DLTerm>
                         <DLDetails><ColorValue value={team.color}/></DLDetails>
 
-                        {team.d4hInfo && <>
+                        {team.d4hInfo?.d4hTeamId ? <>
                             <DLTerm>D4H Team ID</DLTerm>
                             <DLDetails>{team.d4hInfo.d4hTeamId}</DLDetails>
-
+                        </> : null}
+                        {team.d4hInfo?.d4hApiUrl ? <>
                             <DLTerm>D4H API URL</DLTerm>
                             <DLDetails>{team.d4hInfo.d4hApiUrl}</DLDetails>
-
+                        </> : null}
+                        {team.d4hInfo?.d4hWebUrl ? <>
                             <DLTerm>D4H Web URL</DLTerm>
                             <DLDetails>
                                 <ExternalLink href={team.d4hInfo.d4hWebUrl}>{team.d4hInfo.d4hWebUrl}</ExternalLink>
                             </DLDetails>
-                        </>}
+                        </> : null}
                     </DL>
                 </CardContent>
             </Card>
@@ -109,3 +120,6 @@ export default async function TeamPage(props: { params: Promise<{ 'team-slug': s
         </CardGrid>
     </AppPage>
 }
+
+
+

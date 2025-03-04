@@ -7,6 +7,7 @@ import { createTRPCRouter } from '../init'
 
 import { currentTeamRouter } from './current-team'
 import { currentUserRouter } from './current-user'
+import { d4hAccessKeysRouter } from './d4h-access-keys'
 import { permissionsRouter } from './permissions'
 import { personnelRouter } from './personnel'
 import { skillPackagesRouter } from './skill-packages'
@@ -17,6 +18,7 @@ import { usersRouter } from './users'
 export const appRouter = createTRPCRouter({
     currentTeam: currentTeamRouter,
     currentUser: currentUserRouter,
+    d4hAccessKeys: d4hAccessKeysRouter,
     permissions: permissionsRouter,
     personnel: personnelRouter,
     skillPackages: skillPackagesRouter,

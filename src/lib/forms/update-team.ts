@@ -12,7 +12,7 @@ export const updateTeamFormSchema = z.object({
     shortName: z.string().max(20),
     slug: zodSlug,
     color: z.union([zodColor, z.literal('')]),
-    // d4hTeamId: z.union([z.number().int("Must be an integer."), z.literal('')]),
+    // d4hTeamId: z.union([z.number().int("Must be an integer."), z.literal('')]).transform(value => value === '' ? 0 : value),
     // d4hApiUrl: z.union([z.string().url(), z.literal('')]),
     // d4hWebUrl: z.union([z.string().url(), z.literal('')]),
 })

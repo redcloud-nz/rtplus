@@ -10,12 +10,11 @@ import { hasPermission, isSystemPermission, isTeamPermission, SystemPermissionKe
 import { trpc } from '@/trpc/client'
 
 type ProtectSystemProps = { permission: SystemPermissionKey }
-type ProtectTeamProps = { permission: TeamPermissionKey, teamId: string }
+type ProtectTeamProps = { permission: TeamPermissionKey, teamId: string, system?: SystemPermissionKey }
 
 export type ProtectProps = {
     children: React.ReactNode
     fallback?: React.ReactNode
-    allowSystem?: boolean
 } & (ProtectSystemProps | ProtectTeamProps)
 
 export function Protect(props: ProtectProps) {
@@ -27,16 +26,15 @@ export function Protect(props: ProtectProps) {
         const authorized = <>{props.children}</>
         const unauthorized = props.fallback ? <>{props.fallback}</> : null
 
-        if(props.allowSystem && hasPermission(permissionsQuery.data, 'system:write')) return authorized
-
         if(isSystemPermission(props.permission)) {
             const { permission } = props as ProtectSystemProps
 
             return hasPermission(permissionsQuery.data, permission) ? authorized : unauthorized
         } else if(isTeamPermission(props.permission)) {
-            const { permission, teamId } = props as ProtectTeamProps
+            const { permission, teamId, system } = props as ProtectTeamProps
+            const hasSystem = system ? hasPermission(permissionsQuery.data, system) : false
 
-            return hasPermission(permissionsQuery.data, permission, teamId) ? authorized : unauthorized
+            return (hasSystem || hasPermission(permissionsQuery.data, permission, teamId)) ? authorized : unauthorized
         } else {
             throw new Error(`Unknown permission prefix: ${props.permission}`)
         }

@@ -6,6 +6,7 @@
 'use client'
 
 import React from 'react'
+import * as R from 'remeda'
 
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
@@ -32,21 +33,21 @@ export function ImportPersonnel() {
     const [state, setState] = React.useState<ImportState>({ status: 'Init' })
     const [teamId, setTeamId] = React.useState<string>('')
 
-    const [accessKeys] = trpc.currentUser.d4hAccessKeys.useSuspenseQuery()
+    const [accessKeys] = trpc.d4hAccessKeys.myAccessKeys.useSuspenseQuery()
 
     React.useEffect(() => {
         if(accessKeys.length == 1) setTeamId(accessKeys[0].team.id)
     }, [accessKeys])
 
     async function handleFetch() {
-        const accessKey = accessKeys.find(key => key.team.id == teamId)
+        const accessKey = accessKeys.find(key => key.team.id == teamId) ?? null
         assertNonNull(accessKey)
 
         let d4hMembers: D4hMember[] = []
         try {
             const { data, error } = await getD4hFetchClient(accessKey).GET('/v3/{context}/{contextId}/members', { 
                 params: {
-                    path: { context: 'team', contextId: accessKey.team.d4hTeamId! },
+                    path: { context: 'team', contextId: accessKey.d4hInfo.d4hTeamId! },
                     query: { status: ['OPERATIONAL', 'NON_OPERATIONAL'] }
                 }
             })
@@ -59,7 +60,7 @@ export function ImportPersonnel() {
             setState({ status: 'Error', message: ''+ex })
         }
     
-        const teamMemberships = await queryUtils.teams.members.fetch({ teamId })
+        const teamMemberships = await queryUtils.fetch({ teamId })
 
         const diffs: MemberDiff[] = []
 

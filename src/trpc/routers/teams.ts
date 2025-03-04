@@ -13,9 +13,12 @@ import { TRPCError } from '@trpc/server'
 import { createTeamFormSchema } from '@/lib/forms/create-team'
 import { createUUID } from '@/lib/id'
 
+import { updateTeamFormSchema } from '@/lib/forms/update-team'
+import { zodSlug } from '@/lib/validation'
+
 import { authenticatedProcedure, createTRPCRouter } from '../init'
 import { FieldConflictError } from '../types'
-import { updateTeamFormSchema } from '@/lib/forms/update-team'
+import { updateTeamD4hFormSchema } from '@/lib/forms/update-team-d4h'
 
 
 export const teamsRouter = createTRPCRouter({
@@ -23,8 +26,9 @@ export const teamsRouter = createTRPCRouter({
         .input(z.object({
             permission: 
                 z.enum(['team:assess', 'team:read', 'team:write']).optional()
-                .describe("Filter by the user's permission level (with respect to the team)")
-        }).optional())
+                .describe("Filter by the user's permission level (with respect to the team)"),
+            includeD4hInfo: z.boolean().optional().default(false)
+        }).optional().default({}))
         .query(async ({ ctx, input = {} }): Promise<Team[]> => {
             if(input.permission) {
                 const permissions = await ctx.prisma.teamPermission.findMany({ 
@@ -40,8 +44,21 @@ export const teamsRouter = createTRPCRouter({
                     .filter(({ team }) => team.status === 'Active')
                     .map(({ team }) => team)
             } else {
-                return await ctx.prisma.team.findMany({ where: { status: 'Active' } })
+                return await ctx.prisma.team.findMany({ 
+                    where: { status: 'Active' },
+                    include: {
+                        ... (input.includeD4hInfo ? { d4hInfo: true } : {})
+                    },
+                })
             }
+        }),
+    allLinkedToD4h: authenticatedProcedure
+        .query(async ({ ctx }) => {
+            const teams = await ctx.prisma.team.findMany({
+                where: { status: 'Active' },
+                include: { d4hInfo: true }
+            })
+            return teams.filter(team => team.d4hInfo != null )
         }),
     byId: authenticatedProcedure
         .input(z.object({ 
@@ -52,7 +69,7 @@ export const teamsRouter = createTRPCRouter({
         }),
     bySlug: authenticatedProcedure
         .input(z.object({
-            slug: z.string().regex(/^[a-z0-9-]+$/, "Must be lowercase alphanumeric with hyphens.")
+            slug: zodSlug
         }))
         .query(async ({ ctx, input }) => {
             return ctx.prisma.team.findUnique({ where: { slug: input.slug } })
@@ -71,7 +88,7 @@ export const teamsRouter = createTRPCRouter({
             if(shortNameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('shortName') })
 
             const slugConflict = await ctx.prisma.team.findFirst({ where: { slug: input.slug } })
-            if(slugConflict) throw new TRPCError({ code: 'CONFLICT', cause:new FieldConflictError('slug') })
+            if(slugConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('slug') })
             
             const clerk = await clerkClient()
 
@@ -82,6 +99,7 @@ export const teamsRouter = createTRPCRouter({
                 slug: input.slug,
                 publicMetadata: { teamId }
             })
+
 
             return await ctx.prisma.team.create({ 
                 data: { 
@@ -96,6 +114,18 @@ export const teamsRouter = createTRPCRouter({
                 }
             })
         }),
+    d4hInfoBySlug: authenticatedProcedure
+        .input(z.object({
+            slug: zodSlug
+        }))
+        .query(async ({ ctx, input }) => {
+            const team = await ctx.prisma.team.findUnique({ 
+                where: { slug: input.slug }, 
+                include: { d4hInfo: true }
+            })
+            return team?.d4hInfo ?? null
+        }),
+
 
     listWithMembers: authenticatedProcedure
         .input(z.object({
@@ -158,7 +188,7 @@ export const teamsRouter = createTRPCRouter({
         }),
     membersBySlug: authenticatedProcedure
         .input(z.object({
-            slug: z.string().regex(/^[a-z0-9-]+$/, "Must be lowercase alphanumeric with hyphens.")
+            slug: zodSlug
         }))
         .query(async ({ ctx, input }) => {
             return await ctx.prisma.teamMembership.findMany({
@@ -176,9 +206,10 @@ export const teamsRouter = createTRPCRouter({
     updateTeam: authenticatedProcedure
         .input(updateTeamFormSchema)
         .mutation(async ({ ctx, input }) => {
-            if(!(ctx.hasPermission('system:manage-teams') || ctx.hasPermission("team:write", input.id))) throw new TRPCError({ code: 'FORBIDDEN', message: 'system:manage-teams or team:write permission is required to update a team.' })
+            if(!(ctx.hasPermission('system:manage-teams') || ctx.hasPermission("team:write", input.id))) 
+                throw new TRPCError({ code: 'FORBIDDEN', message: 'system:manage-teams or team:write permission is required to update a team.' })
         
-            const existing = await ctx.prisma.team.findUnique({ where: { id: input.id } })
+            const existing = await ctx.prisma.team.findUnique({ where: { id: input.id }})
             if(!existing) throw new TRPCError({ code: 'NOT_FOUND' })
 
             if(input.name != existing.name) {
@@ -196,12 +227,11 @@ export const teamsRouter = createTRPCRouter({
                 if(slugConflict) throw new TRPCError({ code: 'CONFLICT', cause:new FieldConflictError('slug') })
             }
 
+
             const { id, ...data } = input
 
-            R.keys(data).forEach(key => {
-                if(data[key] === existing[key]) delete data[key]
-            })
-
+            const changedFields = R.pickBy(data, (value, key) => value != existing[key])
+            
             return await ctx.prisma.team.update({ 
                 where: { id },
                 data: { 
@@ -210,10 +240,34 @@ export const teamsRouter = createTRPCRouter({
                         create: { 
                             actorId: ctx.userId,
                             event: 'Update',
-                            fields: data
+                            fields: { changedFields }
                         }
                     }
                 } 
+            })
+        }),
+
+    updateTeamD4h: authenticatedProcedure
+        .input(updateTeamD4hFormSchema)
+        .mutation(async ({ ctx, input }) => {
+            const { teamId, ...data } = input
+
+            if(!(ctx.hasPermission('system:manage-teams') || ctx.hasPermission("team:write", teamId))) 
+                throw new TRPCError({ code: 'FORBIDDEN', message: 'system:manage-teams or team:write permission is required to update a team.' })
+
+            const existing = await ctx.prisma.team.findUnique({ where: { id: teamId }})
+            if(!existing) throw new TRPCError({ code: 'NOT_FOUND' })
+
+            await ctx.prisma.team.update({
+                where: { id: teamId },
+                data: { 
+                    d4hInfo: {
+                        upsert: {
+                            create: data,
+                            update: data
+                        }
+                    }
+                }
             })
         }),
 })
