@@ -261,7 +261,7 @@ model TeamD4hInfo {
     status     RecordStatus @default(Active)
 
     // Relations
-    team      Team         @relation("team_d4h_info_to_team", fields:[teamId], references: [id], onDelete: Cascade)
+    team      Team          @relation("team_d4h_info_to_team", fields:[teamId], references: [id], onDelete: Cascade)
 
     @@map("team_d4h_info")
 }

@@ -9,49 +9,52 @@ import * as React from 'react'
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
-import { Link } from '@/components/ui/link'
-
-
-import * as Paths from '@/paths'
+import { TeamD4hConfigDialog } from './team-d4h-config-dialog'
 
 
 interface TeamOptionsMenuProps {
     teamId: string
-    teamSlug: string
-    hasD4hInfo: boolean
-    hasTeamWritePermission: boolean
     trigger: React.ReactNode
 }
 
-export function TeamOptionsMenu({ teamSlug, trigger }: TeamOptionsMenuProps) {
+export function TeamOptionsMenu({ teamId, trigger }: TeamOptionsMenuProps) {
 
-    return <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-            {trigger}
-        </DropdownMenuTrigger>
-        <DropdownMenuContent 
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-            align="end"
-            sideOffset={4}
-        >
-            <DropdownMenuLabel>
-                Team Options
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-                <DropdownMenuItem asChild>
-                    <Link href={Paths.config.teams.team(teamSlug).d4h}>
+    const [d4hDialogOpen, setD4hDialogOpen] = React.useState(false)
+
+    return <>
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                {trigger}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent 
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                align="end"
+                sideOffset={4}
+            >
+                <DropdownMenuLabel>
+                    Team Options
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                    <DropdownMenuItem onClick={() => setD4hDialogOpen(true)}>
                         <CableIcon/>
                         Configure D4H Integration
-                    </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem disabled>
-                    <Trash2Icon/>
-                    Delete Team
-                </DropdownMenuItem>
-            </DropdownMenuGroup>
-        </DropdownMenuContent>
-    </DropdownMenu>
+                    </DropdownMenuItem>
+                    
+                    <DropdownMenuItem disabled>
+                        <Trash2Icon/>
+                        Delete Team
+                    </DropdownMenuItem>
+                </DropdownMenuGroup>
+            </DropdownMenuContent>
+        </DropdownMenu>
+        <TeamD4hConfigDialog 
+            open={d4hDialogOpen} 
+            onOpenChange={setD4hDialogOpen}
+            teamId={teamId}
+        />
+    </>
+    
 }
 
 

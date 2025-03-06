@@ -4,7 +4,10 @@
  */
 'use client'
 
+
 import { z, } from 'zod'
+
+import { useQuery } from '@tanstack/react-query'
 
 
 const LOCAL_STORAGE_KEY = 'rtplus/d4h-access-tokens'
@@ -52,4 +55,12 @@ export function removeAccessToken(id: string) {
     const tokens = getAccessTokens()
     const newTokens = tokens.filter(token => token.id !== id)
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newTokens))
+}
+
+export function useAccessTokensQuery() {
+
+    return useQuery({
+        queryKey: ['d4h-access-tokens'],
+        queryFn: getAccessTokens,
+    })
 }

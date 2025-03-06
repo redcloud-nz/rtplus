@@ -10,16 +10,19 @@ import { clerkClient } from '@clerk/nextjs/server'
 import { Team } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
+
 import { createTeamFormSchema } from '@/lib/forms/create-team'
 import { createUUID } from '@/lib/id'
 
 import { updateTeamFormSchema } from '@/lib/forms/update-team'
+import { RTPlusLogger } from '@/lib/logger'
 import { zodSlug } from '@/lib/validation'
 
 import { authenticatedProcedure, createTRPCRouter } from '../init'
 import { FieldConflictError } from '../types'
-import { updateTeamD4hFormSchema } from '@/lib/forms/update-team-d4h'
 
+
+const logger = new RTPlusLogger('trpc/teams')
 
 export const teamsRouter = createTRPCRouter({
     all: authenticatedProcedure
@@ -65,19 +68,27 @@ export const teamsRouter = createTRPCRouter({
             teamId: z.string().uuid()
         }))
         .query(async ({ ctx, input }) => {
-            return ctx.prisma.team.findUnique({ where: { id: input.teamId } })
+            return ctx.prisma.team.findUnique({ 
+                where: { id: input.teamId },
+                include: { d4hInfo: true }
+            })
         }),
     bySlug: authenticatedProcedure
         .input(z.object({
             slug: zodSlug
         }))
         .query(async ({ ctx, input }) => {
-            return ctx.prisma.team.findUnique({ where: { slug: input.slug } })
+            return ctx.prisma.team.findUnique({ 
+                where: { slug: input.slug },
+                include: { d4hInfo: true }
+            })
         }),
 
     create: authenticatedProcedure
         .input(createTeamFormSchema)
         .mutation(async ({ ctx, input }) => {
+            console.log()
+
             if(!ctx.hasPermission('system:manage-teams')) 
                 throw new TRPCError({ code: 'FORBIDDEN', message: 'system:manage-teams permission is required to create a team.' })
 
@@ -114,18 +125,6 @@ export const teamsRouter = createTRPCRouter({
                 }
             })
         }),
-    d4hInfoBySlug: authenticatedProcedure
-        .input(z.object({
-            slug: zodSlug
-        }))
-        .query(async ({ ctx, input }) => {
-            const team = await ctx.prisma.team.findUnique({ 
-                where: { slug: input.slug }, 
-                include: { d4hInfo: true }
-            })
-            return team?.d4hInfo ?? null
-        }),
-
 
     listWithMembers: authenticatedProcedure
         .input(z.object({
@@ -248,9 +247,15 @@ export const teamsRouter = createTRPCRouter({
         }),
 
     updateTeamD4h: authenticatedProcedure
-        .input(updateTeamD4hFormSchema)
+        .input(z.object({
+            teamId: z.string().uuid(),
+            d4hTeamId: z.number(),
+            serverCode: z.string(),
+        }))
         .mutation(async ({ ctx, input }) => {
             const { teamId, ...data } = input
+
+            logger.info(`Updating D4H info for team ${teamId}`, input)
 
             if(!(ctx.hasPermission('system:manage-teams') || ctx.hasPermission("team:write", teamId))) 
                 throw new TRPCError({ code: 'FORBIDDEN', message: 'system:manage-teams or team:write permission is required to update a team.' })

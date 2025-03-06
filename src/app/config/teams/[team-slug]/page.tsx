@@ -25,6 +25,7 @@ import * as Paths from '@/paths'
 
 import { TeamMembersCard } from './team-members-card'
 import { TeamOptionsMenu } from './team-options-menu'
+import { D4hServerCode, getD4hServer } from '@/lib/d4h-api/servers'
 
 
 
@@ -56,13 +57,12 @@ export default async function TeamPage(props: { params: Promise<{ 'team-slug': s
         <PageHeader>
             <PageTitle objectType="Team">{team.name}</PageTitle>
             <PageControls>
-                <TeamOptionsMenu
-                    hasD4hInfo={!!team.d4hInfo}
-                    hasTeamWritePermission={hasTeamWritePermission}
-                    teamId={team.id}
-                    teamSlug={teamSlug}
-                    trigger={<Button variant="ghost"><EllipsisVerticalIcon/></Button>}
-                />
+                <Protect permission='team:write' teamId={team.id} system='system:manage-teams'>
+                    <TeamOptionsMenu
+                        teamId={team.id}
+                        trigger={<Button variant="ghost"><EllipsisVerticalIcon/></Button>}
+                    />
+                </Protect>
             </PageControls>
         </PageHeader>
         
@@ -70,7 +70,7 @@ export default async function TeamPage(props: { params: Promise<{ 'team-slug': s
             <Card>
                 <CardHeader>
                     <CardTitle>Team Details</CardTitle>
-                    <Protect permission='system:manage-teams'>
+                    <Protect permission='team:write' teamId={team.id} system='system:manage-teams'>
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button variant="ghost" asChild>
@@ -99,19 +99,13 @@ export default async function TeamPage(props: { params: Promise<{ 'team-slug': s
                         <DLTerm>Colour</DLTerm>
                         <DLDetails><ColorValue value={team.color}/></DLDetails>
 
+                        {team.d4hInfo?.serverCode ? <>
+                            <DLTerm>D4H Server</DLTerm>
+                            <DLDetails>{getD4hServer(team.d4hInfo.serverCode as D4hServerCode).name}</DLDetails>
+                        </> : null}
                         {team.d4hInfo?.d4hTeamId ? <>
                             <DLTerm>D4H Team ID</DLTerm>
                             <DLDetails>{team.d4hInfo.d4hTeamId}</DLDetails>
-                        </> : null}
-                        {team.d4hInfo?.d4hApiUrl ? <>
-                            <DLTerm>D4H API URL</DLTerm>
-                            <DLDetails>{team.d4hInfo.d4hApiUrl}</DLDetails>
-                        </> : null}
-                        {team.d4hInfo?.d4hWebUrl ? <>
-                            <DLTerm>D4H Web URL</DLTerm>
-                            <DLDetails>
-                                <ExternalLink href={team.d4hInfo.d4hWebUrl}>{team.d4hInfo.d4hWebUrl}</ExternalLink>
-                            </DLDetails>
                         </> : null}
                     </DL>
                 </CardContent>

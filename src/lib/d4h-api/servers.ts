@@ -2,10 +2,10 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
-'use client'
 
 export type D4hServerCode = 'ap' | 'eu' | 'us'
 
+export const D4hServerCodes = ['ap', 'eu', 'us'] as const
 
 interface D4HServer {
     code: D4hServerCode
@@ -15,7 +15,7 @@ interface D4HServer {
 
 }
 
-const D4HServerList: D4HServer[] = [
+export const D4hServerList: D4HServer[] = [
     {
         code: 'ap',
         apiUrl: 'https://api.team-manager.ap.d4h.com',
@@ -38,5 +38,5 @@ const D4HServerList: D4HServer[] = [
 
 
 export function getD4hServer(code: D4hServerCode): D4HServer {
-    return D4HServerList.find(server => server.code === code)!
+    return D4hServerList.find(server => server.code === code)!
 }
