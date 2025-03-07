@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Team } from '@prisma/client'
 
 
-import { FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormProvider, FormSubmitButton } from '@/components/ui/form'
+import { FormCancelButton, FormControl, FormControls, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormProvider, FormSubmitButton } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
 import { useToast } from '@/hooks/use-toast'
@@ -110,14 +110,16 @@ export function UpdateTeamForm({ team }: UpdateTeamFormProps) {
                     <FormMessage/>
                 </FormItem>}
             />
-            <FormSubmitButton
-                labels={{
-                    ready: 'Update',
-                    submitting: 'Updating...',
-                    submitted: 'Updated'
-                }}
-            />
-            <FormCancelButton/>
+            <FormControls>
+                <FormSubmitButton
+                    labels={{
+                        ready: 'Update',
+                        submitting: 'Updating...',
+                        submitted: 'Updated'
+                    }}
+                />
+                <FormCancelButton/>
+            </FormControls>
         </form>
     </FormProvider>
 }

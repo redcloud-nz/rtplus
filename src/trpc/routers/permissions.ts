@@ -10,27 +10,7 @@ import { TRPCError } from '@trpc/server'
 
 import { authenticatedProcedure, AuthenticatedContext, createTRPCRouter } from '../init'
 import { isSystemPermission, isTeamPermission, PermissionKey, SystemPermissionKey, TeamPermissionKey } from '@/lib/permissions'
-
-export async function getUserPermissions(ctx: AuthenticatedContext, userId: string) {
-
-    const [user, teamPermissions] = await Promise.all([
-        ctx.prisma.user.findUnique({
-            where: { id: userId, status: 'Active' },
-        }),
-        ctx.prisma.teamPermission.findMany({
-            where: { userId, team: { status: 'Active' } },
-            include: { team: true }
-        })
-    ])
-
-    return {
-        systemPermissions: (user?.systemPermissions ?? []) as SystemPermissionKey[],
-        teamPermissions: teamPermissions.map(({ team, permissions }) => ({ 
-            team: R.pick(team, ['id', 'name', 'shortName', 'slug']),
-            permissions: permissions as TeamPermissionKey[]
-        }))
-    }
-}
+import { clerkClient } from '@clerk/nextjs/server'
 
 export const permissionsRouter = createTRPCRouter({
     user: authenticatedProcedure
@@ -76,6 +56,10 @@ export const permissionsRouter = createTRPCRouter({
                         permissions: { push: permissionKey }
                     }
                 })
+
+                const clerk = await clerkClient()
+
+                clerk.users.getOrganizationMembershipList({ userId  })
             }
         }),
 
@@ -127,3 +111,32 @@ export const permissionsRouter = createTRPCRouter({
             }
         })
 })
+
+export async function getUserPermissions(ctx: AuthenticatedContext, userId: string) {
+
+    const [user, teamPermissions] = await Promise.all([
+        ctx.prisma.user.findUnique({
+            where: { id: userId, status: 'Active' },
+        }),
+        ctx.prisma.teamPermission.findMany({
+            where: { userId, team: { status: 'Active' } },
+            include: { team: true }
+        })
+    ])
+
+    return {
+        systemPermissions: (user?.systemPermissions ?? []) as SystemPermissionKey[],
+        teamPermissions: teamPermissions.map(({ team, permissions }) => ({ 
+            team: R.pick(team, ['id', 'name', 'shortName', 'slug']),
+            permissions: permissions as TeamPermissionKey[]
+        }))
+    }
+}
+
+function addTeamAccess(ctx: AuthenticatedContext, userId: string) {
+    
+}
+
+function removeTeamAccess(ctx: AuthenticatedContext, userId: string) {
+
+}

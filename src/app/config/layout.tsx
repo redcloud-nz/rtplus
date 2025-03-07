@@ -20,7 +20,7 @@ import { ServerProtect } from '@/server/protect'
 export const metadata: Metadata = {
     title: {
         template: "%s | Configure | RT+",
-        default: "Configure | RT+",
+        default: "Configure",
     },
     description: "RT+ Configuration",
 };

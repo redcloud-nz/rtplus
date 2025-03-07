@@ -157,7 +157,7 @@ export function FormSubmitButton({ children, className, disabled, variant, size,
         (isSubmitted && isSubmitSuccessful) ? 'submitted' : 
         "ready"
 
-    return <><button
+    return <button
         className={cn('group', buttonVariants({ variant, size, className }))}
         disabled={disabled || isValidating || isSubmitting || (isSubmitted && isSubmitSuccessful)}
         data-state={state}
@@ -171,8 +171,6 @@ export function FormSubmitButton({ children, className, disabled, variant, size,
         {labels.submitted ? <FormSubmitButtonLabel activeState="submitted">{labels.submitted}</FormSubmitButtonLabel> : null}
         {children}
     </button>
-    {state}
-    </>
 }
 
 export type FormSubmitButtonLabelProps = React.ComponentPropsWithRef<'span'> & {
