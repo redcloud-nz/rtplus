@@ -12,24 +12,19 @@ import React from 'react'
 
 import { AppPage, PageControls, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 import { Protect } from '@/components/protect'
-import { Show } from '@/components/show'
-
-import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Link } from '@/components/ui/link'
-import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
-import prisma from '@/server/prisma'
 import * as Paths from '@/paths'
+
+import { PersonnelList } from './personnel-list'
+import { CreatePersonDialog } from './create-person-dialog'
+import { DialogTrigger } from '@/components/ui/dialog'
 
 
 export const metadata: Metadata = { title: "Personnel" }
 
 export default async function PeopleListPage() {
-
-    const people = await prisma.person.findMany({
-        orderBy: { name: 'asc' }
-    })
 
     return <AppPage
         label="Personnel" 
@@ -40,37 +35,16 @@ export default async function PeopleListPage() {
             <PageDescription>These are the people that available for use in RT+.</PageDescription>
             <PageControls>
                 <Protect permission="system:manage-personnel">
-                    <Button asChild>
-                        <Link href={Paths.config.personnel.new}>
+                    <CreatePersonDialog trigger={<DialogTrigger asChild>
+                        <Button>
                             <PlusIcon/> New Person
-                        </Link>
-                    </Button>
+                        </Button>
+                    </DialogTrigger>}/>
+                    
                 </Protect>
             </PageControls>
         </PageHeader>
-        <Show 
-            when={people.length > 0}
-            fallback={<Alert severity="info" title="No people defined">Add some people to get started.</Alert>}
-        >
-            <Table border>
-                <TableHead>
-                    <TableRow>
-                        <TableHeadCell className="w-1/2">Name</TableHeadCell>
-                        <TableHeadCell className="w-1/2">Email</TableHeadCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {people.map(person =>
-                        <TableRow key={person.id}>
-                            <TableCell>
-                                <Link href={Paths.config.personnel.person(person.id).index}>{person.name}</Link>
-                            </TableCell>
-                            <TableCell>{person.email}</TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
-        </Show>
+        <PersonnelList/>
     </AppPage>
 
   

@@ -13,15 +13,13 @@ import { checkSessionPermissions, CompactPermissions, PermissionKey, SystemPermi
 
 
 export interface RTPlusAuthObject {
-    readonly userId: string
-    readonly userPersonId: string | null
+    readonly personId: string
     readonly clerkUserId: string
     readonly teamSlug: string | null
     readonly permissions: CompactPermissions
     
     hasPermission(permission: SystemPermissionKey): boolean
     hasPermission(permission: TeamPermissionKey, teamId: string): boolean
-
 }
 
 interface AuthenticatedOptions {
@@ -43,8 +41,7 @@ export function createRTPlusAuth(clerkAuth: ClerkAuthObject, options: Authentica
 
 
     return {
-        userId: clerkAuth.sessionClaims.rt_uid,
-        userPersonId,
+        personId: clerkAuth.sessionClaims.rt_pid,
         clerkUserId: clerkAuth.userId,
         teamSlug,
         permissions: pick(clerkAuth.sessionClaims, ['rt_sp', 'rt_tp']),

@@ -13,22 +13,28 @@ datasource db {
     directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
-/// defines an individual person that may or may not be connected to a user.
+/// defines an individual person.
 model Person {
-    id                           String              @id @default(uuid()) @db.Uuid
-    slug                         String              @db.VarChar(100) @unique
-    name                         String              @db.VarChar(100)
-    email                        String
-    status                       RecordStatus        @default(Active)
+    id                           String                  @id @default(uuid()) @db.Uuid
+    name                         String                  @db.VarChar(100)
+    email                        String                  @db.VarChar(100) @unique
+    clerkUserId                  String?                 @map("clerk_user_id") @db.VarChar(50) @unique
+    onboardingStatus             OnboardingStatus        @map("onboarding_status")
+    systemPermissions            String[]
+    status                       RecordStatus            @default(Active)
   
     // Relations
-    changeLogs                   PersonChangeLog[]   @relation("person_change_log_to_person")
-    skillChecksAsAssessee        SkillCheck[]        @relation("skill_check_to_assessee")
-    skillChecksAsAssessor        SkillCheck[]        @relation("skill_check_to_assessor")
-    skillCheckSessionsAsAssessee SkillCheckSession[] @relation("skill_check_session_to_assessee")
-    skillCheckSessionsAsAssessor SkillCheckSession[] @relation("skill_check_session_to_assessor")
-    teamMemberships              TeamMembership[]    @relation("team_membership_to_person")
-    user                         User?               @relation("user_to_person")
+    changeLogs                   PersonChangeLog[]       @relation("person_change_log_to_person")
+    personChangeLogs             PersonChangeLog[]       @relation("person_change_log_to_actor")
+    policyAcceptances            PolicyAcceptance[]      @relation("policy_acceptance_to_person")
+    skillChecksAsAssessee        SkillCheck[]            @relation("skill_check_to_assessee")
+    skillChecksAsAssessor        SkillCheck[]            @relation("skill_check_to_assessor")
+    skillCheckSessionsAsAssessee SkillCheckSession[]     @relation("skill_check_session_to_assessee")
+    skillCheckSessionsAsAssessor SkillCheckSession[]     @relation("skill_check_session_to_assessor")
+    skillPackageChangeLogs       SkillPackageChangeLog[] @relation("skill_package_change_log_to_actor")
+    teamChangeLogs               TeamChangeLog[]         @relation("team_change_log_to_actor")
+    teamMemberships              TeamMembership[]        @relation("team_membership_to_person")
+    teamPermissions              TeamPermission[]        @relation("team_permission_to_person")
 
     @@map("personnel")
 }
@@ -50,9 +56,22 @@ model PersonChangeLog {
     fields      Json              @default("{}")
     timestamp   DateTime          @default(now())
     person      Person            @relation("person_change_log_to_person", fields: [personId], references: [id], onDelete: Cascade)
-    actor       User?             @relation("person_change_log_to_actor", fields: [actorId], references: [id], onDelete: SetNull)
+    actor       Person?           @relation("person_change_log_to_actor", fields: [actorId], references: [id], onDelete: SetNull)
 
     @@map("personnel_change_log")
+}
+
+model PolicyAcceptance {
+    id            String   @id @default(uuid()) @db.Uuid
+    personId      String   @map("person_id") @db.Uuid
+    policyKey     String   @map("policy_key") @db.VarChar(50)
+    policyVersion Int      @map("policy_version")
+    acceptedAt    DateTime @map("accepted_at") @default(now())
+
+    // Relations
+    person        Person     @relation("policy_acceptance_to_person", fields: [personId], references: [id], onDelete: Cascade)
+
+    @@map("policy_acceptances")
 }
 
 /// defines the current status of a record.
@@ -90,7 +109,6 @@ model SkillCheck {
     skillId         String                    @map("skill_id") @db.Uuid
     assesseeId      String                    @map("assessee_id") @db.Uuid
     assessorId      String                    @map("assessor_id") @db.Uuid
-    userId          String                    @map("user_id") @db.Uuid
     competenceLevel SkillCheckCompetenceLevel @map("competence_level")
     notes           String
     timestamp       DateTime                  @default(now())
@@ -100,7 +118,6 @@ model SkillCheck {
     assessee        Person                    @relation("skill_check_to_assessee", fields: [assesseeId], references: [id], onDelete: Cascade)
     assessor        Person                    @relation("skill_check_to_assessor", fields: [assessorId], references: [id], onDelete: Restrict)
     skill           Skill                     @relation("skill_check_to_skill", fields: [skillId], references: [id], onDelete: Cascade)
-    user            User                      @relation("skill_check_to_user", fields: [userId], references: [id], onDelete: Restrict)
 
     @@map("skill_checks")
 }
@@ -116,7 +133,6 @@ enum SkillCheckCompetenceLevel {
 model SkillCheckSession {
     id            String                  @id @default(uuid()) @db.Uuid
     assessorId    String                  @map("assessor_id") @db.Uuid
-    userId        String                  @map("user_id") @db.Uuid
     name          String                  @db.VarChar(100)
     date          DateTime
     sessionStatus SkillCheckSessionStatus @default(Draft)
@@ -128,7 +144,6 @@ model SkillCheckSession {
     assessees     Person[]                @relation("skill_check_session_to_assessee")
     checks        SkillCheck[]            @relation("skill_check_to_skill_check_session")
     skills        Skill[]                 @relation("skill_check_session_to_skill")
-    user          User                    @relation("skill_check_session_to_user", fields: [userId], references: [id], onDelete: Restrict)
 }
 
 enum SkillCheckSessionStatus {
@@ -203,7 +218,7 @@ model SkillPackageChangeLog {
 
     // Relations
     skillPackage   SkillPackage            @relation("skill_package_change_log_to_skill_package", fields: [skillPackageId], references: [id], onDelete: Cascade)
-    actor          User?                   @relation("skill_package_change_log_to_actor", fields: [actorId], references: [id], onDelete: SetNull)
+    actor          Person?                 @relation("skill_package_change_log_to_actor", fields: [actorId], references: [id], onDelete: SetNull)
 
     @@map("skill_packages_change_log")
 }
@@ -249,7 +264,7 @@ model TeamChangeLog {
 
     // Relations
     team        Team            @relation("team_change_log_to_team", fields: [teamId], references: [id], onDelete: Cascade)
-    actor       User?           @relation("team_change_log_to_actor", fields: [actorId], references: [id], onDelete: SetNull)
+    actor       Person?         @relation("team_change_log_to_actor", fields: [actorId], references: [id], onDelete: SetNull)
 
     @@map("teams_change_log")
 }
@@ -302,86 +317,23 @@ enum TeamMembershipD4hStatus {
 
 /// defines permissions that a user has on a specific team.
 model TeamPermission {
-    userId      String   @map("user_id") @db.Uuid
+    personId    String   @map("user_id") @db.Uuid
     teamId      String   @map("team_id") @db.Uuid
     permissions String[]
 
     // Relations
+    person      Person   @relation("team_permission_to_person", fields: [personId], references: [id], onDelete: Cascade)
     team        Team     @relation("team_permission_to_team", fields: [teamId], references: [id], onDelete: Cascade)
-    user        User     @relation("team_permission_to_user", fields: [userId], references: [id], onDelete: Cascade)
+    
 
-    @@id([userId, teamId])
+    @@id([personId, teamId])
     @@map("team_permissions")
 }
 
-/// defines user that can log in and interact with the system. May or may not be connected to a person.
-model User {
-    id                     String                  @id @default(uuid()) @db.Uuid
-    personId               String?                 @map("person_id") @db.Uuid @unique
-    clerkUserId            String?                 @map("clerk_user_id") @db.VarChar(50) @unique
-    onboardingStatus       UserOnboardingStatus    @map("onboarding_status")
-    name                   String
-    email                  String
-    systemPermissions      String[]
-    status                 RecordStatus            @default(Active)
 
-    // Relations
-    changeLogs             UserChangeLog[]         @relation("user_change_log_to_user")
-    person                 Person?                 @relation("user_to_person", fields: [personId], references: [id], onDelete: SetNull)
-    personChangeLogs       PersonChangeLog[]       @relation("person_change_log_to_actor")
-    policyAcceptances      UserPolicyAcceptance[]  @relation("user_policy_acceptance_to_user")
-    skillChecks            SkillCheck[]            @relation("skill_check_to_user")
-    skillCheckSessions     SkillCheckSession[]     @relation("skill_check_session_to_user")
-    skillPackageChangeLogs SkillPackageChangeLog[] @relation("skill_package_change_log_to_actor")
-    teamChangeLogs         TeamChangeLog[]         @relation("team_change_log_to_actor")
-    teamPermissions        TeamPermission[]        @relation("team_permission_to_user")
-    userChangeLogs         UserChangeLog[]         @relation("user_change_log_to_actor")
-
-    @@map("users")
-}
-
-enum UserChangeEvent {
-    Create
-    Update
-    Delete
-    AddPermission
-    RemovePermission
-}
-
-/// defines a change to a user record.
-model UserChangeLog {
-    id          String          @id @default(uuid()) @db.Uuid
-    userId      String          @map("user_id") @db.Uuid
-    actorId     String?         @map("actor_id") @db.Uuid
-    event       UserChangeEvent
-    description String          @default("")
-    meta        Json            @default("{}")
-    fields      Json            @default("{}")
-    timestamp   DateTime        @default(now())
-
-    // Relations
-    user        User            @relation("user_change_log_to_user", fields: [userId], references: [id], onDelete: Cascade)
-    actor       User?           @relation("user_change_log_to_actor", fields: [actorId], references: [id], onDelete: SetNull)
-
-    @@map("users_change_log")
-}
-
-enum UserOnboardingStatus {
+enum OnboardingStatus {
     NotStarted
     Invited
     Decline
     Complete
-}
-
-model UserPolicyAcceptance {
-    id            String   @id @default(uuid()) @db.Uuid
-    userId        String   @map("user_id") @db.Uuid
-    policyKey     String   @map("policy_key") @db.VarChar(50)
-    policyVersion Int      @map("policy_version")
-    acceptedAt    DateTime @map("accepted_at") @default(now())
-
-    // Relations
-    user          User     @relation("user_policy_acceptance_to_user", fields: [userId], references: [id], onDelete: Cascade)
-
-    @@map("user_policy_acceptances")
 }

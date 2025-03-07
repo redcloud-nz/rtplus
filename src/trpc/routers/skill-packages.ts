@@ -8,11 +8,11 @@ import { z } from 'zod'
 
 import { TRPCError } from '@trpc/server'
 
+import { PackageList, SkillPackageDef } from '@/data/skills'
 import { ChangeCountsByType, createChangeCounts } from '@/lib/change-counts'
+import { assertNonNull } from '@/lib/utils'
 
 import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter } from '../init'
-import { PackageList, SkillPackageDef } from '@/data/skills'
-import { assertNonNull } from '@/lib/utils'
 
 
 export const skillPackagesRouter = createTRPCRouter({
@@ -89,7 +89,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
                     changeLogs: {
                         create: {
                             event: 'Update',
-                            actorId: ctx.userId,
+                            actorId: ctx.personId,
                             timestamp: new Date(),
                             fields: changes,
                             description: "Imported skill package"
@@ -109,7 +109,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
                 changeLogs: {
                     create: {
                         event: 'Create',
-                        actorId: ctx.userId,
+                        actorId: ctx.personId,
                         timestamp: new Date(),
                         fields: fields,
                         description: "Import skill package"
@@ -145,7 +145,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
             ctx.prisma.skillPackageChangeLog.createMany({ 
                 data: groupsToAdd.map(group => ({
                     event: 'CreateGroup',
-                    actorId: ctx.userId,
+                    actorId: ctx.personId,
                     skillPackageId: group.skillPackageId,
                     timestamp,
                     fields: group,
@@ -178,7 +178,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
                 ctx.prisma.skillPackageChangeLog.create({
                     data: {
                         event: 'UpdateGroup',
-                        actorId: ctx.userId,
+                        actorId: ctx.personId,
                         skillPackageId: group.skillPackageId,
                         timestamp: new Date(),
                         fields: changes,
@@ -214,7 +214,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
             ctx.prisma.skillPackageChangeLog.createMany({ 
                 data: skillsToAdd.map(skill => ({
                     event: 'CreateSkill',
-                    actorId: ctx.userId,
+                    actorId: ctx.personId,
                     skillPackageId: skillPackage.id,
                     timestamp,
                     fields: { ...skill },
@@ -248,7 +248,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
                 ctx.prisma.skillPackageChangeLog.create({
                     data: {
                         event: 'UpdateSkill',
-                        actorId: ctx.userId,
+                        actorId: ctx.personId,
                         skillPackageId: skillPackage.id,
                         timestamp: new Date(),
                         fields: changes,

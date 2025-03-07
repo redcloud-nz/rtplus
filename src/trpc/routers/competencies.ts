@@ -25,10 +25,9 @@ export const competenciesRouter = createTRPCRouter({
             try {
                 await ctx.prisma.skillCheck.create({
                     data: {
-                        userId: ctx.userId,
                         skillId: input.skillId,
                         assesseeId: input.assesseeId,
-                        assessorId: ctx.userPersonId!,
+                        assessorId: ctx.personId,
                         competenceLevel: input.competenceLevel,
                         notes: input.notes,
                     }
@@ -39,11 +38,11 @@ export const competenciesRouter = createTRPCRouter({
         }),
 
     sessions: {
-
         all: teamProcedure
             .query(async ({ ctx }) => {
                 const sessions = await ctx.prisma.skillCheckSession.findMany({
-                    where: { userId: ctx.userId },
+                    where: { assessorId: ctx.personId },
+                    orderBy: { date: 'desc' },
                     include: {
                         _count: {
                             select: { skills: true, assessees: true, checks: true }
@@ -80,7 +79,7 @@ export const competenciesRouter = createTRPCRouter({
 
                 const sessions = await ctx.prisma.skillCheckSession.findMany({
                     select: { id: true, name: true },
-                    where: { userId: ctx.userId, name: { startsWith: `${year} #` } }
+                    where: { assessorId: ctx.personId,  name: { startsWith: `${year} #` } }
                 })
 
                 let higestSessionNumber = 0
@@ -95,8 +94,7 @@ export const competenciesRouter = createTRPCRouter({
 
                 const newSession = await ctx.prisma.skillCheckSession.create({
                     data: {
-                        userId: ctx.userId,
-                        assessorId: ctx.userPersonId!,
+                        assessorId: ctx.personId,
                         date: new Date(),
                         name: `${year} #${newSessionNumber}`
                     }

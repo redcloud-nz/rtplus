@@ -24,23 +24,33 @@ export const personnelRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             return ctx.prisma.person.findMany({ 
                 where: { status: input.status },
-                select: { id: true, name: true, slug: true, email: true, status: true },
+                select: { id: true, name: true, email: true, status: true },
                 orderBy: { name: 'asc' }
             })
         }),
+
     byId: authenticatedProcedure
         .input(z.object({ personId: z.string().uuid() }))
         .query(async ({ input, ctx }) => {
             return ctx.prisma.person.findUnique({ 
                 where: { id: input.personId },
-                select: { id: true, name: true, slug: true, email: true, status: true }
+                select: { id: true, name: true, email: true, status: true }
+            })
+        }),
+
+    byEmail: authenticatedProcedure
+        .input(z.object({ email: z.string().email() }))
+        .query(async ({ input, ctx }) => {
+            return ctx.prisma.person.findUnique({
+                where: { email: input.email },
+                select: { id: true, name: true, email: true, status: true }
             })
         }),
 
     create: authenticatedProcedure
         .input(createPersonFormSchema)
         .mutation(async ({ input, ctx }) => {
-            if(!(ctx.hasPermission('system:manage-personnel') || ctx.hasPermission('team:manage-members', '*'))) 
+            if(!(ctx.hasPermission('system:manage-personnel'))) 
                 throw new TRPCError({ code: 'FORBIDDEN', message: 'system:manage-people permission is required to create a person.' })
                 
             const emailConflict = await ctx.prisma.person.findFirst({ where: { email: input.email } })
@@ -49,9 +59,10 @@ export const personnelRouter = createTRPCRouter({
             const newUser = await ctx.prisma.person.create({ 
                 data: { 
                     ...input,
+                    onboardingStatus: 'NotStarted',
                     changeLogs: { 
                         create: { 
-                            actorId: ctx.userId,
+                            actorId: ctx.personId,
                             event: 'Create',
                             fields: input
                         }
@@ -60,6 +71,16 @@ export const personnelRouter = createTRPCRouter({
             })
 
             return newUser
+        }),
+
+
+    delete: authenticatedProcedure
+        .input(z.object({ personId: z.string().uuid() }))
+        .mutation(async ({ input, ctx }) => {
+            if(!ctx.hasPermission('system:manage-personnel'))
+                throw new TRPCError({ code: 'FORBIDDEN', message: 'system:manage-people permission is required to delete a person.' })
+        
+            // TODO Implement delete
         }),
 
     update: authenticatedProcedure
@@ -86,7 +107,7 @@ export const personnelRouter = createTRPCRouter({
                     ...input,
                     changeLogs: { 
                         create: { 
-                            actorId: ctx.userId,
+                            actorId: ctx.personId,
                             event: 'Update',
                             fields: input
                         }

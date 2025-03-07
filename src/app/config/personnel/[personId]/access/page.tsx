@@ -41,7 +41,7 @@ export default async function PersonAccessPage(props: Props) {
     ])
     if(!person) return <NotFound/>
 
-    if(user) void trpc.permissions.user.prefetch({ userId: user.id })
+    if(user) void trpc.permissions.person.prefetch({ userId: user.id })
 
     return <AppPage
         label="Access & Permissions"

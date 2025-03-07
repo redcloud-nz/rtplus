@@ -27,7 +27,7 @@ import { trpc } from '@/trpc/client'
  * Card that displays the permissions of an individual user.
  */
 export function UserPermissionsCard({ userId }: { userId: string }) {
-    const [{ systemPermissions, teamPermissions }] = trpc.permissions.user.useSuspenseQuery({ userId })
+    const [{ systemPermissions, teamPermissions }] = trpc.permissions.person.useSuspenseQuery({ userId })
 
     const [addPermissionDialogOpen, setAddPermissionDialogOpen] = React.useState(false)
 
@@ -113,13 +113,13 @@ function DeletePermissionButton({ userId, permissionKey, objectId }: DeletePermi
     const utils = trpc.useUtils()
     const mutation = trpc.permissions.removePermission.useMutation({
         onSuccess() {
-            utils.permissions.user.invalidate({ userId })
+            utils.permissions.person.invalidate({ userId })
         }
     })
 
     function handleDeletePermission() {
         mutation.mutate({
-            userId,
+            personId: userId,
             permissionKey,
             teamId: objectId
         })
@@ -149,7 +149,7 @@ export function AddPermissionDialog({ onOpenChange, open, userId, ...props }: Ad
     const utils = trpc.useUtils()
 
     // Existing permissions of the target user
-    const [permissions] = trpc.permissions.user.useSuspenseQuery({ userId })
+    const [permissions] = trpc.permissions.person.useSuspenseQuery({ userId })
 
     // Current user's permissions
     const [currentUserPermissions] = trpc.currentUser.permissions.useSuspenseQuery()
@@ -172,7 +172,7 @@ export function AddPermissionDialog({ onOpenChange, open, userId, ...props }: Ad
 
     const mutation = trpc.permissions.addPermission.useMutation({
         onSuccess() {
-            utils.permissions.user.invalidate({ userId })
+            utils.permissions.person.invalidate({ userId })
             handleOpenChange(false)
         }
     })

@@ -25,9 +25,6 @@ import { useSkillPackageImportStore } from './skill-package-import-store'
 
 
 
-
-
-
 export default function ImportSkillPackage() {
 
     const { message, status } = useSkillPackageImportStore(useShallow(R.pick(['message', 'status'])))
@@ -62,7 +59,6 @@ export default function ImportSkillPackage() {
         </div>
     </AppPage>
 }
-
 
 
 function SelectPackageStep() {

@@ -13,7 +13,6 @@ export const config = {
     index: '/config',
     teams: {
         index: '/config/teams',
-        new: '/config/teams/--new',
         team: (teamSlug: string) => ({
             index: `/config/teams/${teamSlug}`,
             d4h: `/config/teams/${teamSlug}/d4h`,
@@ -23,7 +22,6 @@ export const config = {
     },
     personnel: {
         index: '/config/personnel',
-        new: '/config/personnel/--new',
         person: (personId: string) => ({
             index: `/config/personnel/${personId}`,
             edit: `/config/personnel/${personId}/edit`,

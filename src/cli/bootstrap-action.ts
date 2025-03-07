@@ -5,19 +5,15 @@
 'use server'
 
 import { clerkClient, currentUser } from '@clerk/nextjs/server'
-import { Person, User } from '@prisma/client'
+import { Person} from '@prisma/client'
 
-import { createUUID } from '@/lib/id'
 import { authenticated } from '@/server/auth'
 import prisma from '@/server/prisma'
-import { SystemShortKey, SystemShortKeyToPermissionKeyMap } from '@/lib/permissions'
-import { on } from 'events'
 
 
 interface BootstrapActionResult {
     success: boolean
     person?: Person
-    user?: User
 }
 
 export async function bootstrapAction(): Promise<BootstrapActionResult> {
@@ -29,57 +25,32 @@ export async function bootstrapAction(): Promise<BootstrapActionResult> {
         throw 'You do not have permission to bootstrap the system'
     }
 
-    const userCount = await prisma.user.count()
+    const personCount = await prisma.person.count()
 
-    let createdUser: User | undefined = undefined
     let createdPerson: Person | undefined = undefined
-    if(userCount == 0 && auth.userId != undefined) {
+    if(personCount == 0 && auth.personId != undefined) {
         const name = (clerkUser.firstName ?? '') + ' ' + (clerkUser.lastName ?? '')
         const email = clerkUser.primaryEmailAddress?.emailAddress ?? ''
 
-        const personId = auth.userPersonId ?? createUUID()
-        const userId = auth.userId
-
         createdPerson = await prisma.person.create({
             data: {
-                id: personId,
-                slug: personId,
-                name, email,
-            }
-        })
-
-        createdUser = await prisma.user.create({
-            data: {
-                id: userId,
-                personId,
-                clerkUserId: clerkUser.id,
+                id: auth.personId,
                 name, email,
                 onboardingStatus: 'Complete',
-                systemPermissions: { set: auth.permissions.rt_sp.split('').map(k => SystemShortKeyToPermissionKeyMap[k as SystemShortKey]) },
                 changeLogs: {
                     create: {
-                        actorId: userId,
+                        actorId: auth.personId,
                         event: 'Create',
-                        fields: { personId, name, email }
+                        fields: { name, email }
                     }
                 }
-            }
-        })
-
-        await prisma.personChangeLog.create({
-            data: {
-                actorId: userId,
-                personId,
-                event: 'Create',
-                fields: { name, email, slug: personId }
             }
         })
 
         const clerk = await clerkClient()
         clerk.users.updateUser(clerkUser.id,{
             publicMetadata: {
-                userId,
-                userPersonId: personId,
+                personId: auth.personId,
                 onboardingStatus: 'Complete',
                 systemPermissions: auth.permissions.rt_sp,
                 teamPermissions: {},
@@ -88,9 +59,8 @@ export async function bootstrapAction(): Promise<BootstrapActionResult> {
     }
 
     return { 
-        success: createdUser != undefined,
+        success: createdPerson != undefined,
         person: createdPerson,
-        user: createdUser
     }
 
 }

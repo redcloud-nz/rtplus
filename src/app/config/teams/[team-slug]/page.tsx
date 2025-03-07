@@ -16,10 +16,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
 import { ColorValue } from '@/components/ui/color'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
-import { ExternalLink, Link } from '@/components/ui/link'
+import { Link } from '@/components/ui/link'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
-import { authenticated } from '@/server/auth'
 import prisma from '@/server/prisma'
 import * as Paths from '@/paths'
 
@@ -36,7 +35,6 @@ export const metadata: Metadata = {
 
 export default async function TeamPage(props: { params: Promise<{ 'team-slug': string }>}) {
     const { 'team-slug': teamSlug } = await props.params
-    const { hasPermission } = await authenticated()
 
     const team = await prisma.team.findUnique({
         where: { slug: teamSlug },
@@ -44,8 +42,6 @@ export default async function TeamPage(props: { params: Promise<{ 'team-slug': s
     })
 
     if(!team) return <NotFound />
-
-    const hasTeamWritePermission = hasPermission('system:manage-teams') || hasPermission(`team:write`, team.id)
 
     return <AppPage
         label={team.shortName || team.name}
@@ -110,7 +106,7 @@ export default async function TeamPage(props: { params: Promise<{ 'team-slug': s
                     </DL>
                 </CardContent>
             </Card>
-            <TeamMembersCard teamSlug={teamSlug}/>
+            <TeamMembersCard teamId={team.id}/>
         </CardGrid>
     </AppPage>
 }

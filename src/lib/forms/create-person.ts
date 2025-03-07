@@ -5,11 +5,9 @@
 
 import { z } from 'zod'
 
-import { zodSlug } from '../validation'
 
 export const createPersonFormSchema = z.object({
     name: z.string().min(5).max(100),
-    slug: zodSlug,
     email: z.string().email(),
 })
 

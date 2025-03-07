@@ -13,26 +13,28 @@ import { isSystemPermission, isTeamPermission, PermissionKey, SystemPermissionKe
 import { clerkClient } from '@clerk/nextjs/server'
 
 export const permissionsRouter = createTRPCRouter({
-    user: authenticatedProcedure
-        .input(z.object({ userId: z.string().uuid() }))
-        .query(({ input, ctx }) => getUserPermissions(ctx, input.userId)),
+    person: authenticatedProcedure
+        .input(z.object({ personId: z.string().uuid() }))
+        .query(({ input, ctx }) => getPersonPermissions(ctx, input.personId)),
 
     addPermission: authenticatedProcedure
         .input(z.object({ 
-            userId: z.string().uuid(), 
+            personId: z.string().uuid(), 
             permissionKey: z.string().transform(p => p as PermissionKey), 
             teamId: z.string().uuid().optional()
         }))
         .mutation(async ({ input, ctx }) => {
-            const { userId, permissionKey, teamId } = input
+            const { personId, permissionKey, teamId } = input
             
+            const person = await ctx.prisma.person.findUnique({ where: { id: personId }})
+            if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: 'Person not found' })
 
             if(isSystemPermission(permissionKey)) {
                 // Only people with system:write permission can assign system permission
                 if(!ctx.hasPermission('system:write')) throw new TRPCError({ code: 'FORBIDDEN' })
 
-                await ctx.prisma.user.update({
-                    where: { id: userId },
+                await ctx.prisma.person.update({
+                    where: { id: personId },
                     data: { systemPermissions: { push: permissionKey }}
                 })
 
@@ -45,45 +47,41 @@ export const permissionsRouter = createTRPCRouter({
                
                 await ctx.prisma.teamPermission.upsert({
                     where: { 
-                        userId_teamId: { userId, teamId }
+                        personId_teamId: { personId, teamId }
                     },
                     create: { 
                         permissions: [permissionKey], 
-                        user: { connect: { id: userId }}, 
+                        person: { connect: { id: personId }}, 
                         team: { connect: { id: teamId }}
                     },
                     update: { 
                         permissions: { push: permissionKey }
                     }
-                })
-
-                const clerk = await clerkClient()
-
-                clerk.users.getOrganizationMembershipList({ userId  })
+                })        
             }
         }),
 
     removePermission: authenticatedProcedure
         .input(z.object({ 
-            userId: z.string().uuid(), 
+            personId: z.string().uuid(), 
             permissionKey: z.string().transform(p => p as PermissionKey), 
             teamId: z.string().uuid().optional() 
         }))
         .mutation(async ({ input, ctx }) => {
-            const { userId, permissionKey, teamId } = input
+            const { personId, permissionKey, teamId } = input
 
             if(isSystemPermission(permissionKey)) {
                 // Only people with system:write permission can remove system permissions
                 if(!ctx.hasPermission('system:write')) throw new TRPCError({ code: 'FORBIDDEN' })
 
-                const existing = await ctx.prisma.user.findUnique({ 
-                    where: { id: userId },
+                const existing = await ctx.prisma.person.findUnique({ 
+                    where: { id: personId },
                     select: { systemPermissions: true }
                 })
 
                 if(existing) {
-                    await ctx.prisma.user.update({
-                        where: { id: userId },
+                    await ctx.prisma.person.update({
+                        where: { id: personId },
                         data: { systemPermissions: { set: existing.systemPermissions.filter(p => p !== permissionKey) }}
                     })
                 }
@@ -96,14 +94,14 @@ export const permissionsRouter = createTRPCRouter({
 
                 const existing = await ctx.prisma.teamPermission.findUnique({
                     where: { 
-                        userId_teamId: { userId, teamId }
+                        personId_teamId: { personId, teamId }
                     },
                 })
 
                 if(existing) {
                     await ctx.prisma.teamPermission.update({
                         where: { 
-                            userId_teamId: { userId, teamId }
+                            personId_teamId: { personId, teamId }
                         },
                         data: { permissions: { set: existing.permissions.filter(p => p !== permissionKey) }}
                     })
@@ -112,31 +110,23 @@ export const permissionsRouter = createTRPCRouter({
         })
 })
 
-export async function getUserPermissions(ctx: AuthenticatedContext, userId: string) {
+export async function getPersonPermissions(ctx: AuthenticatedContext, personId: string) {
 
-    const [user, teamPermissions] = await Promise.all([
-        ctx.prisma.user.findUnique({
-            where: { id: userId, status: 'Active' },
+    const [person, teamPermissions] = await Promise.all([
+        ctx.prisma.person.findUnique({
+            where: { id: personId, status: 'Active' },
         }),
         ctx.prisma.teamPermission.findMany({
-            where: { userId, team: { status: 'Active' } },
+            where: { personId, team: { status: 'Active' } },
             include: { team: true }
         })
     ])
 
     return {
-        systemPermissions: (user?.systemPermissions ?? []) as SystemPermissionKey[],
+        systemPermissions: (person?.systemPermissions ?? []) as SystemPermissionKey[],
         teamPermissions: teamPermissions.map(({ team, permissions }) => ({ 
             team: R.pick(team, ['id', 'name', 'shortName', 'slug']),
             permissions: permissions as TeamPermissionKey[]
         }))
     }
-}
-
-function addTeamAccess(ctx: AuthenticatedContext, userId: string) {
-    
-}
-
-function removeTeamAccess(ctx: AuthenticatedContext, userId: string) {
-
 }

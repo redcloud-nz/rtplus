@@ -35,7 +35,7 @@ export default async function SkillPackageListPage() {
             <PageDescription>Manage the skill packages available in RT+.</PageDescription>
             <PageControls>
                 <ServerProtect permission="system:manage-skill-packages">
-                    <Button variant="ghost" asChild>
+                    <Button variant="outline" asChild>
                         <Link href={Paths.config.skillPackages.import}>
                             <ImportIcon/>
                         </Link>

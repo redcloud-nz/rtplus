@@ -26,16 +26,14 @@ declare global {
         teamId: string
     }
     interface UserPublicMetadata {
-        userId: string
-        userPersonId: string | null
+        personId: string
         systemPermissions: SystemShortPermissions
         teamPermissions: Record<string, TeamShortPermissions>
         onboardingStatus: UserOnboardingStatus
     }
     interface CustomJwtSessionClaims {
         org_name: string
-        rt_uid: string
-        rt_pid: string | null
+        rt_pid: string
         rt_sp: SystemShortPermissions
         rt_tp: Record<string, TeamShortPermissions>
         rt_uos: UserOnboardingStatus
