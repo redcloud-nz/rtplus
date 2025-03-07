@@ -4,12 +4,12 @@
  */
 'use server'
 
-import { authenticated } from '@/server/auth'
 import prisma from '@/server/prisma'
+import { auth } from '@clerk/nextjs/server'
 
 export async function getPersonnelCountAction(): Promise<number> {
 
-    await authenticated()
+    await auth.protect()
 
     const personCount = prisma.person.count()
 

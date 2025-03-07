@@ -6,7 +6,7 @@
 import z from 'zod'
 import { TRPCError } from '@trpc/server'
 
-import { teamProcedure, createTRPCRouter } from '../init'
+import { createTRPCRouter, teamMemberProcedure } from '../init'
 
 
 export const competenciesRouter = createTRPCRouter({
@@ -14,7 +14,7 @@ export const competenciesRouter = createTRPCRouter({
     /**
      * Record an individual skill check
      */
-    recordSkillCheck: teamProcedure
+    recordSkillCheck: teamMemberProcedure
         .input(z.object({
             skillId: z.string().uuid(),
             assesseeId: z.string().uuid(),
@@ -38,7 +38,7 @@ export const competenciesRouter = createTRPCRouter({
         }),
 
     sessions: {
-        all: teamProcedure
+        all: teamMemberProcedure
             .query(async ({ ctx }) => {
                 const sessions = await ctx.prisma.skillCheckSession.findMany({
                     where: { assessorId: ctx.personId },
@@ -53,7 +53,7 @@ export const competenciesRouter = createTRPCRouter({
                 return sessions
             }),
 
-        byId: teamProcedure
+        byId: teamMemberProcedure
             .input(z.object({ 
                 sessionId: z.string().uuid()
             }))
@@ -73,7 +73,7 @@ export const competenciesRouter = createTRPCRouter({
         /**
          * Create a new skill check session.
          */
-        create: teamProcedure
+        create: teamMemberProcedure
             .mutation(async ({ ctx }) => {
                 const year = new Date().getFullYear()
 

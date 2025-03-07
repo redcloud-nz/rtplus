@@ -10,7 +10,7 @@ import { auth } from '@clerk/nextjs/server'
 export default async function OnboardingLayout({ children, modal }: { children: React.ReactNode, modal: React.ReactNode }) {
     const { sessionClaims } = await auth()
 
-    if( sessionClaims?.rt_uos == 'Complete') {
+    if( sessionClaims?.rt_onboarding_status == 'Complete') {
         redirect('/')
     }
 

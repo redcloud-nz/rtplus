@@ -9,32 +9,14 @@ import { TRPCError } from '@trpc/server'
 import { RTPlusLogger } from '@/lib/logger'
 
 import { authenticatedProcedure, createTRPCRouter } from '../init'
-import { getPersonPermissions } from './permissions'
-
-
 
 const logger = new RTPlusLogger('trpc/current-user')
 
 export const currentUserRouter = createTRPCRouter({
     
-    /**
-     * Get the permissions associated with the current user, in compact form.
-     */
-    compactPermissions: authenticatedProcedure
-        .query(async ({ ctx }) => {
-            return ctx.permissions
-        }),
 
     /**
-     * Get the permissions associated with the current user.
-     */
-    permissions: authenticatedProcedure
-        .query(({ ctx }) => {
-            return getPersonPermissions(ctx, ctx.personId)
-        }),
-
-    /**
-     * Get the person associated with the current user.
+     * Get the current user's person record
      */
     person: authenticatedProcedure
         .query(async ({ ctx }): Promise<Person> => {

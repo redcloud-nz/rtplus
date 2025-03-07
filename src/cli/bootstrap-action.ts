@@ -4,10 +4,9 @@
  */
 'use server'
 
-import { clerkClient, currentUser } from '@clerk/nextjs/server'
+import { auth, clerkClient, currentUser } from '@clerk/nextjs/server'
 import { Person} from '@prisma/client'
 
-import { authenticated } from '@/server/auth'
 import prisma from '@/server/prisma'
 
 
@@ -18,28 +17,26 @@ interface BootstrapActionResult {
 
 export async function bootstrapAction(): Promise<BootstrapActionResult> {
     
-    const auth = await authenticated()
+    const { sessionClaims: { rt_person_id: personId, rt_system_role: systemRole } } = await auth.protect()
     const clerkUser = (await currentUser())!
 
-    if (!auth.hasPermission('system:write')) {
-        throw 'You do not have permission to bootstrap the system'
-    }
+    if(systemRole != 'admin') throw new Error('Unauthorized')
 
     const personCount = await prisma.person.count()
 
     let createdPerson: Person | undefined = undefined
-    if(personCount == 0 && auth.personId != undefined) {
+    if(personCount == 0 && personId != undefined) {
         const name = (clerkUser.firstName ?? '') + ' ' + (clerkUser.lastName ?? '')
         const email = clerkUser.primaryEmailAddress?.emailAddress ?? ''
 
         createdPerson = await prisma.person.create({
             data: {
-                id: auth.personId,
+                id: personId,
                 name, email,
                 onboardingStatus: 'Complete',
                 changeLogs: {
                     create: {
-                        actorId: auth.personId,
+                        actorId: personId,
                         event: 'Create',
                         fields: { name, email }
                     }
@@ -50,10 +47,8 @@ export async function bootstrapAction(): Promise<BootstrapActionResult> {
         const clerk = await clerkClient()
         clerk.users.updateUser(clerkUser.id,{
             publicMetadata: {
-                personId: auth.personId,
+                ...clerkUser.publicMetadata,
                 onboardingStatus: 'Complete',
-                systemPermissions: auth.permissions.rt_sp,
-                teamPermissions: {},
             },
         })
     }

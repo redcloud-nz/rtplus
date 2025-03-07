@@ -14,7 +14,6 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { NavItem, NavSection } from '@/components/nav-section'
 
 import * as Paths from '@/paths'
-import { ServerProtect } from '@/server/protect'
 
 
 export const metadata: Metadata = {
@@ -28,11 +27,8 @@ export const metadata: Metadata = {
 export default async function SystemConfigLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     return <>
         <AppSidebar>
-            <NavSection title="Configuration">
+            <NavSection title="Configure">
                 <NavItem label="General Settings" href="/settings" icon={<SettingsIcon/>}/>
-                <ServerProtect permission="system:write">
-                    <NavItem label="Imports" href={Paths.imports.index} icon={<ImportIcon/>}/>
-                </ServerProtect>
                 <NavItem label="Personnel" href={Paths.config.personnel.index} icon={<UsersIcon/>}/>
                 <NavItem label="Skills" href={Paths.config.skills.index} icon={<PocketKnifeIcon/>}/>
                 <NavItem label="Skill Groups" href={Paths.config.skillGroups.index} icon={<GroupIcon/>}/>

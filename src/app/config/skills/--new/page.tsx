@@ -8,10 +8,8 @@
 
 import { NotImplemented } from '@/components/errors'
 import * as Paths from '@/paths'
-import { authenticated } from '@/server/auth'
 
 export default async function NewSkillPage() {
-    await authenticated()
 
     return <NotImplemented 
         label="New Skill" 

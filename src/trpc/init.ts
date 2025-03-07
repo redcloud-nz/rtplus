@@ -9,17 +9,14 @@ import superjson from 'superjson'
 import { auth } from '@clerk/nextjs/server'
 import {  initTRPC, TRPCError } from '@trpc/server'
 
-import { NilUUID } from '@/lib/id'
-import { createRTPlusAuth, RTPlusAuthObject } from '@/server/auth'
 import prisma from '@/server/prisma'
 
 
 
 export const createTRPCContext = cache(async () => {
-    const clerkAuth = await auth()
     return { 
         prisma,
-        clerkAuth,
+        auth: await auth(),
     }
 })
 
@@ -46,49 +43,69 @@ export type PublicContext = Context
 
 export const publicProcedure = t.procedure
 
-export type AuthenticatedContext = Omit<Context, 'clerkAuth'> & RTPlusAuthObject
+export type AuthenticatedContext = Context & { personId: string }
 
 export const authenticatedProcedure = t.procedure.use((opts) => {
-    const { clerkAuth, ...ctx} = opts.ctx
+    const { auth, ...ctx } = opts.ctx
 
-    if (clerkAuth.userId === null) {
-        throw new TRPCError({ code: 'UNAUTHORIZED' })
-    }
+    if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })
 
     return opts.next({
         ctx: {
             ...ctx,
-            ...createRTPlusAuth(clerkAuth)
-        } satisfies AuthenticatedContext
+            auth,
+            personId: auth.sessionClaims.rt_person_id,
+        } satisfies AuthenticatedContext,
     })
 })
 
-export const prefetchableProcedure = t.procedure.use((opts) => {
-    const { clerkAuth, ...ctx} = opts.ctx
+export type AuthenticatedTeamContext = AuthenticatedContext & { teamSlug: string }
+
+export const teamMemberProcedure = t.procedure.use((opts) => {
+    const { auth, ...ctx } = opts.ctx
+
+    if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })
+    if(auth.orgId == null) throw new TRPCError({ code: 'FORBIDDEN', message: "No active team." })
 
     return opts.next({
         ctx: {
             ...ctx,
-            userId: clerkAuth.sessionClaims?.rt_uid ?? NilUUID,
-        }
-    })
-})
-
-export type AuthenticatedTeamContext = AuthenticatedContext & { clerkOrgId: string }
-
-export const teamProcedure = t.procedure.use((opts) => {
-    const { clerkAuth, ...ctx } = opts.ctx
-    
-    if (clerkAuth.userId == null || clerkAuth.orgId == null) {
-        throw new TRPCError({ code: 'UNAUTHORIZED' })
-    }
-
-    return opts.next({
-        ctx: { 
-            ...ctx, 
-            ...createRTPlusAuth(clerkAuth),
-            clerkOrgId: clerkAuth.orgId
+            auth,
+            personId: auth.sessionClaims.rt_person_id,
+            teamSlug: auth.orgSlug!, 
         } satisfies AuthenticatedTeamContext,
-        
+    })
+})
+
+export const teamAdminProcedure = t.procedure.use((opts) => {
+    const { auth, ...ctx } = opts.ctx
+
+    if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })
+    if(auth.orgId == null) throw new TRPCError({ code: 'FORBIDDEN', message: "No active team." })
+    if(auth.orgRole !== 'org:admin') throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team admin" })
+
+    return opts.next({
+        ctx: {
+            ...ctx,
+            auth,
+            personId: auth.sessionClaims.rt_person_id,
+            teamSlug: auth.orgSlug!, 
+        } satisfies AuthenticatedTeamContext,
+    })
+})
+
+export type SystemAdminContext = Context & { personId: string }
+
+export const systemAdminProcedure = t.procedure.use((opts) => {
+    const { auth, ...ctx } = opts.ctx
+
+    if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })
+
+    return opts.next({
+        ctx: {
+            ...ctx,
+            auth,
+            personId: auth.sessionClaims.rt_person_id,
+        } satisfies AuthenticatedContext,
     })
 })

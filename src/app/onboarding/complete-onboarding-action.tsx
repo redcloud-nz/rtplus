@@ -23,7 +23,7 @@ export async function completeOnboardingAction({ policies }: completeOnboardingA
     const clerk = await clerkClient()
     const clerkUser = await currentUser()
 
-    const personId = sessionClaims.rt_pid
+    const personId = sessionClaims.rt_person_id
 
     await prisma.person.update({
         where: { id: personId },
@@ -36,12 +36,6 @@ export async function completeOnboardingAction({ policies }: completeOnboardingA
                     fields: { onboardingStatus: 'Complete' }
                 }
             },
-            policyAcceptances: {
-                create: policies.map(p => ({
-                    policyKey: p.policyKey,
-                    policyVersion: p.policyVersion
-                }))
-            }
         }
     })
 
@@ -51,7 +45,7 @@ export async function completeOnboardingAction({ policies }: completeOnboardingA
     await clerk.users.updateUser(clerkUserId, {
         publicMetadata: {
             ...clerkUser!.publicMetadata,
-            onboardingStatus: 'Complete',
+            onboarding_status: 'Complete',
         }
     })
 }

@@ -6,13 +6,11 @@
 import * as R from 'remeda'
 import { z } from 'zod'
 
-import { TRPCError } from '@trpc/server'
-
 import { PackageList, SkillPackageDef } from '@/data/skills'
 import { ChangeCountsByType, createChangeCounts } from '@/lib/change-counts'
 import { assertNonNull } from '@/lib/utils'
 
-import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter } from '../init'
+import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
 
 
 export const skillPackagesRouter = createTRPCRouter({
@@ -41,12 +39,11 @@ export const skillPackagesRouter = createTRPCRouter({
                 }
             })
         }), 
-    import: authenticatedProcedure
+    import: systemAdminProcedure
         .input(z.object({
             skillPackageId: z.string().uuid()
         }))
         .mutation(async ({ ctx, input }) => {
-            if(!ctx.hasPermission('system:manage-skill-packages')) throw new TRPCError({ code: 'FORBIDDEN', message: 'system:manage-skill-packages permission is required to import a skill package.' })
         
             const startTime = Date.now()
 

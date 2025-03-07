@@ -7,7 +7,7 @@
 
 import { Metadata } from 'next'
 
-import { currentUser } from '@clerk/nextjs/server'
+import { auth, currentUser } from '@clerk/nextjs/server'
 
 import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 
@@ -16,7 +16,6 @@ import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 
 import * as Paths from '@/paths'
-import { authenticated } from '@/server/auth'
 import prisma from '@/server/prisma'
 
 
@@ -27,22 +26,14 @@ export const metadata: Metadata = {
 
 export default async function WhoAmIPage() {
 
-    const { userId, userPersonId } = await authenticated()
+    const { sessionClaims } = await auth.protect()
     const clerkUser = (await currentUser())!
 
-    const person = userPersonId
-        ? await prisma.person.findUnique({
-            where: {
-                id: userPersonId
-            }
-        })
-        : null
+    const personId = sessionClaims.rt_person_id
 
-    const user = userId
-        ? await prisma.user.findUnique({
-            where: {
-                id: userId
-            }
+    const person = personId
+        ? await prisma.person.findUnique({
+            where: { id: personId }
         })
         : null
 
@@ -78,20 +69,15 @@ export default async function WhoAmIPage() {
                         </>}
 
                         <DLTerm>Public Metadata</DLTerm>
+                        <DLDetails className="overflow-auto">
+                            <pre className="font-mono text-sm">
+                                <code>
+                                    {JSON.stringify(clerkUser.publicMetadata, null, 2)}
+                                </code>
+                            </pre>
+                        </DLDetails>
                         
                     </DL>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Public Metadata</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <pre className="font-mono text-sm">
-                        <code>
-                            {JSON.stringify(clerkUser.publicMetadata, null, 2)}
-                        </code>
-                    </pre>
                 </CardContent>
             </Card>
             <Card>
@@ -109,28 +95,14 @@ export default async function WhoAmIPage() {
                             
                             <DLTerm>Email</DLTerm>
                             <DLDetails>{person.email}</DLDetails>
+
+                            <DLTerm>Onboarding Status</DLTerm>
+                            <DLDetails>{person.onboardingStatus}</DLDetails>
+
+                            <DLTerm>Status</DLTerm>
+                            <DLDetails>{person.status}</DLDetails>
                         </DL>
                         : <Alert severity="warning" title="No matching person found."/>
-                    }
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <CardTitle>User</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    {user
-                        ? <DL>
-                            <DLTerm>User ID</DLTerm>
-                            <DLDetails>{user.id}</DLDetails>
-                            
-                            <DLTerm>User name</DLTerm>
-                            <DLDetails>{user.name}</DLDetails>
-
-                            <DLTerm>Email</DLTerm>
-                            <DLDetails>{user.email}</DLDetails>
-                        </DL>
-                        : <Alert severity="warning" title="No matching user found."/>
                     }
                 </CardContent>
             </Card>

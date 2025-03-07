@@ -11,15 +11,13 @@ import React from 'react'
 
 
 import { AppPage, PageControls, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
-import { Protect } from '@/components/protect'
 import { Button } from '@/components/ui/button'
-import { Link } from '@/components/ui/link'
+import { DialogTrigger } from '@/components/ui/dialog'
 
 import * as Paths from '@/paths'
 
-import { PersonnelList } from './personnel-list'
 import { CreatePersonDialog } from './create-person-dialog'
-import { DialogTrigger } from '@/components/ui/dialog'
+import { PersonnelList } from './personnel-list'
 
 
 export const metadata: Metadata = { title: "Personnel" }
@@ -34,14 +32,11 @@ export default async function PeopleListPage() {
             <PageTitle>Manage People</PageTitle>
             <PageDescription>These are the people that available for use in RT+.</PageDescription>
             <PageControls>
-                <Protect permission="system:manage-personnel">
-                    <CreatePersonDialog trigger={<DialogTrigger asChild>
-                        <Button>
-                            <PlusIcon/> New Person
-                        </Button>
-                    </DialogTrigger>}/>
-                    
-                </Protect>
+                <CreatePersonDialog trigger={<DialogTrigger asChild>
+                    <Button>
+                        <PlusIcon/> New Person
+                    </Button>
+                </DialogTrigger>}/>
             </PageControls>
         </PageHeader>
         <PersonnelList/>

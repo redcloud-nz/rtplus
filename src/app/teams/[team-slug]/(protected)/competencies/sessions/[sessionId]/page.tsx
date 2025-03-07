@@ -9,12 +9,12 @@ import { notFound } from 'next/navigation'
 import * as React from 'react'
 import * as R from 'remeda'
 
+import { auth } from '@clerk/nextjs/server'
 
 import { AppPage } from '@/components/app-page'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import { authenticated } from '@/server/auth'
 import { withSerializedDates } from '@/lib/serialize'
 import prisma from '@/server/prisma'
 import * as Paths from '@/paths'
@@ -28,14 +28,15 @@ import { SkillsTabContent } from './skills-tab-content'
 import { TranscriptTabContent } from './transcript-tab-context'
 
 
+
 export default async function SessionPage(props: { params: Promise<{ sessionId: string }>}) {
     const { sessionId } = await props.params
 
-    const { userPersonId } = await authenticated()
+    const { sessionClaims: { rt_person_id: personId }, orgSlug } = await auth.protect()
     
 
     const { skills, assessees, checks, ...assessment } = await prisma.skillCheckSession.findUnique({
-        where: { assessorId: userPersonId, id: sessionId },
+        where: { assessorId: personId, id: sessionId },
         include: {
             skills: { select: { id: true } },
             assessees: { select: { id: true } },
@@ -46,8 +47,8 @@ export default async function SessionPage(props: { params: Promise<{ sessionId: 
     return <AppPage
         label={`Assessment: ${assessment.name}`}
         breadcrumbs={[
-            { label: "Competencies", href: Paths.competencies.dashboard }, 
-            { label: "Assessment Sessions", href: Paths.competencies.sessionList },
+            { label: "Competencies", href: Paths.team(orgSlug!).competencies.dashboard }, 
+            { label: "Assessment Sessions", href: Paths.team(orgSlug!).competencies.sessionList },
         ]}
         footer={<SaveFooter/>}
     >

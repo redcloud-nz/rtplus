@@ -19,14 +19,12 @@ model Person {
     name                         String                  @db.VarChar(100)
     email                        String                  @db.VarChar(100) @unique
     clerkUserId                  String?                 @map("clerk_user_id") @db.VarChar(50) @unique
-    onboardingStatus             OnboardingStatus        @map("onboarding_status")
-    systemPermissions            String[]
+    onboardingStatus             PersonOnboardingStatus  @map("onboarding_status") @default(NotStarted)
     status                       RecordStatus            @default(Active)
   
     // Relations
     changeLogs                   PersonChangeLog[]       @relation("person_change_log_to_person")
     personChangeLogs             PersonChangeLog[]       @relation("person_change_log_to_actor")
-    policyAcceptances            PolicyAcceptance[]      @relation("policy_acceptance_to_person")
     skillChecksAsAssessee        SkillCheck[]            @relation("skill_check_to_assessee")
     skillChecksAsAssessor        SkillCheck[]            @relation("skill_check_to_assessor")
     skillCheckSessionsAsAssessee SkillCheckSession[]     @relation("skill_check_session_to_assessee")
@@ -34,7 +32,6 @@ model Person {
     skillPackageChangeLogs       SkillPackageChangeLog[] @relation("skill_package_change_log_to_actor")
     teamChangeLogs               TeamChangeLog[]         @relation("team_change_log_to_actor")
     teamMemberships              TeamMembership[]        @relation("team_membership_to_person")
-    teamPermissions              TeamPermission[]        @relation("team_permission_to_person")
 
     @@map("personnel")
 }
@@ -61,17 +58,10 @@ model PersonChangeLog {
     @@map("personnel_change_log")
 }
 
-model PolicyAcceptance {
-    id            String   @id @default(uuid()) @db.Uuid
-    personId      String   @map("person_id") @db.Uuid
-    policyKey     String   @map("policy_key") @db.VarChar(50)
-    policyVersion Int      @map("policy_version")
-    acceptedAt    DateTime @map("accepted_at") @default(now())
-
-    // Relations
-    person        Person     @relation("policy_acceptance_to_person", fields: [personId], references: [id], onDelete: Cascade)
-
-    @@map("policy_acceptances")
+enum PersonOnboardingStatus {
+    NotStarted
+    InProgress
+    Complete
 }
 
 /// defines the current status of a record.
@@ -237,7 +227,6 @@ model Team {
     d4hInfo         TeamD4hInfo?     @relation("team_d4h_info_to_team")
     changeLogs      TeamChangeLog[]  @relation("team_change_log_to_team")       
     teamMemberships TeamMembership[] @relation("team_membership_to_team")
-    teamPermissions TeamPermission[] @relation("team_permission_to_team")
 
     @@map("teams")
 }
@@ -285,6 +274,7 @@ model TeamMembership {
     id          String                 @id @default(uuid()) @db.Uuid
     personId    String                 @map("person_id") @db.Uuid
     teamId      String                 @map("team_id") @db.Uuid
+    role        TeamMembershipRole     @default(Member)
     status      RecordStatus           @default(Active)
   
     // Relations
@@ -315,25 +305,8 @@ enum TeamMembershipD4hStatus {
     Retired
 }
 
-/// defines permissions that a user has on a specific team.
-model TeamPermission {
-    personId    String   @map("user_id") @db.Uuid
-    teamId      String   @map("team_id") @db.Uuid
-    permissions String[]
-
-    // Relations
-    person      Person   @relation("team_permission_to_person", fields: [personId], references: [id], onDelete: Cascade)
-    team        Team     @relation("team_permission_to_team", fields: [teamId], references: [id], onDelete: Cascade)
-    
-
-    @@id([personId, teamId])
-    @@map("team_permissions")
-}
-
-
-enum OnboardingStatus {
-    NotStarted
-    Invited
-    Decline
-    Complete
+enum TeamMembershipRole {
+    Admin
+    Member
+    None
 }

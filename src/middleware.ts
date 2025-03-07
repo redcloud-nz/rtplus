@@ -13,29 +13,43 @@ const logger = new RTPlusLogger('middleware')
 
 const isOnboardingRoute = createRouteMatcher(['/onboarding', '/policies(/.*)', '/trpc/(.*)'])
 const isPublicRoute = createRouteMatcher(['/about', '/cards(/.*)', '/policies(/.*)', '/teams/([^/]*)', '/trpc/(.*)'])
+const isSystemAdminRoute = createRouteMatcher(['/config(/.*)'])
 
 export default clerkMiddleware(
     async (auth, req) => {
         const { userId, sessionClaims, redirectToSignIn } = await auth()
 
-        // Allow authenticated users to access onboarding routes
-        if(userId && isOnboardingRoute(req)) return NextResponse.next()
+        if(userId) {
+            // Authenticated user
 
-        // Redirect to sign in if not authenticated
-        if(!userId && !isPublicRoute(req)) {
-            logger.debug('Redirecting to sign in with return URL', req.url)
-            return redirectToSignIn({ returnBackUrl: req.url })
+            // Allow authenticated users to access onboarding routes
+            if(isOnboardingRoute(req)) return NextResponse.next()
+
+            // Redirect to onboarding if not completed
+            if(sessionClaims?.rt_onboarding_status !== 'Complete') {
+                const onBoardingUrl = new URL('/onboarding', req.url)
+                logger.debug('Redirecting to onboarding', onBoardingUrl)
+                return NextResponse.redirect(onBoardingUrl)
+            }
+
+            // Redirect non-system-admin users from system admin routes
+            if(isSystemAdminRoute(req) && sessionClaims?.rt_system_role !== 'admin') {
+                return NextResponse.redirect('/')
+            }
+            
+            // Allow authenticated users to all routes
+            return NextResponse.next()
+
+
+        } else {
+            // Unauthenticated user
+
+            // Can access public routes
+            if(isPublicRoute(req)) return NextResponse.next()
+
+            // Otherwise, redirect to sign in
+            else return redirectToSignIn({ returnBackUrl: req.url })
         }
-
-        // Redirect to onboarding if not completed
-        if(userId && sessionClaims?.rt_uos !== 'Complete') {
-            const onBoardingUrl = new URL('/onboarding', req.url)
-            logger.debug('Redirecting to onboarding', onBoardingUrl)
-            return NextResponse.redirect(onBoardingUrl)
-        }
-
-        // Allow authenticated users to access non-public routes
-        if(userId && !isPublicRoute(req)) return NextResponse.next()
     },
     {
         organizationSyncOptions: {

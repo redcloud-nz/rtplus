@@ -16,7 +16,6 @@ import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
 import prisma from '@/server/prisma'
-import { ServerProtect } from '@/server/protect'
 
 import * as Paths from '@/paths'
 
@@ -34,14 +33,11 @@ export default async function SkillPackageListPage() {
             <PageTitle>Manage Skill Packages</PageTitle>
             <PageDescription>Manage the skill packages available in RT+.</PageDescription>
             <PageControls>
-                <ServerProtect permission="system:manage-skill-packages">
-                    <Button variant="outline" asChild>
-                        <Link href={Paths.config.skillPackages.import}>
-                            <ImportIcon/>
-                        </Link>
-                    </Button>
-                </ServerProtect>
-                
+                <Button variant="outline" asChild>
+                    <Link href={Paths.config.skillPackages.import}>
+                        <ImportIcon/>
+                    </Link>
+                </Button>
             </PageControls>
         </PageHeader>
         <Show

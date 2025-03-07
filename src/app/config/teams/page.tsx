@@ -10,22 +10,18 @@ import { Metadata } from 'next'
 import React from 'react'
 
 import { AppPage, PageControls, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
-import { Protect } from '@/components/protect'
 
 import { Button } from '@/components/ui/button'
-
-import * as Paths from '@/paths'
-import { TeamsList } from './teams-list'
-import { CreateTeamDialog } from './create-team-dialog'
 import { DialogTrigger } from '@/components/ui/dialog'
+import * as Paths from '@/paths'
 
-
+import { CreateTeamDialog } from './create-team-dialog'
+import { TeamsList } from './teams-list'
 
 
 export const metadata: Metadata = { title: "Teams" }
 
 export default async function TeamsListPage() {
-    
     return <AppPage 
         label="Teams"
         breadcrumbs={[{ label: "Configure", href: Paths.config.index }]}
@@ -34,13 +30,11 @@ export default async function TeamsListPage() {
             <PageTitle>Manage Teams</PageTitle>
             <PageDescription>These are the teams that are available for use in RT+.</PageDescription>
             <PageControls>
-                <Protect permission="system:manage-teams">
-                    <CreateTeamDialog trigger={<DialogTrigger asChild>
-                        <Button>
-                            <PlusIcon/> New Team
-                        </Button>
-                    </DialogTrigger>}/>
-                </Protect>
+                <CreateTeamDialog trigger={<DialogTrigger asChild>
+                    <Button>
+                        <PlusIcon/> New Team
+                    </Button>
+                </DialogTrigger>}/>
             </PageControls>
         </PageHeader>
         <TeamsList/>

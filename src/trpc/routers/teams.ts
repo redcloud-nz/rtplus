@@ -16,21 +16,19 @@ import { updateTeamFormSchema } from '@/lib/forms/update-team'
 import { RTPlusLogger } from '@/lib/logger'
 import { zodSlug } from '@/lib/validation'
 
-import { authenticatedProcedure, createTRPCRouter } from '../init'
+import { authenticatedProcedure, createTRPCRouter, systemAdminProcedure, teamAdminProcedure } from '../init'
 import { FieldConflictError } from '../types'
 
 
 const logger = new RTPlusLogger('trpc/teams')
 
 export const teamsRouter = createTRPCRouter({
-    addMember_ExistingPerson: authenticatedProcedure
+    addMember_ExistingPerson: systemAdminProcedure
         .input(z.object({
             teamId: z.string().uuid(),
             personId: z.string().uuid()
         }))
         .mutation(async ({ ctx, input }) => {
-            if(!(ctx.hasPermission('system:manage-teams') || ctx.hasPermission("team:write", input.teamId)))
-                throw new TRPCError({ code: 'FORBIDDEN', message: 'system:manage-teams or team:write permission is required to add a member to a team.' })
 
             const memberExists = await ctx.prisma.teamMembership.findFirst({ where: { teamId: input.teamId, personId: input.personId } })
             if(memberExists) throw new TRPCError({ code: 'CONFLICT', message: 'Member already exists in team' })
@@ -52,7 +50,7 @@ export const teamsRouter = createTRPCRouter({
                 })
             ])
         }),
-    addMember_NewPerson: authenticatedProcedure
+    addMember_NewPerson: systemAdminProcedure
         .input(z.object({
             teamId: z.string().uuid(),
             name: z.string().nonempty(),
@@ -64,8 +62,6 @@ export const teamsRouter = createTRPCRouter({
             status: z.enum(['AddedPersonAndMember', 'PersonAlreadyExists', 'MemberAlreadyExists'])
         }))
         .mutation(async ({ ctx, input }) => {
-            if(!(ctx.hasPermission('system:manage-teams') || ctx.hasPermission("team:write", input.teamId)))
-                throw new TRPCError({ code: 'FORBIDDEN', message: 'system:manage-teams or team:write permission is required to add a member to a team.' })
 
             const existing = await ctx.prisma.person.findFirst({ where: { email: input.email } })
             if(existing) {
@@ -78,7 +74,6 @@ export const teamsRouter = createTRPCRouter({
                 data: {
                     name: input.name,
                     email: input.email,
-                    onboardingStatus: 'NotStarted',
                     changeLogs: {
                         create: {
                             actorId: ctx.personId,
@@ -137,13 +132,9 @@ export const teamsRouter = createTRPCRouter({
             })
         }),
 
-    create: authenticatedProcedure
+    create: systemAdminProcedure
         .input(createTeamFormSchema)
         .mutation(async ({ ctx, input }) => {
-            console.log()
-
-            if(!ctx.hasPermission('system:manage-teams')) 
-                throw new TRPCError({ code: 'FORBIDDEN', message: 'system:manage-teams permission is required to create a team.' })
 
             const nameConflict = await ctx.prisma.team.findFirst({ where: { name: input.name } })
             if(nameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('name') })
@@ -177,48 +168,6 @@ export const teamsRouter = createTRPCRouter({
                     }
                 }
             })
-        }),
-
-    listWithMembers: authenticatedProcedure
-        .input(z.object({
-            permission: 
-                z.enum(['team:assess', 'team:read', 'team:write']).optional()
-                .describe("Filter by the user's permission level (with respect to the team)")
-        }).optional())
-        .query(async ({ ctx, input = {} }) => {
-            if(input.permission) {
-                const permissions = await ctx.prisma.teamPermission.findMany({ 
-                    where: {
-                        personId: ctx.personId,
-                        permissions: { has: input.permission }
-                    },
-                    include: {
-                        team: { 
-                            include: { 
-                                teamMemberships: {
-                                    include: {
-                                        person: true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                 })
-                 return permissions
-                    .filter(({ team }) => team.status === 'Active')
-                    .map(({ team }) => team)
-            } else {
-                return ctx.prisma.team.findMany({ 
-                    where: { status: 'Active' },
-                    include: {
-                        teamMemberships: {
-                            include: {
-                                person: true,
-                            }
-                        }
-                    }
-                })
-            }
         }),
     
     membersById: authenticatedProcedure
@@ -255,12 +204,10 @@ export const teamsRouter = createTRPCRouter({
             })
         }),
 
-    updateTeam: authenticatedProcedure
+    updateTeam: systemAdminProcedure
         .input(updateTeamFormSchema)
         .mutation(async ({ ctx, input }) => {
-            if(!(ctx.hasPermission('system:manage-teams') || ctx.hasPermission("team:write", input.id))) 
-                throw new TRPCError({ code: 'FORBIDDEN', message: 'system:manage-teams or team:write permission is required to update a team.' })
-        
+            
             const existing = await ctx.prisma.team.findUnique({ where: { id: input.id }})
             if(!existing) throw new TRPCError({ code: 'NOT_FOUND' })
 
@@ -299,7 +246,7 @@ export const teamsRouter = createTRPCRouter({
             })
         }),
 
-    updateTeamD4h: authenticatedProcedure
+    updateTeamD4h: systemAdminProcedure
         .input(z.object({
             teamId: z.string().uuid(),
             d4hTeamId: z.number(),
@@ -309,9 +256,6 @@ export const teamsRouter = createTRPCRouter({
             const { teamId, ...data } = input
 
             logger.info(`Updating D4H info for team ${teamId}`, input)
-
-            if(!(ctx.hasPermission('system:manage-teams') || ctx.hasPermission("team:write", teamId))) 
-                throw new TRPCError({ code: 'FORBIDDEN', message: 'system:manage-teams or team:write permission is required to update a team.' })
 
             const existing = await ctx.prisma.team.findUnique({ where: { id: teamId }})
             if(!existing) throw new TRPCError({ code: 'NOT_FOUND' })

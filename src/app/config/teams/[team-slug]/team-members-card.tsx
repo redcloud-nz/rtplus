@@ -12,7 +12,6 @@ import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 
-import { Protect } from '@/components/protect'
 import { AsyncButton, Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -37,14 +36,12 @@ export function TeamMembersCard({ teamId }: TeamMembersCardProps) {
     return <Card loading={teamMembershipsQuery.isLoading}>
         <CardHeader>
             <CardTitle>Team Members</CardTitle>
-            <Protect permission="team:manage-members" teamId={teamId} system='system:manage-teams'>
-                <AddTeamMemberDialog
-                    teamId={teamId}
-                    trigger={<DialogTrigger asChild>
-                         <Button variant="ghost"><PlusIcon/></Button>
-                    </DialogTrigger>}
-                />
-            </Protect>
+            <AddTeamMemberDialog
+                teamId={teamId}
+                trigger={<DialogTrigger asChild>
+                        <Button variant="ghost"><PlusIcon/></Button>
+                </DialogTrigger>}
+            />
             
         </CardHeader>
         <CardContent>

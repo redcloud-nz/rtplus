@@ -21,7 +21,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { validateUUID } from '@/lib/id'
 import * as Paths from '@/paths'
 import prisma from '@/server/prisma'
-import { ServerProtect } from '@/server/protect'
 
 
 export const metadata: Metadata = { title: "Personnel" }
@@ -77,11 +76,9 @@ export default async function PersonPage(props: { params: Promise<{ personId: st
             <Card>
                 <CardHeader>
                     <CardTitle>Details</CardTitle>
-                    <ServerProtect permission="system:write">
-                        <Button variant="ghost" asChild>
-                            <Link href={Paths.config.personnel.person(personId).edit}><PencilIcon/></Link>
-                        </Button>
-                    </ServerProtect>
+                    <Button variant="ghost" asChild>
+                        <Link href={Paths.config.personnel.person(personId).edit}><PencilIcon/></Link>
+                    </Button>
                 </CardHeader>
                 <CardContent>
                     <DL>

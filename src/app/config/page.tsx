@@ -14,7 +14,7 @@ import * as Paths from '@/paths'
 
 
 export default function SystemConfigPage() {
-    return <AppPage label="System Configuration">
+    return <AppPage label="Configure">
         <PageHeader>
             <PageTitle>System Configuration</PageTitle>
         </PageHeader>

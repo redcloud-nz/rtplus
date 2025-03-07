@@ -10,7 +10,6 @@ import { Metadata } from 'next'
 
 import { AppPage, PageControls, PageHeader, PageTitle } from '@/components/app-page'
 import { NotFound } from '@/components/errors'
-import { Protect } from '@/components/protect'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
@@ -53,12 +52,10 @@ export default async function TeamPage(props: { params: Promise<{ 'team-slug': s
         <PageHeader>
             <PageTitle objectType="Team">{team.name}</PageTitle>
             <PageControls>
-                <Protect permission='team:write' teamId={team.id} system='system:manage-teams'>
-                    <TeamOptionsMenu
-                        teamId={team.id}
-                        trigger={<Button variant="ghost"><EllipsisVerticalIcon/></Button>}
-                    />
-                </Protect>
+                <TeamOptionsMenu
+                    teamId={team.id}
+                    trigger={<Button variant="ghost"><EllipsisVerticalIcon/></Button>}
+                />
             </PageControls>
         </PageHeader>
         
@@ -66,17 +63,14 @@ export default async function TeamPage(props: { params: Promise<{ 'team-slug': s
             <Card>
                 <CardHeader>
                     <CardTitle>Team Details</CardTitle>
-                    <Protect permission='team:write' teamId={team.id} system='system:manage-teams'>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant="ghost" asChild>
-                                    <Link href={Paths.config.teams.team(teamSlug).edit}><PencilIcon/></Link>
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Edit Team</TooltipContent>
-                        </Tooltip>
-                    </Protect>
-                    
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" asChild>
+                                <Link href={Paths.config.teams.team(teamSlug).edit}><PencilIcon/></Link>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Edit Team</TooltipContent>
+                    </Tooltip>
                 </CardHeader>
                 <CardContent>
                     <DL>

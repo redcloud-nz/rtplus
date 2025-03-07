@@ -9,6 +9,7 @@ import { formatISO } from 'date-fns'
 import { SquarePenIcon } from 'lucide-react'
 import { redirect } from 'next/navigation'
 
+import { auth } from '@clerk/nextjs/server'
 
 import { TeamParams } from '@/app/teams/[team-slug]'
 import { AppPage, PageControls, PageHeader, PageTitle } from '@/components/app-page'
@@ -19,13 +20,10 @@ import { Form, FormSubmitButton } from '@/components/ui/action-form'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
-import { authenticated } from '@/server/auth'
 import { FormState } from '@/lib/form-state'
 import prisma from '@/server/prisma'
 
 import * as Paths from '@/paths'
-import { assertNonNull } from '@/lib/utils'
-
 
 
 
@@ -34,10 +32,10 @@ export default async function SkillCheckSessionListPage(props: { params: Promise
     const { 'team-slug': teamSlug } = await props.params
     const competenciesPath = Paths.team(teamSlug).competencies
 
-    const { userId } = await authenticated()
+    const { sessionClaims: { rt_person_id: personId } } = await auth.protect()
 
     const sessions = await prisma.skillCheckSession.findMany({
-        where: { userId },
+        where: { assessorId: personId },
         include: {
             _count: {
                 select: { skills: true, assessees: true, checks: true }
@@ -97,16 +95,14 @@ export default async function SkillCheckSessionListPage(props: { params: Promise
 async function createSessionAction(): Promise<FormState> {
     'use server'
 
-    const { userId, userPersonId, teamSlug } = await authenticated()
+    const { sessionClaims: { rt_person_id: personId }, orgSlug } = await auth.protect()
 
-    assertNonNull(userPersonId, "User is not connected to a person")
-    assertNonNull(teamSlug, "No active team")
 
     const year = new Date().getFullYear()
 
     const assessments = await prisma.skillCheckSession.findMany({
         select: { id: true, name: true },
-        where: { userId, name: { startsWith: `${year} #`} },
+        where: { assessorId: personId, name: { startsWith: `${year} #`} },
     })
 
     let highestNum = 0
@@ -119,12 +115,11 @@ async function createSessionAction(): Promise<FormState> {
 
     const createdSession = await prisma.skillCheckSession.create({
         data: {
-            userId,
-            assessorId: userPersonId,
+            assessorId: personId,
             date: new Date(),
             name: `${year} #${highestNum+1}`,
         }
     })
 
-    redirect(Paths.team(teamSlug).competencies.session(createdSession.id))
+    redirect(Paths.team(orgSlug!).competencies.session(createdSession.id))
 }

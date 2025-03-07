@@ -7,19 +7,21 @@
 import { parseISO } from 'date-fns'
 import * as R from 'remeda'
 
-import { authenticated } from '@/server/auth'
+import { auth } from '@clerk/nextjs/server'
+
 import prisma from '@/server/prisma'
 
 import { type SkillCheckDiff } from './skill-check-data'
 
 
 
+
 export async function saveSessionAction(sessionId: string, diffs: SkillCheckDiff[]) {
    
-    const { userPersonId } = await authenticated()
+    const { sessionClaims: { rt_person_id: personId } } = await auth.protect()
 
     const existingSession = await prisma.skillCheckSession.findUnique({
-        where: { id: sessionId, assessorId: userPersonId }
+        where: { id: sessionId, assessorId: personId }
     })
     if(!existingSession) {
         throw new Error(`Session not found for sessionId=${sessionId}`)

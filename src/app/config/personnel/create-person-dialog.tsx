@@ -6,6 +6,7 @@
 
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 
@@ -14,14 +15,21 @@ import { FormCancelButton, FormControl, FormDescription, FormField, FormItem, Fo
 import { Input } from '@/components/ui/input'
 
 import { useToast } from '@/hooks/use-toast'
-import { CreatePersonFormData, createPersonFormSchema } from '@/lib/forms/create-person'
 import { trpc } from '@/trpc/client'
+import { Button } from '@/components/ui/button'
+
+
+const createPersonFormSchema = z.object({
+    name: z.string().min(5).max(100),
+    email: z.string().email(),
+})
+
+export type CreatePersonFormData = z.infer<typeof createPersonFormSchema>
 
 
 interface CreatePersonDialogProps {
     trigger: React.ReactNode
 }
-
 
 export function CreatePersonDialog({ trigger }: CreatePersonDialogProps) {
 
@@ -101,7 +109,7 @@ export function CreatePersonDialog({ trigger }: CreatePersonDialogProps) {
                             submitted: 'Created'
                         }}
                     />
-                    <FormCancelButton/>
+                    <Button onClick={() => handleOpenChange(false)}>Cancel</Button>
                 </form>
             </FormProvider>
         </DialogContent>
