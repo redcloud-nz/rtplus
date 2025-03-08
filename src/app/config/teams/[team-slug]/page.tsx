@@ -7,16 +7,14 @@
 
 import { EllipsisVerticalIcon, PencilIcon } from 'lucide-react'
 import { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 
 import { AppPage, PageControls, PageHeader, PageTitle } from '@/components/app-page'
-import { NotFound } from '@/components/errors'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
 import { ColorValue } from '@/components/ui/color'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
-import { Link } from '@/components/ui/link'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import prisma from '@/server/prisma'
 import * as Paths from '@/paths'
@@ -24,6 +22,9 @@ import * as Paths from '@/paths'
 import { TeamMembersCard } from './team-members-card'
 import { TeamOptionsMenu } from './team-options-menu'
 import { D4hServerCode, getD4hServer } from '@/lib/d4h-api/servers'
+import { UpdateTeamDialog } from './update-team-dialog'
+import { DialogTriggerButton } from '@/components/ui/dialog'
+
 
 
 
@@ -40,7 +41,7 @@ export default async function TeamPage(props: { params: Promise<{ 'team-slug': s
         include: { d4hInfo: true }
     })
 
-    if(!team) return <NotFound />
+    if(!team) notFound()
 
     return <AppPage
         label={team.shortName || team.name}
@@ -63,14 +64,10 @@ export default async function TeamPage(props: { params: Promise<{ 'team-slug': s
             <Card>
                 <CardHeader>
                     <CardTitle>Team Details</CardTitle>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button variant="ghost" asChild>
-                                <Link href={Paths.config.teams.team(teamSlug).edit}><PencilIcon/></Link>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Edit Team</TooltipContent>
-                    </Tooltip>
+                    <UpdateTeamDialog 
+                        trigger={<DialogTriggerButton tooltip="Edit Team"><PencilIcon/></DialogTriggerButton>} 
+                        team={team}
+                    />
                 </CardHeader>
                 <CardContent>
                     <DL>

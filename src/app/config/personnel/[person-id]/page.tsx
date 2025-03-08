@@ -25,8 +25,8 @@ import prisma from '@/server/prisma'
 
 export const metadata: Metadata = { title: "Personnel" }
 
-export default async function PersonPage(props: { params: Promise<{ personId: string }>}) {
-    const { personId } = await props.params
+export default async function PersonPage(props: { params: Promise<{ 'person-id': string }>}) {
+    const { 'person-id': personId } = await props.params
 
     const person = validateUUID(personId) ? await prisma.person.findUnique({
         include: {

@@ -10,7 +10,7 @@ import { TRPCError } from '@trpc/server'
 
 import { createTRPCRouter, systemAdminProcedure } from '../init'
 import { FieldConflictError } from '../types'
-import { updatePersonFormSchema } from '@/lib/forms/update-person'
+import { personFormSchema } from '@/lib/forms/person'
 
 /**
  * TRPC router for personnel management.
@@ -28,7 +28,7 @@ export const personnelRouter = createTRPCRouter({
             })
         }),
 
-    byId: systemAdminProcedure
+        byId: systemAdminProcedure
         .input(z.object({ personId: z.string().uuid() }))
         .query(async ({ input, ctx }) => {
             return ctx.prisma.person.findUnique({ 
@@ -56,7 +56,7 @@ export const personnelRouter = createTRPCRouter({
             const emailConflict = await ctx.prisma.person.findFirst({ where: { email: input.email } })
             if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists.', cause: new FieldConflictError('email') })
 
-            const newUser = await ctx.prisma.person.create({ 
+            const newPerson = await ctx.prisma.person.create({ 
                 data: { 
                     ...input,
                     changeLogs: { 
@@ -69,9 +69,8 @@ export const personnelRouter = createTRPCRouter({
                 } 
             })
 
-            return newUser
+            return newPerson
         }),
-
 
     delete: systemAdminProcedure
         .input(z.object({ personId: z.string().uuid() }))
@@ -80,17 +79,8 @@ export const personnelRouter = createTRPCRouter({
             // TODO Implement delete
         }),
 
-    memberships: systemAdminProcedure
-        .input(z.object({ personId: z.string().uuid() }))
-        .query(async ({ input, ctx }) => {
-            return ctx.prisma.teamMembership.findMany({
-                where: { personId: input.personId },
-                include: { team: true }
-            })
-        }),
-
     update: systemAdminProcedure
-        .input(updatePersonFormSchema)
+        .input(personFormSchema)
         .mutation(async ({ input, ctx, }) => {
 
             const existingPerson = await ctx.prisma.person.findUnique({ where: { id: input.id } })

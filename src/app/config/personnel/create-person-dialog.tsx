@@ -11,7 +11,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormProvider, FormSubmitButton } from '@/components/ui/form'
+import { FormCancelButton, FormControl, FormButtons, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormProvider, FormSubmitButton } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
 import { useToast } from '@/hooks/use-toast'
@@ -46,7 +46,7 @@ export function CreatePersonDialog({ trigger }: CreatePersonDialogProps) {
 
     const [open, setOpen] = React.useState(false)
     
-    const mutation = trpc.personnel.create.useMutation({
+    const mutation = trpc.person.create.useMutation({
         onError: (error) => {
             if(error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof CreatePersonFormData, { message: error.shape.message })
@@ -54,8 +54,8 @@ export function CreatePersonDialog({ trigger }: CreatePersonDialogProps) {
         },
         onSuccess: (newPerson) => {
             toast({
-                title: `${newPerson.name} created`,
-                description: 'The person has been created successfully.',
+                title: "Person created",
+                description: `${newPerson.name} has been created successfully.`,
             })
             utils.personnel.invalidate()
             setOpen(false)
@@ -77,7 +77,7 @@ export function CreatePersonDialog({ trigger }: CreatePersonDialogProps) {
                 </DialogDescription>
             </DialogHeader>
             <FormProvider {...form}>
-                <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="max-w-xl space-y-8">
+                <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="max-w-xl space-y-4">
                     <FormField
                         control={form.control}
                         name="name"
@@ -102,14 +102,16 @@ export function CreatePersonDialog({ trigger }: CreatePersonDialogProps) {
                             <FormMessage/>
                         </FormItem>}
                     />
-                    <FormSubmitButton
-                        labels={{
-                            ready: 'Create',
-                            submitting: 'Creating...',
-                            submitted: 'Created'
-                        }}
-                    />
-                    <Button onClick={() => handleOpenChange(false)}>Cancel</Button>
+                    <FormButtons>
+                        <FormSubmitButton
+                            labels={{
+                                ready: 'Create',
+                                submitting: 'Creating...',
+                                submitted: 'Created'
+                            }}
+                        />
+                        <Button variant="ghost" onClick={() => handleOpenChange(false)}>Cancel</Button>
+                    </FormButtons>
                 </form>
             </FormProvider>
         </DialogContent>

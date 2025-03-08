@@ -69,12 +69,12 @@ export function CardDescription({ className, ...props }: React.ComponentPropsWit
 }
 
 export function CardContent({ className, ...props }: React.ComponentPropsWithRef<'div'>) {
-    return <div className={cn("p-4 pt-0", className)} {...props} />
+    return <div className={cn("p-2 pt-0", className)} {...props} />
 }
 
 export function CardFooter({ className, ...props }: React.ComponentPropsWithRef<'div'>) {
     return <div
-        className={cn("flex items-center p-4 pt-0", className)}
+        className={cn("flex items-center p-2 pt-0", className)}
         {...props}
     />
 }

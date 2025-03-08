@@ -6,11 +6,11 @@
 import { z } from 'zod'
 import { zodColor, zodSlug } from '../validation'
 
-export const createTeamFormSchema = z.object({
+export const teamFormSchema = z.object({
     name: z.string().min(5).max(100),
     shortName: z.string().max(20),
     slug: zodSlug,
     color: z.union([zodColor, z.literal('')]),
 })
 
-export type CreateTeamFormData = z.infer<typeof createTeamFormSchema>
+export type TeamFormData = z.infer<typeof teamFormSchema>

@@ -12,7 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 
 import { AsyncButton, Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FormControl, FormControls, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { FormControl, FormButtons, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 
@@ -41,10 +41,10 @@ interface TeamD4hConfigDialogProps extends React.ComponentProps<typeof Dialog> {
 
 export function TeamD4hConfigDialog({ teamId, ...props }: TeamD4hConfigDialogProps) {
 
-    const [team] = trpc.teams.byId.useSuspenseQuery({ teamId })
+    const [team] = trpc.team.byId.useSuspenseQuery({ teamId })
     const accessTokensQuery = useAccessTokensQuery()
 
-    const mutation = trpc.teams.updateTeamD4h.useMutation()
+    const mutation = trpc.team.updateTeamD4h.useMutation()
 
     const form = useForm<ConfigureTeamD4hFormData>({
         resolver: zodResolver(configureTeamD4hFormSchema),
@@ -105,7 +105,7 @@ export function TeamD4hConfigDialog({ teamId, ...props }: TeamD4hConfigDialogPro
                             <FormMessage/>
                         </FormItem>}
                     />
-                    <FormControls>
+                    <FormButtons>
                         <AsyncButton
                             label="Save"
                             pending="Saving..."
@@ -117,7 +117,7 @@ export function TeamD4hConfigDialog({ teamId, ...props }: TeamD4hConfigDialogPro
                             onClick={handleReset}
                             disabled={!form.formState.isDirty}
                         >Reset</Button>
-                   </FormControls>
+                   </FormButtons>
                    <Separator/>
                     <Heading level={3}>Suggestions</Heading>
                     <div>From your configured access tokens.</div>

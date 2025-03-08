@@ -3,14 +3,9 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import type { D4hAccessKey, Skill, SkillGroup, SkillPackage, Team } from '@prisma/client'
+import type { Person, Skill, SkillGroup, SkillPackage, Team, TeamMembership, TeamMembershipD4hInfo } from '@prisma/client'
 
-export type D4hAccessKeyWithTeam = D4hAccessKey & { team: Team }
 
-export type SkillPackageWithGroupsAndSkills = SkillPackage & { 
-    skillGroups: SkillGroup[]
-    skills: Skill[]
-}
 
 export class FieldConflictError extends Error {
     constructor(fieldName: string) {
@@ -18,3 +13,12 @@ export class FieldConflictError extends Error {
         this.name = 'FieldConflictError'
     }
 }
+
+export type SkillPackageWithGroupsAndSkills = SkillPackage & { 
+    skillGroups: SkillGroup[]
+    skills: Skill[]
+}
+
+export type TeamMembershipWithPerson = TeamMembership & { d4hInfo: TeamMembershipD4hInfo | null, person: Person }
+
+export type TeamMembershipWithTeam = TeamMembership & { d4hInfo: TeamMembershipD4hInfo | null, team: Team }

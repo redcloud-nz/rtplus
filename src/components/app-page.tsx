@@ -15,6 +15,7 @@ import { Heading } from '@/components/ui/typography'
 import { cn } from '@/lib/utils'
 
 import { HeaderControls } from './header-controls'
+import { LoaderIcon } from 'lucide-react'
 
 export { PageBoundary } from './app-page-boundary'
 
@@ -90,13 +91,20 @@ export function AppPage({ breadcrumbs = [], children, className, label, footer, 
                 </BreadcrumbList>    
             </Breadcrumb>
         </div>
-        <main className={cn(appPageVariants({ variant, hasFooter: !!footer, className }))} {...props}>
-            {children}
-        </main>
-        {footer && <>
-            <Separator className="row-start-4 col-span-full" orientation="horizontal"/>
-            <footer className="flex items-center p-1 row-start-5 col-span-full bg-background">{footer}</footer>
-        </>}
+        <React.Suspense
+            fallback={<main className={appPageVariants({ variant: 'centered' })}>
+                <LoaderIcon className="animate-spin size-12"/>
+            </main>}
+        >
+            <main className={cn(appPageVariants({ variant, hasFooter: !!footer, className }))} {...props}>
+                {children}
+            </main>
+            {footer && <>
+                <Separator className="row-start-4 col-span-full" orientation="horizontal"/>
+                <footer className="flex items-center p-1 row-start-5 col-span-full bg-background">{footer}</footer>
+            </>}
+        </React.Suspense>
+        
     </>
 }
 

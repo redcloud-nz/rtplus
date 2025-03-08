@@ -7,8 +7,10 @@
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Team } from '@prisma/client'
 
 import { Button } from '@/components/ui/button'
 import { FormControl, FormButtons, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormProvider, FormSubmitButton } from '@/components/ui/form'
@@ -17,27 +19,23 @@ import { Input, SlugInput } from '@/components/ui/input'
 
 import { useToast } from '@/hooks/use-toast'
 import { TeamFormData, teamFormSchema } from '@/lib/forms/team'
-import { createRandomSlug } from '@/lib/id'
-import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
-interface CreateTeamDialogProps {
+interface UpdateTeamDialogProps {
     trigger: React.ReactNode
+    team: Team
 }
 
-
-export function CreateTeamDialog({ trigger }: CreateTeamDialogProps) {
-
-    const defaultSlug = React.useMemo(() => createRandomSlug(), [])
+export function UpdateTeamDialog({ trigger, team }: UpdateTeamDialogProps) {
 
     const form = useForm<TeamFormData>({
         resolver: zodResolver(teamFormSchema),
         defaultValues: {
-            name: '',
-            shortName: '',
-            slug: defaultSlug,
-            color: '',
+            name: team.name,
+            shortName: team.shortName,
+            slug: team.slug,
+            color: team.color,
         }
     })
 
@@ -47,7 +45,7 @@ export function CreateTeamDialog({ trigger }: CreateTeamDialogProps) {
 
     const [open, setOpen] = React.useState(false)
 
-    const mutation = trpc.teams.create.useMutation({
+    const mutation = trpc.teams.update.useMutation({
         onError: (error) => {
             if(error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof TeamFormData, { message: error.shape.message })
@@ -56,10 +54,10 @@ export function CreateTeamDialog({ trigger }: CreateTeamDialogProps) {
         onSuccess: (newTeam) => {
             utils.teams.invalidate()
             toast({
-                title: "Team Created",
-                description: `Team "${newTeam.name}" created successfully.`,
+                title: 'Team Updated',
+                description: `Team "${newTeam.name}" updated successfully.`,
             })
-            router.push(Paths.config.teams.team(newTeam.slug).index)
+            router.refresh()
         }
     })
 
@@ -68,16 +66,17 @@ export function CreateTeamDialog({ trigger }: CreateTeamDialogProps) {
         if(!newValue) form.reset()
     }
 
-    const handleSubmit = form.handleSubmit(async (data) => await mutation.mutateAsync(data))
+    const handleSubmit = form.handleSubmit(async (data) => await mutation.mutateAsync({ teamId: team.id, ...data }))
 
-    return <Dialog open={open} onOpenChange={handleOpenChange}>
+
+    return <Dialog open={open} onOpenChange={setOpen}>
         {trigger}
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>Create Team</DialogTitle>
+                <DialogTitle>Update Team</DialogTitle>
             </DialogHeader>
             <FormProvider {...form}>
-                <form onSubmit={handleSubmit} className='max-w-xl space-y-8'>
+                <form onSubmit={handleSubmit} className='max-w-xl space-y-4'>
                     <FormField
                         control={form.control}
                         name="name"
@@ -130,9 +129,9 @@ export function CreateTeamDialog({ trigger }: CreateTeamDialogProps) {
                     <FormButtons>
                         <FormSubmitButton
                             labels={{
-                                ready: 'Create',
-                                submitting: 'Creating...',
-                                submitted: 'Created'
+                                ready: 'Update',
+                                submitting: 'Updating...',
+                                submitted: 'Updated'
                             }}
                         />
                         <Button variant="ghost" onClick={() => handleOpenChange(false)}>Cancel</Button>
@@ -141,5 +140,4 @@ export function CreateTeamDialog({ trigger }: CreateTeamDialogProps) {
             </FormProvider>
         </DialogContent>
     </Dialog>
-    
 }

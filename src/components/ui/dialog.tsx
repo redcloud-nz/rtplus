@@ -9,6 +9,9 @@ import * as React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 
 import { cn } from '@/lib/utils'
+import { Button } from './button'
+import { Tooltip } from '@radix-ui/react-tooltip'
+import { TooltipContent, TooltipTrigger } from './tooltip'
 
 
 export const Dialog = DialogPrimitive.Root
@@ -92,4 +95,21 @@ export function DialogDescription({ className, ...props }: React.ComponentPropsW
         className={cn("text-sm text-muted-foreground", className)}
         {...props}
     />
+}
+
+
+interface DialogTriggerButtonProps extends React.ComponentPropsWithRef<typeof Button> {
+    children: React.ReactNode
+    tooltip?: React.ReactNode
+}
+
+export function DialogTriggerButton({ tooltip, variant = "ghost", ...props}: DialogTriggerButtonProps) {
+    return <Tooltip>
+        <TooltipTrigger asChild>
+            <DialogTrigger asChild>
+                <Button variant={variant} {...props} />
+            </DialogTrigger>
+        </TooltipTrigger>
+        <TooltipContent>{tooltip}</TooltipContent>
+    </Tooltip>
 }
