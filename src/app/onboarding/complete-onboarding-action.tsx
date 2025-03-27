@@ -9,16 +9,10 @@ import { auth, clerkClient, currentUser } from '@clerk/nextjs/server'
 
 import prisma from '@/server/prisma'
 import { RTPlusLogger } from '@/lib/logger'
-import { PolicyKeyType } from '@/lib/policy'
-
-
-type completeOnboardingActionArgs = {
-    policies: { policyKey: PolicyKeyType, policyVersion: number }[]
-}
 
 const logger = new RTPlusLogger(completeOnboardingAction)
 
-export async function completeOnboardingAction({ policies }: completeOnboardingActionArgs) {
+export async function completeOnboardingAction() {
     const { userId: clerkUserId, sessionClaims } = await auth.protect()
     const clerk = await clerkClient()
     const clerkUser = await currentUser()
@@ -39,13 +33,26 @@ export async function completeOnboardingAction({ policies }: completeOnboardingA
         }
     })
 
-
-    logger.debug(`Person(${personId}) updated with onboardingStatus='Complete'`)
-
     await clerk.users.updateUser(clerkUserId, {
         publicMetadata: {
             ...clerkUser!.publicMetadata,
             onboarding_status: 'Complete',
         }
     })
+
+    // Apply any team memberships
+    const memberships = await prisma.teamMembership.findMany({
+        where: { personId, status: 'Active', role: { not: 'None' }},
+        include: { team: true }
+    })
+
+    for(const membership of memberships) {
+        await clerk.organizations.createOrganizationMembership({
+            organizationId: membership.team.clerkOrgId,
+            userId: clerkUserId,
+            role: membership.role === 'Admin' ? 'org:admin' : 'org:member'
+        })
+    }
+
+    logger.debug(`Person(${personId}) updated with onboardingStatus='Complete'`)
 }

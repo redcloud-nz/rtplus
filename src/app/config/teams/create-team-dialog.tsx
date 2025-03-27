@@ -10,8 +10,7 @@ import { useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 
-import { Button } from '@/components/ui/button'
-import { FormControl, FormButtons, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormProvider, FormSubmitButton } from '@/components/ui/form'
+import { FormControl, FormActions, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormProvider, FormSubmitButton, FormCancelButton } from '@/components/ui/form'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input, SlugInput } from '@/components/ui/input'
 
@@ -52,14 +51,6 @@ export function CreateTeamDialog({ trigger }: CreateTeamDialogProps) {
             if(error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof TeamFormData, { message: error.shape.message })
             }
-        },
-        onSuccess: (newTeam) => {
-            utils.teams.invalidate()
-            toast({
-                title: "Team Created",
-                description: `Team "${newTeam.name}" created successfully.`,
-            })
-            router.push(Paths.config.teams.team(newTeam.slug).index)
         }
     })
 
@@ -68,7 +59,16 @@ export function CreateTeamDialog({ trigger }: CreateTeamDialogProps) {
         if(!newValue) form.reset()
     }
 
-    const handleSubmit = form.handleSubmit(async (data) => await mutation.mutateAsync(data))
+    const handleSubmit = form.handleSubmit(async (data) => {
+        const newTeam = await mutation.mutateAsync(data)
+        utils.teams.invalidate()
+        toast({
+            title: "Team Created",
+            description: `Team "${newTeam.name}" created successfully.`,
+        })
+        handleOpenChange(false)
+        router.push(Paths.config.teams.team(newTeam.slug).index)
+    })
 
     return <Dialog open={open} onOpenChange={handleOpenChange}>
         {trigger}
@@ -127,7 +127,7 @@ export function CreateTeamDialog({ trigger }: CreateTeamDialogProps) {
                             <FormMessage/>
                         </FormItem>}
                     />
-                    <FormButtons>
+                    <FormActions>
                         <FormSubmitButton
                             labels={{
                                 ready: 'Create',
@@ -135,8 +135,8 @@ export function CreateTeamDialog({ trigger }: CreateTeamDialogProps) {
                                 submitted: 'Created'
                             }}
                         />
-                        <Button variant="ghost" onClick={() => handleOpenChange(false)}>Cancel</Button>
-                    </FormButtons>
+                        <FormCancelButton onClick={() => handleOpenChange(false)}/>
+                    </FormActions>
                 </form>
             </FormProvider>
         </DialogContent>

@@ -4,19 +4,21 @@
  */
 'use client'
 
+import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 
+import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FormCancelButton, FormControl, FormButtons, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormProvider, FormSubmitButton } from '@/components/ui/form'
+import { FormControl, FormActions, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormProvider, FormSubmitButton } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
 import { useToast } from '@/hooks/use-toast'
+import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
-import { Button } from '@/components/ui/button'
 
 
 const createPersonFormSchema = z.object({
@@ -41,24 +43,17 @@ export function CreatePersonDialog({ trigger }: CreatePersonDialogProps) {
         }
     })
 
+    const router = useRouter()
     const { toast } = useToast()
     const utils = trpc.useUtils()
 
     const [open, setOpen] = React.useState(false)
     
-    const mutation = trpc.person.create.useMutation({
+    const mutation = trpc.personnel.create.useMutation({
         onError: (error) => {
             if(error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof CreatePersonFormData, { message: error.shape.message })
             }
-        },
-        onSuccess: (newPerson) => {
-            toast({
-                title: "Person created",
-                description: `${newPerson.name} has been created successfully.`,
-            })
-            utils.personnel.invalidate()
-            setOpen(false)
         }
     })
 
@@ -66,6 +61,18 @@ export function CreatePersonDialog({ trigger }: CreatePersonDialogProps) {
         setOpen(newValue)
         if(!newValue) form.reset()
     }
+
+    const handleSubmit = form.handleSubmit(async (formData) => {
+        const newPerson = await mutation.mutateAsync(formData)
+        utils.personnel.invalidate()
+        toast({
+            title: "Person created",
+            description: `${newPerson.name} has been created successfully.`,
+        })
+        
+        handleOpenChange(false)
+        router.push(Paths.config.personnel.person(newPerson.id).index)
+    })
 
     return <Dialog open={open} onOpenChange={handleOpenChange}>
         {trigger}
@@ -77,7 +84,7 @@ export function CreatePersonDialog({ trigger }: CreatePersonDialogProps) {
                 </DialogDescription>
             </DialogHeader>
             <FormProvider {...form}>
-                <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="max-w-xl space-y-4">
+                <form onSubmit={handleSubmit} className="max-w-xl space-y-4">
                     <FormField
                         control={form.control}
                         name="name"
@@ -102,7 +109,7 @@ export function CreatePersonDialog({ trigger }: CreatePersonDialogProps) {
                             <FormMessage/>
                         </FormItem>}
                     />
-                    <FormButtons>
+                    <FormActions>
                         <FormSubmitButton
                             labels={{
                                 ready: 'Create',
@@ -111,7 +118,7 @@ export function CreatePersonDialog({ trigger }: CreatePersonDialogProps) {
                             }}
                         />
                         <Button variant="ghost" onClick={() => handleOpenChange(false)}>Cancel</Button>
-                    </FormButtons>
+                    </FormActions>
                 </form>
             </FormProvider>
         </DialogContent>

@@ -108,6 +108,26 @@ export const teamsRouter = createTRPCRouter({
 
             return createdTeam
         }),
+
+    delete: systemAdminProcedure
+        .input(z.object({ 
+            teamId: z.string().uuid(),
+            hard: z.boolean().optional().default(false)
+        }))
+        .mutation(async ({ ctx, input }) => {
+            const existing = await ctx.prisma.team.findUnique({ where: { id: input.teamId, status: 'Active' }})
+            if(!existing) throw new TRPCError({ code: 'NOT_FOUND' })
+
+            if(input.hard) {
+                // Hard delete
+            } else {
+                // Soft delete
+                return await ctx.prisma.team.update({ 
+                    where: { id: input.teamId },
+                    data: { status: 'Deleted' }
+                })
+            }
+        }),
             
 
     update: systemAdminProcedure

@@ -1,14 +1,15 @@
 /*
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
- * 
  */
 'use client'
+
 
 import * as React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
+import { Team } from '@prisma/client'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { Checkbox } from '@/components/ui/checkbox'
@@ -17,29 +18,26 @@ import { FormControl, FormActions, FormField, FormItem, FormLabel, FormSubmitBut
 import { Paragraph } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { TeamMembershipWithPerson, trpc } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
-const removeTeamMemberFormSchema = z.object({
+const deleteTeamFormSchema = z.object({
     teamId: z.string().uuid(),
-    personId: z.string().uuid(),
     hard: z.boolean()
 })
 
-
-interface RemoveTeamMemberDialogProps {
-    teamMembership: TeamMembershipWithPerson
+interface DeleteTeamDialogProps {
+    team: Team
     open: boolean
     onOpenChange: (newValue: boolean) => void
 }
 
-export function RemoveTeamMemberDialog({ teamMembership, open, onOpenChange }: RemoveTeamMemberDialogProps) {
+export function DeleteTeamDialog({ team, open, onOpenChange }: DeleteTeamDialogProps) {
 
-    const form = useForm<z.infer<typeof removeTeamMemberFormSchema>>({
-        resolver: zodResolver(removeTeamMemberFormSchema),
+    const form = useForm<z.infer<typeof deleteTeamFormSchema>>({
+        resolver: zodResolver(deleteTeamFormSchema),
         defaultValues: {
-            teamId: teamMembership.teamId,
-            personId: teamMembership.personId,
+            teamId: team.id,
             hard: false
         }
     })
@@ -47,7 +45,7 @@ export function RemoveTeamMemberDialog({ teamMembership, open, onOpenChange }: R
     const { toast } = useToast()
     const utils = trpc.useUtils()
 
-    const mutation = trpc.teamMemberships.delete.useMutation()
+    const mutation = trpc.teams.delete.useMutation()
 
     function handleOpenChange(newValue: boolean) {
         onOpenChange(newValue)
@@ -56,25 +54,26 @@ export function RemoveTeamMemberDialog({ teamMembership, open, onOpenChange }: R
 
     const handleSubmit = form.handleSubmit(async (formData) => {
         await mutation.mutateAsync(formData)
-        utils.teamMemberships.byTeam.invalidate({ teamId: teamMembership.teamId })
+        utils.teams.all.invalidate()
+        
         toast({
-            title: "Team Member Removed",
-            description: `${teamMembership.person.name} has been removed from the team.`,
+            title: 'Team deleted',
+            description: `Team ${team.name} has been deleted.`,
         })
         handleOpenChange(false)
     })
 
-    return <Dialog open={open} onOpenChange={onOpenChange}>
+    return <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>Remove Team Member</DialogTitle>
+                <DialogTitle>Delete Team</DialogTitle>
             </DialogHeader>
-            <Paragraph>Confirm removal of {teamMembership.person.name} from team?</Paragraph>
+            <Paragraph>Confirm deletion of {team.name}?</Paragraph>
             <FormProvider {...form}>
                 <form onSubmit={handleSubmit}>
-                    <FormField 
+                    <FormField
                         control={form.control}
-                        name="hard" 
+                        name="hard"
                         render={({ field }) => 
                             <FormItem className="flex items-center space-y-0 space-x-2">
                                 <FormControl>
@@ -98,5 +97,4 @@ export function RemoveTeamMemberDialog({ teamMembership, open, onOpenChange }: R
             </FormProvider>
         </DialogContent>
     </Dialog>
-
 }

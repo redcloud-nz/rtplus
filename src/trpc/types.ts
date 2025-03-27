@@ -5,7 +5,7 @@
 
 import type { Person, Skill, SkillGroup, SkillPackage, Team, TeamMembership, TeamMembershipD4hInfo } from '@prisma/client'
 
-
+export type DeleteType = 'Soft' | 'Hard'
 
 export class FieldConflictError extends Error {
     constructor(fieldName: string) {
@@ -22,3 +22,5 @@ export type SkillPackageWithGroupsAndSkills = SkillPackage & {
 export type TeamMembershipWithPerson = TeamMembership & { d4hInfo: TeamMembershipD4hInfo | null, person: Person }
 
 export type TeamMembershipWithTeam = TeamMembership & { d4hInfo: TeamMembershipD4hInfo | null, team: Team }
+
+export type TeamMembershipWithPersonAndTeam = TeamMembership & { d4hInfo: TeamMembershipD4hInfo | null, person: Person, team: Team }

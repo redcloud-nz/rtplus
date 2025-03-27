@@ -12,17 +12,16 @@ import { zodResolver } from '@hookform/resolvers/zod'
 
 import { AsyncButton, Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FormControl, FormButtons, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { FormControl, FormActions, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-
-import { D4hServerList, getD4hServer } from '@/lib/d4h-api/servers'
-
-import { trpc } from '@/trpc/client'
-import { useAccessTokensQuery } from '@/lib/d4h-access-tokens'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 import { Heading } from '@/components/ui/typography'
-import { Separator } from '@/components/ui/separator'
+
+import { useAccessTokensQuery } from '@/lib/d4h-access-tokens'
+import { D4hServerList, getD4hServer } from '@/lib/d4h-api/servers'
+import { trpc } from '@/trpc/client'
 
 
 
@@ -41,14 +40,14 @@ interface TeamD4hConfigDialogProps extends React.ComponentProps<typeof Dialog> {
 
 export function TeamD4hConfigDialog({ teamId, ...props }: TeamD4hConfigDialogProps) {
 
-    const [team] = trpc.team.byId.useSuspenseQuery({ teamId })
+    const teamQuery = trpc.teams.byId.useQuery({ teamId })
     const accessTokensQuery = useAccessTokensQuery()
 
-    const mutation = trpc.team.updateTeamD4h.useMutation()
+    const mutation = trpc.teams.updateTeamD4h.useMutation()
 
     const form = useForm<ConfigureTeamD4hFormData>({
         resolver: zodResolver(configureTeamD4hFormSchema),
-        defaultValues: team?.d4hInfo || { teamId, d4hTeamId: 0, serverCode: 'ap'}
+        defaultValues: teamQuery.data?.d4hInfo || { teamId, d4hTeamId: 0, serverCode: 'ap' }
     })
 
     async function handleSave(formData: ConfigureTeamD4hFormData) {
@@ -65,7 +64,7 @@ export function TeamD4hConfigDialog({ teamId, ...props }: TeamD4hConfigDialogPro
     }
 
     return <Dialog {...props}>
-        <DialogContent className="max-w-xl">
+        <DialogContent className="max-w-xl" loading={teamQuery.isLoading}>
             <DialogHeader>
                 <DialogTitle>Configure Team D4H Integration</DialogTitle>
                 <DialogDescription>
@@ -105,7 +104,7 @@ export function TeamD4hConfigDialog({ teamId, ...props }: TeamD4hConfigDialogPro
                             <FormMessage/>
                         </FormItem>}
                     />
-                    <FormButtons>
+                    <FormActions>
                         <AsyncButton
                             label="Save"
                             pending="Saving..."
@@ -117,7 +116,7 @@ export function TeamD4hConfigDialog({ teamId, ...props }: TeamD4hConfigDialogPro
                             onClick={handleReset}
                             disabled={!form.formState.isDirty}
                         >Reset</Button>
-                   </FormButtons>
+                   </FormActions>
                    <Separator/>
                     <Heading level={3}>Suggestions</Heading>
                     <div>From your configured access tokens.</div>

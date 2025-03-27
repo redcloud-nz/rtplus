@@ -3,14 +3,18 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
+import { match } from 'ts-pattern'
 import { z } from 'zod'
 
+import { clerkClient } from '@clerk/nextjs/server'
+import { Person } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
+import { personFormSchema } from '@/lib/forms/person'
+import { zodDeleteType, zodRecordStatus } from '@/lib/validation'
 
 import { createTRPCRouter, systemAdminProcedure } from '../init'
 import { FieldConflictError } from '../types'
-import { personFormSchema } from '@/lib/forms/person'
 
 /**
  * TRPC router for personnel management.
@@ -18,18 +22,20 @@ import { personFormSchema } from '@/lib/forms/person'
 export const personnelRouter = createTRPCRouter({
     all: systemAdminProcedure
         .input(z.object({
-            status: z.enum(['Active', 'Inactive']).optional().default('Active')
+            status: zodRecordStatus
         }).optional().default({}))
         .query(async ({ ctx, input }) => {
             return ctx.prisma.person.findMany({ 
-                where: { status: input.status },
+                where: { status: { in: input.status } },
                 select: { id: true, name: true, email: true, status: true },
                 orderBy: { name: 'asc' }
             })
         }),
 
-        byId: systemAdminProcedure
-        .input(z.object({ personId: z.string().uuid() }))
+    byId: systemAdminProcedure
+        .input(z.object({ 
+            personId: z.string().uuid()
+        }))
         .query(async ({ input, ctx }) => {
             return ctx.prisma.person.findUnique({ 
                 where: { id: input.personId },
@@ -51,7 +57,7 @@ export const personnelRouter = createTRPCRouter({
             name: z.string().min(3).max(100),
             email: z.string().email(),
         }))
-        .mutation(async ({ input, ctx }) => {
+        .mutation(async ({ input, ctx }): Promise<Person> => {
                 
             const emailConflict = await ctx.prisma.person.findFirst({ where: { email: input.email } })
             if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists.', cause: new FieldConflictError('email') })
@@ -73,10 +79,53 @@ export const personnelRouter = createTRPCRouter({
         }),
 
     delete: systemAdminProcedure
-        .input(z.object({ personId: z.string().uuid() }))
+        .input(z.object({ 
+            personId: z.string().uuid(),
+            deleteType: zodDeleteType
+        }))
         .mutation(async ({ input, ctx }) => {
         
-            // TODO Implement delete
+            const existingPerson = await ctx.prisma.person.findUnique({ where: { id: input.personId } })
+            if(!existingPerson) throw new TRPCError({ code: 'NOT_FOUND', message: 'Person not found.' })
+
+            const clerk = await clerkClient()
+
+            await match(input.deleteType)
+                .with('Hard', async () => {
+                    await ctx.prisma.$transaction([
+                        ctx.prisma.person.delete({ where: { id: input.personId } }),
+                        ctx.prisma.personChangeLog.deleteMany({ where: { personId: input.personId } })
+                    ])
+
+                    if(existingPerson.clerkUserId) {
+                        // Delete the associated Clerk user
+                        await clerk.users.deleteUser(existingPerson.clerkUserId)
+                    }
+                })
+                .with('Soft', async () => {
+                    await ctx.prisma.$transaction([
+                        ctx.prisma.person.update({ 
+                            where: { id: input.personId },
+                            data: { status: 'Deleted' }
+                        }),
+                        ctx.prisma.personChangeLog.create({ 
+                            data: { 
+                                actorId: ctx.personId,
+                                personId: input.personId,
+                                event: 'Delete',
+                                fields: { status: 'Deleted' }
+                            }
+                        })
+                    ])
+
+                    if(existingPerson.clerkUserId) {
+                        // Lock the Clerk user account
+                        await clerk.users.lockUser(existingPerson.clerkUserId)
+                    }
+                })
+                .exhaustive()
+
+            return existingPerson
         }),
 
     update: systemAdminProcedure

@@ -13,7 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Team } from '@prisma/client'
 
 import { Button } from '@/components/ui/button'
-import { FormControl, FormButtons, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormProvider, FormSubmitButton } from '@/components/ui/form'
+import { FormControl, FormActions, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormProvider, FormSubmitButton, FormCancelButton } from '@/components/ui/form'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input, SlugInput } from '@/components/ui/input'
 
@@ -126,7 +126,7 @@ export function UpdateTeamDialog({ trigger, team }: UpdateTeamDialogProps) {
                             <FormMessage/>
                         </FormItem>}
                     />
-                    <FormButtons>
+                    <FormActions>
                         <FormSubmitButton
                             labels={{
                                 ready: 'Update',
@@ -134,8 +134,8 @@ export function UpdateTeamDialog({ trigger, team }: UpdateTeamDialogProps) {
                                 submitted: 'Updated'
                             }}
                         />
-                        <Button variant="ghost" onClick={() => handleOpenChange(false)}>Cancel</Button>
-                    </FormButtons>
+                        <FormCancelButton onClick={() => handleOpenChange(false)}/>
+                    </FormActions>
                 </form>
             </FormProvider>
         </DialogContent>

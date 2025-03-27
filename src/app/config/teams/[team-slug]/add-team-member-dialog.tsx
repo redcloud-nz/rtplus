@@ -11,21 +11,14 @@ import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 
-import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FormControl, FormButtons, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
+import { FormControl, FormActions, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, FormCancelButton } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { useToast } from '@/hooks/use-toast'
+import { TeamMembershipFormData, teamMembershipFormSchema } from '@/lib/forms/team-membership'
 import { trpc } from '@/trpc/client'
 
-
-const addTeamMemberFormSchema = z.object({
-    personId: z.string().uuid(),
-    role: z.enum(['Admin', 'Member', 'None'])
-})
-
-type AddTeamMemberFormData = z.infer<typeof addTeamMemberFormSchema>
 
 
 interface AddTeamMemberDialogProps {
@@ -35,12 +28,15 @@ interface AddTeamMemberDialogProps {
 
 export function AddTeamMemberDialog({ teamId, trigger }: AddTeamMemberDialogProps) {
 
-    const [personnel] = trpc.personnel.all.useSuspenseQuery()
-    const [members] = trpc.teamMemberships.byTeam.useSuspenseQuery({ teamId })
+    const [open, setOpen] = React.useState(false)
 
-    const form = useForm<AddTeamMemberFormData>({
-        resolver: zodResolver(addTeamMemberFormSchema),
+    const personnelQuery = trpc.personnel.all.useQuery({}, { enabled: open })
+    const membershipsQuery = trpc.teamMemberships.byTeam.useQuery({ teamId }, { enabled: open })
+
+    const form = useForm<TeamMembershipFormData>({
+        resolver: zodResolver(teamMembershipFormSchema),
         defaultValues: {
+            teamId,
             personId: '',
             role: 'None'
         }
@@ -49,8 +45,6 @@ export function AddTeamMemberDialog({ teamId, trigger }: AddTeamMemberDialogProp
     const { toast } = useToast()
     const utils = trpc.useUtils()
 
-    const [open, setOpen] = React.useState(false)
-    
     const mutation = trpc.teamMemberships.create.useMutation()
 
     async function handleOpenChange(newValue: boolean) {
@@ -61,7 +55,7 @@ export function AddTeamMemberDialog({ teamId, trigger }: AddTeamMemberDialogProp
     }
 
     const handleSubmit = form.handleSubmit(async (formData) => {
-        const newMember = await mutation.mutateAsync({ teamId, ...formData })
+        const newMember = await mutation.mutateAsync({ ...formData })
         utils.teamMemberships.byTeam.invalidate({ teamId })
         toast({
             title: "Team member added",
@@ -69,10 +63,13 @@ export function AddTeamMemberDialog({ teamId, trigger }: AddTeamMemberDialogProp
         })
         handleOpenChange(false)
     })
+
+    const personnel = personnelQuery.data || []
+    const members = membershipsQuery.data || []
     
     return <Dialog open={open} onOpenChange={handleOpenChange}>
         {trigger}
-        <DialogContent>
+        <DialogContent loading={personnelQuery.isLoading || membershipsQuery.isLoading}>
             <DialogHeader>
                 <DialogTitle>Add Team Member</DialogTitle>
                 <DialogDescription>
@@ -125,15 +122,15 @@ export function AddTeamMemberDialog({ teamId, trigger }: AddTeamMemberDialogProp
                             <FormMessage/>
                         </FormItem>}
                     />
-                    <FormButtons>
+                    <FormActions>
                         <FormSubmitButton
                             labels={{
                                 ready: 'Add',
                                 submitting: 'Adding...',
                                 submitted: 'Added',
                             }}/>
-                        <Button variant="ghost" onClick={() => handleOpenChange(false)}>Cancel</Button>
-                    </FormButtons>
+                        <FormCancelButton onClick={() => handleOpenChange(false)}/>
+                    </FormActions>
                 </form>
             </FormProvider>
         </DialogContent>
