@@ -3,7 +3,6 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { connect } from "http2"
 import { PolicyKeyType } from "./lib/policy"
 
 //  /------------------------------\

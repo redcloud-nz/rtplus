@@ -17,7 +17,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { TeamMembershipFormData, teamMembershipFormSchema } from '@/lib/forms/team-membership'
 import { trpc } from '@/trpc/client'
 import { TeamMembershipWithPerson } from '@/trpc/types'
-import { Paragraph } from '@/components/ui/typography'
 
 
 interface UpdateTeamMemberDialogProps {

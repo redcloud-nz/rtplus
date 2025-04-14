@@ -2,10 +2,10 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /system
+ *  Path: /config
  */
 
-import { BoxesIcon, GroupIcon, ImportIcon, PocketKnifeIcon, SettingsIcon, ShieldHalfIcon, UsersIcon } from 'lucide-react'
+import { BoxesIcon, GroupIcon, PocketKnifeIcon, SettingsIcon, ShieldHalfIcon, UsersIcon } from 'lucide-react'
 import type { Metadata } from 'next'
 
 

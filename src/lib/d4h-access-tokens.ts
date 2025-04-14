@@ -5,7 +5,7 @@
 'use client'
 
 
-import { z, } from 'zod'
+import { z } from 'zod'
 
 import { useQuery } from '@tanstack/react-query'
 
@@ -30,7 +30,7 @@ export type D4hAccessToken = z.infer<typeof accessTokenSchema>
 export function getAccessTokens(): D4hAccessToken[] {
     const fromStorage = localStorage.getItem(LOCAL_STORAGE_KEY)
 
-    const parsed = JSON.parse(fromStorage || '[]') as any[]
+    const parsed = JSON.parse(fromStorage || '[]') as object[]
 
     const validated = parsed.map((item) => {
         try {

@@ -5,13 +5,13 @@
  *  Path: /teams/[team-slug]/competencies
  */
 
-import { LayoutDashboardIcon, ListPlusIcon, ScrollIcon, Settings2Icon, SquarePenIcon } from 'lucide-react'
+import { LayoutDashboardIcon, ListPlusIcon, ScrollIcon, SquarePenIcon } from 'lucide-react'
 import type { Metadata } from 'next'
 
 import { TeamParams } from '@/app/teams/[team-slug]'
 import { AppPageContainer } from '@/components/app-page'
 import { AppSidebar } from "@/components/app-sidebar"
-import { NavCollapsible, NavItem, NavSection, NavSubItem } from '@/components/nav-section'
+import { NavItem, NavSection } from '@/components/nav-section'
 
 import * as Paths from '@/paths'
 
@@ -34,13 +34,13 @@ export default async function CompetenciesLayout(props: { children: React.ReactN
                 <NavItem label="Record" href={Paths.team(teamSlug).competencies.record} icon={<SquarePenIcon/>}/>
                 <NavItem label="Sessions" href={Paths.team(teamSlug).competencies.sessionList} icon={<ListPlusIcon/>}/>
                 <NavItem label="Reports" href={Paths.team(teamSlug).competencies.reportsList} icon={<ScrollIcon/>}/>
-                <NavCollapsible label="Configuration" icon={<Settings2Icon/>}>
+                {/* <NavCollapsible label="Configuration" icon={<Settings2Icon/>}>
                     <NavSubItem label="Personnel" href={Paths.personnel}/>
                     <NavSubItem label="Skills" href={Paths.skillsList}/>
                     <NavSubItem label="Skill Groups" href={Paths.skillGroupsList}/>
                     <NavSubItem label="Skill Packages" href={Paths.skillPackagesList}/>
                     <NavSubItem label="Teams" href={Paths.teams.list}/>
-                </NavCollapsible>
+                </NavCollapsible> */}
             </NavSection>
         </AppSidebar>
         <AppPageContainer hasSidebar>

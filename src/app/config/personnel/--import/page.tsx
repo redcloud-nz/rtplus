@@ -5,11 +5,9 @@
 'use client'
 
 import { AppPage } from "@/components/app-page"
-import { useAccessTokensQuery } from "@/lib/d4h-access-tokens"
 
 export default function ImportPersonnel() {
 
-    const accessTokenQuery = useAccessTokensQuery()
 
     return <AppPage
         label="Import Skill Pacakage"

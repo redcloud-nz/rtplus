@@ -19,12 +19,12 @@ import * as Paths from '@/paths'
 
 
 
-const dataCards: { name: string, initials: string, href: string, bgColor: string }[] = [
-    { name: 'Manage', initials: 'M', href: Paths.system, bgColor: 'bg-blue-500' },
-    { name: 'Teams', initials: 'T', href: Paths.teams.list, bgColor: 'bg-pink-600' },
-    { name: 'Personnel', initials: 'P', href: Paths.personnel, bgColor: 'bg-purple-600' },
-    { name: 'Skill Packages', initials: 'SP', href: Paths.skillPackagesList, bgColor: 'bg-yellow-500' },
-]
+// const dataCards: { name: string, initials: string, href: string, bgColor: string }[] = [
+//     { name: 'Manage', initials: 'M', href: Paths.system, bgColor: 'bg-blue-500' },
+//     { name: 'Teams', initials: 'T', href: Paths.teams.list, bgColor: 'bg-pink-600' },
+//     { name: 'Personnel', initials: 'P', href: Paths.personnel, bgColor: 'bg-purple-600' },
+//     { name: 'Skill Packages', initials: 'SP', href: Paths.skillPackagesList, bgColor: 'bg-yellow-500' },
+// ]
 
 export default async function TeamHomePage(props: { params: Promise<TeamParams> }) {
     const { 'team-slug': teamSlug } = await props.params

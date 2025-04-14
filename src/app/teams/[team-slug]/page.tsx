@@ -7,7 +7,7 @@
 
 import { TeamParams } from '@/app/teams/[team-slug]'
 
-export default async function PublicTeamPage({ params }: { children: React.ReactNode,  params: Promise<TeamParams>}) {
+export default async function PublicTeamPage({ params }: { params: Promise<TeamParams> }) {
     const { 'team-slug': teamSlug } = await params
 
     return <div>{`Public Team Page for ${teamSlug}`}</div>

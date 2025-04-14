@@ -17,7 +17,7 @@ export const Policies = {
     'terms-of-use': {
         name: 'Terms of Use',
         content: <>
-            <p>'We have some terms and conditions of using this site. But we haven\'t figured out what they are yet.'</p>
+            <p>{`'We have some terms and conditions of using this site. But we haven\'t figured out what they are yet.'`}</p>
         </>,
         version: 1,
         date: '2025-01-01',

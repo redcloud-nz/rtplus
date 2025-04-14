@@ -2,6 +2,8 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 
 export class RTPlusLogger {
 
@@ -9,6 +11,7 @@ export class RTPlusLogger {
 
     constructor(componentOrName: Function | string) {
         this.componentName = typeof componentOrName === 'function' ? componentOrName.name : componentOrName
+        
     }
 
     debug(message: any, ...optionalParams: any[]) {

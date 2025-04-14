@@ -7,8 +7,6 @@ import '@tanstack/react-table'
 
 import { PersonOnboardingStatus, UserOnboardingStatus } from '@prisma/client'
 
-import type { SystemShortPermissions, TeamShortPermissions } from './lib/permissions'
-
 declare module '@tanstack/react-table' {
     // eslint-disable-next-line
     interface ColumnMeta<TData extends RowData, TValue> {

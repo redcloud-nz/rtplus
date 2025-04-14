@@ -198,7 +198,7 @@ export function FormCancelButton({ children = "Cancel", onClick, variant = 'ghos
         else router.back()
     }
 
-    return <Button variant={variant} type="button" onClick={handleClick} {...props}>Cancel</Button>
+    return <Button variant={variant} type="button" onClick={handleClick} {...props}>{children}</Button>
 }
 
 export function FormActions({ children, ...props }: React.ComponentPropsWithRef<'div'>) {

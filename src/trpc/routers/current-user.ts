@@ -6,11 +6,11 @@
 import { Person } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
-import { RTPlusLogger } from '@/lib/logger'
+// import { RTPlusLogger } from '@/lib/logger'
 
 import { authenticatedProcedure, createTRPCRouter } from '../init'
 
-const logger = new RTPlusLogger('trpc/current-user')
+// const logger = new RTPlusLogger('trpc/current-user')
 
 export const currentUserRouter = createTRPCRouter({
     

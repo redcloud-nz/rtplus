@@ -253,7 +253,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
                     }
                 })
             ])
-            changeCounts.skills.update
+            changeCounts.skills.update++
         }
     }
 

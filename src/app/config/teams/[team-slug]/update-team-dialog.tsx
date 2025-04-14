@@ -7,12 +7,10 @@
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Team } from '@prisma/client'
 
-import { Button } from '@/components/ui/button'
 import { FormControl, FormActions, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormProvider, FormSubmitButton, FormCancelButton } from '@/components/ui/form'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input, SlugInput } from '@/components/ui/input'

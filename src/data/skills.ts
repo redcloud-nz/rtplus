@@ -51,7 +51,8 @@ function definePackage({ id: skillPackageId, slug, ...pkg }: SkillPackageArgs): 
         return { 
             ...skillGroup, 
             skillPackageId, 
-            parentId, 
+            parentId,
+            sequence,
             subGroups: skillGroup.subGroups.map((subGroup, subGroupIndex) => patchSkillGroup(subGroup, skillGroup.id, subGroupIndex+1)),
             skills: skillGroup.skills.map((skill, skillIndex) => patchSkill(skill, skillGroup.id, skillIndex+1)), 
         }
