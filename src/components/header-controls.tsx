@@ -33,7 +33,7 @@ export function HeaderControls({ children, className, hidden, showSignIn = true,
 
     if(hidden) return null
   
-    return <div className={cn("flex gap-1 items-center px-1", className)} {...props}>
+    return <div className={cn("flex items-center px-1", className)} {...props}>
         {children}
         {user
             ? <>
@@ -102,12 +102,7 @@ export function HeaderControls({ children, className, hidden, showSignIn = true,
                                     Who am I?
                                 </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                                <Link href={Paths.personal.d4hAccessTokens}>
-                                    <KeyRoundIcon/>
-                                    D4H Access Tokens
-                                </Link>
-                            </DropdownMenuItem>
+                            
                             <DropdownMenuItem asChild>
                                 <Link href={Paths.config.index}>
                                     <WrenchIcon/>

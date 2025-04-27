@@ -4,11 +4,12 @@
  * 
  *  Path: /fog
  */
-import { AppPageContainer } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
 import { NotImplemented } from '@/components/errors'
 
 export default async function FOGPage() {
-    return <AppPageContainer>
-        <NotImplemented label="Field Operations Guide"/>
-    </AppPageContainer>
+    return <AppPage>
+        <AppPageBreadcrumbs label="Field Operations Guide"/>
+        <NotImplemented/>
+    </AppPage>
 }

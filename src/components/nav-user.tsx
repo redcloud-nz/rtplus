@@ -5,7 +5,7 @@
 
 'use client'
 
-import { BadgeCheck, ChevronsUpDown, KeyRoundIcon, LogInIcon, LogOutIcon, ShieldQuestionIcon } from 'lucide-react'
+import { ArrowRightLeftIcon, BadgeCheck, ChevronsUpDown, KeyRoundIcon, LogInIcon, LogOutIcon, ShieldQuestionIcon } from 'lucide-react'
 
 import { SignedIn, SignedOut, SignInButton, useClerk } from '@clerk/nextjs'
 
@@ -97,23 +97,31 @@ export function NavUser({ user }: NavUserProps) {
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                                <Link href={Paths.personal.d4hAccessKeys}>
-                                    <KeyRoundIcon/>
-                                    D4H Access Keys
-                                </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
                                 <Link href={Paths.personal.whoami}>
                                     <ShieldQuestionIcon />
                                     Who am I?
                                 </Link>
                             </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link href={Paths.personal.d4hAccessTokens}>
+                                    <KeyRoundIcon/>
+                                    D4H Access Tokens
+                                </Link>
+                            </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => clerk.signOut({ redirectUrl: '/' })}>
-                            <LogOutIcon/>
-                            Sign out
-                        </DropdownMenuItem>
+                        <DropdownMenuGroup>
+                            <DropdownMenuItem asChild>
+                                <Link href={Paths.switchTeam}>
+                                    <ArrowRightLeftIcon/>
+                                    Switch Team
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => clerk.signOut({ redirectUrl: '/' })}>
+                                <LogOutIcon/>
+                                Sign out
+                            </DropdownMenuItem>
+                        </DropdownMenuGroup>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </SignedIn>

@@ -11,7 +11,7 @@ import * as R from 'remeda'
 
 import { auth } from '@clerk/nextjs/server'
 
-import { AppPage } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
@@ -44,44 +44,47 @@ export default async function SessionPage(props: { params: Promise<{ sessionId: 
         }
     }) ?? notFound()
 
-    return <AppPage
-        label={`Assessment: ${assessment.name}`}
-        breadcrumbs={[
-            { label: "Competencies", href: Paths.team(orgSlug!).competencies.dashboard }, 
-            { label: "Assessment Sessions", href: Paths.team(orgSlug!).competencies.sessionList },
-        ]}
-        footer={<SaveFooter/>}
-    >
+    return <AppPage>
+        <AppPageBreadcrumbs
+            label={`Assessment: ${assessment.name}`}
+            breadcrumbs={[
+                { label: "Competencies", href: Paths.team(orgSlug!).competencies.overview }, 
+                { label: "Assessment Sessions", href: Paths.team(orgSlug!).competencies.sessionList },
+            ]}
+        />
         <LoadStoreData 
             session={withSerializedDates(assessment)} 
             skillIds={skills.map(R.prop('id'))}
             assesseeIds={assessees.map(R.prop('id'))}
             checks={R.mapToObj(checks.map(withSerializedDates), c => [c.id, c])}
         />
-        <Tabs defaultValue="Info">
-            <TabsList className="mb-4 w-full md:w-auto">
-                <TabsTrigger value="Info">Info</TabsTrigger>
-                <TabsTrigger value="Skills">Skills</TabsTrigger>
-                <TabsTrigger value="Personnel">Personnel</TabsTrigger>
-                <TabsTrigger value="Assess">Assess</TabsTrigger>
-                <TabsTrigger value="Transcript">Transcript</TabsTrigger>
-            </TabsList>
-            <TabsContent value="Info">
-                <InfoTabContent/>
-            </TabsContent>
-            <TabsContent value='Skills'>
-                <SkillsTabContent/>
-            </TabsContent>
-            <TabsContent value='Personnel'>
-                <PersonnelTabContent/>
-            </TabsContent>
-            <TabsContent value='Assess'>
-                <AssessTabContent/>
-            </TabsContent>
-            <TabsContent value='Transcript'>
-                <TranscriptTabContent/>
-            </TabsContent>
-        </Tabs>
+        <AppPageContent>
+            <Tabs defaultValue="Info">
+                <TabsList className="mb-4 w-full md:w-auto">
+                    <TabsTrigger value="Info">Info</TabsTrigger>
+                    <TabsTrigger value="Skills">Skills</TabsTrigger>
+                    <TabsTrigger value="Personnel">Personnel</TabsTrigger>
+                    <TabsTrigger value="Assess">Assess</TabsTrigger>
+                    <TabsTrigger value="Transcript">Transcript</TabsTrigger>
+                </TabsList>
+                <TabsContent value="Info">
+                    <InfoTabContent/>
+                </TabsContent>
+                <TabsContent value='Skills'>
+                    <SkillsTabContent/>
+                </TabsContent>
+                <TabsContent value='Personnel'>
+                    <PersonnelTabContent/>
+                </TabsContent>
+                <TabsContent value='Assess'>
+                    <AssessTabContent/>
+                </TabsContent>
+                <TabsContent value='Transcript'>
+                    <TranscriptTabContent/>
+                </TabsContent>
+            </Tabs>
+        </AppPageContent>
         
+        <SaveFooter/>
     </AppPage>
 }

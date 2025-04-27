@@ -21,7 +21,7 @@ export function PersonnelList() {
             when={personnel.length > 0}
             fallback={<Alert severity="info" title="No people defined">Add some people to get started.</Alert>}
         >
-            <Table border>
+            <Table border width="auto">
                 <TableHead>
                     <TableRow>
                         <TableHeadCell className="w-1/2">Name</TableHeadCell>

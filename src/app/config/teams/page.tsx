@@ -9,7 +9,7 @@ import { PlusIcon } from 'lucide-react'
 import { Metadata } from 'next'
 import React from 'react'
 
-import { AppPage, PageControls, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageControls, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 
 import { Button } from '@/components/ui/button'
 import { DialogTrigger } from '@/components/ui/dialog'
@@ -22,22 +22,25 @@ import { TeamsList } from './teams-list'
 export const metadata: Metadata = { title: "Teams" }
 
 export default async function TeamsListPage() {
-    return <AppPage 
-        label="Teams"
-        breadcrumbs={[{ label: "Configure", href: Paths.config.index }]}
-    >
-        <PageHeader>
-            <PageTitle>Manage Teams</PageTitle>
-            <PageDescription>These are the teams that are available for use in RT+.</PageDescription>
-            <PageControls>
-                <CreateTeamDialog trigger={<DialogTrigger asChild>
-                    <Button>
-                        <PlusIcon/> New Team
-                    </Button>
-                </DialogTrigger>}/>
-            </PageControls>
-        </PageHeader>
-        <TeamsList/>
+    return <AppPage>
+        <AppPageBreadcrumbs
+            label="Teams"
+            breadcrumbs={[{ label: "Configure", href: Paths.config.index }]}
+        />
+        <AppPageContent>
+            <PageHeader>
+                <PageTitle>Manage Teams</PageTitle>
+                <PageDescription>These are the teams that are available for use in RT+.</PageDescription>
+                <PageControls>
+                    <CreateTeamDialog trigger={<DialogTrigger asChild>
+                        <Button>
+                            <PlusIcon/> New Team
+                        </Button>
+                    </DialogTrigger>}/>
+                </PageControls>
+            </PageHeader>
+            <TeamsList/>
+        </AppPageContent>
     </AppPage>
 
 }

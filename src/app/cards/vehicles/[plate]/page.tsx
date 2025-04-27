@@ -5,7 +5,7 @@
  *  Path: /cards/vehicles/[plate]
  */
 
-import { AppPage, PageDescription, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageTitle } from '@/components/app-page'
 import { NotFound } from '@/components/errors'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
@@ -19,78 +19,80 @@ export default async function VehicleReferenceCard(props: { params: Promise<{ pl
     const vehicle = VehicleList.find(v => v.plate == params.plate)
     if(vehicle == undefined) return <NotFound/>
 
-    return <AppPage
-        label={vehicle.plate}
-        breadcrumbs={[
-            { label: 'Cards', href: "/cards" },
-            { label: 'Vehicles', href: "/card/vehicles" },
-        ]}
-    >
-        <PageTitle>{vehicle.plate}</PageTitle>
-        <PageDescription>{vehicle.name}</PageDescription>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Specifications</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <DL>
-                        <DLTerm>Owner</DLTerm>
-                        <DLDetails>{vehicle.owner}</DLDetails>
+    return <AppPage>
+        <AppPageBreadcrumbs
+            label={vehicle.plate}
+            breadcrumbs={[
+                { label: 'Cards', href: "/cards" },
+                { label: 'Vehicles', href: "/card/vehicles" },
+            ]}
+        />
+        <AppPageContent>
+            <PageTitle>{vehicle.plate}</PageTitle>
+            <PageDescription>{vehicle.name}</PageDescription>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Specifications</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <DL>
+                            <DLTerm>Owner</DLTerm>
+                            <DLDetails>{vehicle.owner}</DLDetails>
+                        
+                            <DLTerm>Make</DLTerm>
+                            <DLDetails>{vehicle.make}</DLDetails>
+                        
+                            <DLTerm>Model</DLTerm>
+                            <DLDetails>{vehicle.model} ({vehicle.subModel})</DLDetails>
+                        
+                            <DLTerm>Body Style</DLTerm>
+                            <DLDetails>{vehicle.bodyStyle}</DLDetails>
+                        
+                            <DLTerm>Colour</DLTerm>
+                            <DLDetails>{vehicle.colour}</DLDetails>
+                        
+                            <DLTerm>Seats</DLTerm>
+                            <DLDetails>{vehicle.seats}</DLDetails>
+                        
+                            <DLTerm>Fuel Type</DLTerm>
+                            <DLDetails>{vehicle.fuel}</DLDetails>
+                        
+                            <DLTerm>Gross Vehicle Mass</DLTerm>
+                            <DLDetails>{vehicle.gvm}kg</DLDetails>
+                        
+                            <DLTerm>Tare Weight</DLTerm>
+                            <DLDetails>{vehicle.tare}kg</DLDetails>
+                        
+                            <DLTerm>Towing Capacity</DLTerm>
+                            <DLDetails>
+                                <div>{vehicle.towing?.unbraked}kg (unbraked)</div>
+                                <div>{vehicle.towing?.braked}kg (braked)</div>
+                            </DLDetails>
+                        </DL>
+                    </CardContent>
                     
-                        <DLTerm>Make</DLTerm>
-                        <DLDetails>{vehicle.make}</DLDetails>
-                    
-                        <DLTerm>Model</DLTerm>
-                        <DLDetails>{vehicle.model} ({vehicle.subModel})</DLDetails>
-                    
-                        <DLTerm>Body Style</DLTerm>
-                        <DLDetails>{vehicle.bodyStyle}</DLDetails>
-                    
-                        <DLTerm>Colour</DLTerm>
-                        <DLDetails>{vehicle.colour}</DLDetails>
-                    
-                        <DLTerm>Seats</DLTerm>
-                        <DLDetails>{vehicle.seats}</DLDetails>
-                    
-                        <DLTerm>Fuel Type</DLTerm>
-                        <DLDetails>{vehicle.fuel}</DLDetails>
-                    
-                        <DLTerm>Gross Vehicle Mass</DLTerm>
-                        <DLDetails>{vehicle.gvm}kg</DLDetails>
-                    
-                        <DLTerm>Tare Weight</DLTerm>
-                        <DLDetails>{vehicle.tare}kg</DLDetails>
-                    
-                        <DLTerm>Towing Capacity</DLTerm>
-                        <DLDetails>
-                            <div>{vehicle.towing?.unbraked}kg (unbraked)</div>
-                            <div>{vehicle.towing?.braked}kg (braked)</div>
-                        </DLDetails>
-                    </DL>
-                </CardContent>
-                
-            </Card>
-            <DimensionsSection dimensions={vehicle.dimensions}/>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Basic Maintence</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <DL>
-                        <DLTerm>Battery</DLTerm>
-                        <DLDetails>Under passenger seat. Jump start from contacts in engine bay (nearside).</DLDetails>
-                        <DLTerm>Toolkit</DLTerm>
-                        <DLDetails>Passenger footwell</DLDetails>
-                        <DLTerm>Jack</DLTerm>
-                        <DLDetails>Drivers step</DLDetails>
-                        <DLTerm>Spare Wheel</DLTerm>
-                        <DLDetails>In cradle underneath rear. Lower using bolts under covers.</DLDetails>
-                    </DL>
-                </CardContent>
-            </Card>
-        </div>
-        
+                </Card>
+                <DimensionsSection dimensions={vehicle.dimensions}/>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Basic Maintence</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <DL>
+                            <DLTerm>Battery</DLTerm>
+                            <DLDetails>Under passenger seat. Jump start from contacts in engine bay (nearside).</DLDetails>
+                            <DLTerm>Toolkit</DLTerm>
+                            <DLDetails>Passenger footwell</DLDetails>
+                            <DLTerm>Jack</DLTerm>
+                            <DLDetails>Drivers step</DLDetails>
+                            <DLTerm>Spare Wheel</DLTerm>
+                            <DLDetails>In cradle underneath rear. Lower using bolts under covers.</DLDetails>
+                        </DL>
+                    </CardContent>
+                </Card>
+            </div>
+        </AppPageContent>
     </AppPage>
 }
 

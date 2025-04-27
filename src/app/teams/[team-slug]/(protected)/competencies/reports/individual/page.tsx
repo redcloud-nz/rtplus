@@ -9,7 +9,7 @@ import { format} from 'date-fns'
 import React from 'react'
 
 import { TeamParams } from '@/app/teams/[team-slug]'
-import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 
 import * as Paths from '@/paths'
 
@@ -22,18 +22,22 @@ export default async function IndividualReportPage(props: { params: Promise<Team
     const { 'team-slug': teamSlug } = await props.params
     const competenciesPath = Paths.team(teamSlug).competencies
 
-    return <AppPage 
-        label="Individual"
-        breadcrumbs={[
-            { label: "Competencies", href: competenciesPath.dashboard },
-            { label: "Reports", href: competenciesPath.reportsList }
-        ]}
-    >
-        <PageHeader>
-            <PageTitle>Individual Report</PageTitle>
-            <PageDescription>{`Competency report for member 'John Smith'. Generated ${format(new Date(), 'PPP')}`}</PageDescription>
-        </PageHeader>
+    return <AppPage>
+        <AppPageBreadcrumbs
+            label="Individual"
+            breadcrumbs={[
+                { label: "Competencies", href: competenciesPath.overview },
+                { label: "Reports", href: competenciesPath.reportsList }
+            ]}
+        />
+        <AppPageContent>
+            <PageHeader>
+                <PageTitle>Individual Report</PageTitle>
+                <PageDescription>{`Competency report for member 'John Smith'. Generated ${format(new Date(), 'PPP')}`}</PageDescription>
+            </PageHeader>
+            
+            <IndividualReport/>
+        </AppPageContent>
         
-        <IndividualReport/>
     </AppPage>
 }

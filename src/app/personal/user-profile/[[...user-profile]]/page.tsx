@@ -7,19 +7,22 @@
 
 import { UserProfile } from '@clerk/nextjs'
 
-import { AppPage } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 
 import * as Paths from '@/paths'
 
 export default function UserProfilePage() {
 
-    return <AppPage 
-        variant="centered" 
-        label="User Profile"
-        breadcrumbs={[{ label: "Personal", href: Paths.personal.index }]}
-    >
-        <UserProfile
-            path={Paths.personal.index}
+    return <AppPage>
+        <AppPageBreadcrumbs
+            label="User Profile"
+            breadcrumbs={[{ label: "Personal", href: Paths.personal.index }]}
         />
+        <AppPageContent variant="centered" >
+            <UserProfile
+                path={Paths.personal.index}
+            />
+        </AppPageContent>
+        
     </AppPage>
 }

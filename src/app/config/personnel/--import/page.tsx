@@ -4,13 +4,12 @@
  */
 'use client'
 
-import { AppPage } from "@/components/app-page"
+import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
 
 export default function ImportPersonnel() {
 
 
-    return <AppPage
-        label="Import Skill Pacakage"
-                
-    ></AppPage>
+    return <AppPage>
+        <AppPageBreadcrumbs label="Import Skill Pacakage"/>
+    </AppPage>
 }

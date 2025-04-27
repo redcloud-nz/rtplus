@@ -7,15 +7,16 @@
 
 import Image from 'next/image'
 
-import { AppPage, AppPageContainer } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 
 import { OnBoardingForm } from './onboarding-form'
 
 
 
 export default function OnBoardingPage() {
-    return <AppPageContainer slotProps={{headerControls: {hidden: true}}}>
-        <AppPage label="Onboarding" variant="centered" className="gap-8">
+    return <AppPage>
+        <AppPageBreadcrumbs label="Onboarding"/>
+        <AppPageContent variant="centered" className="gap-8">
             <Image
                 className="dark:invert"
                 src="/logo.svg"
@@ -25,8 +26,8 @@ export default function OnBoardingPage() {
                 priority
             />
             <OnBoardingForm/>
-        </AppPage>
-    </AppPageContainer>
+        </AppPageContent>
+    </AppPage>
 }
 
 

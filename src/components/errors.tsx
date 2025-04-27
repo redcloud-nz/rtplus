@@ -3,14 +3,14 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { AppPage, AppPageProps } from '@/components/app-page'
+import { AppPageContent, AppPageContentProps } from '@/components/app-page'
 import { Separator } from '@/components/ui/separator'
 
 import { Link } from './ui/link'
 
-export function NotFound({ label = "Not Found", ...props}: Omit<AppPageProps, 'label'> & { label?: string }) {
+export function NotFound(props: AppPageContentProps) {
 
-    return <AppPage variant="centered" label={label} {...props}>
+    return <AppPageContent variant="centered" {...props}>
         <main className="flex flex-col gap-2 items-center">
             <div className="font-semibold text-2xl text-zinc-800">404</div>
             <div className="font-semibold text-zinc-800">Not Found</div>
@@ -20,16 +20,16 @@ export function NotFound({ label = "Not Found", ...props}: Omit<AppPageProps, 'l
             </p>
         </main>
         
-    </AppPage>
+    </AppPageContent>
 }
 
-export type NotImplementedProps = AppPageProps & { 
+export type NotImplementedProps = AppPageContentProps & { 
     docUrl?: string
 }
 
 export function NotImplemented({ docUrl, ...props }: NotImplementedProps) {
 
-    return <AppPage variant="centered" {...props}>
+    return <AppPageContent variant="centered" {...props}>
         <div className="flex flex-col gap-2 items-center">
             <div className="font-semibold text-2xl text-zinc-800">501</div>
             <div className="font-semibold text-zinc-800">Not Implemented</div>
@@ -40,12 +40,12 @@ export function NotImplemented({ docUrl, ...props }: NotImplementedProps) {
             {docUrl ? <p>Learni more about the concept of this feature in the <Link href={docUrl}>documentation</Link>.</p> : null}
         </div>
         
-    </AppPage>
+    </AppPageContent>
 }
 
-export function Unauthorized({ ...props }: AppPageProps) {
+export function Unauthorized({ ...props }: AppPageContentProps) {
 
-    return <AppPage variant="centered" {...props}>
+    return <AppPageContent variant="centered" {...props}>
         <div className="flex flex-col gap-2 items-center">
             <div className="font-semibold text-2xl text-zinc-800">401</div>
             <div className="font-semibold text-zinc-800">Unauthorized</div>
@@ -55,11 +55,11 @@ export function Unauthorized({ ...props }: AppPageProps) {
             </p>
         </div>
         
-    </AppPage>
+    </AppPageContent>
 }
 
-export function Forbidden({ ...props }: AppPageProps) {
-    return <AppPage variant="centered" {...props}>
+export function Forbidden({ ...props }: AppPageContentProps) {
+    return <AppPageContent variant="centered" {...props}>
         <div className="flex flex-col gap-2 items-center">
             <div className="font-semibold text-2xl text-zinc-800">403</div>
             <div className="font-semibold text-zinc-800">Forbidden</div>
@@ -69,5 +69,5 @@ export function Forbidden({ ...props }: AppPageProps) {
             </p>
         </div>
         
-    </AppPage>
+    </AppPageContent>
 }

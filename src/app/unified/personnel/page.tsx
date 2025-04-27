@@ -7,7 +7,7 @@
 
 import { Metadata } from 'next'
 
-import { AppPage, PageDescription, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 
 import { PersonnelList } from './personnel-list'
 
@@ -16,14 +16,20 @@ export const metadata: Metadata = { title: "Personnel" }
 
 export default async function PersonnelPage() {
 
-    return <AppPage 
-        label="Personnel" 
-        breadcrumbs={[{ label: "D4H Unified", href: "/unified" }]}
-    >
-        <PageTitle>Personnel</PageTitle>
-        <PageDescription>
-            A list of the personnel available from your configured teams.
-        </PageDescription>
-        <PersonnelList/>
+    return <AppPage>
+        <AppPageBreadcrumbs
+            label="Personnel" 
+            breadcrumbs={[{ label: "D4H Unified", href: "/unified" }]}
+        />
+        <AppPageContent>
+            <PageHeader>
+                <PageTitle>Personnel</PageTitle>
+                <PageDescription>
+                    A list of the personnel available from your configured teams.
+                </PageDescription>
+            </PageHeader>
+            <PersonnelList/>
+        </AppPageContent>
+        
     </AppPage>
 }

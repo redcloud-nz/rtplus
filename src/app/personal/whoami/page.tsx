@@ -9,7 +9,7 @@ import { Metadata } from 'next'
 
 import { auth, currentUser } from '@clerk/nextjs/server'
 
-import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 
 import { Alert } from '@/components/ui/alert'
 import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
@@ -37,10 +37,12 @@ export default async function WhoAmIPage() {
         })
         : null
 
-    return <AppPage
-        label="Who am I?"
-        breadcrumbs={[{ label: "Personal", href: Paths.personal.index }]}
-    >
+    return <AppPage>
+        <AppPageBreadcrumbs
+            label="Who am I?"
+            breadcrumbs={[{ label: "Personal", href: Paths.personal.index }]}
+        />
+        <AppPageContent>
         <PageHeader>
             <PageTitle>Who am I?</PageTitle>
             <PageDescription>Data connected to your user session.</PageDescription>
@@ -107,5 +109,6 @@ export default async function WhoAmIPage() {
                 </CardContent>
             </Card>
         </CardGrid>
+        </AppPageContent>
     </AppPage>
 }

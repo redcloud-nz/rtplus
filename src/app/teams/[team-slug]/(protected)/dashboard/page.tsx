@@ -11,7 +11,7 @@ import Image from 'next/image'
 import { auth } from '@clerk/nextjs/server'
 
 import { TeamParams } from '@/app/teams/[team-slug]'
-import { AppPage, AppPageContainer } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 import { DashboardCard, DashboardCardList } from '@/components/ui/dashboard-card'
 
 import * as Paths from '@/paths'
@@ -31,8 +31,11 @@ export default async function TeamHomePage(props: { params: Promise<TeamParams> 
     const { sessionClaims } = await auth.protect()
     const teamPath = Paths.team(teamSlug)
 
-    return <AppPageContainer>
-        <AppPage label={sessionClaims.org_name}>
+    return <AppPage>
+        <AppPageBreadcrumbs
+            label={sessionClaims.org_name}
+        />
+        <AppPageContent>
             <div className="container mx-auto">
                 <div className="flex flex-col items-center gap-4 my-4">
                     <Image
@@ -64,7 +67,7 @@ export default async function TeamHomePage(props: { params: Promise<TeamParams> 
                     />
                     <DashboardCard
                         title="Competencies"
-                        href={teamPath.competencies.dashboard}
+                        href={teamPath.competencies.overview}
                         icon={PocketKnifeIcon}
                         iconForeground="text-sky-700"
                         iconBackground="bg-sky-50"
@@ -96,8 +99,8 @@ export default async function TeamHomePage(props: { params: Promise<TeamParams> 
                     />
                 </DashboardCardList>
             </div>
-        </AppPage>
-    </AppPageContainer>
+        </AppPageContent>
+    </AppPage>
     
         
 }

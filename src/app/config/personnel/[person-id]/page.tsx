@@ -2,13 +2,13 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /config/personnel/[personId]
+ *  Path: /config/personnel/[person-id]
  */
 
 import { KeyRoundIcon, PencilIcon } from 'lucide-react'
 import { Metadata } from 'next'
 
-import { AppPage, PageControls, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageControls, PageHeader, PageTitle } from '@/components/app-page'
 import { NotFound } from '@/components/errors'
 
 import { Button } from '@/components/ui/button'
@@ -40,88 +40,82 @@ export default async function PersonPage(props: { params: Promise<{ 'person-id':
     }) : null
     if(!person) return <NotFound/>
 
-    return <AppPage
-        label={person.name}
-        breadcrumbs={[
-            { label: "Manage", href: Paths.config.index }, 
-            { label: "Personnel", href: Paths.config.personnel.index }
-        ]}
-    >
-        <PageHeader>
-            <PageTitle objectType="Person">{person.name}</PageTitle>
-            <PageControls>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button variant="outline" size="icon">
-                            <Link href={Paths.config.personnel.person(person.id).access}>
-                                <KeyRoundIcon/>
-                            </Link>
+    return <AppPage>
+        <AppPageBreadcrumbs
+            label={person.name}
+            breadcrumbs={[
+                { label: "Configure", href: Paths.config.index }, 
+                { label: "Personnel", href: Paths.config.personnel.index }
+            ]}
+        />
+        <AppPageContent>
+            <PageHeader>
+                <PageTitle objectType="Person">{person.name}</PageTitle>
+                <PageControls>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="outline" size="icon">
+                                <Link href={Paths.config.personnel.person(person.id).access}>
+                                    <KeyRoundIcon/>
+                                </Link>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">RT+ Access</TooltipContent>
+                    </Tooltip>
+                </PageControls>
+            </PageHeader>
+            <CardGrid>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Details</CardTitle>
+                        <Button variant="ghost" asChild>
+                            <Link href={Paths.config.personnel.person(personId).edit}><PencilIcon/></Link>
                         </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">RT+ Access</TooltipContent>
-                </Tooltip>
-                {/* <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button variant="outline" size="icon">
-                            <Trash2Icon/>
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">Delete Person</TooltipContent>
-                </Tooltip> */}
-                
-                
-            </PageControls>
-        </PageHeader>
-        <CardGrid>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Details</CardTitle>
-                    <Button variant="ghost" asChild>
-                        <Link href={Paths.config.personnel.person(personId).edit}><PencilIcon/></Link>
-                    </Button>
-                </CardHeader>
-                <CardContent>
-                    <DL>
-                        <DLTerm>RT+ ID</DLTerm>
-                        <DLDetails>{person.id}</DLDetails>
+                    </CardHeader>
+                    <CardContent>
+                        <DL>
+                            <DLTerm>RT+ ID</DLTerm>
+                            <DLDetails>{person.id}</DLDetails>
 
-                        <DLTerm>Name</DLTerm>
-                        <DLDetails>{person.name}</DLDetails>
-                        
-                        <DLTerm>Email</DLTerm>
-                        <DLDetails>{person.email}</DLDetails>
-                    </DL>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Memberships</CardTitle>
-                    {/* <Protect permission="system:write">
-                        <Button variant="ghost"><PlusIcon/></Button>
-                    </Protect> */}
-                   
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableHeadCell>Team</TableHeadCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {person.teamMemberships.map(membership =>
-                                <TableRow key={membership.id}>
-                                    <TableCell>
-                                        <Link href={Paths.config.teams.team(membership.team.id).index}>
-                                            {membership.team.shortName || membership.team.name}
-                                        </Link>
-                                    </TableCell>
+                            <DLTerm>Name</DLTerm>
+                            <DLDetails>{person.name}</DLDetails>
+                            
+                            <DLTerm>Email</DLTerm>
+                            <DLDetails>{person.email}</DLDetails>
+                        </DL>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Memberships</CardTitle>
+                        {/* <Protect permission="system:write">
+                            <Button variant="ghost"><PlusIcon/></Button>
+                        </Protect> */}
+                    
+                    </CardHeader>
+                    <CardContent>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableHeadCell>Team</TableHeadCell>
                                 </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-        </CardGrid>
+                            </TableHead>
+                            <TableBody>
+                                {person.teamMemberships.map(membership =>
+                                    <TableRow key={membership.id}>
+                                        <TableCell>
+                                            <Link href={Paths.config.teams.team(membership.team.id).index}>
+                                                {membership.team.shortName || membership.team.name}
+                                            </Link>
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+            </CardGrid>
+        </AppPageContent>
+       
     </AppPage>
 }

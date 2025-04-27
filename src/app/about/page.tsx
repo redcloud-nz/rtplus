@@ -7,7 +7,7 @@
 
 import { Metadata } from 'next'
 
-import { AppPage, AppPageContainer, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageTitle } from '@/components/app-page'
 import { Heading, Paragraph } from '@/components/ui/typography'
 import { EmailLink } from '@/components/ui/link'
 
@@ -15,8 +15,11 @@ import { EmailLink } from '@/components/ui/link'
 export const metadata: Metadata = { title: "About | RT+" }
 
 export default function AboutPage() {
-    return <AppPageContainer>
-        <AppPage label="About">
+    return <AppPage>
+        <AppPageBreadcrumbs
+            label="About"
+        />
+        <AppPageContent>
         
             <div className="container mx-auto max-w-4xl flex flex-col gap-8">
                 <PageTitle>About</PageTitle>
@@ -59,9 +62,8 @@ export default function AboutPage() {
                     </Paragraph>
                 </section>
             </div>
-        </AppPage>
-    </AppPageContainer>
-    
+        </AppPageContent>
+    </AppPage>
 }
 
 const technologies: { name: string, url: string, description: string }[] = [

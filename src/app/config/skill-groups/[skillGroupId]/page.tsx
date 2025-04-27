@@ -5,7 +5,7 @@
  *  Path: /config/skil-groups/[skillGroupId]
  */
 
-import { AppPage, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { NotFound } from '@/components/errors'
 
 import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
@@ -33,60 +33,64 @@ export default async function SkillGroupPage(props: { params: Promise<{ skillGro
 
     if(!skillGroup) return <NotFound/>
 
-    return <AppPage
-        label={skillGroup.name} 
-        breadcrumbs={[
-            { label: "Configure", href: Paths.config.index }, 
-            { label: "Skill Groups", href: Paths.config.skillGroups.index }
-        ]}
-    >
-        <PageHeader>
-            <PageTitle objectType="Skill Group">{skillGroup.name}</PageTitle>
-            
-        </PageHeader>
-        <CardGrid>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Details</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <DL>
-                        <DLTerm>RT+ ID</DLTerm>
-                        <DLDetails>{skillGroup.id}</DLDetails>
+    return <AppPage>
+        <AppPageBreadcrumbs
+            label={skillGroup.name} 
+            breadcrumbs={[
+                { label: "Configure", href: Paths.config.index }, 
+                { label: "Skill Groups", href: Paths.config.skillGroups.index }
+            ]}
+        />
+        <AppPageContent>
+            <PageHeader>
+                <PageTitle objectType="Skill Group">{skillGroup.name}</PageTitle>
+                
+            </PageHeader>
+            <CardGrid>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Details</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <DL>
+                            <DLTerm>RT+ ID</DLTerm>
+                            <DLDetails>{skillGroup.id}</DLDetails>
 
-                        <DLTerm>Name</DLTerm>
-                        <DLDetails>{skillGroup.name}</DLDetails>
+                            <DLTerm>Name</DLTerm>
+                            <DLDetails>{skillGroup.name}</DLDetails>
 
-                        <DLTerm>Package</DLTerm>
-                        <DLDetails>
-                            <Link href={Paths.config.skillPackages.skillPackage(skillGroup.skillPackageId).index}>{skillGroup.skillPackage.name}</Link>
-                        </DLDetails>
-                    </DL>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Skills</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableHeadCell>Name</TableHeadCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {skillGroup.skills.map(skill => 
-                                <TableRow key={skill.id}>
-                                    <TableCell>
-                                        <Link href={Paths.config.skills.skill(skill.id).index}>{skill.name}</Link>
-                                    </TableCell>
+                            <DLTerm>Package</DLTerm>
+                            <DLDetails>
+                                <Link href={Paths.config.skillPackages.skillPackage(skillGroup.skillPackageId).index}>{skillGroup.skillPackage.name}</Link>
+                            </DLDetails>
+                        </DL>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Skills</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableHeadCell>Name</TableHeadCell>
                                 </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-        </CardGrid>
+                            </TableHead>
+                            <TableBody>
+                                {skillGroup.skills.map(skill => 
+                                    <TableRow key={skill.id}>
+                                        <TableCell>
+                                            <Link href={Paths.config.skills.skill(skill.id).index}>{skill.name}</Link>
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+            </CardGrid>
+        </AppPageContent>
+        
     </AppPage>
 }

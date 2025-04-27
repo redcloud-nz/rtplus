@@ -8,7 +8,7 @@
 import { Metadata } from 'next'
 import Link, { LinkProps } from 'next/link'
 
-import { AppPage, PageDescription, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageTitle } from '@/components/app-page'
 import { Heading } from '@/components/ui/typography'
 
 import { VehicleList } from '@/data/vehicles'
@@ -20,25 +20,28 @@ export const metadata: Metadata = { title: "Cards | RT+" }
 
 export default async function ReferenceCardsPage() {
 
-    return <AppPage
-        label="Reference Cards"
-    >
-        <PageTitle>Reference Cards</PageTitle>
-        <PageDescription>
-            A collection of quick reference cards.
-        </PageDescription>
-        <Heading level={2}>Vehicles</Heading>
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {VehicleList.map(vehicle => 
-                <ReferenceCardButton
-                    key={vehicle.plate}
-                    cardType="Vehicle"
-                    title={vehicle.plate}
-                    subtitle={vehicle.name}
-                    href={`/cards/vehicles/${vehicle.plate}`}
-                />
-            )}
-        </div>
+    return <AppPage>
+        <AppPageBreadcrumbs
+            label="Reference Cards"
+        />
+        <AppPageContent>
+            <PageTitle>Reference Cards</PageTitle>
+            <PageDescription>
+                A collection of quick reference cards.
+            </PageDescription>
+            <Heading level={2}>Vehicles</Heading>
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {VehicleList.map(vehicle => 
+                    <ReferenceCardButton
+                        key={vehicle.plate}
+                        cardType="Vehicle"
+                        title={vehicle.plate}
+                        subtitle={vehicle.name}
+                        href={`/cards/vehicles/${vehicle.plate}`}
+                    />
+                )}
+            </div>
+        </AppPageContent>
     </AppPage>
 }
 

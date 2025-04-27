@@ -11,9 +11,9 @@ import localFont from 'next/font/local'
 import { ClerkProvider } from '@clerk/nextjs'
 
 import { FrontendProvider } from '@/components/frontend-provider'
-import { Toaster } from '@/components/ui/toaster'
 
 import './globals.css'
+import { AppSidebar } from '@/components/app-sidebar'
 
 const geistSans = localFont({
     src: "./fonts/GeistVF.woff",
@@ -40,8 +40,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <html lang="en">
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
                 <FrontendProvider>
+                    <AppSidebar/>
                     {children}
-                    <Toaster/>
                 </FrontendProvider>
             </body>
         </html>

@@ -8,7 +8,7 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
-import { AppPage } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 import * as Paths from '@/paths'
 import { Policies, PolicyKeyType } from '@/lib/policy'
 
@@ -37,15 +37,18 @@ export default async function PolicyPage({ params }: Props) {
     const policy = Policies[policyKey]
     if(!policy) notFound()
 
-    return <AppPage 
-        breadcrumbs={[
-            { label: 'Policies', href: Paths.policies.index },
-        ]}
-        label={policy.name}
-        >
-        <div className="flex flex-col gap-4 max-w-xl">
-            <h1 className="text-3xl font-bold">{policy.name}</h1>
-            {policy.content}
-        </div>
+    return <AppPage>
+        <AppPageBreadcrumbs
+            breadcrumbs={[
+                { label: 'Policies', href: Paths.policies.index },
+            ]}
+            label={policy.name}
+        />
+        <AppPageContent>
+            <div className="flex flex-col gap-4 max-w-xl">
+                <h1 className="text-3xl font-bold">{policy.name}</h1>
+                {policy.content}
+            </div>
+        </AppPageContent>
     </AppPage>
 }

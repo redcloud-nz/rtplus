@@ -5,7 +5,7 @@
  * Path: /policies/[policy-key]
  */
 
-import { AppPage } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 import * as Paths from '@/paths'
 import { Alert } from '@/components/ui/alert'
 
@@ -14,14 +14,17 @@ import { Alert } from '@/components/ui/alert'
 
 export default async function PolicyNotFoundPage() {
 
-    return <AppPage 
-        breadcrumbs={[
-            { label: 'Policies', href: Paths.policies.index },
-        ]}
-        label="Not Found"
-        >
-        <div className="flex flex-col gap-4 max-w-xl">
-            <Alert severity="error" title="The policy you are looking for could not be found."/>
-        </div>
+    return <AppPage>
+            <AppPageBreadcrumbs
+                breadcrumbs={[
+                    { label: 'Policies', href: Paths.policies.index },
+                ]}
+                label="Not Found"
+            />
+            <AppPageContent>
+                <div className="flex flex-col gap-4 max-w-xl">
+                    <Alert severity="error" title="The policy you are looking for could not be found."/>
+                </div>
+            </AppPageContent>
     </AppPage>
 }

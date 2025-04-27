@@ -8,7 +8,7 @@ import * as React from 'react'
 import * as R from 'remeda'
 import { useShallow } from 'zustand/react/shallow'
 
-import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 
 import { Alert } from '@/components/ui/alert'
 import { AsyncButton, Button } from '@/components/ui/button'
@@ -29,34 +29,36 @@ export default function ImportSkillPackage() {
 
     const { message, status } = useSkillPackageImportStore(useShallow(R.pick(['message', 'status'])))
 
-    return <AppPage 
-        label="Import Skill Pacakage"
-        
-                breadcrumbs={[
-                    { label: 'Configure', href: Paths.config.index },
-                    { label: 'Skill Packages', href: Paths.config.skillPackages.index },
-                ]}
-    >
-        <PageHeader>
-            <PageTitle>Import Skill Package</PageTitle>
-            <PageDescription>Import a skill package.</PageDescription>
-        </PageHeader>
-        <Stepper 
-            activeStep={['Init', 'Review', 'Done'].indexOf(status)}
-            steps={[
-                { name: "Select Package" },
-                { name: "Review Package" },
-                { name: "Complete" }
+    return <AppPage>
+        <AppPageBreadcrumbs
+            label="Import Skill Pacakage"
+            breadcrumbs={[
+                { label: 'Configure', href: Paths.config.index },
+                { label: 'Skill Packages', href: Paths.config.skillPackages.index },
             ]}
         />
-        <div className="my-4 space-y-4">
-            { status == 'Init' && <SelectPackageStep/> }
-            { status == 'Review' && <ReviewPackageStep/> }
-            { status == 'Done' && <ResultsStep/> }
-            {status == 'Error' && <>
-                <Alert severity="error" title={message}/>
-            </>}
-        </div>
+        <AppPageContent>
+            <PageHeader>
+                <PageTitle>Import Skill Package</PageTitle>
+                <PageDescription>Import a skill package.</PageDescription>
+            </PageHeader>
+            <Stepper 
+                activeStep={['Init', 'Review', 'Done'].indexOf(status)}
+                steps={[
+                    { name: "Select Package" },
+                    { name: "Review Package" },
+                    { name: "Complete" }
+                ]}
+            />
+            <div className="my-4 space-y-4">
+                { status == 'Init' && <SelectPackageStep/> }
+                { status == 'Review' && <ReviewPackageStep/> }
+                { status == 'Done' && <ResultsStep/> }
+                {status == 'Error' && <>
+                    <Alert severity="error" title={message}/>
+                </>}
+            </div>
+        </AppPageContent>
     </AppPage>
 }
 

@@ -5,7 +5,7 @@
  *  Path: /competencies/skills
  */
 
-import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 import { Show } from '@/components/show'
 
 import { Alert } from '@/components/ui/alert'
@@ -24,37 +24,42 @@ export default async function SkillListPage() {
     })
 
     return <AppPage
-        label="Skills"
-        breadcrumbs={[{ label: "Configure", href: Paths.config.index }]}
+       
     >
-        <PageHeader>
-            <PageTitle>Manage Skills</PageTitle>
-            <PageDescription>Manage the skills available in RT+.</PageDescription>
-        </PageHeader>
-        <Show
-            when={skills.length > 0}
-            fallback={<Alert severity="info" title="No skills defined."/>}
-        >
-            <Table border>
-                <TableHead>
-                    <TableRow>
-                        <TableHeadCell className="w-1/3">Name</TableHeadCell>
-                        <TableHeadCell className="w-1/3">Package</TableHeadCell>
-                        <TableHeadCell className="w-1/3">Skill Group</TableHeadCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {skills.map(skill => 
-                        <TableRow key={skill.id}>
-                            <TableCell>
-                                <Link href={Paths.config.skills.skill(skill.id).index}>{skill.name}</Link>
-                            </TableCell>
-                            <TableCell>{skill.skillPackage.name}</TableCell>
-                            <TableCell>{skill.skillGroup?.name}</TableCell>
+        <AppPageBreadcrumbs
+             label="Skills"
+             breadcrumbs={[{ label: "Configure", href: Paths.config.index }]}
+        />
+        <AppPageContent>
+            <PageHeader>
+                <PageTitle>Manage Skills</PageTitle>
+                <PageDescription>Manage the skills available in RT+.</PageDescription>
+            </PageHeader>
+            <Show
+                when={skills.length > 0}
+                fallback={<Alert severity="info" title="No skills defined."/>}
+            >
+                <Table border>
+                    <TableHead>
+                        <TableRow>
+                            <TableHeadCell className="w-1/3">Name</TableHeadCell>
+                            <TableHeadCell className="w-1/3">Package</TableHeadCell>
+                            <TableHeadCell className="w-1/3">Skill Group</TableHeadCell>
                         </TableRow>
-                    )}
-                </TableBody>
-            </Table>
-        </Show>
+                    </TableHead>
+                    <TableBody>
+                        {skills.map(skill => 
+                            <TableRow key={skill.id}>
+                                <TableCell>
+                                    <Link href={Paths.config.skills.skill(skill.id).index}>{skill.name}</Link>
+                                </TableCell>
+                                <TableCell>{skill.skillPackage.name}</TableCell>
+                                <TableCell>{skill.skillGroup?.name}</TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </Show>
+        </AppPageContent>
     </AppPage>
 }

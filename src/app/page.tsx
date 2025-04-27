@@ -7,12 +7,12 @@
 
 import Image from 'next/image'
 
-import { AppPage, AppPageContainer } from '@/components/app-page'
+import { AppPage, AppPageContent } from '@/components/app-page'
 
 
 export default function PublicHomePage() {
-    return <AppPageContainer>
-        <AppPage label="">
+    return <AppPage>
+        <AppPageContent>
             <div className="container mx-auto">
                 <div className="flex flex-col items-center gap-4 my-4">
                     <Image
@@ -26,8 +26,8 @@ export default function PublicHomePage() {
                     <p>Response Team Management Tools.</p>
                 </div>
             </div>
-        </AppPage>
-    </AppPageContainer>
+        </AppPageContent>
+    </AppPage>
     
         
 }

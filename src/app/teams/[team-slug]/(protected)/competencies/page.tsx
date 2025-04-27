@@ -5,7 +5,7 @@
  *  Path: /teams/[team-slug]/competencies
  */
 
-import { AppPage, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 import prisma from '@/server/prisma'
@@ -15,15 +15,17 @@ export default async function CompetenciesDashboard() {
     const skillCount = await prisma.skill.count()
     const personnelCount = await prisma.person.count()
 
-    return <AppPage
-        label="Competencies Dashboard"
-    >
-        <PageHeader>
-            <PageTitle>Competencies Dashboard</PageTitle>
-        </PageHeader>
-        <Stats 
-            personnelCount={personnelCount}
-            skillCount={skillCount}/>
+    return <AppPage>
+        <AppPageBreadcrumbs label="Competencies Dashboard"/>
+        <AppPageContent>
+            <PageHeader>
+                <PageTitle>Competencies Dashboard</PageTitle>
+            </PageHeader>
+            <Stats 
+                personnelCount={personnelCount}
+                skillCount={skillCount}/>
+        </AppPageContent>
+        
     </AppPage>
 }
 

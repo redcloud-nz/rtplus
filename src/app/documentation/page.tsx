@@ -5,8 +5,12 @@
  *  Path: /documentation
  */
 
+import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
 import { NotImplemented } from '@/components/errors'
 
 export default async function DocumentationPage() {
-    return <NotImplemented label="Documentation"/>
+    return <AppPage>
+        <AppPageBreadcrumbs label="Documentation"/>
+        <NotImplemented/>
+    </AppPage>
 }

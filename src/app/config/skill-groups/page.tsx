@@ -5,7 +5,7 @@
  *  Path: /config/skill-groups
  */
 
-import { AppPage, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 import { Show } from '@/components/show'
 
 import { Alert } from '@/components/ui/alert'
@@ -23,38 +23,41 @@ export default async function SkillGroupListPage() {
         include: { skillPackage: true }
     })
 
-    return <AppPage
-        label="Skill Groups"
-        breadcrumbs={[{ label: "Configure", href: Paths.config.index }]}
-    >
+    return <AppPage>
+        <AppPageBreadcrumbs
+            label="Skill Groups"
+            breadcrumbs={[{ label: "Configure", href: Paths.config.index }]}
+        />
         <PageHeader>
             <PageTitle>Manage Skill Groups</PageTitle>
             <PageDescription>Manage the skill groups available in RT+.</PageDescription>
         </PageHeader>
-        <Show
-            when={skillGroups.length > 0}
-            fallback={<Alert severity="info" title="No skill groups defined."/>}
-        >
-            <Table border>
-                <TableHead>
-                    <TableRow>
-                        <TableHeadCell className="w-1/2">Name</TableHeadCell>
-                        <TableHeadCell className="w-1/2">Capability</TableHeadCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {skillGroups.map(skillGroup => 
-                        <TableRow key={skillGroup.id}>
-                            <TableCell>
-                                <Link 
-                                    href={Paths.config.skillGroups.skillGroup(skillGroup.id).index}
-                                >{skillGroup.name}</Link>
-                            </TableCell>
-                            <TableCell>{skillGroup.skillPackage.name}</TableCell>
+        <AppPageContent>
+            <Show
+                when={skillGroups.length > 0}
+                fallback={<Alert severity="info" title="No skill groups defined."/>}
+            >
+                <Table border>
+                    <TableHead>
+                        <TableRow>
+                            <TableHeadCell className="w-1/2">Name</TableHeadCell>
+                            <TableHeadCell className="w-1/2">Capability</TableHeadCell>
                         </TableRow>
-                    )}
-                </TableBody>
-            </Table>
-        </Show>
+                    </TableHead>
+                    <TableBody>
+                        {skillGroups.map(skillGroup => 
+                            <TableRow key={skillGroup.id}>
+                                <TableCell>
+                                    <Link 
+                                        href={Paths.config.skillGroups.skillGroup(skillGroup.id).index}
+                                    >{skillGroup.name}</Link>
+                                </TableCell>
+                                <TableCell>{skillGroup.skillPackage.name}</TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </Show>
+        </AppPageContent>
     </AppPage>
 }

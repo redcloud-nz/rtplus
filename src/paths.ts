@@ -80,7 +80,7 @@ export const team = (teamSlug: string) => {
         availability: `${base}/availability`,
         checklists: `${base}/checklists`,
         competencies: {
-            dashboard: competenciesBase,
+            overview: competenciesBase,
             sessionList: `${competenciesBase}/sessions`,
             session: (sessionId: string) => `${competenciesBase}/sessions/${sessionId}`,
             record: `${competenciesBase}/record`,

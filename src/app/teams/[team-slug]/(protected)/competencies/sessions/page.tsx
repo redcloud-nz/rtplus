@@ -12,7 +12,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 
 import { TeamParams } from '@/app/teams/[team-slug]'
-import { AppPage, PageControls, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageControls, PageHeader, PageTitle } from '@/components/app-page'
 import { Show } from '@/components/show'
 
 import { Alert } from '@/components/ui/alert'
@@ -24,7 +24,6 @@ import { FormState } from '@/lib/form-state'
 import prisma from '@/server/prisma'
 
 import * as Paths from '@/paths'
-
 
 
 export default async function SkillCheckSessionListPage(props: { params: Promise<TeamParams>}) {
@@ -43,52 +42,55 @@ export default async function SkillCheckSessionListPage(props: { params: Promise
         }
     })
 
-    return <AppPage 
-        label="My Sessions" 
-        breadcrumbs={[
-            { label: "Competencies", href: competenciesPath.dashboard }
-        ]}
-    >
-        <PageHeader>
-            <PageTitle>Sessions</PageTitle>
-            <PageControls>
-                <Form action={createSessionAction}>
-                    <FormSubmitButton
-                        label={<><SquarePenIcon/> New <span className="hidden md:inline">Session</span></>}
-                        loading="Creating"
-                    />
-                </Form>
-            </PageControls>
-        </PageHeader>
-       <Show
-            when={sessions.length > 0}
-            fallback={<Alert severity="info" title="No existing sessions.">Add one to get started.</Alert>}
-        >
-            <Table border>
-                <TableHead>
-                    <TableRow>
-                        <TableHeadCell>Name</TableHeadCell>
-                        <TableHeadCell>Date</TableHeadCell>
-                        <TableHeadCell className="w-32 hidden md:table-cell text-center">Skill Count</TableHeadCell>
-                        <TableHeadCell className="w-32 hidden md:table-cell text-center">Assessee Count</TableHeadCell>
-                        <TableHeadCell className="w-32 hidden md:table-cell text-center">Check Count</TableHeadCell>
-                        <TableHeadCell className="text-center">Status</TableHeadCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {sessions.map((assessment, index) => 
-                        <TableRow key={assessment.id}>
-                            <TableCell><Link href={competenciesPath.session(assessment.id)}>{assessment.name || `#${index+1}`}</Link></TableCell>
-                            <TableCell>{formatISO(assessment.date, { representation: 'date' })}</TableCell>
-                            <TableCell className="hidden md:table-cell text-center ">{assessment._count.skills}</TableCell>
-                            <TableCell className="hidden md:table-cell text-center">{assessment._count.assessees}</TableCell>
-                            <TableCell className="hidden md:table-cell text-center">{assessment._count.checks}</TableCell>
-                            <TableCell className="text-center">{assessment.sessionStatus}</TableCell>
+    return <AppPage>
+        <AppPageBreadcrumbs
+            label="My Sessions" 
+            breadcrumbs={[
+                { label: "Competencies", href: competenciesPath.overview }
+            ]}
+        />
+        <AppPageContent>
+            <PageHeader>
+                <PageTitle>Sessions</PageTitle>
+                <PageControls>
+                    <Form action={createSessionAction}>
+                        <FormSubmitButton
+                            label={<><SquarePenIcon/> New <span className="hidden md:inline">Session</span></>}
+                            loading="Creating"
+                        />
+                    </Form>
+                </PageControls>
+            </PageHeader>
+        <Show
+                when={sessions.length > 0}
+                fallback={<Alert severity="info" title="No existing sessions.">Add one to get started.</Alert>}
+            >
+                <Table border>
+                    <TableHead>
+                        <TableRow>
+                            <TableHeadCell>Name</TableHeadCell>
+                            <TableHeadCell>Date</TableHeadCell>
+                            <TableHeadCell className="w-32 hidden md:table-cell text-center">Skill Count</TableHeadCell>
+                            <TableHeadCell className="w-32 hidden md:table-cell text-center">Assessee Count</TableHeadCell>
+                            <TableHeadCell className="w-32 hidden md:table-cell text-center">Check Count</TableHeadCell>
+                            <TableHeadCell className="text-center">Status</TableHeadCell>
                         </TableRow>
-                    )}
-                </TableBody>
-            </Table>
-        </Show>
+                    </TableHead>
+                    <TableBody>
+                        {sessions.map((assessment, index) => 
+                            <TableRow key={assessment.id}>
+                                <TableCell><Link href={competenciesPath.session(assessment.id)}>{assessment.name || `#${index+1}`}</Link></TableCell>
+                                <TableCell>{formatISO(assessment.date, { representation: 'date' })}</TableCell>
+                                <TableCell className="hidden md:table-cell text-center ">{assessment._count.skills}</TableCell>
+                                <TableCell className="hidden md:table-cell text-center">{assessment._count.assessees}</TableCell>
+                                <TableCell className="hidden md:table-cell text-center">{assessment._count.checks}</TableCell>
+                                <TableCell className="text-center">{assessment.sessionStatus}</TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </Show>
+        </AppPageContent>
     </AppPage>
 }
 

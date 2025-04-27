@@ -5,7 +5,7 @@
  *  Path: /config/skills/[skillId]
  */
 
-import { AppPage, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { NotFound } from '@/components/errors'
 
 import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
@@ -32,50 +32,53 @@ export default async function SkillPage(props: { params: Promise<{ skillId: stri
 
     if(!skill) return <NotFound/>
 
-    return <AppPage
-        label={skill.name}
-        breadcrumbs={[
-            { label: "Configure", href: Paths.config.index }, 
-            { label: "Skills", href: Paths.config.skills.index }
-        ]}
-    >
-        <PageHeader>
-            <PageTitle objectType="Skill">{skill.name}</PageTitle>
-        </PageHeader>
-        <CardGrid>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Details</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <DL>
-                        <DLTerm>RT+ ID</DLTerm>
-                        <DLDetails>{skill.id}</DLDetails>
+    return <AppPage>
+        <AppPageBreadcrumbs
+            label={skill.name}
+            breadcrumbs={[
+                { label: "Configure", href: Paths.config.index }, 
+                { label: "Skills", href: Paths.config.skills.index }
+            ]}
+        />
+        <AppPageContent>
+            <PageHeader>
+                <PageTitle objectType="Skill">{skill.name}</PageTitle>
+            </PageHeader>
+            <CardGrid>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Details</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <DL>
+                            <DLTerm>RT+ ID</DLTerm>
+                            <DLDetails>{skill.id}</DLDetails>
 
-                        <DLTerm>Name</DLTerm>
-                        <DLDetails>{skill.name}</DLDetails>
+                            <DLTerm>Name</DLTerm>
+                            <DLDetails>{skill.name}</DLDetails>
 
-                        <DLTerm>Description</DLTerm>
-                        <DLDetails>{skill.description}</DLDetails>
+                            <DLTerm>Description</DLTerm>
+                            <DLDetails>{skill.description}</DLDetails>
 
-                        <DLTerm>Frequency</DLTerm>
-                        <DLDetails>{skill.frequency}</DLDetails>
-                        
-                        <DLTerm>Optional</DLTerm>
-                        <DLDetails>{skill.optional ? 'Yes' : 'No'}</DLDetails>
+                            <DLTerm>Frequency</DLTerm>
+                            <DLDetails>{skill.frequency}</DLDetails>
+                            
+                            <DLTerm>Optional</DLTerm>
+                            <DLDetails>{skill.optional ? 'Yes' : 'No'}</DLDetails>
 
-                        <DLTerm>Package</DLTerm>
-                        <DLDetails>
-                            <Link href={Paths.config.skillPackages.skillPackage(skill.skillPackage.id).index}>{skill.skillPackage.name}</Link>
-                        </DLDetails>
+                            <DLTerm>Package</DLTerm>
+                            <DLDetails>
+                                <Link href={Paths.config.skillPackages.skillPackage(skill.skillPackage.id).index}>{skill.skillPackage.name}</Link>
+                            </DLDetails>
 
-                        <DLTerm>Skill Group</DLTerm>
-                        <DLDetails>
-                            {skill.skillGroup?.name ? <Link href={Paths.config.skillGroups.skillGroup(skill.skillGroup.id).index}>{skill.skillGroup.name}</Link> : 'None'}
-                        </DLDetails>
-                    </DL>
-                </CardContent>
-            </Card>
-        </CardGrid>
+                            <DLTerm>Skill Group</DLTerm>
+                            <DLDetails>
+                                {skill.skillGroup?.name ? <Link href={Paths.config.skillGroups.skillGroup(skill.skillGroup.id).index}>{skill.skillGroup.name}</Link> : 'None'}
+                            </DLDetails>
+                        </DL>
+                    </CardContent>
+                </Card>
+            </CardGrid>
+        </AppPageContent>
     </AppPage>
 }

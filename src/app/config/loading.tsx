@@ -5,14 +5,19 @@
  *  Path: /system
  */
 
-import { AppPage } from "@/components/app-page"
-import { LoaderIcon } from "lucide-react"
+import { LoaderIcon } from 'lucide-react'
+
+import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
+
 
 export default function Loading() {
 
-    return <AppPage label="Loading" variant="centered">
-        <div>
-            <LoaderIcon className="animate-spin size-20"/>
-        </div>
+    return <AppPage>
+        <AppPageBreadcrumbs label="Loading"/>
+        <AppPageContent  variant="centered">
+            <div>
+                <LoaderIcon className="animate-spin size-20"/>
+            </div>
+        </AppPageContent>
     </AppPage>
 }

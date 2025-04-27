@@ -12,12 +12,21 @@ const tableVariants = tv({
     base: 'relative w-full overflow-auto',
     variants: {
         border: {
-            true: 'rounded-md border'
+            true: 'rounded-sm border'
+        },
+        width: {
+            full: 'w-full',
+            auto: 'container mx-auto'
         }
     }
 })
 
-export function Table({ className, border = false, ...props }: Omit<React.ComponentPropsWithRef<'table'>, 'border'> & VariantProps<typeof tableVariants>) {
+export type TableProps =  Omit<React.ComponentPropsWithRef<'table'>, 'border'> & VariantProps<typeof tableVariants> & {
+    controls?: React.ReactNode
+}
+
+
+export function Table({ className, controls, border = false, width = 'full', ...props }: TableProps) {
     return <div 
         className={cn(
             tableVariants({ border }),
