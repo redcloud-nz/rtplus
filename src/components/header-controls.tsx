@@ -104,7 +104,7 @@ export function HeaderControls({ children, className, hidden, showSignIn = true,
                             </DropdownMenuItem>
                             
                             <DropdownMenuItem asChild>
-                                <Link href={Paths.config.index}>
+                                <Link href={Paths.system.index}>
                                     <WrenchIcon/>
                                     Configuration
                                 </Link>

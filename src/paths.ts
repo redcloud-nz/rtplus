@@ -6,59 +6,59 @@
 import { PolicyKeyType } from "./lib/policy"
 
 //  /------------------------------\
-//  |        Configuration         |
+//  |            System            |
 //  \------------------------------/
-export const config = {
-    index: '/config',
+export const system = {
+    index: '/system',
     teams: {
-        index: '/config/teams',
+        index: '/system/teams',
         team: (teamSlug: string) => ({
-            index: `/config/teams/${teamSlug}`,
-            d4h: `/config/teams/${teamSlug}/d4h`,
-            edit: `/config/teams/${teamSlug}/edit`,
-            members: `/config/teams/${teamSlug}/members`,
+            index: `/system/teams/${teamSlug}`,
+            d4h: `/system/teams/${teamSlug}/d4h`,
+            edit: `/system/teams/${teamSlug}/edit`,
+            members: `/system/teams/${teamSlug}/members`,
         } as const),
     },
     personnel: {
-        index: '/config/personnel',
+        index: '/system/personnel',
         person: (personId: string) => ({
-            index: `/config/personnel/${personId}`,
-            edit: `/config/personnel/${personId}/edit`,
-            access: `/config/personnel/${personId}/access`,
-            memberships: `/config/personnel/${personId}/memberships`,
+            index: `/system/personnel/${personId}`,
+            edit: `/system/personnel/${personId}/edit`,
+            access: `/system/personnel/${personId}/access`,
+            memberships: `/system/personnel/${personId}/memberships`,
         } as const),
     },
     skills: {
-        index: '/config/skills',
-        new: '/config/skills/--new',
+        index: '/system/skills',
+        new: '/system/skills/--new',
         skill: (skillId: string) => ({
-            index: `/config/skills/${skillId}`,
-            edit: `/config/skills/${skillId}/edit`,
+            index: `/system/skills/${skillId}`,
+            edit: `/system/skills/${skillId}/edit`,
         } as const),
     },
     skillGroups: {
-        index: '/config/skill-groups',
-        new: '/config/skill-groups/--new',
+        index: '/system/skill-groups',
+        new: '/system/skill-groups/--new',
         skillGroup: (skillGroupId: string) => ({
-            index: `/config/skill-groups/${skillGroupId}`,
-            edit: `/config/skill-groups/${skillGroupId}/edit`,
+            index: `/system/skill-groups/${skillGroupId}`,
+            edit: `/system/skill-groups/${skillGroupId}/edit`,
         } as const),
     },
     skillPackages: {
-        index: '/config/skill-packages',
-        import : '/config/skill-packages/--import',
-        new: '/config/skill-packages/--new',
+        index: '/system/skill-packages',
+        import : '/system/skill-packages/--import',
+        new: '/system/skill-packages/--new',
         skillPackage: (skillPackageId: string) => ({
-            index: `/config/skill-packages/${skillPackageId}`,
-            edit: `/config/skill-packages/${skillPackageId}/edit`,
+            index: `/system/skill-packages/${skillPackageId}`,
+            edit: `/system/skill-packages/${skillPackageId}/edit`,
         } as const),
     },
 }
 
 export const imports = {
-    index: '/config/imports',
-    personnel: '/config/imports/personnel',
-    skillPackage: '/config/imports/skill-package',
+    index: '/system/imports',
+    personnel: '/system/imports/personnel',
+    skillPackage: '/system/imports/skill-package',
 } as const
 
 export const policies = {

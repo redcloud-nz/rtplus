@@ -12,8 +12,8 @@ import {RTPlusLogger} from '@/lib/logger'
 const logger = new RTPlusLogger('middleware')
 
 const isOnboardingRoute = createRouteMatcher(['/onboarding', '/policies(/.*)', '/trpc/(.*)'])
-const isPublicRoute = createRouteMatcher(['/about', '/cards(/.*)', '/policies(/.*)', '/teams/([^/]*)', '/trpc/(.*)'])
-const isSystemAdminRoute = createRouteMatcher(['/config(/.*)'])
+const isPublicRoute = createRouteMatcher(['/about', '/cards(/.*)', '/policies(/.*)', '/trpc/(.*)'])
+const isSystemAdminRoute = createRouteMatcher(['/system(/.*)'])
 
 export default clerkMiddleware(
     async (auth, req) => {

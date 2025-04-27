@@ -55,11 +55,11 @@ export async function AppSidebar({ children, ...props }: AppSidebarProps) {
             <NavSection title="General">
                 <NavItem label="About" href="/about" icon={<InfoIcon/>}/>
                 { isSystemAdmin ? <NavCollapsible label="Configure" icon={<SettingsIcon/>}>
-                    <NavSubItem label="Personnel" href={Paths.config.personnel.index}/>
-                    <NavSubItem label="Skills" href={Paths.config.skills.index}/>
-                    <NavSubItem label="Skill Groups" href={Paths.config.skillGroups.index}/>
-                    <NavSubItem label="Skill Packages" href={Paths.config.skillPackages.index}/>
-                    <NavSubItem label="Teams" href={Paths.config.teams.index}/>
+                    <NavSubItem label="Personnel" href={Paths.system.personnel.index}/>
+                    <NavSubItem label="Skills" href={Paths.system.skills.index}/>
+                    <NavSubItem label="Skill Groups" href={Paths.system.skillGroups.index}/>
+                    <NavSubItem label="Skill Packages" href={Paths.system.skillPackages.index}/>
+                    <NavSubItem label="Teams" href={Paths.system.teams.index}/>
                 </NavCollapsible> : null }
                 <NavItem label="Documentation" href="https://github.com/redcloud-nz/rtplus/wiki" icon={<BookOpenIcon/>}/>
                 <NavItem label="Source Code" href="https://github.com/redcloud-nz/rtplus" icon={<Image aria-hidden src="/github.svg" alt="Githib Icon" width={16} height={16}/>}/>

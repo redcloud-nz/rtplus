@@ -14,14 +14,14 @@ import { trpc } from '@/trpc/client'
 import * as Paths from '@/paths'
 
 
-export function TeamMembersList() {
-    const [members] = trpc.currentTeam.members.useSuspenseQuery()
+export function PersonnelList() {
+    const [personnel] = trpc.personnel.all.useSuspenseQuery()
 
     return <Show 
-            when={members.length > 0}
-            fallback={<Alert severity="info" title="No members defined">Add some members to get started.</Alert>}
+            when={personnel.length > 0}
+            fallback={<Alert severity="info" title="No people defined">Add some people to get started.</Alert>}
         >
-            <Table border>
+            <Table border width="auto">
                 <TableHead>
                     <TableRow>
                         <TableHeadCell className="w-1/2">Name</TableHeadCell>
@@ -29,12 +29,12 @@ export function TeamMembersList() {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {members.map(member =>
-                        <TableRow key={member.id}>
+                    {personnel.map(person =>
+                        <TableRow key={person.id}>
                             <TableCell>
-                                <Link href={Paths.system.personnel.person(member.id).index}>{member.person.name}</Link>
+                                <Link href={Paths.system.personnel.person(person.id).index}>{person.name}</Link>
                             </TableCell>
-                            <TableCell>{member.person.email}</TableCell>
+                            <TableCell>{person.email}</TableCell>
                         </TableRow>
                     )}
                 </TableBody>
