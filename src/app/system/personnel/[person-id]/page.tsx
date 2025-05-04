@@ -5,39 +5,25 @@
  *  Path: /system/personnel/[person-id]
  */
 
-import { KeyRoundIcon, PencilIcon } from 'lucide-react'
-import { Metadata } from 'next'
+import * as React from 'react'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageControls, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { NotFound } from '@/components/errors'
 
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
-import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
-import { Link } from '@/components/ui/link'
-import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
-import { validateUUID } from '@/lib/id'
 import * as Paths from '@/paths'
-import prisma from '@/server/prisma'
+import { trpc } from '@/trpc/server'
 
+import { AccessCard } from './access-card'
+import { TeamMembershipsCard } from './team-memberships-card'
+import { PersonDetailsCard } from './person-details-card'
 
-export const metadata: Metadata = { title: "Personnel" }
 
 export default async function PersonPage(props: { params: Promise<{ 'person-id': string }>}) {
     const { 'person-id': personId } = await props.params
 
-    const person = validateUUID(personId) ? await prisma.person.findUnique({
-        include: {
-            teamMemberships: {
-                include: {
-                    team: true
-                }
-            },
-        },
-        where: { id: personId }
-    }) : null
+    const person = await trpc.personnel.byId({ personId })
+
     if(!person) return <NotFound/>
 
     return <AppPage>
@@ -48,73 +34,14 @@ export default async function PersonPage(props: { params: Promise<{ 'person-id':
                 { label: "Personnel", href: Paths.system.personnel.index }
             ]}
         />
-        <AppPageContent>
+        <AppPageContent variant="container">
             <PageHeader>
                 <PageTitle objectType="Person">{person.name}</PageTitle>
-                <PageControls>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button variant="outline" size="icon">
-                                <Link href={Paths.system.personnel.person(person.id).access}>
-                                    <KeyRoundIcon/>
-                                </Link>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom">RT+ Access</TooltipContent>
-                    </Tooltip>
-                </PageControls>
             </PageHeader>
-            <CardGrid>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Details</CardTitle>
-                        <Button variant="ghost" asChild>
-                            <Link href={Paths.system.personnel.person(personId).edit}><PencilIcon/></Link>
-                        </Button>
-                    </CardHeader>
-                    <CardContent>
-                        <DL>
-                            <DLTerm>RT+ ID</DLTerm>
-                            <DLDetails>{person.id}</DLDetails>
 
-                            <DLTerm>Name</DLTerm>
-                            <DLDetails>{person.name}</DLDetails>
-                            
-                            <DLTerm>Email</DLTerm>
-                            <DLDetails>{person.email}</DLDetails>
-                        </DL>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Memberships</CardTitle>
-                        {/* <Protect permission="system:write">
-                            <Button variant="ghost"><PlusIcon/></Button>
-                        </Protect> */}
-                    
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableHeadCell>Team</TableHeadCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {person.teamMemberships.map(membership =>
-                                    <TableRow key={membership.id}>
-                                        <TableCell>
-                                            <Link href={Paths.system.teams.team(membership.team.id).index}>
-                                                {membership.team.shortName || membership.team.name}
-                                            </Link>
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
-            </CardGrid>
+            <PersonDetailsCard personId={personId}/>
+            <TeamMembershipsCard personId={personId}/>
+            <AccessCard personId={personId}/>
         </AppPageContent>
        
     </AppPage>

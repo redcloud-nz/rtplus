@@ -5,18 +5,15 @@
  *  Path: /system/personnel
  */
 
-import { PlusIcon } from 'lucide-react'
 import { Metadata } from 'next'
 import React from 'react'
 
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageControls, PageHeader, PageTitle } from '@/components/app-page'
-import { Button } from '@/components/ui/button'
-import { DialogTrigger } from '@/components/ui/dialog'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
+
 
 import * as Paths from '@/paths'
 
-import { CreatePersonDialog } from './create-person-dialog'
 import { PersonnelList } from './personnel-list' 
 
 
@@ -29,16 +26,9 @@ export default async function PersonnelListPage() {
             label="Personnel" 
             breadcrumbs={[{ label: "System", href: Paths.system.index }]}
         />
-        <AppPageContent>
+        <AppPageContent variant="container">
             <PageHeader>
-                <PageTitle objectType="List">Personnel</PageTitle>
-                <PageControls>
-                    <CreatePersonDialog trigger={<DialogTrigger asChild>
-                        <Button>
-                            <PlusIcon size={48}/> New Person
-                        </Button>
-                    </DialogTrigger>}/>
-                </PageControls>
+                <PageTitle>Personnel</PageTitle>
             </PageHeader>
             <PersonnelList/>
         </AppPageContent>

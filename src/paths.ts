@@ -12,45 +12,49 @@ export const system = {
     index: '/system',
     teams: {
         index: '/system/teams',
+        create: '/system/teams/--create',
         team: (teamSlug: string) => ({
             index: `/system/teams/${teamSlug}`,
             d4h: `/system/teams/${teamSlug}/d4h`,
-            edit: `/system/teams/${teamSlug}/edit`,
+            edit: `/system/teams/${teamSlug}/--update`,
             members: `/system/teams/${teamSlug}/members`,
         } as const),
     },
     personnel: {
         index: '/system/personnel',
+        create: '/system/personnel/--create',
         person: (personId: string) => ({
             index: `/system/personnel/${personId}`,
-            edit: `/system/personnel/${personId}/edit`,
+            update: `/system/personnel/${personId}/--update`,
             access: `/system/personnel/${personId}/access`,
-            memberships: `/system/personnel/${personId}/memberships`,
+            teamMemberships: {
+                create: `/system/personnel/${personId}/team-memberships/--create`
+            },
         } as const),
     },
     skills: {
         index: '/system/skills',
-        new: '/system/skills/--new',
+        create: '/system/skills/--create',
         skill: (skillId: string) => ({
             index: `/system/skills/${skillId}`,
-            edit: `/system/skills/${skillId}/edit`,
+            update: `/system/skills/${skillId}/--update`,
         } as const),
     },
     skillGroups: {
         index: '/system/skill-groups',
-        new: '/system/skill-groups/--new',
+        create: '/system/skill-groups/--create',
         skillGroup: (skillGroupId: string) => ({
             index: `/system/skill-groups/${skillGroupId}`,
-            edit: `/system/skill-groups/${skillGroupId}/edit`,
+            update: `/system/skill-groups/${skillGroupId}/--update`,
         } as const),
     },
     skillPackages: {
         index: '/system/skill-packages',
         import : '/system/skill-packages/--import',
-        new: '/system/skill-packages/--new',
+        new: '/system/skill-packages/--create',
         skillPackage: (skillPackageId: string) => ({
             index: `/system/skill-packages/${skillPackageId}`,
-            edit: `/system/skill-packages/${skillPackageId}/edit`,
+            edit: `/system/skill-packages/${skillPackageId}/--update`,
         } as const),
     },
 }

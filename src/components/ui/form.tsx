@@ -202,7 +202,7 @@ export function FormCancelButton({ children = "Cancel", onClick, variant = 'ghos
 }
 
 export function FormActions({ children, ...props }: React.ComponentPropsWithRef<'div'>) {
-    return <div className="flex justify-start space-x-2 pt-8" {...props}>
+    return <div className="flex justify-start space-x-2 pt-4" {...props}>
         {children}
     </div>
 

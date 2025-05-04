@@ -34,7 +34,7 @@ export function Card({ boundary, className, children, loading = false, ...props 
                     {children}
                 </React.Suspense>
             </ErrorBoundary>
-            : loading ? <div className="h-full w-full flex items-center justify-center">
+            : loading ? <div className="h-full w-full flex items-center justify-center p-10">
                 <LoaderCircleIcon className=" w-10 h-10 animate-spin"/>
             </div>
             : children
@@ -45,7 +45,7 @@ export function Card({ boundary, className, children, loading = false, ...props 
 
 export function CardHeader({ className, ...props }: React.ComponentPropsWithRef<'div'>) {
     return <div
-        className={cn("grid grid-cols-[48px_1fr_48px] p-2", className)}
+        className={cn("grid grid-cols-[1fr_48px] p-2", className)}
         {...props}
     />
 }
@@ -53,7 +53,7 @@ export function CardHeader({ className, ...props }: React.ComponentPropsWithRef<
 export function CardTitle({ className, ...props }: React.ComponentPropsWithRef<'div'>) {
     return <div
         className={cn(
-            "text-2xl font-semibold text-center leading-10 col-start-2",
+            "text-2xl font-semibold leading-10 col-start-1 px-2",
             className
         )}
         data-slot="title"
@@ -69,7 +69,7 @@ export function CardDescription({ className, ...props }: React.ComponentPropsWit
 }
 
 export function CardContent({ className, ...props }: React.ComponentPropsWithRef<'div'>) {
-    return <div className={cn("p-2 pt-0", className)} {...props} />
+    return <div className={cn("p-4 pt-0", className)} {...props} />
 }
 
 export function CardFooter({ className, ...props }: React.ComponentPropsWithRef<'div'>) {

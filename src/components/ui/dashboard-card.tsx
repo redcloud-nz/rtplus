@@ -27,7 +27,7 @@ export function DashboardCard({ className, title, href, icon: Icon, iconForegrou
 
     return <li className={cn("col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow", className)} {...props}>
         <div className="group relative bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500">
-            <div>
+            {/* <div>
                 <span
                     className={cn(
                         iconBackground,
@@ -37,7 +37,7 @@ export function DashboardCard({ className, title, href, icon: Icon, iconForegrou
                     >
                     <Icon aria-hidden="true" className="size-6" />
                 </span>
-            </div>
+            </div> */}
             <div className="mt-8">
                 <h3 className="text-base font-semibold text-gray-900">
                     <Link href={href} className="focus:outline-none">

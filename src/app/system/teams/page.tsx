@@ -28,17 +28,6 @@ export default async function TeamsListPage() {
             breadcrumbs={[{ label: "System", href: Paths.system.index }]}
         />
         <AppPageContent>
-            <PageHeader>
-                <PageTitle>Manage Teams</PageTitle>
-                <PageDescription>These are the teams that are available for use in RT+.</PageDescription>
-                <PageControls>
-                    <CreateTeamDialog trigger={<DialogTrigger asChild>
-                        <Button>
-                            <PlusIcon/> New Team
-                        </Button>
-                    </DialogTrigger>}/>
-                </PageControls>
-            </PageHeader>
             <TeamsList/>
         </AppPageContent>
     </AppPage>
