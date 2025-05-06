@@ -4,9 +4,15 @@
 */
 
 import z from 'zod'
+
+import { shortId } from '@/lib/id'
+import { zodShortId } from '@/lib/validation'
+
 import { TRPCError } from '@trpc/server'
 
 import { createTRPCRouter, teamMemberProcedure } from '../init'
+
+
 
 
 export const competenciesRouter = createTRPCRouter({
@@ -16,8 +22,8 @@ export const competenciesRouter = createTRPCRouter({
      */
     recordSkillCheck: teamMemberProcedure
         .input(z.object({
-            skillId: z.string().uuid(),
-            assesseeId: z.string().uuid(),
+            skillId: zodShortId,
+            assesseeId: zodShortId,
             competenceLevel: z.enum(['NotTaught', 'NotCompetent', 'Competent', 'HighlyConfident']),
             notes: z.string().max(1000),
         }))
@@ -55,7 +61,7 @@ export const competenciesRouter = createTRPCRouter({
 
         byId: teamMemberProcedure
             .input(z.object({ 
-                sessionId: z.string().uuid()
+                sessionId: zodShortId
             }))
             .query(async ({ ctx, input }) => {
                 const session = await ctx.prisma.skillCheckSession.findUnique({
@@ -94,6 +100,7 @@ export const competenciesRouter = createTRPCRouter({
 
                 const newSession = await ctx.prisma.skillCheckSession.create({
                     data: {
+                        id: shortId(),
                         assessorId: ctx.personId,
                         date: new Date(),
                         name: `${year} #${newSessionNumber}`

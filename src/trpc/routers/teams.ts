@@ -10,9 +10,8 @@ import { clerkClient } from '@clerk/nextjs/server'
 import { TRPCError } from '@trpc/server'
 
 import { teamFormSchema } from '@/lib/forms/team'
-import { createUUID } from '@/lib/id'
 import { RTPlusLogger } from '@/lib/logger'
-import { zodSlug } from '@/lib/validation'
+import { zodShortId, zodSlug } from '@/lib/validation'
 
 import { authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
 import { FieldConflictError } from '../types'
@@ -46,16 +45,16 @@ export const teamsRouter = createTRPCRouter({
             return teams.filter(team => team.d4hInfo != null )
         }),
 
-        byId: authenticatedProcedure
-        .input(z.object({ 
-            teamId: z.string().uuid()
-        }))
-        .query(async ({ ctx, input }) => {
-            return ctx.prisma.team.findUnique({ 
-                where: { id: input.teamId },
-                include: { d4hInfo: true }
-            })
-        }),
+    byId: authenticatedProcedure
+    .input(z.object({ 
+        teamId: zodShortId
+    }))
+    .query(async ({ ctx, input }) => {
+        return ctx.prisma.team.findUnique({ 
+            where: { id: input.teamId },
+            include: { d4hInfo: true }
+        })
+    }),
 
     bySlug: authenticatedProcedure
         .input(z.object({
@@ -71,17 +70,13 @@ export const teamsRouter = createTRPCRouter({
     create: systemAdminProcedure
         .input(teamFormSchema)
         .mutation(async ({ ctx, input }) => {
+            const { teamId, ...data } = input
 
             const nameConflict = await ctx.prisma.team.findFirst({ where: { name: input.name } })
             if(nameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('name') })
 
             const shortNameConflict = await ctx.prisma.team.findFirst({ where: { shortName: input.shortName } })
             if(shortNameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('shortName') })
-
-            const slugConflict = await ctx.prisma.team.findFirst({ where: { slug: input.slug } })
-            if(slugConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('slug') })
-            
-            const teamId = createUUID()
 
             const clerk = await clerkClient()
 
@@ -93,7 +88,9 @@ export const teamsRouter = createTRPCRouter({
 
             const createdTeam = await ctx.prisma.team.create({ 
                 data: { 
-                    ...input, id: teamId, clerkOrgId: organization.id,
+                    ...data, 
+                    id: teamId, 
+                    clerkOrgId: organization.id,
                     changeLogs: { 
                         create: { 
                             actorId: ctx.personId,
@@ -111,7 +108,7 @@ export const teamsRouter = createTRPCRouter({
 
     delete: systemAdminProcedure
         .input(z.object({ 
-            teamId: z.string().uuid(),
+            teamId: zodShortId,
             hard: z.boolean().optional().default(false)
         }))
         .mutation(async ({ ctx, input }) => {
@@ -131,7 +128,7 @@ export const teamsRouter = createTRPCRouter({
             
 
     update: systemAdminProcedure
-        .input(teamFormSchema.merge(z.object({ teamId: z.string().uuid() })))
+        .input(teamFormSchema)
         .mutation(async ({ ctx, input }) => {
             
             const existing = await ctx.prisma.team.findUnique({ where: { id: input.teamId }})
@@ -164,7 +161,7 @@ export const teamsRouter = createTRPCRouter({
                         create: { 
                             actorId: ctx.personId,
                             event: 'Update',
-                            fields: { changedFields }
+                            fields: changedFields
                         }
                     }
                 } 
@@ -173,7 +170,7 @@ export const teamsRouter = createTRPCRouter({
 
     updateTeamD4h: systemAdminProcedure
         .input(z.object({
-            teamId: z.string().uuid(),
+            teamId: zodShortId,
             d4hTeamId: z.number(),
             serverCode: z.string(),
         }))

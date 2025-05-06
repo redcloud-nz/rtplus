@@ -5,10 +5,12 @@
 
 import { z } from 'zod'
 
+import { zodShortId } from '../validation'
+
 
 export const teamMembershipFormSchema = z.object({
-    teamId: z.string().uuid(),
-    personId: z.string().uuid(),
+    teamId: zodShortId,
+    personId: zodShortId,
     role: z.enum(['Admin', 'Member', 'None'])
 })
 

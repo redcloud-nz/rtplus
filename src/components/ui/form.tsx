@@ -5,7 +5,6 @@
 'use client'
 
 import { Loader2Icon } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import {
     Controller,
@@ -23,6 +22,7 @@ import { cn } from '@/lib/utils'
 
 import { Button, buttonVariants } from './button'
 import { Label } from './label'
+import { Link } from './link'
 
 
 export { FormProvider } from 'react-hook-form'
@@ -189,18 +189,64 @@ export function FormSubmitButtonLabel({ children, className, activeState, ...pro
 }
 
 
-export function FormCancelButton({ children = "Cancel", onClick, variant = 'ghost', ...props }: React.ComponentPropsWithRef<typeof Button>) {
-    const router = useRouter()
+export type FormCancelButtonProps = Omit<React.ComponentPropsWithRef<typeof Button>, 'onClick'> & (
+    | { onClick: React.MouseEventHandler<HTMLButtonElement>, href?: never }
+    | { onClick?: never, href: string }
+)
 
-    function handleClick(event: React.MouseEvent<HTMLButtonElement>) {
-        event.preventDefault()
-        if (onClick) onClick(event)
-        else router.back()
+
+/**
+ * A customizable cancel button component for forms. It supports either an `onClick` handler
+ * or a navigation `href` link, but not both simultaneously.
+ *
+ * @param {object} props - The properties for the FormCancelButton component.
+ * @param {React.ReactNode} [props.children="Cancel"] - The content to display inside the button. Defaults to "Cancel".
+ * @param {string} [props.href] - The URL to navigate to when the button is clicked. If provided, `onClick` will be ignored.
+ * @param {React.MouseEventHandler<HTMLButtonElement>} [props.onClick] - The click event handler for the button. If provided, it takes precedence over `href`.
+ * @param {string} [props.variant="ghost"] - The visual style variant of the button. Defaults to "ghost".
+ * @param {object} [props.props] - Additional props to pass to the underlying button component.
+ *
+ * @returns {JSX.Element} A button element that either triggers an `onClick` handler or navigates to a specified `href`.
+ *
+ * @remarks
+ * - If both `onClick` and `href` are provided, a warning will be logged, and `onClick` will take precedence.
+ * - If neither `onClick` nor `href` is provided, a warning will be logged indicating that `onClick` is required.
+ */
+export function FormCancelButton({ children = "Cancel", href, onClick, variant = 'ghost', ...props }: FormCancelButtonProps) {
+
+    if(onClick) {
+        if(href) console.warn("FormCancelButton: onClick and href props are mutually exclusive. onClick will be used.")
+        
+        const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+            event.preventDefault()
+            onClick(event)
+        }
+
+        return <Button variant={variant} type="button" onClick={handleClick} {...props}>{children}</Button>
+    } else {
+        if(!href) console.warn("FormCancelButton: onClick prop is required when href is not provided.")
+
+        return <Button variant={variant} type="button" {...props}>
+            <Link href={href}>{children}</Link>
+        </Button>
     }
-
-    return <Button variant={variant} type="button" onClick={handleClick} {...props}>{children}</Button>
 }
 
+/**
+ * A component that renders a container for form action buttons.
+ * It is designed to be used within a form and provides a consistent layout for action buttons.
+ *
+ * @param children - The child elements to be rendered inside the container.
+ * @param props - Additional props to be passed to the underlying `div` element.
+ * 
+ * @example
+ * ```tsx
+ * <FormActions>
+ *   <button type="submit">Submit</button>
+ *   <button type="button">Cancel</button>
+ * </FormActions>
+ * ```
+ */
 export function FormActions({ children, ...props }: React.ComponentPropsWithRef<'div'>) {
     return <div className="flex justify-start space-x-2 pt-4" {...props}>
         {children}

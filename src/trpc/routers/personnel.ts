@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
+import * as R from 'remeda'
 import { match } from 'ts-pattern'
 import { z } from 'zod'
 
@@ -11,10 +12,12 @@ import { Person } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
 import { personFormSchema } from '@/lib/forms/person'
-import { zodDeleteType, zodRecordStatus } from '@/lib/validation'
+import { shortId } from '@/lib/id'
+import { zodDeleteType, zodRecordStatus, zodShortId } from '@/lib/validation'
 
 import { createTRPCRouter, systemAdminProcedure } from '../init'
 import { FieldConflictError } from '../types'
+
 
 /**
  * TRPC router for personnel management.
@@ -34,7 +37,7 @@ export const personnelRouter = createTRPCRouter({
 
     byId: systemAdminProcedure
         .input(z.object({ 
-            personId: z.string().uuid()
+            personId: zodShortId
         }))
         .query(async ({ input, ctx }) => {
             return ctx.prisma.person.findUnique({ 
@@ -54,7 +57,7 @@ export const personnelRouter = createTRPCRouter({
 
     create: systemAdminProcedure
         .input(z.object({
-            name: z.string().min(3).max(100),
+            name: z.string().min(5).max(100),
             email: z.string().email(),
         }))
         .mutation(async ({ input, ctx }): Promise<Person> => {
@@ -64,9 +67,10 @@ export const personnelRouter = createTRPCRouter({
 
             const newPerson = await ctx.prisma.person.create({ 
                 data: { 
+                    id: shortId(),
                     ...input,
                     changeLogs: { 
-                        create: { 
+                        create: {
                             actorId: ctx.personId,
                             event: 'Create',
                             fields: input
@@ -80,7 +84,7 @@ export const personnelRouter = createTRPCRouter({
 
     delete: systemAdminProcedure
         .input(z.object({ 
-            personId: z.string().uuid(),
+            personId: zodShortId,
             deleteType: zodDeleteType
         }))
         .mutation(async ({ input, ctx }) => {
@@ -132,23 +136,27 @@ export const personnelRouter = createTRPCRouter({
         .input(personFormSchema)
         .mutation(async ({ input, ctx, }) => {
 
-            const existingPerson = await ctx.prisma.person.findUnique({ where: { id: input.id } })
-            if(!existingPerson) throw new TRPCError({ code: 'NOT_FOUND', message: 'Person not found.' })
+            const existing = await ctx.prisma.person.findUnique({ where: { id: input.personId } })
+            if(!existing) throw new TRPCError({ code: 'NOT_FOUND', message: 'Person not found.' })
 
-            if(input.email != existingPerson?.email) {
+            if(input.email != existing?.email) {
                 const emailConflict = await ctx.prisma.person.findFirst({ where: { email: input.email } })
                 if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists.', cause: new FieldConflictError('email') })
             }
 
+            const { personId, ...data } = input
+
+            const changedFields = R.pickBy(data, (value, key) => value != existing[key])
+
             const updatedPerson = await ctx.prisma.person.update({ 
-                where: { id: input.id },
+                where: { id: input.personId },
                 data: { 
                     ...input,
                     changeLogs: { 
                         create: { 
                             actorId: ctx.personId,
                             event: 'Update',
-                            fields: input
+                            fields: changedFields
                         }
                     }
                 } 

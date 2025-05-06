@@ -15,7 +15,7 @@ datasource db {
 
 /// defines an individual person.
 model Person {
-    id                           String                  @id @default(uuid()) @db.Uuid
+    id                           String                  @id @db.VarChar(16)
     name                         String                  @db.VarChar(100)
     email                        String                  @db.VarChar(100) @unique
     clerkUserId                  String?                 @map("clerk_user_id") @db.VarChar(50) @unique
@@ -44,9 +44,9 @@ enum PersonChangeEvent {
 
 /// defines a change to a person record.
 model PersonChangeLog {
-    id          String            @id @default(uuid()) @db.Uuid
-    personId    String            @map("person_id") @db.Uuid
-    actorId     String?           @map("actor_id") @db.Uuid
+    id          String            @id @default(nanoid(16)) @db.VarChar(16)
+    personId    String            @map("person_id") @db.VarChar(16)
+    actorId     String?           @map("actor_id") @db.VarChar(16)
     event       PersonChangeEvent
     description String            @default("")
     meta        Json              @default("{}")
@@ -73,10 +73,9 @@ enum RecordStatus {
 
 /// defines an individual skill that can be assessed.
 model Skill {
-    id                 String              @id @default(uuid()) @db.Uuid
-    slug               String              @db.VarChar(100) @unique
-    skillPackageId     String              @map("skill_package_id") @db.Uuid
-    skillGroupId       String?             @map("skill_group_id") @db.Uuid
+    id                 String              @id @db.VarChar(16)
+    skillPackageId     String              @map("skill_package_id") @db.VarChar(16)
+    skillGroupId       String?             @map("skill_group_id") @db.VarChar(16)
     name               String
     description        String
     frequency          String
@@ -94,11 +93,11 @@ model Skill {
 }
 
 model SkillCheck {
-    id              String                    @id @default(uuid()) @db.Uuid
-    sessionId       String?                   @map("session_id") @db.Uuid
-    skillId         String                    @map("skill_id") @db.Uuid
-    assesseeId      String                    @map("assessee_id") @db.Uuid
-    assessorId      String                    @map("assessor_id") @db.Uuid
+    id              String                    @id @default(nanoid(16)) @db.VarChar(16)
+    sessionId       String?                   @map("session_id") @db.VarChar(16)
+    skillId         String                    @map("skill_id") @db.VarChar(16)
+    assesseeId      String                    @map("assessee_id") @db.VarChar(16)
+    assessorId      String                    @map("assessor_id") @db.VarChar(16)
     competenceLevel SkillCheckCompetenceLevel @map("competence_level")
     notes           String
     timestamp       DateTime                  @default(now())
@@ -121,8 +120,8 @@ enum SkillCheckCompetenceLevel {
 }
 
 model SkillCheckSession {
-    id            String                  @id @default(uuid()) @db.Uuid
-    assessorId    String                  @map("assessor_id") @db.Uuid
+    id            String                  @id @default(nanoid(8)) @db.VarChar(16)
+    assessorId    String                  @map("assessor_id") @db.VarChar(16)
     name          String                  @db.VarChar(100)
     date          DateTime
     sessionStatus SkillCheckSessionStatus @default(Draft)
@@ -134,6 +133,8 @@ model SkillCheckSession {
     assessees     Person[]                @relation("skill_check_session_to_assessee")
     checks        SkillCheck[]            @relation("skill_check_to_skill_check_session")
     skills        Skill[]                 @relation("skill_check_session_to_skill")
+    
+    @@map("skill_check_sessions")
 }
 
 enum SkillCheckSessionStatus {
@@ -150,11 +151,10 @@ enum SkillCheckStatus {
 
 /// defines a group of skills within a skill package.
 model SkillGroup {
-    id             String       @id @default(uuid()) @db.Uuid
-    slug           String       @db.VarChar(100) @unique
+    id             String       @id @db.VarChar(16)
     name           String       @db.VarChar(100)
-    skillPackageId String       @map("skill_package_id") @db.Uuid
-    parentId       String?      @map("parent_id") @db.Uuid
+    skillPackageId String       @map("skill_package_id") @db.VarChar(16)
+    parentId       String?      @map("parent_id") @db.VarChar(16)
     sequence       Int
     status         RecordStatus @default(Active)
 
@@ -169,8 +169,7 @@ model SkillGroup {
 
 /// defines a package of skills that can be assessed.
 model SkillPackage {
-    id          String                  @id @default(uuid()) @db.Uuid
-    slug        String                  @db.VarChar(100) @unique
+    id          String                  @id @db.VarChar(16)
     name        String                  @db.VarChar(100)
     sequence    Int
     status      RecordStatus            @default(Active)
@@ -197,9 +196,9 @@ enum SkillPackageChangeEvent {
 
 // defines a change to a skill package record.
 model SkillPackageChangeLog {
-    id             String                  @id @default(uuid()) @db.Uuid()
-    skillPackageId String                  @map("skill_package_id") @db.Uuid
-    actorId        String?                 @map("actor_id") @db.Uuid
+    id             String                  @id @default(nanoid(16)) @db.VarChar(16)
+    skillPackageId String                  @map("skill_package_id") @db.VarChar(16)
+    actorId        String?                 @map("actor_id") @db.VarChar(16)
     event          SkillPackageChangeEvent
     description    String                  @default("")
     meta           Json                    @default("{}")
@@ -215,9 +214,9 @@ model SkillPackageChangeLog {
 
 // defines a response team or similar high level organizational unit.
 model Team {
-    id              String           @id @default(uuid()) @db.Uuid
+    id              String           @id @default(nanoid(8)) @db.VarChar(16)
     clerkOrgId      String           @map("clerk_org_id") @db.VarChar(50) @unique
-    slug            String           @db.VarChar(100) @unique
+    slug            String           @db.VarChar(50) @unique
     name            String           @db.VarChar(100)
     shortName       String           @db.VarChar(50)
     color           String           @db.VarChar(10)
@@ -242,9 +241,9 @@ enum TeamChangeEvent {
 
 /// defines a change to a team record.
 model TeamChangeLog {
-    id          String          @id @default(uuid()) @db.Uuid
-    teamId      String          @map("team_id") @db.Uuid
-    actorId     String?         @map("actor_id") @db.Uuid
+    id          String          @id @default(nanoid(16)) @db.VarChar(16)
+    teamId      String          @map("team_id") @db.VarChar(16)
+    actorId     String?         @map("actor_id") @db.VarChar(16)
     event       TeamChangeEvent
     description String          @default("")
     meta        Json            @default("{}")
@@ -259,7 +258,7 @@ model TeamChangeLog {
 }
 
 model TeamD4hInfo {
-    teamId     String       @map("team_id") @db.Uuid @unique
+    teamId     String       @map("team_id") @db.VarChar(16) @unique
     d4hTeamId  Int          @map("d4h_team_id")
     serverCode String       @map("server_code")
     status     RecordStatus @default(Active)
@@ -271,9 +270,9 @@ model TeamD4hInfo {
 }
 
 model TeamMembership {
-    id          String                 @id @default(uuid()) @db.Uuid
-    personId    String                 @map("person_id") @db.Uuid
-    teamId      String                 @map("team_id") @db.Uuid
+    id          String                 @id @default(nanoid(16)) @db.VarChar(16)
+    personId    String                 @map("person_id") @db.VarChar(16)
+    teamId      String                 @map("team_id") @db.VarChar(16)
     role        TeamMembershipRole     @default(Member)
     status      RecordStatus           @default(Active)
   
@@ -286,7 +285,7 @@ model TeamMembership {
 }
 
 model TeamMembershipD4hInfo {
-    teamMembershipId String                  @map("team_membership_id") @db.Uuid @unique
+    teamMembershipId String                  @map("team_membership_id") @db.VarChar(16) @unique
     position         String
     d4hStatus        TeamMembershipD4hStatus @map("d4h_status")
     d4hMemberId      Int                     @map("d4h_member_id")

@@ -13,11 +13,11 @@ export const system = {
     teams: {
         index: '/system/teams',
         create: '/system/teams/--create',
-        team: (teamSlug: string) => ({
-            index: `/system/teams/${teamSlug}`,
-            d4h: `/system/teams/${teamSlug}/d4h`,
-            edit: `/system/teams/${teamSlug}/--update`,
-            members: `/system/teams/${teamSlug}/members`,
+        team: (teamId: string) => ({
+            index: `/system/teams/${teamId}`,
+            d4h: `/system/teams/${teamId}/d4h`,
+            edit: `/system/teams/${teamId}/--update`,
+            members: `/system/teams/${teamId}/members`,
         } as const),
     },
     personnel: {

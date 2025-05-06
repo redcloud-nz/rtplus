@@ -11,28 +11,25 @@ import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { FormControl, FormActions, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormProvider, FormSubmitButton, FormCancelButton } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
 import { useToast } from '@/hooks/use-toast'
+import { personFormSchema } from '@/lib/forms/person'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
-const newPersonFormSchema = z.object({
-    name: z.string().min(5).max(100),
-    email: z.string().email(),
-})
-
-export type NewPersonFormData = z.infer<typeof newPersonFormSchema>
+const newPersonFormSchema = personFormSchema.omit({ personId: true })
+type NewPersonFormData = z.infer<typeof newPersonFormSchema>
 
 
 export default function NewPersonPage() {
 
     const form = useForm<NewPersonFormData>({
-        resolver: zodResolver(newPersonFormSchema),
+        resolver: zodResolver(personFormSchema),
         defaultValues: {
             name: '',
             email: ''
@@ -53,7 +50,7 @@ export default function NewPersonPage() {
 
     const handleSubmit = form.handleSubmit(async (formData) => {
         const newPerson = await mutation.mutateAsync(formData)
-        utils.personnel.invalidate()
+        await utils.personnel.invalidate()
         toast({
             title: "Person created",
             description: `${newPerson.name} has been created successfully.`,
@@ -71,10 +68,13 @@ export default function NewPersonPage() {
             ]}
         />
         <AppPageContent variant="container">
+            <PageHeader>
+                <PageTitle>New Person</PageTitle>
+            </PageHeader>
             <FormProvider {...form}>
                 <Card>
                     <CardHeader>
-                        <CardTitle>New Person</CardTitle>
+                        <CardTitle>Details</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className=" space-y-4 p-2">
@@ -110,7 +110,7 @@ export default function NewPersonPage() {
                                         submitted: 'Created'
                                     }}
                                 />
-                                <FormCancelButton/>
+                                <FormCancelButton href={Paths.system.personnel.index}/>
                             </FormActions>
                         </form>
                     </CardContent>

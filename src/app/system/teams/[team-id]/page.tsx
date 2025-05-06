@@ -17,12 +17,13 @@ import { ColorValue } from '@/components/ui/color'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { DialogTriggerButton } from '@/components/ui/dialog'
 
-import prisma from '@/server/prisma'
+import { D4hServerCode, getD4hServer } from '@/lib/d4h-api/servers'
 import * as Paths from '@/paths'
+import { trpc } from '@/trpc/server'
+
 
 import { TeamMembersCard } from './team-members-card'
 import { TeamOptionsMenu } from './team-options-menu'
-import { D4hServerCode, getD4hServer } from '@/lib/d4h-api/servers'
 import { UpdateTeamDialog } from './update-team-dialog'
 
 
@@ -33,13 +34,12 @@ export const metadata: Metadata = {
     description: "RT+ Team Configuration",
 };
 
-export default async function TeamPage(props: { params: Promise<{ 'team-slug': string }>}) {
-    const { 'team-slug': teamSlug } = await props.params
+export default async function TeamPage(props: { params: Promise<{ 'team-id': string }>}) {
+    const { 'team-id': teamId } = await props.params
 
-    const team = await prisma.team.findUnique({
-        where: { slug: teamSlug },
-        include: { d4hInfo: true }
-    })
+    if(teamId.length != 8) return notFound()
+
+    const team = await trpc.teams.byId({ teamId })
 
     if(!team) notFound()
 
@@ -86,7 +86,7 @@ export default async function TeamPage(props: { params: Promise<{ 'team-slug': s
                             <DLDetails>{team.slug}</DLDetails>
 
                             <DLTerm>Colour</DLTerm>
-                            <DLDetails><ColorValue value={team.color}/></DLDetails>
+                            <DLDetails>{team.color ? <ColorValue value={team.color}/> : null}</DLDetails>
 
                             {team.d4hInfo?.serverCode ? <>
                                 <DLTerm>D4H Server</DLTerm>

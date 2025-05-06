@@ -10,8 +10,6 @@ import React from 'react'
 
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
-
-
 import * as Paths from '@/paths'
 
 import { PersonnelList } from './personnel-list' 

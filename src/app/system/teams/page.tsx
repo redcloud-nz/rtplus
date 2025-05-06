@@ -5,17 +5,12 @@
  *  Path: /system/teams
  */
 
-import { PlusIcon } from 'lucide-react'
 import { Metadata } from 'next'
 import React from 'react'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageControls, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
-
-import { Button } from '@/components/ui/button'
-import { DialogTrigger } from '@/components/ui/dialog'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import * as Paths from '@/paths'
 
-import { CreateTeamDialog } from './create-team-dialog'
 import { TeamsList } from './teams-list'
 
 
@@ -27,7 +22,10 @@ export default async function TeamsListPage() {
             label="Teams"
             breadcrumbs={[{ label: "System", href: Paths.system.index }]}
         />
-        <AppPageContent>
+        <AppPageContent variant="container">
+            <PageHeader>
+                <PageTitle>Teams</PageTitle>
+            </PageHeader>
             <TeamsList/>
         </AppPageContent>
     </AppPage>

@@ -9,8 +9,10 @@ import { z } from 'zod'
 import { PackageList, SkillPackageDef } from '@/data/skills'
 import { ChangeCountsByType, createChangeCounts } from '@/lib/change-counts'
 import { assertNonNull } from '@/lib/utils'
+import { zodShortId } from '@/lib/validation'
 
 import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
+
 
 
 export const skillPackagesRouter = createTRPCRouter({
@@ -28,7 +30,7 @@ export const skillPackagesRouter = createTRPCRouter({
 
     byId: authenticatedProcedure
         .input(z.object({
-            skillPackageId: z.string().uuid()
+            skillPackageId: zodShortId
         }))
         .query(async ({ ctx, input }) => {
             return ctx.prisma.skillPackage.findUnique({ 
@@ -41,7 +43,7 @@ export const skillPackagesRouter = createTRPCRouter({
         }), 
     import: systemAdminProcedure
         .input(z.object({
-            skillPackageId: z.string().uuid()
+            skillPackageId: zodShortId
         }))
         .mutation(async ({ ctx, input }) => {
         
@@ -68,10 +70,10 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
 
     if(storedPackage) {
         // Existing Package
-        const existingData = R.pick(storedPackage, ['name', 'slug', 'sequence'])
+        const existingData = R.pick(storedPackage, ['name', 'id', 'sequence'])
         const changes = R.pipe(
             skillPackage, 
-            R.pick(['name', 'slug', 'sequence']),
+            R.pick(['name', 'id', 'sequence']),
             R.entries(), 
             R.filter(([key, value]) => value !== existingData[key]),
             R.fromEntries()
@@ -98,7 +100,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
         }
     } else {
         // New Package
-        const fields = R.pick(skillPackage, ['id', 'name', 'slug', 'sequence'])
+        const fields = R.pick(skillPackage, ['id', 'name', 'sequence'])
 
         await ctx.prisma.skillPackage.create({ 
             data: {
@@ -160,7 +162,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
 
         const changes = R.pipe(
             group, 
-            R.pick(['name', 'slug', 'sequence', 'parentId']),
+            R.pick(['name', 'sequence', 'parentId']),
             R.entries(), 
             R.filter(([key, value]) => value !== storedGroup[key]),
             R.fromEntries()

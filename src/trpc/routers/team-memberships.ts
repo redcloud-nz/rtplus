@@ -11,7 +11,7 @@ import { TeamMembershipRole } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
 import { teamMembershipFormSchema } from '@/lib/forms/team-membership'
-import { zodDeleteType, zodRecordStatus } from '@/lib/validation'
+import { zodDeleteType, zodRecordStatus, zodShortId } from '@/lib/validation'
 
 import { AuthenticatedContext, createTRPCRouter, systemAdminProcedure } from '../init'
 import { TeamMembershipWithPerson, TeamMembershipWithPersonAndTeam, TeamMembershipWithTeam } from '../types'
@@ -33,7 +33,7 @@ export const teamMembershipsRouter = createTRPCRouter({
 
     byPerson: systemAdminProcedure
         .input(z.object({
-            personId: z.string().uuid(),
+            personId: zodShortId,
             status: zodRecordStatus
         }))
         .query(async ({ ctx, input }): Promise<TeamMembershipWithTeam[]> => {

@@ -13,18 +13,19 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Person } from '@prisma/client'
 
+import { Show } from '@/components/show'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {  FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { useToast } from '@/hooks/use-toast'
+import { zodShortId } from '@/lib/validation'
 import { trpc } from '@/trpc/client'
-import { Show } from '@/components/show'
-import { Skeleton } from '@/components/ui/skeleton'
 
 
 
@@ -63,10 +64,10 @@ export function PersonDetailsCard({ personId }: { personId: string }) {
                     <Skeleton className="h-10"/>
                 </div>}
             >
-                {mode == 'View'
-                    ? <DisplayPersonDetails person={personQuery.data!!}/>
-                    : <EditPersonForm person={personQuery.data!!} setMode={setMode}/>
-                }   
+                {personQuery.data && (mode == 'View'
+                    ? <DisplayPersonDetails person={personQuery.data}/>
+                    : <EditPersonForm person={personQuery.data} setMode={setMode}/>
+                )}   
             </Show>
         
         </CardContent>
@@ -93,7 +94,7 @@ function DisplayPersonDetails({ person }: { person: PersonDetails}) {
 
 
 const editPersonFormSchema = z.object({
-    id: z.string().uuid(),
+    id: zodShortId,
     name: z.string().min(5).max(100),
     email: z.string().email(),
     status: z.enum(['Active', 'Inactive', 'Deleted'])
@@ -116,6 +117,7 @@ function EditPersonForm({ person, setMode }: { person: PersonDetails, setMode: (
     
     const mutation = trpc.personnel.update.useMutation({
         onError: (error) => {
+            console.error('Error updating person:', error)
             if(error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof EditPersonFormData, { message: error.shape.message })
             }
@@ -123,8 +125,9 @@ function EditPersonForm({ person, setMode }: { person: PersonDetails, setMode: (
     })
 
     const handleSubmit = form.handleSubmit(async (formData) => {
+        console.log('Form data:', formData)
         const updatedPerson = await mutation.mutateAsync(formData)
-        utils.personnel.invalidate()
+        await utils.personnel.invalidate()
         utils.personnel.byId.setData({ personId: updatedPerson.id }, updatedPerson)
         toast({
             title: "Person updated",
@@ -136,6 +139,16 @@ function EditPersonForm({ person, setMode }: { person: PersonDetails, setMode: (
 
     return <FormProvider {...form}>
         <form onSubmit={handleSubmit} className="space-y-4">
+            {/* <FormField
+                control={form.control}
+                name="id"
+                render={({ field }) => <FormItem>
+                    <FormControl>
+                        <input type="hidden" {...field}/>
+                    </FormControl>
+                    <FormMessage/>
+                </FormItem>}
+            /> */}
             <FormField
                 control={form.control}
                 name="name"

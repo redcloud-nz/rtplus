@@ -25,13 +25,12 @@ export function validateUUID(id: string): boolean {
 
 export const NilUUID = '00000000-0000-0000-0000-000000000000'
 
-export class UUIDValidationSet {
+export class IDValidationSet {
 
     private readonly ids = new Set<string>()
 
     validate(id: string) {
-        if(!validateUUID(id)) throw new Error(`Invalid UUID: ${id}`)
-        else if (this.ids.has(id)) throw new Error(`Duplicate UUID: ${id}`)
+        if (this.ids.has(id)) throw new Error(`Duplicate UUID: ${id}`)
 
         this.ids.add(id)
     }
@@ -41,8 +40,12 @@ export function createWhereClause(uuidOrRef: string) {
     return validateUUID(uuidOrRef) ? { id: uuidOrRef } : { ref: uuidOrRef }
 }
 
+const alphabet = customAlphabet('1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 16)
 
-export function createRandomSlug() {
-    const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 8)
-    return nanoid()
+export function shortId() {
+    return alphabet(8)
+}
+
+export function longNanoid() {
+    return alphabet(16)
 }
