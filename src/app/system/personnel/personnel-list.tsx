@@ -7,6 +7,8 @@
 
 import { PlusIcon } from 'lucide-react'
 
+import { useSuspenseQuery } from '@tanstack/react-query'
+
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -15,12 +17,16 @@ import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
-
 import * as Paths from '@/paths'
-import { trpc } from '@/trpc/client'
+import { useTRPC } from '@/trpc/client'
+
 
 export function PersonnelList() {
-    const [personnel] = trpc.personnel.all.useSuspenseQuery()
+    const trpc = useTRPC()
+
+    const { data: personnel } = useSuspenseQuery(
+        trpc.personnel.all.queryOptions(),
+    )
 
     return <Card>
         <CardHeader>

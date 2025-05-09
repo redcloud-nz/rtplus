@@ -13,7 +13,7 @@ import { SidebarProvider } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/toaster'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
-import { TRPCProvider } from '@/trpc/client'
+import { TRPCReactProvider } from '@/trpc/client'
 
 
 export type FrontendProviderProps = Readonly<{
@@ -27,13 +27,13 @@ export function FrontendProvider({ children }: FrontendProviderProps) {
         Object.assign(window, { init })
     }, [])
 
-    return <TRPCProvider>
+    return <TRPCReactProvider>
         <SidebarProvider>
             <TooltipProvider>
             {children}
             </TooltipProvider>
         </SidebarProvider>
         <Toaster/>
-    </TRPCProvider>
+    </TRPCReactProvider>
 }
 

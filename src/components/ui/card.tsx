@@ -9,6 +9,10 @@ import { ErrorBoundary } from 'react-error-boundary'
 
 import { cn } from '@/lib/utils'
 import { Alert } from './alert'
+import { Button } from './button'
+import { Tooltip } from '@radix-ui/react-tooltip'
+import { TooltipContent, TooltipTrigger } from './tooltip'
+import { on } from 'events'
 
 
 type CardProps = React.ComponentPropsWithRef<'div'> & {
@@ -103,4 +107,28 @@ export function CardBoundary({ children}: { children: React.ReactNode }) {
             {children}
         </React.Suspense>
     </ErrorBoundary>
+}
+
+interface CardActionButtonProps extends Omit<React.ComponentPropsWithRef<typeof Button>, 'children'> {
+    icon: React.ReactNode
+    label: React.ReactNode
+    onClick: (event: React.MouseEvent<HTMLButtonElement>) => void
+}
+
+export function CardActionButton({ icon, label, onClick, ...props }: CardActionButtonProps) {
+    return <Tooltip>
+        <TooltipTrigger asChild>
+            <Button 
+                variant="outline" 
+                size="icon" 
+                onClick={onClick}
+                {...props}
+            >
+                {icon}
+            </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+            {label}
+        </TooltipContent>
+    </Tooltip>
 }

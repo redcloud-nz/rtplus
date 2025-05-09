@@ -11,13 +11,16 @@ import React from 'react'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import * as Paths from '@/paths'
+import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
 import { PersonnelList } from './personnel-list' 
+
 
 
 export const metadata: Metadata = { title: "Personnel" }
 
 export default async function PersonnelListPage() {
+    prefetch(trpc.personnel.all.queryOptions())
 
     return <AppPage>
         <AppPageBreadcrumbs 
@@ -28,7 +31,9 @@ export default async function PersonnelListPage() {
             <PageHeader>
                 <PageTitle>Personnel</PageTitle>
             </PageHeader>
-            <PersonnelList/>
+            <HydrateClient>
+                <PersonnelList/>
+            </HydrateClient>
         </AppPageContent>
     </AppPage>
 }

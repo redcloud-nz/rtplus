@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
+import exp from 'constants'
 import { customAlphabet } from 'nanoid'
 import { v4 as uuidv4, validate } from 'uuid'
 
@@ -48,4 +49,12 @@ export function shortId() {
 
 export function longNanoid() {
     return alphabet(16)
+}
+
+export function validateShortId(id: string) {
+    return id.length === 8 && /^[0-9A-Za-z]+$/.test(id)
+}
+
+export function validateLongId(id: string) {
+    return id.length === 16 && /^[0-9A-Za-z]+$/.test(id)
 }

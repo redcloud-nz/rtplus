@@ -10,46 +10,42 @@ import React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
+import { Show } from '@/components/show'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardActionButton, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
 import { Link } from '@/components/ui/link'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Show } from '@/components/show'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { useToast } from '@/hooks/use-toast'
 import { TeamMembershipFormData, teamMembershipFormSchema } from '@/lib/forms/team-membership'
 import * as Paths from '@/paths'
-import { trpc } from '@/trpc/client'
+import { useTRPC } from '@/trpc/client'
+
 
 
 
 export function TeamMembershipsCard(props: { personId: string}) {
+    const trpc = useTRPC()
 
-    const teamMembershipsQuery = trpc.teamMemberships.byPerson.useQuery({ personId: props.personId })
+    const teamMembershipsQuery = useSuspenseQuery(trpc.teamMemberships.byPerson.queryOptions({ personId: props.personId })) 
 
     const [addTeamDialogOpen, setAddTeamDialogOpen] = React.useState(false)
 
     return <Card>
             <CardHeader>
                 <CardTitle>Team Memberships</CardTitle>
-                <Show when={teamMembershipsQuery.isSuccess}>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button variant="outline" size="icon" onClick={() => setAddTeamDialogOpen(true)}>
-                                <PlusIcon size={48}/>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            Add Team Membership
-                        </TooltipContent>
-                    </Tooltip>
-                </Show>
+                <CardActionButton
+                    disabled={!teamMembershipsQuery.isSuccess}
+                    icon={<PlusIcon size={48}/>}
+                    label="Add Team Membership"
+                    onClick={() => setAddTeamDialogOpen(true)}
+                />
             </CardHeader>
             <CardContent>
                 <Show 
@@ -67,7 +63,7 @@ export function TeamMembershipsCard(props: { personId: string}) {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {teamMembershipsQuery.data?.map(membership =>
+                            {teamMembershipsQuery.data.map(membership =>
                                 <TableRow key={membership.id}>
                                     <TableCell>
                                         <Link href={Paths.system.teams.team(membership.team.id).index} className="hover:underline">
@@ -100,9 +96,11 @@ interface AddTeamDialogProps extends React.ComponentPropsWithoutRef<typeof Dialo
 }
 
 function AddTeamDialog({ personId, ...props }: AddTeamDialogProps) {
-
-    const teamsQuery = trpc.teams.all.useQuery({}, { enabled: props.open })
-    const membershipsQuery = trpc.teamMemberships.byPerson.useQuery({ personId }, { enabled: props.open })
+    const queryClient = useQueryClient()
+    const trpc = useTRPC()
+    
+    const teamsQuery = useQuery(trpc.teams.all.queryOptions({}, { enabled: props.open }))
+    const membershipsQuery = useQuery(trpc.teamMemberships.byPerson.queryOptions({ personId }, { enabled: props.open }))
 
     const form = useForm<TeamMembershipFormData>({
         resolver: zodResolver(teamMembershipFormSchema),
@@ -114,9 +112,8 @@ function AddTeamDialog({ personId, ...props }: AddTeamDialogProps) {
     })
 
     const { toast } = useToast()
-    const utils = trpc.useUtils()
     
-    const mutation = trpc.teamMemberships.create.useMutation()
+    const mutation = useMutation(trpc.teamMemberships.create.mutationOptions())
 
     async function handleClose() {
         if(props.onOpenChange) props.onOpenChange(false)
@@ -125,8 +122,13 @@ function AddTeamDialog({ personId, ...props }: AddTeamDialogProps) {
 
     const handleSubmit = form.handleSubmit(async (formData) => {
         const newMembership = await mutation.mutateAsync({ ...formData })
-        utils.teamMemberships.byPerson.invalidate({ personId: formData.personId })
-        utils.teamMemberships.byTeam.invalidate({ teamId: formData.teamId })
+        await queryClient.invalidateQueries(
+            trpc.teamMemberships.byPerson.queryFilter({ personId }), 
+        )
+        await queryClient.invalidateQueries(
+            trpc.teamMemberships.byTeam.queryFilter({ teamId: formData.teamId })
+        )
+        
         toast({
             title: "Team membership added",
             description: `${newMembership.person.name} has been added to the ${newMembership.team.name}.`,

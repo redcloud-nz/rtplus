@@ -10,6 +10,7 @@ export const personFormSchema = z.object({
     personId: zodShortId,
     name: z.string().min(5).max(100),
     email: z.string().email(),
+    status: z.enum(['Active', 'Inactive', 'Deleted'])
 })
 
 export type PersonFormData = z.infer<typeof personFormSchema>

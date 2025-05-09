@@ -56,10 +56,7 @@ export const personnelRouter = createTRPCRouter({
         }),
 
     create: systemAdminProcedure
-        .input(z.object({
-            name: z.string().min(5).max(100),
-            email: z.string().email(),
-        }))
+        .input(personFormSchema.omit({ personId: true }))
         .mutation(async ({ input, ctx }): Promise<Person> => {
                 
             const emailConflict = await ctx.prisma.person.findFirst({ where: { email: input.email } })

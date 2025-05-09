@@ -8,50 +8,45 @@
 import { PencilIcon } from 'lucide-react'
 import * as React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Person } from '@prisma/client'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { Show } from '@/components/show'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {  FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
+import { Card, CardActionButton, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { useToast } from '@/hooks/use-toast'
-import { zodShortId } from '@/lib/validation'
-import { trpc } from '@/trpc/client'
-
-
-
-
-
+import { PersonFormData, personFormSchema } from '@/lib/forms/person'
+import { useTRPC } from '@/trpc/client'
 
 
 type PersonDetails = Pick<Person, 'id' | 'name' | 'email' | 'status'>
 
-export function PersonDetailsCard({ personId }: { personId: string }) {
+interface PersonDetailsCardProps {
+    personId: string
+}
 
-    const personQuery = trpc.personnel.byId.useQuery({ personId })
+export function PersonDetailsCard({ personId }: PersonDetailsCardProps) {
+    const trpc = useTRPC()
+
+    const personQuery = useQuery(trpc.personnel.byId.queryOptions({ personId }))
     const [mode, setMode] = React.useState<'View' | 'Edit'>('View')
 
     return <Card>
         <CardHeader>
             <CardTitle>Details</CardTitle>
             <Show when={personQuery.isSuccess && mode == 'View'}>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button variant="outline" size="icon" onClick={() => setMode('Edit')}>
-                            <PencilIcon/>
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Edit</TooltipContent>
-                </Tooltip>
+                <CardActionButton
+                    icon={<PencilIcon/>}
+                    label="Edit"
+                    onClick={() => setMode('Edit')}
+                />
             </Show>
         </CardHeader>
         <CardContent>
@@ -66,7 +61,7 @@ export function PersonDetailsCard({ personId }: { personId: string }) {
             >
                 {personQuery.data && (mode == 'View'
                     ? <DisplayPersonDetails person={personQuery.data}/>
-                    : <EditPersonForm person={personQuery.data} setMode={setMode}/>
+                    : <EditPersonForm person={personQuery.data} onClose={() => setMode('View')}/>
                 )}   
             </Show>
         
@@ -92,63 +87,47 @@ function DisplayPersonDetails({ person }: { person: PersonDetails}) {
 }
 
 
+interface EditPersonFormProps {
+    person: PersonDetails
+    onClose: () => void
+}
 
-const editPersonFormSchema = z.object({
-    id: zodShortId,
-    name: z.string().min(5).max(100),
-    email: z.string().email(),
-    status: z.enum(['Active', 'Inactive', 'Deleted'])
-})
+function EditPersonForm({ person, onClose }: EditPersonFormProps) {
+    const queryClient = useQueryClient()
+    const trpc = useTRPC()
 
-export type EditPersonFormData = z.infer<typeof editPersonFormSchema>
-
-function EditPersonForm({ person, setMode }: { person: PersonDetails, setMode: (newValue: 'View' | 'Edit') => void }) {
-   
-
-    const form = useForm<EditPersonFormData>({
-        resolver: zodResolver(editPersonFormSchema),
+    const form = useForm<PersonFormData>({
+        resolver: zodResolver(personFormSchema),
         defaultValues: {
             ...person
         }
     })
 
     const { toast } = useToast()
-    const utils = trpc.useUtils()
     
-    const mutation = trpc.personnel.update.useMutation({
+    const mutation = useMutation(trpc.personnel.create.mutationOptions({
         onError: (error) => {
             console.error('Error updating person:', error)
             if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof EditPersonFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof PersonFormData, { message: error.shape.message })
             }
         }
-    })
+    }))
 
     const handleSubmit = form.handleSubmit(async (formData) => {
         console.log('Form data:', formData)
         const updatedPerson = await mutation.mutateAsync(formData)
-        await utils.personnel.invalidate()
-        utils.personnel.byId.setData({ personId: updatedPerson.id }, updatedPerson)
+        queryClient.invalidateQueries(trpc.personnel.all.queryFilter())
         toast({
             title: "Person updated",
             description: `${updatedPerson.name} has been updated successfully.`,
         })
-        setMode('View')
-        
+
+        onClose()
     })
 
     return <FormProvider {...form}>
         <form onSubmit={handleSubmit} className="space-y-4">
-            {/* <FormField
-                control={form.control}
-                name="id"
-                render={({ field }) => <FormItem>
-                    <FormControl>
-                        <input type="hidden" {...field}/>
-                    </FormControl>
-                    <FormMessage/>
-                </FormItem>}
-            /> */}
             <FormField
                 control={form.control}
                 name="name"
@@ -202,7 +181,7 @@ function EditPersonForm({ person, setMode }: { person: PersonDetails, setMode: (
                         submitted: 'Updated'
                     }}
                 />
-                <FormCancelButton onClick={() => setMode('View')}/>
+                <FormCancelButton onClick={onClose}/>
             </FormActions>
         </form>
     </FormProvider> 
