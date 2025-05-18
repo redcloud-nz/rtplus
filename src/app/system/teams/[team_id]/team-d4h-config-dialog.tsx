@@ -9,6 +9,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQuery } from '@tanstack/react-query'
 
 import { AsyncButton, Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -21,7 +22,8 @@ import { Heading } from '@/components/ui/typography'
 
 import { useAccessTokensQuery } from '@/lib/d4h-access-tokens'
 import { D4hServerList, getD4hServer } from '@/lib/d4h-api/servers'
-import { trpc } from '@/trpc/client'
+import { useTRPC } from '@/trpc/client'
+
 
 
 
@@ -39,11 +41,12 @@ interface TeamD4hConfigDialogProps extends React.ComponentProps<typeof Dialog> {
 }
 
 export function TeamD4hConfigDialog({ teamId, ...props }: TeamD4hConfigDialogProps) {
+    const trpc = useTRPC()
 
-    const teamQuery = trpc.teams.byId.useQuery({ teamId })
+    const teamQuery = useQuery(trpc.teams.byId.queryOptions({ teamId }))
     const accessTokensQuery = useAccessTokensQuery()
 
-    const mutation = trpc.teams.updateTeamD4h.useMutation()
+    const mutation = useMutation(trpc.teams.updateTeamD4h.mutationOptions({}))
 
     const form = useForm<ConfigureTeamD4hFormData>({
         resolver: zodResolver(configureTeamD4hFormSchema),

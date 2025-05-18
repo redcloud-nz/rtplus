@@ -49,7 +49,7 @@ export const teamMembershipsRouter = createTRPCRouter({
 
     byTeam: systemAdminProcedure
         .input(z.object({
-            teamId: z.string().uuid(),
+            teamId: zodShortId,
             status: zodRecordStatus
         }))
         .query(async ({ ctx, input }): Promise<TeamMembershipWithPerson[]> => {
@@ -65,8 +65,8 @@ export const teamMembershipsRouter = createTRPCRouter({
 
     delete: systemAdminProcedure
         .input(z.object({
-            teamId: z.string().uuid(),
-            personId: z.string().uuid(),
+            teamId: zodShortId,
+            personId: zodShortId,
             deleteType: zodDeleteType
         }))
         .mutation(async ({ ctx, input }) => {

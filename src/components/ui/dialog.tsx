@@ -3,15 +3,18 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { LoaderIcon, XIcon } from 'lucide-react'
-import * as React from 'react'
+import { LoaderCircleIcon, XIcon } from 'lucide-react'
+import { type ComponentProps, type ReactNode, Suspense } from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
 
 import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Tooltip } from '@radix-ui/react-tooltip'
 
 import { cn } from '@/lib/utils'
+
 import { Button } from './button'
-import { Tooltip } from '@radix-ui/react-tooltip'
 import { TooltipContent, TooltipTrigger } from './tooltip'
+import { Alert } from './alert'
 
 
 export const Dialog = DialogPrimitive.Root
@@ -23,7 +26,7 @@ export const DialogPortal = DialogPrimitive.Portal
 export const DialogClose = DialogPrimitive.Close
 
 
-export function DialogOverlay({ className, ...props }: React.ComponentPropsWithRef<typeof DialogPrimitive.Overlay>) {
+export function DialogOverlay({ className, ...props }: ComponentProps<typeof DialogPrimitive.Overlay>) {
     return <DialogPrimitive.Overlay
         className={cn(
             'fixed inset-0 z-50 bg-black/80',
@@ -35,54 +38,68 @@ export function DialogOverlay({ className, ...props }: React.ComponentPropsWithR
     />
 }
 
-type DialogContentProps = React.ComponentPropsWithRef<typeof DialogPrimitive.Content> & { loading?: boolean }
-
-export function DialogContent({ className, children, loading = false, ...props }: DialogContentProps) {
-    return <DialogPortal>
-        <DialogOverlay />
-        { loading
-            ? <div className="fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%]">
-                <LoaderIcon className="text-gray-200 size-12 animate-spin"/>
-            </div>
-            : <DialogPrimitive.Content
-                className={cn(
-                    'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg sm:rounded-lg duration-200',
-                    'data-[state=open]:animate-in data-[state=open]:fade-in-0  data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] ',
-                    'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]',
-                    className
-                )}
-                {...props}
-            >
+/**
+ * DialogBody is a wrapper around the body contents of a dialog that provides error handling and loading state.
+ */
+export function DialogBody({ children }: { children: ReactNode }) {
+    return <ErrorBoundary 
+        fallbackRender={({ error }) => <>
+            <Alert severity="error" title="An error occurred">
+                {error.message}
+            </Alert>
+        </>}
+    >
+        <Suspense fallback={<div className="h-full w-full flex items-center justify-center">
+            <LoaderCircleIcon className="w-10 h-10 animate-spin"/>
+        </div>}>
             {children}
-                <DialogPrimitive.Close 
-                    className={cn(
-                        'absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity',
-                        'hover:opacity-100',
-                        'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-                        'disabled:pointer-events-none',
-                        'data-[state=open]:bg-accent data-[state=open]:text-muted-foreground'
-                        )}
-                    >
-                    <XIcon className="h-4 w-4" />
-                    <span className="sr-only">Close</span>
-                </DialogPrimitive.Close>
-            </DialogPrimitive.Content>
-        }
+        </Suspense>
+    </ErrorBoundary>
+}
+
+
+export function DialogContent({ children, className, ...props }: ComponentProps<typeof DialogPrimitive.Content>) {
+
+    return <DialogPortal>
+        <DialogOverlay/>
+        <DialogPrimitive.Content
+            className={cn(
+                'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg sm:rounded-lg duration-200',
+                'data-[state=open]:animate-in data-[state=open]:fade-in-0  data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] ',
+                'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]',
+                className
+            )}
+            {...props}
+        >
+            {children}
+            <DialogPrimitive.Close 
+                className={cn(
+                    'absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity',
+                    'hover:opacity-100',
+                    'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+                    'disabled:pointer-events-none',
+                    'data-[state=open]:bg-accent data-[state=open]:text-muted-foreground'
+                    )}
+                >
+                <XIcon className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+            </DialogPrimitive.Close>
+        </DialogPrimitive.Content>
     </DialogPortal>
 }
 
 
-export function DialogHeader({ className, ...props }: React.ComponentPropsWithRef<'div'>) {
+export function DialogHeader({ className, ...props }: ComponentProps<'div'>) {
     return <div className={cn('flex flex-col space-y-1.5 text-center sm:text-left', className)} {...props}/>
 }
 
 
-export function DialogFooter({ className, ...props }: React.ComponentPropsWithRef<'div'>) {
+export function DialogFooter({ className, ...props }: ComponentProps<'div'>) {
     return <div className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2', className)} {...props}/>
 }
 
 
-export function DialogTitle({ className, ...props }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>) {
+export function DialogTitle({ className, ...props }: ComponentProps<typeof DialogPrimitive.Title>) {
     return <DialogPrimitive.Title
         className={cn('text-lg font-semibold leading-none tracking-tight', className)}
         {...props}
@@ -90,7 +107,7 @@ export function DialogTitle({ className, ...props }: React.ComponentPropsWithout
 }
 
 
-export function DialogDescription({ className, ...props }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>) {
+export function DialogDescription({ className, ...props }: ComponentProps<typeof DialogPrimitive.Description>) {
     return <DialogPrimitive.Description
         className={cn("text-sm text-muted-foreground", className)}
         {...props}
@@ -98,16 +115,20 @@ export function DialogDescription({ className, ...props }: React.ComponentPropsW
 }
 
 
-interface DialogTriggerButtonProps extends React.ComponentPropsWithRef<typeof Button> {
-    children: React.ReactNode
-    tooltip?: React.ReactNode
+interface DialogTriggerButtonProps extends ComponentProps<typeof Button> {
+    children: ReactNode
+    tooltip?: ReactNode
 }
 
-export function DialogTriggerButton({ tooltip, variant = "ghost", ...props}: DialogTriggerButtonProps) {
+/**
+ * A {@link Button} that triggers a dialog when clicked. It also displays a tooltip with the provided text.
+ * @param tooltip The text to display in the tooltip.
+ */
+export function DialogTriggerButton({ tooltip, ...props}: DialogTriggerButtonProps) {
     return <Tooltip>
         <TooltipTrigger asChild>
             <DialogTrigger asChild>
-                <Button variant={variant} {...props} />
+                <Button {...props} />
             </DialogTrigger>
         </TooltipTrigger>
         <TooltipContent>{tooltip}</TooltipContent>

@@ -9,14 +9,15 @@ import * as React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormSubmitButton, FormValue } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { TeamMembershipFormData, teamMembershipFormSchema } from '@/lib/forms/team-membership'
-import { trpc } from '@/trpc/client'
-import { TeamMembershipWithPerson } from '@/trpc/types'
+import { TeamMembershipWithPerson, useTRPC } from '@/trpc/client'
+
 
 
 interface UpdateTeamMemberDialogProps {
@@ -29,6 +30,9 @@ interface UpdateTeamMemberDialogProps {
  * Dialog for updating a team membership.
  */
 export function UpdateTeamMemberDialog({ teamMembership, open, onOpenChange }: UpdateTeamMemberDialogProps) {
+    const queryClient = useQueryClient()
+    const trpc = useTRPC()
+   
 
     const form = useForm<TeamMembershipFormData>({
         resolver: zodResolver(teamMembershipFormSchema),
@@ -39,9 +43,9 @@ export function UpdateTeamMemberDialog({ teamMembership, open, onOpenChange }: U
         }
     })
 
-    const utils = trpc.useUtils()
+    
 
-    const mutation = trpc.teamMemberships.update.useMutation()
+    const mutation = useMutation(trpc.teamMemberships.update.mutationOptions())
 
     function handleOpenChange(newValue: boolean) {
         onOpenChange(newValue)
@@ -50,7 +54,7 @@ export function UpdateTeamMemberDialog({ teamMembership, open, onOpenChange }: U
 
     const handleSubmit = form.handleSubmit(async (formData) => {
         await mutation.mutateAsync(formData)
-        utils.teamMemberships.byTeam.invalidate({ teamId: teamMembership.teamId })
+        queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId: teamMembership.teamId }))
         handleOpenChange(false)
     })
 

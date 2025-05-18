@@ -8,12 +8,12 @@
 import { PlusIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
 import * as Paths from '@/paths'
-import { trpc } from '@/trpc/client'
+import { useTRPC } from '@/trpc/client'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 
@@ -42,8 +42,8 @@ export function AccessCard(props: { personId: string}) {
                 </Protect> */}
             
             </CardHeader>
-            <CardContent>
+            <CardBody>
                 
-            </CardContent>
+            </CardBody>
         </Card>
 }

@@ -8,7 +8,7 @@
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { NotFound } from '@/components/errors'
 
-import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardBody, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
@@ -51,7 +51,7 @@ export default async function SkillGroupPage(props: { params: Promise<{ 'skill-g
                     <CardHeader>
                         <CardTitle>Details</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardBody>
                         <DL>
                             <DLTerm>RT+ ID</DLTerm>
                             <DLDetails>{skillGroup.id}</DLDetails>
@@ -64,13 +64,13 @@ export default async function SkillGroupPage(props: { params: Promise<{ 'skill-g
                                 <Link href={Paths.system.skillPackages.skillPackage(skillGroup.skillPackageId).index}>{skillGroup.skillPackage.name}</Link>
                             </DLDetails>
                         </DL>
-                    </CardContent>
+                    </CardBody>
                 </Card>
                 <Card>
                     <CardHeader>
                         <CardTitle>Skills</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardBody>
                         <Table>
                             <TableHead>
                                 <TableRow>
@@ -87,7 +87,7 @@ export default async function SkillGroupPage(props: { params: Promise<{ 'skill-g
                                 )}
                             </TableBody>
                         </Table>
-                    </CardContent>
+                    </CardBody>
                 </Card>
             </CardGrid>
         </AppPageContent>

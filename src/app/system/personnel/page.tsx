@@ -13,8 +13,7 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import * as Paths from '@/paths'
 import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
-import { PersonnelList } from './personnel-list' 
-
+import { PersonnelListCard } from './personnel-list-card' 
 
 
 export const metadata: Metadata = { title: "Personnel" }
@@ -27,13 +26,13 @@ export default async function PersonnelListPage() {
             label="Personnel" 
             breadcrumbs={[{ label: "System", href: Paths.system.index }]}
         />
-        <AppPageContent variant="container">
-            <PageHeader>
-                <PageTitle>Personnel</PageTitle>
-            </PageHeader>
-            <HydrateClient>
-                <PersonnelList/>
-            </HydrateClient>
-        </AppPageContent>
+        <HydrateClient>
+            <AppPageContent variant="container">
+                <PageHeader>
+                    <PageTitle>Personnel</PageTitle>
+                </PageHeader>
+                <PersonnelListCard/>
+            </AppPageContent>
+        </HydrateClient>
     </AppPage>
 }

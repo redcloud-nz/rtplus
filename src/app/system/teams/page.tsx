@@ -11,23 +11,28 @@ import React from 'react'
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import * as Paths from '@/paths'
 
-import { TeamsList } from './teams-list'
+import { TeamsListCard } from './teams-list-card'
+import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
 
 export const metadata: Metadata = { title: "Teams" }
 
 export default async function TeamsListPage() {
+    prefetch(trpc.teams.all.queryOptions())
+
     return <AppPage>
         <AppPageBreadcrumbs
             label="Teams"
             breadcrumbs={[{ label: "System", href: Paths.system.index }]}
         />
-        <AppPageContent variant="container">
-            <PageHeader>
-                <PageTitle>Teams</PageTitle>
-            </PageHeader>
-            <TeamsList/>
-        </AppPageContent>
+        <HydrateClient>
+            <AppPageContent variant="container">
+                <PageHeader>
+                    <PageTitle>Teams</PageTitle>
+                </PageHeader>
+                <TeamsListCard/>
+            </AppPageContent>
+        </HydrateClient>
     </AppPage>
 
 }

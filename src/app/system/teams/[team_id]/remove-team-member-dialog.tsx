@@ -17,7 +17,8 @@ import { FormControl, FormActions, FormField, FormItem, FormLabel, FormSubmitBut
 import { Paragraph } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { TeamMembershipWithPerson, trpc } from '@/trpc/client'
+import { TeamMembershipWithPerson, useTRPC } from '@/trpc/client'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 
 const removeTeamMemberFormSchema = z.object({
@@ -34,6 +35,8 @@ interface RemoveTeamMemberDialogProps {
 }
 
 export function RemoveTeamMemberDialog({ teamMembership, open, onOpenChange }: RemoveTeamMemberDialogProps) {
+    const queryClient = useQueryClient()
+    const trpc = useTRPC()
 
     const form = useForm<z.infer<typeof removeTeamMemberFormSchema>>({
         resolver: zodResolver(removeTeamMemberFormSchema),
@@ -45,9 +48,9 @@ export function RemoveTeamMemberDialog({ teamMembership, open, onOpenChange }: R
     })
 
     const { toast } = useToast()
-    const utils = trpc.useUtils()
+  
 
-    const mutation = trpc.teamMemberships.delete.useMutation()
+    const mutation = useMutation(trpc.teamMemberships.delete.mutationOptions())
 
     function handleOpenChange(newValue: boolean) {
         onOpenChange(newValue)
@@ -56,7 +59,7 @@ export function RemoveTeamMemberDialog({ teamMembership, open, onOpenChange }: R
 
     const handleSubmit = form.handleSubmit(async (formData) => {
         await mutation.mutateAsync(formData)
-        utils.teamMemberships.byTeam.invalidate({ teamId: teamMembership.teamId })
+        queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: teamMembership.personId }))
         toast({
             title: "Team Member Removed",
             description: `${teamMembership.person.name} has been removed from the team.`,

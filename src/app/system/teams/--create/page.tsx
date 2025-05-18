@@ -11,7 +11,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
 import { FormControl, FormActions, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormProvider, FormSubmitButton, FormCancelButton } from '@/components/ui/form'
 import { Input, SlugInput } from '@/components/ui/input'
 
@@ -76,7 +76,7 @@ export default function CreateTeamPage() {
                     <CardHeader>
                         <CardTitle>Details</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardBody>
                         <form onSubmit={handleSubmit} className='space-y-4 p-2'>
                             <FormField
                                 control={form.control}
@@ -138,7 +138,7 @@ export default function CreateTeamPage() {
                                 <FormCancelButton href={Paths.system.teams.index}/>
                             </FormActions>
                         </form>
-                    </CardContent>
+                    </CardBody>
                 </Card>
             </FormProvider>
         </AppPageContent>

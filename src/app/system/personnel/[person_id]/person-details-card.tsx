@@ -5,72 +5,84 @@
  */
 'use client'
 
-import { PencilIcon } from 'lucide-react'
+import { EllipsisVerticalIcon, PencilIcon, TrashIcon } from 'lucide-react'
 import * as React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Person } from '@prisma/client'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
 import { Show } from '@/components/show'
-import { Card, CardActionButton, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Card, CardActionButton, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
 
 import { useToast } from '@/hooks/use-toast'
 import { PersonFormData, personFormSchema } from '@/lib/forms/person'
 import { useTRPC } from '@/trpc/client'
 
 
-type PersonDetails = Pick<Person, 'id' | 'name' | 'email' | 'status'>
 
-interface PersonDetailsCardProps {
-    personId: string
-}
 
-export function PersonDetailsCard({ personId }: PersonDetailsCardProps) {
-    const trpc = useTRPC()
-
-    const personQuery = useQuery(trpc.personnel.byId.queryOptions({ personId }))
+/**
+ * Card that displays the details of a person and allows the user to edit them.
+ * @param personId The ID of the person to display.
+ */
+export function PersonDetailsCard({ personId }: { personId: string }) {
     const [mode, setMode] = React.useState<'View' | 'Edit'>('View')
 
     return <Card>
         <CardHeader>
-            <CardTitle>Details</CardTitle>
-            <Show when={personQuery.isSuccess && mode == 'View'}>
+            <CardTitle>Person details</CardTitle>
+            <Show when={mode == 'View'}>
                 <CardActionButton
                     icon={<PencilIcon/>}
                     label="Edit"
                     onClick={() => setMode('Edit')}
                 />
             </Show>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                        <EllipsisVerticalIcon/>
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align='end'>
+                    <DropdownMenuLabel>More options</DropdownMenuLabel>
+                    <DropdownMenuGroup>
+                        <DropdownMenuItem disabled>
+                            <TrashIcon/>
+                            <span>Delete person</span>
+                        </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            
         </CardHeader>
-        <CardContent>
-            <Show 
-                when={personQuery.isSuccess}
-                fallback={<div className="space-y-4">
-                    <Skeleton className="h-10"/>
-                    <Skeleton className="h-10"/>
-                    <Skeleton className="h-10"/>
-                    <Skeleton className="h-10"/>
-                </div>}
-            >
-                {personQuery.data && (mode == 'View'
-                    ? <DisplayPersonDetails person={personQuery.data}/>
-                    : <EditPersonForm person={personQuery.data} onClose={() => setMode('View')}/>
-                )}   
-            </Show>
-        
-        </CardContent>
+        <CardBody boundary>
+            { mode == 'View'
+                ? <PersonDetailsList personId={personId}/>
+                : <EditPersonForm personId={personId} onClose={() => setMode('View')}/>
+            }
+        </CardBody>
     </Card>
+}   
 
-}
 
-function DisplayPersonDetails({ person }: { person: PersonDetails}) {
+/**
+ * Component that displays the details of a person.
+ * @param personId The ID of the person to display.
+ */
+function PersonDetailsList({ personId }: { personId: string }) {
+
+    const trpc = useTRPC()
+    const { data: person } = useSuspenseQuery(trpc.personnel.byId.queryOptions({ personId }))
+    if(person == null) throw new Error(`Person(${personId}) not found`)
+
     return <DL>
         <DLTerm>RT+ ID</DLTerm>
         <DLDetails>{person.id}</DLDetails>
@@ -87,14 +99,17 @@ function DisplayPersonDetails({ person }: { person: PersonDetails}) {
 }
 
 
-interface EditPersonFormProps {
-    person: PersonDetails
-    onClose: () => void
-}
-
-function EditPersonForm({ person, onClose }: EditPersonFormProps) {
+/**
+ * Component that displays a form to edit a person.
+ * @param personId The ID of the person to edit.
+ * @param onClose The function to call when the form is closed.
+ */
+function EditPersonForm({ personId, onClose }: { personId: string, onClose: () => void }) {
     const queryClient = useQueryClient()
     const trpc = useTRPC()
+
+    const { data: person } = useSuspenseQuery(trpc.personnel.byId.queryOptions({ personId }))
+    if(person == null) throw new Error(`Person(${personId}) not found`)
 
     const form = useForm<PersonFormData>({
         resolver: zodResolver(personFormSchema),
@@ -105,29 +120,26 @@ function EditPersonForm({ person, onClose }: EditPersonFormProps) {
 
     const { toast } = useToast()
     
-    const mutation = useMutation(trpc.personnel.create.mutationOptions({
-        onError: (error) => {
+    const mutation = useMutation(trpc.personnel.update.mutationOptions({
+        onError(error) {
             console.error('Error updating person:', error)
             if(error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof PersonFormData, { message: error.shape.message })
             }
+        },
+        onSuccess(updatedPerson) {
+            queryClient.invalidateQueries(trpc.personnel.all.queryFilter())
+            queryClient.invalidateQueries(trpc.personnel.byId.queryFilter({ personId: updatedPerson.id }))
+            toast({
+                title: 'Person updated',
+                description: `${updatedPerson.name} has been updated successfully.`,
+            })
+            onClose()
         }
     }))
 
-    const handleSubmit = form.handleSubmit(async (formData) => {
-        console.log('Form data:', formData)
-        const updatedPerson = await mutation.mutateAsync(formData)
-        queryClient.invalidateQueries(trpc.personnel.all.queryFilter())
-        toast({
-            title: "Person updated",
-            description: `${updatedPerson.name} has been updated successfully.`,
-        })
-
-        onClose()
-    })
-
     return <FormProvider {...form}>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="space-y-4">
             <FormField
                 control={form.control}
                 name="name"

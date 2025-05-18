@@ -8,7 +8,7 @@
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { NotFound } from '@/components/errors'
 
-import { Card, CardContent, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardBody, CardGrid, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { Link } from '@/components/ui/link'
 import { validateUUID } from '@/lib/id'
@@ -49,7 +49,7 @@ export default async function SkillPage(props: { params: Promise<{ 'skill-id': s
                     <CardHeader>
                         <CardTitle>Details</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardBody>
                         <DL>
                             <DLTerm>RT+ ID</DLTerm>
                             <DLDetails>{skill.id}</DLDetails>
@@ -76,7 +76,7 @@ export default async function SkillPage(props: { params: Promise<{ 'skill-id': s
                                 {skill.skillGroup?.name ? <Link href={Paths.system.skillGroups.skillGroup(skill.skillGroup.id).index}>{skill.skillGroup.name}</Link> : 'None'}
                             </DLDetails>
                         </DL>
-                    </CardContent>
+                    </CardBody>
                 </Card>
             </CardGrid>
         </AppPageContent>

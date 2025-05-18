@@ -7,41 +7,43 @@
 
 import { PlusIcon } from 'lucide-react'
 
+import { useSuspenseQuery } from '@tanstack/react-query'
+
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardActionButton, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
 import { ColorValue } from '@/components/ui/color'
-import { Button } from '@/components/ui/button'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import * as Paths from '@/paths'
-import { trpc } from '@/trpc/client'
+import { useTRPC } from '@/trpc/client'
 
 
-export function TeamsList() {
-    const teamsQuery = trpc.teams.all.useQuery()
+export function TeamsListCard() {
+    return <Card boundary title="List">
+        <TeamsListCardInner/>
+    </Card>
+}
 
-    const teams = teamsQuery.data || []
 
-    return <Card loading={teamsQuery.isLoading}>
+export function TeamsListCardInner() {
+    const trpc = useTRPC()
+
+    const { data: teams } = useSuspenseQuery(
+        trpc.teams.all.queryOptions(),
+    )
+
+    return <>
         <CardHeader>
             <CardTitle>List</CardTitle>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button variant="outline" size="icon" asChild>
-                        <Link href={Paths.system.teams.create}>
-                            <PlusIcon size={48}/>
-                        </Link>
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                    Add Team
-                </TooltipContent>
-            </Tooltip>
+            <CardActionButton
+                label="Add Team"
+                icon={<PlusIcon/>}
+                href={Paths.system.teams.create}
+            />
         </CardHeader>
-        <CardContent>
+        <CardBody>
             <Show
                 when={teams.length > 0}
                 fallback={<Alert severity="info" title="No teams defined.">Add a team to get started.</Alert>}
@@ -69,6 +71,6 @@ export function TeamsList() {
                     </TableBody>
                 </Table>
             </Show>
-        </CardContent>     
-    </Card>
+        </CardBody>     
+    </>
 }

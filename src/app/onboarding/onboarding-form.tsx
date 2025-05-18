@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { AsyncButton } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Link } from '@/components/ui/link'
@@ -44,7 +44,7 @@ export function OnBoardingForm() {
         <CardHeader className="mb-4">
             <CardTitle>Complete Sign Up</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardBody>
             <div className="flex flex-col gap-4 mb-6">
                 <div className="flex items-center space-x-2">
                     <Checkbox id="acceptTermsAndConditions" checked={termsAccepted} onCheckedChange={(newValue) => setTermsAccepted(newValue == true)}/>
@@ -65,7 +65,7 @@ export function OnBoardingForm() {
                 />
             </div>
             
-        </CardContent>
+        </CardBody>
         
     </Card>
 }

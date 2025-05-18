@@ -43,6 +43,15 @@ export type ButtonProps = React.ComponentPropsWithRef<'button'> & VariantProps<t
     asChild?: boolean
 }
 
+/**
+ * A button component that can be used to trigger actions or navigate to other pages.
+ * @param className Additional class names to apply to the button.
+ * @param variant The variant of the button. Can be one of 'default', 'destructive', 'outline', 'secondary', 'ghost', or 'link'.
+ * @param size The size of the button. Can be one of 'default', 'sm', 'lg', or 'icon'.
+ * @param asChild If true, the button will be rendered using the Slot component. 
+ * 
+ * @see https://ui.shadcn.com/docs/components/button
+ */
 export function Button({ className, variant, size, asChild = false, ...props }: ButtonProps) {
     const Comp = asChild ? Slot : 'button'
     return <Comp
