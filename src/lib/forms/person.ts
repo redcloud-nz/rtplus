@@ -4,10 +4,10 @@
 */
 
 import { z } from 'zod'
-import { zodShortId } from '../validation'
+import { zodNanoId8 } from '../validation'
 
 export const personFormSchema = z.object({
-    personId: zodShortId,
+    personId: zodNanoId8,
     name: z.string().min(5).max(100),
     email: z.string().email(),
     status: z.enum(['Active', 'Inactive', 'Deleted'])

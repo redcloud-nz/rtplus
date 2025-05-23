@@ -5,13 +5,15 @@
  */
 'use client'
 
-import { PlusIcon } from 'lucide-react'
+import { FunnelIcon, PlusIcon } from 'lucide-react'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 
 import { Show } from '@/components/show'
+import { UnderConstruction } from '@/components/under-construction'
 import { Alert } from '@/components/ui/alert'
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Card, CardBody, CardHeader, CardTitle, CardCollapseToggleButton } from '@/components/ui/card'
 import { DialogTriggerButton } from '@/components/ui/dialog'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
@@ -20,6 +22,8 @@ import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
 import { CreatePersonDialog } from './create-person-dialog'
+
+
 
 
 /**
@@ -34,6 +38,12 @@ export function PersonnelListCard() {
                     <PlusIcon/>
                 </DialogTriggerButton>}
             />
+            <UnderConstruction>
+                <Button variant="ghost" size="icon">
+                    <FunnelIcon/>
+                </Button>
+            </UnderConstruction>
+            <CardCollapseToggleButton/>
         </CardHeader>
         <CardBody boundary>
             <PersonnelListTable/>

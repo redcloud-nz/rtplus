@@ -59,3 +59,14 @@ export function getUserInitials(name: string | null): string {
             return (parts[0].charAt(0) + parts[parts.length-1].charAt(0)).toUpperCase()
     }
 }
+
+
+export function patchById<T extends { id: string }>(array: T[] | undefined, id: string, update: Partial<T>) {
+    return array?.map(item => {
+        if(item.id === id) {
+            return { ...item, ...update }
+        } else {
+            return item
+        }
+    })
+}

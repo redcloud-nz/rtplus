@@ -14,9 +14,9 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 
 import { Show } from '@/components/show'
 import { Button } from '@/components/ui/button'
-import { Card, CardActionButton, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardActionButton, CardBody, CardHeader, CardTitle, CardCollapseToggleButton } from '@/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
+import { DebugFormState, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -37,7 +37,7 @@ export function PersonDetailsCard({ personId }: { personId: string }) {
 
     return <Card>
         <CardHeader>
-            <CardTitle>Person details</CardTitle>
+            <CardTitle>Person Details</CardTitle>
             <Show when={mode == 'View'}>
                 <CardActionButton
                     icon={<PencilIcon/>}
@@ -61,7 +61,7 @@ export function PersonDetailsCard({ personId }: { personId: string }) {
                     </DropdownMenuGroup>
                 </DropdownMenuContent>
             </DropdownMenu>
-            
+            <CardCollapseToggleButton/>
         </CardHeader>
         <CardBody boundary>
             { mode == 'View'
@@ -109,12 +109,14 @@ function EditPersonForm({ personId, onClose }: { personId: string, onClose: () =
     const trpc = useTRPC()
 
     const { data: person } = useSuspenseQuery(trpc.personnel.byId.queryOptions({ personId }))
-    if(person == null) throw new Error(`Person(${personId}) not found`)
 
     const form = useForm<PersonFormData>({
         resolver: zodResolver(personFormSchema),
         defaultValues: {
-            ...person
+            personId: personId,
+            name: person.name,
+            email: person.email,
+            status: person.status,
         }
     })
 
@@ -139,7 +141,7 @@ function EditPersonForm({ personId, onClose }: { personId: string, onClose: () =
     }))
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="space-y-4">
+        <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="space-y-4 p-2">
             <FormField
                 control={form.control}
                 name="name"

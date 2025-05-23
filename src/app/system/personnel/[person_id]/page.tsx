@@ -14,7 +14,7 @@ import { validateShortId } from '@/lib/id'
 import * as Paths from '@/paths'
 import { getQueryClient, HydrateClient, prefetch, trpc } from '@/trpc/server'
 
-import { AccessCard } from './access-card'
+import { PersonAccessCard } from './person-access-card'
 import { TeamMembershipsCard } from './team-memberships-card'
 import { PersonDetailsCard } from './person-details-card'
 
@@ -62,7 +62,7 @@ export default async function PersonPage(props: PersonPageProps) {
 
                 <PersonDetailsCard personId={personId}/>
                 <TeamMembershipsCard personId={personId}/>
-                <AccessCard personId={personId}/>
+                <PersonAccessCard personId={personId}/>
             </AppPageContent>
         </HydrateClient>
     </AppPage>

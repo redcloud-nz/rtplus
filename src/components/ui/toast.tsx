@@ -32,8 +32,7 @@ const toastVariants = tv({
     variants: {
         variant: {
             default: "border bg-background text-foreground",
-            destructive:
-            "destructive group border-destructive bg-destructive text-destructive-foreground",
+            destructive: "destructive group border-destructive bg-destructive text-destructive-foreground",
         },
     },
     defaultVariants: {

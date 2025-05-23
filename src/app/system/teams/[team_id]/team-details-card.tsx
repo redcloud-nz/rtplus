@@ -36,7 +36,7 @@ export function TeamDetailsCard({ teamId }: { teamId: string }) {
         <CardTitle>Details</CardTitle>
     </CardHeader>}>
         <CardHeader>
-            <CardTitle>Details</CardTitle>
+            <CardTitle>Team Details</CardTitle>
             <Show when={mode == 'View'}>
                 <CardActionButton
                     icon={<PencilIcon/>}

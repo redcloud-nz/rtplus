@@ -17,14 +17,14 @@ import { Input, SlugInput } from '@/components/ui/input'
 
 import { useToast } from '@/hooks/use-toast'
 import { TeamFormData, teamFormSchema } from '@/lib/forms/team'
-import { shortId } from '@/lib/id'
+import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
 export default function CreateTeamPage() {
 
-    const teamId = React.useMemo(() => shortId(), [])
+    const teamId = React.useMemo(() => nanoId8(), [])
 
     const form = useForm<TeamFormData>({
         resolver: zodResolver(teamFormSchema),

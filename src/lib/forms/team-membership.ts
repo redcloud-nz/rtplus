@@ -5,13 +5,14 @@
 
 import { z } from 'zod'
 
-import { zodShortId } from '../validation'
+import { zodNanoId8 } from '../validation'
 
 
 export const teamMembershipFormSchema = z.object({
-    teamId: zodShortId,
-    personId: zodShortId,
-    role: z.enum(['Admin', 'Member', 'None'])
+    teamId: zodNanoId8,
+    personId: zodNanoId8,
+    role: z.enum(['Admin', 'Member', 'None']),
+    status: z.enum(['Active', 'Inactive', 'Deleted']).optional().default('Active'),
 })
 
 export type TeamMembershipFormData = z.infer<typeof teamMembershipFormSchema>

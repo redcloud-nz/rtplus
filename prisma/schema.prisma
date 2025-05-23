@@ -19,6 +19,7 @@ model Person {
     name                         String                  @db.VarChar(100)
     email                        String                  @db.VarChar(100) @unique
     clerkUserId                  String?                 @map("clerk_user_id") @db.VarChar(50) @unique
+    clerkInvitationId            String?                 @map("clerk_invitation_id") @db.VarChar(50) @unique
     onboardingStatus             PersonOnboardingStatus  @map("onboarding_status") @default(NotStarted)
     status                       RecordStatus            @default(Active)
   
@@ -44,7 +45,7 @@ enum PersonChangeEvent {
 
 /// defines a change to a person record.
 model PersonChangeLog {
-    id          String            @id @default(nanoid(16)) @db.VarChar(16)
+    id          String            @id @db.VarChar(16)
     personId    String            @map("person_id") @db.VarChar(16)
     actorId     String?           @map("actor_id") @db.VarChar(16)
     event       PersonChangeEvent
@@ -60,7 +61,8 @@ model PersonChangeLog {
 
 enum PersonOnboardingStatus {
     NotStarted
-    InProgress
+    Invited
+    Created
     Complete
 }
 
@@ -93,7 +95,7 @@ model Skill {
 }
 
 model SkillCheck {
-    id              String                    @id @default(nanoid(16)) @db.VarChar(16)
+    id              String                    @id @db.VarChar(16)
     sessionId       String?                   @map("session_id") @db.VarChar(16)
     skillId         String                    @map("skill_id") @db.VarChar(16)
     assesseeId      String                    @map("assessee_id") @db.VarChar(16)
@@ -120,7 +122,7 @@ enum SkillCheckCompetenceLevel {
 }
 
 model SkillCheckSession {
-    id            String                  @id @default(nanoid(8)) @db.VarChar(16)
+    id            String                  @id @db.VarChar(16)
     assessorId    String                  @map("assessor_id") @db.VarChar(16)
     name          String                  @db.VarChar(100)
     date          DateTime
@@ -196,7 +198,7 @@ enum SkillPackageChangeEvent {
 
 // defines a change to a skill package record.
 model SkillPackageChangeLog {
-    id             String                  @id @default(nanoid(16)) @db.VarChar(16)
+    id             String                  @id @db.VarChar(16)
     skillPackageId String                  @map("skill_package_id") @db.VarChar(16)
     actorId        String?                 @map("actor_id") @db.VarChar(16)
     event          SkillPackageChangeEvent
@@ -214,7 +216,7 @@ model SkillPackageChangeLog {
 
 // defines a response team or similar high level organizational unit.
 model Team {
-    id              String           @id @default(nanoid(8)) @db.VarChar(16)
+    id              String           @id @db.VarChar(16)
     clerkOrgId      String           @map("clerk_org_id") @db.VarChar(50) @unique
     slug            String           @db.VarChar(50) @unique
     name            String           @db.VarChar(100)
@@ -241,7 +243,7 @@ enum TeamChangeEvent {
 
 /// defines a change to a team record.
 model TeamChangeLog {
-    id          String          @id @default(nanoid(16)) @db.VarChar(16)
+    id          String          @id @db.VarChar(16)
     teamId      String          @map("team_id") @db.VarChar(16)
     actorId     String?         @map("actor_id") @db.VarChar(16)
     event       TeamChangeEvent
@@ -270,7 +272,7 @@ model TeamD4hInfo {
 }
 
 model TeamMembership {
-    id          String                 @id @default(nanoid(16)) @db.VarChar(16)
+    id          String                 @id @db.VarChar(16)
     personId    String                 @map("person_id") @db.VarChar(16)
     teamId      String                 @map("team_id") @db.VarChar(16)
     role        TeamMembershipRole     @default(Member)

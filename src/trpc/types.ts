@@ -14,13 +14,19 @@ export class FieldConflictError extends Error {
     }
 }
 
+export interface PersonAccess {
+
+}
+
+export type PersonBasic = Pick<Person, 'id' | 'name' | 'email' | 'status'>
+
 export type SkillPackageWithGroupsAndSkills = SkillPackage & { 
     skillGroups: SkillGroup[]
     skills: Skill[]
 }
 
-export type TeamMembershipWithPerson = TeamMembership & { d4hInfo: TeamMembershipD4hInfo | null, person: Person }
+export type TeamMembershipWithPerson = TeamMembership & { d4hInfo: TeamMembershipD4hInfo | null, person: PersonBasic }
 
 export type TeamMembershipWithTeam = TeamMembership & { d4hInfo: TeamMembershipD4hInfo | null, team: Team }
 
-export type TeamMembershipWithPersonAndTeam = TeamMembership & { d4hInfo: TeamMembershipD4hInfo | null, person: Person, team: Team }
+export type TeamMembershipWithPersonAndTeam = TeamMembership & { d4hInfo: TeamMembershipD4hInfo | null, person: PersonBasic, team: Team }

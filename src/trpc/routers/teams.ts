@@ -11,7 +11,7 @@ import { TRPCError } from '@trpc/server'
 
 import { teamFormSchema } from '@/lib/forms/team'
 import { RTPlusLogger } from '@/lib/logger'
-import { zodShortId, zodSlug } from '@/lib/validation'
+import { zodNanoId8, zodSlug } from '@/lib/validation'
 
 import { authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
 import { FieldConflictError } from '../types'
@@ -47,7 +47,7 @@ export const teamsRouter = createTRPCRouter({
 
     byId: authenticatedProcedure
     .input(z.object({ 
-        teamId: zodShortId
+        teamId: zodNanoId8
     }))
     .query(async ({ ctx, input }) => {
         return ctx.prisma.team.findUnique({ 
@@ -108,7 +108,7 @@ export const teamsRouter = createTRPCRouter({
 
     delete: systemAdminProcedure
         .input(z.object({ 
-            teamId: zodShortId,
+            teamId: zodNanoId8,
             hard: z.boolean().optional().default(false)
         }))
         .mutation(async ({ ctx, input }) => {
@@ -170,7 +170,7 @@ export const teamsRouter = createTRPCRouter({
 
     updateTeamD4h: systemAdminProcedure
         .input(z.object({
-            teamId: zodShortId,
+            teamId: zodNanoId8,
             d4hTeamId: z.number(),
             serverCode: z.string(),
         }))

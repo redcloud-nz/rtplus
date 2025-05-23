@@ -17,6 +17,6 @@ export const zodRecordStatus = z.union([
 
 export const zodSlug = z.string().max(100).regex(/^[a-zA-Z0-9\-]+$/, "Must be url slug format (alphanumeric with hyphens).")
 
-export const zodShortId = z.string().length(8).regex(/^[a-zA-Z0-9]+$/, "Must be 8 character alphanumeric format (no spaces or special characters).")
+export const zodNanoId8 = z.string().length(8).regex(/^[a-zA-Z0-9]+$/, "Must be 8 character alphanumeric format (no spaces or special characters).")
 
-export const zodLongId = z.string().length(16).regex(/^[a-zA-Z0-9]+$/, "Must be 16 character alphanumeric format (no spaces or special characters).")
+export const zodNanoId16 = z.string().length(16).regex(/^[a-zA-Z0-9]+$/, "Must be 16 character alphanumeric format (no spaces or special characters).")

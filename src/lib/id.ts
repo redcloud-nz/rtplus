@@ -3,7 +3,6 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import exp from 'constants'
 import { customAlphabet } from 'nanoid'
 import { v4 as uuidv4, validate } from 'uuid'
 
@@ -43,11 +42,11 @@ export function createWhereClause(uuidOrRef: string) {
 
 const alphabet = customAlphabet('1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 16)
 
-export function shortId() {
+export function nanoId8() {
     return alphabet(8)
 }
 
-export function longNanoid() {
+export function nanoId16() {
     return alphabet(16)
 }
 

@@ -14,7 +14,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
+import { DebugFormState, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
 import { useToast } from '@/hooks/use-toast'
@@ -45,7 +45,7 @@ export function CreatePersonDialog({ trigger }: { trigger: ReactNode }) {
 }
 
 
-const createPersonFormSchema = personFormSchema.omit({ personId: true })
+const createPersonFormSchema = personFormSchema.omit({ personId: true, status: true })
 type CreatePersonFormData = z.infer<typeof createPersonFormSchema>
 
 
@@ -54,7 +54,7 @@ function CreatePersonForm({ onClose }: { onClose: () => void }) {
     const trpc = useTRPC()
 
     const form = useForm<CreatePersonFormData>({
-        resolver: zodResolver(personFormSchema),
+        resolver: zodResolver(createPersonFormSchema),
         defaultValues: {
             name: '',
             email: ''
@@ -66,6 +66,7 @@ function CreatePersonForm({ onClose }: { onClose: () => void }) {
 
     const mutation = useMutation(trpc.personnel.create.mutationOptions({
         onError(error) {
+            console.error(error)
             if(error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof CreatePersonFormData, { message: error.shape.message })
             }
@@ -122,6 +123,7 @@ function CreatePersonForm({ onClose }: { onClose: () => void }) {
                 />
                 <FormCancelButton onClick={handleClose}/>
             </FormActions>
+            <DebugFormState/>
         </form>
     </FormProvider>
 }

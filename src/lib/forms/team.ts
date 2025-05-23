@@ -4,10 +4,10 @@
 */
 
 import { z } from 'zod'
-import { zodColor, zodShortId, zodSlug } from '../validation'
+import { zodColor, zodNanoId8, zodSlug } from '../validation'
 
 export const teamFormSchema = z.object({
-    teamId: zodShortId,
+    teamId: zodNanoId8,
     name: z.string().min(5).max(100),
     shortName: z.string().max(20),
     slug: zodSlug,

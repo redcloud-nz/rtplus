@@ -9,15 +9,18 @@ import { type ReactNode, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Person } from '@prisma/client'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
+import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { useToast } from '@/hooks/use-toast'
 import { TeamMembershipFormData, teamMembershipFormSchema } from '@/lib/forms/team-membership'
 import { useTRPC } from '@/trpc/client'
+
+
 
 
 /**
@@ -34,11 +37,11 @@ export function AddTeamMembershipDialog({ personId, trigger }: { personId: strin
             <DialogHeader>
                 <DialogTitle>Add Team Membership</DialogTitle>
                 <DialogDescription>
-                    Add a new team membership for this person.
+                    Add a new team membership to this person.
                 </DialogDescription>
             </DialogHeader>
             <DialogBody>
-                { open ? <AddTeamMembershipForm personId={personId} onClose={() => setOpen(false)}/> : null }
+                { open ? <AddTeamMembershipForm personId={personId} onClose={() => setOpen(false)} /> : null }
             </DialogBody>
         </DialogContent>
     </Dialog>
@@ -55,45 +58,66 @@ function AddTeamMembershipForm({ personId, onClose }: { personId: string, onClos
     const { toast } = useToast()
     const trpc = useTRPC()
     
+    const { data: person } = useSuspenseQuery(trpc.personnel.byId.queryOptions({ personId }))
     const { data: teams } = useSuspenseQuery(trpc.teams.all.queryOptions())
     const { data: memberships } = useSuspenseQuery(trpc.teamMemberships.byPerson.queryOptions({ personId }))
+
+    if(person == null) throw new Error(`Person with ID ${personId} not found`)
 
     const form = useForm<TeamMembershipFormData>({
         resolver: zodResolver(teamMembershipFormSchema),
         defaultValues: {
             teamId: '',
             personId,
-            role: 'None'
+            role: 'None',
+            status: 'Active',
         }
     })
+
+    function handleClose() {
+        onClose()
+        form.reset()
+    }
     
     const mutation = useMutation(trpc.teamMemberships.create.mutationOptions({
-        onSuccess(newMembership) {
+        onError(error) {
+            toast({
+                title: "Error adding team membership",
+                description: error.message,
+                variant: 'destructive',
+            })
+            handleClose()
+        },
+        async onSuccess(newMembership) {
             toast({
                 title: "Team membership added",
                 description: `${newMembership.person.name} has been added to the ${newMembership.team.name}.`,
             })
-            handleClose()
+            
 
-            queryClient.invalidateQueries(
+            await queryClient.invalidateQueries(
                 trpc.teamMemberships.byPerson.queryFilter({ personId }), 
             )
-            queryClient.invalidateQueries(
+            await queryClient.invalidateQueries(
                 trpc.teamMemberships.byTeam.queryFilter({ teamId: newMembership.teamId })
             )
+            handleClose()
         }
     }))
 
-    async function handleClose() {
-        onClose()
-        form.reset()
-    }
+    
 
     // The teams that the person is already a member of
     const currentTeams = memberships.map(m => m.team.id)
 
     return <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="max-w-xl space-y-4">
+            <FormItem>
+                <FormLabel>Person</FormLabel>
+                <FormControl>
+                    <FixedFormValue value={person.name}/>
+                </FormControl>
+            </FormItem>
             <FormField
                 control={form.control}
                 name="teamId"
@@ -125,7 +149,7 @@ function AddTeamMembershipForm({ personId, onClose }: { personId: string, onClos
                     <FormLabel>Role</FormLabel>
                     <FormControl>
                         <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger>
+                            <SelectTrigger className='w-1/2'>
                                 <SelectValue placeholder="Select role..."/>
                             </SelectTrigger>
                             <SelectContent>

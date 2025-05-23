@@ -12,9 +12,10 @@ import { Tooltip } from '@radix-ui/react-tooltip'
 
 import { cn } from '@/lib/utils'
 
+import { Alert } from './alert'
 import { Button } from './button'
 import { TooltipContent, TooltipTrigger } from './tooltip'
-import { Alert } from './alert'
+
 
 
 export const Dialog = DialogPrimitive.Root

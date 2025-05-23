@@ -2,16 +2,29 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
+'use client'
 
-import { LoaderCircleIcon } from 'lucide-react'
-import { type ComponentProps, type MouseEventHandler, type ReactNode, Suspense } from 'react'
+import { ChevronDownIcon, LoaderCircleIcon } from 'lucide-react'
+import { type ComponentProps, createContext, type MouseEventHandler, type ReactNode, Suspense, useContext, useMemo, useState } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 
 import { cn } from '@/lib/utils'
+
 import { Alert } from './alert'
 import { Button } from './button'
-import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
 import { Link } from './link'
+import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
+
+type CardContextType = { isOpen: boolean, setOpen: (open: boolean) => void }
+const CardContext = createContext<CardContextType | null>(null)
+
+export function useCardContext() {
+    const context = useContext(CardContext)
+    if (!context) {
+        throw new Error("Card components must be used within a Card component")
+    }
+    return context
+}
 
 
 type CardProps = ComponentProps<'div'> & {
@@ -21,41 +34,46 @@ type CardProps = ComponentProps<'div'> & {
 }
 
 export function Card({ boundary, className, children, fallbackHeader, loading = false, ...props }: CardProps) {
-    return <div
-        className={cn(
-            "rounded-sm border bg-card text-card-foreground shadow-sm",
-            className
-        )}
-        {...props}
-    >
-        { boundary 
-            ? <ErrorBoundary fallbackRender={({ error }) => <>
-                {fallbackHeader}
-                <CardBody>
-                    <Alert severity="error" title="An error occurred">
-                        {error.message}
-                    </Alert>
-                </CardBody>
-            </>}>
-                <Suspense fallback={<>
+    const [open, setOpen] = useState(true)
+
+    const contextValue = useMemo(() => ({ isOpen: open, setOpen }), [open])
+
+    return <CardContext.Provider value={contextValue}>
+        <div
+            className={cn(
+                "rounded-sm border bg-card text-card-foreground shadow-sm",
+                className
+            )}
+            {...props}
+        >
+            { boundary 
+                ? <ErrorBoundary fallbackRender={({ error }) => <>
                     {fallbackHeader}
                     <CardBody>
-                        <div className="h-full w-full flex items-center justify-center">
-                            <LoaderCircleIcon className="w-10 h-10 animate-spin"/>
-                        </div>
+                        <Alert severity="error" title="An error occurred">
+                            {error.message}
+                        </Alert>
                     </CardBody>
-                    </>}
-                >
-                    {children}
-                </Suspense>
-            </ErrorBoundary>
-            : loading ? <div className="h-full w-full flex items-center justify-center p-10">
-                <LoaderCircleIcon className=" w-10 h-10 animate-spin"/>
-            </div>
-            : children
-        }
-    </div>
-
+                </>}>
+                    <Suspense fallback={<>
+                        {fallbackHeader}
+                        <CardBody>
+                            <div className="h-full w-full flex items-center justify-center">
+                                <LoaderCircleIcon className="w-10 h-10 animate-spin"/>
+                            </div>
+                        </CardBody>
+                        </>}
+                    >
+                        {children}
+                    </Suspense>
+                </ErrorBoundary>
+                : loading ? <div className="h-full w-full flex items-center justify-center p-10">
+                    <LoaderCircleIcon className=" w-10 h-10 animate-spin"/>
+                </div>
+                : children
+            }
+        </div>
+    </CardContext.Provider>
 }
 
 export function CardHeader({ className, ...props }: ComponentProps<'div'>) {
@@ -86,11 +104,13 @@ export function CardDescription({ className, ...props }: ComponentProps<'div'>) 
 type CardContentProps = ComponentProps<'div'> & { boundary?: boolean }
 
 export function CardBody({ boundary, children, className, ...props }: CardContentProps) {
-    return <div className={cn("p-4 min-h-18", className)} {...props}>
+    const { isOpen } = useCardContext()
+
+    return <div className={cn("p-2 min-h-24", className, !isOpen && "hidden")} {...props}>
         { boundary
             ? <ErrorBoundary fallbackRender={({ error}) => <Alert severity="error" title="An error occured">{error.message}</Alert>}>
                 <Suspense 
-                    fallback={<div className="h-full w-full flex items-center justify-center">
+                    fallback={<div className="w-full flex items-center justify-center p-4">
                         <LoaderCircleIcon className="w-10 h-10 animate-spin"/>
                     </div>}
                 >
@@ -168,6 +188,24 @@ export function CardActionButton({ icon, label, href, onClick, ...props }: CardA
         </TooltipTrigger>
         <TooltipContent>
             {label}
+        </TooltipContent>
+    </Tooltip>
+}
+
+export function CardCollapseToggleButton() {
+    const { isOpen, setOpen } = useCardContext()
+    return <Tooltip>
+        <TooltipTrigger asChild>
+            <Button
+                variant="ghost" 
+                size="icon"
+                onClick={() => setOpen(!isOpen)}
+            >
+                <ChevronDownIcon className={cn("transition-transform", isOpen && "rotate-180")}/>
+            </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+            {isOpen ? 'Collapse card' : 'Expand card'}
         </TooltipContent>
     </Tooltip>
 }

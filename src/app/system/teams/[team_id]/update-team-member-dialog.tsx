@@ -12,7 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormSubmitButton, FormValue } from '@/components/ui/form'
+import { FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormSubmitButton, FixedFormValue } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { TeamMembershipFormData, teamMembershipFormSchema } from '@/lib/forms/team-membership'
@@ -67,7 +67,7 @@ export function UpdateTeamMemberDialog({ teamMembership, open, onOpenChange }: U
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <FormItem>
                         <FormLabel>Person</FormLabel>
-                        <FormValue>{teamMembership.person.name}</FormValue>
+                        <FixedFormValue value={teamMembership.person.name}/>
                     </FormItem>
                     <FormField
                         control={form.control}

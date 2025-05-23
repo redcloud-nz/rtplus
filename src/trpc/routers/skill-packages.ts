@@ -8,10 +8,12 @@ import { z } from 'zod'
 
 import { PackageList, SkillPackageDef } from '@/data/skills'
 import { ChangeCountsByType, createChangeCounts } from '@/lib/change-counts'
+import { nanoId16 } from '@/lib/id'
 import { assertNonNull } from '@/lib/utils'
-import { zodShortId } from '@/lib/validation'
+import { zodNanoId8 } from '@/lib/validation'
 
 import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
+
 
 
 
@@ -30,7 +32,7 @@ export const skillPackagesRouter = createTRPCRouter({
 
     byId: authenticatedProcedure
         .input(z.object({
-            skillPackageId: zodShortId
+            skillPackageId: zodNanoId8
         }))
         .query(async ({ ctx, input }) => {
             return ctx.prisma.skillPackage.findUnique({ 
@@ -43,7 +45,7 @@ export const skillPackagesRouter = createTRPCRouter({
         }), 
     import: systemAdminProcedure
         .input(z.object({
-            skillPackageId: zodShortId
+            skillPackageId: zodNanoId8
         }))
         .mutation(async ({ ctx, input }) => {
         
@@ -87,6 +89,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
                     ...changes,
                     changeLogs: {
                         create: {
+                            id: nanoId16(),
                             event: 'Update',
                             actorId: ctx.personId,
                             timestamp: new Date(),
@@ -107,6 +110,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
                 ...fields,
                 changeLogs: {
                     create: {
+                        id: nanoId16(),
                         event: 'Create',
                         actorId: ctx.personId,
                         timestamp: new Date(),
@@ -143,6 +147,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
             }),
             ctx.prisma.skillPackageChangeLog.createMany({ 
                 data: groupsToAdd.map(group => ({
+                    id: nanoId16(),
                     event: 'CreateGroup',
                     actorId: ctx.personId,
                     skillPackageId: group.skillPackageId,
@@ -176,6 +181,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
                 }),
                 ctx.prisma.skillPackageChangeLog.create({
                     data: {
+                        id: nanoId16(),
                         event: 'UpdateGroup',
                         actorId: ctx.personId,
                         skillPackageId: group.skillPackageId,
@@ -212,6 +218,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
             }),
             ctx.prisma.skillPackageChangeLog.createMany({ 
                 data: skillsToAdd.map(skill => ({
+                    id: nanoId16(),
                     event: 'CreateSkill',
                     actorId: ctx.personId,
                     skillPackageId: skillPackage.id,
@@ -246,6 +253,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
                 }),
                 ctx.prisma.skillPackageChangeLog.create({
                     data: {
+                        id: nanoId16(),
                         event: 'UpdateSkill',
                         actorId: ctx.personId,
                         skillPackageId: skillPackage.id,

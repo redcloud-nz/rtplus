@@ -23,6 +23,8 @@ import { cn } from '@/lib/utils'
 import { Button, buttonVariants } from './button'
 import { Label } from './label'
 import { Link } from './link'
+import { isValid, sub } from 'date-fns'
+import { pick } from 'remeda'
 
 
 export { FormProvider } from 'react-hook-form'
@@ -75,7 +77,7 @@ export function FormItem({ className, ...props }: React.ComponentPropsWithRef<'d
     const id = React.useId()
 
     return <FormItemContext.Provider value={{ id }}>
-        <div className={cn("space-y-2", className)} {...props} />
+        <div className={cn("space-y-1", className)} {...props} />
     </FormItemContext.Provider>
 }
 
@@ -255,7 +257,19 @@ export function FormActions({ children, ...props }: React.ComponentPropsWithRef<
 }
 
 
-export function FormValue({ className, ...props }: React.ComponentPropsWithRef<'div'>) {
+export function FixedFormValue({ className, value, ...props }: Omit<React.ComponentPropsWithRef<'div'>, 'children'> & { value: string }) {
+    return <div 
+        className={cn("flex h-10 w-full rounded-md bg-slate-100 border border-slate-200 px-3 py-2 text-sm ring-offset-background", className)}
+        {...props}
+    >{value}</div>
+}
 
-    return <div className={cn("h-10 w-full bg-background px-3 py-2", className)} {...props}/>
+
+export function DebugFormState() {
+    const { formState } = useFormContext()
+    
+    return <div className="border-2 border-orange-500 p-2 text-sm font-mono">
+        <pre>{JSON.stringify(pick(formState, ['defaultValues', 'dirtyFields', 'disabled', 'errors', 'isDirty', 'isLoading', 'isSubmitSuccessful', 'isSubmitted', 'isSubmitting', 'isValid', 'isValidating', 'submitCount', 'touchedFields', 'validatingFields']), null, 2)}</pre>
+    
+    </div>
 }

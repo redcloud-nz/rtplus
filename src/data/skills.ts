@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { shortId, IDValidationSet } from '@/lib/id'
+import { nanoId8, IDValidationSet } from '@/lib/id'
 
 export interface SkillPackageDef {
     id: string
