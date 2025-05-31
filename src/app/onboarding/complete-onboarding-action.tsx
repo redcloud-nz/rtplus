@@ -7,8 +7,10 @@
 
 import { auth, clerkClient, currentUser } from '@clerk/nextjs/server'
 
-import prisma from '@/server/prisma'
+import { nanoId16 } from '@/lib/id'
 import { RTPlusLogger } from '@/lib/logger'
+import prisma from '@/server/prisma'
+
 
 const logger = new RTPlusLogger(completeOnboardingAction)
 
@@ -25,6 +27,7 @@ export async function completeOnboardingAction() {
             onboardingStatus: 'Complete',
             changeLogs: {
                 create: {
+                    id: nanoId16(),
                     actorId: personId,
                     event: 'Update',
                     fields: { onboardingStatus: 'Complete' }

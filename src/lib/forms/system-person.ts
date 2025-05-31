@@ -6,11 +6,11 @@
 import { z } from 'zod'
 import { zodNanoId8 } from '../validation'
 
-export const personFormSchema = z.object({
+export const systemPersonFormSchema = z.object({
     personId: zodNanoId8,
     name: z.string().min(5).max(100),
     email: z.string().email(),
     status: z.enum(['Active', 'Inactive', 'Deleted'])
 })
 
-export type PersonFormData = z.infer<typeof personFormSchema>
+export type SystemPersonFormData = z.infer<typeof systemPersonFormSchema>

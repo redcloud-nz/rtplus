@@ -11,7 +11,7 @@ import { clerkClient, createClerkClient } from '@clerk/nextjs/server'
 import { TeamMembershipRole } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
-import { teamMembershipFormSchema } from '@/lib/forms/team-membership'
+import { systemTeamMembershipFormSchema } from '@/lib/forms/system-team-membership'
 import { nanoId16 } from '@/lib/id'
 import { zodDeleteType, zodRecordStatus, zodNanoId8 } from '@/lib/validation'
 
@@ -22,7 +22,7 @@ import { TeamMembershipWithPerson, TeamMembershipWithPersonAndTeam, TeamMembersh
 
 export const teamMembershipsRouter = createTRPCRouter({
     create: systemAdminProcedure
-        .input(teamMembershipFormSchema)
+        .input(systemTeamMembershipFormSchema)
         .mutation(async ({ ctx, input }) => {
             const { teamId, personId } = input
 
@@ -85,7 +85,7 @@ export const teamMembershipsRouter = createTRPCRouter({
         }),
 
     update: systemAdminProcedure
-        .input(teamMembershipFormSchema)
+        .input(systemTeamMembershipFormSchema)
         .mutation(async ({ ctx, input }): Promise<TeamMembershipWithPersonAndTeam> => {
             const existing = await ctx.prisma.teamMembership.findFirst({ 
                 where: { teamId: input.teamId, personId: input.personId },

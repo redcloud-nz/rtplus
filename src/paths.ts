@@ -76,7 +76,7 @@ export const switchTeam = `/switch-team`
 // Team
 
 export const team = (teamSlug: string) => {
-    const base = `/teams/${teamSlug}` as const
+    const base = `/manage/teams/${teamSlug}` as const
     const competenciesBase = `${base}/competencies` as const
 
     return {

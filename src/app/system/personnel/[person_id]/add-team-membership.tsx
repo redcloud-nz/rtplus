@@ -9,7 +9,6 @@ import { type ReactNode, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Person } from '@prisma/client'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -17,7 +16,7 @@ import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormField, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { useToast } from '@/hooks/use-toast'
-import { TeamMembershipFormData, teamMembershipFormSchema } from '@/lib/forms/team-membership'
+import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema } from '@/lib/forms/system-team-membership'
 import { useTRPC } from '@/trpc/client'
 
 
@@ -64,8 +63,8 @@ function AddTeamMembershipForm({ personId, onClose }: { personId: string, onClos
 
     if(person == null) throw new Error(`Person with ID ${personId} not found`)
 
-    const form = useForm<TeamMembershipFormData>({
-        resolver: zodResolver(teamMembershipFormSchema),
+    const form = useForm<SystemTeamMembershipFormData>({
+        resolver: zodResolver(systemTeamMembershipFormSchema),
         defaultValues: {
             teamId: '',
             personId,

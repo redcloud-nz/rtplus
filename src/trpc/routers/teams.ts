@@ -9,12 +9,14 @@ import { z } from 'zod'
 import { clerkClient } from '@clerk/nextjs/server'
 import { TRPCError } from '@trpc/server'
 
-import { teamFormSchema } from '@/lib/forms/team'
+import { systemTeamFormSchema } from '@/lib/forms/system-team'
+import { nanoId16 } from '@/lib/id'
 import { RTPlusLogger } from '@/lib/logger'
 import { zodNanoId8, zodSlug } from '@/lib/validation'
 
 import { authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
 import { FieldConflictError } from '../types'
+
 
 const logger = new RTPlusLogger('trpc/teams')
 
@@ -68,7 +70,7 @@ export const teamsRouter = createTRPCRouter({
         }),
 
     create: systemAdminProcedure
-        .input(teamFormSchema)
+        .input(systemTeamFormSchema)
         .mutation(async ({ ctx, input }) => {
             const { teamId, ...data } = input
 
@@ -93,6 +95,7 @@ export const teamsRouter = createTRPCRouter({
                     clerkOrgId: organization.id,
                     changeLogs: { 
                         create: { 
+                            id: nanoId16(),
                             actorId: ctx.personId,
                             event: 'Create',
                             fields: input
@@ -117,6 +120,9 @@ export const teamsRouter = createTRPCRouter({
 
             if(input.hard) {
                 // Hard delete
+                // TODO : Implement hard delete logic
+                logger.warn(`Hard delete requested for team ${input.teamId}, but hard delete is not implemented yet.`)
+                throw new TRPCError({ code: 'NOT_IMPLEMENTED', message: 'Hard delete is not implemented yet.' })
             } else {
                 // Soft delete
                 return await ctx.prisma.team.update({ 
@@ -128,7 +134,7 @@ export const teamsRouter = createTRPCRouter({
             
 
     update: systemAdminProcedure
-        .input(teamFormSchema)
+        .input(systemTeamFormSchema)
         .mutation(async ({ ctx, input }) => {
             
             const existing = await ctx.prisma.team.findUnique({ where: { id: input.teamId }})
@@ -159,6 +165,7 @@ export const teamsRouter = createTRPCRouter({
                     ...data,
                     changeLogs: { 
                         create: { 
+                            id: nanoId16(),
                             actorId: ctx.personId,
                             event: 'Update',
                             fields: changedFields

@@ -30,12 +30,12 @@ export function OnBoardingForm() {
     const [privacyAccepted, setPrivacyAccepted] = React.useState(false)
 
     async function handleClick() {
-        await completeOnboardingAction({
-            policies: [
-                { policyKey: 'terms-of-use', policyVersion: 1 },
-                { policyKey: 'privacy', policyVersion: 1 },
-            ]
-        })
+        // await completeOnboardingAction({
+        //     policies: [
+        //         { policyKey: 'terms-of-use', policyVersion: 1 },
+        //         { policyKey: 'privacy', policyVersion: 1 },
+        //     ]
+        // })
         logger.info('Onboarding complete')
         router.push("/")
     }

@@ -16,13 +16,13 @@ import { Show } from '@/components/show'
 import { Button } from '@/components/ui/button'
 import { Card, CardActionButton, CardBody, CardHeader, CardTitle, CardCollapseToggleButton } from '@/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { DebugFormState, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
+import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { useToast } from '@/hooks/use-toast'
-import { PersonFormData, personFormSchema } from '@/lib/forms/person'
+import { SystemPersonFormData, systemPersonFormSchema } from '@/lib/forms/system-person'
 import { useTRPC } from '@/trpc/client'
 
 
@@ -110,8 +110,8 @@ function EditPersonForm({ personId, onClose }: { personId: string, onClose: () =
 
     const { data: person } = useSuspenseQuery(trpc.personnel.byId.queryOptions({ personId }))
 
-    const form = useForm<PersonFormData>({
-        resolver: zodResolver(personFormSchema),
+    const form = useForm<SystemPersonFormData>({
+        resolver: zodResolver(systemPersonFormSchema),
         defaultValues: {
             personId: personId,
             name: person.name,
@@ -124,9 +124,14 @@ function EditPersonForm({ personId, onClose }: { personId: string, onClose: () =
     
     const mutation = useMutation(trpc.personnel.update.mutationOptions({
         onError(error) {
-            console.error('Error updating person:', error)
             if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof PersonFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof SystemPersonFormData, { message: error.shape.message })
+            } else {
+                toast({
+                    title: 'Error updating person',
+                    description: error.message,
+                    variant: 'destructive',
+                })
             }
         },
         onSuccess(updatedPerson) {

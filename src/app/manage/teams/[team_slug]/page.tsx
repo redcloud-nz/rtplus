@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /team/[team-slug]/dashboard
+ *  Path: /team/[team-_lug]/dashboard
  */
 
 import { ClockIcon, CombineIcon, ListChecksIcon, NotebookTextIcon, PocketKnifeIcon, WalletCardsIcon } from 'lucide-react'
@@ -10,7 +10,7 @@ import Image from 'next/image'
 
 import { auth } from '@clerk/nextjs/server'
 
-import { TeamParams } from '@/app/teams/[team-slug]'
+import { TeamParams } from '@/app/manage/teams/[team_slug]'
 import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 import { DashboardCard, DashboardCardList } from '@/components/ui/dashboard-card'
 
@@ -27,7 +27,7 @@ import * as Paths from '@/paths'
 // ]
 
 export default async function TeamHomePage(props: { params: Promise<TeamParams> }) {
-    const { 'team-slug': teamSlug } = await props.params
+    const { team_slug: teamSlug } = await props.params
     const { sessionClaims } = await auth.protect()
     const teamPath = Paths.team(teamSlug)
 

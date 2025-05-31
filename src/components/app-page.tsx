@@ -14,11 +14,12 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Heading } from '@/components/ui/typography'
 import { cn } from '@/lib/utils'
 
+
 export { PageBoundary } from './app-page-boundary'
 
 
 export function AppPage({ children }: { children?: React.ReactNode}) {
-    return <div className="h-screen flex-1 grid grid-rows-[48px_1px_1fr_1px_48px] grid-cols-[48px_1fr_auto]">
+    return <div className="h-screen flex-1 grid grid-rows-[48px_1px_1fr_1px_48px] grid-cols-[auto_1fr_auto]">
         <div className="row-start-1 col-start-1 flex justify-center items-center pl-1">
             <SidebarTrigger/>
         </div>

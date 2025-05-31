@@ -16,7 +16,7 @@ import { FormControl, FormActions, FormField, FormItem, FormLabel, FormMessage, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { useToast } from '@/hooks/use-toast'
-import { TeamMembershipFormData, teamMembershipFormSchema } from '@/lib/forms/team-membership'
+import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema } from '@/lib/forms/system-team-membership'
 import { useTRPC } from '@/trpc/client'
 
 
@@ -47,8 +47,8 @@ function AddTeamMemberForm({ teamId, onClose }: { teamId: string,  onClose: () =
     const { data: personnel } = useSuspenseQuery(trpc.personnel.all.queryOptions())
     const { data: memberships } = useSuspenseQuery(trpc.teamMemberships.byTeam.queryOptions({ teamId }))
 
-    const form = useForm<TeamMembershipFormData>({
-        resolver: zodResolver(teamMembershipFormSchema),
+    const form = useForm<SystemTeamMembershipFormData>({
+        resolver: zodResolver(systemTeamMembershipFormSchema),
         defaultValues: {
             teamId,
             personId: '',

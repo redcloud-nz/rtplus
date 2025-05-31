@@ -190,6 +190,39 @@ export function FormSubmitButtonLabel({ children, className, activeState, ...pro
     )} {...props}>{children}</span>
 }
 
+export const SubmitVerbs: Record<string, FormSubmitButtonProps['labels']> = {
+    add: {
+        ready: 'Add',
+        validating: 'Validating...',
+        submitting: 'Adding...',
+        submitted: 'Added',
+    },
+    create: {
+        ready: 'Create',
+        validating: 'Validating...',
+        submitting: 'Creating...',
+        submitted: 'Created',
+    },
+    update: {
+        ready: 'Update',
+        validating: 'Validating...',
+        submitting: 'Updating...',
+        submitted: 'Updated',
+    },
+    delete: {
+        ready: 'Delete',
+        validating: 'Validating...',
+        submitting: 'Deleting...',
+        submitted: 'Deleted',
+    },
+    save: {
+        ready: 'Save',
+        validating: 'Validating...',
+        submitting: 'Saving...',
+        submitted: 'Saved',
+    }
+}
+
 
 export type FormCancelButtonProps = Omit<React.ComponentPropsWithRef<typeof Button>, 'onClick'> & (
     | { onClick: React.MouseEventHandler<HTMLButtonElement>, href?: never }

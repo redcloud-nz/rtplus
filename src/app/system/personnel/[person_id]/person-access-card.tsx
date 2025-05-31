@@ -5,6 +5,8 @@
  */
 'use client'
 
+import { match } from 'ts-pattern'
+
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
 import { AsyncButton} from '@/components/ui/button'
@@ -49,12 +51,31 @@ function PersonAccessDetailsList({ personId }: { personId: string }) {
         <DLTerm>Onboarding Status</DLTerm>
         <DLDetails>{personAccess.onboardingStatus}</DLDetails>
 
-        <DLTerm>Clerk User ID</DLTerm>
-        <DLDetails>{personAccess.clerkUserId ?? "Not issued"}</DLDetails>
+        {personAccess.clerkUserId ? <>
+            <DLTerm>Clerk User ID</DLTerm>
+            <DLDetails>{personAccess.clerkUserId}</DLDetails>
+        </> : null}
 
-        <DLTerm>Actions</DLTerm>
-        <DLDetails>
-            <AsyncButton onClick={() => inviteMutation.mutateAsync({ personId })}>Invite</AsyncButton>
+        {personAccess.clerkInvitationId ? <>
+            <DLTerm>Clerk Invitation ID</DLTerm>
+            <DLDetails>{personAccess.clerkInvitationId}</DLDetails>
+        </> : null}
+
+        <DLTerm>Invitation</DLTerm>
+        <DLDetails className="flex gap-2">
+            {match(personAccess.onboardingStatus)
+                .with('NotStarted', () => 
+                    <AsyncButton variant="ghost" onClick={() => inviteMutation.mutateAsync({ personId })}>Send</AsyncButton>
+                )
+                .with('Invited', () => <>
+                    <AsyncButton onClick={() => inviteMutation.mutateAsync({ personId })}>Resend</AsyncButton>
+                    <AsyncButton variant="destructive" onClick={() => inviteMutation.mutateAsync({ personId })}>Revoke</AsyncButton>
+                </>)
+                .with('Created', () => <></>)
+                .with('Complete', () => <></>)
+                .exhaustive()
+            }
+            
         </DLDetails>
     </DL>
 }

@@ -23,7 +23,7 @@ import { FormActions, FormCancelButton, FormControl, FormDescription, FormField,
 import { Input, SlugInput } from '@/components/ui/input'
 
 import { D4hServerCode, getD4hServer } from '@/lib/d4h-api/servers'
-import { TeamFormData, teamFormSchema } from '@/lib/forms/team'
+import { SystemTeamFormData, systemTeamFormSchema } from '@/lib/forms/system-team'
 import { useToast } from '@/hooks/use-toast'
 import { useTRPC } from '@/trpc/client'
 
@@ -96,8 +96,8 @@ function EditTeamForm({ teamId, onClose }: { teamId: string, onClose: () => void
     const { data: team } = useSuspenseQuery(trpc.teams.byId.queryOptions({ teamId }))
     if(team == null) throw new Error(`Team(${teamId}) not found`)
 
-    const form = useForm<TeamFormData>({
-        resolver: zodResolver(teamFormSchema),
+    const form = useForm<SystemTeamFormData>({
+        resolver: zodResolver(systemTeamFormSchema),
         defaultValues: {
             ...team
         }
@@ -109,7 +109,7 @@ function EditTeamForm({ teamId, onClose }: { teamId: string, onClose: () => void
         onError: (error) => {
             console.error('Error updating team:', error)
             if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof TeamFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof SystemTeamFormData, { message: error.shape.message })
             }
         },
         onSuccess: async (updatedTeam) => {

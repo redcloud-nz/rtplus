@@ -16,18 +16,19 @@ import { FormControl, FormActions, FormDescription, FormField, FormItem, FormLab
 import { Input, SlugInput } from '@/components/ui/input'
 
 import { useToast } from '@/hooks/use-toast'
-import { TeamFormData, teamFormSchema } from '@/lib/forms/team'
+import { SystemTeamFormData, systemTeamFormSchema } from '@/lib/forms/system-team'
 import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
-import { trpc } from '@/trpc/client'
+import { useTRPC } from '@/trpc/client'
+import { useMutation } from '@tanstack/react-query'
 
 
 export default function CreateTeamPage() {
 
     const teamId = React.useMemo(() => nanoId8(), [])
 
-    const form = useForm<TeamFormData>({
-        resolver: zodResolver(teamFormSchema),
+    const form = useForm<SystemTeamFormData>({
+        resolver: zodResolver(systemTeamFormSchema),
         defaultValues: {
             teamId,
             name: '',
@@ -37,21 +38,22 @@ export default function CreateTeamPage() {
         }
     })
 
+    const trpc = useTRPC()
     const router = useRouter()
     const { toast } = useToast()
-    const utils = trpc.useUtils()
 
-    const mutation = trpc.teams.create.useMutation({
+
+    const mutation = useMutation(trpc.teams.create.mutationOptions({
         onError: (error) => {
             if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof TeamFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof SystemTeamFormData, { message: error.shape.message })
             }
         }
-    })
+    }))
 
     const handleSubmit = form.handleSubmit(async (data) => {
         const newTeam = await mutation.mutateAsync(data)
-        await utils.teams.invalidate()
+     
         toast({
             title: "Team Created",
             description: `Team "${newTeam.name}" created successfully.`,

@@ -11,7 +11,7 @@ import {RTPlusLogger} from '@/lib/logger'
 
 const logger = new RTPlusLogger('middleware')
 
-const isOnboardingRoute = createRouteMatcher(['/onboarding', '/policies(/.*)', '/trpc/(.*)'])
+//const isOnboardingRoute = createRouteMatcher(['/onboarding', '/policies(/.*)', '/trpc/(.*)'])
 const isPublicRoute = createRouteMatcher(['/about', '/cards(/.*)', '/policies(/.*)', '/trpc/(.*)'])
 const isSystemAdminRoute = createRouteMatcher(['/system(/.*)'])
 
@@ -23,14 +23,14 @@ export default clerkMiddleware(
             // Authenticated user
 
             // Allow authenticated users to access onboarding routes
-            if(isOnboardingRoute(req)) return NextResponse.next()
+            //if(isOnboardingRoute(req)) return NextResponse.next()
 
             // Redirect to onboarding if not completed
-            if(sessionClaims?.rt_onboarding_status !== 'Complete') {
-                const onBoardingUrl = new URL('/onboarding', req.url)
-                logger.debug('Redirecting to onboarding', onBoardingUrl)
-                return NextResponse.redirect(onBoardingUrl)
-            }
+            // if(sessionClaims?.rt_onboarding_status !== 'Complete') {
+            //     const onBoardingUrl = new URL('/onboarding', req.url)
+            //     logger.debug('Redirecting to onboarding', onBoardingUrl)
+            //     return NextResponse.redirect(onBoardingUrl)
+            // }
 
             // Redirect non-system-admin users from system admin routes
             if(isSystemAdminRoute(req) && sessionClaims?.rt_system_role !== 'admin') {
@@ -54,7 +54,8 @@ export default clerkMiddleware(
     {
         organizationSyncOptions: {
             organizationPatterns: [
-                '/teams/:slug/(.*)'
+                '/manage/teams/:slug',
+                '/manage/teams/:slug/(.*)'
             ],
             personalAccountPatterns: [
                 '/personal',

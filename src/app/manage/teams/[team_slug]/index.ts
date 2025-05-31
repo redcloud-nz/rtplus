@@ -4,4 +4,4 @@
  * 
  */
 
-export interface TeamParams { 'team-slug': string }
+export interface TeamParams { team_slug: string }

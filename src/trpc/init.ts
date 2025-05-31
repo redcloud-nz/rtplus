@@ -61,7 +61,7 @@ export const authenticatedProcedure = t.procedure.use((opts) => {
 
 export type AuthenticatedTeamContext = AuthenticatedContext & { teamSlug: string }
 
-export const teamMemberProcedure = t.procedure.use((opts) => {
+export const teamProcedure = t.procedure.use((opts) => {
     const { auth, ...ctx } = opts.ctx
 
     if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })
@@ -72,7 +72,7 @@ export const teamMemberProcedure = t.procedure.use((opts) => {
             ...ctx,
             auth,
             personId: auth.sessionClaims.rt_person_id,
-            teamSlug: auth.orgSlug!, 
+            teamSlug: auth.orgSlug!,
         } satisfies AuthenticatedTeamContext,
     })
 })
@@ -94,12 +94,12 @@ export const teamAdminProcedure = t.procedure.use((opts) => {
     })
 })
 
-export type SystemAdminContext = Context & { personId: string }
 
 export const systemAdminProcedure = t.procedure.use((opts) => {
     const { auth, ...ctx } = opts.ctx
 
     if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })
+    if(auth.sessionClaims.rt_system_role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin" })
 
     return opts.next({
         ctx: {
@@ -108,4 +108,21 @@ export const systemAdminProcedure = t.procedure.use((opts) => {
             personId: auth.sessionClaims.rt_person_id,
         } satisfies AuthenticatedContext,
     })
+})
+
+export const systemOrTeamAdminProcedure = t.procedure.use((opts) => {
+    const { auth, ...ctx } = opts.ctx
+
+    if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })
+    if(auth.sessionClaims.rt_system_role == 'admin' || (auth.orgId != null && auth.orgRole === 'org:admin')) {
+        return opts.next({
+            ctx: {
+                ...ctx,
+                auth,
+                personId: auth.sessionClaims.rt_person_id,
+            } satisfies AuthenticatedContext,
+        })
+    }
+    throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system or team admin" })
+    
 })

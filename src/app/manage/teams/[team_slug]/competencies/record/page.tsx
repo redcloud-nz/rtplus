@@ -7,7 +7,7 @@
 
 import * as React from 'react'
 
-import { TeamParams } from '@/app/teams/[team-slug]'
+import { TeamParams } from '@/app/manage/teams/[team_slug]'
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 
 

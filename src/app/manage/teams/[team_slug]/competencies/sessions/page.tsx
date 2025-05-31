@@ -11,7 +11,7 @@ import { redirect } from 'next/navigation'
 
 import { auth } from '@clerk/nextjs/server'
 
-import { TeamParams } from '@/app/teams/[team-slug]'
+import { TeamParams } from '@/app/manage/teams/[team_slug]'
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageControls, PageHeader, PageTitle } from '@/components/app-page'
 import { Show } from '@/components/show'
 

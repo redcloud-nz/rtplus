@@ -62,7 +62,6 @@ model PersonChangeLog {
 enum PersonOnboardingStatus {
     NotStarted
     Invited
-    Created
     Complete
 }
 

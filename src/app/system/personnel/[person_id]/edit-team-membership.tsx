@@ -16,7 +16,7 @@ import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, Dia
 import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
-import { TeamMembershipFormData, teamMembershipFormSchema } from '@/lib/forms/team-membership'
+import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema } from '@/lib/forms/system-team-membership'
 import { patchById } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'
 import { TeamMembershipWithPersonAndTeam, useTRPC } from '@/trpc/client'
@@ -49,8 +49,8 @@ function EditTeamMembershipForm({ membership, onClose  }: { membership: TeamMemb
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const form = useForm<TeamMembershipFormData>({
-        resolver: zodResolver(teamMembershipFormSchema),
+    const form = useForm<SystemTeamMembershipFormData>({
+        resolver: zodResolver(systemTeamMembershipFormSchema),
         defaultValues: pick(membership, ['personId', 'teamId', 'role', 'status'])
     })
 

@@ -6,7 +6,7 @@
 import { z } from 'zod'
 import { zodColor, zodNanoId8, zodSlug } from '../validation'
 
-export const teamFormSchema = z.object({
+export const systemTeamFormSchema = z.object({
     teamId: zodNanoId8,
     name: z.string().min(5).max(100),
     shortName: z.string().max(20),
@@ -14,4 +14,4 @@ export const teamFormSchema = z.object({
     color: z.union([zodColor, z.literal('')]),
 })
 
-export type TeamFormData = z.infer<typeof teamFormSchema>
+export type SystemTeamFormData = z.infer<typeof systemTeamFormSchema>

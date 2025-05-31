@@ -18,7 +18,7 @@ import { DebugFormState, FormActions, FormCancelButton, FormControl, FormDescrip
 import { Input } from '@/components/ui/input'
 
 import { useToast } from '@/hooks/use-toast'
-import { personFormSchema } from '@/lib/forms/person'
+import { systemPersonFormSchema } from '@/lib/forms/system-person'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
@@ -45,7 +45,7 @@ export function CreatePersonDialog({ trigger }: { trigger: ReactNode }) {
 }
 
 
-const createPersonFormSchema = personFormSchema.omit({ personId: true, status: true })
+const createPersonFormSchema = systemPersonFormSchema.omit({ personId: true, status: true })
 type CreatePersonFormData = z.infer<typeof createPersonFormSchema>
 
 
@@ -88,7 +88,7 @@ function CreatePersonForm({ onClose }: { onClose: () => void }) {
     }
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit((formData => mutation.mutate(formData)))} className="max-w-xl space-y-4">
+        <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="max-w-xl space-y-4">
             <FormField
                 control={form.control}
                 name="name"
@@ -123,7 +123,7 @@ function CreatePersonForm({ onClose }: { onClose: () => void }) {
                 />
                 <FormCancelButton onClick={handleClose}/>
             </FormActions>
-            <DebugFormState/>
+            
         </form>
     </FormProvider>
 }

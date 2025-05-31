@@ -11,7 +11,7 @@ import { createClerkClient } from '@clerk/backend'
 import { Person } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
-import { personFormSchema } from '@/lib/forms/person'
+import { systemPersonFormSchema } from '@/lib/forms/system-person'
 import { nanoId16, nanoId8 } from '@/lib/id'
 import { zodDeleteType, zodRecordStatus, zodNanoId8 } from '@/lib/validation'
 
@@ -32,64 +32,40 @@ export const personnelRouter = createTRPCRouter({
 
                 return {
                     id: person.id,
+                    clerkInvitationId: person.clerkInvitationId,
                     clerkUserId: person.clerkUserId,
                     onboardingStatus: person.onboardingStatus,
                 }
             }),
 
-        create: systemAdminProcedure
-            .input(z.object({ personId: zodNanoId8 }))
-            .mutation(async ({ input, ctx }) => {
-                const person = await ctx.prisma.person.findUnique({ where: { id: input.personId } })
-                if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person(${input.personId}) not found.` })
-                
-                if(person.onboardingStatus != 'NotStarted') throw new TRPCError({ code: 'BAD_REQUEST', message: `Person(${input.personId}) has already been created in Clerk.` })
-
-                const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY })
-                const user = await clerk.users.createUser({
-                    emailAddress: [person.email],
-                    publicMetadata: {
-                        person_id: person.id,
-                        onboarding_status: 'Created'
-                    }
-                })
-
-                await ctx.prisma.person.update({ 
-                    where: { id: input.personId },
-                    data: {
-                        clerkUserId: user.id, 
-                        onboardingStatus: 'Created'
-                    }
-                })
-            }),
-
         invite: systemAdminProcedure
-            .input(z.object({ personId: zodNanoId8 }))
+            .input(z.object({ personId: zodNanoId8, resend: z.boolean().optional().default(false) }))
             .mutation(async ({ input, ctx }) => {
                 const person = await ctx.prisma.person.findUnique({ where: { id: input.personId } })
                 if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person(${input.personId}) not found.` })
 
                 if(person.onboardingStatus != 'NotStarted') throw new TRPCError({ code: 'BAD_REQUEST', message: `Person(${input.personId}) has already been invited to Clerk.` })
 
-                    const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY })
+                const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY })
 
-                    const invitation = await clerk.invitations.createInvitation({
-                        emailAddress: person.email,
-                        publicMetadata: {
-                            person_id: person.id,
-                            onboarding_status: 'Invited'
-                        }
-                    })
+                const invitation = await clerk.invitations.createInvitation({
+                    emailAddress: person.email,
+                    publicMetadata: {
+                        person_id: person.id,
+                        onboarding_status: 'Invited'
+                    },
+                    notify: true,
+                    ignoreExisting: input.resend,
+                })
 
-                    await ctx.prisma.person.update({ 
-                        where: { id: input.personId },
-                        data: {
-                            clerkInvitationId: invitation.id, 
-                            onboardingStatus: 'Invited'
-                        }
-                    })
-            })
-        
+                await ctx.prisma.person.update({ 
+                    where: { id: input.personId },
+                    data: {
+                        clerkInvitationId: invitation.id, 
+                        onboardingStatus: 'Invited'
+                    }
+                })
+            }),
     },
     all: systemAdminProcedure
         .input(z.object({
@@ -127,7 +103,7 @@ export const personnelRouter = createTRPCRouter({
         }),
 
     create: systemAdminProcedure
-        .input(personFormSchema.omit({ personId: true, status: true }))
+        .input(systemPersonFormSchema.omit({ personId: true, status: true }))
         .mutation(async ({ input, ctx }): Promise<Person> => {
                 
             const emailConflict = await ctx.prisma.person.findFirst({ where: { email: input.email } })
@@ -158,6 +134,7 @@ export const personnelRouter = createTRPCRouter({
             deleteType: zodDeleteType
         }))
         .mutation(async ({ input, ctx }): Promise<Person> => {
+            ctx.auth.userId
         
             const existingPerson = await ctx.prisma.person.findUnique({ where: { id: input.personId } })
             if(!existingPerson) throw new TRPCError({ code: 'NOT_FOUND', message: 'Person not found.' })
@@ -204,7 +181,7 @@ export const personnelRouter = createTRPCRouter({
         }),
 
     update: systemAdminProcedure
-        .input(personFormSchema)
+        .input(systemPersonFormSchema)
         .mutation(async ({ input, ctx, }): Promise<Person> => {
 
             const existing = await ctx.prisma.person.findUnique({ where: { id: input.personId } })

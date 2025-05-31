@@ -2,28 +2,29 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /competencies/reports/team-skills
+ *  Path: /team/[team-slug]/competencies/reports/individual
  */
 
-import { format } from 'date-fns'
+import { format} from 'date-fns'
 import React from 'react'
 
-import { TeamParams } from '@/app/teams/[team-slug]'
+import { TeamParams } from '@/app/manage/teams/[team_slug]'
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 
 import * as Paths from '@/paths'
 
-import TeamSkillsReport from './team-skills-report'
+import IndividualReport from './individual-report'
 
 
-export default async function TeamSkillsReportPage(props: { params: Promise<TeamParams>}) {
+
+export default async function IndividualReportPage(props: { params: Promise<TeamParams>}) {
 
     const { 'team-slug': teamSlug } = await props.params
     const competenciesPath = Paths.team(teamSlug).competencies
 
     return <AppPage>
         <AppPageBreadcrumbs
-            label="Team Skills"
+            label="Individual"
             breadcrumbs={[
                 { label: "Competencies", href: competenciesPath.overview },
                 { label: "Reports", href: competenciesPath.reportsList }
@@ -31,10 +32,11 @@ export default async function TeamSkillsReportPage(props: { params: Promise<Team
         />
         <AppPageContent>
             <PageHeader>
-                <PageTitle>Team Skills Report</PageTitle>
-                <PageDescription>{`Skills report for Team NZ-RT13. Generated ${format(new Date(), 'PPP')}`}</PageDescription>
+                <PageTitle>Individual Report</PageTitle>
+                <PageDescription>{`Competency report for member 'John Smith'. Generated ${format(new Date(), 'PPP')}`}</PageDescription>
             </PageHeader>
-            <TeamSkillsReport/>
+            
+            <IndividualReport/>
         </AppPageContent>
         
     </AppPage>
