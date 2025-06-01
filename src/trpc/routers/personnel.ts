@@ -4,18 +4,17 @@
 */
 
 import * as R from 'remeda'
-import { match } from 'ts-pattern'
 import { z } from 'zod'
 
 import { createClerkClient } from '@clerk/backend'
 import { Person } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
-import { systemPersonFormSchema } from '@/lib/forms/system-person'
+import { PersonFormData, personFormSchema } from '@/lib/forms/person'
 import { nanoId16, nanoId8 } from '@/lib/id'
-import { zodDeleteType, zodRecordStatus, zodNanoId8 } from '@/lib/validation'
+import { zodRecordStatus, zodNanoId8 } from '@/lib/validation'
 
-import { createTRPCRouter, systemAdminProcedure } from '../init'
+import { AuthenticatedContext, createTRPCRouter, systemAdminProcedure } from '../init'
 import { FieldConflictError, PersonBasic } from '../types'
 
 
@@ -34,7 +33,7 @@ export const personnelRouter = createTRPCRouter({
                     id: person.id,
                     clerkInvitationId: person.clerkInvitationId,
                     clerkUserId: person.clerkUserId,
-                    onboardingStatus: person.onboardingStatus,
+                    inviteStatus: person.inviteStatus,
                 }
             }),
 
@@ -44,7 +43,7 @@ export const personnelRouter = createTRPCRouter({
                 const person = await ctx.prisma.person.findUnique({ where: { id: input.personId } })
                 if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person(${input.personId}) not found.` })
 
-                if(person.onboardingStatus != 'NotStarted') throw new TRPCError({ code: 'BAD_REQUEST', message: `Person(${input.personId}) has already been invited to Clerk.` })
+                if(person.inviteStatus != 'None') throw new TRPCError({ code: 'BAD_REQUEST', message: `Person(${input.personId}) has already been invited to Clerk.` })
 
                 const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY })
 
@@ -62,7 +61,7 @@ export const personnelRouter = createTRPCRouter({
                     where: { id: input.personId },
                     data: {
                         clerkInvitationId: invitation.id, 
-                        onboardingStatus: 'Invited'
+                        inviteStatus: 'Invited'
                     }
                 })
             }),
@@ -103,35 +102,15 @@ export const personnelRouter = createTRPCRouter({
         }),
 
     create: systemAdminProcedure
-        .input(systemPersonFormSchema.omit({ personId: true, status: true }))
+        .input(personFormSchema.omit({ personId: true, status: true }))
         .mutation(async ({ input, ctx }): Promise<Person> => {
                 
-            const emailConflict = await ctx.prisma.person.findFirst({ where: { email: input.email } })
-            if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists.', cause: new FieldConflictError('email') })
-
-            const newPerson = await ctx.prisma.person.create({ 
-                data: { 
-                    id: nanoId8(),
-                    status: 'Active',
-                    ...input,
-                    changeLogs: { 
-                        create: {
-                            id: nanoId16(),
-                            actorId: ctx.personId,
-                            event: 'Create',
-                            fields: input
-                        }
-                    }
-                } 
-            })
-
-            return newPerson
+            return createPerson(ctx, input)
         }),
 
     delete: systemAdminProcedure
         .input(z.object({ 
             personId: zodNanoId8,
-            deleteType: zodDeleteType
         }))
         .mutation(async ({ input, ctx }): Promise<Person> => {
             ctx.auth.userId
@@ -141,47 +120,21 @@ export const personnelRouter = createTRPCRouter({
 
             const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY })
 
-            await match(input.deleteType)
-                .with('Hard', async () => {
-                    await ctx.prisma.$transaction([
-                        ctx.prisma.person.delete({ where: { id: input.personId } }),
-                        ctx.prisma.personChangeLog.deleteMany({ where: { personId: input.personId } })
-                    ])
+            await ctx.prisma.$transaction([
+                ctx.prisma.person.delete({ where: { id: input.personId } }),
+                ctx.prisma.personChangeLog.deleteMany({ where: { personId: input.personId } })
+            ])
 
-                    if(existingPerson.clerkUserId) {
-                        // Delete the associated Clerk user
-                        await clerk.users.deleteUser(existingPerson.clerkUserId)
-                    }
-                })
-                .with('Soft', async () => {
-                    await ctx.prisma.$transaction([
-                        ctx.prisma.person.update({ 
-                            where: { id: input.personId },
-                            data: { status: 'Deleted' }
-                        }),
-                        ctx.prisma.personChangeLog.create({
-                            data: { 
-                                id: nanoId16(),
-                                actorId: ctx.personId,
-                                personId: input.personId,
-                                event: 'Delete',
-                                fields: { status: 'Deleted' }
-                            }
-                        })
-                    ])
-
-                    if(existingPerson.clerkUserId) {
-                        // Lock the Clerk user account
-                        await clerk.users.lockUser(existingPerson.clerkUserId)
-                    }
-                })
-                .exhaustive()
+            if(existingPerson.clerkUserId) {
+                // Delete the associated Clerk user
+                await clerk.users.deleteUser(existingPerson.clerkUserId)
+            }
 
             return existingPerson
         }),
 
     update: systemAdminProcedure
-        .input(systemPersonFormSchema)
+        .input(personFormSchema)
         .mutation(async ({ input, ctx, }): Promise<Person> => {
 
             const existing = await ctx.prisma.person.findUnique({ where: { id: input.personId } })
@@ -213,3 +166,26 @@ export const personnelRouter = createTRPCRouter({
             return updatedPerson
         })
 })
+
+
+export async function createPerson(ctx: AuthenticatedContext, input: Omit<PersonFormData, 'personId' | 'status'>): Promise<Person> {
+    
+    const emailConflict = await ctx.prisma.person.findFirst({ where: { email: input.email } })
+    if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists.', cause: new FieldConflictError('email') })
+    
+    return ctx.prisma.person.create({
+        data: {
+            id: nanoId8(),
+            status: 'Active',
+            ...input,
+            changeLogs: {
+                create: {
+                    id: nanoId16(),
+                    actorId: ctx.personId,
+                    event: 'Create',
+                    fields: input
+                }
+            }
+        }
+    })
+}

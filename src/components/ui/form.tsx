@@ -190,7 +190,7 @@ export function FormSubmitButtonLabel({ children, className, activeState, ...pro
     )} {...props}>{children}</span>
 }
 
-export const SubmitVerbs: Record<string, FormSubmitButtonProps['labels']> = {
+export const SubmitVerbs = {
     add: {
         ready: 'Add',
         validating: 'Validating...',
@@ -220,8 +220,8 @@ export const SubmitVerbs: Record<string, FormSubmitButtonProps['labels']> = {
         validating: 'Validating...',
         submitting: 'Saving...',
         submitted: 'Saved',
-    }
-}
+    },
+} as const
 
 
 export type FormCancelButtonProps = Omit<React.ComponentPropsWithRef<typeof Button>, 'onClick'> & (

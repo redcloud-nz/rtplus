@@ -71,17 +71,19 @@ function TeamMembershipsTable({ personId }: { personId: string }) {
             <TableBody>
                 {teamMemberships
                     .sort((a, b) => a.team.name.localeCompare(b.team.name))
-                    .map(membership => 
+                    .map(({ team, ...membership }) => 
                         <TableRow key={membership.id}>
                             <TableCell>
-                                <Link href={Paths.system.teams.team(membership.team.id).index} className="hover:underline">
-                                    {membership.team.name}
+                                <Link href={Paths.system.teams.team(team.id).index} className="hover:underline">
+                                    {team.name}
                                 </Link>
                             </TableCell>
                             <TableCell>{membership.role}</TableCell>
                             <TableCell className="w-10 p-0 text-right">
                                 <EditTeamMembershipDialog
-                                    membership={{ ...membership, person }}
+                                    membership={membership}
+                                    person={person}
+                                    team={team}
                                     trigger={<DialogTriggerButton variant="ghost" size="icon" tooltip="Edit team membership">
                                         <PencilIcon/>
                                     </DialogTriggerButton>}

@@ -10,21 +10,23 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { pick } from 'remeda'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Team, TeamMembership } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
-import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema } from '@/lib/forms/system-team-membership'
+import { TeamMembershipFormData, teamMembershipFormSchema } from '@/lib/forms/team-membership'
 import { patchById } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'
-import { TeamMembershipWithPersonAndTeam, useTRPC } from '@/trpc/client'
+import { PersonBasic, useTRPC } from '@/trpc/client'
 
 
 
 
-export function EditTeamMembershipDialog({ membership, trigger }: { membership: TeamMembershipWithPersonAndTeam, trigger: ReactNode }) {
+
+export function EditTeamMembershipDialog({ membership, person, team, trigger }: { membership: TeamMembership, person: PersonBasic, team: Team, trigger: ReactNode }) {
     const [open, setOpen] = useState(false)
 
     return <Dialog open={open} onOpenChange={setOpen}>
@@ -33,24 +35,32 @@ export function EditTeamMembershipDialog({ membership, trigger }: { membership: 
             <DialogHeader>
                 <DialogTitle>Edit Team Membership</DialogTitle>
                 <DialogDescription>
-                    Edit the team membership for '{membership.person.name}' in '{membership.team.name}'.
+                    Edit the team membership for '{person.name}' in '{team.name}'.
                 </DialogDescription>
             </DialogHeader>
             <DialogBody>
-                { open ? <EditTeamMembershipForm membership={membership} onClose={() => setOpen(false)} /> : null }
+                { open 
+                    ? <EditTeamMembershipForm 
+                        membership={membership} 
+                        person={person} 
+                        team={team}
+                        onClose={() => setOpen(false)} 
+                    />
+                    : null
+                }
             </DialogBody>
         </DialogContent>
     </Dialog>
 }
 
 
-function EditTeamMembershipForm({ membership, onClose  }: { membership: TeamMembershipWithPersonAndTeam, onClose: () => void }) {
+function EditTeamMembershipForm({ membership, person, team, onClose  }: { membership: TeamMembership, person: PersonBasic, team: Team, onClose: () => void }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const form = useForm<SystemTeamMembershipFormData>({
-        resolver: zodResolver(systemTeamMembershipFormSchema),
+    const form = useForm<TeamMembershipFormData>({
+        resolver: zodResolver(teamMembershipFormSchema),
         defaultValues: pick(membership, ['personId', 'teamId', 'role', 'status'])
     })
 
@@ -99,17 +109,17 @@ function EditTeamMembershipForm({ membership, onClose  }: { membership: TeamMemb
     })) 
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="max-w-xl space-y-4">
+        <form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))} className="max-w-xl space-y-4">
             <FormItem>
                 <FormLabel>Person</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={membership.person.name}/>
+                    <FixedFormValue value={person.name}/>
                 </FormControl>
             </FormItem>
             <FormItem>
                 <FormLabel>Team</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={membership.team.name}/>
+                    <FixedFormValue value={team.name}/>
                 </FormControl>
             </FormItem>
             <FormField
@@ -145,7 +155,6 @@ function EditTeamMembershipForm({ membership, onClose  }: { membership: TeamMemb
                             <SelectContent>
                             <SelectItem value="Active">Active</SelectItem>
                             <SelectItem value="Inactive">Inactive</SelectItem>
-                            { field.value == 'Deleted' ? <SelectItem value="Deleted">Deleted</SelectItem> : null}
                             </SelectContent>
                         </Select>
                     </FormControl>

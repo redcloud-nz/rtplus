@@ -6,7 +6,7 @@
 import { cache } from 'react'
 import superjson from 'superjson'
 
-import { auth } from '@clerk/nextjs/server'
+import { auth, createClerkClient } from '@clerk/nextjs/server'
 import {  initTRPC, TRPCError } from '@trpc/server'
 
 import prisma from '@/server/prisma'
@@ -17,6 +17,7 @@ export const createTRPCContext = cache(async () => {
     return { 
         prisma,
         auth: await auth(),
+        get clerkClient() { return createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY}) },
     }
 })
 
@@ -43,7 +44,9 @@ export type PublicContext = Context
 
 export const publicProcedure = t.procedure
 
-export type AuthenticatedContext = Context & { personId: string }
+export type AuthenticatedContext = Context & { 
+    personId: string,
+}
 
 export const authenticatedProcedure = t.procedure.use((opts) => {
     const { auth, ...ctx } = opts.ctx

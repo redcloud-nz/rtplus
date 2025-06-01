@@ -14,11 +14,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { DebugFormState, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
+import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
 import { useToast } from '@/hooks/use-toast'
-import { systemPersonFormSchema } from '@/lib/forms/system-person'
+import { personFormSchema } from '@/lib/forms/person'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
@@ -45,12 +45,14 @@ export function CreatePersonDialog({ trigger }: { trigger: ReactNode }) {
 }
 
 
-const createPersonFormSchema = systemPersonFormSchema.omit({ personId: true, status: true })
+const createPersonFormSchema = personFormSchema.omit({ personId: true, status: true })
 type CreatePersonFormData = z.infer<typeof createPersonFormSchema>
 
 
 function CreatePersonForm({ onClose }: { onClose: () => void }) {
     const queryClient = useQueryClient()
+    const router = useRouter()
+    const { toast } = useToast()
     const trpc = useTRPC()
 
     const form = useForm<CreatePersonFormData>({
@@ -61,31 +63,36 @@ function CreatePersonForm({ onClose }: { onClose: () => void }) {
         }
     })
 
-    const { toast } = useToast()
-    const router = useRouter()
-
-    const mutation = useMutation(trpc.personnel.create.mutationOptions({
-        onError(error) {
-            console.error(error)
-            if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof CreatePersonFormData, { message: error.shape.message })
-            }
-        },
-        onSuccess(newPerson) {
-            queryClient.invalidateQueries(trpc.personnel.all.queryFilter())
-            toast({
-                title: 'Person created',
-                description: `${newPerson.name} has been created successfully.`,
-            })
-            onClose()
-            router.push(Paths.system.personnel.person(newPerson.id).index)
-        }
-    }))
-
     async function handleClose() {
         onClose()
         form.reset()
     }
+
+    const mutation = useMutation(trpc.personnel.create.mutationOptions({
+        onError(error) {
+            if(error.shape?.cause?.name == 'FieldConflictError') {
+                form.setError(error.shape.cause.message as keyof CreatePersonFormData, { message: error.shape.message })
+            } else {
+                toast({
+                    title: 'Error creating person',
+                    description: error.message,
+                    variant: 'destructive',
+                })
+                handleClose()
+            }
+        },
+        async onSuccess(newPerson) {
+            queryClient.invalidateQueries(trpc.personnel.all.queryFilter())
+            
+            toast({
+                title: 'Person created',
+                description: `${newPerson.name} has been created successfully.`,
+            })
+
+            onClose()
+            router.push(Paths.system.personnel.person(newPerson.id).index)
+        }
+    }))
 
     return <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="max-w-xl space-y-4">
@@ -114,13 +121,7 @@ function CreatePersonForm({ onClose }: { onClose: () => void }) {
                 </FormItem>}
             />
             <FormActions>
-                <FormSubmitButton
-                    labels={{
-                        ready: 'Create',
-                        submitting: 'Creating...',
-                        submitted: 'Created'
-                    }}
-                />
+                <FormSubmitButton labels={SubmitVerbs.create}/>
                 <FormCancelButton onClick={handleClose}/>
             </FormActions>
             

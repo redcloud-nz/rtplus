@@ -4,34 +4,36 @@
 */
 
 import { pick } from 'remeda'
-import { match } from 'ts-pattern'
+import { match, P } from 'ts-pattern'
 import { z } from 'zod'
 
-import { clerkClient, createClerkClient } from '@clerk/nextjs/server'
-import { TeamMembershipRole } from '@prisma/client'
+import { $Enums, Person, Team, TeamMembership } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
-import { systemTeamMembershipFormSchema } from '@/lib/forms/system-team-membership'
+import { teamMembershipFormSchema } from '@/lib/forms/team-membership'
 import { nanoId16 } from '@/lib/id'
-import { zodDeleteType, zodRecordStatus, zodNanoId8 } from '@/lib/validation'
+import { zodRecordStatus, zodNanoId8 } from '@/lib/validation'
+import * as Paths from '@/paths'
 
 import { AuthenticatedContext, createTRPCRouter, systemAdminProcedure } from '../init'
-import { TeamMembershipWithPerson, TeamMembershipWithPersonAndTeam, TeamMembershipWithTeam } from '../types'
+import { TeamMembershipRole, TeamMembershipWithPerson, TeamMembershipWithPersonAndTeam, TeamMembershipWithTeam } from '../types'
+
 
 
 
 export const teamMembershipsRouter = createTRPCRouter({
     create: systemAdminProcedure
-        .input(systemTeamMembershipFormSchema)
-        .mutation(async ({ ctx, input }) => {
-            const { teamId, personId } = input
+        .input(teamMembershipFormSchema.omit({ status: true }))
+        .mutation(async ({ ctx, input: { teamId, personId, role} }) => {
 
-            // Check if the team member already exists
-            const existing = await ctx.prisma.teamMembership.findFirst({ where: { teamId, personId }, include: { person: true, team: true } })
-            if(existing?.status == 'Active' || existing?.status == 'Inactive') 
-                throw new TRPCError({ code: 'CONFLICT', message: `'${existing.person.name}' is already a member of '${existing.team.name}'.` })
+            const [team, person] = await Promise.all([
+                ctx.prisma.team.findUnique({ where: { id: teamId }}),
+                ctx.prisma.person.findUnique({ where: { id: personId }})
+            ])
+            if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: `Team(${teamId}) not found.` })
+            if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person(${personId}) not found.` })
 
-            return addTeamMember(ctx, { teamId, personId, role: input.role, restoreId: existing?.id })
+            return createTeamMembership(ctx, { team, person, role })
         }),
 
     byPerson: systemAdminProcedure
@@ -70,83 +72,85 @@ export const teamMembershipsRouter = createTRPCRouter({
         .input(z.object({
             teamId: zodNanoId8,
             personId: zodNanoId8,
-            deleteType: zodDeleteType
         }))
         .mutation(async ({ ctx, input }) => {
             const existing = await ctx.prisma.teamMembership.findFirst({ 
                 where: { teamId: input.teamId, personId: input.personId },
-                include: { team: true, person: true, d4hInfo: true }
+                include: { team: true, person: true }
             })
             if(!existing) throw new TRPCError({ code: 'NOT_FOUND' })
+            const { person, team, ...membership } = existing
 
-            await removeTeamMember(ctx, { membership: existing, deleteType: input.deleteType })
+            await deleteTeamMembership(ctx, { membership, person, team})
 
             return pick(existing, ['id', 'teamId', 'personId', 'role'])
         }),
 
     update: systemAdminProcedure
-        .input(systemTeamMembershipFormSchema)
+        .input(teamMembershipFormSchema)
         .mutation(async ({ ctx, input }): Promise<TeamMembershipWithPersonAndTeam> => {
             const existing = await ctx.prisma.teamMembership.findFirst({ 
                 where: { teamId: input.teamId, personId: input.personId },
-                include: { team: true, person: true, d4hInfo: true }
+                include: { team: true, person: true }
             })
             if(!existing) throw new TRPCError({ code: 'NOT_FOUND' })
 
-            if(input.role == existing.role) return existing
+            const { person, team, ...membership } = existing
 
-            return updateTeamMember(ctx, { membership: existing, newRole: input.role })
+            return updateTeamMembership(ctx, { membership, person, team, role: input.role, status: input.status  })
         })
 })
 
 
+
 /**
- * Add a member to a team
+ * Create a new team membership.
  * @param ctx TRPC Context.
  * @param teamId The team ID.
  * @param personId The person ID.
  * @param role The role to assign to the person.
- * @param restoreId The ID of the membership to restore, if applicable.
  * @returns The created team membership.
  */
-export async function addTeamMember(ctx: AuthenticatedContext, { teamId, personId, role, restoreId }: { teamId: string, personId: string, role: TeamMembershipRole, restoreId: string | undefined }): Promise<TeamMembershipWithPersonAndTeam> {
+export async function createTeamMembership(ctx: AuthenticatedContext, { team, person, role }: { team: Team, person: Person, role: TeamMembershipRole }): Promise<TeamMembershipWithPersonAndTeam> {
     
+    let clerkInvitationId: string | undefined = undefined
+    if(role != 'None') {
+        // Invite the user to the clerk organization
+        const invitation = await ctx.clerkClient.organizations.createOrganizationInvitation({
+            organizationId: team.clerkOrgId,
+            emailAddress: person.email,
+            role: role == 'Admin' ? 'org:admin' : 'org:member',
+            publicMetadata: { teamId: team.id, personId: person.id },
+            inviterUserId: ctx.auth.userId!!,
+        })
+        clerkInvitationId = invitation.id
+    }
+
+    const inviteStatus = clerkInvitationId ? 'Invited' : 'None'
+
     const [createdMembership] = await ctx.prisma.$transaction([
-        restoreId
-            ? ctx.prisma.teamMembership.update({
-                where: { id: restoreId },
-                data: { status: 'Active', role },
-                include: { person: true, team: true, d4hInfo: true }
-            })
-            : ctx.prisma.teamMembership.create({
-                data: {
-                    id: nanoId16(),
-                    team: { connect: { id: teamId }},
-                    person: { connect: { id: personId }},
-                    role: role,
-                },
-                include: { person: true, team: true, d4hInfo: true }
-            }),
+        ctx.prisma.teamMembership.create({
+            data: {
+                id: nanoId16(),
+                team: { connect: { id: team.id }},
+                person: { connect: { id: person.id }},
+                role,
+                status: 'Active',
+                clerkInvitationId,
+                inviteStatus,
+            },
+            include: { person: true, team: true, d4hInfo: true }
+        }),
         ctx.prisma.teamChangeLog.create({
             data: {
                 id: nanoId16(),
-                teamId,
+                teamId: team.id,
                 actorId: ctx.personId,
                 event: 'AddMember',
-                fields: { personId, role }
+                fields: { personId: person.id, role, status: 'Active', clerkInvitationId, inviteStatus }
             }
         })
     ])
-
-    if(createdMembership.person.clerkUserId && role != 'None') {
-        // Add the person to the clerk organization
-        const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY })
-        await clerk.organizations.createOrganizationMembership({
-            organizationId: createdMembership.team.clerkOrgId,
-            userId: createdMembership.person.clerkUserId,
-            role: role == 'Admin' ? 'org:admin' : 'org:member'
-        })
-    }
 
     return createdMembership
 }
@@ -155,53 +159,35 @@ export async function addTeamMember(ctx: AuthenticatedContext, { teamId, personI
  * Remove a member from a team.
  * @param ctx TRPC Context.
  * @param membership The membership to remove.
- * @param deleteType The type of delete to perform.
  */
-export async function removeTeamMember(ctx: AuthenticatedContext, { membership, deleteType }: { membership: TeamMembershipWithPersonAndTeam, deleteType: 'Soft' | 'Hard' }): Promise<void> {
+export async function deleteTeamMembership(ctx: AuthenticatedContext, { membership, person, team }: { membership: TeamMembership, person: Person, team: Team }): Promise<void> {
 
-    const person = await ctx.prisma.person.findUnique({ where: { id: membership.personId } })
-    if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person(${membership.personId}) not found.` })
+    await ctx.prisma.$transaction([
+        ctx.prisma.teamMembership.delete({ where: { id: membership.id }}),
+        ctx.prisma.teamChangeLog.create({
+            data: {
+                id: nanoId16(),
+                teamId: membership.teamId,
+                actorId: ctx.personId,
+                event: 'RemoveMember',
+                fields: { personId: membership.personId }
+            }
+        })
+    ])
 
-    await match(deleteType)
-        .with('Hard', () => 
-            ctx.prisma.$transaction([
-                ctx.prisma.teamMembership.delete({ where: { id: membership.id }}),
-                ctx.prisma.teamChangeLog.create({
-                    data: {
-                        id: nanoId16(),
-                        teamId: membership.teamId,
-                        actorId: ctx.personId,
-                        event: 'RemoveMember',
-                        fields: { personId: membership.personId }
-                    }
-                })
-            ])
-        )
-        .with('Soft', () => 
-            ctx.prisma.$transaction([
-                ctx.prisma.teamMembership.update({
-                    where: { id: membership.id },
-                    data: { role: 'None', status: 'Deleted' }
-                }),
-                ctx.prisma.teamChangeLog.create({
-                    data: {
-                        id: nanoId16(),
-                        teamId: membership.teamId,
-                        actorId: ctx.personId,
-                        event: 'RemoveMember',
-                        fields: { personId: membership.personId, role: 'None', status: 'Deleted' }
-                    }
-                })
-            ])
-        )
-        .exhaustive()
-
-    if(membership.role != 'None' && person.clerkUserId) {
-        // Remove the person from the clerk organization
-        const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY })
-        await clerk.organizations.deleteOrganizationMembership({
-            organizationId: membership.team.clerkOrgId,
-            userId: person.clerkUserId
+    if(membership.clerkMembershipId) {
+        // Remove the clerk membership if it exists
+        await ctx.clerkClient.organizations.deleteOrganizationMembership({
+            organizationId: team.clerkOrgId,
+            userId: person.clerkUserId!!,
+        })
+    }
+    if(membership.clerkInvitationId) {
+        // Remove the clerk invitation if it exists
+        await ctx.clerkClient.organizations.revokeOrganizationInvitation({
+            organizationId: team.clerkOrgId,
+            invitationId: membership.clerkInvitationId,
+            requestingUserId: ctx.auth.userId!!
         })
     }
 }
@@ -210,15 +196,77 @@ export async function removeTeamMember(ctx: AuthenticatedContext, { membership, 
  * Update a team membership.
  * @param ctx TRPC Context.
  * @param membership The membership to update.
- * @param newRole The new role.
+ * @param role The new role.
  * @returns The updated team membership.
  */
-export async function updateTeamMember(ctx: AuthenticatedContext, { membership, newRole }: { membership: TeamMembershipWithPersonAndTeam, newRole: TeamMembershipRole }): Promise<TeamMembershipWithPersonAndTeam> {
+export async function updateTeamMembership(ctx: AuthenticatedContext, { membership, person, team, role, status  }: { membership: TeamMembership, person: Person, team: Team, role: TeamMembershipRole, status: $Enums.RecordStatus }): Promise<TeamMembershipWithPersonAndTeam> {
+
+    const update: Partial<TeamMembership> = await match([membership.role, role])
+        .with(['None', 'None'], async () => {
+            return {}
+        })
+        .with(['None', P.not('None')], async () => {
+            // Changing from None to some role, need to create an invitation
+            const invite = await ctx.clerkClient.organizations.createOrganizationInvitation({
+                organizationId: team.clerkOrgId,
+                emailAddress: person.email,
+                role: role == 'Admin' ? 'org:admin' : 'org:member',
+                publicMetadata: { teamId: membership.teamId, personId: membership.personId },
+                inviterUserId: ctx.auth.userId!!,
+            })
+            return { inviteStatus: 'Invited', clerkInvitationId: invite.id }
+        })
+        .with([P.not('None'), 'None'], async () => {
+            // Changing from some role to None, need to remove the membership
+            if(membership.clerkMembershipId) {
+                await ctx.clerkClient.organizations.deleteOrganizationMembership({
+                    organizationId: team.clerkOrgId,
+                    userId: person.clerkUserId!!,
+                })
+                return { inviteStatus: 'None', clerkMembershipId: null }
+            } else if(membership.clerkInvitationId) {
+                // If there was an invitation, revoke it
+                await ctx.clerkClient.organizations.revokeOrganizationInvitation({
+                    organizationId: team.clerkOrgId,
+                    invitationId: membership.clerkInvitationId,
+                    requestingUserId: ctx.auth.userId!!
+                })
+                return { inviteStatus: 'None', clerkInvitationId: null }
+            }
+            return { inviteStatus: 'None' }
+        })
+        .with([P.not('None'), P.not('None')], async () => {
+            // Changing from one role to another, update the membership
+            if(membership.clerkMembershipId) {
+                await ctx.clerkClient.organizations.updateOrganizationMembership({
+                    organizationId: team.clerkOrgId,
+                    userId: person.clerkUserId!!,
+                    role: role == 'Admin' ? 'org:admin' : 'org:member'
+                })
+            } else if(membership.clerkInvitationId) {
+                // If there was an invitation, revoke it and create a new one
+                await ctx.clerkClient.organizations.revokeOrganizationInvitation({
+                    organizationId: team.clerkOrgId,
+                    invitationId: membership.clerkInvitationId,
+                    requestingUserId: ctx.auth.userId!!
+                })
+                const invitation = await ctx.clerkClient.organizations.createOrganizationInvitation({
+                    organizationId: team.clerkOrgId,
+                    emailAddress: person.email,
+                    role: role == 'Admin' ? 'org:admin' : 'org:member',
+                    publicMetadata: { teamId: membership.teamId, personId: membership.personId },
+                    inviterUserId: ctx.auth.userId!!,
+                })
+                return { inviteStatus: 'Invited', clerkInvitationId: invitation.id }
+            }
+            return {}
+        })
+        .exhaustive()
 
     const [updatedMembership] = await ctx.prisma.$transaction([
         ctx.prisma.teamMembership.update({
             where: { id: membership.id },
-            data: { role: newRole },
+            data: { role, status, ...update },
             include: { person: true, team: true, d4hInfo: true }
         }),
         ctx.prisma.teamChangeLog.create({
@@ -227,40 +275,21 @@ export async function updateTeamMember(ctx: AuthenticatedContext, { membership, 
                 teamId: membership.teamId,
                 actorId: ctx.personId,
                 event: 'UpdateMember',
-                fields: { personId: membership.personId, role: newRole }
+                fields: { personId: membership.personId, role, status, ...update }
             }
         })
     ])
 
-    const person = await ctx.prisma.person.findUnique({ where: { id: membership.personId } })
-    if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person(${membership.personId}) not found.` })
-
-    if(person.clerkUserId) {
-        // Update the person's role in the clerk organization
-        const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY })
-
-        if(newRole == 'None') {
-            // Remove from organization
-            await clerk.organizations.deleteOrganizationMembership({
-                organizationId: membership.team.clerkOrgId,
-                userId: person.clerkUserId
-            })
-        } else if(membership.role == 'None') {
-            // Add to organization
-            await clerk.organizations.createOrganizationMembership({
-                organizationId: membership.team.clerkOrgId,
-                userId: person.clerkUserId,
-                role: newRole == 'Admin' ? 'org:admin' : 'org:member'
-            })
-        } else {
-            // Change role
-            await clerk.organizations.updateOrganizationMembership({
-                organizationId: membership.team.clerkOrgId,
-                userId: person.clerkUserId,
-                role: newRole == 'Admin' ? 'org:admin' : 'org:member'
-            })
-        }
-    }
-
     return updatedMembership
+}
+
+
+export async function acceptInvite(ctx: AuthenticatedContext, { teamId, personId, role }: { teamId: string, personId: string, role: TeamMembershipRole }): Promise<TeamMembershipWithPersonAndTeam> {
+    const team = await ctx.prisma.team.findUnique({ where: { id: teamId }})
+    if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: `Team(${teamId}) not found.` })
+
+    const person = await ctx.prisma.person.findUnique({ where: { id: personId }})
+    if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person(${personId}) not found.` })
+
+    return createTeamMembership(ctx, { team, person, role })
 }

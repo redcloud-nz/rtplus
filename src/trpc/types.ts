@@ -5,6 +5,8 @@
 
 import type { Person, Skill, SkillGroup, SkillPackage, Team, TeamMembership, TeamMembershipD4hInfo } from '@prisma/client'
 
+export { TeamMembershipRole } from '@prisma/client'
+
 export type DeleteType = 'Soft' | 'Hard'
 
 export class FieldConflictError extends Error {

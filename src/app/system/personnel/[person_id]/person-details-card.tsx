@@ -16,13 +16,13 @@ import { Show } from '@/components/show'
 import { Button } from '@/components/ui/button'
 import { Card, CardActionButton, CardBody, CardHeader, CardTitle, CardCollapseToggleButton } from '@/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
+import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { useToast } from '@/hooks/use-toast'
-import { SystemPersonFormData, systemPersonFormSchema } from '@/lib/forms/system-person'
+import { PersonFormData, personFormSchema } from '@/lib/forms/person'
 import { useTRPC } from '@/trpc/client'
 
 
@@ -106,12 +106,13 @@ function PersonDetailsList({ personId }: { personId: string }) {
  */
 function EditPersonForm({ personId, onClose }: { personId: string, onClose: () => void }) {
     const queryClient = useQueryClient()
+    const { toast } = useToast()
     const trpc = useTRPC()
 
     const { data: person } = useSuspenseQuery(trpc.personnel.byId.queryOptions({ personId }))
 
-    const form = useForm<SystemPersonFormData>({
-        resolver: zodResolver(systemPersonFormSchema),
+    const form = useForm<PersonFormData>({
+        resolver: zodResolver(personFormSchema),
         defaultValues: {
             personId: personId,
             name: person.name,
@@ -120,28 +121,53 @@ function EditPersonForm({ personId, onClose }: { personId: string, onClose: () =
         }
     })
 
-    const { toast } = useToast()
+    function handleClose() {
+        onClose()
+        form.reset()
+    }
     
     const mutation = useMutation(trpc.personnel.update.mutationOptions({
-        onError(error) {
+        async onMutate({ personId, ...update }) {
+            await queryClient.cancelQueries(trpc.personnel.byId.queryFilter({ personId }))
+
+            // Snapshot the previous value
+            const previousPerson = queryClient.getQueryData(trpc.personnel.byId.queryKey({ personId }))
+
+            // Optimistically update the cache
+            queryClient.setQueryData(trpc.personnel.byId.queryKey({ personId }), (oldData) => ({
+                id: personId,
+                ...oldData,
+                ...update,
+            }))
+
+            return { previousPerson }
+
+        },
+        onError(error, data, context) {
+            // Rollback to previous data
+            queryClient.setQueryData(trpc.personnel.byId.queryKey({ personId }), context?.previousPerson)
+
             if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof SystemPersonFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof PersonFormData, { message: error.shape.message })
             } else {
                 toast({
                     title: 'Error updating person',
                     description: error.message,
                     variant: 'destructive',
                 })
+                handleClose()
             }
         },
         onSuccess(updatedPerson) {
-            queryClient.invalidateQueries(trpc.personnel.all.queryFilter())
-            queryClient.invalidateQueries(trpc.personnel.byId.queryFilter({ personId: updatedPerson.id }))
             toast({
                 title: 'Person updated',
                 description: `${updatedPerson.name} has been updated successfully.`,
             })
-            onClose()
+            handleClose()
+        },
+        onSettled() {
+            queryClient.invalidateQueries(trpc.personnel.byId.queryFilter({ personId }))
+            queryClient.invalidateQueries(trpc.personnel.all.queryFilter())
         }
     }))
 
@@ -184,7 +210,6 @@ function EditPersonForm({ personId, onClose }: { personId: string, onClose: () =
                             <SelectContent>
                                 <SelectItem value="Active">Active</SelectItem>
                                 <SelectItem value="Inactive">Inactive</SelectItem>
-                                <SelectItem value="Deleted">Deleted</SelectItem>
                             </SelectContent>
                         </Select>
                     </FormControl>
@@ -193,13 +218,7 @@ function EditPersonForm({ personId, onClose }: { personId: string, onClose: () =
                 </FormItem>}
             />
             <FormActions>
-                <FormSubmitButton
-                    labels={{
-                        ready: 'Update',
-                        submitting: 'Updating...',
-                        submitted: 'Updated'
-                    }}
-                />
+                <FormSubmitButton labels={SubmitVerbs.update}/>
                 <FormCancelButton onClick={onClose}/>
             </FormActions>
         </form>

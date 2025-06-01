@@ -19,8 +19,10 @@ import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormDescrip
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
+import { useToast } from '@/hooks/use-toast'
 import { addTeamMemberFormSchema, AddTeamMemberFormSchema } from '@/lib/forms/add-team-member'
 import { useTRPC } from '@/trpc/client'
+
 
 
 export function AddTeamMemberDialog({ trigger }: { trigger: React.ReactNode }) {
@@ -105,28 +107,36 @@ function SpecifyEmailForm({ onSubmit, onClose }: { onSubmit: (email: string) => 
 
 function AddTeamMemberForm({ email, onClose }: { email: string, onClose: () => void }) {
     const queryClient = useQueryClient()
+    const { toast } = useToast()
     const trpc = useTRPC()
 
-    const { data: existing } = useSuspenseQuery(trpc.currentTeam.memberByEmail.queryOptions({ email }))
+    const { data: existing } = useSuspenseQuery(trpc.currentTeam.validateEmail.queryOptions({ email }))
 
     const form = useForm<AddTeamMemberFormSchema>({
         resolver: zodResolver(addTeamMemberFormSchema),
         defaultValues: {
             name: existing.person?.name ?? '',
             email,
-            role: 'None'
+            role: existing.teamMembership?.role ?? 'None',
+            existingPersonId: existing.person?.id ?? undefined,
         }
     })
 
     const mutation = useMutation(trpc.currentTeam.addMember.mutationOptions({
-        onMutate(data) {
-            queryClient.cancelQueries(trpc.currentTeam.members.queryFilter())
+        onError(error) {
+            toast({
+                title: "Error adding team membership",
+                description: error.message,
+                variant: 'destructive',
+            })
+            handleClose()
         },
-        onError() {
-
-        },
-        onSuccess() {
-            
+        async onSuccess(newMembership) {
+            toast({
+                title: "Team membership added",
+                description: `${newMembership.person.name} has been added to the the .`,
+            })
+            await queryClient.invalidateQueries(trpc.currentTeam.members.queryFilter())
             handleClose()
         }
     }))
@@ -144,11 +154,8 @@ function AddTeamMemberForm({ email, onClose }: { email: string, onClose: () => v
                 .with( { person: P.not(null), teamMembership: null }, () => 
                     <Alert title="Existing Person">A person with that email address already exists. You can add them to the team below.</Alert>
                 )
-                .with( { person: P.not(null), teamMembership: { status: 'Active' } }, () =>
+                .with( { person: P.not(null), teamMembership: P.not(null) }, () =>
                     <Alert severity="warning" title="Already Assigned">A person with that email address is already a member of the team.</Alert>
-                )
-                .with( { person: P.not(null), teamMembership: { status: P.union('Inactive', 'Deleted') } }, () =>
-                    <Alert severity="info" title="Already Assigned">A person with that email address is already a member of the team.</Alert>
                 )
                 .exhaustive()
             }
@@ -160,73 +167,90 @@ function AddTeamMemberForm({ email, onClose }: { email: string, onClose: () => v
                 </FormControl>
             </FormItem>
 
-            { existing.person == null
-                ? <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Name</FormLabel>
-                            <FormControl>
-                                <Input {...field}/>
-                            </FormControl>
-                            <FormDescription>The full name of the person.</FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                : <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                        <FixedFormValue value={existing.person.name} />
-                    </FormControl>
-                </FormItem>
+            {match(existing.person)
+                .with(null, () =>
+                    // If the person does not exist, allow entering their name.
+                    <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Name</FormLabel>
+                                <FormControl>
+                                    <Input {...field}/>
+                                </FormControl>
+                                <FormDescription>The full name of the person.</FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                )
+                .with(P.not(null), (person) =>
+                    // If the person exists, show their name as a fixed value.
+                    <FormItem>
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
+                            <FixedFormValue value={person.name} />
+                        </FormControl>
+                    </FormItem>
+                )
+                .exhaustive()
             }
 
-            { existing.teamMembership == null
-                ? <FormField
-                    control={form.control}
-                    name="role"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Role</FormLabel>
-                            <FormControl>
-                                <Select value={field.value} onValueChange={field.onChange}>
-                                    <SelectTrigger>
-                                        <SelectValue/>
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="None">None</SelectItem>
-                                        <SelectItem value="Member">Member</SelectItem>
-                                        <SelectItem value="Admin">Admin</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </FormControl>
-                            <FormDescription>The role of the team member.</FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                : <FormItem>
+            {match(existing.teamMembership)
+                .with(null, () =>
+                    // If the existing person is not a member of the team, allow their role to be selected.
+                    <FormField
+                        control={form.control}
+                        name="role"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Role</FormLabel>
+                                <FormControl>
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <SelectTrigger>
+                                            <SelectValue/>
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="None">None</SelectItem>
+                                            <SelectItem value="Member">Member</SelectItem>
+                                            <SelectItem value="Admin">Admin</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </FormControl>
+                                <FormDescription>The role of the team member.</FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                )
+                .with(P.not(null), (teamMembership) =>
+                    // If the existing person is a member of the team, show their role as a fixed value.
+                    <FormItem>
                     <FormLabel>Role</FormLabel>
                     <FormControl>
-                        <FixedFormValue value={existing.teamMembership.role} />
+                        <FixedFormValue value={teamMembership.role} />
                     </FormControl>
                 </FormItem>
+                )
+                .exhaustive()
             }
-
 
            
             <FormActions>
                 {match(existing)
-                    .with( { person: null }, () => 
-                        <FormSubmitButton labels={SubmitVerbs.Create}/>
+                    .with( { person: null }, () =>
+                        // If the person does not exist, allow creating a new person.
+                        <FormSubmitButton labels={SubmitVerbs.create}/>
                     )
                     .with( { person: P.not(null), teamMembership: null }, () => 
-                        <FormSubmitButton labels={SubmitVerbs.Add}/>
+                        // If the person exists but is not a member of the team, allow adding them.
+                        <FormSubmitButton labels={SubmitVerbs.add}/>
                     )
-                    .with( { person: P.not(null), teamMembership: P.not(null) }, () => 
-                        <>{/* No action available. */}</>
+                    .with( { person: P.not(null), teamMembership: P.not(null) }, () =>
+                        // If the person exists, do not allow adding them again.
+                        // This is handled by the alert above, so we do not show a button.
+                        <></>
                     )
                     .exhaustive()
                 }

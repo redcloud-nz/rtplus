@@ -81,6 +81,7 @@ export const team = (teamSlug: string) => {
 
     return {
         index: base,
+        accept: `${base}/accept`,
         availability: `${base}/availability`,
         checklists: `${base}/checklists`,
         competencies: {

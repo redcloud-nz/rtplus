@@ -49,7 +49,7 @@ function PersonAccessDetailsList({ personId }: { personId: string }) {
 
     return <DL>
         <DLTerm>Onboarding Status</DLTerm>
-        <DLDetails>{personAccess.onboardingStatus}</DLDetails>
+        <DLDetails>{personAccess.inviteStatus}</DLDetails>
 
         {personAccess.clerkUserId ? <>
             <DLTerm>Clerk User ID</DLTerm>
@@ -63,15 +63,14 @@ function PersonAccessDetailsList({ personId }: { personId: string }) {
 
         <DLTerm>Invitation</DLTerm>
         <DLDetails className="flex gap-2">
-            {match(personAccess.onboardingStatus)
-                .with('NotStarted', () => 
+            {match(personAccess.inviteStatus)
+                .with('None', () => 
                     <AsyncButton variant="ghost" onClick={() => inviteMutation.mutateAsync({ personId })}>Send</AsyncButton>
                 )
                 .with('Invited', () => <>
                     <AsyncButton onClick={() => inviteMutation.mutateAsync({ personId })}>Resend</AsyncButton>
                     <AsyncButton variant="destructive" onClick={() => inviteMutation.mutateAsync({ personId })}>Revoke</AsyncButton>
                 </>)
-                .with('Created', () => <></>)
                 .with('Complete', () => <></>)
                 .exhaustive()
             }

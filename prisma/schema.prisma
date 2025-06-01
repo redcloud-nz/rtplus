@@ -13,6 +13,12 @@ datasource db {
     directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
+enum InviteStatus {
+    None
+    Invited
+    Complete
+}
+
 /// defines an individual person.
 model Person {
     id                           String                  @id @db.VarChar(16)
@@ -20,7 +26,7 @@ model Person {
     email                        String                  @db.VarChar(100) @unique
     clerkUserId                  String?                 @map("clerk_user_id") @db.VarChar(50) @unique
     clerkInvitationId            String?                 @map("clerk_invitation_id") @db.VarChar(50) @unique
-    onboardingStatus             PersonOnboardingStatus  @map("onboarding_status") @default(NotStarted)
+    inviteStatus                 InviteStatus            @map("invite_status") @default(None)
     status                       RecordStatus            @default(Active)
   
     // Relations
@@ -59,17 +65,12 @@ model PersonChangeLog {
     @@map("personnel_change_log")
 }
 
-enum PersonOnboardingStatus {
-    NotStarted
-    Invited
-    Complete
-}
+
 
 /// defines the current status of a record.
 enum RecordStatus {
     Active
     Inactive
-    Deleted
 }
 
 /// defines an individual skill that can be assessed.
@@ -271,16 +272,19 @@ model TeamD4hInfo {
 }
 
 model TeamMembership {
-    id          String                 @id @db.VarChar(16)
-    personId    String                 @map("person_id") @db.VarChar(16)
-    teamId      String                 @map("team_id") @db.VarChar(16)
-    role        TeamMembershipRole     @default(Member)
-    status      RecordStatus           @default(Active)
+    id                 String                 @id @db.VarChar(16)
+    personId           String                 @map("person_id") @db.VarChar(16)
+    teamId             String                 @map("team_id") @db.VarChar(16)
+    role               TeamMembershipRole     @default(Member)
+    clerkMembershipId  String?                @map("clerk_membership_id") @db.VarChar(50) @unique
+    clerkInvitationId  String?                @map("clerk_invitation_id") @db.VarChar(50) @unique
+    inviteStatus       InviteStatus           @map("invite_status") @default(None)
+    status             RecordStatus           @default(Active)
   
     // Relations
-    d4hInfo     TeamMembershipD4hInfo? @relation("team_membership_to_d4h_info")
-    person      Person                 @relation("team_membership_to_person", fields: [personId], references: [id], onDelete: Cascade)
-    team        Team                   @relation("team_membership_to_team", fields: [teamId], references: [id], onDelete: Cascade)
+    d4hInfo            TeamMembershipD4hInfo? @relation("team_membership_to_d4h_info")
+    person             Person                 @relation("team_membership_to_person", fields: [personId], references: [id], onDelete: Cascade)
+    team               Team                   @relation("team_membership_to_team", fields: [teamId], references: [id], onDelete: Cascade)
 
     @@map("team_memberships")
 }

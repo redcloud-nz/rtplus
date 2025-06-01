@@ -10,19 +10,16 @@ import * as React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Team } from '@prisma/client'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
 import { Show } from '@/components/show'
 
-import { Alert } from '@/components/ui/alert'
 import { Card, CardActionButton, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
 import { ColorValue } from '@/components/ui/color'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
-import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
+import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input, SlugInput } from '@/components/ui/input'
 
-import { D4hServerCode, getD4hServer } from '@/lib/d4h-api/servers'
 import { SystemTeamFormData, systemTeamFormSchema } from '@/lib/forms/system-team'
 import { useToast } from '@/hooks/use-toast'
 import { useTRPC } from '@/trpc/client'
@@ -76,6 +73,9 @@ function TeamDetailsList({ teamId }: { teamId: string }) {
         <DLTerm>Colour</DLTerm>
         <DLDetails>{team.color ? <ColorValue value={team.color}/> : null}</DLDetails>
 
+        <DLTerm>Status</DLTerm>
+        <DLDetails>{team.status}</DLDetails>
+
         {/* {team.d4hInfo?.serverCode ? <>
             <DLTerm>D4H Server</DLTerm>
             <DLDetails>{getD4hServer(team.d4hInfo.serverCode as D4hServerCode).name}</DLDetails>
@@ -128,7 +128,7 @@ function EditTeamForm({ teamId, onClose }: { teamId: string, onClose: () => void
     }))
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="space-y-4">
+        <form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))} className="space-y-4">
             <FormField
                 control={form.control}
                 name="name"
@@ -179,13 +179,7 @@ function EditTeamForm({ teamId, onClose }: { teamId: string, onClose: () => void
                 </FormItem>}
             />
             <FormActions>
-                <FormSubmitButton
-                    labels={{
-                        ready: 'Update',
-                        submitting: 'Updating...',
-                        submitted: 'Updated'
-                    }}
-                />
+                <FormSubmitButton labels={SubmitVerbs.update}/>
                 <FormCancelButton onClick={onClose}/>
             </FormActions>
         </form>

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import * as R from 'remeda'
+import { pickBy } from 'remeda'
 import { z } from 'zod'
 
 import { clerkClient } from '@clerk/nextjs/server'
@@ -48,15 +48,15 @@ export const teamsRouter = createTRPCRouter({
         }),
 
     byId: authenticatedProcedure
-    .input(z.object({ 
-        teamId: zodNanoId8
-    }))
-    .query(async ({ ctx, input }) => {
-        return ctx.prisma.team.findUnique({ 
-            where: { id: input.teamId },
-            include: { d4hInfo: true }
-        })
-    }),
+        .input(z.object({ 
+            teamId: zodNanoId8
+        }))
+        .query(async ({ ctx, input }) => {
+            return ctx.prisma.team.findUnique({ 
+                where: { id: input.teamId },
+                include: { d4hInfo: true }
+            })
+        }),
 
     bySlug: authenticatedProcedure
         .input(z.object({
@@ -112,24 +112,15 @@ export const teamsRouter = createTRPCRouter({
     delete: systemAdminProcedure
         .input(z.object({ 
             teamId: zodNanoId8,
-            hard: z.boolean().optional().default(false)
         }))
         .mutation(async ({ ctx, input }) => {
             const existing = await ctx.prisma.team.findUnique({ where: { id: input.teamId, status: 'Active' }})
             if(!existing) throw new TRPCError({ code: 'NOT_FOUND' })
 
-            if(input.hard) {
-                // Hard delete
-                // TODO : Implement hard delete logic
-                logger.warn(`Hard delete requested for team ${input.teamId}, but hard delete is not implemented yet.`)
-                throw new TRPCError({ code: 'NOT_IMPLEMENTED', message: 'Hard delete is not implemented yet.' })
-            } else {
-                // Soft delete
-                return await ctx.prisma.team.update({ 
-                    where: { id: input.teamId },
-                    data: { status: 'Deleted' }
-                })
-            }
+            
+            // TODO : Implement delete logic
+            logger.warn(`Hard delete requested for team ${input.teamId}, but hard delete is not implemented yet.`)
+            throw new TRPCError({ code: 'NOT_IMPLEMENTED', message: 'Hard delete is not implemented yet.' })
         }),
             
 
@@ -157,7 +148,7 @@ export const teamsRouter = createTRPCRouter({
 
             const { teamId, ...data } = input
 
-            const changedFields = R.pickBy(data, (value, key) => value != existing[key])
+            const changedFields = pickBy(data, (value, key) => value != existing[key])
             
             return await ctx.prisma.team.update({ 
                 where: { id: teamId },

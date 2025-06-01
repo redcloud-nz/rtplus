@@ -12,13 +12,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
+import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { useToast } from '@/hooks/use-toast'
-import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema } from '@/lib/forms/system-team-membership'
+import { TeamMembershipFormData, teamMembershipFormSchema } from '@/lib/forms/team-membership'
 import { useTRPC } from '@/trpc/client'
-
 
 
 
@@ -63,8 +62,8 @@ function AddTeamMembershipForm({ personId, onClose }: { personId: string, onClos
 
     if(person == null) throw new Error(`Person with ID ${personId} not found`)
 
-    const form = useForm<SystemTeamMembershipFormData>({
-        resolver: zodResolver(systemTeamMembershipFormSchema),
+    const form = useForm<TeamMembershipFormData>({
+        resolver: zodResolver(teamMembershipFormSchema),
         defaultValues: {
             teamId: '',
             personId,
@@ -88,11 +87,6 @@ function AddTeamMembershipForm({ personId, onClose }: { personId: string, onClos
             handleClose()
         },
         async onSuccess(newMembership) {
-            toast({
-                title: "Team membership added",
-                description: `${newMembership.person.name} has been added to the ${newMembership.team.name}.`,
-            })
-            
 
             await queryClient.invalidateQueries(
                 trpc.teamMemberships.byPerson.queryFilter({ personId }), 
@@ -100,17 +94,19 @@ function AddTeamMembershipForm({ personId, onClose }: { personId: string, onClos
             await queryClient.invalidateQueries(
                 trpc.teamMemberships.byTeam.queryFilter({ teamId: newMembership.teamId })
             )
+            toast({
+                title: "Team membership added",
+                description: `${newMembership.person.name} has been added to the ${newMembership.team.name}.`,
+            })
             handleClose()
         }
     }))
-
-    
 
     // The teams that the person is already a member of
     const currentTeams = memberships.map(m => m.team.id)
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="max-w-xl space-y-4">
+        <form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))} className="max-w-xl space-y-4">
             <FormItem>
                 <FormLabel>Person</FormLabel>
                 <FormControl>
@@ -162,12 +158,7 @@ function AddTeamMembershipForm({ personId, onClose }: { personId: string, onClos
                 </FormItem>}
             />
             <FormActions>
-                <FormSubmitButton
-                    labels={{
-                        ready: 'Add',
-                        submitting: 'Adding...',
-                        submitted: 'Added',
-                    }}/>
+                <FormSubmitButton labels={SubmitVerbs.add}/>
                 <FormCancelButton onClick={handleClose}/>
             </FormActions>
         </form>

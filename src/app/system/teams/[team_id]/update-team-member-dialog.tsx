@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormSubmitButton, FixedFormValue } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
-import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema } from '@/lib/forms/system-team-membership'
+import { TeamMembershipFormData, teamMembershipFormSchema } from '@/lib/forms/team-membership'
 import { TeamMembershipWithPerson, useTRPC } from '@/trpc/client'
 
 
@@ -34,8 +34,8 @@ export function UpdateTeamMemberDialog({ teamMembership, open, onOpenChange }: U
     const trpc = useTRPC()
    
 
-    const form = useForm<SystemTeamMembershipFormData>({
-        resolver: zodResolver(systemTeamMembershipFormSchema),
+    const form = useForm<TeamMembershipFormData>({
+        resolver: zodResolver(teamMembershipFormSchema),
         defaultValues: {
             teamId: teamMembership.teamId,
             personId: teamMembership.personId,
