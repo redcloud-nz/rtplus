@@ -8,7 +8,6 @@
 import { useRouter } from 'next/navigation'
 import { useState, type ReactNode } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -18,10 +17,10 @@ import { FormActions, FormCancelButton, FormControl, FormDescription, FormField,
 import { Input } from '@/components/ui/input'
 
 import { useToast } from '@/hooks/use-toast'
-import { personFormSchema } from '@/lib/forms/person'
+import { PersonFormData, personFormSchema } from '@/lib/forms/person'
+import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
-
 
 
 export function CreatePersonDialog({ trigger }: { trigger: ReactNode }) {
@@ -45,21 +44,21 @@ export function CreatePersonDialog({ trigger }: { trigger: ReactNode }) {
 }
 
 
-const createPersonFormSchema = personFormSchema.omit({ personId: true, status: true })
-type CreatePersonFormData = z.infer<typeof createPersonFormSchema>
-
-
 function CreatePersonForm({ onClose }: { onClose: () => void }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const form = useForm<CreatePersonFormData>({
-        resolver: zodResolver(createPersonFormSchema),
+    const personId = nanoId8()
+
+    const form = useForm<PersonFormData>({
+        resolver: zodResolver(personFormSchema),
         defaultValues: {
+            personId,
             name: '',
-            email: ''
+            email: '',
+            status: 'Active',
         }
     })
 
@@ -71,7 +70,7 @@ function CreatePersonForm({ onClose }: { onClose: () => void }) {
     const mutation = useMutation(trpc.personnel.create.mutationOptions({
         onError(error) {
             if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof CreatePersonFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof PersonFormData, { message: error.shape.message })
             } else {
                 toast({
                     title: 'Error creating person',
@@ -89,7 +88,7 @@ function CreatePersonForm({ onClose }: { onClose: () => void }) {
                 description: `${newPerson.name} has been created successfully.`,
             })
 
-            onClose()
+            handleClose()
             router.push(Paths.system.personnel.person(newPerson.id).index)
         }
     }))

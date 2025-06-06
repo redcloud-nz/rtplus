@@ -6,6 +6,7 @@
 import { ContrastTextColorConfig, getContrastTextColor } from '@/lib/color'
 
 export function ColorValue({ value, config = {} }: { value: string, config?: Partial<ContrastTextColorConfig> }) {
+    if(!value) return null
     if(!value.startsWith('#')) throw new Error(`ColorValue: value must start with '#'`)
 
     const contrastColor = getContrastTextColor(value, config)

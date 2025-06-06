@@ -5,7 +5,7 @@
  */
 'use client'
 
-import { type ReactNode, useState } from 'react'
+import { type ReactNode, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 import { useToast } from '@/hooks/use-toast'
 import { TeamMembershipFormData, teamMembershipFormSchema } from '@/lib/forms/team-membership'
+import { nanoId8 } from '@/lib/id'
 import { useTRPC } from '@/trpc/client'
 
 
@@ -47,7 +48,7 @@ export function AddTeamMembershipDialog({ personId, trigger }: { personId: strin
 
 
 /**
- * Form that allows the user to add a new team membership for a person.
+ * Form that allows the user to add a new team membership.
  * @param personId The ID of the person for whom to add a team membership.
  * @param onClose A callback function that is called when the form is submitted successfully or canceled.
  */
@@ -56,11 +57,11 @@ function AddTeamMembershipForm({ personId, onClose }: { personId: string, onClos
     const { toast } = useToast()
     const trpc = useTRPC()
     
+    const { data: memberships } = useSuspenseQuery(trpc.teamMemberships.byPerson.queryOptions({ personId }))
     const { data: person } = useSuspenseQuery(trpc.personnel.byId.queryOptions({ personId }))
     const { data: teams } = useSuspenseQuery(trpc.teams.all.queryOptions())
-    const { data: memberships } = useSuspenseQuery(trpc.teamMemberships.byPerson.queryOptions({ personId }))
 
-    if(person == null) throw new Error(`Person with ID ${personId} not found`)
+    const newMembershipId = useMemo(() => nanoId8(), [])
 
     const form = useForm<TeamMembershipFormData>({
         resolver: zodResolver(teamMembershipFormSchema),
@@ -78,7 +79,22 @@ function AddTeamMembershipForm({ personId, onClose }: { personId: string, onClos
     }
     
     const mutation = useMutation(trpc.teamMemberships.create.mutationOptions({
-        onError(error) {
+        async onMutate(newMembership) {
+            await queryClient.cancelQueries(trpc.teamMemberships.byPerson.queryFilter({ personId }))
+            
+            // Snapshot the previous value
+            const previousByPerson = queryClient.getQueryData(trpc.teamMemberships.byPerson.queryKey({ personId }))
+            
+            // Optimistically update the cache
+            const team = teams.find(t => t.id === newMembership.teamId)!
+            queryClient.setQueryData(trpc.teamMemberships.byPerson.queryKey({ personId }), (oldData) => [...(oldData || []), { ...newMembership, id: newMembershipId, team }])
+
+            return { previousByPerson }
+        },
+        onError(error, data, context) {
+            // Rollback the optimistic update
+            queryClient.setQueryData(trpc.teamMemberships.byPerson.queryKey({ personId }), context?.previousByPerson)
+
             toast({
                 title: "Error adding team membership",
                 description: error.message,
@@ -86,19 +102,18 @@ function AddTeamMembershipForm({ personId, onClose }: { personId: string, onClos
             })
             handleClose()
         },
-        async onSuccess(newMembership) {
-
-            await queryClient.invalidateQueries(
-                trpc.teamMemberships.byPerson.queryFilter({ personId }), 
-            )
-            await queryClient.invalidateQueries(
-                trpc.teamMemberships.byTeam.queryFilter({ teamId: newMembership.teamId })
-            )
+        onSuccess(newMembership) {
             toast({
                 title: "Team membership added",
-                description: `${newMembership.person.name} has been added to the ${newMembership.team.name}.`,
+                description: `${newMembership.person.name} has been added to the team ${newMembership.team.name}.`,
             })
             handleClose()
+        },
+        onSettled(newMembership) {
+            if(newMembership) {
+                queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: newMembership.personId }))
+                queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId: newMembership.teamId }))
+            }
         }
     }))
 
@@ -106,7 +121,7 @@ function AddTeamMembershipForm({ personId, onClose }: { personId: string, onClos
     const currentTeams = memberships.map(m => m.team.id)
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))} className="max-w-xl space-y-4">
+        <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="max-w-xl space-y-4">
             <FormItem>
                 <FormLabel>Person</FormLabel>
                 <FormControl>

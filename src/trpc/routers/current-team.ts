@@ -15,6 +15,7 @@ import { PersonBasic } from '../types'
 
 import { createPerson } from './personnel'
 import { acceptInvite, createTeamMembership, updateTeamMembership } from './team-memberships'
+import { nanoId8 } from '@/lib/id'
 
 
 
@@ -57,14 +58,14 @@ export const currentTeamRouter = createTRPCRouter({
                 
                 const membership = existingMembership
                     ? await updateTeamMembership(ctx, { membership: existingMembership, person: existingPerson, team, role: input.role, status: 'Active' })
-                    : await createTeamMembership(ctx, { person: existingPerson, team, role: input.role })
+                    : await createTeamMembership(ctx, { person: existingPerson, team, role: input.role, status: 'Active' })
 
                 return { ...membership, person: existingPerson }
 
             } else {
-                const createdPerson = await createPerson(ctx, input)
+                const createdPerson = await createPerson(ctx, { ...input, personId: nanoId8(), status: 'Active' })
 
-                const createdMembership = await createTeamMembership(ctx, { person: createdPerson, team, role: input.role })
+                const createdMembership = await createTeamMembership(ctx, { person: createdPerson, team, role: input.role, status: 'Active' })
 
                 return { ...createdMembership, person: createdPerson }
             }

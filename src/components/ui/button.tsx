@@ -62,7 +62,7 @@ export function Button({ className, variant, size, asChild = false, ...props }: 
 
 
 export interface AsyncButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
-    onClick?: (event: React.MouseEvent<HTMLButtonElement>) => Promise<void>
+    onClick?: (event: React.MouseEvent<HTMLButtonElement>) => Promise<any>
     label?: React.ReactNode
     pending?: React.ReactNode
     done?: React.ReactNode

@@ -50,10 +50,10 @@ export function nanoId16() {
     return alphabet(16)
 }
 
-export function validateShortId(id: string) {
+export function validateNanoid8(id: string) {
     return id.length === 8 && /^[0-9A-Za-z]+$/.test(id)
 }
 
-export function validateLongId(id: string) {
+export function validateNanoid16(id: string) {
     return id.length === 16 && /^[0-9A-Za-z]+$/.test(id)
 }

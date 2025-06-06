@@ -5,63 +5,57 @@
  */
 'use client'
 
-import { ReactNode, useState } from 'react'
+import { ComponentProps } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { pick } from 'remeda'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Team, TeamMembership } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
+import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { ObjectName } from '@/components/ui/typography'
 
 import { TeamMembershipFormData, teamMembershipFormSchema } from '@/lib/forms/team-membership'
 import { patchById } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'
-import { PersonBasic, useTRPC } from '@/trpc/client'
+import { PersonBasic, TeamBasic, TeamMembershipBasic, useTRPC } from '@/trpc/client'
 
 
 
 
 
-export function EditTeamMembershipDialog({ membership, person, team, trigger }: { membership: TeamMembership, person: PersonBasic, team: Team, trigger: ReactNode }) {
-    const [open, setOpen] = useState(false)
+export function EditTeamMembershipDialog({ membership, person, team, ...props }: ComponentProps<typeof Dialog> & { membership: TeamMembershipBasic, person: PersonBasic, team: TeamBasic }) {
 
-    return <Dialog open={open} onOpenChange={setOpen}>
-        {trigger}        
+    return <Dialog {...props}>     
         <DialogContent>
             <DialogHeader>
                 <DialogTitle>Edit Team Membership</DialogTitle>
                 <DialogDescription>
-                    Edit the team membership for '{person.name}' in '{team.name}'.
+                    Edit the team membership for <ObjectName>{person.name}</ObjectName> in <ObjectName>{team.name}</ObjectName>.
                 </DialogDescription>
             </DialogHeader>
             <DialogBody>
-                { open 
-                    ? <EditTeamMembershipForm 
-                        membership={membership} 
-                        person={person} 
-                        team={team}
-                        onClose={() => setOpen(false)} 
+                <EditTeamMembershipForm 
+                    membership={membership} 
+                    person={person} 
+                    team={team}
+                    onClose={() => props.onOpenChange?.(false)} 
                     />
-                    : null
-                }
             </DialogBody>
         </DialogContent>
     </Dialog>
 }
 
 
-function EditTeamMembershipForm({ membership, person, team, onClose  }: { membership: TeamMembership, person: PersonBasic, team: Team, onClose: () => void }) {
+function EditTeamMembershipForm({ membership, person, team, onClose  }: { membership: TeamMembershipBasic, person: PersonBasic, team: TeamBasic, onClose: () => void }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
     const form = useForm<TeamMembershipFormData>({
         resolver: zodResolver(teamMembershipFormSchema),
-        defaultValues: pick(membership, ['personId', 'teamId', 'role', 'status'])
+        defaultValues: { ...membership }
     })
 
     function handleClose() {
@@ -109,7 +103,7 @@ function EditTeamMembershipForm({ membership, person, team, onClose  }: { member
     })) 
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))} className="max-w-xl space-y-4">
+        <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="max-w-xl space-y-4">
             <FormItem>
                 <FormLabel>Person</FormLabel>
                 <FormControl>
@@ -162,13 +156,7 @@ function EditTeamMembershipForm({ membership, person, team, onClose  }: { member
                 </FormItem>}
             />
             <FormActions>
-                <FormSubmitButton
-                    labels={{
-                        ready: 'Update',
-                        submitting: 'Updating...',
-                        submitted: 'Updated'
-                    }}
-                />
+                <FormSubmitButton labels={SubmitVerbs.update}/>
                 <FormCancelButton onClick={handleClose}/>
             </FormActions>
         </form>

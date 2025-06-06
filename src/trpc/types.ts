@@ -27,8 +27,12 @@ export type SkillPackageWithGroupsAndSkills = SkillPackage & {
     skills: Skill[]
 }
 
-export type TeamMembershipWithPerson = TeamMembership & { d4hInfo: TeamMembershipD4hInfo | null, person: PersonBasic }
+export type TeamBasic = Pick<Team, 'id' | 'name' | 'slug' | 'shortName' | 'color' | 'status'>
 
-export type TeamMembershipWithTeam = TeamMembership & { d4hInfo: TeamMembershipD4hInfo | null, team: Team }
+export type TeamMembershipBasic = Pick<TeamMembership, 'id' | 'personId' | 'teamId' | 'role' | 'status'>
 
-export type TeamMembershipWithPersonAndTeam = TeamMembership & { d4hInfo: TeamMembershipD4hInfo | null, person: PersonBasic, team: Team }
+export type TeamMembershipWithPerson = TeamMembershipBasic & { person: PersonBasic }
+
+export type TeamMembershipWithTeam = TeamMembershipBasic & { team: TeamBasic }
+
+export type TeamMembershipWithPersonAndTeam = TeamMembershipBasic & { person: PersonBasic, team: TeamBasic }

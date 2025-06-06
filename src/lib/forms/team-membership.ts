@@ -12,7 +12,7 @@ export const teamMembershipFormSchema = z.object({
     teamId: zodNanoId8,
     personId: zodNanoId8,
     role: z.enum(['Admin', 'Member', 'None']),
-    status: z.enum(['Active', 'Inactive']).optional().default('Active'),
+    status: z.enum(['Active', 'Inactive']),
 })
 
 export type TeamMembershipFormData = z.infer<typeof teamMembershipFormSchema>

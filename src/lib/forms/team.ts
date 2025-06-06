@@ -6,12 +6,13 @@
 import { z } from 'zod'
 import { zodColor, zodNanoId8, zodSlug } from '../validation'
 
-export const systemTeamFormSchema = z.object({
+export const teamFormSchema = z.object({
     teamId: zodNanoId8,
     name: z.string().min(5).max(100),
     shortName: z.string().max(20),
     slug: zodSlug,
     color: z.union([zodColor, z.literal('')]),
+    status: z.enum(['Active', 'Inactive'])
 })
 
-export type SystemTeamFormData = z.infer<typeof systemTeamFormSchema>
+export type TeamFormData = z.infer<typeof teamFormSchema>

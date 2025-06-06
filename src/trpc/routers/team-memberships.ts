@@ -7,33 +7,33 @@ import { pick } from 'remeda'
 import { match, P } from 'ts-pattern'
 import { z } from 'zod'
 
-import { $Enums, Person, Team, TeamMembership } from '@prisma/client'
+import { Person, Team, TeamMembership } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
-import { teamMembershipFormSchema } from '@/lib/forms/team-membership'
+import { TeamMembershipFormData, teamMembershipFormSchema } from '@/lib/forms/team-membership'
 import { nanoId16 } from '@/lib/id'
 import { zodRecordStatus, zodNanoId8 } from '@/lib/validation'
-import * as Paths from '@/paths'
 
 import { AuthenticatedContext, createTRPCRouter, systemAdminProcedure } from '../init'
-import { TeamMembershipRole, TeamMembershipWithPerson, TeamMembershipWithPersonAndTeam, TeamMembershipWithTeam } from '../types'
+import { TeamMembershipBasic, TeamMembershipRole, TeamMembershipWithPerson, TeamMembershipWithPersonAndTeam, TeamMembershipWithTeam } from '../types'
 
-
+import { getPersonById } from './personnel'
+import { getTeamById } from './teams'
 
 
 export const teamMembershipsRouter = createTRPCRouter({
     create: systemAdminProcedure
-        .input(teamMembershipFormSchema.omit({ status: true }))
-        .mutation(async ({ ctx, input: { teamId, personId, role} }) => {
+        .input(teamMembershipFormSchema)
+        .mutation(async ({ ctx, input }): Promise<TeamMembershipWithPersonAndTeam> => {
 
-            const [team, person] = await Promise.all([
-                ctx.prisma.team.findUnique({ where: { id: teamId }}),
-                ctx.prisma.person.findUnique({ where: { id: personId }})
+            const [person, team] = await Promise.all([
+                getPersonById(ctx, input.personId),
+                getTeamById(ctx, input.teamId)
             ])
-            if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: `Team(${teamId}) not found.` })
-            if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person(${personId}) not found.` })
 
-            return createTeamMembership(ctx, { team, person, role })
+            const createdMembership = await createTeamMembership(ctx, { ...input, person, team })
+
+            return { ...pick(createdMembership, ['id', 'teamId', 'personId', 'role', 'status']), person, team }
         }),
 
     byPerson: systemAdminProcedure
@@ -83,7 +83,7 @@ export const teamMembershipsRouter = createTRPCRouter({
 
             await deleteTeamMembership(ctx, { membership, person, team})
 
-            return pick(existing, ['id', 'teamId', 'personId', 'role'])
+            return pick(existing, ['id', 'teamId', 'personId', 'role', 'status'])
         }),
 
     update: systemAdminProcedure
@@ -97,7 +97,8 @@ export const teamMembershipsRouter = createTRPCRouter({
 
             const { person, team, ...membership } = existing
 
-            return updateTeamMembership(ctx, { membership, person, team, role: input.role, status: input.status  })
+            const updatedMembership = updateTeamMembership(ctx, { membership, person, team, role: input.role, status: input.status  })
+            return { ...pick(await updatedMembership, ['id', 'teamId', 'personId', 'role', 'status']), person, team }
         })
 })
 
@@ -111,7 +112,7 @@ export const teamMembershipsRouter = createTRPCRouter({
  * @param role The role to assign to the person.
  * @returns The created team membership.
  */
-export async function createTeamMembership(ctx: AuthenticatedContext, { team, person, role }: { team: Team, person: Person, role: TeamMembershipRole }): Promise<TeamMembershipWithPersonAndTeam> {
+export async function createTeamMembership(ctx: AuthenticatedContext, { team, person, role, status  }: { team: Team, person: Person } & Pick<TeamMembershipFormData, 'role' | 'status'>): Promise<TeamMembership> {
     
     let clerkInvitationId: string | undefined = undefined
     if(role != 'None') {
@@ -128,18 +129,16 @@ export async function createTeamMembership(ctx: AuthenticatedContext, { team, pe
 
     const inviteStatus = clerkInvitationId ? 'Invited' : 'None'
 
+    const fields = { role, status, clerkInvitationId, inviteStatus } as const
+
     const [createdMembership] = await ctx.prisma.$transaction([
         ctx.prisma.teamMembership.create({
             data: {
                 id: nanoId16(),
+                ...fields,
                 team: { connect: { id: team.id }},
                 person: { connect: { id: person.id }},
-                role,
-                status: 'Active',
-                clerkInvitationId,
-                inviteStatus,
-            },
-            include: { person: true, team: true, d4hInfo: true }
+            }
         }),
         ctx.prisma.teamChangeLog.create({
             data: {
@@ -147,7 +146,7 @@ export async function createTeamMembership(ctx: AuthenticatedContext, { team, pe
                 teamId: team.id,
                 actorId: ctx.personId,
                 event: 'AddMember',
-                fields: { personId: person.id, role, status: 'Active', clerkInvitationId, inviteStatus }
+                fields: { personId: person.id, ...fields }
             }
         })
     ])
@@ -199,7 +198,7 @@ export async function deleteTeamMembership(ctx: AuthenticatedContext, { membersh
  * @param role The new role.
  * @returns The updated team membership.
  */
-export async function updateTeamMembership(ctx: AuthenticatedContext, { membership, person, team, role, status  }: { membership: TeamMembership, person: Person, team: Team, role: TeamMembershipRole, status: $Enums.RecordStatus }): Promise<TeamMembershipWithPersonAndTeam> {
+export async function updateTeamMembership(ctx: AuthenticatedContext, { membership, person, team, role, status  }: { membership: TeamMembership, person: Person, team: Team } & Pick<TeamMembershipFormData, 'role' | 'status'>): Promise<TeamMembership> {
 
     const update: Partial<TeamMembership> = await match([membership.role, role])
         .with(['None', 'None'], async () => {
@@ -267,7 +266,6 @@ export async function updateTeamMembership(ctx: AuthenticatedContext, { membersh
         ctx.prisma.teamMembership.update({
             where: { id: membership.id },
             data: { role, status, ...update },
-            include: { person: true, team: true, d4hInfo: true }
         }),
         ctx.prisma.teamChangeLog.create({
             data: {
@@ -285,11 +283,10 @@ export async function updateTeamMembership(ctx: AuthenticatedContext, { membersh
 
 
 export async function acceptInvite(ctx: AuthenticatedContext, { teamId, personId, role }: { teamId: string, personId: string, role: TeamMembershipRole }): Promise<TeamMembershipWithPersonAndTeam> {
-    const team = await ctx.prisma.team.findUnique({ where: { id: teamId }})
-    if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: `Team(${teamId}) not found.` })
+    const [person, team] = await Promise.all([
+        getPersonById(ctx, personId), 
+        getTeamById(ctx, teamId)
+    ])
 
-    const person = await ctx.prisma.person.findUnique({ where: { id: personId }})
-    if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person(${personId}) not found.` })
-
-    return createTeamMembership(ctx, { team, person, role })
+    throw new TRPCError({ code: 'NOT_IMPLEMENTED', message: 'Accepting invites is not implemented yet.' })
 }

@@ -4,12 +4,13 @@
  */
 'use client'
 
-import { CableIcon, Trash2Icon} from 'lucide-react'
+import { CableIcon, TrashIcon} from 'lucide-react'
 import * as React from 'react'
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 import { TeamD4hConfigDialog } from './team-d4h-config-dialog'
+import { DeleteTeamDialog } from './delete-team'
 
 
 interface TeamOptionsMenuProps {
@@ -17,33 +18,27 @@ interface TeamOptionsMenuProps {
     trigger: React.ReactNode
 }
 
-export function TeamOptionsMenu({ teamId, trigger }: TeamOptionsMenuProps) {
+export function TeamMenu({ teamId, trigger }: TeamOptionsMenuProps) {
 
     const [d4hDialogOpen, setD4hDialogOpen] = React.useState(false)
+    const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
 
     return <>
         <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                {trigger}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent 
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                align="end"
-                sideOffset={4}
-            >
-                <DropdownMenuLabel>
-                    Team Options
-                </DropdownMenuLabel>
+            {trigger}
+            <DropdownMenuContent className="w-48" align="end">
+                <DropdownMenuLabel className="text-center">Team</DropdownMenuLabel>
+                
                 <DropdownMenuSeparator />
+                
                 <DropdownMenuGroup>
-                    <DropdownMenuItem onClick={() => setD4hDialogOpen(true)}>
+                    <DropdownMenuItem onClick={() => setD4hDialogOpen(true)} disabled>
                         <CableIcon/>
-                        Configure D4H Integration
+                        D4H Integration
                     </DropdownMenuItem>
                     
-                    <DropdownMenuItem disabled>
-                        <Trash2Icon/>
-                        Delete Team
+                    <DropdownMenuItem onClick={() => setDeleteDialogOpen(true)}>
+                        <TrashIcon/> Delete
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
             </DropdownMenuContent>
@@ -52,6 +47,11 @@ export function TeamOptionsMenu({ teamId, trigger }: TeamOptionsMenuProps) {
             open={d4hDialogOpen} 
             onOpenChange={setD4hDialogOpen}
             teamId={teamId}
+        />
+        <DeleteTeamDialog
+            teamId={teamId}
+            open={deleteDialogOpen}
+            onOpenChange={setDeleteDialogOpen}
         />
     </>
     

@@ -10,14 +10,15 @@ import React from 'react'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import * as Paths from '@/paths'
-
-import { TeamsListCard } from './teams-list-card'
 import { HydrateClient, prefetch, trpc } from '@/trpc/server'
+
+import { TeamsListCard } from './team-list'
+
 
 
 export const metadata: Metadata = { title: "Teams" }
 
-export default async function TeamsListPage() {
+export default async function TeamsPage() {
     prefetch(trpc.teams.all.queryOptions())
 
     return <AppPage>

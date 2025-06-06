@@ -3,19 +3,19 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import { pickBy } from 'remeda'
+import { pick, pickBy } from 'remeda'
 import { z } from 'zod'
 
-import { clerkClient } from '@clerk/nextjs/server'
+import { Team } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
-import { systemTeamFormSchema } from '@/lib/forms/system-team'
+import { TeamFormData, teamFormSchema } from '@/lib/forms/team'
 import { nanoId16 } from '@/lib/id'
 import { RTPlusLogger } from '@/lib/logger'
-import { zodNanoId8, zodSlug } from '@/lib/validation'
+import { zodNanoId8, zodRecordStatus, zodSlug } from '@/lib/validation'
 
-import { authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
-import { FieldConflictError } from '../types'
+import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
+import { FieldConflictError, TeamBasic } from '../types'
 
 
 const logger = new RTPlusLogger('trpc/teams')
@@ -24,18 +24,26 @@ export const teamsRouter = createTRPCRouter({
 
     all: authenticatedProcedure
         .input(z.object({
-            includeD4hInfo: z.boolean().optional().default(false)
+            status: zodRecordStatus
         }).optional().default({}))
-        .query(async ({ ctx, input = {} }) => {
-            return await ctx.prisma.team.findMany({ 
-                where: { status: 'Active' },
+        .query(async ({ ctx, input }): Promise<(TeamBasic & { memberCount: number })[]> => {
+            const teams = await ctx.prisma.team.findMany({ 
+                where: { status: { in: input.status} },
                 include: {
-                    ... (input.includeD4hInfo ? { d4hInfo: true } : {}),
                     _count: {
                         select: { teamMemberships: true }
                     }
                 },
             })
+            return teams.map(team => ({
+                id: team.id,
+                name: team.name,
+                slug: team.slug,
+                shortName: team.shortName,
+                color: team.color,
+                status: team.status,
+                memberCount: team._count.teamMemberships
+            }))
         }),
 
     allLinkedToD4h: authenticatedProcedure
@@ -51,11 +59,15 @@ export const teamsRouter = createTRPCRouter({
         .input(z.object({ 
             teamId: zodNanoId8
         }))
-        .query(async ({ ctx, input }) => {
-            return ctx.prisma.team.findUnique({ 
+        .query(async ({ ctx, input }): Promise<TeamBasic> => {
+            
+            const team = await ctx.prisma.team.findUnique({ 
                 where: { id: input.teamId },
-                include: { d4hInfo: true }
+                select: { id: true, name: true, shortName: true, slug: true, color: true, status: true },
             })
+
+            if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: `Team(${input.teamId}) not found.` })
+            return team
         }),
 
     bySlug: authenticatedProcedure
@@ -70,100 +82,29 @@ export const teamsRouter = createTRPCRouter({
         }),
 
     create: systemAdminProcedure
-        .input(systemTeamFormSchema)
-        .mutation(async ({ ctx, input }) => {
-            const { teamId, ...data } = input
-
-            const nameConflict = await ctx.prisma.team.findFirst({ where: { name: input.name } })
-            if(nameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('name') })
-
-            const shortNameConflict = await ctx.prisma.team.findFirst({ where: { shortName: input.shortName } })
-            if(shortNameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('shortName') })
-
-            const clerk = await clerkClient()
-
-            const organization = await clerk.organizations.createOrganization({
-                name: input.name,
-                slug: input.slug,
-                publicMetadata: { teamId }
-            })
-
-            const createdTeam = await ctx.prisma.team.create({ 
-                data: { 
-                    ...data, 
-                    id: teamId, 
-                    clerkOrgId: organization.id,
-                    changeLogs: { 
-                        create: { 
-                            id: nanoId16(),
-                            actorId: ctx.personId,
-                            event: 'Create',
-                            fields: input
-                        }
-                    }
-                }
-            })
-
-            logger.debug(`Created team ${createdTeam.name} with ID ${createdTeam.id}`)
-
-            return createdTeam
+        .input(teamFormSchema)
+        .mutation(async ({ ctx, input }): Promise<TeamBasic> => {
+            const team = await createTeam(ctx, input)
+            return pick(team, ['id', 'name', 'shortName', 'slug', 'color', 'status'])
         }),
 
     delete: systemAdminProcedure
         .input(z.object({ 
             teamId: zodNanoId8,
         }))
-        .mutation(async ({ ctx, input }) => {
-            const existing = await ctx.prisma.team.findUnique({ where: { id: input.teamId, status: 'Active' }})
-            if(!existing) throw new TRPCError({ code: 'NOT_FOUND' })
+        .mutation(async ({ ctx, input }): Promise<TeamBasic> => {
 
-            
-            // TODO : Implement delete logic
-            logger.warn(`Hard delete requested for team ${input.teamId}, but hard delete is not implemented yet.`)
-            throw new TRPCError({ code: 'NOT_IMPLEMENTED', message: 'Hard delete is not implemented yet.' })
+            const deletedTeam = await deleteTeam(ctx, input.teamId)
+            return pick(deletedTeam, ['id', 'name', 'shortName', 'slug', 'color', 'status'])
         }),
             
 
     update: systemAdminProcedure
-        .input(systemTeamFormSchema)
-        .mutation(async ({ ctx, input }) => {
+        .input(teamFormSchema)
+        .mutation(async ({ ctx, input }): Promise<TeamBasic> => {
             
-            const existing = await ctx.prisma.team.findUnique({ where: { id: input.teamId }})
-            if(!existing) throw new TRPCError({ code: 'NOT_FOUND' })
-
-            if(input.name != existing.name) {
-                const nameConflict = await ctx.prisma.team.findFirst({ where: { name: input.name } })
-                if(nameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('name') })
-            }
-
-            if(input.shortName != existing.shortName) {
-                const shortNameConflict = await ctx.prisma.team.findFirst({ where: { shortName: input.shortName } })
-                if(shortNameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('shortName') })
-            }
-            
-            if(input.slug != existing.slug) {
-                const slugConflict = await ctx.prisma.team.findFirst({ where: { slug: input.slug } })
-                if(slugConflict) throw new TRPCError({ code: 'CONFLICT', cause:new FieldConflictError('slug') })
-            }
-
-            const { teamId, ...data } = input
-
-            const changedFields = pickBy(data, (value, key) => value != existing[key])
-            
-            return await ctx.prisma.team.update({ 
-                where: { id: teamId },
-                data: { 
-                    ...data,
-                    changeLogs: { 
-                        create: { 
-                            id: nanoId16(),
-                            actorId: ctx.personId,
-                            event: 'Update',
-                            fields: changedFields
-                        }
-                    }
-                } 
-            })
+            const updatedTeam = await updateTeam(ctx, input)
+            return pick(updatedTeam, ['id', 'name', 'shortName', 'slug', 'color', 'status'])
         }),
 
     updateTeamD4h: systemAdminProcedure
@@ -193,3 +134,123 @@ export const teamsRouter = createTRPCRouter({
             })
         }),
 })
+
+
+/**
+ * Gets a team by its ID.
+ * @param ctx The authenticated context.
+ * @param teamId The ID of the team to retrieve.
+ * @returns The team object if found.
+ * @throws TRPCError if the team is not found.
+ */
+export async function getTeamById(ctx: AuthenticatedContext, teamId: string): Promise<Team> {
+    const team = await ctx.prisma.team.findUnique({ where: { id: teamId } })
+    if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: `Team(${teamId}) not found.` })
+    return team
+}
+
+/**
+ * Creates a new team in the system.
+ * @param ctx The authenticated context.
+ * @param input The input data for the new team.
+ * @returns The created team object.
+ * @throws TRPCError if a team with the same name or shortName already exists.
+ */
+export async function createTeam(ctx: AuthenticatedContext, { teamId, ...input }: TeamFormData): Promise<Team> {
+
+    const nameConflict = await ctx.prisma.team.findFirst({ where: { name: input.name } })
+    if(nameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('name') })
+
+    const shortNameConflict = await ctx.prisma.team.findFirst({ where: { shortName: input.shortName } })
+    if(shortNameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('shortName') })
+
+    const organization = await ctx.clerkClient.organizations.createOrganization({
+        name: input.name,
+        slug: input.slug,
+        publicMetadata: { teamId }
+    })
+
+    const createdTeam = await ctx.prisma.team.create({ 
+        data: { 
+            id: teamId, 
+            ...input, 
+            clerkOrgId: organization.id,
+            changeLogs: { 
+                create: { 
+                    id: nanoId16(),
+                    actorId: ctx.personId,
+                    event: 'Create',
+                    fields: input
+                }
+            }
+        }
+    })
+
+    logger.info(`Team ${teamId} created successfully with Clerk organization ID ${organization.id}.`)
+
+    return createdTeam
+}
+    
+/**
+ * Updates an existing team in the system.
+ * @param ctx The authenticated context.
+ * @param teamId The ID of the team to update.
+ * @param input The data to update the team with.
+ * @returns The updated team object.
+ * @throws TRPCError if the team is not found or if a team with the new name, shortName, or slug already exists.
+ */
+export async function updateTeam(ctx: AuthenticatedContext, { teamId, ...input }: TeamFormData): Promise<Team> {
+    const existing = await getTeamById(ctx, teamId)
+
+    if(input.name != existing.name) {
+        const nameConflict = await ctx.prisma.team.findFirst({ where: { name: input.name } })
+        if(nameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('name') })
+    }
+
+    if(input.shortName != existing.shortName) {
+        const shortNameConflict = await ctx.prisma.team.findFirst({ where: { shortName: input.shortName } })
+        if(shortNameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('shortName') })
+    }
+
+    if(input.slug != existing.slug) {
+        const slugConflict = await ctx.prisma.team.findFirst({ where: { slug: input.slug } })
+        if(slugConflict) throw new TRPCError({ code: 'CONFLICT', cause:new FieldConflictError('slug') })
+    }
+
+    // Pick only the fields that have changed
+    const changedFields = pickBy(input, (value, key) => value != existing[key])
+
+    return ctx.prisma.team.update({
+        where: { id: teamId },
+        data: { 
+            ...input,
+            changeLogs: { 
+                create: { 
+                    id: nanoId16(),
+                    actorId: ctx.personId,
+                    event: 'Update',
+                    fields: changedFields
+                }
+            }
+        }
+    })
+}
+
+/**
+ * Deletes a team from the system.
+ * @param ctx The authenticated context.
+ * @param teamId The ID of the team to delete.
+ * @returns The deleted team object.
+ * @throws TRPCError if the team is not found..
+ */
+export async function deleteTeam(ctx: AuthenticatedContext, teamId: string): Promise<Team> {
+    const existing = await getTeamById(ctx, teamId)
+
+    await ctx.prisma.team.delete({ where: { id: teamId } })
+
+    await ctx.clerkClient.organizations.deleteOrganization(existing.clerkOrgId)
+
+    logger.info(`Team ${teamId} deleted successfully.`)
+
+    return existing
+}

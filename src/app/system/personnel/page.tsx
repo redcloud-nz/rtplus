@@ -6,19 +6,18 @@
  */
 
 import { Metadata } from 'next'
-import React from 'react'
-
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import * as Paths from '@/paths'
 import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
-import { PersonnelListCard } from './personnel-list-card' 
+import { PersonnelListCard } from './personnel-list' 
 
 
 export const metadata: Metadata = { title: "Personnel" }
 
-export default async function PersonnelListPage() {
+
+export default async function PersonnelPage() {
     prefetch(trpc.personnel.all.queryOptions())
 
     return <AppPage>

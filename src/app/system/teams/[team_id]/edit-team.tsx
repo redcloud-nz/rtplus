@@ -5,88 +5,40 @@
  */
 'use client'
 
-import { PencilIcon } from 'lucide-react'
-import * as React from 'react'
+import { ReactNode, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { Show } from '@/components/show'
-
-import { Card, CardActionButton, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
-import { ColorValue } from '@/components/ui/color'
-import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
+import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input, SlugInput } from '@/components/ui/input'
 
-import { SystemTeamFormData, systemTeamFormSchema } from '@/lib/forms/system-team'
+import { TeamFormData, teamFormSchema } from '@/lib/forms/team'
 import { useToast } from '@/hooks/use-toast'
 import { useTRPC } from '@/trpc/client'
 
 
 
-export function TeamDetailsCard({ teamId }: { teamId: string }) {
-    const [mode, setMode] = React.useState<'View' | 'Edit'>('View')
+export function EditTeamDialog({ teamId, trigger }: { teamId: string, trigger: ReactNode }) {
+    const [open, setOpen] = useState(false)
 
-    return <Card boundary fallbackHeader={<CardHeader>
-        <CardTitle>Details</CardTitle>
-    </CardHeader>}>
-        <CardHeader>
-            <CardTitle>Team Details</CardTitle>
-            <Show when={mode == 'View'}>
-                <CardActionButton
-                    icon={<PencilIcon/>}
-                    label="Edit"
-                    onClick={() => setMode('Edit')}
-                />
-            </Show>
-        </CardHeader>
-        <CardBody>
-            { mode == 'View'
-                ? <TeamDetailsList teamId={teamId}/>
-                : <EditTeamForm teamId={teamId} onClose={() => setMode('View')}/>
-            }
-        </CardBody>
-    </Card>
+    return <Dialog open={open} onOpenChange={setOpen}>
+            {trigger}
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Edit Person</DialogTitle>
+                    <DialogDescription>
+                        Edit the details of this team.
+                    </DialogDescription>
+                </DialogHeader>
+                <DialogBody>
+                    { open ? <EditTeamForm teamId={teamId} onClose={() => setOpen(false)}/> : null }
+                </DialogBody>
+            </DialogContent>
+        </Dialog>  
 }
-
-function TeamDetailsList({ teamId }: { teamId: string }) {
-    const trpc = useTRPC()
-
-    const { data: team } = useSuspenseQuery(trpc.teams.byId.queryOptions({ teamId }))
-    if(team == null) throw new Error(`Team(${teamId}) not found`)
-
-    return <DL>
-        <DLTerm>RT+ ID</DLTerm>
-        <DLDetails>{team.id}</DLDetails>
-
-        <DLTerm>Name</DLTerm>
-        <DLDetails>{team.name}</DLDetails>
-
-        <DLTerm>Short Name</DLTerm>
-        <DLDetails>{team.shortName}</DLDetails>
-
-        <DLTerm>Slug</DLTerm>
-        <DLDetails>{team.slug}</DLDetails>
-
-        <DLTerm>Colour</DLTerm>
-        <DLDetails>{team.color ? <ColorValue value={team.color}/> : null}</DLDetails>
-
-        <DLTerm>Status</DLTerm>
-        <DLDetails>{team.status}</DLDetails>
-
-        {/* {team.d4hInfo?.serverCode ? <>
-            <DLTerm>D4H Server</DLTerm>
-            <DLDetails>{getD4hServer(team.d4hInfo.serverCode as D4hServerCode).name}</DLDetails>
-        </> : null}
-        {team.d4hInfo?.d4hTeamId ? <>
-            <DLTerm>D4H Team ID</DLTerm>
-            <DLDetails>{team.d4hInfo.d4hTeamId}</DLDetails>
-        </> : null} */}
-    </DL>
-}
-
 
 
 function EditTeamForm({ teamId, onClose }: { teamId: string, onClose: () => void }) {
@@ -96,8 +48,8 @@ function EditTeamForm({ teamId, onClose }: { teamId: string, onClose: () => void
     const { data: team } = useSuspenseQuery(trpc.teams.byId.queryOptions({ teamId }))
     if(team == null) throw new Error(`Team(${teamId}) not found`)
 
-    const form = useForm<SystemTeamFormData>({
-        resolver: zodResolver(systemTeamFormSchema),
+    const form = useForm<TeamFormData>({
+        resolver: zodResolver(teamFormSchema),
         defaultValues: {
             ...team
         }
@@ -106,29 +58,47 @@ function EditTeamForm({ teamId, onClose }: { teamId: string, onClose: () => void
     const { toast } = useToast()
 
     const mutation = useMutation(trpc.teams.update.mutationOptions({
+        async onMutate({ teamId, ...formData }) {
+            await queryClient.cancelQueries(trpc.teams.byId.queryFilter({ teamId }))
+
+            // Snapshot the previous value
+            const previousTeam = queryClient.getQueryData(trpc.teams.byId.queryKey({ teamId }))
+
+            // Optimistically update the team data
+            if(previousTeam) {
+                queryClient.setQueryData(trpc.teams.byId.queryKey({ teamId }),{ ...previousTeam, ...formData })
+            }
+
+            return { previousTeam }
+        },
+
         onError: (error) => {
-            console.error('Error updating team:', error)
             if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof SystemTeamFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof TeamFormData, { message: error.shape.message })
+            } else {
+                toast({
+                    title: "Error updating team",
+                    description: error.message,
+                    variant: 'destructive',
+                })
+                onClose()
             }
         },
         onSuccess: async (updatedTeam) => {
-            await queryClient.invalidateQueries(
-                trpc.teams.byId.queryFilter({ teamId: updatedTeam.id }), 
-            )
-            await queryClient.invalidateQueries(
-                trpc.teams.all.queryFilter()
-            )
             toast({
                 title: "Team updated",
                 description: `${updatedTeam.name} has been updated.`,
             })
             onClose()
+        },
+        onSettled() {
+            queryClient.invalidateQueries(trpc.teams.byId.queryFilter({ teamId }))
+            queryClient.invalidateQueries(trpc.teams.all.queryFilter())
         }
     }))
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))} className="space-y-4">
+        <form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))} className="max-w-xl space-y-4">
             <FormField
                 control={form.control}
                 name="name"
@@ -166,7 +136,7 @@ function EditTeamForm({ teamId, onClose }: { teamId: string, onClose: () => void
                     <FormMessage/>
                 </FormItem>}
             />
-            <FormField
+            {/* <FormField
                 control={form.control}
                 name="color"
                 render={({ field }) => <FormItem>
@@ -177,7 +147,7 @@ function EditTeamForm({ teamId, onClose }: { teamId: string, onClose: () => void
                     <FormDescription>Highlight colour applied to help differentiate from other teams (optional).</FormDescription>
                     <FormMessage/>
                 </FormItem>}
-            />
+            /> */}
             <FormActions>
                 <FormSubmitButton labels={SubmitVerbs.update}/>
                 <FormCancelButton onClick={onClose}/>

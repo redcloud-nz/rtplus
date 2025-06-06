@@ -3,19 +3,19 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import * as R from 'remeda'
+import { pick, pickBy } from 'remeda'
 import { z } from 'zod'
 
-import { createClerkClient } from '@clerk/backend'
 import { Person } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
 import { PersonFormData, personFormSchema } from '@/lib/forms/person'
-import { nanoId16, nanoId8 } from '@/lib/id'
+import { nanoId16 } from '@/lib/id'
 import { zodRecordStatus, zodNanoId8 } from '@/lib/validation'
 
 import { AuthenticatedContext, createTRPCRouter, systemAdminProcedure } from '../init'
 import { FieldConflictError, PersonBasic } from '../types'
+
 
 
 /**
@@ -40,14 +40,11 @@ export const personnelRouter = createTRPCRouter({
         invite: systemAdminProcedure
             .input(z.object({ personId: zodNanoId8, resend: z.boolean().optional().default(false) }))
             .mutation(async ({ input, ctx }) => {
-                const person = await ctx.prisma.person.findUnique({ where: { id: input.personId } })
-                if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person(${input.personId}) not found.` })
+                const person = await getPersonById(ctx, input.personId)
 
                 if(person.inviteStatus != 'None') throw new TRPCError({ code: 'BAD_REQUEST', message: `Person(${input.personId}) has already been invited to Clerk.` })
 
-                const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY })
-
-                const invitation = await clerk.invitations.createInvitation({
+                const invitation = await ctx.clerkClient.invitations.createInvitation({
                     emailAddress: person.email,
                     publicMetadata: {
                         person_id: person.id,
@@ -102,90 +99,128 @@ export const personnelRouter = createTRPCRouter({
         }),
 
     create: systemAdminProcedure
-        .input(personFormSchema.omit({ personId: true, status: true }))
-        .mutation(async ({ input, ctx }): Promise<Person> => {
-                
-            return createPerson(ctx, input)
+        .input(personFormSchema)
+        .mutation(async ({ input, ctx }): Promise<PersonBasic> => {
+            const person = await createPerson(ctx, input)
+
+            return pick(person, ['id', 'name', 'email', 'status'])
         }),
 
     delete: systemAdminProcedure
         .input(z.object({ 
             personId: zodNanoId8,
         }))
-        .mutation(async ({ input, ctx }): Promise<Person> => {
-            ctx.auth.userId
-        
-            const existingPerson = await ctx.prisma.person.findUnique({ where: { id: input.personId } })
-            if(!existingPerson) throw new TRPCError({ code: 'NOT_FOUND', message: 'Person not found.' })
+        .mutation(async ({ input, ctx }): Promise<PersonBasic> => {
+           
+            const deletedPerson = await deletePerson(ctx, input.personId)
 
-            const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY })
-
-            await ctx.prisma.$transaction([
-                ctx.prisma.person.delete({ where: { id: input.personId } }),
-                ctx.prisma.personChangeLog.deleteMany({ where: { personId: input.personId } })
-            ])
-
-            if(existingPerson.clerkUserId) {
-                // Delete the associated Clerk user
-                await clerk.users.deleteUser(existingPerson.clerkUserId)
-            }
-
-            return existingPerson
+            return pick(deletedPerson, ['id', 'name', 'email', 'status'])
         }),
 
     update: systemAdminProcedure
         .input(personFormSchema)
-        .mutation(async ({ input, ctx, }): Promise<Person> => {
+        .mutation(async ({ input, ctx, }): Promise<PersonBasic> => {
 
-            const existing = await ctx.prisma.person.findUnique({ where: { id: input.personId } })
-            if(!existing) throw new TRPCError({ code: 'NOT_FOUND', message: `Person(${input.personId}) not found.` })
-
-            if(input.email != existing?.email) {
-                const emailConflict = await ctx.prisma.person.findFirst({ where: { email: input.email } })
-                if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists.', cause: new FieldConflictError('email') })
-            }
-
-            const { personId, ...data } = input
-
-            const changedFields = R.pickBy(data, (value, key) => value != existing[key])
-
-            const updatedPerson = await ctx.prisma.person.update({ 
-                where: { id: input.personId },
-                data: { 
-                    ...data,
-                    changeLogs: { 
-                        create: { 
-                            id: nanoId16(),
-                            actorId: ctx.personId,
-                            event: 'Update',
-                            fields: changedFields
-                        }
-                    }
-                } 
-            })
-            return updatedPerson
+            const updatedPerson = await updatePerson(ctx, input)
+            return pick(updatedPerson, ['id', 'name', 'email', 'status'])
         })
 })
 
 
-export async function createPerson(ctx: AuthenticatedContext, input: Omit<PersonFormData, 'personId' | 'status'>): Promise<Person> {
+/**
+ * Retrieves a person by their ID.
+ * @param ctx The authenticated context.
+ * @param personId The ID of the person to retrieve.
+ * @returns The person object if found.
+ * @throws TRPCError if the person is not found.
+ */
+export async function getPersonById(ctx: AuthenticatedContext, personId: string): Promise<Person> {
+    const person = await ctx.prisma.person.findUnique({ where: { id: personId } })
+    if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person(${personId}) not found.` })
+    return person
+}
+
+/**
+ * Creates a new person in the system.
+ * @param ctx The authenticated context.
+ * @param input The input data for the new person.
+ * @returns The created person object.
+ * @throws TRPCError if a person with the same email already exists.
+ */
+export async function createPerson(ctx: AuthenticatedContext, {personId, ...input }: PersonFormData): Promise<Person> {
     
+    // Check if a person with the same email already exists
     const emailConflict = await ctx.prisma.person.findFirst({ where: { email: input.email } })
     if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists.', cause: new FieldConflictError('email') })
-    
+
     return ctx.prisma.person.create({
         data: {
-            id: nanoId8(),
-            status: 'Active',
+            id: personId,
             ...input,
             changeLogs: {
                 create: {
                     id: nanoId16(),
                     actorId: ctx.personId,
                     event: 'Create',
-                    fields: input
+                    fields: { ...input }
                 }
             }
         }
     })
+}
+
+/**
+ * Updates an existing person in the system.
+ * @param ctx The authenticated context.
+ * @param personId The ID of the person to update.
+ * @param input The data to update the person with.
+ * @returns The updated person object.
+ * @throws TRPCError if the person is not found or if a person with the new email already exists.
+ */
+export async function updatePerson(ctx: AuthenticatedContext, { personId, ...input }: PersonFormData): Promise<Person> {
+    const existing = await getPersonById(ctx, personId)
+
+    if(input.email != existing.email) {
+        // Check if a person with the new email already exists
+        const emailConflict = await ctx.prisma.person.findFirst({ where: { email: input.email } })
+        if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists.', cause: new FieldConflictError('email') })
+    }
+
+    // Pick only the fields that have changed
+    const changedFields = pickBy(input, (value, key) => value != existing[key])
+
+    return ctx.prisma.person.update({
+        where: { id: personId },
+        data: {
+            ...input,
+            changeLogs: {
+                create: {
+                    id: nanoId16(),
+                    actorId: ctx.personId,
+                    event: 'Update',
+                    fields: changedFields
+                }
+            }
+        }
+    })
+}
+
+/**
+ * Deletes a person from the system.
+ * @param ctx The authenticated context.
+ * @param personId The ID of the person to delete.
+ * @returns The deleted person object.
+ * @throws TRPCError if the person is not found.
+ */
+export async function deletePerson(ctx: AuthenticatedContext, personId: string): Promise<Person> {
+    const existing = await getPersonById(ctx, personId)
+
+    await ctx.prisma.person.delete({ where: { id: personId } })
+
+    if(existing.clerkUserId) {
+        // Delete the associated Clerk user
+        await ctx.clerkClient.users.deleteUser(existing.clerkUserId)
+    }
+
+    return existing
 }

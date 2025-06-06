@@ -39,26 +39,6 @@ export function DialogOverlay({ className, ...props }: ComponentProps<typeof Dia
     />
 }
 
-/**
- * DialogBody is a wrapper around the body contents of a dialog that provides error handling and loading state.
- */
-export function DialogBody({ children }: { children: ReactNode }) {
-    return <ErrorBoundary 
-        fallbackRender={({ error }) => <>
-            <Alert severity="error" title="An error occurred">
-                {error.message}
-            </Alert>
-        </>}
-    >
-        <Suspense fallback={<div className="h-full w-full flex items-center justify-center">
-            <LoaderCircleIcon className="w-10 h-10 animate-spin"/>
-        </div>}>
-            {children}
-        </Suspense>
-    </ErrorBoundary>
-}
-
-
 export function DialogContent({ children, className, ...props }: ComponentProps<typeof DialogPrimitive.Content>) {
 
     return <DialogPortal>
@@ -94,6 +74,24 @@ export function DialogHeader({ className, ...props }: ComponentProps<'div'>) {
     return <div className={cn('flex flex-col space-y-1.5 text-center sm:text-left', className)} {...props}/>
 }
 
+/**
+ * DialogBody is a wrapper around the body contents of a dialog that provides error handling and loading state.
+ */
+export function DialogBody({ children }: { children: ReactNode }) {
+    return <ErrorBoundary 
+        fallbackRender={({ error }) => <>
+            <Alert severity="error" title="An error occurred">
+                {error.message}
+            </Alert>
+        </>}
+    >
+        <Suspense fallback={<div className="h-full w-full flex items-center justify-center">
+            <LoaderCircleIcon className="w-10 h-10 animate-spin"/>
+        </div>}>
+            {children}
+        </Suspense>
+    </ErrorBoundary>
+}
 
 export function DialogFooter({ className, ...props }: ComponentProps<'div'>) {
     return <div className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2', className)} {...props}/>
@@ -116,16 +114,11 @@ export function DialogDescription({ className, ...props }: ComponentProps<typeof
 }
 
 
-interface DialogTriggerButtonProps extends ComponentProps<typeof Button> {
-    children: ReactNode
-    tooltip?: ReactNode
-}
-
 /**
  * A {@link Button} that triggers a dialog when clicked. It also displays a tooltip with the provided text.
  * @param tooltip The text to display in the tooltip.
  */
-export function DialogTriggerButton({ tooltip, ...props}: DialogTriggerButtonProps) {
+export function DialogTriggerButton({ tooltip, ...props }: ComponentProps<typeof Button> & { tooltip?: ReactNode }) {
     return <Tooltip>
         <TooltipTrigger asChild>
             <DialogTrigger asChild>

@@ -5,31 +5,35 @@
  *  Path: /system/personnel/[person_id]
  */
 
+import { EllipsisVerticalIcon } from 'lucide-react'
 import { notFound } from 'next/navigation'
-import * as React from 'react'
+import { cache } from 'react'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageControls, PageHeader, PageTitle } from '@/components/app-page'
+import { DropdownMenuTriggerButton } from '@/components/ui/dropdown-menu'
 
-import { validateShortId } from '@/lib/id'
 import * as Paths from '@/paths'
-import { getQueryClient, HydrateClient, prefetch, trpc } from '@/trpc/server'
+import prisma from '@/server/prisma'
+import { HydrateClient } from '@/trpc/server'
 
-import { PersonAccessCard } from './person-access-card'
-import { TeamMembershipsCard } from './team-memberships-card'
-import { PersonDetailsCard } from './person-details-card'
+import { PersonDetailsCard } from './person-details'
+import { PersonMenu } from './person-menu'
+import { TeamMembershipsCard } from './team-memberships'
+
+
 
 interface PersonPageProps {
     params: Promise<{ person_id: string }>
 }
 
+const getPerson = cache(async (personId: string) => prisma.person.findUnique({ where: { id: personId }}))
+
+
 export async function generateMetadata({ params }: PersonPageProps) {
     const {person_id: personId } = await params
-    if(!validateShortId(personId)) return { title: "Person" }
-
-    const queryClient = getQueryClient()
-    const person = await queryClient.fetchQuery(trpc.personnel.byId.queryOptions({ personId }))
-
-    if(!person) return { title: "Person" }
+    
+    const person = await getPerson(personId)
+    if(!person) notFound()
 
     return { title: `${person.name} | Personnel` }
 }
@@ -37,14 +41,9 @@ export async function generateMetadata({ params }: PersonPageProps) {
 
 export default async function PersonPage(props: PersonPageProps) {
     const { person_id: personId } = await props.params
-    if(!validateShortId(personId)) return notFound()
 
-    const queryClient = getQueryClient()
-    const person = await queryClient.fetchQuery(trpc.personnel.byId.queryOptions({ personId }))
-    
-    prefetch(trpc.teamMemberships.byPerson.queryOptions({ personId }))
-
-    if(!person) return notFound()
+    const person = await getPerson(personId)
+    if(!person) notFound()
 
     return <AppPage>
         <AppPageBreadcrumbs
@@ -58,11 +57,18 @@ export default async function PersonPage(props: PersonPageProps) {
             <AppPageContent variant="container">
                 <PageHeader>
                     <PageTitle objectType="Person">{person.name}</PageTitle>
+                    <PageControls>
+                        <PersonMenu 
+                            personId={personId} 
+                            trigger={<DropdownMenuTriggerButton variant="ghost" size="icon" tooltip="Person options">
+                                <EllipsisVerticalIcon/>
+                            </DropdownMenuTriggerButton>}
+                        />
+                    </PageControls>
                 </PageHeader>
 
                 <PersonDetailsCard personId={personId}/>
                 <TeamMembershipsCard personId={personId}/>
-                <PersonAccessCard personId={personId}/>
             </AppPageContent>
         </HydrateClient>
     </AppPage>

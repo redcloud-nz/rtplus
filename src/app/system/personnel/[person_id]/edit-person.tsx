@@ -5,19 +5,14 @@
  */
 'use client'
 
-import { EllipsisVerticalIcon, PencilIcon, TrashIcon } from 'lucide-react'
-import * as React from 'react'
+import { ReactNode, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { Show } from '@/components/show'
-import { Button } from '@/components/ui/button'
-import { Card, CardActionButton, CardBody, CardHeader, CardTitle, CardCollapseToggleButton } from '@/components/ui/card'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
-import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
@@ -26,76 +21,24 @@ import { PersonFormData, personFormSchema } from '@/lib/forms/person'
 import { useTRPC } from '@/trpc/client'
 
 
+export function EditPersonDialog({ personId, trigger }: { personId: string, trigger: ReactNode }) {
 
+    const [open, setOpen] = useState(false)
 
-/**
- * Card that displays the details of a person and allows the user to edit them.
- * @param personId The ID of the person to display.
- */
-export function PersonDetailsCard({ personId }: { personId: string }) {
-    const [mode, setMode] = React.useState<'View' | 'Edit'>('View')
-
-    return <Card>
-        <CardHeader>
-            <CardTitle>Person Details</CardTitle>
-            <Show when={mode == 'View'}>
-                <CardActionButton
-                    icon={<PencilIcon/>}
-                    label="Edit"
-                    onClick={() => setMode('Edit')}
-                />
-            </Show>
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                        <EllipsisVerticalIcon/>
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align='end'>
-                    <DropdownMenuLabel>More options</DropdownMenuLabel>
-                    <DropdownMenuGroup>
-                        <DropdownMenuItem disabled>
-                            <TrashIcon/>
-                            <span>Delete person</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                </DropdownMenuContent>
-            </DropdownMenu>
-            <CardCollapseToggleButton/>
-        </CardHeader>
-        <CardBody boundary>
-            { mode == 'View'
-                ? <PersonDetailsList personId={personId}/>
-                : <EditPersonForm personId={personId} onClose={() => setMode('View')}/>
-            }
-        </CardBody>
-    </Card>
-}   
-
-
-/**
- * Component that displays the details of a person.
- * @param personId The ID of the person to display.
- */
-function PersonDetailsList({ personId }: { personId: string }) {
-
-    const trpc = useTRPC()
-    const { data: person } = useSuspenseQuery(trpc.personnel.byId.queryOptions({ personId }))
-    if(person == null) throw new Error(`Person(${personId}) not found`)
-
-    return <DL>
-        <DLTerm>RT+ ID</DLTerm>
-        <DLDetails>{person.id}</DLDetails>
-
-        <DLTerm>Name</DLTerm>
-        <DLDetails>{person.name}</DLDetails>
-        
-        <DLTerm>Email</DLTerm>
-        <DLDetails>{person.email}</DLDetails>
-
-        <DLTerm>Status</DLTerm>
-        <DLDetails>{person.status}</DLDetails>
-    </DL>
+    return <Dialog open={open} onOpenChange={setOpen}>
+        {trigger}
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Edit Person</DialogTitle>
+                <DialogDescription>
+                    Edit the details of this person.
+                </DialogDescription>
+            </DialogHeader>
+            <DialogBody>
+                { open ? <EditPersonForm personId={personId} onClose={() => setOpen(false)}/> : null }
+            </DialogBody>
+        </DialogContent>
+    </Dialog>  
 }
 
 
@@ -114,7 +57,7 @@ function EditPersonForm({ personId, onClose }: { personId: string, onClose: () =
     const form = useForm<PersonFormData>({
         resolver: zodResolver(personFormSchema),
         defaultValues: {
-            personId: personId,
+            personId,
             name: person.name,
             email: person.email,
             status: person.status,
@@ -134,11 +77,9 @@ function EditPersonForm({ personId, onClose }: { personId: string, onClose: () =
             const previousPerson = queryClient.getQueryData(trpc.personnel.byId.queryKey({ personId }))
 
             // Optimistically update the cache
-            queryClient.setQueryData(trpc.personnel.byId.queryKey({ personId }), (oldData) => ({
-                id: personId,
-                ...oldData,
-                ...update,
-            }))
+            if(previousPerson) {
+                queryClient.setQueryData(trpc.personnel.byId.queryKey({ personId }), { ...previousPerson, ...update })
+            }
 
             return { previousPerson }
 
@@ -161,7 +102,7 @@ function EditPersonForm({ personId, onClose }: { personId: string, onClose: () =
         onSuccess(updatedPerson) {
             toast({
                 title: 'Person updated',
-                description: `${updatedPerson.name} has been updated successfully.`,
+                description: `${updatedPerson.name} has been updated.`,
             })
             handleClose()
         },
@@ -172,7 +113,7 @@ function EditPersonForm({ personId, onClose }: { personId: string, onClose: () =
     }))
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="space-y-4 p-2">
+        <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="max-w-2xl space-y-4">
             <FormField
                 control={form.control}
                 name="name"
@@ -204,7 +145,7 @@ function EditPersonForm({ personId, onClose }: { personId: string, onClose: () =
                     <FormLabel>Status</FormLabel>
                     <FormControl>
                         <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger>
+                            <SelectTrigger className="w-1/2">
                                 <SelectValue placeholder="Select status..."/>
                             </SelectTrigger>
                             <SelectContent>
