@@ -141,13 +141,17 @@ function AddTeamMemberForm({ email, onClose }: { email: string, onClose: () => v
         }
     }))
 
+    const handleSubmit = form.handleSubmit(formData => {
+
+    })
+
     function handleClose() {
         onClose()
         form.reset()
     }
 
     return <FormProvider {...form}>
-        <form className="max-w-xl space-y-4">
+        <form onSubmit={handleSubmit} className="max-w-xl space-y-4">
             
             {match(existing)
                 .with( { person: null }, () => null)

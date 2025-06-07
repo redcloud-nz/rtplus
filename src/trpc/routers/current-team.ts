@@ -6,16 +6,17 @@
 import { pick } from 'remeda'
 import { z } from 'zod'
 
-import { Person, TeamMembership } from '@prisma/client'
+import { Person, Team, TeamMembership } from '@prisma/client'
 
 import { addTeamMemberFormSchema } from '@/lib/forms/add-team-member'
 
-import { createTRPCRouter, teamAdminProcedure, teamProcedure } from '../init'
+import { AuthenticatedTeamContext, createTRPCRouter, teamAdminProcedure, teamProcedure } from '../init'
 import { PersonBasic } from '../types'
 
 import { createPerson } from './personnel'
 import { acceptInvite, createTeamMembership, updateTeamMembership } from './team-memberships'
 import { nanoId8 } from '@/lib/id'
+import { TRPCError } from '@trpc/server'
 
 
 
@@ -27,19 +28,13 @@ export const currentTeamRouter = createTRPCRouter({
 
     acceptInvite: teamProcedure
         .mutation(async ({ ctx }) => {
-            const team = await ctx.prisma.team.findUnique({
-                where: { slug: ctx.teamSlug },
-            })
-            if(!team) throw new Error(`Missing active team for teamSlug='${ctx.teamSlug}'`)
+            const team = await getActiveTeam(ctx)
         }),
     addMember: teamProcedure
         .input(addTeamMemberFormSchema)
         .mutation(async ({ ctx, input }): Promise<TeamMembership & { person: Person }> => {
             
-            const team = await ctx.prisma.team.findUnique({
-                where: { slug: ctx.teamSlug },
-            })
-            if(!team) throw new Error(`Missing active team for teamSlug='${ctx.teamSlug}'`)
+            const team = await getActiveTeam(ctx)
 
             if(input.existingPersonId) {
                 // Add existing person to team
@@ -83,10 +78,7 @@ export const currentTeamRouter = createTRPCRouter({
             email: z.string().email('Invalid email address')
         }))
         .query(async ({ ctx, input }): Promise<{ person: PersonBasic | null, teamMembership: TeamMembership | null  }> => {
-            const team = await ctx.prisma.team.findUnique({
-                where: { slug: ctx.teamSlug },
-            })
-            if(!team) throw new Error(`Missing active team for teamSlug='${ctx.teamSlug}'`)
+            const team = await getActiveTeam(ctx)
 
             const person = await ctx.prisma.person.findFirst({
                 where: { email: input.email },
@@ -121,8 +113,23 @@ export const currentTeamRouter = createTRPCRouter({
                 }
             })
 
-            if(!team) throw new Error(`Missing active team for teamSlug='${ctx.teamSlug}'`)
+            if(!team) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' , message: `Missing active team for teamSlug='${ctx.teamSlug}'` })
 
             return team.teamMemberships
         })
 })
+
+
+/**
+ * Get the current active team based on the authenticated team context.
+ * @param ctx The authenticated team context containing the team slug.
+ * @returns The active team object.
+ * @throws Error if the active team is not found.
+ */
+async function getActiveTeam(ctx: AuthenticatedTeamContext): Promise<Team> {
+    const team = await ctx.prisma.team.findUnique({ 
+        where: { slug: ctx.teamSlug }
+    })
+    if(team == null) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' , message: `Missing active team for teamSlug='${ctx.teamSlug}'` })
+    return team
+}

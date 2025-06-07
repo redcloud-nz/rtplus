@@ -6,4 +6,4 @@
  */
 
 
-export default async function TeamMembersPage() {}
+export default async function TeamMemberPage() {}

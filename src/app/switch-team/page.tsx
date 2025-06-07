@@ -18,7 +18,7 @@ export default function TeamSwitcher() {
             <OrganizationList
                 hideSlug={false}
                 hidePersonal={false}
-                afterSelectOrganizationUrl="/teams/:slug/dashboard"
+                afterSelectOrganizationUrl="/manage/teams/:slug"
                 afterSelectPersonalUrl="/me"
             />
         </AppPageContent>

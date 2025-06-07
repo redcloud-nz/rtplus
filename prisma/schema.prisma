@@ -27,10 +27,12 @@ model Person {
     clerkUserId                  String?                 @map("clerk_user_id") @db.VarChar(50) @unique
     clerkInvitationId            String?                 @map("clerk_invitation_id") @db.VarChar(50) @unique
     inviteStatus                 InviteStatus            @map("invite_status") @default(None)
+    owningTeamId                 String?                 @map("owning_team_id") @db.VarChar(16)
     status                       RecordStatus            @default(Active)
   
     // Relations
     changeLogs                   PersonChangeLog[]       @relation("person_change_log_to_person")
+    owningTeam                   Team?                   @relation("person_to_owning_team", fields: [owningTeamId], references: [id], onDelete: SetNull)
     personChangeLogs             PersonChangeLog[]       @relation("person_change_log_to_actor")
     skillChecksAsAssessee        SkillCheck[]            @relation("skill_check_to_assessee")
     skillChecksAsAssessor        SkillCheck[]            @relation("skill_check_to_assessor")
@@ -226,7 +228,8 @@ model Team {
 
     // Relations
     d4hInfo         TeamD4hInfo?     @relation("team_d4h_info_to_team")
-    changeLogs      TeamChangeLog[]  @relation("team_change_log_to_team")       
+    changeLogs      TeamChangeLog[]  @relation("team_change_log_to_team")
+    ownedPersonnel  Person[]         @relation("person_to_owning_team")       
     teamMemberships TeamMembership[] @relation("team_membership_to_team")
 
     @@map("teams")
