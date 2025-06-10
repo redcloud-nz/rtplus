@@ -9,13 +9,13 @@ import { z } from 'zod'
 import { Person } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
-import { PersonFormData, personFormSchema } from '@/lib/forms/person'
+import { personFormSchema, SystemPersonFormData, systemPersonFormSchema } from '@/lib/forms/person'
 import { nanoId16 } from '@/lib/id'
 import { zodRecordStatus, zodNanoId8 } from '@/lib/validation'
 
-import { AuthenticatedContext, createTRPCRouter, systemAdminProcedure } from '../init'
+import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, systemAdminProcedure, teamAdminProcedure } from '../init'
 import { FieldConflictError, PersonBasic } from '../types'
-
+import { getActiveTeam } from './teams'
 
 
 /**
@@ -75,7 +75,7 @@ export const personnelRouter = createTRPCRouter({
             })
         }),
 
-    byId: systemAdminProcedure
+    byId: authenticatedProcedure
         .input(z.object({ 
             personId: zodNanoId8
         }))
@@ -89,7 +89,7 @@ export const personnelRouter = createTRPCRouter({
             return person
         }),
 
-    byEmail: systemAdminProcedure
+    byEmail: authenticatedProcedure
         .input(z.object({ email: z.string().email() }))
         .query(async ({ input, ctx }) => {
             return ctx.prisma.person.findUnique({
@@ -98,15 +98,26 @@ export const personnelRouter = createTRPCRouter({
             })
         }),
 
-    create: systemAdminProcedure
+    sys_create: systemAdminProcedure
+        .input(systemPersonFormSchema)
+        .mutation(async ({ input, ctx }): Promise<PersonBasic> => {
+            const createdPerson = await createPerson(ctx, input)
+            
+            return pick(createdPerson, ['id', 'name', 'email', 'status'])
+        }),
+    create: teamAdminProcedure
         .input(personFormSchema)
         .mutation(async ({ input, ctx }): Promise<PersonBasic> => {
-            const person = await createPerson(ctx, input)
 
-            return pick(person, ['id', 'name', 'email', 'status'])
+            const team = await getActiveTeam(ctx)
+
+            // Create the person
+            const createdPerson = await createPerson(ctx, { ...input, owningTeamId: team.id })
+
+            return pick(createdPerson, ['id', 'name', 'email', 'status'])
         }),
 
-    delete: systemAdminProcedure
+    sys_delete: systemAdminProcedure
         .input(z.object({ 
             personId: zodNanoId8,
         }))
@@ -116,14 +127,49 @@ export const personnelRouter = createTRPCRouter({
 
             return pick(deletedPerson, ['id', 'name', 'email', 'status'])
         }),
+    delete: teamAdminProcedure
+        .input(z.object({
+            personId: zodNanoId8,
+        }))
+        .mutation(async ({ input, ctx }): Promise<PersonBasic> => {
+            
+            const [person, team] = await Promise.all([
+                getPersonById(ctx, input.personId),
+                getActiveTeam(ctx)
+            ])
+            
+            if(person.owningTeamId != team.id) {
+                throw new TRPCError({ code: 'FORBIDDEN', message: `Person(${input.personId}) is owned by another team.` })
+            }
+            const deletedPerson = await deletePerson(ctx, input.personId)
+            return pick(deletedPerson, ['id', 'name', 'email', 'status'])
+        }),
 
-    update: systemAdminProcedure
-        .input(personFormSchema)
+    sys_update: systemAdminProcedure
+        .input(systemPersonFormSchema)
         .mutation(async ({ input, ctx, }): Promise<PersonBasic> => {
 
             const updatedPerson = await updatePerson(ctx, input)
             return pick(updatedPerson, ['id', 'name', 'email', 'status'])
-        })
+        }),
+
+    update: teamAdminProcedure
+        .input(personFormSchema)
+        .mutation(async ({ input, ctx }): Promise<PersonBasic> => {
+
+            const [person, team] = await Promise.all([
+                getPersonById(ctx, input.personId),
+                getActiveTeam(ctx)
+            ])
+
+            if(person.owningTeamId != team.id) {
+                throw new TRPCError({ code: 'FORBIDDEN', message: `Person(${input.personId}) is owned by another team.` })
+            }
+
+            const updatedPerson = await updatePerson(ctx, input)
+            return pick(updatedPerson, ['id', 'name', 'email', 'status'])
+        }),
+        
 })
 
 
@@ -147,7 +193,7 @@ export async function getPersonById(ctx: AuthenticatedContext, personId: string)
  * @returns The created person object.
  * @throws TRPCError if a person with the same email already exists.
  */
-export async function createPerson(ctx: AuthenticatedContext, {personId, ...input }: PersonFormData): Promise<Person> {
+export async function createPerson(ctx: AuthenticatedContext, {personId, ...input }: SystemPersonFormData): Promise<Person> {
     
     // Check if a person with the same email already exists
     const emailConflict = await ctx.prisma.person.findFirst({ where: { email: input.email } })
@@ -177,7 +223,7 @@ export async function createPerson(ctx: AuthenticatedContext, {personId, ...inpu
  * @returns The updated person object.
  * @throws TRPCError if the person is not found or if a person with the new email already exists.
  */
-export async function updatePerson(ctx: AuthenticatedContext, { personId, ...input }: PersonFormData): Promise<Person> {
+export async function updatePerson(ctx: AuthenticatedContext, { personId, ...input }: SystemPersonFormData): Promise<Person> {
     const existing = await getPersonById(ctx, personId)
 
     if(input.email != existing.email) {

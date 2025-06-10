@@ -6,47 +6,32 @@
  */
 
 import { EllipsisVerticalIcon } from 'lucide-react'
-import { notFound } from 'next/navigation'
-import { cache } from 'react'
+import { Metadata } from 'next'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageControls, PageHeader, PageTitle } from '@/components/app-page'
 import {  DropdownMenuTriggerButton } from '@/components/ui/dropdown-menu'
 
-import { validateNanoid8 } from '@/lib/id'
 import * as Paths from '@/paths'
-import prisma from '@/server/prisma'
 import { HydrateClient } from '@/trpc/server'
 
-import { TeamDetailsCard } from './team-details'
-import { TeamMembersCard } from './team-members'
-import { TeamMenu } from './team-menu'
+import { TeamDetailsCard_sys } from './team-details'
+import { TeamMembersCard_sys } from './team-members-list'
+import { TeamMenu_sys } from './team-menu'
+import { TeamUsersCard_sys } from './team-users-list'
+
+import { getTeam, TeamParams } from '.'
 
 
 
-
-interface TeamPageProps {
-    params: Promise<{ team_id: string }>
-}
-
-const getTeam = cache(async (teamId: string) => prisma.team.findUnique({ where: { id: teamId }}))
-
-
-export async function generateMetadata({ params }: TeamPageProps) {
-    const { team_id: teamId } = await params
-    
-    const team = await getTeam(teamId)
-    if(!team ) notFound()
+export async function generateMetadata(props: { params: Promise<TeamParams> }): Promise<Metadata> {
+    const team = await getTeam(props.params)
 
     return { title: `${team.name} | Teams` }
 }
 
 
-export default async function TeamPage(props: TeamPageProps) {
-    const { team_id: teamId } = await props.params
-    if(!validateNanoid8(teamId)) return notFound()
-
-    const team = await getTeam(teamId)
-    if(!team) notFound()
+export default async function TeamPage_sys(props: { params: Promise<TeamParams> }) {
+    const team = await getTeam(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs
@@ -61,8 +46,8 @@ export default async function TeamPage(props: TeamPageProps) {
                 <PageHeader>
                     <PageTitle objectType="Team">{team.name}</PageTitle>
                     <PageControls>
-                        <TeamMenu 
-                            teamId={teamId} 
+                        <TeamMenu_sys 
+                            teamId={team.id} 
                             trigger={<DropdownMenuTriggerButton variant="ghost" size="icon" tooltip="Person options">
                                 <EllipsisVerticalIcon/>
                             </DropdownMenuTriggerButton>}
@@ -70,8 +55,9 @@ export default async function TeamPage(props: TeamPageProps) {
                     </PageControls>
                 </PageHeader>
                 
-                <TeamDetailsCard teamId={teamId}/>
-                <TeamMembersCard teamId={teamId}/>
+                <TeamDetailsCard_sys teamId={team.id}/>
+                <TeamMembersCard_sys teamId={team.id}/>
+                <TeamUsersCard_sys teamId={team.id}/>
             </AppPageContent>
         </HydrateClient>
     </AppPage>

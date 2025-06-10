@@ -14,7 +14,7 @@ import { nanoId16 } from '@/lib/id'
 import { RTPlusLogger } from '@/lib/logger'
 import { zodNanoId8, zodRecordStatus, zodSlug } from '@/lib/validation'
 
-import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
+import { AuthenticatedContext, authenticatedProcedure, AuthenticatedTeamContext, createTRPCRouter, systemAdminProcedure } from '../init'
 import { FieldConflictError, TeamBasic } from '../types'
 
 
@@ -81,14 +81,14 @@ export const teamsRouter = createTRPCRouter({
             })
         }),
 
-    create: systemAdminProcedure
+    sys_create: systemAdminProcedure
         .input(teamFormSchema)
         .mutation(async ({ ctx, input }): Promise<TeamBasic> => {
             const team = await createTeam(ctx, input)
             return pick(team, ['id', 'name', 'shortName', 'slug', 'color', 'status'])
         }),
 
-    delete: systemAdminProcedure
+    sys_delete: systemAdminProcedure
         .input(z.object({ 
             teamId: zodNanoId8,
         }))
@@ -99,7 +99,7 @@ export const teamsRouter = createTRPCRouter({
         }),
             
 
-    update: systemAdminProcedure
+    sys_update: systemAdminProcedure
         .input(teamFormSchema)
         .mutation(async ({ ctx, input }): Promise<TeamBasic> => {
             
@@ -135,6 +135,20 @@ export const teamsRouter = createTRPCRouter({
         }),
 })
 
+
+/**
+ * Get the current active team based on the authenticated team context.
+ * @param ctx The authenticated team context containing the team slug.
+ * @returns The active team object.
+ * @throws Error if the active team is not found.
+ */
+export async function getActiveTeam(ctx: AuthenticatedTeamContext): Promise<Team> {
+    const team = await ctx.prisma.team.findUnique({ 
+        where: { slug: ctx.teamSlug }
+    })
+    if(team == null) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' , message: `Missing active team for teamSlug='${ctx.teamSlug}'` })
+    return team
+}
 
 /**
  * Gets a team by its ID.

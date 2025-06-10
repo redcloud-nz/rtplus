@@ -12,8 +12,8 @@ import { match } from 'ts-pattern'
 import {  useSuspenseQuery } from '@tanstack/react-query'
 
 import { Show } from '@/components/show'
-import { EditTeamMembershipDialog } from '@/components/dialogs/edit-team-membership'
-import { DeleteTeamMembershipDialog } from '@/components/dialogs/delete-team-membership'
+import { EditTeamMembershipDialog_sys } from '@/components/dialogs/edit-team-membership'
+import { DeleteTeamMembershipDialog_sys } from '@/components/dialogs/delete-team-membership'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardCollapseToggleButton, CardHeader, CardTitle } from '@/components/ui/card'
@@ -124,7 +124,7 @@ function TeamMembershipsTable({ personId }: { personId: string }) {
         {match(actionTarget)
             .with(null, () => null)
             .with({ action: 'Edit' }, ({ team, membership }) => 
-                <EditTeamMembershipDialog 
+                <EditTeamMembershipDialog_sys 
                     key={membership.id}
                     team={team}
                     membership={membership}
@@ -133,7 +133,7 @@ function TeamMembershipsTable({ personId }: { personId: string }) {
                 />
             )
             .with({ action: 'Delete' }, ({ team, membership }) => 
-                <DeleteTeamMembershipDialog
+                <DeleteTeamMembershipDialog_sys
                     key={membership.id}
                     team={team}
                     person={person}

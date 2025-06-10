@@ -21,7 +21,7 @@ import { useTRPC } from '@/trpc/client'
 
 
 
-export function EditTeamDialog({ teamId, trigger }: { teamId: string, trigger: ReactNode }) {
+export function EditTeamDialog_sys({ teamId, trigger }: { teamId: string, trigger: ReactNode }) {
     const [open, setOpen] = useState(false)
 
     return <Dialog open={open} onOpenChange={setOpen}>
@@ -34,14 +34,14 @@ export function EditTeamDialog({ teamId, trigger }: { teamId: string, trigger: R
                     </DialogDescription>
                 </DialogHeader>
                 <DialogBody>
-                    { open ? <EditTeamForm teamId={teamId} onClose={() => setOpen(false)}/> : null }
+                    { open ? <EditTeamForm_sys teamId={teamId} onClose={() => setOpen(false)}/> : null }
                 </DialogBody>
             </DialogContent>
         </Dialog>  
 }
 
 
-function EditTeamForm({ teamId, onClose }: { teamId: string, onClose: () => void }) {
+function EditTeamForm_sys({ teamId, onClose }: { teamId: string, onClose: () => void }) {
     const queryClient = useQueryClient()
     const trpc = useTRPC()
 
@@ -57,7 +57,7 @@ function EditTeamForm({ teamId, onClose }: { teamId: string, onClose: () => void
 
     const { toast } = useToast()
 
-    const mutation = useMutation(trpc.teams.update.mutationOptions({
+    const mutation = useMutation(trpc.teams.sys_update.mutationOptions({
         async onMutate({ teamId, ...formData }) {
             await queryClient.cancelQueries(trpc.teams.byId.queryFilter({ teamId }))
 

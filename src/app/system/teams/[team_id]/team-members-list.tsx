@@ -12,8 +12,8 @@ import { match } from 'ts-pattern'
 import { useSuspenseQuery } from '@tanstack/react-query'
 
 import { Show } from '@/components/show'
-import { EditTeamMembershipDialog } from '@/components/dialogs/edit-team-membership'
-import { DeleteTeamMembershipDialog } from '@/components/dialogs/delete-team-membership'
+import { EditTeamMembershipDialog_sys } from '@/components/dialogs/edit-team-membership'
+import { DeleteTeamMembershipDialog_sys } from '@/components/dialogs/delete-team-membership'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardCollapseToggleButton, CardHeader, CardTitle } from '@/components/ui/card'
@@ -25,16 +25,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 
 import * as Paths from '@/paths'
 import { PersonBasic, TeamMembershipBasic, useTRPC } from '@/trpc/client'
 
-import { AddTeamMemberDialog } from './add-team-member'
+import { AddTeamMemberDialog_sys } from './add-team-member'
 
 
 
-export function TeamMembersCard({ teamId }: { teamId: string }) {
+export function TeamMembersCard_sys({ teamId }: { teamId: string }) {
 
     return <Card>
         <CardHeader>
             <CardTitle>Team Members</CardTitle>
-            <AddTeamMemberDialog
+            <AddTeamMemberDialog_sys
                 teamId={teamId}
                 trigger={<DialogTriggerButton variant="ghost" size="icon" tooltip="Add Team Member">
                     <PlusIcon/>
@@ -43,13 +43,13 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
             <CardCollapseToggleButton/>
         </CardHeader>
         <CardBody boundary>
-            <TeamMembersCardTable teamId={teamId}/>
+            <TeamMembersCardTable_sys teamId={teamId}/>
         </CardBody>
         
     </Card>
 }
 
-function TeamMembersCardTable({ teamId }: { teamId: string }) {
+function TeamMembersCardTable_sys({ teamId }: { teamId: string }) {
     const trpc = useTRPC()
 
     const { data: team } = useSuspenseQuery(trpc.teams.byId.queryOptions({ teamId }))
@@ -65,7 +65,7 @@ function TeamMembersCardTable({ teamId }: { teamId: string }) {
             <TableHead>
                 <TableRow>
                     <TableHeadCell>Name</TableHeadCell>
-                    <TableHeadCell>Role</TableHeadCell>
+                    <TableHeadCell>Tags</TableHeadCell>
                     <TableHeadCell>Status</TableHeadCell>
                     <TableHeadCell className="w-10"></TableHeadCell>
                 </TableRow>
@@ -74,13 +74,13 @@ function TeamMembersCardTable({ teamId }: { teamId: string }) {
                 {teamMemberships
                     .sort((a, b) => a.person.name.localeCompare(b.person.name))
                     .map(({ person, ...membership }) =>
-                        <TableRow key={membership.id}>
+                        <TableRow key={person.id}>
                             <TableCell>
                                 <Link href={Paths.system.personnel.person(person.id).index} className="hover:underline">{person.name}</Link>
                             </TableCell>
-                            <TableCell>{membership.role}</TableCell>
+                            <TableCell>{membership.tags}</TableCell>
                             <TableCell>{membership.status}</TableCell>
-                            <TableCell className="w-10 p-0 text-right overflow-visible">
+                            <TableCell className="w-10 p-0 text-right">
                                 <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button variant="ghost" size="icon">
@@ -105,25 +105,26 @@ function TeamMembersCardTable({ teamId }: { teamId: string }) {
         </Table>
         
         {match(actionTarget)
-            .with(null, () => null)
             .with({ action: 'Edit' }, ({ person, membership }) => 
-                <EditTeamMembershipDialog 
-                    key={membership.id}
+                <EditTeamMembershipDialog_sys 
+                    key="edit-team-membership-dialog"
                     team={team}
                     membership={membership}
                     person={person}
-                    open onOpenChange={(open) => { if(!open) setActionTarget(null)}}
+                    open 
+                    onOpenChange={(open) => { if(!open) setActionTarget(null)}}
                 />
             )
-            .with({ action: 'Delete' }, ({ person, membership }) => 
-                <DeleteTeamMembershipDialog
-                    key={membership.id}
+            .with({ action: 'Delete' }, ({ person }) => 
+                <DeleteTeamMembershipDialog_sys
+                    key="delete-team-membership-dialog"
                     team={team}
                     person={person}
-                    open onOpenChange={(open) => { if(!open) setActionTarget(null)}}
+                    open 
+                    onOpenChange={(open) => { if(!open) setActionTarget(null)}}
                 />
             )
-            .exhaustive()
+            .otherwise(() => null)
         }
     </Show>
 }

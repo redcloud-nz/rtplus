@@ -16,12 +16,12 @@ import { FormControl, FormActions, FormField, FormItem, FormLabel, FormMessage, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { useToast } from '@/hooks/use-toast'
-import { TeamMembershipFormData, teamMembershipFormSchema } from '@/lib/forms/team-membership'
+import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema } from '@/lib/forms/team-membership'
 import { useTRPC } from '@/trpc/client'
 
 
 
-export function AddTeamMemberDialog({ teamId, trigger }: { teamId: string, trigger: ReactNode }) {
+export function AddTeamMemberDialog_sys({ teamId, trigger }: { teamId: string, trigger: ReactNode }) {
     const [open, setOpen] = useState(false)
 
     return <Dialog open={open} onOpenChange={setOpen}>
@@ -34,14 +34,14 @@ export function AddTeamMemberDialog({ teamId, trigger }: { teamId: string, trigg
                 </DialogDescription>
             </DialogHeader>
             <DialogBody>
-                { open ? <AddTeamMemberForm teamId={teamId} onClose={() =>setOpen(false)} /> : null }
+                { open ? <AddTeamMemberForm_sys teamId={teamId} onClose={() =>setOpen(false)} /> : null }
             </DialogBody>
         </DialogContent>
     </Dialog>
 }
 
 
-function AddTeamMemberForm({ teamId, onClose }: { teamId: string,  onClose: () => void }) {
+function AddTeamMemberForm_sys({ teamId, onClose }: { teamId: string,  onClose: () => void }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
@@ -50,12 +50,12 @@ function AddTeamMemberForm({ teamId, onClose }: { teamId: string,  onClose: () =
     const { data: personnel } = useSuspenseQuery(trpc.personnel.all.queryOptions())
     const { data: memberships } = useSuspenseQuery(trpc.teamMemberships.byTeam.queryOptions({ teamId }))
 
-    const form = useForm<TeamMembershipFormData>({
-        resolver: zodResolver(teamMembershipFormSchema),
+    const form = useForm<SystemTeamMembershipFormData>({
+        resolver: zodResolver(systemTeamMembershipFormSchema),
         defaultValues: {
             teamId,
             personId: '',
-            role: 'None',
+            tags: [],
             status: 'Active',
         }
     })
@@ -111,26 +111,6 @@ function AddTeamMemberForm({ teamId, onClose }: { teamId: string,  onClose: () =
                                         disabled={currentMembers.includes(person.id)}
                                     >{person.name}</SelectItem>
                                 )}
-                            </SelectContent>
-                        </Select>
-                    </FormControl>
-                    <FormMessage/>
-                </FormItem>}
-            />
-            <FormField
-                control={form.control}
-                name="role"
-                render={({ field }) => <FormItem>
-                    <FormLabel>Role</FormLabel>
-                    <FormControl>
-                        <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select role..."/>
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="None">None</SelectItem>
-                                <SelectItem value="Admin">Admin</SelectItem>
-                                <SelectItem value="Member">Member</SelectItem>
                             </SelectContent>
                         </Select>
                     </FormControl>

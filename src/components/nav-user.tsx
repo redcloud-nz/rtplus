@@ -7,7 +7,7 @@
 
 import { ArrowRightLeftIcon, BadgeCheck, ChevronsUpDown, KeyRoundIcon, LogInIcon, LogOutIcon, ShieldQuestionIcon } from 'lucide-react'
 
-import { SignedIn, SignedOut, SignInButton, useClerk } from '@clerk/nextjs'
+import { SignedIn, SignedOut, SignInButton, useClerk, useUser } from '@clerk/nextjs'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -32,40 +32,34 @@ import { getUserInitials } from '@/lib/utils'
 
 import * as Paths from '@/paths'
 
-
-export interface NavUserProps {
-    user: {
-        name: string
-        email: string
-        avatar: string
-    }
-}
-
-export function NavUser({ user }: NavUserProps) {
+export function NavUser() {
 
     const { isMobile } = useSidebar()
     const clerk = useClerk()
+    const { isLoaded, isSignedIn, user} = useUser()
 
-    const initials = getUserInitials(user.name)
+    const fullName = isSignedIn && user.fullName || ""
+    const initials = getUserInitials(fullName)
 
+    
     return <SidebarMenu>
         <SidebarMenuItem>
-            <SignedIn>
-                <DropdownMenu>
+            { isSignedIn
+                ? <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton
                             size="lg"
                             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                             >
                             <Avatar className="h-8 w-8 rounded-lg">
-                                <AvatarImage src={user.avatar} alt={user.name} />
+                                <AvatarImage src={user.imageUrl} alt={fullName} />
                                 <AvatarFallback className="rounded-lg">
                                     {initials}
                                 </AvatarFallback>
                             </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight">
-                                <span className="truncate font-semibold">{user.name}</span>
-                                <span className="truncate text-xs">{user.email}</span>
+                                <span className="truncate font-semibold">{fullName}</span>
+                                <span className="truncate text-xs">{user.primaryEmailAddress?.emailAddress}</span>
                             </div>
                             <ChevronsUpDown className="ml-auto size-4" />
                         </SidebarMenuButton>
@@ -79,12 +73,12 @@ export function NavUser({ user }: NavUserProps) {
                         <DropdownMenuLabel className="p-0 font-normal">
                             <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                                 <Avatar className="h-8 w-8 rounded-lg">
-                                <AvatarImage src={user.avatar} alt={user.name} />
+                                <AvatarImage src={user.imageUrl} alt={fullName} />
                                 <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
                                 </Avatar>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
-                                <span className="truncate font-semibold">{user.name}</span>
-                                <span className="truncate text-xs">{user.email}</span>
+                                <span className="truncate font-semibold">{fullName}</span>
+                                <span className="truncate text-xs">{user.primaryEmailAddress?.emailAddress}</span>
                                 </div>
                             </div>
                         </DropdownMenuLabel>
@@ -124,14 +118,12 @@ export function NavUser({ user }: NavUserProps) {
                         </DropdownMenuGroup>
                     </DropdownMenuContent>
                 </DropdownMenu>
-            </SignedIn>
-            <SignedOut>
-                <div className="flex justify-center">
+                : <div className="flex justify-center">
                     <SignInButton>
                         <Button variant="outline"><LogInIcon/> Sign In</Button>
                     </SignInButton>
                 </div>
-            </SignedOut>
+            }
         </SidebarMenuItem>
     </SidebarMenu>
 }

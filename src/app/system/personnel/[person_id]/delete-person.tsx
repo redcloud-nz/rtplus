@@ -17,7 +17,7 @@ import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormItem, F
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { PersonFormData, personFormSchema } from '@/lib/forms/person'
+import { SystemPersonFormData, systemPersonFormSchema } from '@/lib/forms/person'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
@@ -51,12 +51,12 @@ function DeletePersonForm({ personId, onClose }: { personId: string, onClose: ()
 
     const { data: person } = useSuspenseQuery(trpc.personnel.byId.queryOptions({ personId }))
 
-    const form = useForm<Pick<PersonFormData, 'personId'>>({
-        resolver: zodResolver(personFormSchema.pick({ personId: true})),
+    const form = useForm<Pick<SystemPersonFormData, 'personId'>>({
+        resolver: zodResolver(systemPersonFormSchema.pick({ personId: true})),
         defaultValues: { personId: person.id }
     })
 
-    const mutation = useMutation(trpc.personnel.delete.mutationOptions({
+    const mutation = useMutation(trpc.personnel.sys_delete.mutationOptions({
         async onMutate() {
             await queryClient.cancelQueries(trpc.personnel.all.queryFilter())
 

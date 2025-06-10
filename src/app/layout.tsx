@@ -42,9 +42,6 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
                 <FrontendProvider>
                     <AppSidebar/>
                     {children}
-                    <div className="fixed top-0 right-0 h-12 w-12 flex justify-center items-center">
-                        <UserButton/>
-                    </div>
                 </FrontendProvider>
             </body>
         </html>

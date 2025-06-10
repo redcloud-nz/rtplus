@@ -8,15 +8,12 @@
 import { ClockIcon, CombineIcon, ListChecksIcon, NotebookTextIcon, PocketKnifeIcon, WalletCardsIcon } from 'lucide-react'
 import Image from 'next/image'
 
-import { auth } from '@clerk/nextjs/server'
-
-import { TeamParams } from '@/app/manage/teams/[team_slug]'
 import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 import { DashboardCard, DashboardCardList } from '@/components/ui/dashboard-card'
 
 import * as Paths from '@/paths'
 
-
+import { getTeam, TeamParams } from '.'
 
 
 // const dataCards: { name: string, initials: string, href: string, bgColor: string }[] = [
@@ -27,13 +24,13 @@ import * as Paths from '@/paths'
 // ]
 
 export default async function TeamHomePage(props: { params: Promise<TeamParams> }) {
-    const { team_slug: teamSlug } = await props.params
-    const { sessionClaims } = await auth.protect()
-    const teamPath = Paths.team(teamSlug)
+    const team = await getTeam(props.params)
+
+    const teamPath = Paths.team(team.slug)
 
     return <AppPage>
         <AppPageBreadcrumbs
-            label={sessionClaims.org_name}
+            label={team.shortName || team.name}
         />
         <AppPageContent>
             <div className="container mx-auto">

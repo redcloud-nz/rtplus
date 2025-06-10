@@ -16,7 +16,7 @@ import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormField, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { useToast } from '@/hooks/use-toast'
-import { TeamMembershipFormData, teamMembershipFormSchema } from '@/lib/forms/team-membership'
+import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema } from '@/lib/forms/team-membership'
 import { nanoId8 } from '@/lib/id'
 import { useTRPC } from '@/trpc/client'
 
@@ -63,12 +63,11 @@ function AddTeamMembershipForm({ personId, onClose }: { personId: string, onClos
 
     const newMembershipId = useMemo(() => nanoId8(), [])
 
-    const form = useForm<TeamMembershipFormData>({
-        resolver: zodResolver(teamMembershipFormSchema),
+    const form = useForm<SystemTeamMembershipFormData>({
+        resolver: zodResolver(systemTeamMembershipFormSchema),
         defaultValues: {
             teamId: '',
             personId,
-            role: 'None',
             status: 'Active',
         }
     })
@@ -146,26 +145,6 @@ function AddTeamMembershipForm({ personId, onClose }: { personId: string, onClos
                                         disabled={currentTeams.includes(team.id)}
                                     >{team.name}</SelectItem>
                                 )}
-                            </SelectContent>
-                        </Select>
-                    </FormControl>
-                    <FormMessage/>
-                </FormItem>}
-            />
-            <FormField
-                control={form.control}
-                name="role"
-                render={({ field }) => <FormItem>
-                    <FormLabel>Role</FormLabel>
-                    <FormControl>
-                        <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger className='w-1/2'>
-                                <SelectValue placeholder="Select role..."/>
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="None">None</SelectItem>
-                                <SelectItem value="Admin">Admin</SelectItem>
-                                <SelectItem value="Member">Member</SelectItem>
                             </SelectContent>
                         </Select>
                     </FormControl>

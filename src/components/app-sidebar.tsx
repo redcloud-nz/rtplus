@@ -8,7 +8,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
-import { OrganizationSwitcher } from '@clerk/nextjs'
 import { auth } from '@clerk/nextjs/server'
 
 import { NavCollapsible, NavItem, NavSection, NavSubItem } from '@/components/nav-section'
@@ -38,7 +37,7 @@ export async function AppSidebar({ children, ...props }: AppSidebarProps) {
                 />
             </Link>
         </SidebarHeader>
-        <div className="h-10 flex justify-center items-center">
+        {/* <div className="h-10 flex justify-center items-center">
             <OrganizationSwitcher
                 appearance={{
                     elements: {
@@ -47,7 +46,7 @@ export async function AppSidebar({ children, ...props }: AppSidebarProps) {
                     }
                 }}
             />
-        </div>
+        </div> */}
         
         <SidebarContent>
             { teamSlug != null 
@@ -59,7 +58,11 @@ export async function AppSidebar({ children, ...props }: AppSidebarProps) {
                         <NavSubItem label="Sessions" href={Paths.team(teamSlug).competencies.sessionList}/>
                         <NavSubItem label="Reports" href={Paths.team(teamSlug).competencies.reportsList}/>
                     </NavCollapsible>
-                    <NavItem label="Members" href={Paths.team(teamSlug).members} icon={<UsersIcon/>}/>
+                    <NavItem label="Members" href={Paths.team(teamSlug).members.index} icon={<UsersIcon/>}/>
+                    <NavCollapsible label="Settings" icon={<SettingsIcon/>}>
+                        <NavSubItem label="Users" href={Paths.team(teamSlug).users}/>
+                        <NavSubItem label="Invitations" href={Paths.team(teamSlug).invitations}/>
+                    </NavCollapsible>
                 </NavSection> 
                 : null
             }
@@ -77,7 +80,7 @@ export async function AppSidebar({ children, ...props }: AppSidebarProps) {
                 </NavSection> : null }
         </SidebarContent>
         <SidebarFooter>
-            <NavUser user={{ name: "Alex Westphal", email: "alexwestphal.nz@gmail.com", avatar: "A" }}/>
+            <NavUser/>
         </SidebarFooter>
         <SidebarRail />
     </Sidebar>

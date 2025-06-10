@@ -4,7 +4,7 @@
  */
 'use client'
 
-import { ChevronDownIcon, LoaderCircleIcon } from 'lucide-react'
+import { ChevronDownIcon, InfoIcon, LoaderCircleIcon } from 'lucide-react'
 import { type ComponentProps, createContext, type MouseEventHandler, type ReactNode, Suspense, useContext, useMemo, useState } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 
@@ -13,7 +13,9 @@ import { cn } from '@/lib/utils'
 import { Alert } from './alert'
 import { Button } from './button'
 import { Link } from './link'
+import { Popover, PopoverContent, PopoverTriggerButton } from './popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
+
 
 type CardContextType = { isOpen: boolean, setOpen: (open: boolean) => void }
 const CardContext = createContext<CardContextType | null>(null)
@@ -208,4 +210,16 @@ export function CardCollapseToggleButton() {
             {isOpen ? 'Collapse card' : 'Expand card'}
         </TooltipContent>
     </Tooltip>
+}
+
+
+export function CardExplanation({ className, ...props }: ComponentProps<'div'>) {
+    return <Popover>
+        <PopoverTriggerButton variant="ghost" size="icon" tooltip="Card Description">
+            <InfoIcon/>
+        </PopoverTriggerButton>
+        <PopoverContent align="end" className="w-96">
+            <div className={cn("text-sm text-muted-foreground space-y-2", className)} {...props}/>
+        </PopoverContent>
+    </Popover>
 }

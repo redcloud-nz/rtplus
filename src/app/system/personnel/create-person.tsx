@@ -17,7 +17,7 @@ import { FormActions, FormCancelButton, FormControl, FormDescription, FormField,
 import { Input } from '@/components/ui/input'
 
 import { useToast } from '@/hooks/use-toast'
-import { PersonFormData, personFormSchema } from '@/lib/forms/person'
+import { SystemPersonFormData, systemPersonFormSchema } from '@/lib/forms/person'
 import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
@@ -52,8 +52,8 @@ function CreatePersonForm({ onClose }: { onClose: () => void }) {
 
     const personId = nanoId8()
 
-    const form = useForm<PersonFormData>({
-        resolver: zodResolver(personFormSchema),
+    const form = useForm<SystemPersonFormData>({
+        resolver: zodResolver(systemPersonFormSchema),
         defaultValues: {
             personId,
             name: '',
@@ -67,10 +67,10 @@ function CreatePersonForm({ onClose }: { onClose: () => void }) {
         form.reset()
     }
 
-    const mutation = useMutation(trpc.personnel.create.mutationOptions({
+    const mutation = useMutation(trpc.personnel.sys_create.mutationOptions({
         onError(error) {
             if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof PersonFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof SystemPersonFormData, { message: error.shape.message })
             } else {
                 toast({
                     title: 'Error creating person',

@@ -19,17 +19,17 @@ import { DialogTriggerButton } from '@/components/ui/dialog'
 
 import { useTRPC } from '@/trpc/client'
 
-import { EditTeamDialog } from './edit-team'
+import { EditTeamDialog_sys } from './edit-team'
 
 
 
-export function TeamDetailsCard({ teamId }: { teamId: string }) {
+export function TeamDetailsCard_sys({ teamId }: { teamId: string }) {
 
     return <Card>
         <CardHeader>
             <CardTitle>Team Details</CardTitle>
             
-            <EditTeamDialog
+            <EditTeamDialog_sys
                 teamId={teamId}
                 trigger={<DialogTriggerButton variant="ghost" size='icon' tooltip="Edit Team">
                     <PencilIcon/>
@@ -38,12 +38,12 @@ export function TeamDetailsCard({ teamId }: { teamId: string }) {
             <CardCollapseToggleButton/>
         </CardHeader>
         <CardBody boundary>
-            <TeamDetailsList teamId={teamId}/>
+            <TeamDetailsList_sys teamId={teamId}/>
         </CardBody>
     </Card>
 }
 
-function TeamDetailsList({ teamId }: { teamId: string }) {
+function TeamDetailsList_sys({ teamId }: { teamId: string }) {
     const trpc = useTRPC()
 
     const { data: team } = useSuspenseQuery(trpc.teams.byId.queryOptions({ teamId }))

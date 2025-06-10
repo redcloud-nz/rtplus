@@ -24,7 +24,7 @@ import * as Paths from '@/paths'
 
 
 
-export function DeleteTeamDialog({ teamId, ...props }: React.ComponentProps<typeof Dialog> & { teamId: string }) {
+export function DeleteTeamDialog_sys({ teamId, ...props }: React.ComponentProps<typeof Dialog> & { teamId: string }) {
     return <Dialog {...props}>
         <DialogContent>
             <DialogHeader>
@@ -32,14 +32,14 @@ export function DeleteTeamDialog({ teamId, ...props }: React.ComponentProps<type
                 <Paragraph>This action will permanently delete the team.</Paragraph>
             </DialogHeader>
             <DialogBody>
-                <DeleteTeamForm teamId={teamId} onClose={() => props.onOpenChange?.(false)} />
+                <DeleteTeamForm_sys teamId={teamId} onClose={() => props.onOpenChange?.(false)} />
             </DialogBody>
         </DialogContent>
     </Dialog>
 }
 
 
-function DeleteTeamForm({ teamId, onClose }: { teamId: string, onClose: () => void }) {
+function DeleteTeamForm_sys({ teamId, onClose }: { teamId: string, onClose: () => void }) {
 
     const queryClient = useQueryClient()
     const router = useRouter()
@@ -53,7 +53,7 @@ function DeleteTeamForm({ teamId, onClose }: { teamId: string, onClose: () => vo
         defaultValues: { teamId: team.id}
     })
 
-    const mutation = useMutation(trpc.teams.delete.mutationOptions({
+    const mutation = useMutation(trpc.teams.sys_delete.mutationOptions({
         async onMutate() {
             await queryClient.cancelQueries(trpc.teams.all.queryFilter())
             await queryClient.cancelQueries(trpc.teams.byId.queryFilter({ teamId }))

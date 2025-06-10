@@ -11,7 +11,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+
 import { Card, CardBody, CardHeader, CardTitle, CardCollapseToggleButton } from '@/components/ui/card'
 import { DialogTriggerButton } from '@/components/ui/dialog'
 import { Link } from '@/components/ui/link'
@@ -26,7 +26,7 @@ import { Popover, PopoverContent, PopoverTriggerButton } from '@/components/ui/p
 /**
  * Card that displays the list of all team members and allows the user to add a new member.
  */
-export function TeamMembersListCard() {
+export function TeamMembersListCard({ teamSlug}: { teamSlug: string }) {
     return <Card>
         <CardHeader>
             <CardTitle>List</CardTitle>
@@ -49,18 +49,18 @@ export function TeamMembersListCard() {
             <CardCollapseToggleButton />
         </CardHeader>
         <CardBody boundary>
-            <TeamMembersListTable />
+            <TeamMembersListTable teamSlug={teamSlug}/>
         </CardBody>
     </Card>
 }
 
-function TeamMembersListTable() {
+function TeamMembersListTable({ teamSlug }: { teamSlug: string }) {
     const trpc = useTRPC()
 
-    const { data: members } = useSuspenseQuery(trpc.currentTeam.members.queryOptions())
+    const { data: memberships } = useSuspenseQuery(trpc.teamMemberships.byCurrentTeam.queryOptions())
 
     return <Show
-        when={members.length > 0}
+        when={memberships.length > 0}
         fallback={<Alert severity="info" title="No members defined">Add some members to get started.</Alert>}
     >
         <Table width="auto">
@@ -68,19 +68,19 @@ function TeamMembersListTable() {
                 <TableRow>
                     <TableHeadCell className="w-2/5">Name</TableHeadCell>
                     <TableHeadCell className="w-2/5">Email</TableHeadCell>
-                    <TableHeadCell className="w-1/5">Role</TableHeadCell>
+                    <TableHeadCell className="w-1/5">Status</TableHeadCell>
                 </TableRow>
             </TableHead>
             <TableBody>
-                {members.map(member => (
-                    <TableRow key={member.id}>
+                {memberships.map(memberships => (
+                    <TableRow key={memberships.person.id}>
                         <TableCell>
-                            <Link href={Paths.system.personnel.person(member.person.id).index} className="hover:underline">
-                                {member.person.name}
+                            <Link href={Paths.team(teamSlug).members.person(memberships.person.id).index} className="hover:underline">
+                                {memberships.person.name}
                             </Link>
                         </TableCell>
-                        <TableCell>{member.person.email}</TableCell>
-                        <TableCell>{member.role}</TableCell>
+                        <TableCell>{memberships.person.email}</TableCell>
+                        <TableCell>{memberships.status}</TableCell>
                     </TableRow>
                 ))}
             </TableBody>

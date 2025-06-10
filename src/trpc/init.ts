@@ -46,6 +46,7 @@ export const publicProcedure = t.procedure
 
 export type AuthenticatedContext = Context & { 
     personId: string,
+    isSystemAdmin: boolean,
 }
 
 export const authenticatedProcedure = t.procedure.use((opts) => {
@@ -58,11 +59,12 @@ export const authenticatedProcedure = t.procedure.use((opts) => {
             ...ctx,
             auth,
             personId: auth.sessionClaims.rt_person_id,
+            isSystemAdmin: auth.sessionClaims.rt_system_role === 'admin',
         } satisfies AuthenticatedContext,
     })
 })
 
-export type AuthenticatedTeamContext = AuthenticatedContext & { teamSlug: string }
+export type AuthenticatedTeamContext = AuthenticatedContext & { teamSlug: string, orgId: string, }
 
 export const teamProcedure = t.procedure.use((opts) => {
     const { auth, ...ctx } = opts.ctx
@@ -75,7 +77,9 @@ export const teamProcedure = t.procedure.use((opts) => {
             ...ctx,
             auth,
             personId: auth.sessionClaims.rt_person_id,
+            orgId: auth.orgId,
             teamSlug: auth.orgSlug!,
+            isSystemAdmin: auth.sessionClaims.rt_system_role === 'admin',
         } satisfies AuthenticatedTeamContext,
     })
 })
@@ -92,7 +96,9 @@ export const teamAdminProcedure = t.procedure.use((opts) => {
             ...ctx,
             auth,
             personId: auth.sessionClaims.rt_person_id,
+            orgId: auth.orgId,
             teamSlug: auth.orgSlug!, 
+            isSystemAdmin: auth.sessionClaims.rt_system_role === 'admin',
         } satisfies AuthenticatedTeamContext,
     })
 })
@@ -109,6 +115,7 @@ export const systemAdminProcedure = t.procedure.use((opts) => {
             ...ctx,
             auth,
             personId: auth.sessionClaims.rt_person_id,
+            isSystemAdmin: auth.sessionClaims.rt_system_role === 'admin',
         } satisfies AuthenticatedContext,
     })
 })
@@ -123,6 +130,7 @@ export const systemOrTeamAdminProcedure = t.procedure.use((opts) => {
                 ...ctx,
                 auth,
                 personId: auth.sessionClaims.rt_person_id,
+                isSystemAdmin: auth.sessionClaims.rt_system_role === 'admin',
             } satisfies AuthenticatedContext,
         })
     }

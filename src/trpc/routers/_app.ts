@@ -6,21 +6,24 @@
 import { createTRPCRouter } from '../init'
 
 import { competenciesRouter } from './competencies'
-import { currentTeamRouter } from './current-team'
 import { currentUserRouter } from './current-user'
 import { personnelRouter } from './personnel'
 import { skillPackagesRouter } from './skill-packages'
 import { teamsRouter } from './teams'
 import { teamMembershipsRouter } from './team-memberships'
+import { orgMembershipsRouter } from './org-memberships'
+import { orgInvitationsRouter } from './org-invitations'
 
 export const appRouter = createTRPCRouter({
     competencies: competenciesRouter,
-    currentTeam: currentTeamRouter,
     currentUser: currentUserRouter,
+    orgInvitations: orgInvitationsRouter,
+    orgMemberships: orgMembershipsRouter,
     personnel: personnelRouter,
     skillPackages: skillPackagesRouter,
     teams: teamsRouter,
     teamMemberships: teamMembershipsRouter,
+    
 })
 
 export type AppRouter = typeof appRouter

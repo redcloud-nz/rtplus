@@ -8,10 +8,18 @@ import { z } from 'zod'
 import { zodNanoId8 } from '../validation'
 
 
-export const teamMembershipFormSchema = z.object({
+export const systemTeamMembershipFormSchema = z.object({
     teamId: zodNanoId8,
     personId: zodNanoId8,
-    role: z.enum(['Admin', 'Member', 'None']),
+    tags: z.array(z.string()),
+    status: z.enum(['Active', 'Inactive']),
+})
+
+export type SystemTeamMembershipFormData = z.infer<typeof systemTeamMembershipFormSchema>
+
+export const teamMembershipFormSchema = z.object({
+    personId: zodNanoId8,
+    tags: z.array(z.string()),
     status: z.enum(['Active', 'Inactive']),
 })
 

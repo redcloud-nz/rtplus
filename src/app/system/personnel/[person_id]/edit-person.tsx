@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { useToast } from '@/hooks/use-toast'
-import { PersonFormData, personFormSchema } from '@/lib/forms/person'
+import { SystemPersonFormData, systemPersonFormSchema } from '@/lib/forms/person'
 import { useTRPC } from '@/trpc/client'
 
 
@@ -54,8 +54,8 @@ function EditPersonForm({ personId, onClose }: { personId: string, onClose: () =
 
     const { data: person } = useSuspenseQuery(trpc.personnel.byId.queryOptions({ personId }))
 
-    const form = useForm<PersonFormData>({
-        resolver: zodResolver(personFormSchema),
+    const form = useForm<SystemPersonFormData>({
+        resolver: zodResolver(systemPersonFormSchema),
         defaultValues: {
             personId,
             name: person.name,
@@ -69,7 +69,7 @@ function EditPersonForm({ personId, onClose }: { personId: string, onClose: () =
         form.reset()
     }
     
-    const mutation = useMutation(trpc.personnel.update.mutationOptions({
+    const mutation = useMutation(trpc.personnel.sys_update.mutationOptions({
         async onMutate({ personId, ...update }) {
             await queryClient.cancelQueries(trpc.personnel.byId.queryFilter({ personId }))
 
@@ -89,7 +89,7 @@ function EditPersonForm({ personId, onClose }: { personId: string, onClose: () =
             queryClient.setQueryData(trpc.personnel.byId.queryKey({ personId }), context?.previousPerson)
 
             if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof PersonFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof SystemPersonFormData, { message: error.shape.message })
             } else {
                 toast({
                     title: 'Error updating person',

@@ -97,7 +97,14 @@ export const team = (teamSlug: string) => {
             },
         },
         dashboard: `${base}/dashboard`,
-        members: `${base}/members`
+        invitations: `${base}/invitations`,
+        members: {
+            index: `${base}/members`,
+            person: (personId: string) => ({
+                index: `${base}/members/${personId}`,
+            } as const)
+        },
+        users: `${base}/users`,
     } as const
 }
 

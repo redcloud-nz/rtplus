@@ -3,9 +3,8 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
+import { OrganizationMembershipRole } from '@clerk/nextjs/server'
 import type { Person, Skill, SkillGroup, SkillPackage, Team, TeamMembership, TeamMembershipD4hInfo } from '@prisma/client'
-
-export { TeamMembershipRole } from '@prisma/client'
 
 export type DeleteType = 'Soft' | 'Hard'
 
@@ -14,6 +13,28 @@ export class FieldConflictError extends Error {
         super(fieldName)
         this.name = 'FieldConflictError'
     }
+}
+
+export interface OrganizationBasic {
+    id: string
+    name: string
+    slug: string | null
+}
+
+export interface OrgInvitationBasic {
+    id: string
+    email: string
+    role: OrganizationMembershipRole
+    createdAt: number
+}
+
+export interface OrgMembershipBasic {
+    id: string
+    role: OrganizationMembershipRole
+    user: UserBasic
+    organization: OrganizationBasic
+    createdAt: number
+    updatedAt: number
 }
 
 export interface PersonAccess {
@@ -29,10 +50,18 @@ export type SkillPackageWithGroupsAndSkills = SkillPackage & {
 
 export type TeamBasic = Pick<Team, 'id' | 'name' | 'slug' | 'shortName' | 'color' | 'status'>
 
-export type TeamMembershipBasic = Pick<TeamMembership, 'id' | 'personId' | 'teamId' | 'role' | 'status'>
+export type TeamMembershipBasic = Pick<TeamMembership, 'personId' | 'teamId' | 'tags' | 'status'>
 
 export type TeamMembershipWithPerson = TeamMembershipBasic & { person: PersonBasic }
 
 export type TeamMembershipWithTeam = TeamMembershipBasic & { team: TeamBasic }
 
 export type TeamMembershipWithPersonAndTeam = TeamMembershipBasic & { person: PersonBasic, team: TeamBasic }
+
+
+
+export interface UserBasic {
+    id: string
+    identifier: string
+    name: string
+}

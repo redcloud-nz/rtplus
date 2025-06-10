@@ -16,8 +16,7 @@ import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormField, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ObjectName } from '@/components/ui/typography'
 
-import { TeamMembershipFormData, teamMembershipFormSchema } from '@/lib/forms/team-membership'
-import { patchById } from '@/lib/utils'
+import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema } from '@/lib/forms/team-membership'
 import { useToast } from '@/hooks/use-toast'
 import { PersonBasic, TeamBasic, TeamMembershipBasic, useTRPC } from '@/trpc/client'
 
@@ -25,7 +24,7 @@ import { PersonBasic, TeamBasic, TeamMembershipBasic, useTRPC } from '@/trpc/cli
 
 
 
-export function EditTeamMembershipDialog({ membership, person, team, ...props }: ComponentProps<typeof Dialog> & { membership: TeamMembershipBasic, person: PersonBasic, team: TeamBasic }) {
+export function EditTeamMembershipDialog_sys({ membership, person, team, ...props }: ComponentProps<typeof Dialog> & { membership: TeamMembershipBasic, person: PersonBasic, team: TeamBasic }) {
 
     return <Dialog {...props}>     
         <DialogContent>
@@ -36,7 +35,7 @@ export function EditTeamMembershipDialog({ membership, person, team, ...props }:
                 </DialogDescription>
             </DialogHeader>
             <DialogBody>
-                <EditTeamMembershipForm 
+                <EditTeamMembershipForm_sys 
                     membership={membership} 
                     person={person} 
                     team={team}
@@ -48,13 +47,13 @@ export function EditTeamMembershipDialog({ membership, person, team, ...props }:
 }
 
 
-function EditTeamMembershipForm({ membership, person, team, onClose  }: { membership: TeamMembershipBasic, person: PersonBasic, team: TeamBasic, onClose: () => void }) {
+function EditTeamMembershipForm_sys({ membership, person, team, onClose  }: { membership: TeamMembershipBasic, person: PersonBasic, team: TeamBasic, onClose: () => void }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const form = useForm<TeamMembershipFormData>({
-        resolver: zodResolver(teamMembershipFormSchema),
+    const form = useForm<SystemTeamMembershipFormData>({
+        resolver: zodResolver(systemTeamMembershipFormSchema),
         defaultValues: { ...membership }
     })
 
@@ -72,8 +71,16 @@ function EditTeamMembershipForm({ membership, person, team, onClose  }: { member
             const previousByPerson = queryClient.getQueryData(trpc.teamMemberships.byPerson.queryKey({ personId }))
             const previousByTeam = queryClient.getQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }))
 
-            queryClient.setQueryData(trpc.teamMemberships.byPerson.queryKey({ personId }), (oldData) => patchById(oldData, membership.id, update))
-            queryClient.setQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }), (oldData) => patchById(oldData, membership.id, update))
+            if(previousByPerson) {
+                queryClient.setQueryData(trpc.teamMemberships.byPerson.queryKey({ personId }), previousByPerson.map(m => 
+                    m.teamId == teamId ? { ...m, ...update } : m
+                ))
+            }
+            if(previousByTeam) {
+                queryClient.setQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }), previousByTeam.map(m => 
+                    m.personId == personId ? { ...m, ...update } : m
+                ))
+            }
 
             return { previousByPerson, previousByTeam }
         },
@@ -116,26 +123,6 @@ function EditTeamMembershipForm({ membership, person, team, onClose  }: { member
                     <FixedFormValue value={team.name}/>
                 </FormControl>
             </FormItem>
-            <FormField
-                control={form.control}
-                name="role"
-                render={({ field }) => <FormItem>
-                    <FormLabel>Role</FormLabel>
-                    <FormControl>
-                        <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger className="w-1/2">
-                                <SelectValue placeholder="Role..."/>
-                            </SelectTrigger>
-                            <SelectContent>
-                                {['None', 'Member', 'Admin'].map(role => 
-                                    <SelectItem key={role} value={role}>{role}</SelectItem>
-                                )}
-                            </SelectContent>
-                        </Select>
-                    </FormControl>
-                    <FormMessage/>
-                </FormItem>}
-            />
             <FormField
                 control={form.control}
                 name="status"

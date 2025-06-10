@@ -16,12 +16,12 @@ import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormItem, F
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { TeamMembershipFormData, teamMembershipFormSchema } from '@/lib/forms/team-membership'
+import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema } from '@/lib/forms/team-membership'
 import { PersonBasic, TeamBasic, useTRPC } from '@/trpc/client'
 
 
 
-export function DeleteTeamMembershipDialog({ person, team, ...props }: ComponentProps<typeof Dialog> & { person: PersonBasic, team: TeamBasic }) {
+export function DeleteTeamMembershipDialog_sys({ person, team, ...props }: ComponentProps<typeof Dialog> & { person: PersonBasic, team: TeamBasic }) {
    
     return <Dialog {...props}>
         <DialogContent>
@@ -32,20 +32,20 @@ export function DeleteTeamMembershipDialog({ person, team, ...props }: Component
                 </DialogDescription>
             </DialogHeader>
             <DialogBody>
-                <DeleteTeamMembershipForm person={person} team={team} onClose={() => props.onOpenChange?.(false)} />
+                <DeleteTeamMembershipForm_sys person={person} team={team} onClose={() => props.onOpenChange?.(false)} />
             </DialogBody>
         </DialogContent>
     </Dialog>
 }
 
 
-function DeleteTeamMembershipForm({ person, team, onClose }: { person: PersonBasic, team: TeamBasic, onClose: () => void }) {
+function DeleteTeamMembershipForm_sys({ person, team, onClose }: { person: PersonBasic, team: TeamBasic, onClose: () => void }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const form = useForm<Pick<TeamMembershipFormData, 'personId' | 'teamId'>>({
-        resolver: zodResolver(teamMembershipFormSchema.pick({ personId: true, teamId: true })),
+    const form = useForm<Pick<SystemTeamMembershipFormData, 'personId' | 'teamId'>>({
+        resolver: zodResolver(systemTeamMembershipFormSchema.pick({ personId: true, teamId: true })),
         defaultValues: { personId: person.id, teamId: team.id }
     })
 
@@ -68,9 +68,9 @@ function DeleteTeamMembershipForm({ person, team, onClose }: { person: PersonBas
             queryClient.setQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId: data.teamId }), context?.previousByTeam)
 
             toast({
-                variant: 'destructive',
                 title: 'Error deleting team membership',
-                description: error.message
+                description: error.message,
+                variant: 'destructive',
             })
             onClose()
         },

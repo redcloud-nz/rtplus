@@ -25,7 +25,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 
 import * as Paths from '@/paths'
 import { TeamBasic, useTRPC } from '@/trpc/client'
 
-import { CreateTeamDialog } from './create-team'
+import { CreateTeamDialog_sys } from './create-team'
 import { Separator } from '@/components/ui/separator'
 
 
@@ -34,13 +34,13 @@ import { Separator } from '@/components/ui/separator'
 const STATUS_VALUES = ['Active', 'Inactive']
 
 
-export function TeamsListCard() {
+export function TeamsListCard_sys() {
     const [selectedStatuses, setSelectedStatuses] = useState([...STATUS_VALUES])
     
     return <Card>
         <CardHeader>
             <CardTitle>List</CardTitle>
-            <CreateTeamDialog
+            <CreateTeamDialog_sys
                 trigger={<DialogTriggerButton variant="ghost" size="icon" tooltip="Add team">
                     <PlusIcon />
                 </DialogTriggerButton>}
@@ -60,7 +60,7 @@ export function TeamsListCard() {
             <CardCollapseToggleButton/>
         </CardHeader>
         <CardBody boundary>
-            <TeamsListTable selectedStatuses={selectedStatuses}/>
+            <TeamsListTable_sys selectedStatuses={selectedStatuses}/>
         </CardBody>
     </Card>
 }
@@ -79,7 +79,7 @@ function StatusFilter({ selected, setSelected }: { selected: string[], setSelect
     )
 }
 
-export function TeamsListTable({ selectedStatuses }: { selectedStatuses: string[] }) {
+export function TeamsListTable_sys({ selectedStatuses }: { selectedStatuses: string[] }) {
     const trpc = useTRPC()
 
     const { data: teams } = useSuspenseQuery(trpc.teams.all.queryOptions())

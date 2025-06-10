@@ -275,13 +275,11 @@ model TeamD4hInfo {
 }
 
 model TeamMembership {
-    id                 String                 @id @db.VarChar(16)
     personId           String                 @map("person_id") @db.VarChar(16)
     teamId             String                 @map("team_id") @db.VarChar(16)
-    role               TeamMembershipRole     @default(Member)
     clerkMembershipId  String?                @map("clerk_membership_id") @db.VarChar(50) @unique
     clerkInvitationId  String?                @map("clerk_invitation_id") @db.VarChar(50) @unique
-    inviteStatus       InviteStatus           @map("invite_status") @default(None)
+    tags               String[]               @default([])
     status             RecordStatus           @default(Active)
   
     // Relations
@@ -289,19 +287,22 @@ model TeamMembership {
     person             Person                 @relation("team_membership_to_person", fields: [personId], references: [id], onDelete: Cascade)
     team               Team                   @relation("team_membership_to_team", fields: [teamId], references: [id], onDelete: Cascade)
 
+    @@id([personId, teamId])
     @@map("team_memberships")
 }
 
 model TeamMembershipD4hInfo {
-    teamMembershipId String                  @map("team_membership_id") @db.VarChar(16) @unique
+    personId           String                 @map("person_id") @db.VarChar(16)
+    teamId             String                 @map("team_id") @db.VarChar(16)
     position         String
     d4hStatus        TeamMembershipD4hStatus @map("d4h_status")
     d4hMemberId      Int                     @map("d4h_member_id")
     d4hRef           String                  @map("d4h_ref")
 
     // Relations
-    teamMembership   TeamMembership          @relation("team_membership_to_d4h_info", fields: [teamMembershipId], references: [id], onDelete: Cascade)                  
+    teamMembership   TeamMembership          @relation("team_membership_to_d4h_info", fields: [personId, teamId], references: [personId, teamId], onDelete: Cascade)                  
 
+    @@id([personId, teamId])
     @@map("team_memberships_d4h_info")
 }
 
@@ -310,10 +311,4 @@ enum TeamMembershipD4hStatus {
     NonOperational
     Observer
     Retired
-}
-
-enum TeamMembershipRole {
-    Admin
-    Member
-    None
 }

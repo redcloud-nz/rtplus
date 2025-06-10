@@ -12,7 +12,7 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import * as Paths from '@/paths'
 import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
-import { TeamsListCard } from './team-list'
+import { TeamsListCard_sys } from './team-list'
 
 
 
@@ -31,7 +31,7 @@ export default async function TeamsPage() {
                 <PageHeader>
                     <PageTitle>Teams</PageTitle>
                 </PageHeader>
-                <TeamsListCard/>
+                <TeamsListCard_sys/>
             </AppPageContent>
         </HydrateClient>
     </AppPage>

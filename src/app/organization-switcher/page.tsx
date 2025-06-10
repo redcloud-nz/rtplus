@@ -7,12 +7,14 @@
 
 import { OrganizationSwitcher } from '@clerk/nextjs'
 
+import * as Paths from '@/paths'
+
 export default function OrganizationSwitcherPage() {
-  return <OrganizationSwitcher 
-    hideSlug={false}
-    hidePersonal={false}
-    afterCreateOrganizationUrl="/teams/:slug"
-    afterSelectOrganizationUrl="/teams/:slug"
-    afterSelectPersonalUrl="/me"
-  />
+    return <OrganizationSwitcher 
+        hideSlug={false}
+        hidePersonal={false}
+        afterCreateOrganizationUrl={Paths.team(':slug').index}
+        afterSelectOrganizationUrl={Paths.team(':slug').index}
+        afterSelectPersonalUrl="/me"
+    />
 }

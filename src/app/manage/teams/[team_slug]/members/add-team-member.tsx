@@ -5,7 +5,7 @@
  */
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { match, P } from 'ts-pattern'
 import { z } from 'zod'
@@ -17,11 +17,12 @@ import { Alert } from '@/components/ui/alert'
 import { Dialog, DialogBody, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { useToast } from '@/hooks/use-toast'
-import { addTeamMemberFormSchema, AddTeamMemberFormSchema } from '@/lib/forms/add-team-member'
+import { nanoId8 } from '@/lib/id'
 import { useTRPC } from '@/trpc/client'
+
+
 
 
 
@@ -105,43 +106,57 @@ function SpecifyEmailForm({ onSubmit, onClose }: { onSubmit: (email: string) => 
 }
 
 
+const addTeamMemberFormSchema = z.object({
+    name: z.string().min(1, 'Name is required'),
+    tags: z.array(z.string()),
+})
+type AddTeamMemberFormData = z.infer<typeof addTeamMemberFormSchema>
+
 function AddTeamMemberForm({ email, onClose }: { email: string, onClose: () => void }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const { data: existing } = useSuspenseQuery(trpc.currentTeam.validateEmail.queryOptions({ email }))
+    const { data: existingPerson } = useSuspenseQuery(trpc.personnel.byEmail.queryOptions({ email }))
+    const { data: existingTeamMemberships } = useSuspenseQuery(trpc.teamMemberships.byCurrentTeam.queryOptions())
+    const existingTeamMembership = existingTeamMemberships.find(m => m.personId === existingPerson?.id) ?? null
 
-    const form = useForm<AddTeamMemberFormSchema>({
+    const personId = useMemo(() => existingPerson?.id ?? nanoId8(), [existingPerson])
+
+    const form = useForm<AddTeamMemberFormData>({
         resolver: zodResolver(addTeamMemberFormSchema),
         defaultValues: {
-            name: existing.person?.name ?? '',
-            email,
-            role: existing.teamMembership?.role ?? 'None',
-            existingPersonId: existing.person?.id ?? undefined,
+            name: existingPerson?.name ?? '',
+            tags: [],
         }
     })
 
-    const mutation = useMutation(trpc.currentTeam.addMember.mutationOptions({
-        onError(error) {
-            toast({
-                title: "Error adding team membership",
-                description: error.message,
-                variant: 'destructive',
-            })
-            handleClose()
-        },
-        async onSuccess(newMembership) {
+    const createPersonMutation = useMutation(trpc.personnel.create.mutationOptions())
+    const createTeamMembershipMutation = useMutation(trpc.teamMemberships.createInTeam.mutationOptions())
+
+    const handleSubmit = form.handleSubmit(async (formData) => {
+
+        try {
+            const person = existingPerson ?? await createPersonMutation.mutateAsync({ personId, name: formData.name, email, status: 'Active' })
+
+            await createTeamMembershipMutation.mutateAsync({ personId: personId, tags: formData.tags, status: 'Active' })
+
+            await queryClient.invalidateQueries(trpc.teamMemberships.byCurrentTeam.queryFilter())
+            queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: person.id }))
+
             toast({
                 title: "Team membership added",
-                description: `${newMembership.person.name} has been added to the the .`,
+                description: `${person.name} has been added to the team.`,
             })
-            await queryClient.invalidateQueries(trpc.currentTeam.members.queryFilter())
-            handleClose()
-        }
-    }))
 
-    const handleSubmit = form.handleSubmit(formData => {
+        } catch (error) {
+            toast({
+                title: "Error adding team membership",
+                description: error instanceof Error ? error.message : 'An unknown error occurred',
+                variant: 'destructive',
+            })
+        }
+        handleClose()
 
     })
 
@@ -149,6 +164,8 @@ function AddTeamMemberForm({ email, onClose }: { email: string, onClose: () => v
         onClose()
         form.reset()
     }
+
+    const existing = { person: existingPerson, teamMembership: existingTeamMembership }
 
     return <FormProvider {...form}>
         <form onSubmit={handleSubmit} className="max-w-xl space-y-4">
@@ -171,7 +188,7 @@ function AddTeamMemberForm({ email, onClose }: { email: string, onClose: () => v
                 </FormControl>
             </FormItem>
 
-            {match(existing.person)
+            {match(existingPerson)
                 .with(null, () =>
                     // If the person does not exist, allow entering their name.
                     <FormField
@@ -197,45 +214,6 @@ function AddTeamMemberForm({ email, onClose }: { email: string, onClose: () => v
                             <FixedFormValue value={person.name} />
                         </FormControl>
                     </FormItem>
-                )
-                .exhaustive()
-            }
-
-            {match(existing.teamMembership)
-                .with(null, () =>
-                    // If the existing person is not a member of the team, allow their role to be selected.
-                    <FormField
-                        control={form.control}
-                        name="role"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Role</FormLabel>
-                                <FormControl>
-                                    <Select value={field.value} onValueChange={field.onChange}>
-                                        <SelectTrigger>
-                                            <SelectValue/>
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="None">None</SelectItem>
-                                            <SelectItem value="Member">Member</SelectItem>
-                                            <SelectItem value="Admin">Admin</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </FormControl>
-                                <FormDescription>The role of the team member.</FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                )
-                .with(P.not(null), (teamMembership) =>
-                    // If the existing person is a member of the team, show their role as a fixed value.
-                    <FormItem>
-                    <FormLabel>Role</FormLabel>
-                    <FormControl>
-                        <FixedFormValue value={teamMembership.role} />
-                    </FormControl>
-                </FormItem>
                 )
                 .exhaustive()
             }

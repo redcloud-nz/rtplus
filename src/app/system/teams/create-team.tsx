@@ -24,7 +24,7 @@ import { useTRPC } from '@/trpc/client'
 
 
 
-export function CreateTeamDialog({ trigger }: { trigger: ReactNode }) {
+export function CreateTeamDialog_sys({ trigger }: { trigger: ReactNode }) {
 
     const [open, setOpen] = useState(false)
 
@@ -36,13 +36,13 @@ export function CreateTeamDialog({ trigger }: { trigger: ReactNode }) {
                 <DialogDescription>Create a new team in the system.</DialogDescription>
             </DialogHeader>
             <DialogBody>
-                {open ? <CreateTeamForm onClose={() => setOpen(false)} /> : null}
+                {open ? <CreateTeamForm_sys onClose={() => setOpen(false)} /> : null}
             </DialogBody>
         </DialogContent>
     </Dialog>
 }
 
-function CreateTeamForm({ onClose }: { onClose: () => void }) {
+function CreateTeamForm_sys({ onClose }: { onClose: () => void }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -67,7 +67,7 @@ function CreateTeamForm({ onClose }: { onClose: () => void }) {
         form.reset()
     }
 
-    const mutation = useMutation(trpc.teams.create.mutationOptions({
+    const mutation = useMutation(trpc.teams.sys_create.mutationOptions({
         onError(error) {
             if(error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof TeamFormData, { message: error.shape.message })
