@@ -61,13 +61,8 @@ export const teamsRouter = createTRPCRouter({
         }))
         .query(async ({ ctx, input }): Promise<TeamBasic> => {
             
-            const team = await ctx.prisma.team.findUnique({ 
-                where: { id: input.teamId },
-                select: { id: true, name: true, shortName: true, slug: true, color: true, status: true },
-            })
-
-            if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: `Team(${input.teamId}) not found.` })
-            return team
+            const team = await getTeamById(ctx, input.teamId)
+            return pick(team, ['id', 'name', 'shortName', 'slug', 'color', 'status'])
         }),
 
     bySlug: authenticatedProcedure

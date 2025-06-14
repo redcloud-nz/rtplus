@@ -7,18 +7,18 @@
 
 import { ImportIcon } from 'lucide-react'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageControls, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
-import { Show } from '@/components/show'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageControls, PageHeader, PageTitle } from '@/components/app-page'
 
-import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Link } from '@/components/ui/link'
-import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
-
-import prisma from '@/server/prisma'
 
 import * as Paths from '@/paths'
+import prisma from '@/server/prisma'
 
+import { SkillPackageListCard_sys } from './skill-package-list'
+
+
+export const metadata = { title: "Skill Packages" }
 
 
 export default async function SkillPackageListPage() {
@@ -30,39 +30,18 @@ export default async function SkillPackageListPage() {
             label="Skill Packages" 
             breadcrumbs={[{ label: "System", href: Paths.system.index }]}
         />
-        <AppPageContent>
+        <AppPageContent variant="container">
             <PageHeader>
-                <PageTitle>Manage Skill Packages</PageTitle>
-                <PageDescription>Manage the skill packages available in RT+.</PageDescription>
+                <PageTitle>Skill Packages</PageTitle>
                 <PageControls>
-                    <Button variant="outline" asChild>
+                    <Button variant="ghost" size="icon" asChild>
                         <Link href={Paths.system.skillPackages.import}>
                             <ImportIcon/>
                         </Link>
                     </Button>
                 </PageControls>
             </PageHeader>
-            <Show
-                when={skillPackages.length > 0}
-                fallback={<Alert severity="info" title="No skill packages defined."/>}
-            >
-                <Table border>
-                    <TableHead>
-                        <TableRow>
-                            <TableHeadCell>Name</TableHeadCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {skillPackages.map(skillPackage =>
-                            <TableRow key={skillPackage.id}>
-                                <TableCell>
-                                    <Link href={Paths.system.skillPackages.skillPackage(skillPackage.id).index}>{skillPackage.name}</Link>
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </Show>
+            <SkillPackageListCard_sys/>
         </AppPageContent>
     </AppPage>
 }

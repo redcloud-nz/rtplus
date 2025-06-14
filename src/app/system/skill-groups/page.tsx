@@ -5,23 +5,17 @@
  *  Path: /system/skill-groups
  */
 
+import { Metadata } from 'next'
+
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
-import { Show } from '@/components/show'
-
-import { Alert } from '@/components/ui/alert'
-import { Link } from '@/components/ui/link'
-import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
-
-import prisma from '@/server/prisma'
 
 import * as Paths from '@/paths'
+import { SkillGroupListCard_sys } from './skill-group-list'
+
+
+export const metadata: Metadata = { title: "Skill Groups" }
 
 export default async function SkillGroupListPage() {
-
-    const skillGroups = await prisma.skillGroup.findMany({
-        orderBy: { name: 'asc' },
-        include: { skillPackage: true }
-    })
 
     return <AppPage>
         <AppPageBreadcrumbs
@@ -29,36 +23,12 @@ export default async function SkillGroupListPage() {
             breadcrumbs={[{ label: "System", href: Paths.system.index }]}
         />
         
-        <AppPageContent>
+        <AppPageContent variant='container'>
             <PageHeader>
                 <PageTitle>Manage Skill Groups</PageTitle>
                 <PageDescription>Manage the skill groups available in RT+.</PageDescription>
             </PageHeader>
-            <Show
-                when={skillGroups.length > 0}
-                fallback={<Alert severity="info" title="No skill groups defined."/>}
-            >
-                <Table border>
-                    <TableHead>
-                        <TableRow>
-                            <TableHeadCell className="w-1/2">Name</TableHeadCell>
-                            <TableHeadCell className="w-1/2">Capability</TableHeadCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {skillGroups.map(skillGroup => 
-                            <TableRow key={skillGroup.id}>
-                                <TableCell>
-                                    <Link 
-                                        href={Paths.system.skillGroups.skillGroup(skillGroup.id).index}
-                                    >{skillGroup.name}</Link>
-                                </TableCell>
-                                <TableCell>{skillGroup.skillPackage.name}</TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </Show>
+            <SkillGroupListCard_sys/>
         </AppPageContent>
     </AppPage>
 }

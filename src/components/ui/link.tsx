@@ -55,3 +55,10 @@ export function ExternalLink({ className, href, noDecoration: noUnderline = fals
         {...props}
     />
 }
+
+export function TextLink({ className, ...props }: React.ComponentProps<typeof Link>) {
+    return <Link
+        className={cn('text-blue-900 hover:underline', className)}
+        {...props}    
+    />
+}

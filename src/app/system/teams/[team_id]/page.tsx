@@ -26,7 +26,7 @@ import { getTeam, TeamParams } from '.'
 export async function generateMetadata(props: { params: Promise<TeamParams> }): Promise<Metadata> {
     const team = await getTeam(props.params)
 
-    return { title: `${team.name} | Teams` }
+    return { title: `${team.name} - Teams` }
 }
 
 

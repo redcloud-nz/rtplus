@@ -8,6 +8,8 @@ import * as React from 'react'
 import * as R from 'remeda'
 import { useShallow } from 'zustand/react/shallow'
 
+import { useMutation } from '@tanstack/react-query'
+
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 
 import { Alert } from '@/components/ui/alert'
@@ -19,9 +21,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 
 import { SkillGroupDef } from '@/data/skills'
 import { assertNonNull } from '@/lib/utils'
 import * as Paths from '@/paths'
-import { trpc } from '@/trpc/client'
+import { useTRPC } from '@/trpc/client'
 
 import { useSkillPackageImportStore } from './skill-package-import-store'
+
 
 
 
@@ -94,7 +97,9 @@ function ReviewPackageStep() {
     const { importPackage, packageToImport, reset } = useSkillPackageImportStore(useShallow(R.pick(['importPackage', 'packageToImport', 'reset'])))
     assertNonNull(packageToImport)
 
-    const mutation = trpc.skillPackages.import.useMutation()
+    const trpc = useTRPC()
+
+    const mutation = useMutation(trpc.skillPackages.import.mutationOptions())
     
     async function handleImport() {
         await importPackage(() => mutation.mutateAsync({ skillPackageId: packageToImport!.id }))
@@ -106,7 +111,6 @@ function ReviewPackageStep() {
                     <TableCell className="pl-6">Group</TableCell>
                     <TableCell>
                         <div>{skillGroup.name}</div>
-                        <div><span className="text-muted-foreground">ref:</span> {skillGroup.slug}</div>
                     </TableCell>
                     <TableCell><span className="text-muted-foreground">ID:</span> {skillGroup.id}</TableCell>
                     <TableCell></TableCell>
@@ -141,9 +145,8 @@ function ReviewPackageStep() {
                     <TableCell>Package</TableCell>
                     <TableCell>
                         <div>{packageToImport.name}</div>
-                        <div className="text-gray-500">{packageToImport.slug}</div>
                     </TableCell>
-                    <TableCell>{packageToImport.id}</TableCell>
+                    <TableCell><span className="text-muted-foreground">ID:</span> {packageToImport.id}</TableCell>
                     <TableCell className="text-center"></TableCell>
                     <TableCell className="text-center"></TableCell>
                 </TableRow>

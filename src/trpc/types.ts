@@ -4,7 +4,9 @@
 */
 
 import { OrganizationMembershipRole } from '@clerk/nextjs/server'
-import type { Person, Skill, SkillGroup, SkillPackage, Team, TeamMembership, TeamMembershipD4hInfo } from '@prisma/client'
+import type { Person, Skill, SkillGroup, SkillPackage, Team, TeamMembership } from '@prisma/client'
+
+export { SkillGroup, SkillPackage }
 
 export type DeleteType = 'Soft' | 'Hard'
 
@@ -43,6 +45,10 @@ export interface PersonAccess {
 
 export type PersonBasic = Pick<Person, 'id' | 'name' | 'email' | 'status'>
 
+export type SkillGroupBasic = WithCounts<SkillGroup, 'skills'>
+
+export type SkillPackageBasic = WithCounts<SkillPackage, 'skillGroups' | 'skills'>
+
 export type SkillPackageWithGroupsAndSkills = SkillPackage & { 
     skillGroups: SkillGroup[]
     skills: Skill[]
@@ -65,3 +71,6 @@ export interface UserBasic {
     identifier: string
     name: string
 }
+
+
+export type WithCounts<T, S extends string> = T & { _count: Record<S, number> }

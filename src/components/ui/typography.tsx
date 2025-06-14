@@ -55,7 +55,7 @@ export function Description({ className, ...props }: React.ComponentPropsWithRef
 
 export function ObjectName({ className, ...props }: React.ComponentProps<'span'>) {
     return <span 
-        className={cn('font-semibold', className)}
+        className={cn('font-semibold text-gray-800', className)}
         data-component="ObjectName"
         {...props}
     />

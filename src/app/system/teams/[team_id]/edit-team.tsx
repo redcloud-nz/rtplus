@@ -14,10 +14,12 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input, SlugInput } from '@/components/ui/input'
+import { ObjectName } from '@/components/ui/typography'
 
 import { TeamFormData, teamFormSchema } from '@/lib/forms/team'
 import { useToast } from '@/hooks/use-toast'
 import { useTRPC } from '@/trpc/client'
+
 
 
 
@@ -72,7 +74,10 @@ function EditTeamForm_sys({ teamId, onClose }: { teamId: string, onClose: () => 
             return { previousTeam }
         },
 
-        onError: (error) => {
+        onError: (error, data, context) => {
+            // Rollback to the previous value
+            queryClient.setQueryData(trpc.teams.byId.queryKey({ teamId }), context?.previousTeam)
+
             if(error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof TeamFormData, { message: error.shape.message })
             } else {
@@ -84,10 +89,10 @@ function EditTeamForm_sys({ teamId, onClose }: { teamId: string, onClose: () => 
                 onClose()
             }
         },
-        onSuccess: async (updatedTeam) => {
+        onSuccess(updatedTeam) {
             toast({
                 title: "Team updated",
-                description: `${updatedTeam.name} has been updated.`,
+                description: <>Team <ObjectName>{updatedTeam.name}</ObjectName> has been updated.</>,
             })
             onClose()
         },
