@@ -251,7 +251,7 @@ export const PackageList: SkillPackageDef[] = [
                     defineSkill({ id: "gETPv0Z4", name: "Pumps", description: "Operate pumps (including priming and maintenance requirements)." }),
                     defineSkill({ id: "708HX7NY", name: "Sand Bagging", description: "Effective sand bagging as a team or alternate flood barrier systems." }),
                     defineSkill({ id: "y4Z6MSB0", name: "Divert Water", description: "Divert water for salvage." }),
-                    defineSkill({ id: "vpeqJefW", name: "Ring Dyke", description: "Take part in forming a ring dyke." }),
+                    defineSkill({ id: "vpeqJefW", name: "Ring Dyke", description: "Take part in forming a ring-3 dyke." }),
                     defineSkill({ id: "vFmc24gX", name: "Drain Hazards", description: "Identifies hazards when clearing drains." }),
                     defineSkill({ id: "fnAhB8A1", name: "Decontamination", description: "Conducts decontamination procedures", optional: true })
                 ]

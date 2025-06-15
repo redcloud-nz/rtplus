@@ -57,7 +57,7 @@ export function TableBody({ className, ...props }: React.ComponentPropsWithRef<'
 export function TableFooter({ className, ...props }: React.ComponentPropsWithRef<'tfoot'>) {
     return <tfoot
         className={cn(
-            "border-t bg-muted/50 font-medium [&>tr]:last:border-b-0",
+            "border-t bg-muted/50 font-medium last:[&>tr]:border-b-0",
             className
         )}
         {...props}

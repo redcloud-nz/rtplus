@@ -25,7 +25,7 @@ type DashboardCardProps = React.ComponentPropsWithRef<'li'> & {
 
 export function DashboardCard({ className, title, href, icon: Icon, iconForeground, iconBackground, description, ...props}: DashboardCardProps) {
 
-    return <li className={cn("col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow", className)} {...props}>
+    return <li className={cn("col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow-sm", className)} {...props}>
         <div className="group relative bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500">
             {/* <div>
                 <span
@@ -40,7 +40,7 @@ export function DashboardCard({ className, title, href, icon: Icon, iconForegrou
             </div> */}
             <div className="mt-8">
                 <h3 className="text-base font-semibold text-gray-900">
-                    <Link href={href} className="focus:outline-none">
+                    <Link href={href} className="focus:outline-hidden">
                         {/* Extend touch target to entire panel */}
                         <span aria-hidden="true" className="absolute inset-0" />
                         {title}

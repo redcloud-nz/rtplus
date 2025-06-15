@@ -31,7 +31,7 @@ export function Heading({ className, level = 1, ...props }: HeadingProps) {
 }
 
 export function Paragraph({ className, ...props }: React.ComponentPropsWithRef<'p'>) {
-    return <p className={cn('leading-7 [&:not(:first-child)]:mt-6', className)} {...props}/>
+    return <p className={cn('leading-7 not-first:mt-6', className)} {...props}/>
 }
 
 export function Blockquote({ className, ...props}: React.ComponentPropsWithRef<'blockquote'>) {

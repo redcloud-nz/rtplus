@@ -96,7 +96,7 @@ export function ActivitiesList() {
 
     if(eventsQuery.isPending) return <div>
         <div className="mb-2 flex items-center space-x-4">
-            <Skeleton className="h-10 flex-grow rounded-md"/>
+            <Skeleton className="h-10 grow rounded-md"/>
             <Skeleton className="h-10 w-[120px] rounded-md"/>
             <Skeleton className="h-10 w-[120px] rounded-md"/>
         </div>

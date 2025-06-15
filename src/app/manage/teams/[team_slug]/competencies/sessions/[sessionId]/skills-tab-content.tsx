@@ -95,7 +95,7 @@ function SkillPackageTree({ skillPackage, selectedSkills, handleSelectSkill }: S
 
     return <AccordionItem value={packageId}>
         <AccordionTrigger>
-            <div className="flex-grow text-left">{skillPackage.name}</div>
+            <div className="grow text-left">{skillPackage.name}</div>
             <div className="text-xs text-muted-foreground mr-4">{selectedCount} of {skillCount} selected</div>
         </AccordionTrigger>
         <AccordionContent>

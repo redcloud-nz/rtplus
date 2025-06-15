@@ -55,7 +55,7 @@ export function PersonnelTabContent() {
 
                     return <AccordionItem key={team.id} value={team.id}>
                         <AccordionTrigger>
-                            <div className="flex-grow text-left">{team.name}</div>
+                            <div className="grow text-left">{team.name}</div>
                             <div className="text-xs text-muted-foreground mr-4">{selectedCount} of {memberCount} selected</div>
                         </AccordionTrigger>
                         <AccordionContent>

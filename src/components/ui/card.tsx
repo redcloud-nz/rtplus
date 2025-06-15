@@ -43,7 +43,7 @@ export function Card({ boundary, className, children, fallbackHeader, loading = 
     return <CardContext.Provider value={contextValue}>
         <div
             className={cn(
-                "rounded-sm border bg-card text-card-foreground shadow-sm",
+                "rounded-sm border bg-card text-card-foreground shadow-xs",
                 className
             )}
             {...props}
@@ -88,7 +88,7 @@ export function CardHeader({ className, ...props }: ComponentProps<'div'>) {
 export function CardTitle({ className, ...props }: ComponentProps<'div'>) {
     return <div
         className={cn(
-            "text-2xl font-semibold leading-10 flex-grow px-4",
+            "text-2xl font-semibold leading-10 grow px-4",
             className
         )}
         data-slot="title"

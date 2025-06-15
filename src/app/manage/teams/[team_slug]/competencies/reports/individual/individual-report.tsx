@@ -42,7 +42,7 @@ export default function IndividualReport() {
 
                 return <AccordionItem key={skillPackage.id} value={skillPackage.id}>
                     <AccordionTrigger>
-                        <div className="flex-grow text-left">{skillPackage.name}</div>
+                        <div className="grow text-left">{skillPackage.name}</div>
                         <div className="text-xs text-muted-foreground mr-4">{selectedCount} of {skillCount} current</div>
                     </AccordionTrigger>
                     <AccordionContent>

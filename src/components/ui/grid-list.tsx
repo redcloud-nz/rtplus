@@ -23,7 +23,7 @@ export function GridListItem({ className, asChild = false, ...props }: GridListI
     const Comp = asChild ? Slot : 'li'
 
     return <Comp
-        className={cn(className, 'col-span-1 divide-y divide-gray-200 rounded-lg border bg-card text-card-foreground shadow-sm p-6 hover:bg-gray-50 active:bg-gray-100')}
+        className={cn(className, 'col-span-1 divide-y divide-gray-200 rounded-lg border bg-card text-card-foreground shadow-xs p-6 hover:bg-gray-50 active:bg-gray-100')}
         {...props}
     />
 }

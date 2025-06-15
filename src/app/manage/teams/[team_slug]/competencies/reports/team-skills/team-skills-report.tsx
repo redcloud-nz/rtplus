@@ -31,7 +31,7 @@ export default function TeamSkillsReport() {
 
                 return <AccordionItem key={skillPackage.id} value={skillPackage.id}>
                     <AccordionTrigger>
-                        <div className="flex-grow text-left">{skillPackage.name}</div>
+                        <div className="grow text-left">{skillPackage.name}</div>
                         {/* <div className="text-xs text-muted-foreground mr-4">{selectedCount} of 25 members current</div> */}
                     </AccordionTrigger>
                     <AccordionContent>

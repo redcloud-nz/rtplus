@@ -16,7 +16,7 @@ import { Link } from './link'
 
 
 export const buttonVariants = tv({
-    base: "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+    base: "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
     variants: {
         variant: {
             default: "bg-primary text-primary-foreground hover:bg-primary/90",
@@ -46,7 +46,7 @@ export type ButtonProps = React.ComponentPropsWithRef<'button'> & VariantProps<t
 /**
  * A button component that can be used to trigger actions or navigate to other pages.
  * @param className Additional class names to apply to the button.
- * @param variant The variant of the button. Can be one of 'default', 'destructive', 'outline', 'secondary', 'ghost', or 'link'.
+ * @param variant The variant of the button. Can be one of 'default', 'destructive', 'outline-solid', 'secondary', 'ghost', or 'link'.
  * @param size The size of the button. Can be one of 'default', 'sm', 'lg', or 'icon'.
  * @param asChild If true, the button will be rendered using the Slot component. 
  * 

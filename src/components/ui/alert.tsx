@@ -14,7 +14,7 @@ const alertStyles = tv({
         icon: 'h-5 w-5',
         title: 'text-sm font-medium',
         description: 'mt-2 text-sm',
-        action: 'ml-4 self-center flex-shrink-0'
+        action: 'ml-4 self-center shrink-0'
     },
     variants: {
         severity: {
@@ -62,10 +62,10 @@ export function Alert({ action, className, children, severity = 'info', title, .
 
     return <div {...props} className={cn(slots.root(), className)}>
         <div className="flex">
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
                 <Icon aria-hidden="true" className={slots.icon()} />
             </div>
-            <div className="ml-3 flex-grow">
+            <div className="ml-3 grow">
                 <h3 className={slots.title()}>{title}</h3>
                 { children && <div className={slots.description()}>{children}</div>}
             </div>
