@@ -5,7 +5,6 @@
  */
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { useState, type ReactNode, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
@@ -13,18 +12,21 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs} from '@/components/ui/form'
+import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 
 import { useToast } from '@/hooks/use-toast'
 import { SkillPackageFormData, skillPackageFormSchema } from '@/lib/forms/skill-package'
 import { nanoId8 } from '@/lib/id'
-import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { SkillPackage, useTRPC } from '@/trpc/client'
 
 
+type CreateSkillPackageProps = {
+    onCreate?: (skillPackage: SkillPackage) => void,
+}
 
-export function CreateSkillPackageDialog_sys({ trigger }: { trigger: ReactNode }) {
+export function CreateSkillPackageDialog({ trigger, ...props }: CreateSkillPackageProps & { trigger: ReactNode }) {
 
     const [open, setOpen] = useState(false)
 
@@ -36,14 +38,18 @@ export function CreateSkillPackageDialog_sys({ trigger }: { trigger: ReactNode }
                 <DialogDescription>Create a new skill package.</DialogDescription>
             </DialogHeader>
             <DialogBody>
-                {open ? <CreateSkillPackageForm_sys onClose={() => setOpen(false)} /> : null}
+                {open ? <CreateSkillPackageForm 
+                    onClose={() => setOpen(false)} 
+                    {...props}
+                /> : null}
             </DialogBody>
         </DialogContent>
     </Dialog>
 }
-function CreateSkillPackageForm_sys({ onClose }: { onClose: () => void }) {
+
+
+function CreateSkillPackageForm({ onClose, onCreate }: CreateSkillPackageProps & { onClose: () => void}) {
     const queryClient = useQueryClient()
-    const router = useRouter()
     const { toast } = useToast()
     const trpc = useTRPC()
 
@@ -54,6 +60,7 @@ function CreateSkillPackageForm_sys({ onClose }: { onClose: () => void }) {
         defaultValues: {
             skillPackageId,
             name: '',
+            description: '',
             status: 'Active',
         },
     })
@@ -65,35 +72,55 @@ function CreateSkillPackageForm_sys({ onClose }: { onClose: () => void }) {
 
     const mutation = useMutation(trpc.skillPackages.sys_create.mutationOptions({
         onError(error) {
-            toast({
-                title: 'Error creating skill package',
-                description: error.message,
-                variant: 'destructive',
-            })
-            handleClose()
+            if(error.shape?.cause?.name == 'FieldConflictError') {
+                form.setError(error.shape.cause.message as keyof SkillPackageFormData, { message: error.shape.message })
+            } else {
+                toast({
+                    title: 'Error creating skill package',
+                    description: error.message,
+                    variant: 'destructive',
+                })
+                handleClose()
+            }
         },
-        async onSuccess() {
-            await queryClient.invalidateQueries(trpc.skillPackages.all.queryFilter())
+        async onSuccess(skillPackage) {
             toast({
                 title: 'Skill package created',
-                description: 'The skill package has been successfully created.',
+                description: `The skill package ${skillPackage.name} has been successfully created`,
             })
             handleClose()
-            router.push(Paths.system.skillPackages.skillPackage(skillPackageId).index)
+            onCreate?.(skillPackage)
+
+            await queryClient.invalidateQueries(trpc.skillPackages.all.queryFilter())
         }
     }))
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))}>
+        <form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))} className="max-w-2xl space-y-4">
             <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Name</FormLabel>
+                        <FormLabel>Package Name</FormLabel>
                         <FormControl>
                             <Input {...field} />
                         </FormControl>
+                        <FormDescription>The name of the skill package.</FormDescription>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+            <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Package Description</FormLabel>
+                        <FormControl>
+                            <Textarea {...field} />
+                        </FormControl>
+                        <FormDescription>A description of what this skill package contains and who it applies to.</FormDescription>
                         <FormMessage />
                     </FormItem>
                 )}

@@ -63,7 +63,7 @@ export function AppPageContent({ children, className, variant = 'default', ...pr
 }
 
 
-export type PageBreadcrumbs = { label: string, href: string }[]
+export type PageBreadcrumbs = { label: string, href?: string }[]
 
 export type AppPageBreadcrumbsProps = {
     breadcrumbs?: PageBreadcrumbs
@@ -78,9 +78,13 @@ export function AppPageBreadcrumbs({ breadcrumbs = [], label }: AppPageBreadcrum
                 {breadcrumbs.map((breadcrumb, index) => 
                     <React.Fragment key={index}>
                         <BreadcrumbItem className="hidden md:block">
-                            <BreadcrumbLink asChild>
-                                <Link href={breadcrumb.href}>{breadcrumb.label}</Link>
-                            </BreadcrumbLink>
+                            {breadcrumb.href
+                                ? <BreadcrumbLink asChild>
+                                    <Link href={breadcrumb.href}>{breadcrumb.label}</Link>
+                                </BreadcrumbLink>
+                                : breadcrumb.label
+                            }
+                            
                         </BreadcrumbItem>
                         <BreadcrumbSeparator className="hidden md:block"/>
                     </React.Fragment>

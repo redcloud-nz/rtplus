@@ -10,7 +10,6 @@ export interface SkillPackageDef {
     name: string
     sequence: number
     skillGroups: SkillGroupDef[]
-    skills: SkillDef[]
 }
 
 export interface SkillGroupDef {
@@ -27,7 +26,7 @@ export interface SkillDef {
     id: string
     name: string
     skillPackageId: string
-    skillGroupId: string | null
+    skillGroupId: string
     optional: boolean
     frequency: string
     description: string
@@ -38,10 +37,10 @@ const PLACEHOLDER = 'PLACEHOLDER' as const
 
 const vSet = new IDValidationSet()
 
-type SkillPackageArgs = Omit<SkillPackageDef, | 'skills' | 'skillGroups'> & Partial<Pick<SkillPackageDef, 'skills' | 'skillGroups'>>
+type SkillPackageArgs = Omit<SkillPackageDef, | 'skillGroups'> & Partial<Pick<SkillPackageDef, 'skillGroups'>>
 
 function definePackage({ id: skillPackageId, ...pkg }: SkillPackageArgs): SkillPackageDef {
-    function patchSkill(skill: SkillDef, skillGroupId: string | null, sequence: number): SkillDef {
+    function patchSkill(skill: SkillDef, skillGroupId: string, sequence: number): SkillDef {
         return { ...skill, skillPackageId, skillGroupId, sequence }
     }
     function patchSkillGroup(skillGroup: SkillGroupDef, parentId: string | null, sequence: number): SkillGroupDef {
@@ -61,7 +60,6 @@ function definePackage({ id: skillPackageId, ...pkg }: SkillPackageArgs): SkillP
         ...pkg,
         id: skillPackageId,
         skillGroups: (pkg.skillGroups ?? []).map((skillGroup, groupIndex) => patchSkillGroup(skillGroup, null, groupIndex+1)),
-        skills: (pkg.skills ?? []).map((skill, skillIndex) => patchSkill(skill, null, skillIndex+1))
     }
 }
 
@@ -487,7 +485,7 @@ export function getGroupsInGroup(group: SkillGroupDef): SkillGroupDef[] {
 }
 
 export function getSkillsInPackage(pkg: SkillPackageDef): SkillDef[] {
-    return [...pkg.skills, ...pkg.skillGroups.flatMap(getSkillsInGroup)]
+    return pkg.skillGroups.flatMap(getSkillsInGroup)
 }
 
 export function getSkillsInGroup(group: SkillGroupDef): SkillDef[] {

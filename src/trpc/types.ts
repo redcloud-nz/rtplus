@@ -6,7 +6,7 @@
 import { OrganizationMembershipRole } from '@clerk/nextjs/server'
 import type { Person, Skill, SkillGroup, SkillPackage, Team, TeamMembership } from '@prisma/client'
 
-export { SkillGroup, SkillPackage }
+export { Skill, SkillGroup, SkillPackage }
 
 export type DeleteType = 'Soft' | 'Hard'
 
@@ -45,13 +45,19 @@ export interface PersonAccess {
 
 export type PersonBasic = Pick<Person, 'id' | 'name' | 'email' | 'status'>
 
-export type SkillGroupBasic = WithCounts<SkillGroup, 'skills'>
-
-export type SkillPackageBasic = WithCounts<SkillPackage, 'skillGroups' | 'skills'>
+export type SkillGroupWithPackage = SkillGroup & {
+    skillPackage: SkillPackage
+    parent: SkillGroup | null
+}
 
 export type SkillPackageWithGroupsAndSkills = SkillPackage & { 
     skillGroups: SkillGroup[]
     skills: Skill[]
+}
+
+export type SkillWithPackageAndGroup = Skill & {
+    skillGroup: SkillGroup
+    skillPackage: SkillPackage
 }
 
 export type TeamBasic = Pick<Team, 'id' | 'name' | 'slug' | 'shortName' | 'color' | 'status'>

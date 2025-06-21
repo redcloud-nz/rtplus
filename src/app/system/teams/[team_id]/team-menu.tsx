@@ -10,7 +10,7 @@ import * as React from 'react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 import { TeamD4hConfigDialog } from './team-d4h-config-dialog'
-import { DeleteTeamDialog_sys } from './delete-team'
+import { DeleteTeamDialog } from './delete-team'
 
 
 interface TeamOptionsMenuProps {
@@ -48,7 +48,7 @@ export function TeamMenu_sys({ teamId, trigger }: TeamOptionsMenuProps) {
             onOpenChange={setD4hDialogOpen}
             teamId={teamId}
         />
-        <DeleteTeamDialog_sys
+        <DeleteTeamDialog
             teamId={teamId}
             open={deleteDialogOpen}
             onOpenChange={setDeleteDialogOpen}

@@ -43,7 +43,7 @@ export function Card({ boundary, className, children, fallbackHeader, loading = 
     return <CardContext.Provider value={contextValue}>
         <div
             className={cn(
-                "rounded-sm border bg-card text-card-foreground shadow-xs",
+                "rounded-sm border bg-card text-card-foreground shadow-xs mb-2",
                 className
             )}
             {...props}
@@ -80,7 +80,7 @@ export function Card({ boundary, className, children, fallbackHeader, loading = 
 
 export function CardHeader({ className, ...props }: ComponentProps<'div'>) {
     return <div
-        className={cn("flex border-b bg-zinc-50", className)}
+        className={cn("relative flex border-b bg-zinc-50", className)}
         {...props}
     />
 }
@@ -103,23 +103,43 @@ export function CardDescription({ className, ...props }: ComponentProps<'div'>) 
     />
 }
 
-type CardContentProps = ComponentProps<'div'> & { boundary?: boolean }
+type CardContentProps = ComponentProps<'div'> & { boundary?: boolean, collapsible?: boolean }
 
-export function CardBody({ boundary, children, className, ...props }: CardContentProps) {
-    const { isOpen } = useCardContext()
+export function CardBody({ boundary, children, className, collapsible, ...props }: CardContentProps) {
+    const { isOpen, setOpen } = useCardContext()
 
-    return <div className={cn("p-2 min-h-24", className, !isOpen && "hidden")} {...props}>
-        { boundary
-            ? <ErrorBoundary fallbackRender={({ error}) => <Alert severity="error" title="An error occured">{error.message}</Alert>}>
-                <Suspense 
-                    fallback={<div className="w-full flex items-center justify-center p-4">
-                        <LoaderCircleIcon className="w-10 h-10 animate-spin"/>
-                    </div>}
-                >
-                    {children}
-                </Suspense>
-            </ErrorBoundary>
-            : children
+    return <div className="relative">
+        <div className={cn("p-2 min-h-24", className, !isOpen && "hidden")} {...props}>
+            { boundary
+                ? <ErrorBoundary fallbackRender={({ error}) => <Alert severity="error" title="An error occured">{error.message}</Alert>}>
+                    <Suspense 
+                        fallback={<div className="w-full flex items-center justify-center p-4">
+                            <LoaderCircleIcon className="w-10 h-10 animate-spin"/>
+                        </div>}
+                    >
+                        {children}
+                    </Suspense>
+                </ErrorBoundary>
+                : children
+            }
+        </div>
+        { collapsible ? 
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button
+                        className="absolute -top-[1px] -right-[1px] h-5 w-10 p-0 rounded-0"
+                        variant="hanger" 
+                        size="icon"
+                        onClick={() => setOpen(!isOpen)}
+                    >
+                        <ChevronDownIcon className={cn("transition-transform", isOpen && "rotate-180")}/>
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    {isOpen ? 'Collapse card' : 'Expand card'}
+                </TooltipContent>
+            </Tooltip>
+            : null
         }
     </div>
 }

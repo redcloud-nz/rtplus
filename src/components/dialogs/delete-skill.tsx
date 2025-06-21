@@ -7,60 +7,56 @@
 import { ComponentProps } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
 import { Dialog, DialogBody, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Paragraph } from '@/components/ui/typography'
 
-import { SkillGroupFormData, skillGroupFormSchema } from '@/lib/forms/skill-group'
+import { SkillFormData } from '@/lib/forms/skill'
 import { useToast } from '@/hooks/use-toast'
-import { SkillGroup, useTRPC } from '@/trpc/client'
+import { Skill, useTRPC } from '@/trpc/client'
 
 
-
-type DeleteSkillGroupProps = {
-    onDelete?: (skillGroup: SkillGroup) => void
-    skillGroupId: string
-    
+type DeleteSkillDialogProps = {
+    onDelete?: (skill: Skill) => void
+    skillId: string
 }
 
-export function DeleteSkillGroupDialog({ onDelete, skillGroupId, ...props}: ComponentProps<typeof Dialog> & DeleteSkillGroupProps) {
+export function DeleteSkillDialog({ onDelete, skillId, ...props }: ComponentProps<typeof Dialog> & DeleteSkillDialogProps) {
     return <Dialog {...props}>
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>Delete Skill Group</DialogTitle>
-                <Paragraph>This action will permanently delete the skill group and all its skills.</Paragraph>
+                <DialogTitle>Delete Skill</DialogTitle>
+                <Paragraph>This action will permanently delete the skill and its assessment history.</Paragraph>
             </DialogHeader>
             <DialogBody>
-                <DeleteSkillGroupForm 
-                    skillGroupId={skillGroupId} 
+                <DeleteSkillForm
                     onClose={() => props.onOpenChange?.(false)} 
                     onDelete={onDelete}
+                    skillId={skillId}
                 />
             </DialogBody>
         </DialogContent>
     </Dialog>
 }
 
-export function DeleteSkillGroupForm({ onClose, onDelete, skillGroupId }: DeleteSkillGroupProps & { onClose: () => void }) {
+export function DeleteSkillForm({ onClose, onDelete, skillId }: DeleteSkillDialogProps & { onClose: () => void }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const { data: skillGroup } = useSuspenseQuery(trpc.skillGroups.byId.queryOptions({ skillGroupId }))
+    const { data: skill } = useSuspenseQuery(trpc.skills.byId.queryOptions({ skillId }))
 
-    const form = useForm<Pick<SkillGroupFormData, 'skillGroupId'>>({
-        resolver: zodResolver(skillGroupFormSchema.pick({ skillGroupId: true })),
-        defaultValues: { skillGroupId: skillGroup.id }
+    const form = useForm<Pick<SkillFormData, 'skillId'>>({
+        resolver: (data) => ({ values: data, errors: {} }),
+        defaultValues: { skillId: skill.id }
     })
 
-
-    const mutation = useMutation(trpc.skillGroups.sys_delete.mutationOptions({
+    const mutation = useMutation(trpc.skills.sys_delete.mutationOptions({
         onError(error) {
             toast({
-                title: 'Error Deleting Skill Group',
+                title: 'Error Deleting Skill',
                 description: error.message,
                 variant: 'destructive'
             })
@@ -68,15 +64,15 @@ export function DeleteSkillGroupForm({ onClose, onDelete, skillGroupId }: Delete
         },
         async onSuccess(result) {
             toast({
-                title: 'Skill Group Deleted',
-                description: `The skill group ${result.name} has been deleted.`,
+                title: 'Skill Deleted',
+                description: `The skill ${result.name} has been deleted.`,
             })
             onClose()
             onDelete?.(result)
 
-            await queryClient.invalidateQueries(trpc.skillGroups.all.queryFilter())
-            await queryClient.invalidateQueries(trpc.skillGroups.byId.queryFilter({ skillGroupId }))
-            await queryClient.invalidateQueries(trpc.skillGroups.bySkillPackageId.queryFilter({ skillPackageId: skillGroup.skillPackageId }))
+            await queryClient.invalidateQueries(trpc.skills.all.queryFilter())
+            await queryClient.invalidateQueries(trpc.skills.byId.queryFilter({ skillId }))
+            await queryClient.invalidateQueries(trpc.skills.bySkillGroupId.queryFilter({ skillGroupId: skill.skillGroupId }))
         },
     }))
 
@@ -85,13 +81,19 @@ export function DeleteSkillGroupForm({ onClose, onDelete, skillGroupId }: Delete
             <FormItem>
                 <FormLabel>Skill Package</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={skillGroup.skillPackage.name} />
+                    <FixedFormValue value={skill.skillPackage.name} />
                 </FormControl>
             </FormItem>
-            <FormItem>
+            { skill.skillGroup ? <FormItem>
                 <FormLabel>Skill Group</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={skillGroup.name} />
+                    <FixedFormValue value={skill.skillGroup.name} />
+                </FormControl>
+            </FormItem> : null }
+            <FormItem>
+                <FormLabel>Skill</FormLabel>
+                <FormControl>
+                    <FixedFormValue value={skill.name} />
                 </FormControl>
             </FormItem>
             <FormActions>

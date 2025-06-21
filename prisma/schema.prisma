@@ -79,7 +79,7 @@ enum RecordStatus {
 model Skill {
     id                 String              @id @db.VarChar(16)
     skillPackageId     String              @map("skill_package_id") @db.VarChar(16)
-    skillGroupId       String?             @map("skill_group_id") @db.VarChar(16)
+    skillGroupId       String              @map("skill_group_id") @db.VarChar(16)
     name               String
     description        String
     frequency          String
@@ -90,7 +90,7 @@ model Skill {
     // Relations
     checks             SkillCheck[]        @relation("skill_check_to_skill")
     skillPackage       SkillPackage        @relation("skill_to_skill_package", fields: [skillPackageId], references: [id], onDelete: Cascade)
-    skillGroup         SkillGroup?         @relation("skill_to_skill_group", fields: [skillGroupId], references: [id], onDelete: SetNull)
+    skillGroup         SkillGroup          @relation("skill_to_skill_group", fields: [skillGroupId], references: [id], onDelete: Cascade)
     skillCheckSessions SkillCheckSession[] @relation("skill_check_session_to_skill")
 
     @@map("skills")
@@ -157,6 +157,7 @@ enum SkillCheckStatus {
 model SkillGroup {
     id             String       @id @db.VarChar(16)
     name           String       @db.VarChar(100)
+    description    String       @default("")
     skillPackageId String       @map("skill_package_id") @db.VarChar(16)
     parentId       String?      @map("parent_id") @db.VarChar(16)
     sequence       Int
@@ -175,6 +176,7 @@ model SkillGroup {
 model SkillPackage {
     id          String                  @id @db.VarChar(16)
     name        String                  @db.VarChar(100)
+    description String                  @default("")
     sequence    Int
     status      RecordStatus            @default(Active)
 

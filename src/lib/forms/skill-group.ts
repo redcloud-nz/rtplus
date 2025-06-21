@@ -11,7 +11,8 @@ export const skillGroupFormSchema = z.object({
     skillGroupId: zodNanoId8,
     skillPackageId: zodNanoId8,
     parentId: z.union([zodNanoId8, z.null()]),
-    name: z.string().min(5).max(100),
+    name: z.string().nonempty().max(100),
+    description: z.string().max(500),
     status: z.enum(['Active', 'Inactive'])
 })
 

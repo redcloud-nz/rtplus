@@ -32,29 +32,23 @@ export const system = {
             },
         } as const),
     },
-    skills: {
-        index: '/system/skills',
-        create: '/system/skills/--create',
-        skill: (skillId: string) => ({
-            index: `/system/skills/${skillId}`,
-            update: `/system/skills/${skillId}/--update`,
-        } as const),
-    },
-    skillGroups: {
-        index: '/system/skill-groups',
-        create: '/system/skill-groups/--create',
-        skillGroup: (skillGroupId: string) => ({
-            index: `/system/skill-groups/${skillGroupId}`,
-            update: `/system/skill-groups/${skillGroupId}/--update`,
-        } as const),
-    },
     skillPackages: {
         index: '/system/skill-packages',
-        import : '/system/skill-packages/--import',
-        new: '/system/skill-packages/--create',
+        import: '/system/skill-packages/--import',
         skillPackage: (skillPackageId: string) => ({
             index: `/system/skill-packages/${skillPackageId}`,
-            edit: `/system/skill-packages/${skillPackageId}/--update`,
+            groups: {
+                index: `/system/skill-packages/${skillPackageId}/groups`,
+                group: (skillGroupId: string) => ({
+                    index: `/system/skill-packages/${skillPackageId}/groups/${skillGroupId}`,
+                } as const),
+            },
+            skills: {
+                index: `/system/skill-packages/${skillPackageId}/skills`,
+                skill: (skillId: string) => ({
+                    index: `/system/skill-packages/${skillPackageId}/skills/${skillId}`,
+                } as const),
+            },
         } as const),
     },
 }

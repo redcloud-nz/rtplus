@@ -4,8 +4,7 @@
  */
 'use client'
 
-import { useRouter } from 'next/navigation'
-import {} from 'react'
+import { ComponentProps } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -18,13 +17,14 @@ import { Paragraph } from '@/components/ui/typography'
 import { useToast } from '@/hooks/use-toast'
 import { TeamFormData, teamFormSchema } from '@/lib/forms/team'
 import { useTRPC } from '@/trpc/client'
-import * as Paths from '@/paths'
 
 
+type DeleteTeamDialogProps = ComponentProps<typeof Dialog> & {
+    teamId: string
+    onDelete?: (team: { id: string, name: string }) => void
+}
 
-
-
-export function DeleteTeamDialog_sys({ teamId, ...props }: React.ComponentProps<typeof Dialog> & { teamId: string }) {
+export function DeleteTeamDialog(props: DeleteTeamDialogProps) {
     return <Dialog {...props}>
         <DialogContent>
             <DialogHeader>
@@ -32,17 +32,16 @@ export function DeleteTeamDialog_sys({ teamId, ...props }: React.ComponentProps<
                 <Paragraph>This action will permanently delete the team.</Paragraph>
             </DialogHeader>
             <DialogBody>
-                <DeleteTeamForm_sys teamId={teamId} onClose={() => props.onOpenChange?.(false)} />
+                <DeleteTeamForm {...props} />
             </DialogBody>
         </DialogContent>
     </Dialog>
 }
 
 
-function DeleteTeamForm_sys({ teamId, onClose }: { teamId: string, onClose: () => void }) {
+function DeleteTeamForm({ teamId, onOpenChange, onDelete }: DeleteTeamDialogProps) {
 
     const queryClient = useQueryClient()
-    const router = useRouter()
     const { toast } = useToast()
     const trpc = useTRPC()
 
@@ -53,35 +52,49 @@ function DeleteTeamForm_sys({ teamId, onClose }: { teamId: string, onClose: () =
         defaultValues: { teamId: team.id}
     })
 
+    function handleClose() {
+        onOpenChange?.(false)
+    }
+
     const mutation = useMutation(trpc.teams.sys_delete.mutationOptions({
         async onMutate() {
             await queryClient.cancelQueries(trpc.teams.all.queryFilter())
             await queryClient.cancelQueries(trpc.teams.byId.queryFilter({ teamId }))
 
-            const previousTeams = queryClient.getQueryData(trpc.teams.all.queryKey())
-            if (previousTeams) {
-                queryClient.setQueryData(trpc.teams.all.queryKey(), previousTeams.filter(t => t.id !== teamId))
-            }
-
-            onClose()
-            router.push(Paths.system.teams.index)
-            return { previousTeams }
+            const previousAll = queryClient.getQueryData(trpc.teams.all.queryKey()) ?? []
+            const previousById = queryClient.getQueryData(trpc.teams.byId.queryKey({ teamId }))
+            
+            queryClient.setQueryData(trpc.teams.all.queryKey(), previousAll.filter(t => t.id !== teamId))
+            queryClient.setQueryData(trpc.teams.byId.queryKey({ teamId }), undefined)
+            
+            handleClose()
+            return { previousAll, previousById }
         },
         onError(error, data, context) {
-            queryClient.setQueryData(trpc.teams.all.queryKey(), context?.previousTeams)
+            queryClient.setQueryData(trpc.teams.all.queryKey(), context?.previousAll)
+            queryClient.setQueryData(trpc.teams.byId.queryKey({ teamId }), context?.previousById)
+            
             toast({
                 title: 'Error deleting team',
                 description: error.message,
                 variant: 'destructive'
             })
         },
+        onSuccess(result) {
+            toast({
+                title: 'Team deleted',
+                description: `The team ${result.name} has been deleted successfully.`,
+            })
+            onDelete?.(result)
+        },
         onSettled() {
             queryClient.invalidateQueries(trpc.teams.all.queryFilter())
+            queryClient.invalidateQueries(trpc.teams.byId.queryFilter({ teamId }))
         }
     }))
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="max-w-xl space-y-4">
+        <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="max-w-2xl space-y-4">
             <FormItem>
                 <FormLabel>Team</FormLabel>
                 <FormControl>
@@ -90,7 +103,7 @@ function DeleteTeamForm_sys({ teamId, onClose }: { teamId: string, onClose: () =
             </FormItem>
             <FormActions>
                 <FormSubmitButton labels={SubmitVerbs.delete} variant="destructive"/>
-                <FormCancelButton onClick={onClose}/>
+                <FormCancelButton onClick={handleClose}/>
             </FormActions>
         </form>
     </FormProvider>

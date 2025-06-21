@@ -17,7 +17,7 @@ import { zodNanoId8, zodRecordStatus } from '@/lib/validation'
 
 import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
 
-import { SkillPackageBasic } from '../types'
+import { SkillPackage, WithCounts } from '../types'
 
 
 
@@ -28,13 +28,18 @@ export const skillPackagesRouter = createTRPCRouter({
         .input(z.object({
             status: zodRecordStatus
         }))
-        .query(async ({ ctx, input }): Promise<SkillPackageBasic[]> => {
+        .query(async ({ ctx, input }): Promise<WithCounts<SkillPackage, 'skillGroups' | 'skills'>[]> => {
             return await ctx.prisma.skillPackage.findMany({ 
                 where: { status: { in: input.status } },
                 orderBy: { sequence: 'asc' },
                 include: {
                     _count: {
-                        select: { skillGroups: true, skills: true }
+                        select: { skillGroups: {
+                            where: { status: { in: input.status } }
+                        }, 
+                        skills: {
+                            where: { status: { in: input.status } }
+                        } }
                     }
                 }
             })
@@ -44,13 +49,13 @@ export const skillPackagesRouter = createTRPCRouter({
         .input(z.object({
             skillPackageId: zodNanoId8
         }))
-        .query(async ({ ctx, input }): Promise<SkillPackageBasic> => {
+        .query(async ({ ctx, input }): Promise<SkillPackage> => {
             return getSkillPackageById(ctx, input.skillPackageId)
         }), 
 
     sys_create: systemAdminProcedure
         .input(skillPackageFormSchema)
-        .mutation(async ({ ctx, input: { skillPackageId, ...input } }): Promise<SkillPackageBasic> => {
+        .mutation(async ({ ctx, input: { skillPackageId, ...input } }): Promise<SkillPackage> => {
             const aggregations = await ctx.prisma.skillPackage.aggregate({
                 _max: { sequence: true },
             })
@@ -75,11 +80,6 @@ export const skillPackagesRouter = createTRPCRouter({
                         }
                     }
                 },
-                include: {
-                    _count: {
-                        select: { skillGroups: true, skills: true }
-                    }
-                }
             })
 
             return newPackage
@@ -93,9 +93,11 @@ export const skillPackagesRouter = createTRPCRouter({
                 include: {
                     skillGroups: {
                         where: { status: 'Active' },
+                        orderBy: { sequence: 'asc' },
                     },
                     skills: {
                         where: { status: 'Active' },
+                        orderBy: { sequence: 'asc' },
                     }
                 }
             })
@@ -105,10 +107,10 @@ export const skillPackagesRouter = createTRPCRouter({
         .input(z.object({
             skillPackageId: zodNanoId8
         }))
-        .mutation(async ({ ctx, input: { skillPackageId} }): Promise<SkillPackageBasic> => {
+        .mutation(async ({ ctx, input: { skillPackageId} }): Promise<SkillPackage> => {
             const existing = await getSkillPackageById(ctx, skillPackageId)
 
-            ctx.prisma.skillPackage.delete({ where: { id: skillPackageId } })
+            await ctx.prisma.skillPackage.delete({ where: { id: skillPackageId } })
 
             return existing
         }),
@@ -135,7 +137,7 @@ export const skillPackagesRouter = createTRPCRouter({
     
     sys_update: systemAdminProcedure
         .input(skillPackageFormSchema)
-        .mutation(async ({ ctx, input: { skillPackageId, ...input } }): Promise<SkillPackageBasic> => {
+        .mutation(async ({ ctx, input: { skillPackageId, ...input } }): Promise<SkillPackage> => {
             const existing = await getSkillPackageById(ctx, skillPackageId)
 
             // Pick only the fields that have changed
@@ -155,24 +157,14 @@ export const skillPackagesRouter = createTRPCRouter({
                         }
                     }
                 },
-                include: {
-                    _count: {
-                        select: { skillGroups: true, skills: true }
-                    }
-                }   
             })
         })
 })
 
 
-export async function getSkillPackageById(ctx: AuthenticatedContext, skillPackageId: string): Promise<SkillPackageBasic> {
+export async function getSkillPackageById(ctx: AuthenticatedContext, skillPackageId: string): Promise<SkillPackage> {
     const skillPackage = await ctx.prisma.skillPackage.findUnique({ 
             where: { id: skillPackageId },
-            include: {
-                _count: {
-                    select: { skillGroups: true, skills: true }
-                }
-            }
         })
 
         if(!skillPackage) {

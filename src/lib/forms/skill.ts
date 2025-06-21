@@ -11,8 +11,8 @@ export const skillFormSchema = z.object({
     skillId: zodNanoId8,
     skillGroupId: zodNanoId8,
     skillPackageId: zodNanoId8,
-    name: z.string().min(5).max(100),
-    description: z.string(),
+    name: z.string().nonempty().max(100),
+    description: z.string().max(500),
     frequency: z.string(),
     optional: z.boolean().default(false),
     status: z.enum(['Active', 'Inactive'])

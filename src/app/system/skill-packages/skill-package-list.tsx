@@ -6,13 +6,15 @@
 'use client'
 
 import { PlusIcon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 
+import { CreateSkillPackageDialog } from '@/components/dialogs/create-skill-package'
 import { FiltersPopover, StatusFilter, useFilters } from '@/components/filters'
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
-import { Card, CardBody, CardCollapseToggleButton, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
 import { DialogTriggerButton } from '@/components/ui/dialog'
 import { TextLink } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
@@ -20,7 +22,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
-import { CreateSkillPackageDialog_sys } from './create-skill-package'
+
 
 type Filters = { status: ('Active' | 'Inactive')[] }
 
@@ -28,17 +30,20 @@ export function SkillPackageListCard_sys() {
     const filters = useFilters<Filters>({
         defaultValues: { status: ['Active', 'Inactive'] },
     })
+    const router = useRouter()
 
     return <Card>
         <CardHeader>
             <CardTitle>Package list</CardTitle>
-            <CreateSkillPackageDialog_sys trigger={<DialogTriggerButton variant="ghost" size="icon" tooltip="Create Skill Package">
-                <PlusIcon/>
-            </DialogTriggerButton>}/>
+            <CreateSkillPackageDialog
+                onCreate={skillPackage => router.push(Paths.system.skillPackages.skillPackage(skillPackage.id).index)}
+                trigger={<DialogTriggerButton variant="ghost" size="icon" tooltip="Create Skill Package">
+                    <PlusIcon/>
+                </DialogTriggerButton>}
+            />
             <FiltersPopover>
                 <StatusFilter control={filters.control.status} />
             </FiltersPopover>
-            <CardCollapseToggleButton/>
         </CardHeader>
         <CardBody boundary>
             <SkillPackageListTable_sys state={filters.state}/>

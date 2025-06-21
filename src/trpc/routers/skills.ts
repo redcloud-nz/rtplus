@@ -14,6 +14,7 @@ import { zodNanoId8, zodRecordStatus } from '@/lib/validation'
 import { TRPCError } from '@trpc/server'
 
 import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
+import { SkillWithPackageAndGroup } from '../types'
 
 
 export const skillsRouter = createTRPCRouter({
@@ -30,26 +31,13 @@ export const skillsRouter = createTRPCRouter({
 
     byId: authenticatedProcedure
         .input(z.object({
-            skillGroupId: zodNanoId8,
+            skillId: zodNanoId8,
             status: zodRecordStatus
         }))
-        .query(async ({ ctx, input }): Promise<Skill> => {
-            return getSkillById(ctx, input.skillGroupId)
+        .query(async ({ ctx, input }): Promise<SkillWithPackageAndGroup> => {
+            return getSkillById(ctx, input.skillId)
         }),
                             
-
-    bySkillPackageId: authenticatedProcedure
-        .input(z.object({
-            skillPackageId: zodNanoId8,
-            status: zodRecordStatus
-        }))
-        .query(async ({ ctx, input }): Promise<Skill[]> => {
-            return ctx.prisma.skill.findMany({ 
-                where: { skillPackageId: input.skillPackageId, status: { in: input.status } },
-                orderBy: { sequence: 'asc' },
-            
-            })
-        }),
     bySkillGroupId: authenticatedProcedure
         .input(z.object({
             skillGroupId: zodNanoId8,
@@ -64,7 +52,7 @@ export const skillsRouter = createTRPCRouter({
 
     sys_create: systemAdminProcedure
         .input(skillFormSchema)
-        .mutation(async ({ ctx, input: { skillPackageId, skillId, ...input } }): Promise<Skill> => {
+        .mutation(async ({ ctx, input: { skillPackageId, skillId, ...input } }): Promise<SkillWithPackageAndGroup> => {
             const aggregations = await ctx.prisma.skill.aggregate({
                 where: { skillPackageId: skillPackageId, skillGroupId: input.skillGroupId },
                 _max: { sequence: true }
@@ -79,6 +67,10 @@ export const skillsRouter = createTRPCRouter({
                         skillPackageId,
                         ...fields,
                     },
+                    include: {
+                        skillPackage: true,
+                        skillGroup: true,
+                    }
                 }),
 
                 ctx.prisma.skillPackageChangeLog.create({
@@ -86,7 +78,7 @@ export const skillsRouter = createTRPCRouter({
                         id: nanoId16(),
                         skillPackageId: skillPackageId,
                         event: 'CreateSkill',
-                        actorId: ctx.auth.userId,
+                        actorId: ctx.personId,
                         timestamp: new Date(),
                         fields: { ...fields, skillId },
                     }
@@ -113,7 +105,7 @@ export const skillsRouter = createTRPCRouter({
                         id: nanoId16(),
                         skillPackageId: skill.skillPackageId,
                         event: 'DeleteSkill',
-                        actorId: ctx.auth.userId,
+                        actorId: ctx.personId,
                         timestamp: new Date(),
                         fields: { skillId },
                     }
@@ -125,7 +117,7 @@ export const skillsRouter = createTRPCRouter({
 
     sys_update: systemAdminProcedure
         .input(skillFormSchema)
-        .mutation(async ({ ctx, input: { skillPackageId, skillId, ...input } }): Promise<Skill> => {
+        .mutation(async ({ ctx, input: { skillPackageId, skillId, ...input } }): Promise<SkillWithPackageAndGroup> => {
             const skill = await getSkillById(ctx, skillId)
 
             const changedFields = pickBy(input, (value, key) => value != skill[key])
@@ -134,6 +126,10 @@ export const skillsRouter = createTRPCRouter({
                 ctx.prisma.skill.update({
                     where: { id: skillId },
                     data: changedFields,
+                    include: {
+                        skillPackage: true,
+                        skillGroup: true,
+                    }
                 }),
 
                 ctx.prisma.skillPackageChangeLog.create({
@@ -141,7 +137,7 @@ export const skillsRouter = createTRPCRouter({
                         id: nanoId16(),
                         skillPackageId,
                         event: 'UpdateSkill',
-                        actorId: ctx.auth.userId,
+                        actorId: ctx.personId,
                         timestamp: new Date(),
                         fields: { ...changedFields, skillId },
                     }
@@ -153,9 +149,13 @@ export const skillsRouter = createTRPCRouter({
 })
 
 
-export async function getSkillById(ctx: AuthenticatedContext, skillId: string): Promise<Skill> {
+export async function getSkillById(ctx: AuthenticatedContext, skillId: string): Promise<SkillWithPackageAndGroup> {
     const skill = await ctx.prisma.skill.findUnique({
         where: { id: skillId },
+        include: {
+            skillPackage: true,
+            skillGroup: true,
+        }
     })
 
     if (!skill) throw new TRPCError({ code: 'NOT_FOUND', message: `Skill(${skillId}) not found`})

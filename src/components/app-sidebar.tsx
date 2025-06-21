@@ -73,8 +73,6 @@ export async function AppSidebar({ children, ...props }: AppSidebarProps) {
             </NavSection>
             { isSystemAdmin ? <NavSection title="System">
                     <NavSubItem label="Personnel" href={Paths.system.personnel.index}/>
-                    <NavSubItem label="Skills" href={Paths.system.skills.index}/>
-                    <NavSubItem label="Skill Groups" href={Paths.system.skillGroups.index}/>
                     <NavSubItem label="Skill Packages" href={Paths.system.skillPackages.index}/>
                     <NavSubItem label="Teams" href={Paths.system.teams.index}/>
                 </NavSection> : null }

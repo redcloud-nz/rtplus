@@ -13,7 +13,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 
 import { Show } from '@/components/show'
 import { EditTeamMembershipDialog_sys } from '@/components/dialogs/edit-team-membership'
-import { DeleteTeamMembershipDialog_sys } from '@/components/dialogs/delete-team-membership'
+import { DeleteTeamMembershipDialog } from '@/components/dialogs/delete-team-membership'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardCollapseToggleButton, CardHeader, CardTitle } from '@/components/ui/card'
@@ -116,7 +116,7 @@ function TeamMembersCardTable_sys({ teamId }: { teamId: string }) {
                 />
             )
             .with({ action: 'Delete' }, ({ person }) => 
-                <DeleteTeamMembershipDialog_sys
+                <DeleteTeamMembershipDialog
                     key="delete-team-membership-dialog"
                     team={team}
                     person={person}

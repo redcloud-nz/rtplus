@@ -9,7 +9,8 @@ import { zodNanoId8 } from '../validation'
 
 export const skillPackageFormSchema = z.object({
     skillPackageId: zodNanoId8,
-    name: z.string().min(5).max(100),
+    name: z.string().nonempty().max(100),
+    description: z.string().max(500),
     status: z.enum(['Active', 'Inactive'])
 })
 

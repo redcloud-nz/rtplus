@@ -1,9 +1,4 @@
-/*
- *  Copyright (c) 2025 Redcloud Development, Ltd.
- *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
- * 
- */
-'use client'
+
 
 import { ComponentProps } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -21,7 +16,7 @@ import { PersonBasic, TeamBasic, useTRPC } from '@/trpc/client'
 
 
 
-export function DeleteTeamMembershipDialog_sys({ person, team, ...props }: ComponentProps<typeof Dialog> & { person: PersonBasic, team: TeamBasic }) {
+export function DeleteTeamMembershipDialog({ person, team, ...props }: ComponentProps<typeof Dialog> & { person: PersonBasic, team: TeamBasic }) {
    
     return <Dialog {...props}>
         <DialogContent>
@@ -32,14 +27,14 @@ export function DeleteTeamMembershipDialog_sys({ person, team, ...props }: Compo
                 </DialogDescription>
             </DialogHeader>
             <DialogBody>
-                <DeleteTeamMembershipForm_sys person={person} team={team} onClose={() => props.onOpenChange?.(false)} />
+                <DeleteTeamMembershipForm person={person} team={team} onClose={() => props.onOpenChange?.(false)} />
             </DialogBody>
         </DialogContent>
     </Dialog>
 }
 
 
-function DeleteTeamMembershipForm_sys({ person, team, onClose }: { person: PersonBasic, team: TeamBasic, onClose: () => void }) {
+function DeleteTeamMembershipForm({ person, team, onClose }: { person: PersonBasic, team: TeamBasic, onClose: () => void }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
