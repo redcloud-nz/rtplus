@@ -3,14 +3,17 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
+import _ from "lodash"
 import { PolicyKeyType } from "./lib/policy"
 
 //  /------------------------------\
 //  |            System            |
 //  \------------------------------/
 export const system = {
+    _label: 'System',
     index: '/system',
     teams: {
+        _label: 'Teams',
         index: '/system/teams',
         create: '/system/teams/--create',
         team: (teamId: string) => ({
@@ -21,6 +24,7 @@ export const system = {
         } as const),
     },
     personnel: {
+        _label: 'Personnel',
         index: '/system/personnel',
         create: '/system/personnel/--create',
         person: (personId: string) => ({
@@ -33,18 +37,19 @@ export const system = {
         } as const),
     },
     skillPackages: {
+        _label: 'Skill Packages',
         index: '/system/skill-packages',
         import: '/system/skill-packages/--import',
         skillPackage: (skillPackageId: string) => ({
             index: `/system/skill-packages/${skillPackageId}`,
             groups: {
-                index: `/system/skill-packages/${skillPackageId}/groups`,
+                _label: 'Groups',
                 group: (skillGroupId: string) => ({
                     index: `/system/skill-packages/${skillPackageId}/groups/${skillGroupId}`,
                 } as const),
             },
             skills: {
-                index: `/system/skill-packages/${skillPackageId}/skills`,
+                _label: 'Skills',
                 skill: (skillId: string) => ({
                     index: `/system/skill-packages/${skillPackageId}/skills/${skillId}`,
                 } as const),
@@ -79,7 +84,8 @@ export const team = (teamSlug: string) => {
         availability: `${base}/availability`,
         checklists: `${base}/checklists`,
         competencies: {
-            overview: competenciesBase,
+            _label: 'Competencies',
+            index: competenciesBase,
             sessionList: `${competenciesBase}/sessions`,
             session: (sessionId: string) => `${competenciesBase}/sessions/${sessionId}`,
             record: `${competenciesBase}/record`,
@@ -91,14 +97,21 @@ export const team = (teamSlug: string) => {
             },
         },
         dashboard: `${base}/dashboard`,
-        invitations: `${base}/invitations`,
+        invitations: {
+            _label: 'Invitations',
+            index: `${base}/invitations`
+        },
         members: {
+            _label: 'Members',
             index: `${base}/members`,
             person: (personId: string) => ({
                 index: `${base}/members/${personId}`,
             } as const)
         },
-        users: `${base}/users`,
+        users: {
+            _label: 'Users',
+            index: `${base}/users`
+        },
     } as const
 }
 

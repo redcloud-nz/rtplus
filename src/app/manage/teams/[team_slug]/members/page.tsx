@@ -28,7 +28,10 @@ export default async function TeamMembersPage(props: { params: Promise<TeamParam
     return <AppPage>
         <AppPageBreadcrumbs
             label="Members"
-            breadcrumbs={[{ label: team.shortName || team.name, href: Paths.team(team.slug).index }]}
+            breadcrumbs={[
+                { label: team.shortName || team.name, href: Paths.team(team.slug).index },
+                Paths.team(team.slug).members
+            ]}
         />
             <AppPageContent variant="container">
                 <PageHeader>

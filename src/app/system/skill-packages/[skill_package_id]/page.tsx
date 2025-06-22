@@ -26,10 +26,10 @@ export default async function SkillPackagePage(props: { params: Promise<SkillPac
 
     return <AppPage>
         <AppPageBreadcrumbs
-            label={skillPackage.name} 
             breadcrumbs={[
-                { label: "System", href: Paths.system.index }, 
-                { label: "Skill Packages", href: Paths.system.skillPackages.index }
+                Paths.system, 
+                Paths.system.skillPackages,
+                skillPackage.name
             ]}
         />
         <AppPageContent variant='container'>

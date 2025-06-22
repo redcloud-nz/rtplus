@@ -30,7 +30,7 @@ export default async function TeamHomePage(props: { params: Promise<TeamParams> 
 
     return <AppPage>
         <AppPageBreadcrumbs
-            label={team.shortName || team.name}
+            breadcrumbs={[team.shortName || team.name]}
         />
         <AppPageContent>
             <div className="container mx-auto">
@@ -64,7 +64,7 @@ export default async function TeamHomePage(props: { params: Promise<TeamParams> 
                     />
                     <DashboardCard
                         title="Competencies"
-                        href={teamPath.competencies.overview}
+                        href={teamPath.competencies.index}
                         icon={PocketKnifeIcon}
                         iconForeground="text-sky-700"
                         iconBackground="bg-sky-50"

@@ -22,8 +22,10 @@ export default async function PersonnelPage() {
 
     return <AppPage>
         <AppPageBreadcrumbs 
-            label="Personnel" 
-            breadcrumbs={[{ label: "System", href: Paths.system.index }]}
+            breadcrumbs={[
+                Paths.system, 
+                Paths.system.personnel
+            ]}
         />
         <HydrateClient>
             <AppPageContent variant="container">

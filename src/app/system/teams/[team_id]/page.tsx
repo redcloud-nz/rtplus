@@ -35,10 +35,10 @@ export default async function TeamPage_sys(props: { params: Promise<TeamParams> 
 
     return <AppPage>
         <AppPageBreadcrumbs
-            label={team.shortName || team.name}
             breadcrumbs={[
-                { label: "System", href: Paths.system.index }, 
-                { label: "Teams", href: Paths.system.teams.index }
+                Paths.system, 
+                Paths.system.teams,
+                team.shortName || team.name
             ]}
         />
         <HydrateClient>

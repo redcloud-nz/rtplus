@@ -15,7 +15,9 @@ import * as Paths from '@/paths'
 
 export default function SystemConfigPage() {
     return <AppPage>
-        <AppPageBreadcrumbs label="System"/>
+        <AppPageBreadcrumbs 
+            breadcrumbs={[Paths.system]}
+        />
         <AppPageContent variant='container'>
             <PageHeader>
                 <PageTitle>System Configuration</PageTitle>

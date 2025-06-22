@@ -47,10 +47,10 @@ export default async function PersonPage(props: PersonPageProps) {
 
     return <AppPage>
         <AppPageBreadcrumbs
-            label={person.name}
             breadcrumbs={[
-                { label: "System", href: Paths.system.index }, 
-                { label: "Personnel", href: Paths.system.personnel.index }
+                Paths.system,
+                Paths.system.personnel, 
+                person.name
             ]}
         />
         <HydrateClient>

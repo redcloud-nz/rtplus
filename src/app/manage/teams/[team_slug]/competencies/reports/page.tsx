@@ -22,7 +22,7 @@ export default async function ReportCompetenciesPage(props: { params: Promise<Te
     return <AppPage>
         <AppPageBreadcrumbs
             label="Reports" 
-            breadcrumbs={[{ label: "Competencies", href: competenciesPath.overview}]}
+            breadcrumbs={[{ label: "Competencies", href: competenciesPath.index}]}
         />
         <AppPageContent>
             <PageHeader>

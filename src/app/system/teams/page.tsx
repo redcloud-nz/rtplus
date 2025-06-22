@@ -21,8 +21,10 @@ export default async function TeamsPage() {
 
     return <AppPage>
         <AppPageBreadcrumbs
-            label="Teams"
-            breadcrumbs={[{ label: "System", href: Paths.system.index }]}
+            breadcrumbs={[
+                Paths.system,
+                Paths.system.teams
+            ]}
         />
         <AppPageContent variant="container">
             <PageHeader>

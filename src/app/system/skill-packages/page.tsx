@@ -26,9 +26,11 @@ export default async function SkillPackageListPage() {
     const skillPackages = await prisma.skillPackage.findMany({})
 
     return <AppPage>
-        <AppPageBreadcrumbs
-            label="Skill Packages" 
-            breadcrumbs={[{ label: "System", href: Paths.system.index }]}
+        <AppPageBreadcrumbs 
+            breadcrumbs={[
+                Paths.system, 
+                Paths.system.skillPackages,
+            ]}
         />
         <AppPageContent variant="container">
             <PageHeader>

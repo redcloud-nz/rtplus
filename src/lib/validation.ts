@@ -11,7 +11,7 @@ export const zodColor = z.string().regex(/^#[0-9A-F]{6}$/, "Must be a colour in 
 export const zodRecordStatus = z.union([
     z.enum(['Active', 'Inactive']),
     z.array(z.enum(['Active', 'Inactive'])).min(1).max(2)
-]).optional().default('Active').transform(value => Array.isArray(value) ? value : [value])
+]).optional().default(['Active', 'Inactive']).transform(value => Array.isArray(value) ? value : [value])
 
 export const zodSlug = z.string().max(100).regex(/^[a-zA-Z0-9\-]+$/, "Must be url slug format (alphanumeric with hyphens).")
 

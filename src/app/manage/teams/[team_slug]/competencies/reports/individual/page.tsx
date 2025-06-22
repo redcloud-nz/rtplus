@@ -26,7 +26,7 @@ export default async function IndividualReportPage(props: { params: Promise<Team
         <AppPageBreadcrumbs
             label="Individual"
             breadcrumbs={[
-                { label: "Competencies", href: competenciesPath.overview },
+                { label: "Competencies", href: competenciesPath.index },
                 { label: "Reports", href: competenciesPath.reportsList }
             ]}
         />

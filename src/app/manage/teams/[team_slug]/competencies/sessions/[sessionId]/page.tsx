@@ -48,7 +48,7 @@ export default async function SessionPage(props: { params: Promise<{ sessionId: 
         <AppPageBreadcrumbs
             label={`Assessment: ${assessment.name}`}
             breadcrumbs={[
-                { label: "Competencies", href: Paths.team(orgSlug!).competencies.overview }, 
+                { label: "Competencies", href: Paths.team(orgSlug!).competencies.index }, 
                 { label: "Assessment Sessions", href: Paths.team(orgSlug!).competencies.sessionList },
             ]}
         />

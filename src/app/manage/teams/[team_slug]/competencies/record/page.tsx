@@ -24,13 +24,13 @@ export default async function RecordSkillCheckPage({ params }: { params: Promise
     return <AppPage>
         <AppPageBreadcrumbs
             label="Single Check"
-            breadcrumbs={[{ label: 'Competencies', href: competenciesPath.overview }]}
+            breadcrumbs={[{ label: 'Competencies', href: competenciesPath.index }]}
         />
         <AppPageContent>
             <PageHeader>
                 <PageTitle>Record Skill Check</PageTitle>
             </PageHeader>
-            <RecordSkillCheckForm cancelHref={competenciesPath.overview}/>
+            <RecordSkillCheckForm cancelHref={competenciesPath.index}/>
         </AppPageContent>
         
     </AppPage>

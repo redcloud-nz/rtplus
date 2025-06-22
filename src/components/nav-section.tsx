@@ -50,13 +50,10 @@ export function NavSection({ title, children }: NavSectionProps) {
 }
 
 
-interface NavItemProps {
-    label: string
-    href: string
-    icon?: React.ReactNode
-}
+type NavItemProps = ({ label: string, href: string } | { path: { _label: string, index: string } }) & { icon?: React.ReactNode }
 
-export function NavItem({ label, href, icon }: NavItemProps) {
+export function NavItem({ icon, ...props }: NavItemProps) {
+    const { label, href } = 'label' in props ? props : { label: props.path._label, href: props.path.index }
 
     return <SidebarMenuItem>
         <SidebarMenuButton tooltip={label} asChild>
@@ -103,12 +100,11 @@ export function NavCollapsible({ label, icon, children, ...props }: NavCollapsib
     </Collapsible>
 }
 
-interface NavSubItemProps {
-    label: string
-    href: string
-}
+type NavSubItemProps = { label: string, href: string } | { path: { _label: string, index: string } }
 
-export function NavSubItem({ label, href }: NavSubItemProps) {
+export function NavSubItem(props: NavSubItemProps) {
+    const { label, href } = 'label' in props ? props : { label: props.path._label, href: props.path.index }
+
     return <SidebarMenuSubItem>
         <SidebarMenuSubButton asChild>
         {href.startsWith('/')

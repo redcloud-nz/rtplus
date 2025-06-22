@@ -32,7 +32,6 @@ export const skillsRouter = createTRPCRouter({
     byId: authenticatedProcedure
         .input(z.object({
             skillId: zodNanoId8,
-            status: zodRecordStatus
         }))
         .query(async ({ ctx, input }): Promise<SkillWithPackageAndGroup> => {
             return getSkillById(ctx, input.skillId)

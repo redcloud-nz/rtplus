@@ -46,7 +46,7 @@ export default async function SkillCheckSessionListPage(props: { params: Promise
         <AppPageBreadcrumbs
             label="My Sessions" 
             breadcrumbs={[
-                { label: "Competencies", href: competenciesPath.overview }
+                { label: "Competencies", href: competenciesPath.index }
             ]}
         />
         <AppPageContent>

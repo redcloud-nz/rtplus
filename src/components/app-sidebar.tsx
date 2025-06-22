@@ -53,15 +53,15 @@ export async function AppSidebar({ children, ...props }: AppSidebarProps) {
                 ?<NavSection title="Team">
                     <NavItem label="Dashboard" href={Paths.team(teamSlug).index} icon={<LayoutDashboardIcon/>}/>
                     <NavCollapsible label="Competencies" icon={<PocketKnifeIcon/>}>
-                        <NavSubItem label="Overview" href={Paths.team(teamSlug).competencies.overview}/>
+                        <NavSubItem path={Paths.team(teamSlug).competencies}/>
                         <NavSubItem label="Record" href={Paths.team(teamSlug).competencies.record}/>
                         <NavSubItem label="Sessions" href={Paths.team(teamSlug).competencies.sessionList}/>
                         <NavSubItem label="Reports" href={Paths.team(teamSlug).competencies.reportsList}/>
                     </NavCollapsible>
-                    <NavItem label="Members" href={Paths.team(teamSlug).members.index} icon={<UsersIcon/>}/>
+                    <NavItem path={Paths.team(teamSlug).members} icon={<UsersIcon/>}/>
                     <NavCollapsible label="Settings" icon={<SettingsIcon/>}>
-                        <NavSubItem label="Users" href={Paths.team(teamSlug).users}/>
-                        <NavSubItem label="Invitations" href={Paths.team(teamSlug).invitations}/>
+                        <NavSubItem path={Paths.team(teamSlug).users}/>
+                        <NavSubItem path={Paths.team(teamSlug).invitations}/>
                     </NavCollapsible>
                 </NavSection> 
                 : null
@@ -72,9 +72,9 @@ export async function AppSidebar({ children, ...props }: AppSidebarProps) {
                 <NavItem label="Source Code" href="https://github.com/redcloud-nz/rtplus" icon={<Image aria-hidden src="/github.svg" alt="Githib Icon" width={16} height={16}/>}/>
             </NavSection>
             { isSystemAdmin ? <NavSection title="System">
-                    <NavSubItem label="Personnel" href={Paths.system.personnel.index}/>
-                    <NavSubItem label="Skill Packages" href={Paths.system.skillPackages.index}/>
-                    <NavSubItem label="Teams" href={Paths.system.teams.index}/>
+                    <NavSubItem path={Paths.system.personnel}/>
+                    <NavSubItem path={Paths.system.skillPackages}/>
+                    <NavSubItem path={Paths.system.teams}/>
                 </NavSection> : null }
         </SidebarContent>
         <SidebarFooter>

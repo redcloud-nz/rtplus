@@ -24,12 +24,12 @@ export default async function SkillGroupPage(props: { params: Promise<SkillGroup
 
     return <AppPage>
         <AppPageBreadcrumbs
-            label={skillGroup.name} 
             breadcrumbs={[
-                { label: "System", href: Paths.system.index }, 
-                { label: "Skill Packages", href: Paths.system.skillPackages.index },
+                Paths.system, 
+                Paths.system.skillPackages,
                 { label: skillGroup.skillPackage.name, href: Paths.system.skillPackages.skillPackage(skillGroup.skillPackageId).index },
-                { label: "Skill Groups" }
+                Paths.system.skillPackages.skillPackage(skillGroup.skillPackageId).groups,
+                skillGroup.name
             ]}
         />
         <AppPageContent variant='container'>
