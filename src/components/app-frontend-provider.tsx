@@ -20,7 +20,7 @@ export type FrontendProviderProps = Readonly<{
     children: React.ReactNode
 }>
 
-export function FrontendProvider({ children }: FrontendProviderProps) {
+export function AppFrontendProvider({ children }: FrontendProviderProps) {
     React.useEffect(() => {
         printConsoleMessage()
 

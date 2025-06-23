@@ -30,7 +30,7 @@ export type NotImplementedProps = AppPageContentProps & {
 export function NotImplemented({ docUrl, ...props }: NotImplementedProps) {
 
     return <AppPageContent variant="centered" {...props}>
-        <div className="flex flex-col gap-2 items-center">
+        <div className="flex flex-col gap-2 justify-center items-center">
             <div className="font-semibold text-2xl text-zinc-800">501</div>
             <div className="font-semibold text-zinc-800">Not Implemented</div>
             <Separator orientation="horizontal" className="w-40"/>

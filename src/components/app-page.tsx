@@ -37,7 +37,7 @@ const appPageContentVariants = tv({
         variant: {
             default: 'flex flex-1 flex-col gap-4 p-4',
             full: 'w-full flex items-stretch *:flex-1',
-            centered: 'flex flex-col items-center justify-center',
+            centered: 'w-full flex flex-col items-center justify-center',
             container: 'flex flex-col items-center gap-4 p-4 *:w-full xl:*:w-4xl',
         },
         hasFooter: {

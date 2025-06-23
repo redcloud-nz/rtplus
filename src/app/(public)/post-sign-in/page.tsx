@@ -21,9 +21,9 @@ export default async function PostSignInLoading() {
     const user = await clerkClient.users.getUser(userId)
 
     const userEmail = user.primaryEmailAddress?.emailAddress
-        if(userEmail == null) {
-            throw new Error("No email address found for user. Please contact support.")
-        }
+    if(userEmail == null) {
+        throw new Error("No email address found for user. Please contact support.")
+    }
 
     const personId = sessionClaims.rt_person_id
     if(personId == null) {

@@ -7,10 +7,11 @@
 import { Metadata } from 'next'
 import React from 'react'
 
-import { getTeam, TeamParams } from '@/app/manage/teams/[team_slug]'
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 
 import * as Paths from '@/paths'
+
+import { getTeam, TeamParams } from '..'
 
 import { TeamInvitationsListCard } from './team-invitations-list'
 

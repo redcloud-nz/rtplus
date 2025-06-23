@@ -13,13 +13,13 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-pa
 export default function TeamSwitcher() {
 
     return <AppPage>
-        <AppPageBreadcrumbs label="Switch Team"/>
+        <AppPageBreadcrumbs breadcrumbs={["Switch Team"]}/>
         <AppPageContent variant="centered">
             <OrganizationList
                 hideSlug={false}
                 hidePersonal={false}
-                afterSelectOrganizationUrl="/manage/teams/:slug"
-                afterSelectPersonalUrl="/me"
+                afterSelectOrganizationUrl="/app/teams/:slug"
+                afterSelectPersonalUrl="/app"
             />
         </AppPageContent>
     </AppPage>

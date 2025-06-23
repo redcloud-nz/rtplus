@@ -5,8 +5,12 @@
  *  Path: /account
  */
 
+import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
 import { NotImplemented } from '@/components/errors'
 
 export default async function SettingsPage() {
-    return <NotImplemented label="Settings"/>
+    return <AppPage>
+        <AppPageBreadcrumbs breadcrumbs={["Personal"]}/>
+        <NotImplemented/>
+    </AppPage>
 }

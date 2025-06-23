@@ -46,7 +46,7 @@ export default async function TeamHomePage(props: { params: Promise<TeamParams> 
                     <p>Response Team Management Tools.</p>
                 </div>
                 <DashboardCardList>
-                    <DashboardCard
+                    {/* <DashboardCard
                         title="Availability"
                         href={teamPath.availability}
                         icon={ClockIcon}
@@ -61,7 +61,7 @@ export default async function TeamHomePage(props: { params: Promise<TeamParams> 
                         iconForeground="text-purple-700"
                         iconBackground="bg-purple-50"
                         description="Create and manage checklists for your team."
-                    />
+                    /> */}
                     <DashboardCard
                         title="Competencies"
                         href={teamPath.competencies.index}
@@ -70,7 +70,7 @@ export default async function TeamHomePage(props: { params: Promise<TeamParams> 
                         iconBackground="bg-sky-50"
                         description="Manage, assess, and report competencies for your team."
                     />
-                    <DashboardCard
+                    {/* <DashboardCard
                         title="Field Operations Guide"
                         href="/fog"
                         icon={NotebookTextIcon}
@@ -93,7 +93,7 @@ export default async function TeamHomePage(props: { params: Promise<TeamParams> 
                         iconForeground="text-indigo-700"
                         iconBackground="bg-indigo-50"
                         description="Alternate views of the data stored in D4H Team Manager. Unified across multiple teams."
-                    />
+                    /> */}
                 </DashboardCardList>
             </div>
         </AppPageContent>

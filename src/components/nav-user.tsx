@@ -7,7 +7,7 @@
 
 import { ArrowRightLeftIcon, BadgeCheck, ChevronsUpDown, KeyRoundIcon, LogInIcon, LogOutIcon, ShieldQuestionIcon } from 'lucide-react'
 
-import { SignedIn, SignedOut, SignInButton, useClerk, useUser } from '@clerk/nextjs'
+import { SignInButton, useClerk, useUser } from '@clerk/nextjs'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -36,7 +36,7 @@ export function NavUser() {
 
     const { isMobile } = useSidebar()
     const clerk = useClerk()
-    const { isLoaded, isSignedIn, user} = useUser()
+    const { isSignedIn, user} = useUser()
 
     const fullName = isSignedIn && user.fullName || ""
     const initials = getUserInitials(fullName)

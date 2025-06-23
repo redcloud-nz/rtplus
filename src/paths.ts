@@ -14,44 +14,42 @@ export const system = {
     index: '/system',
     teams: {
         _label: 'Teams',
-        index: '/system/teams',
-        create: '/system/teams/--create',
+        index: '/app/system/teams',
         team: (teamId: string) => ({
-            index: `/system/teams/${teamId}`,
-            d4h: `/system/teams/${teamId}/d4h`,
-            edit: `/system/teams/${teamId}/--update`,
-            members: `/system/teams/${teamId}/members`,
+            index: `/app/system/teams/${teamId}`,
+            d4h: `/app/system/teams/${teamId}/d4h`,
+            edit: `/app/system/teams/${teamId}/--update`,
+            members: `/app/system/teams/${teamId}/members`,
         } as const),
     },
     personnel: {
         _label: 'Personnel',
-        index: '/system/personnel',
-        create: '/system/personnel/--create',
+        index: '/app/system/personnel',
         person: (personId: string) => ({
-            index: `/system/personnel/${personId}`,
-            update: `/system/personnel/${personId}/--update`,
-            access: `/system/personnel/${personId}/access`,
+            index: `/app/system/personnel/${personId}`,
+            update: `/app/system/personnel/${personId}/--update`,
+            access: `/app/system/personnel/${personId}/access`,
             teamMemberships: {
-                create: `/system/personnel/${personId}/team-memberships/--create`
+                create: `/app/system/personnel/${personId}/team-memberships/--create`
             },
         } as const),
     },
     skillPackages: {
         _label: 'Skill Packages',
-        index: '/system/skill-packages',
-        import: '/system/skill-packages/--import',
+        index: '/app/system/skill-packages',
+        import: '/app/system/skill-packages/--import',
         skillPackage: (skillPackageId: string) => ({
-            index: `/system/skill-packages/${skillPackageId}`,
+            index: `/app/system/skill-packages/${skillPackageId}`,
             groups: {
                 _label: 'Groups',
                 group: (skillGroupId: string) => ({
-                    index: `/system/skill-packages/${skillPackageId}/groups/${skillGroupId}`,
+                    index: `/app/system/skill-packages/${skillPackageId}/groups/${skillGroupId}`,
                 } as const),
             },
             skills: {
                 _label: 'Skills',
                 skill: (skillId: string) => ({
-                    index: `/system/skill-packages/${skillPackageId}/skills/${skillId}`,
+                    index: `/app/system/skill-packages/${skillPackageId}/skills/${skillId}`,
                 } as const),
             },
         } as const),
@@ -70,12 +68,12 @@ export const policies = {
 }
 
 // Switch Team
-export const switchTeam = `/switch-team`
+export const switchTeam = `/app/switch-team`
 
 // Team
 
 export const team = (teamSlug: string) => {
-    const base = `/manage/teams/${teamSlug}` as const
+    const base = `/app/teams/${teamSlug}` as const
     const competenciesBase = `${base}/competencies` as const
 
     return {
@@ -116,22 +114,22 @@ export const team = (teamSlug: string) => {
 }
 
 export const unified = {
-    index: '/unified',
-    activites: '/unified/activities',
-    calendar: '/unified/calendar',
-    personnel: '/unified/personnel',
-    equipment: '/unified/equipment',
+    index: '/app/unified',
+    activites: '/app/unified/activities',
+    calendar: '/app/unified/calendar',
+    personnel: '/app/unified/personnel',
+    equipment: '/app/unified/equipment',
 }
 
 //  /------------------------------\
 //  |           Account            |
 //  \------------------------------/
 export const personal = {
-    index: '/personal/user-profile',
-    organizationList: '/personal/organization-list',
-    d4hAccessTokens: '/personal/d4h-access-tokens',
-    whoami: '/personal/whoami',
-    userProfile: '/personal/user-profile',
+    index: '/app/personal/user-profile',
+    organizationList: '/app/personal/organization-list',
+    d4hAccessTokens: '/app/personal/d4h-access-tokens',
+    whoami: '/app/personal/whoami',
+    userProfile: '/app/personal/user-profile',
 } as const
 
 

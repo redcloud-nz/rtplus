@@ -7,10 +7,11 @@
 
 import { Metadata } from 'next'
 
-import { getTeamMember, TeamMemberParams } from '@/app/manage/teams/[team_slug]/members/[person_id]'
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 
 import * as Paths from '@/paths'
+
+import { getTeamMember, TeamMemberParams } from '.'
 
 
 export async function generateMetadata(props: { params: Promise<TeamMemberParams> }): Promise<Metadata> {

@@ -8,10 +8,11 @@
 import { Metadata } from 'next'
 import React from 'react'
 
-import { getTeam, TeamParams } from '@/app/manage/teams/[team_slug]'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import * as Paths from '@/paths'
+
+import { getTeam, TeamParams } from '..'
 
 import { TeamMembersListCard } from './team-members-list'
 
@@ -27,7 +28,6 @@ export default async function TeamMembersPage(props: { params: Promise<TeamParam
 
     return <AppPage>
         <AppPageBreadcrumbs
-            label="Members"
             breadcrumbs={[
                 { label: team.shortName || team.name, href: Paths.team(team.slug).index },
                 Paths.team(team.slug).members

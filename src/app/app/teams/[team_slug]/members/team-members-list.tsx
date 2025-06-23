@@ -12,7 +12,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
 
-import { Card, CardBody, CardHeader, CardTitle, CardCollapseToggleButton } from '@/components/ui/card'
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
 import { DialogTriggerButton } from '@/components/ui/dialog'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
@@ -27,6 +27,8 @@ import { Popover, PopoverContent, PopoverTriggerButton } from '@/components/ui/p
  * Card that displays the list of all team members and allows the user to add a new member.
  */
 export function TeamMembersListCard({ teamSlug}: { teamSlug: string }) {
+    
+
     return <Card>
         <CardHeader>
             <CardTitle>List</CardTitle>
@@ -46,7 +48,6 @@ export function TeamMembersListCard({ teamSlug}: { teamSlug: string }) {
                     </div>
                 </PopoverContent>
             </Popover>
-            <CardCollapseToggleButton />
         </CardHeader>
         <CardBody boundary>
             <TeamMembersListTable teamSlug={teamSlug}/>
