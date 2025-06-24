@@ -11,9 +11,8 @@ import {RTPlusLogger} from '@/lib/logger'
 
 const logger = new RTPlusLogger('middleware')
 
-//const isOnboardingRoute = createRouteMatcher(['/onboarding', '/policies(/.*)', '/trpc/(.*)'])
-const isPublicRoute = createRouteMatcher(['/', '/about', '/cards(/.*)', '/trpc/(.*)'])
-const isSystemAdminRoute = createRouteMatcher(['/system(/.*)'])
+const isPrivateRoute = createRouteMatcher(['/app(/.*)'])
+const isSystemAdminRoute = createRouteMatcher(['/app/system(/.*)'])
 
 export default clerkMiddleware(
     async (auth, req) => {
@@ -21,16 +20,6 @@ export default clerkMiddleware(
 
         if(userId) {
             // Authenticated user
-
-            // Allow authenticated users to access onboarding routes
-            //if(isOnboardingRoute(req)) return NextResponse.next()
-
-            // Redirect to onboarding if not completed
-            // if(sessionClaims?.rt_onboarding_status !== 'Complete') {
-            //     const onBoardingUrl = new URL('/onboarding', req.url)
-            //     logger.debug('Redirecting to onboarding', onBoardingUrl)
-            //     return NextResponse.redirect(onBoardingUrl)
-            // }
 
             // Redirect non-system-admin users from system admin routes
             if(isSystemAdminRoute(req) && sessionClaims?.rt_system_role !== 'admin') {
@@ -44,11 +33,11 @@ export default clerkMiddleware(
         } else {
             // Unauthenticated user
 
-            // Can access public routes
-            if(isPublicRoute(req)) return NextResponse.next()
+            // If request is for a private route, redirect to sign in
+            if(isPrivateRoute(req)) redirectToSignIn({ returnBackUrl: req.url }) 
 
-            // Otherwise, redirect to sign in
-            else return redirectToSignIn({ returnBackUrl: req.url })
+            // Otherwise, allow access
+            else return NextResponse.next()
         }
     },
     {
