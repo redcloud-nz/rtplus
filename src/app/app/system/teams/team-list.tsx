@@ -5,7 +5,7 @@
  */
 'use client'
 
-import { FunnelIcon, PlusIcon } from 'lucide-react'
+import { PlusIcon } from 'lucide-react'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 
@@ -16,7 +16,6 @@ import { Card, CardBody, CardCollapseToggleButton, CardHeader, CardTitle } from 
 
 import { DialogTriggerButton } from '@/components/ui/dialog'
 import { Link } from '@/components/ui/link'
-import { PopoverTriggerButton } from '@/components/ui/popover'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
 import * as Paths from '@/paths'

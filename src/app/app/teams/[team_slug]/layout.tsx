@@ -2,14 +2,14 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- * /teams/[team-slug]
+ * /app/teams/[team-slug]
  */
 
 import { notFound, redirect } from 'next/navigation'
 
 import { auth } from '@clerk/nextjs/server'
 
-import { TeamParams } from '@/app/manage/teams/[team_slug]'
+import { TeamParams } from '@/app/app/teams/[team_slug]'
 
 
 
