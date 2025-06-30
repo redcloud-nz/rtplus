@@ -4,7 +4,7 @@
  */
 
 import { LoaderCircleIcon, XIcon } from 'lucide-react'
-import { type ComponentProps, type ReactNode, Suspense } from 'react'
+import { type ComponentProps, ComponentPropsWithoutRef, createContext, type ReactNode, Suspense, useContext, useRef } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 
 import * as DialogPrimitive from '@radix-ui/react-dialog'
@@ -39,7 +39,12 @@ export function DialogOverlay({ className, ...props }: ComponentProps<typeof Dia
     />
 }
 
-export function DialogContent({ children, className, ...props }: ComponentProps<typeof DialogPrimitive.Content>) {
+
+type DialogContentProps = ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
+    blockInteractOutside?: boolean
+}
+
+export function DialogContent({ blockInteractOutside, children, className, ...props }: DialogContentProps) {
 
     return <DialogPortal>
         <DialogOverlay/>
@@ -50,6 +55,10 @@ export function DialogContent({ children, className, ...props }: ComponentProps<
                 'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]',
                 className
             )}
+            onInteractOutside={(event) => {
+                if (blockInteractOutside) event.preventDefault()
+                props.onInteractOutside?.(event)
+            }}
             {...props}
         >
             {children}
@@ -118,11 +127,11 @@ export function DialogDescription({ className, ...props }: ComponentProps<typeof
  * A {@link Button} that triggers a dialog when clicked. It also displays a tooltip with the provided text.
  * @param tooltip The text to display in the tooltip.
  */
-export function DialogTriggerButton({ tooltip, ...props }: ComponentProps<typeof Button> & { tooltip?: ReactNode }) {
+export function DialogTriggerButton({ variant = "ghost", size = "icon", tooltip, ...props }: ComponentProps<typeof Button> & { tooltip?: ReactNode }) {
     return <Tooltip>
         <TooltipTrigger asChild>
             <DialogTrigger asChild>
-                <Button {...props} />
+                <Button variant={variant} size={size} {...props} />
             </DialogTrigger>
         </TooltipTrigger>
         <TooltipContent>{tooltip}</TooltipContent>

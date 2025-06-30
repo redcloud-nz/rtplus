@@ -4,42 +4,20 @@
  */
 'use client'
 
-import { ComponentProps } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { Dialog, DialogBody, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FormControl, FormActions, FormItem, FormLabel, FormSubmitButton, FormCancelButton, SubmitVerbs, FixedFormValue } from '@/components/ui/form'
-import { Paragraph } from '@/components/ui/typography'
+import { FormControl, FormActions, FormItem, FormLabel, FormSubmitButton, FormCancelButton, SubmitVerbs, FixedFormValue, DeleteFormProps } from '@/components/ui/form'
 
 import { useToast } from '@/hooks/use-toast'
 import { TeamFormData, teamFormSchema } from '@/lib/forms/team'
-import { useTRPC } from '@/trpc/client'
+import { TeamBasic, useTRPC } from '@/trpc/client'
 
 
-type DeleteTeamDialogProps = ComponentProps<typeof Dialog> & {
-    teamId: string
-    onDelete?: (team: { id: string, name: string }) => void
-}
 
-export function DeleteTeamDialog(props: DeleteTeamDialogProps) {
-    return <Dialog {...props}>
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Delete Team</DialogTitle>
-                <Paragraph>This action will permanently delete the team.</Paragraph>
-            </DialogHeader>
-            <DialogBody>
-                <DeleteTeamForm {...props} />
-            </DialogBody>
-        </DialogContent>
-    </Dialog>
-}
-
-
-function DeleteTeamForm({ teamId, onOpenChange, onDelete }: DeleteTeamDialogProps) {
+export function DeleteTeamForm({ teamId, onClose, onDelete }: DeleteFormProps<TeamBasic> & { teamId: string }) {
 
     const queryClient = useQueryClient()
     const { toast } = useToast()
@@ -49,11 +27,12 @@ function DeleteTeamForm({ teamId, onOpenChange, onDelete }: DeleteTeamDialogProp
 
     const form = useForm<Pick<TeamFormData, 'teamId'>>({
         resolver: zodResolver(teamFormSchema.pick({ teamId: true })),
-        defaultValues: { teamId: team.id}
+        defaultValues: { teamId }
     })
 
     function handleClose() {
-        onOpenChange?.(false)
+        form.reset()
+        onClose()
     }
 
     const mutation = useMutation(trpc.teams.sys_delete.mutationOptions({
@@ -83,7 +62,7 @@ function DeleteTeamForm({ teamId, onOpenChange, onDelete }: DeleteTeamDialogProp
         onSuccess(result) {
             toast({
                 title: 'Team deleted',
-                description: `The team ${result.name} has been deleted successfully.`,
+                description: `The team "${result.name}" has been deleted successfully.`,
             })
             onDelete?.(result)
         },

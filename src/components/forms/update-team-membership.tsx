@@ -5,16 +5,13 @@
  */
 'use client'
 
-import { ComponentProps } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { FixedFormValue, Form, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs, UpdateFormProps } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { ObjectName } from '@/components/ui/typography'
 
 import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema } from '@/lib/forms/team-membership'
 import { useToast } from '@/hooks/use-toast'
@@ -22,32 +19,7 @@ import { PersonBasic, TeamBasic, TeamMembershipBasic, useTRPC } from '@/trpc/cli
 
 
 
-
-
-export function EditTeamMembershipDialog_sys({ membership, person, team, ...props }: ComponentProps<typeof Dialog> & { membership: TeamMembershipBasic, person: PersonBasic, team: TeamBasic }) {
-
-    return <Dialog {...props}>     
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Edit Team Membership</DialogTitle>
-                <DialogDescription>
-                    Edit the team membership for <ObjectName>{person.name}</ObjectName> in <ObjectName>{team.name}</ObjectName>.
-                </DialogDescription>
-            </DialogHeader>
-            <DialogBody>
-                <EditTeamMembershipForm_sys 
-                    membership={membership} 
-                    person={person} 
-                    team={team}
-                    onClose={() => props.onOpenChange?.(false)} 
-                    />
-            </DialogBody>
-        </DialogContent>
-    </Dialog>
-}
-
-
-function EditTeamMembershipForm_sys({ membership, person, team, onClose  }: { membership: TeamMembershipBasic, person: PersonBasic, team: TeamBasic, onClose: () => void }) {
+export function UpdateTeamMembershipForm({ membership, onClose, onUpdate, person, team }: UpdateFormProps<TeamMembershipBasic> & { membership: TeamMembershipBasic, person: PersonBasic, team: TeamBasic }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
@@ -96,7 +68,7 @@ function EditTeamMembershipForm_sys({ membership, person, team, onClose  }: { me
             })
             handleClose()
         },
-        onSuccess({ team, person }) {
+        onSuccess() {
             toast({
                 title: 'Team membership updated',
                 description: `${person.name}'s membership in '${team.name}' has been updated.`,
@@ -110,17 +82,17 @@ function EditTeamMembershipForm_sys({ membership, person, team, onClose  }: { me
     })) 
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="max-w-xl space-y-4">
+        <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
             <FormItem>
                 <FormLabel>Person</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={person.name}/>
+                    <FixedFormValue value={person.name} />
                 </FormControl>
             </FormItem>
             <FormItem>
                 <FormLabel>Team</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={team.name}/>
+                    <FixedFormValue value={team.name} />
                 </FormControl>
             </FormItem>
             <FormField
@@ -146,6 +118,6 @@ function EditTeamMembershipForm_sys({ membership, person, team, onClose  }: { me
                 <FormSubmitButton labels={SubmitVerbs.update}/>
                 <FormCancelButton onClick={handleClose}/>
             </FormActions>
-        </form>
+        </Form>
     </FormProvider>
 }

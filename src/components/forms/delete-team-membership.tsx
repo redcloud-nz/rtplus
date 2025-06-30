@@ -7,12 +7,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { DeleteFormProps, FixedFormValue, FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
 import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema } from '@/lib/forms/team-membership'
-import { PersonBasic, TeamBasic, useTRPC } from '@/trpc/client'
+import { PersonBasic, TeamBasic, TeamMembershipBasic, useTRPC } from '@/trpc/client'
 
 
 
@@ -34,7 +34,7 @@ export function DeleteTeamMembershipDialog({ person, team, ...props }: Component
 }
 
 
-function DeleteTeamMembershipForm({ person, team, onClose }: { person: PersonBasic, team: TeamBasic, onClose: () => void }) {
+export function DeleteTeamMembershipForm({ person, team, onClose }: DeleteFormProps<TeamMembershipBasic> & { person: PersonBasic, team: TeamBasic }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()

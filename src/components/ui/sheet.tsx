@@ -5,13 +5,19 @@
 
 'use client'
 
-import { X } from 'lucide-react'
-import * as React from 'react'
+import { LoaderCircleIcon, X } from 'lucide-react'
+import { ComponentProps, ComponentPropsWithRef, ReactNode, Suspense } from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
 import { tv, type VariantProps } from 'tailwind-variants'
 
 import * as SheetPrimitive from '@radix-ui/react-dialog'
 
 import { cn } from '@/lib/utils'
+
+
+import { Alert } from './alert'
+import { Button } from './button'
+import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
 
 export const Sheet = SheetPrimitive.Root
 
@@ -21,7 +27,7 @@ export const SheetClose = SheetPrimitive.Close
 
 export const SheetPortal = SheetPrimitive.Portal
 
-export function SheetOverlay({ className, ...props }: React.ComponentPropsWithRef<typeof SheetPrimitive.Overlay>) {
+export function SheetOverlay({ className, ...props }: ComponentPropsWithRef<typeof SheetPrimitive.Overlay>) {
   return <SheetPrimitive.Overlay
     className={cn(
       "fixed inset-0 z-50 bg-black/80 wdata-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
@@ -32,7 +38,7 @@ export function SheetOverlay({ className, ...props }: React.ComponentPropsWithRe
 }
 
 const sheetVariants = tv({
-    base: "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
+    base: "fixed z-50 gap-4 space-y-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
     variants: {
         side: {
             top: "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
@@ -46,7 +52,7 @@ const sheetVariants = tv({
     },
 })
 
-export interface SheetContentProps extends React.ComponentPropsWithRef<typeof SheetPrimitive.Content>, VariantProps<typeof sheetVariants> {}
+export interface SheetContentProps extends ComponentPropsWithRef<typeof SheetPrimitive.Content>, VariantProps<typeof sheetVariants> {}
 
 export function SheetContent({ side = "right", className, children, ...props }: SheetContentProps) {
     return <SheetPortal>
@@ -74,7 +80,26 @@ export function SheetHeader({ className, ...props }: React.ComponentPropsWithRef
     />
 }
 
-export function SheetFooter({ className, ...props }: React.ComponentPropsWithRef<'div'>) {
+/**
+ * DialogBody is a wrapper around the body contents of a dialog that provides error handling and loading state.
+ */
+export function SheetBody({ children }: { children: ReactNode }) {
+    return <ErrorBoundary 
+        fallbackRender={({ error }) => <>
+            <Alert severity="error" title="An error occurred">
+                {error.message}
+            </Alert>
+        </>}
+    >
+        <Suspense fallback={<div className="h-full w-full flex items-center justify-center">
+            <LoaderCircleIcon className="w-10 h-10 animate-spin"/>
+        </div>}>
+            {children}
+        </Suspense>
+    </ErrorBoundary>
+}
+
+export function SheetFooter({ className, ...props }: ComponentProps<'div'>) {
     return <div
         className={cn(
             "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
@@ -84,7 +109,7 @@ export function SheetFooter({ className, ...props }: React.ComponentPropsWithRef
     />
 }
 
-export function SheetTitle({ className, ...props }: React.ComponentPropsWithRef<typeof SheetPrimitive.Title>) {
+export function SheetTitle({ className, ...props }: ComponentProps<typeof SheetPrimitive.Title>) {
     return <SheetPrimitive.Title
         className={cn("text-lg font-semibold text-foreground", className)}
         {...props}
@@ -98,3 +123,17 @@ export function SheetDescription({ className, ...props }: React.ComponentPropsWi
     />
 }
 
+/**
+ * A {@link Button} that triggers a sheet when clicked. It also displays a tooltip with the provided text.
+ * @param tooltip The text to display in the tooltip.
+ */
+export function SheetTriggerButton({ variant = "ghost", size = "icon", tooltip, ...props }: ComponentProps<typeof Button> & { tooltip?: ReactNode }) {
+    return <Tooltip>
+        <TooltipTrigger asChild>
+            <SheetTrigger asChild>
+                <Button variant={variant} size={size} {...props} />
+            </SheetTrigger>
+        </TooltipTrigger>
+        <TooltipContent>{tooltip}</TooltipContent>
+    </Tooltip>
+}

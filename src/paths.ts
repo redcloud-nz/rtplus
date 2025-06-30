@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import _ from "lodash"
+import _, { create } from "lodash"
 import { PolicyKeyType } from "./lib/policy"
 
 //  /------------------------------\
@@ -15,6 +15,7 @@ export const system = {
     teams: {
         _label: 'Teams',
         index: '/app/system/teams',
+        create: '/app/system/teams/--create-team',
         team: (teamId: string) => ({
             index: `/app/system/teams/${teamId}`,
             d4h: `/app/system/teams/${teamId}/d4h`,

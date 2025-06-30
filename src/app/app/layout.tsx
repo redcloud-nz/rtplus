@@ -4,9 +4,11 @@
  */
 
 import type { Metadata } from 'next'
+import { ReactNode } from 'react'
 
 import { AppFrontendProvider } from '@/components/app-frontend-provider'
 import { AppSidebar } from '@/components/app-sidebar'
+
 
 export const metadata: Metadata = {
     applicationName: "RT+",
@@ -17,10 +19,11 @@ export const metadata: Metadata = {
     description: "RT+ App",
 }
 
-export default function AppLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function AppLayout({ children, dialog }: Readonly<{ children: ReactNode, dialog: ReactNode }>) {
 
     return <AppFrontendProvider>
         <AppSidebar/>
         {children}
+        {dialog}
     </AppFrontendProvider>
 }

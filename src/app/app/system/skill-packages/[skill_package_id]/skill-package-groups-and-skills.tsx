@@ -72,7 +72,7 @@ export function SkillPackageGroupsAndSkill_sys({ skillPackageId }: { skillPackag
                         <Button variant="ghost" size="icon"><EllipsisVerticalIcon/></Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
-                        <DropdownMenuLabel className="text-center">Skill Groups</DropdownMenuLabel>
+                        <DropdownMenuLabel className="text-center">Skills</DropdownMenuLabel>
                         <DropdownMenuSeparator/>
                         <DropdownMenuGroup>
                             <DropdownMenuLabel>Show</DropdownMenuLabel>
@@ -133,11 +133,9 @@ function GroupsAndSkillsTable({ onAction, options, skillPackageId }: { onAction:
     const trpc = useTRPC()
     const { data: groups } = useSuspenseQuery(trpc.skillGroups.bySkillPackageId.queryOptions({ skillPackageId }))
     
-    const filteredGroups = groups.filter(group => {
-        if (options.showInactive && group.status === 'Inactive') return true
-        if (options.showActive && group.status === 'Active') return true
-        return false
-    })
+    const filteredGroups = groups.filter(group => 
+        group.status == 'Active' ? options.showActive = true : options.showInactive = true
+    )
 
     return <Show
         when={filteredGroups.length > 0}

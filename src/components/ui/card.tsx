@@ -4,7 +4,7 @@
  */
 'use client'
 
-import { ChevronDownIcon, InfoIcon, LoaderCircleIcon } from 'lucide-react'
+import { ChevronDownIcon, EllipsisVerticalIcon, InfoIcon, LoaderCircleIcon } from 'lucide-react'
 import { type ComponentProps, createContext, type MouseEventHandler, type ReactNode, Suspense, useContext, useMemo, useState } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 
@@ -15,6 +15,7 @@ import { Button } from './button'
 import { Link } from './link'
 import { Popover, PopoverContent, PopoverTriggerButton } from './popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './dropdown-menu'
 
 
 type CardContextType = { isOpen: boolean, setOpen: (open: boolean) => void }
@@ -114,7 +115,7 @@ export function CardBody({ boundary, children, className, collapsible, ...props 
                 ? <ErrorBoundary fallbackRender={({ error}) => <Alert severity="error" title="An error occured">{error.message}</Alert>}>
                     <Suspense 
                         fallback={<div className="w-full flex items-center justify-center p-4">
-                            <LoaderCircleIcon className="w-10 h-10 animate-spin"/>
+                            <div className="animate-spin size-10 rounded-full border-t-1 border-b-1 border-gray-900"/>
                         </div>}
                     >
                         {children}
@@ -156,25 +157,6 @@ export function CardGrid({ className, ...props}: ComponentProps<'div'>) {
         className={cn("grid grid-cols-1 lg:grid-cols-2 gap-4", className)}
         {...props}
     />
-}
-
-export function CardBoundary({ children}: { children: ReactNode }) {
-
-    return <ErrorBoundary 
-        fallback={<Card>
-            <Alert severity="error" title="An error occurred"/>
-        </Card>}
-    >
-        <Suspense 
-            fallback={<Card>
-                <div className="h-full w-full flex items-center justify-center">
-                    <LoaderCircleIcon className="animate-spin"/>
-                </div>
-            </Card>}
-        >
-            {children}
-        </Suspense>
-    </ErrorBoundary>
 }
 
 type CardActionButtonProps = Omit<ComponentProps<typeof Button>, 'asChild' | 'children' | 'onClick'> & {
@@ -242,4 +224,19 @@ export function CardExplanation({ className, ...props }: ComponentProps<'div'>) 
             <div className={cn("text-sm text-muted-foreground space-y-2", className)} {...props}/>
         </PopoverContent>
     </Popover>
+}
+
+export function CardMenu({ children, title, ...props }: ComponentProps<typeof DropdownMenu> & { title: string }) {
+    return <DropdownMenu {...props}>
+        <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+                <EllipsisVerticalIcon/>
+            </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuLabel className="text-center">{title}</DropdownMenuLabel>
+            <DropdownMenuSeparator/>
+            {children}
+        </DropdownMenuContent>
+    </DropdownMenu>
 }

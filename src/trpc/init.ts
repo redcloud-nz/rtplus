@@ -13,7 +13,7 @@ import prisma from '@/server/prisma'
 
 
 
-export const createTRPCContext = cache(async () => {
+export const createTRPCContext = cache(async ({ headers }: { headers: Headers  }) => {
     return { 
         prisma,
         auth: await auth(),

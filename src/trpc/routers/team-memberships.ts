@@ -81,6 +81,15 @@ export const teamMembershipsRouter = createTRPCRouter({
                 person: pick(membership.person, ['id', 'name', 'email', 'status'])
             })) satisfies TeamMembershipWithPerson[]
         }),
+    byId: systemAdminProcedure
+        .input(z.object({
+            personId: zodNanoId8,
+            teamId: zodNanoId8,
+        }))
+        .query(async ({ ctx, input }): Promise<TeamMembershipBasic> => {
+            const membership =  await getTeamMembershipById(ctx, input)
+            return pick(membership, ['personId', 'teamId', 'tags', 'status']) 
+        }),
 
     byPerson: systemAdminProcedure
         .input(z.object({

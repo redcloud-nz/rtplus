@@ -7,11 +7,11 @@
 
 import { LoadingSpinner } from '@/components/ui/loading'
 
-export default function PostSignInLoading() {
+export default function AppLoading() {
     return (
         <div className="flex flex-col items-center justify-center w-full h-screen">
-            <LoadingSpinner className="size-32"/>
-            <div className="p-4">Configuring configurable configurations.</div>
+            <LoadingSpinner className="w-32 h-32"/>
+            <div className="p-4">Dont forget to breathe.</div>
         </div>
     )
 }

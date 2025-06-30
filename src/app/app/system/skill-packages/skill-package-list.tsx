@@ -11,26 +11,24 @@ import { useRouter } from 'next/navigation'
 import { useSuspenseQuery } from '@tanstack/react-query'
 
 import { CreateSkillPackageDialog } from '@/components/dialogs/create-skill-package'
-import { FiltersPopover, StatusFilter, useFilters } from '@/components/filters'
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardBody, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
 import { DialogTriggerButton } from '@/components/ui/dialog'
+import { DropdownMenuCheckboxItem, DropdownMenuGroup, DropdownMenuLabel } from '@/components/ui/dropdown-menu'
 import { TextLink } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
+import { StatusOptions, useListOptions } from '@/hooks/use-list-options'
 
 
-
-type Filters = { status: ('Active' | 'Inactive')[] }
 
 export function SkillPackageListCard_sys() {
-    const filters = useFilters<Filters>({
-        defaultValues: { status: ['Active', 'Inactive'] },
-    })
     const router = useRouter()
+
+    const { options, handleOptionChange } = useListOptions({})
 
     return <Card>
         <CardHeader>
@@ -41,21 +39,33 @@ export function SkillPackageListCard_sys() {
                     <PlusIcon/>
                 </DialogTriggerButton>}
             />
-            <FiltersPopover>
-                <StatusFilter control={filters.control.status} />
-            </FiltersPopover>
+            <CardMenu title="Skill Package">
+                <DropdownMenuGroup>
+                    <DropdownMenuLabel>Status</DropdownMenuLabel>
+                    <DropdownMenuCheckboxItem
+                        checked={options.showActive} 
+                        onCheckedChange={handleOptionChange('showActive')}
+                    >Active</DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem 
+                        checked={options.showInactive} 
+                        onCheckedChange={handleOptionChange('showInactive')}
+                    >Inactive</DropdownMenuCheckboxItem>
+                </DropdownMenuGroup>
+            </CardMenu>
         </CardHeader>
         <CardBody boundary>
-            <SkillPackageListTable_sys state={filters.state}/>
+            <SkillPackageListTable_sys options={options}/>
         </CardBody>
     </Card>
 }
 
-function SkillPackageListTable_sys({ state }: { state: Filters}) {
+function SkillPackageListTable_sys({ options }: { options: StatusOptions }) {
     const trpc = useTRPC()
 
     const { data: skillPackages } = useSuspenseQuery(trpc.skillPackages.all.queryOptions({}))
-    const filteredRows = skillPackages.filter(skillPackage => state.status.includes(skillPackage.status))
+    const filteredRows = skillPackages.filter(skillPackage => 
+        skillPackage.status == 'Active' ? options.showActive = true : options.showInactive = true
+    )
 
     return <Show
         when={filteredRows.length > 0}
@@ -71,7 +81,7 @@ function SkillPackageListTable_sys({ state }: { state: Filters}) {
                     
                     <TableHeadCell className="text-center">Groups in Package</TableHeadCell>
                     <TableHeadCell className="text-center">Skill in Package</TableHeadCell>
-                    <TableHeadCell className="text-center">Status</TableHeadCell>
+                    { options.showInactive ? <TableHeadCell className="text-center">Status</TableHeadCell> : null}
                 </TableRow>
             </TableHead>
             <TableBody>
@@ -86,7 +96,7 @@ function SkillPackageListTable_sys({ state }: { state: Filters}) {
                         <TableCell className="text-center">
                             {skillPackage._count.skills}
                         </TableCell>
-                        <TableCell className="text-center">{skillPackage.status}</TableCell>
+                        { options.showInactive ? <TableCell className="text-center">{skillPackage.status}</TableCell> : null }
                     </TableRow>
                 )}
             </TableBody>

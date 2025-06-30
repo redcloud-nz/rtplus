@@ -5,10 +5,10 @@
 'use client'
 
 import { Loader2Icon } from 'lucide-react'
-import * as React from 'react'
+import { ComponentProps, createContext, useContext, useId } from 'react'
 import { Controller, ControllerProps, FieldPath, FieldValues, useFormContext } from 'react-hook-form'
 import { pick } from 'remeda'
-import { VariantProps } from 'tailwind-variants'
+import { tv, VariantProps } from 'tailwind-variants'
 
 import * as LabelPrimitive from '@radix-ui/react-label'
 import { Slot } from '@radix-ui/react-slot'
@@ -20,11 +20,20 @@ import { Label } from './label'
 import { Link } from './link'
 
 
+
+
+export function Form({ className, ...props }: ComponentProps<'form'>) {
+
+    return <form className={cn("max-w-2xl space-y-4", className)}
+        {...props}
+    />
+}
+
 type FormFieldContextValue<TFieldValues extends FieldValues = FieldValues, TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>> = {
     name: TName
 }
 
-const FormFieldContext = React.createContext<FormFieldContextValue>({} as FormFieldContextValue)
+const FormFieldContext = createContext<FormFieldContextValue>({} as FormFieldContextValue)
 
 export function FormField<TFieldValues extends FieldValues = FieldValues, TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>>({ ...props }: ControllerProps<TFieldValues, TName>) {
     return <FormFieldContext.Provider value={{ name: props.name }}>
@@ -33,8 +42,8 @@ export function FormField<TFieldValues extends FieldValues = FieldValues, TName 
 }
 
 export const useFormField = () => {
-    const fieldContext = React.useContext(FormFieldContext)
-    const itemContext = React.useContext(FormItemContext)
+    const fieldContext = useContext(FormFieldContext)
+    const itemContext = useContext(FormItemContext)
     const { getFieldState, formState } = useFormContext()
 
     const fieldState = getFieldState(fieldContext.name, formState)
@@ -59,15 +68,15 @@ type FormItemContextValue = {
     id: string
 }
 
-const FormItemContext = React.createContext<FormItemContextValue>(
+const FormItemContext = createContext<FormItemContextValue>(
     {} as FormItemContextValue
 )
 
 export function FormItem({ className, ...props }: React.ComponentPropsWithRef<'div'>) {
-    const id = React.useId()
+    const id = useId()
 
     return <FormItemContext.Provider value={{ id }}>
-        <div className={cn("space-y-1", className)} {...props} />
+        <div className={cn("flex flex-col gap-2", className)} {...props} />
     </FormItemContext.Provider>
 }
 
@@ -279,12 +288,21 @@ export function FormActions({ children, ...props }: React.ComponentPropsWithRef<
 
 }
 
+const fixedFormValueVariants = tv({
+    base: "flex h-10 w-full rounded-md border border-slate-200 px-3 py-2 text-sm ring-offset-background",
+    variants: {
+        loading: {
+            true : "bg-slate-200 text-slate-500 flex items-center justify-center",
+            false: "bg-slate-100 text-slate-900"
+        }
+    }
+})
 
-export function FixedFormValue({ className, value, ...props }: Omit<React.ComponentPropsWithRef<'div'>, 'children'> & { value: string }) {
+export function FixedFormValue({ className, loading, value, ...props }: Omit<React.ComponentPropsWithRef<'div'>, 'children'> & VariantProps<typeof fixedFormValueVariants> & { value: string }) {
     return <div 
-        className={cn("flex h-10 w-full rounded-md bg-slate-100 border border-slate-200 px-3 py-2 text-sm ring-offset-background", className)}
+        className={fixedFormValueVariants({ loading, className })}
         {...props}
-    >{value}</div>
+    >{loading ? <div className="animate-spin size-5 rounded-full border-t-1 border-b-1 border-gray-900"/> : value}</div>
 }
 
 
@@ -295,4 +313,19 @@ export function DebugFormState() {
         <pre>{JSON.stringify(pick(formState, ['defaultValues', 'dirtyFields', 'disabled', 'errors', 'isDirty', 'isLoading', 'isSubmitSuccessful', 'isSubmitted', 'isSubmitting', 'isValid', 'isValidating', 'submitCount', 'touchedFields', 'validatingFields']), null, 2)}</pre>
     
     </div>
+}
+
+export interface CreateFormProps<T> {
+    onCreate?: (data: T) => void
+    onClose: () => void
+}
+
+export interface DeleteFormProps<T> {
+    onDelete?: (data: T) => void
+    onClose: () => void
+}
+
+export interface UpdateFormProps<T> {
+    onUpdate?: (data: T) => void
+    onClose: () => void
 }

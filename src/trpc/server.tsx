@@ -5,6 +5,7 @@
 
 import 'server-only'
 
+import { headers } from 'next/headers'
 import { cache } from 'react'
 
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
@@ -13,6 +14,7 @@ import { createTRPCOptionsProxy, TRPCQueryOptions } from '@trpc/tanstack-react-q
 import { createTRPCContext } from './init'
 import { makeQueryClient } from './query-client'
 import { appRouter } from './routers/_app'
+
 
 
 
@@ -25,8 +27,14 @@ export const getQueryClient = cache(makeQueryClient)
 
 //export const { trpc, HydrateClient } = createHydrationHelpers<typeof appRouter>(caller, getQueryClient)
 
+const createContext = cache(async () => {
+    const heads = new Headers(await headers())
+    heads.set('x-trpc-source', 'rsc')
+    return createTRPCContext({ headers: heads })
+})
+
 export const trpc = createTRPCOptionsProxy({
-    ctx: createTRPCContext,
+    ctx: createContext,
     router: appRouter,
     queryClient: getQueryClient,
 })

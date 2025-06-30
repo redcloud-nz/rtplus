@@ -5,94 +5,82 @@
  */
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { useState, type ReactNode, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { DebugFormState, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs} from '@/components/ui/form'
+import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs, UpdateFormProps } from '@/components/ui/form'
 import { Input, SlugInput } from '@/components/ui/input'
 
-import { useToast } from '@/hooks/use-toast'
 import { TeamFormData, teamFormSchema } from '@/lib/forms/team'
-import { nanoId8 } from '@/lib/id'
-import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { useToast } from '@/hooks/use-toast'
+import { TeamBasic, useTRPC } from '@/trpc/client'
 
 
 
-export function CreateTeamDialog_sys({ trigger }: { trigger: ReactNode }) {
-
-    const [open, setOpen] = useState(false)
-
-    return <Dialog open={open} onOpenChange={setOpen}>
-        {trigger}
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>New Team</DialogTitle>
-                <DialogDescription>Create a new team in the system.</DialogDescription>
-            </DialogHeader>
-            <DialogBody>
-                {open ? <CreateTeamForm_sys onClose={() => setOpen(false)} /> : null}
-            </DialogBody>
-        </DialogContent>
-    </Dialog>
-}
-
-function CreateTeamForm_sys({ onClose }: { onClose: () => void }) {
+export function UpdateTeamForm({ teamId, onClose, onUpdate }: UpdateFormProps<TeamBasic> & { teamId: string }) {
     const queryClient = useQueryClient()
-    const router = useRouter()
-    const { toast } = useToast()
     const trpc = useTRPC()
 
-    const teamId = useMemo(() => nanoId8(), [])
+    const { data: team } = useSuspenseQuery(trpc.teams.byId.queryOptions({ teamId }))
+    if(team == null) throw new Error(`Team(${teamId}) not found`)
 
     const form = useForm<TeamFormData>({
         resolver: zodResolver(teamFormSchema),
         defaultValues: {
-            teamId: teamId,
-            name: '',
-            shortName: '',
-            slug: teamId,
-            color: '',
-            status: 'Active'
+            ...team
         }
     })
 
-    async function handleClose() {
-        onClose()
-        form.reset()
-    }
+    const { toast } = useToast()
 
-    const mutation = useMutation(trpc.teams.sys_create.mutationOptions({
-        onError(error) {
+    const mutation = useMutation(trpc.teams.sys_update.mutationOptions({
+        async onMutate({ teamId, ...formData }) {
+            await queryClient.cancelQueries(trpc.teams.byId.queryFilter({ teamId }))
+
+            // Snapshot the previous value
+            const previousTeam = queryClient.getQueryData(trpc.teams.byId.queryKey({ teamId }))
+
+            // Optimistically update the team data
+            if(previousTeam) {
+                queryClient.setQueryData(trpc.teams.byId.queryKey({ teamId }),{ ...previousTeam, ...formData })
+            }
+
+            return { previousTeam }
+        },
+
+        onError: (error, data, context) => {
+            // Rollback to the previous value
+            queryClient.setQueryData(trpc.teams.byId.queryKey({ teamId }), context?.previousTeam)
+
             if(error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof TeamFormData, { message: error.shape.message })
             } else {
                 toast({
-                    title: 'Error creating team',
+                    title: "Error updating team",
                     description: error.message,
                     variant: 'destructive',
                 })
-                handleClose()
+                onClose()
             }
         },
-        async onSuccess(newTeam) {
-            queryClient.invalidateQueries(trpc.teams.all.queryFilter())
+        onSuccess(updatedTeam) {
             toast({
-                title: 'Team created',
-                description: `${newTeam.name} has been created successfully.`,
+                title: "Team updated",
+                description: `Team "${updatedTeam.name}" has been updated.`,
             })
-            handleClose()
-            router.push(Paths.system.teams.team(newTeam.id).index)
+            onClose()
+            onUpdate?.(updatedTeam)
+        },
+        onSettled() {
+            queryClient.invalidateQueries(trpc.teams.byId.queryFilter({ teamId }))
+            queryClient.invalidateQueries(trpc.teams.all.queryFilter())
         }
     }))
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="max-w-xl space-y-4">
+        <form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))} className="max-w-xl space-y-4">
             <FormField
                 control={form.control}
                 name="name"
@@ -121,6 +109,7 @@ function CreateTeamForm_sys({ onClose }: { onClose: () => void }) {
                 control={form.control}
                 name="slug"
                 render={({ field }) => <FormItem>
+                
                     <FormLabel>Slug</FormLabel>
                     <FormControl>
                         <SlugInput {...field} onChange={(ev, newValue) => field.onChange(newValue)}/>
@@ -142,8 +131,8 @@ function CreateTeamForm_sys({ onClose }: { onClose: () => void }) {
                 </FormItem>}
             /> */}
             <FormActions>
-                <FormSubmitButton labels={SubmitVerbs.create}/>
-                <FormCancelButton onClick={handleClose}/>
+                <FormSubmitButton labels={SubmitVerbs.update}/>
+                <FormCancelButton onClick={onClose}/>
             </FormActions>
         </form>
     </FormProvider>
