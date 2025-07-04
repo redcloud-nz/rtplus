@@ -6,30 +6,20 @@
 'use client'
 
 import { EllipsisVertical, InfoIcon, PencilIcon, PlusIcon, TrashIcon } from 'lucide-react'
-import { useState } from 'react'
-import { match } from 'ts-pattern'
 
 import {  useSuspenseQuery } from '@tanstack/react-query'
 
 import { Show } from '@/components/show'
-import { EditTeamMembershipDialog_sys } from '@/components/forms/update-team-membership'
-import { DeleteTeamMembershipDialog } from '@/components/forms/delete-team-membership'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardBody, CardCollapseToggleButton, CardHeader, CardTitle } from '@/components/ui/card'
-import { DialogTriggerButton } from '@/components/ui/dialog'
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Link } from '@/components/ui/link'
+import { Link, TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
 import * as Paths from '@/paths'
-import { TeamBasic, TeamMembershipBasic, useTRPC } from '@/trpc/client'
-
-import { AddTeamMembershipDialog } from './add-team-membership'
-
-
-
+import { useTRPC } from '@/trpc/client'
 
 
 
@@ -41,13 +31,11 @@ export function TeamMembershipsCard({ personId }: { personId: string }) {
     return <Card>
         <CardHeader>
             <CardTitle>Team Memberships</CardTitle>
-            <AddTeamMembershipDialog
-                personId={personId}
-                trigger={<DialogTriggerButton variant='ghost' size="icon" tooltip="Add team membership">
+            <Button variant='ghost' size="icon" asChild>
+                <Link href={Paths.system.person(personId).teamMemberships.create} title="Add Team Membership">
                     <PlusIcon/>
-                </DialogTriggerButton>}
-            />
-            <CardCollapseToggleButton/>
+                </Link>
+            </Button>
         </CardHeader>
         <CardBody boundary>
             <TeamMembershipsTable personId={personId}/>
@@ -63,10 +51,7 @@ export function TeamMembershipsCard({ personId }: { personId: string }) {
 function TeamMembershipsTable({ personId }: { personId: string }) {
     const trpc = useTRPC()
 
-    const { data: person } = useSuspenseQuery(trpc.personnel.byId.queryOptions({ personId }))
     const { data: teamMemberships } = useSuspenseQuery(trpc.teamMemberships.byPerson.queryOptions({ personId })) 
-
-    const [actionTarget, setActionTarget] = useState<{ action: 'Edit' | 'Delete', team: TeamBasic, membership: TeamMembershipBasic } | null>(null)
 
     return <Show 
         when={teamMemberships.length > 0}
@@ -76,7 +61,7 @@ function TeamMembershipsTable({ personId }: { personId: string }) {
             <TableHead>
                 <TableRow>
                     <TableHeadCell>Team</TableHeadCell>
-                    <TableHeadCell>Role</TableHeadCell>
+                    <TableHeadCell>Tags</TableHeadCell>
                     <TableHeadCell>Status</TableHeadCell>
                     <TableHeadCell className="w-10"></TableHeadCell>
                 </TableRow>
@@ -85,13 +70,13 @@ function TeamMembershipsTable({ personId }: { personId: string }) {
                 {teamMemberships
                     .sort((a, b) => a.team.name.localeCompare(b.team.name))
                     .map(({ team, ...membership }) => 
-                        <TableRow key={membership.id}>
+                        <TableRow key={membership.teamId}>
                             <TableCell>
-                                <Link href={Paths.system.teams.team(team.id).index} className="hover:underline">
+                                <TextLink href={Paths.system.team(team.id).index}>
                                     {team.name}
-                                </Link>
+                                </TextLink>
                             </TableCell>
-                            <TableCell>{membership.role}</TableCell>
+                            <TableCell>{membership.tags}</TableCell>
                             <TableCell>{membership.status}</TableCell>
                             <TableCell className="w-10 p-0 text-right overflow-visible">
                                 <DropdownMenu>
@@ -108,8 +93,16 @@ function TeamMembershipsTable({ personId }: { personId: string }) {
                                         <Separator/>
                                         
                                         <DropdownMenuGroup>
-                                            <DropdownMenuItem onClick={() => setActionTarget({ action: 'Edit', membership, team })}><PencilIcon/> Edit</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => setActionTarget({ action: 'Delete', membership, team })}><TrashIcon/> Delete</DropdownMenuItem>
+                                            <DropdownMenuItem asChild>
+                                                <Link href={Paths.system.team(membership.teamId).member(membership.personId).update} title='Edit Team Membership'>
+                                                    <PencilIcon/> Edit
+                                                </Link>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem asChild>
+                                                <Link href={Paths.system.team(membership.teamId).member(membership.personId).delete} title='Remove Team Membership'>
+                                                    <TrashIcon/> Delete
+                                                </Link>
+                                            </DropdownMenuItem>
                                         </DropdownMenuGroup>
                                         
                                     </DropdownMenuContent>
@@ -120,27 +113,5 @@ function TeamMembershipsTable({ personId }: { personId: string }) {
                 }
             </TableBody>
         </Table>
-
-        {match(actionTarget)
-            .with(null, () => null)
-            .with({ action: 'Edit' }, ({ team, membership }) => 
-                <EditTeamMembershipDialog_sys 
-                    key={membership.id}
-                    team={team}
-                    membership={membership}
-                    person={person}
-                    open onOpenChange={(open) => { if(!open) setActionTarget(null)}}
-                />
-            )
-            .with({ action: 'Delete' }, ({ team, membership }) => 
-                <DeleteTeamMembershipDialog
-                    key={membership.id}
-                    team={team}
-                    person={person}
-                    open onOpenChange={(open) => { if(!open) setActionTarget(null)}}
-                />
-            )
-            .exhaustive()
-        }
     </Show>
 }

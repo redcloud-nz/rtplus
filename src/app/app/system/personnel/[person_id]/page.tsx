@@ -2,48 +2,30 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /system/personnel/[person_id]
+ *  Path: /app/system/personnel/[person_id]
  */
 
-import { EllipsisVerticalIcon } from 'lucide-react'
-import { notFound } from 'next/navigation'
-import { cache } from 'react'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageControls, PageHeader, PageTitle } from '@/components/app-page'
-import { DropdownMenuTriggerButton } from '@/components/ui/dropdown-menu'
+import { AppPage, AppPageBreadcrumbs, AppPageContent,  PageHeader, PageTitle } from '@/components/app-page'
 
 import * as Paths from '@/paths'
-import prisma from '@/server/prisma'
 import { HydrateClient } from '@/trpc/server'
 
 import { PersonDetailsCard } from './person-details'
-import { PersonMenu } from './person-menu'
 import { TeamMembershipsCard } from './team-memberships'
 
+import { getPerson, PersonParams } from '.'
 
 
-interface PersonPageProps {
-    params: Promise<{ person_id: string }>
-}
-
-const getPerson = cache(async (personId: string) => prisma.person.findUnique({ where: { id: personId }}))
-
-
-export async function generateMetadata({ params }: PersonPageProps) {
-    const {person_id: personId } = await params
-    
-    const person = await getPerson(personId)
-    if(!person) notFound()
+export async function generateMetadata(props: { params: Promise<PersonParams> }) {
+    const person = await getPerson(props.params)
 
     return { title: `${person.name} | Personnel` }
 }
 
 
-export default async function PersonPage(props: PersonPageProps) {
-    const { person_id: personId } = await props.params
-
-    const person = await getPerson(personId)
-    if(!person) notFound()
+export default async function PersonPage(props: { params: Promise<PersonParams> }) {
+    const person = await getPerson(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs
@@ -57,18 +39,10 @@ export default async function PersonPage(props: PersonPageProps) {
             <AppPageContent variant="container">
                 <PageHeader>
                     <PageTitle objectType="Person">{person.name}</PageTitle>
-                    <PageControls>
-                        <PersonMenu 
-                            personId={personId} 
-                            trigger={<DropdownMenuTriggerButton variant="ghost" size="icon" tooltip="Person options">
-                                <EllipsisVerticalIcon/>
-                            </DropdownMenuTriggerButton>}
-                        />
-                    </PageControls>
                 </PageHeader>
 
-                <PersonDetailsCard personId={personId}/>
-                <TeamMembershipsCard personId={personId}/>
+                <PersonDetailsCard personId={person.id}/>
+                <TeamMembershipsCard personId={person.id}/>
             </AppPageContent>
         </HydrateClient>
     </AppPage>

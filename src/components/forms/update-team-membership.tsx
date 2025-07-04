@@ -1,28 +1,31 @@
 /*
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
- * 
  */
 'use client'
 
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
 import { FixedFormValue, Form, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs, UpdateFormProps } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema } from '@/lib/forms/team-membership'
 import { useToast } from '@/hooks/use-toast'
-import { PersonBasic, TeamBasic, TeamMembershipBasic, useTRPC } from '@/trpc/client'
+import { TeamMembershipWithPersonAndTeam, useTRPC } from '@/trpc/client'
 
 
-
-export function UpdateTeamMembershipForm({ membership, onClose, onUpdate, person, team }: UpdateFormProps<TeamMembershipBasic> & { membership: TeamMembershipBasic, person: PersonBasic, team: TeamBasic }) {
+/**
+ * Common form for a system admin to update a team membership.
+ */
+export function UpdateTeamMembershipForm({ onClose, onUpdate, personId, teamId }: UpdateFormProps<TeamMembershipWithPersonAndTeam> & { personId: string, teamId: string}) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
+
+    const { data: membership } = useSuspenseQuery(trpc.teamMemberships.byId.queryOptions({ personId, teamId }))
 
     const form = useForm<SystemTeamMembershipFormData>({
         resolver: zodResolver(systemTeamMembershipFormSchema),
@@ -68,12 +71,13 @@ export function UpdateTeamMembershipForm({ membership, onClose, onUpdate, person
             })
             handleClose()
         },
-        onSuccess() {
+        onSuccess(result) {
             toast({
                 title: 'Team membership updated',
-                description: `${person.name}'s membership in '${team.name}' has been updated.`,
+                description: `${result.person.name}'s membership in '${result.team.name}' has been updated.`,
             })
             handleClose()
+            onUpdate?.(result)
         },
         onSettled() {
             queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: membership.personId }))
@@ -86,13 +90,13 @@ export function UpdateTeamMembershipForm({ membership, onClose, onUpdate, person
             <FormItem>
                 <FormLabel>Person</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={person.name} />
+                    <FixedFormValue value={membership.person.name} />
                 </FormControl>
             </FormItem>
             <FormItem>
                 <FormLabel>Team</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={team.name} />
+                    <FixedFormValue value={membership.team.name} />
                 </FormControl>
             </FormItem>
             <FormField

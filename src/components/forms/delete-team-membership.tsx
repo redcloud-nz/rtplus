@@ -1,47 +1,34 @@
+/*
+ *  Copyright (c) 2025 Redcloud Development, Ltd.
+ *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
+ */
+'use client'
 
-
-import { ComponentProps } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DeleteFormProps, FixedFormValue, FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
 import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema } from '@/lib/forms/team-membership'
-import { PersonBasic, TeamBasic, TeamMembershipBasic, useTRPC } from '@/trpc/client'
+import { TeamMembershipBasic, useTRPC } from '@/trpc/client'
 
-
-
-export function DeleteTeamMembershipDialog({ person, team, ...props }: ComponentProps<typeof Dialog> & { person: PersonBasic, team: TeamBasic }) {
-   
-    return <Dialog {...props}>
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Delete Team Membership</DialogTitle>
-                <DialogDescription>
-                    This action will permanently remove the team membership for <ObjectName>{person.name}</ObjectName> in <ObjectName>{team.name}</ObjectName>.
-                </DialogDescription>
-            </DialogHeader>
-            <DialogBody>
-                <DeleteTeamMembershipForm person={person} team={team} onClose={() => props.onOpenChange?.(false)} />
-            </DialogBody>
-        </DialogContent>
-    </Dialog>
-}
-
-
-export function DeleteTeamMembershipForm({ person, team, onClose }: DeleteFormProps<TeamMembershipBasic> & { person: PersonBasic, team: TeamBasic }) {
+/**
+ * Common form for a system admin to delete a team membership.
+ */
+export function DeleteTeamMembershipForm({ personId, teamId, onClose }: DeleteFormProps<TeamMembershipBasic> & { personId: string, teamId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
+    const { data: membership } = useSuspenseQuery(trpc.teamMemberships.byId.queryOptions({ personId, teamId }))
+
     const form = useForm<Pick<SystemTeamMembershipFormData, 'personId' | 'teamId'>>({
         resolver: zodResolver(systemTeamMembershipFormSchema.pick({ personId: true, teamId: true })),
-        defaultValues: { personId: person.id, teamId: team.id }
+        defaultValues: { personId, teamId }
     })
 
     const mutation = useMutation(trpc.teamMemberships.delete.mutationOptions({
@@ -55,6 +42,7 @@ export function DeleteTeamMembershipForm({ person, team, onClose }: DeleteFormPr
             queryClient.setQueryData(trpc.teamMemberships.byPerson.queryKey({ personId }), (oldData) => oldData?.filter(m => m.teamId !== teamId))
             queryClient.setQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }), (oldData) => oldData?.filter(m => m.personId !== personId))
 
+            onClose()
             return { previousByPerson, previousByTeam }
         },
         onError(error, data, context) {
@@ -67,18 +55,16 @@ export function DeleteTeamMembershipForm({ person, team, onClose }: DeleteFormPr
                 description: error.message,
                 variant: 'destructive',
             })
-            onClose()
         },
         async onSuccess() {
             toast({
                 title: 'Team membership deleted',
-                description: <>Successfully removed <ObjectName>{person.name}</ObjectName> from <ObjectName>{team.name}</ObjectName>.</>
+                description: <>Successfully removed <ObjectName>{membership.person.name}</ObjectName> from <ObjectName>{membership.team.name}</ObjectName>.</>
             })
-            onClose()
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: person.id }))
-            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId: team.id }))
+            queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId }))
         }
         
     }))
@@ -88,13 +74,13 @@ export function DeleteTeamMembershipForm({ person, team, onClose }: DeleteFormPr
             <FormItem>
                 <FormLabel>Person</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={person.name}/>
+                    <FixedFormValue value={membership.person.name}/>
                 </FormControl>
             </FormItem>
             <FormItem>
                 <FormLabel>Team</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={team.name}/>
+                    <FixedFormValue value={membership.team.name}/>
                 </FormControl>
             </FormItem>
             <FormActions>

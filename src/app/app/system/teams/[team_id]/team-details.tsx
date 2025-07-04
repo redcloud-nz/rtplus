@@ -7,100 +7,58 @@
 
 import { CableIcon, PencilIcon, TrashIcon } from 'lucide-react'
 import * as React from 'react'
-import { match } from 'ts-pattern'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 
-import { DeleteTeamForm } from '@/components/forms/delete-team'
-import { UpdateTeamForm } from '@/components/forms/update-team'
 import { Show } from '@/components/show'
+import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
 import { ColorValue } from '@/components/ui/color'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
-import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogTriggerButton } from '@/components/ui/dialog'
 import { DropdownMenuGroup, DropdownMenuItem } from '@/components/ui/dropdown-menu'
+import { Link } from '@/components/ui/link'
 
+import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
 
 
-export function TeamDetailsCard_sys({ teamId }: { teamId: string }) {
 
-    const [dialog, setDialog] = React.useState<'D4hIntegration' | 'Delete' | 'Edit' | null>(null)
+
+export function TeamDetailsCard({ teamId }: { teamId: string }) {
 
     return <Card>
         <CardHeader>
             <CardTitle>Team Details</CardTitle>
 
-            <Dialog open={dialog != null} onOpenChange={open => { if(!open) setDialog(null)}}>
-                <DialogTriggerButton variant="ghost" size='icon' tooltip="Edit Team" onClick={() => setDialog('Edit')}>
+            <Button variant="ghost" size="icon" asChild>
+                <Link href={Paths.system.team(teamId).update} title="Edit Team">
                     <PencilIcon/>
-                </DialogTriggerButton>
-                <CardMenu title="Team">
-                    <DropdownMenuGroup>
-                        <DialogTrigger asChild>
-                            <DropdownMenuItem onClick={() => setDialog('D4hIntegration')} disabled>
-                                <CableIcon/>
-                                D4H Integration
-                            </DropdownMenuItem>
-                        </DialogTrigger>
-                        
-                        <DialogTrigger asChild>
-                            <DropdownMenuItem onClick={() => setDialog('Delete')}>
-                                <TrashIcon/> Delete
-                            </DropdownMenuItem>
-                        </DialogTrigger>
-                    </DropdownMenuGroup>
-                </CardMenu>
-                <DialogContent>
-                    {match(dialog)
-                        .with(null, () => null)
-                        .with('D4hIntegration', () => <>
-                            <DialogHeader>
-                                <DialogTitle>D4H Integration</DialogTitle>
-                                <DialogDescription>Configure the D4H integration for this team.</DialogDescription>
-                            </DialogHeader>
-                            <DialogBody>
-                                TODO
-                            </DialogBody>
-                        </>)
-                        .with('Delete', () => <>
-                            <DialogHeader>
-                                <DialogTitle>Delete Team</DialogTitle>
-                                <DialogDescription>This action will permanently delete the team.</DialogDescription>
-                            </DialogHeader>
-                            <DialogBody>
-                                <DeleteTeamForm 
-                                    teamId={teamId}
-                                    onClose={() => setDialog(null)}
-                                    />
-                            </DialogBody>
-                        </>)
-                        .with('Edit', () => <>
-                            <DialogHeader>
-                                <DialogTitle>Edit Team</DialogTitle>
-                                <DialogDescription>Edit the team details.</DialogDescription>
-                            </DialogHeader>
-                            <DialogBody>
-                                <UpdateTeamForm
-                                    teamId={teamId}
-                                    onClose={() => setDialog(null)} 
-                                />
-                            </DialogBody>
-                        </>)
-                        .exhaustive()
-                    }
-                </DialogContent>
-            </Dialog>
-
+                </Link>
+            </Button>
+        
+            <CardMenu title="Team">
+                <DropdownMenuGroup>
+                    <DropdownMenuItem disabled asChild>
+                        <Link href={Paths.system.team(teamId).d4h}>
+                            <CableIcon/> D4H Integration
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                        <Link href={Paths.system.team(teamId).delete} title='Delete Team'>
+                            <TrashIcon/> Delete
+                        </Link>
+                    </DropdownMenuItem>
+                </DropdownMenuGroup>
+            </CardMenu>
         </CardHeader>
         <CardBody boundary collapsible>
-            <TeamDetailsList_sys teamId={teamId}/>
+            <TeamDetailsList teamId={teamId}/>
         </CardBody>
     </Card>
 }
 
-function TeamDetailsList_sys({ teamId }: { teamId: string }) {
+function TeamDetailsList({ teamId }: { teamId: string }) {
     const trpc = useTRPC()
 
     const { data: team } = useSuspenseQuery(trpc.teams.byId.queryOptions({ teamId }))

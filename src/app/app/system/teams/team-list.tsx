@@ -6,18 +6,15 @@
 'use client'
 
 import { PlusIcon } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 
-import { CreateTeamForm } from '@/components/forms/create-team'
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
-import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTriggerButton } from '@/components/ui/dialog'
 import { DropdownMenuCheckboxItem, DropdownMenuGroup, DropdownMenuLabel } from '@/components/ui/dropdown-menu'
-import { Link } from '@/components/ui/link'
+import { Link, TextLink } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
 import { StatusOptions, useListOptions } from '@/hooks/use-list-options'
@@ -25,36 +22,18 @@ import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
 
-
-
-export function TeamsListCard_sys() {
-    const router = useRouter()
+export function TeamsListCard() {
 
     const { options, handleOptionChange } = useListOptions({})
-
-    const [createOpen, setCreateOpen] = useState(false)
     
     return <Card>
         <CardHeader>
             <CardTitle>List</CardTitle>
-
-            <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-                <DialogTriggerButton variant="ghost" size="icon" tooltip="Add team">
+            <Button variant="ghost" size="icon" asChild>
+                <Link href={Paths.system.teams.create} title="Create New Team">
                     <PlusIcon />
-                </DialogTriggerButton>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>New Team</DialogTitle>
-                        <DialogDescription>Create a new team in the system.</DialogDescription>
-                    </DialogHeader>
-                    <DialogBody>
-                        <CreateTeamForm
-                            onClose={() => setCreateOpen(false)} 
-                            onCreate={team => router.push(Paths.system.teams.team(team.id).index)}
-                        />
-                    </DialogBody>
-                </DialogContent>
-            </Dialog>
+                </Link>
+            </Button>
 
             <CardMenu title="Teams">
                 <DropdownMenuGroup>
@@ -72,12 +51,12 @@ export function TeamsListCard_sys() {
             
         </CardHeader>
         <CardBody boundary>
-            <TeamsListTable_sys options={options}/>
+            <TeamsListTable options={options}/>
         </CardBody>
     </Card>
 }
 
-export function TeamsListTable_sys({ options }: { options: StatusOptions }) {
+export function TeamsListTable({ options }: { options: StatusOptions }) {
     const trpc = useTRPC()
 
     const { data: teams } = useSuspenseQuery(trpc.teams.all.queryOptions())
@@ -104,7 +83,7 @@ export function TeamsListTable_sys({ options }: { options: StatusOptions }) {
                 {filteredTeams.map((team) => 
                     <TableRow key={team.id}>
                         <TableCell>
-                            <Link href={Paths.system.teams.team(team.id).index} className="hover:underline">{team.name}</Link>
+                            <TextLink href={Paths.system.team(team.id).index}>{team.name}</TextLink>
                         </TableCell>
                         <TableCell>{team.shortName}</TableCell>
                      

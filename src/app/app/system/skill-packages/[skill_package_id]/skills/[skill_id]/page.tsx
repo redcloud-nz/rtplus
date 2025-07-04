@@ -25,8 +25,8 @@ export default async function SkillPage(props: { params: Promise<SkillParams> })
             breadcrumbs={[
                 Paths.system, 
                 Paths.system.skillPackages,
-                { label: skill.skillPackage.name, href: Paths.system.skillPackages.skillPackage(skill.skillPackageId).index },
-                Paths.system.skillPackages.skillPackage(skill.skillPackageId).skills,
+                { label: skill.skillPackage.name, href: Paths.system.skillPackages(skill.skillPackageId).index },
+                Paths.system.skillPackages(skill.skillPackageId).skills,
                 skill.name
             ]}
         />

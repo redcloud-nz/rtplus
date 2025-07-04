@@ -50,7 +50,7 @@ export function TeamD4hConfigDialog({ teamId, ...props }: TeamD4hConfigDialogPro
 
     const form = useForm<ConfigureTeamD4hFormData>({
         resolver: zodResolver(configureTeamD4hFormSchema),
-        defaultValues: teamQuery.data?.d4hInfo || { teamId, d4hTeamId: 0, serverCode: 'ap' }
+        defaultValues: /*teamQuery.data?.d4hInfo ||*/ { teamId, d4hTeamId: 0, serverCode: 'ap' }
     })
 
     async function handleSave(formData: ConfigureTeamD4hFormData) {
@@ -67,7 +67,7 @@ export function TeamD4hConfigDialog({ teamId, ...props }: TeamD4hConfigDialogPro
     }
 
     return <Dialog {...props}>
-        <DialogContent className="max-w-xl" loading={teamQuery.isLoading}>
+        <DialogContent className="max-w-xl">
             <DialogHeader>
                 <DialogTitle>Configure Team D4H Integration</DialogTitle>
                 <DialogDescription>

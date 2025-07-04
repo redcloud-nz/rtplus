@@ -3,58 +3,95 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import _, { create } from "lodash"
 import { PolicyKeyType } from "./lib/policy"
+
 
 //  /------------------------------\
 //  |            System            |
 //  \------------------------------/
 export const system = {
     _label: 'System',
-    index: '/system',
+    index: '/app/system',
+
+    team: (teamId: string) => {
+        const teamBase = `/app/system/teams/${teamId}` as const
+
+        return {
+            index: teamBase,
+            d4h: `${teamBase}/d4h-integration`,
+
+            update: `${teamBase}/--update`,
+            delete: `${teamBase}/--delete`,
+            member: (personId: string) => ({
+                    index: `${teamBase}/members/${personId}`,
+                    update: `${teamBase}/members/${personId}/--update`,
+                    delete: `${teamBase}/members/${personId}/--delete`,
+            } as const),
+            members: {
+                _label: 'Members',
+                index: `${teamBase}/members`,
+                create: `${teamBase}/members/--create`,
+            }
+        } as const
+    },
     teams: {
         _label: 'Teams',
         index: '/app/system/teams',
-        create: '/app/system/teams/--create-team',
-        team: (teamId: string) => ({
-            index: `/app/system/teams/${teamId}`,
-            d4h: `/app/system/teams/${teamId}/d4h`,
-            edit: `/app/system/teams/${teamId}/--update`,
-            members: `/app/system/teams/${teamId}/members`,
-        } as const),
+        create: '/app/system/teams/--create',
+    },
+    person: (personId: string) => {
+        const personBase = `/app/system/personnel/${personId}` as const
+        return {
+            index: personBase,
+            update: `${personBase}/--update`,
+            delete: `${personBase}/--delete`,
+            access: `${personBase}/access`,
+
+            teamMembership: (teamId: string) => ({
+                index: `${personBase}/team-memberships/${teamId}`,
+                update: `${personBase}/team-memberships/${teamId}/--update`,
+                delete: `${personBase}/team-memberships/${teamId}/--delete`,
+            } as const),
+
+            teamMemberships: {
+                    _label: 'Team Memberships',
+                    index: `${personBase}/team-memberships`,
+                    create: `${personBase}/team-memberships/--create`,
+            },
+        } as const
     },
     personnel: {
         _label: 'Personnel',
         index: '/app/system/personnel',
-        person: (personId: string) => ({
-            index: `/app/system/personnel/${personId}`,
-            update: `/app/system/personnel/${personId}/--update`,
-            access: `/app/system/personnel/${personId}/access`,
-            teamMemberships: {
-                create: `/app/system/personnel/${personId}/team-memberships/--create`
+        create: '/app/system/personnel/--create',
+    } as const,
+
+    skillPackage: (skillPackageId: string) => {
+        const packageBase = `/app/system/skill-packages/${skillPackageId}` as const
+
+        return {
+            index: packageBase,
+
+            group: (skillGroupId: string) => ({
+                index: `${packageBase}/groups/${skillGroupId}`,
+            } as const),
+            groups: {
+                _label: 'Groups',
             },
-        } as const),
-    },
+
+            skill: (skillId: string) => ({
+                index: `${packageBase}/skills/${skillId}`,
+            } as const),
+            skills: {
+                _label: 'Skills',
+            },
+        } as const
+    }, 
     skillPackages: {
         _label: 'Skill Packages',
         index: '/app/system/skill-packages',
         import: '/app/system/skill-packages/--import',
-        skillPackage: (skillPackageId: string) => ({
-            index: `/app/system/skill-packages/${skillPackageId}`,
-            groups: {
-                _label: 'Groups',
-                group: (skillGroupId: string) => ({
-                    index: `/app/system/skill-packages/${skillPackageId}/groups/${skillGroupId}`,
-                } as const),
-            },
-            skills: {
-                _label: 'Skills',
-                skill: (skillId: string) => ({
-                    index: `/app/system/skill-packages/${skillPackageId}/skills/${skillId}`,
-                } as const),
-            },
-        } as const),
-    },
+    } as const,
 }
 
 export const imports = {

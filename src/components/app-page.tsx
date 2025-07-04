@@ -35,7 +35,7 @@ const appPageContentVariants = tv({
     base: 'col-span-full overflow-y-auto',
     variants: {
         variant: {
-            default: 'flex flex-1 flex-col gap-4 p-4 *:w-full xl:*:w-4xl',
+            default: 'flex flex-1 flex-col gap-4 p-4 ',
             full: 'w-full flex items-stretch *:flex-1',
             centered: 'w-full flex flex-col items-center justify-center',
             container: 'flex flex-col items-center gap-4 p-4 *:w-full xl:*:w-4xl',
@@ -76,7 +76,9 @@ export function AppPageBreadcrumbs({ breadcrumbs = [], label }: AppPageBreadcrum
         pageLabel = match(last)
             .with({ _label: P.string }, (breadcrumb) => breadcrumb._label)
             .with(P.string, (breadcrumb) => breadcrumb)
-            .exhaustive()
+            .otherwise(() => {
+                throw new Error("AppPageBreadcrumbs: Invalid breadcrumbs: " + JSON.stringify(breadcrumbs))
+            })
         breadcrumbs = breadcrumbs.slice(0, -1)
     }
 

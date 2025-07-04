@@ -170,7 +170,7 @@ function GroupRow({ onAction, options, group }: { onAction: HandleAction, option
 
     return <TableRow key={`group-${group.id}`}>
         <TableCell colSpan={2}>
-            <TextLink href={Paths.system.skillPackages.skillPackage(group.skillPackageId).groups.group(group.id).index}>{group.name}</TextLink>
+            <TextLink href={Paths.system.skillPackages(group.skillPackageId).groups(group.id).index}>{group.name}</TextLink>
         </TableCell>
         {options.showDescription ? <TableCell className="hidden lg:table-cell">{group.description}</TableCell> : null}
         {options.showFrequency ? <TableCell/> : null}
@@ -202,7 +202,7 @@ function SkillRows({ onAction, options, skillGroupId }: { onAction: HandleAction
         <TableRow key={skill.id}>
             <TableCell/>
             <TableCell>
-                <TextLink href={Paths.system.skillPackages.skillPackage(skill.skillPackageId).skills.skill(skill.id).index}>
+                <TextLink href={Paths.system.skillPackages(skill.skillPackageId).skills(skill.id).index}>
                     {skill.name}
                 </TextLink>
             </TableCell>

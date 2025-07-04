@@ -86,9 +86,9 @@ export const teamMembershipsRouter = createTRPCRouter({
             personId: zodNanoId8,
             teamId: zodNanoId8,
         }))
-        .query(async ({ ctx, input }): Promise<TeamMembershipBasic> => {
+        .query(async ({ ctx, input }): Promise<TeamMembershipWithPersonAndTeam> => {
             const membership =  await getTeamMembershipById(ctx, input)
-            return pick(membership, ['personId', 'teamId', 'tags', 'status']) 
+            return pick(membership, ['personId', 'teamId', 'tags', 'status', 'person', 'team'])
         }),
 
     byPerson: systemAdminProcedure
@@ -196,7 +196,7 @@ export const teamMembershipsRouter = createTRPCRouter({
 })
 
 
-async function getTeamMembershipById(ctx: AuthenticatedContext, { personId, teamId }: { personId: string, teamId: string }): Promise<TeamMembership> {
+async function getTeamMembershipById(ctx: AuthenticatedContext, { personId, teamId }: { personId: string, teamId: string }): Promise<TeamMembershipWithPersonAndTeam> {
     const membership = await ctx.prisma.teamMembership.findUnique({
         where: { personId_teamId: { personId, teamId } },
         include: { person: true, team: true }

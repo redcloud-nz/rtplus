@@ -2,55 +2,54 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
+ * /app/system/@form/personnel/--create
  */
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, type ReactNode } from 'react'
+import {  useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { CreateFormProps, Form, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 
 import { useToast } from '@/hooks/use-toast'
 import { SystemPersonFormData, systemPersonFormSchema } from '@/lib/forms/person'
 import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { PersonBasic, useTRPC } from '@/trpc/client'
 
 
-export function CreatePersonDialog({ trigger }: { trigger: ReactNode }) {
+export default function CreatePersonSheet() {
+    const router = useRouter()
 
-    const [open, setOpen] = useState(false)
-
-    return <Dialog open={open} onOpenChange={setOpen}>
-        {trigger}
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>New Person</DialogTitle>
-                <DialogDescription>
-                    Create a new person in the system.
-                </DialogDescription>
-            </DialogHeader>
-            <DialogBody>
-                { open ? <CreatePersonForm onClose={() => setOpen(false)}/> : null }
-            </DialogBody>
-        </DialogContent>
-    </Dialog>  
+    return <Sheet open={true} onOpenChange={open => { if(!open) router.back() }}>
+        <SheetContent>
+            <SheetHeader>
+                <SheetTitle>New Person</SheetTitle>
+                <SheetDescription>Create a new person.</SheetDescription>
+            </SheetHeader>
+            <SheetBody>
+                <CreatePersonForm
+                    onClose={() => router.back()} 
+                    onCreate={person => router.push(Paths.system.personnel(person.id).index)}
+                />
+            </SheetBody>
+        </SheetContent>
+    </Sheet>
 }
 
-
-function CreatePersonForm({ onClose }: { onClose: () => void }) {
+function CreatePersonForm({ onClose, onCreate }: CreateFormProps<PersonBasic>) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const personId = nanoId8()
+    const personId = useMemo(() => nanoId8(), [])
 
     const form = useForm<SystemPersonFormData>({
         resolver: zodResolver(systemPersonFormSchema),
@@ -89,12 +88,12 @@ function CreatePersonForm({ onClose }: { onClose: () => void }) {
             })
 
             handleClose()
-            router.push(Paths.system.personnel.person(newPerson.id).index)
+            onCreate?.(newPerson)
         }
     }))
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="max-w-xl space-y-4">
+        <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
             <FormField
                 control={form.control}
                 name="name"
@@ -124,6 +123,6 @@ function CreatePersonForm({ onClose }: { onClose: () => void }) {
                 <FormCancelButton onClick={handleClose}/>
             </FormActions>
             
-        </form>
+        </Form>
     </FormProvider>
 }

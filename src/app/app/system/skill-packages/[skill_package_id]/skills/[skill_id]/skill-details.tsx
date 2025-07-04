@@ -77,7 +77,7 @@ export function SkillDetailsCard_sys({ skillId, skillPackageId }: { skillId: str
             .with('Delete', () => 
                 <DeleteSkillDialog 
                     open onOpenChange={() => setAction(null)}
-                    onDelete={() => router.push(Paths.system.skillPackages.skillPackage(skillPackageId).index)}
+                    onDelete={() => router.push(Paths.system.skillPackages(skillPackageId).index)}
                     skillId={skillId}
                 />
             )
@@ -96,12 +96,12 @@ export function SkillDetailsList_sys({ skillId }: { skillId: string }) {
 
         <DLTerm>Skill Package</DLTerm>
         <DLDetails>
-            <TextLink href={Paths.system.skillPackages.skillPackage(skill.skillPackageId).index}>{skill.skillPackage.name}</TextLink>
+            <TextLink href={Paths.system.skillPackages(skill.skillPackageId).index}>{skill.skillPackage.name}</TextLink>
         </DLDetails>
 
         <DLTerm>Skill Group</DLTerm>
         <DLDetails>
-            <TextLink href={Paths.system.skillPackages.skillPackage(skill.skillPackageId).groups.group(skill.skillGroupId).index}>{skill.skillGroup.name}</TextLink>
+            <TextLink href={Paths.system.skillPackages(skill.skillPackageId).groups(skill.skillGroupId).index}>{skill.skillGroup.name}</TextLink>
         </DLDetails>
 
         <DLTerm>Name</DLTerm>

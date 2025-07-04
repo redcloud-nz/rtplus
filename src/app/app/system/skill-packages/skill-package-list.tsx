@@ -34,7 +34,7 @@ export function SkillPackageListCard_sys() {
         <CardHeader>
             <CardTitle>Package list</CardTitle>
             <CreateSkillPackageDialog
-                onCreate={skillPackage => router.push(Paths.system.skillPackages.skillPackage(skillPackage.id).index)}
+                onCreate={skillPackage => router.push(Paths.system.skillPackage(skillPackage.id).index)}
                 trigger={<DialogTriggerButton variant="ghost" size="icon" tooltip="Create Skill Package">
                     <PlusIcon/>
                 </DialogTriggerButton>}
@@ -88,7 +88,7 @@ function SkillPackageListTable_sys({ options }: { options: StatusOptions }) {
                 {filteredRows.map(skillPackage =>
                     <TableRow key={skillPackage.id}>
                         <TableCell>
-                            <TextLink href={Paths.system.skillPackages.skillPackage(skillPackage.id).index}>{skillPackage.name}</TextLink>
+                            <TextLink href={Paths.system.skillPackage(skillPackage.id).index}>{skillPackage.name}</TextLink>
                         </TableCell>
                         <TableCell className="text-center">
                             {skillPackage._count.skillGroups}

@@ -2,52 +2,56 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
+ * /app/system/@form/personnel/[person_id]/--update
  */
 'use client'
 
-import { ReactNode, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { use } from 'react'
+
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { Form, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs, UpdateFormProps } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 
 import { useToast } from '@/hooks/use-toast'
 import { SystemPersonFormData, systemPersonFormSchema } from '@/lib/forms/person'
-import { useTRPC } from '@/trpc/client'
+import { PersonBasic, useTRPC } from '@/trpc/client'
 
 
-export function EditPersonDialog({ personId, trigger }: { personId: string, trigger: ReactNode }) {
+export default function UpdatePersonSheet(props: { params: Promise<{ person_id: string}> }) {
+    const { person_id: personId } = use(props.params)
 
-    const [open, setOpen] = useState(false)
+    const router = useRouter()
 
-    return <Dialog open={open} onOpenChange={setOpen}>
-        {trigger}
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Edit Person</DialogTitle>
-                <DialogDescription>
-                    Edit the details of this person.
-                </DialogDescription>
-            </DialogHeader>
-            <DialogBody>
-                { open ? <EditPersonForm personId={personId} onClose={() => setOpen(false)}/> : null }
-            </DialogBody>
-        </DialogContent>
-    </Dialog>  
+    return <Sheet open={true} onOpenChange={open => { if(!open) router.back() }}>
+        <SheetContent>
+            <SheetHeader>
+                <SheetTitle>Update Person</SheetTitle>
+                <SheetDescription>Update the details of the team.</SheetDescription>
+            </SheetHeader>
+            <SheetBody>
+                <UpdatePersonForm
+                    personId={personId}
+                    onClose={() => router.back()} 
+                />
+            </SheetBody>
+        </SheetContent>
+    </Sheet>
+
 }
-
 
 /**
  * Component that displays a form to edit a person.
  * @param personId The ID of the person to edit.
  * @param onClose The function to call when the form is closed.
  */
-function EditPersonForm({ personId, onClose }: { personId: string, onClose: () => void }) {
+function UpdatePersonForm({ personId, onClose }: UpdateFormProps<PersonBasic> & { personId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
@@ -113,7 +117,7 @@ function EditPersonForm({ personId, onClose }: { personId: string, onClose: () =
     }))
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="max-w-2xl space-y-4">
+        <Form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))}>
             <FormField
                 control={form.control}
                 name="name"
@@ -162,7 +166,7 @@ function EditPersonForm({ personId, onClose }: { personId: string, onClose: () =
                 <FormSubmitButton labels={SubmitVerbs.update}/>
                 <FormCancelButton onClick={onClose}/>
             </FormActions>
-        </form>
+        </Form>
     </FormProvider> 
     
     
