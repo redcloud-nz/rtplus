@@ -6,41 +6,29 @@
 'use client'
 
 import { EllipsisVerticalIcon, PencilIcon, TrashIcon } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { match } from 'ts-pattern'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
-
-import { DeleteSkillDialog } from '@/components/dialogs/delete-skill'
-import { EditSkillDialog } from '@/components/dialogs/edit-skill'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTriggerButton } from '@/components/ui/dropdown-menu'
-import { TextLink } from '@/components/ui/link'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { Link, TextLink } from '@/components/ui/link'
 
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
-export function SkillDetailsCard_sys({ skillId, skillPackageId }: { skillId: string, skillPackageId: string }) {
-    const router = useRouter()
 
-    const [action, setAction] = useState<'Edit' | 'Delete' | null>(null)
+export function SkillDetailsCard({ skillId, skillPackageId }: { skillId: string, skillPackageId: string }) {
 
     return <Card>
         <CardHeader>
             <CardTitle>Details</CardTitle>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button variant="ghost" size='icon' onClick={() => setAction('Edit')}>
-                        <PencilIcon/>
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent>Edit Skill</TooltipContent>
-            </Tooltip>
+            <Button variant="ghost" size='icon' asChild>
+                <Link href={Paths.system.skillPackage(skillPackageId).skill(skillId).update}>
+                    <PencilIcon/> <span className="sr-only">Edit Skill</span>
+                </Link>
+            </Button>
 
             <DropdownMenu>
                 <DropdownMenuTriggerButton variant="ghost" size="icon" tooltip="Skill Options">
@@ -51,13 +39,15 @@ export function SkillDetailsCard_sys({ skillId, skillPackageId }: { skillId: str
                     <DropdownMenuLabel className="text-center">Skill</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
-                        <DropdownMenuItem onClick={() => setAction('Edit')}>
-                            <PencilIcon className="mr-1"/>
-                            Edit
+                        <DropdownMenuItem asChild>
+                            <Link href={Paths.system.skillPackage(skillPackageId).skill(skillId).update}>
+                                <PencilIcon className="mr-1"/> Edit
+                            </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setAction('Delete')}>
-                            <TrashIcon className="mr-1"/>
-                            Delete
+                        <DropdownMenuItem asChild>
+                            <Link href={Paths.system.skillPackage(skillPackageId).skill(skillId).delete}>
+                                <TrashIcon className="mr-1"/> Delete
+                            </Link>
                         </DropdownMenuItem>
                     </DropdownMenuGroup>
                 </DropdownMenuContent>
@@ -65,27 +55,12 @@ export function SkillDetailsCard_sys({ skillId, skillPackageId }: { skillId: str
         </CardHeader>
 
         <CardBody boundary collapsible>
-            <SkillDetailsList_sys skillId={skillId} />
+            <SkillDetailsList skillId={skillId} />
         </CardBody>
-        {match(action)
-            .with('Edit', () => 
-                <EditSkillDialog 
-                    open onOpenChange={() => setAction(null)} 
-                    skillId={skillId}
-                />
-            )
-            .with('Delete', () => 
-                <DeleteSkillDialog 
-                    open onOpenChange={() => setAction(null)}
-                    onDelete={() => router.push(Paths.system.skillPackages(skillPackageId).index)}
-                    skillId={skillId}
-                />
-            )
-            .otherwise(() => null)}
     </Card>
 }
 
-export function SkillDetailsList_sys({ skillId }: { skillId: string }) {
+export function SkillDetailsList({ skillId }: { skillId: string }) {
     const trpc = useTRPC()
 
     const { data: skill } = useSuspenseQuery(trpc.skills.byId.queryOptions({ skillId }))
@@ -96,12 +71,12 @@ export function SkillDetailsList_sys({ skillId }: { skillId: string }) {
 
         <DLTerm>Skill Package</DLTerm>
         <DLDetails>
-            <TextLink href={Paths.system.skillPackages(skill.skillPackageId).index}>{skill.skillPackage.name}</TextLink>
+            <TextLink href={Paths.system.skillPackage(skill.skillPackageId).index}>{skill.skillPackage.name}</TextLink>
         </DLDetails>
 
         <DLTerm>Skill Group</DLTerm>
         <DLDetails>
-            <TextLink href={Paths.system.skillPackages(skill.skillPackageId).groups(skill.skillGroupId).index}>{skill.skillGroup.name}</TextLink>
+            <TextLink href={Paths.system.skillPackage(skill.skillPackageId).group(skill.skillGroupId).index}>{skill.skillGroup.name}</TextLink>
         </DLDetails>
 
         <DLTerm>Name</DLTerm>

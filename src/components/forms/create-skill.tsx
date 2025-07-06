@@ -5,15 +5,14 @@
  */
 'use client'
 
-import { ComponentProps } from 'react'
+import { useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { pick } from 'remeda'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { SkillPackageValue } from '@/components/controls/skill-package-value'
+import { CreateFormProps, FixedFormValue, Form, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
@@ -21,41 +20,32 @@ import { Textarea } from '@/components/ui/textarea'
 
 import { useToast } from '@/hooks/use-toast'
 import { SkillFormData, skillFormSchema } from '@/lib/forms/skill'
-import { useTRPC } from '@/trpc/client'
+import { nanoId8 } from '@/lib/id'
+import { SkillWithPackageAndGroup, useTRPC } from '@/trpc/client'
 
 
-/**
- * Dialog component for editing an existing skill.
- */
-export function EditSkillDialog({ skillId, ...props }: ComponentProps<typeof Dialog> & { skillId: string }) {
-    return <Dialog {...props}>
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Edit Skill</DialogTitle>
-                <DialogDescription>Modify the skill details.</DialogDescription>
-            </DialogHeader>
-            <DialogBody>
-                <EditSkillForm
-                    skillId={skillId}
-                    onClose={() => props.onOpenChange?.(false)}
-                />
-            </DialogBody>
-        </DialogContent>
-    </Dialog>
-}
 
-export function EditSkillForm({ onClose, skillId }: { onClose: () => void, skillId: string }) {
+export function CreateSkillForm({ onClose, onCreate, skillGroupId, skillPackageId }: CreateFormProps<SkillWithPackageAndGroup> & { skillGroupId?: string, skillPackageId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const { data: skill } = useSuspenseQuery(trpc.skills.byId.queryOptions({ skillId}))
+    const { data: skillGroups } = useSuspenseQuery(trpc.skillGroups.bySkillPackageId.queryOptions({ skillPackageId }))
+
+    const skillId = useMemo(() => nanoId8(), [])
 
     const form = useForm<SkillFormData>({
         resolver: zodResolver(skillFormSchema),
         defaultValues: {
-            skillId, ...pick(skill, ['skillPackageId', 'skillGroupId', 'name', 'description', 'status', 'frequency', 'optional'])
-        }
+            skillId,
+            skillGroupId: skillGroupId ?? "",
+            skillPackageId,
+            name: '',
+            description: '',
+            frequency: 'P1Y', // Default to 1 year
+            optional: false,
+            status: 'Active'
+        },
     })
 
     function handleClose() {
@@ -63,46 +53,74 @@ export function EditSkillForm({ onClose, skillId }: { onClose: () => void, skill
         onClose()
     }
 
-    const mutation = useMutation(trpc.skills.sys_update.mutationOptions({
+    const mutation = useMutation(trpc.skills.sys_create.mutationOptions({
         onError(error) {
             if(error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof SkillFormData, { message: error.shape.message })
             } else {
-                 toast({
-                    title: 'Error updating skill',
+                toast({
+                    title: 'Error creating skill',
                     description: error.message,
-                    variant: 'destructive'
+                    variant: 'destructive',
                 })
                 handleClose()
             }
         },
         async onSuccess(result) {
             toast({
-                title: 'Skill updated',
-                description: `The skill "${result.name}" has been successfully updated.`
+                title: 'Skill created',
+                description: `The skill ${result.name} has been created successfully.`,
             })
+            onCreate?.(result)
             handleClose()
 
             await queryClient.invalidateQueries(trpc.skills.all.queryFilter())
-            await queryClient.invalidateQueries(trpc.skills.byId.queryFilter({ skillId }))
-            await queryClient.invalidateQueries(trpc.skills.bySkillGroupId.queryFilter({ skillGroupId: skill.skillGroupId }))
-        },
+            await queryClient.invalidateQueries(trpc.skills.bySkillGroupId.queryFilter({ skillGroupId: result.skillGroupId }))
+        }
     }))
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))} className=" max-w-2xl space-y-4">
+        <Form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))}>
             <FormItem>
-                <FormLabel>Package</FormLabel>
+                <FormLabel>Skill Package</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={skill.skillPackage.name}/>
+                    <SkillPackageValue skillPackageId={skillPackageId}/>
                 </FormControl>
             </FormItem>
-            <FormItem>
-                <FormLabel>Group</FormLabel>
-                <FormControl>
-                    <FixedFormValue value={skill.skillGroup.name}/>
-                </FormControl>
-            </FormItem>
+            { skillGroupId
+                ? <FormItem>
+                    <FormLabel>Skill Group</FormLabel>
+                    <FormControl>
+                        <FixedFormValue value={skillGroups.find(g => g.id == skillGroupId)!.name}/>
+                    </FormControl>
+                </FormItem>
+                : <FormField
+                    control={form.control}
+                    name="skillGroupId"
+                    render={({ field }) => <FormItem>
+                        <FormLabel>Skill Group</FormLabel>
+                        <FormControl>
+                            <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a skill group"/>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {skillGroups.map(group => (
+                                        <SelectItem key={group.id} value={group.id}>
+                                            {group.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </FormControl>
+                        <FormDescription>Select the group this skill belongs to.</FormDescription>
+                        <FormMessage/>
+                    </FormItem>}
+               />
+            }
             <FormField
                 control={form.control}
                 name="name"
@@ -166,31 +184,10 @@ export function EditSkillForm({ onClose, skillId }: { onClose: () => void, skill
                     <FormMessage/>
                 </FormItem>}
             />
-            <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => 
-                    <FormItem>
-                        <FormLabel>Status</FormLabel>
-                        <FormControl>
-                            <Select onValueChange={field.onChange} value={field.value}>
-                                <SelectTrigger className="w-1/2">
-                                    <SelectValue placeholder="Select status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Active">Active</SelectItem>
-                                    <SelectItem value="Inactive">Inactive</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                }
-            />
             <FormActions>
-                <FormSubmitButton labels={SubmitVerbs.update}/>
+                <FormSubmitButton labels={SubmitVerbs.create}/>
                 <FormCancelButton onClick={handleClose}/>
             </FormActions>
-        </form>
+        </Form>
     </FormProvider>
 }

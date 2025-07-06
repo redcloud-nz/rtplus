@@ -2,18 +2,21 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
+ * /app/system/@form/skill-packages/[skill_package_id]/--create-group
  */
 'use client'
 
-import { useMemo, ComponentProps } from 'react'
+import { useRouter } from 'next/navigation'
+import { use, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs} from '@/components/ui/form'
+import { SkillPackageValue } from '@/components/controls/skill-package-value'
+import { CreateFormProps, Form, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Textarea } from '@/components/ui/textarea'
 
 import { useToast } from '@/hooks/use-toast'
@@ -22,37 +25,33 @@ import { nanoId8 } from '@/lib/id'
 import { SkillGroupWithPackage, useTRPC } from '@/trpc/client'
 
 
-type CreateSkillGroupProps = {
-    onCreate?: (skillGroup: SkillGroupWithPackage) => void,
-    skillPackageId: string,
+
+
+export default function CreateSkillGroupSheet({ params }: { params: Promise<{ skill_package_id: string }> }) {
+    const { skill_package_id: skillPackageId } = use(params)
+
+    const router = useRouter()
+
+    return <Sheet open onOpenChange={open => { if(!open) router.back() }}>
+            <SheetContent>
+                <SheetHeader>
+                    <SheetTitle>New Skill Group</SheetTitle>
+                    <SheetDescription>Create a new skill group in this package.</SheetDescription>
+                </SheetHeader>
+                <SheetBody>
+                    <CreateSkillGroupForm
+                        skillPackageId={skillPackageId}
+                        onClose={() => router.back()} 
+                    />
+                </SheetBody>
+            </SheetContent>
+        </Sheet>
 }
 
-
-export function CreateSkillGroupDialog({ onCreate, skillPackageId, ...props }: ComponentProps<typeof Dialog> & CreateSkillGroupProps) {
-
-    return <Dialog {...props}>
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>New Skill Group</DialogTitle>
-                <DialogDescription>Create a new skill group.</DialogDescription>
-            </DialogHeader>
-            <DialogBody>
-                <CreateSkillGroupForm 
-                    onClose={() => props.onOpenChange?.(false)}
-                    onCreate={onCreate}
-                    skillPackageId={skillPackageId}
-                />
-            </DialogBody>
-        </DialogContent>
-    </Dialog>
-}
-
-function CreateSkillGroupForm({ onClose, onCreate, skillPackageId }: CreateSkillGroupProps & { onClose: () => void }) {
+function CreateSkillGroupForm({ onClose, onCreate, skillPackageId }: CreateFormProps<SkillGroupWithPackage> & { skillPackageId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
-
-    const { data: skillPackage } = useSuspenseQuery(trpc.skillPackages.byId.queryOptions({ skillPackageId}))
 
     const skillGroupId = useMemo(() => nanoId8(), [])
 
@@ -102,11 +101,11 @@ function CreateSkillGroupForm({ onClose, onCreate, skillPackageId }: CreateSkill
     }))
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))} className="max-w-xl space-y-4">
+        <Form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))}>
             <FormItem>
                 <FormLabel>Skill Package</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={skillPackage.name}/>
+                    <SkillPackageValue skillPackageId={skillPackageId}/>
                 </FormControl>
             </FormItem>
                
@@ -142,6 +141,6 @@ function CreateSkillGroupForm({ onClose, onCreate, skillPackageId }: CreateSkill
                 <FormSubmitButton labels={SubmitVerbs.create}/>
                 <FormCancelButton onClick={onClose}/>
             </FormActions>
-        </form>
+        </Form>
     </FormProvider>
 }

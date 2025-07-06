@@ -10,8 +10,8 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 
 import * as Paths from '@/paths'
 
-import { SkillPackageDetailsCard_sys } from './skill-package-details'
-import { SkillPackageGroupsAndSkill_sys } from './skill-package-groups-and-skills'
+import { SkillPackageDetailsCard } from './skill-package-details'
+import { SkillPackageGroupsAndSkillCard } from './skill-package-groups-and-skills'
 
 import { getSkillPackage, SkillPackageParams } from '.'
 
@@ -37,8 +37,8 @@ export default async function SkillPackagePage(props: { params: Promise<SkillPac
                 <PageTitle objectType="Skill Package">{skillPackage.name}</PageTitle>    
             </PageHeader>
 
-            <SkillPackageDetailsCard_sys skillPackageId={skillPackage.id}/>
-            <SkillPackageGroupsAndSkill_sys skillPackageId={skillPackage.id}/>
+            <SkillPackageDetailsCard skillPackageId={skillPackage.id}/>
+            <SkillPackageGroupsAndSkillCard skillPackageId={skillPackage.id}/>
         </AppPageContent>
     </AppPage>
 }

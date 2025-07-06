@@ -1,48 +1,36 @@
 /*
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
- * 
  */
 'use client'
 
 import { EllipsisVerticalIcon, PencilIcon, TrashIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { match } from 'ts-pattern'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
-
-import { DeleteSkillGroupDialog } from '@/components/dialogs/delete-skill-group'
-import { EditSkillGroupDialog } from '@/components/dialogs/edit-skill-group'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTriggerButton } from '@/components/ui/dropdown-menu'
-import { TextLink } from '@/components/ui/link'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { Link, TextLink } from '@/components/ui/link'
 
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
 
 
-export function SkillGroupDetailsCard_sys({ skillGroupId, skillPackageId }: { skillGroupId: string, skillPackageId: string }) {
+export function SkillGroupDetailsCard({ skillGroupId, skillPackageId }: { skillGroupId: string, skillPackageId: string }) {
     const router = useRouter()
-
-    const [action, setAction] = useState<'Edit' | 'Delete' | null>(null)
 
     return <Card>
         <CardHeader>
             <CardTitle>Details</CardTitle>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button variant="ghost" size='icon' onClick={() => setAction('Edit')}>
-                        <PencilIcon/>
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent>Edit Skill Group</TooltipContent>
-            </Tooltip>
+            <Button variant="ghost" size="icon" asChild>
+                <Link href={Paths.system.skillPackage(skillPackageId).group(skillGroupId).update}>
+                    <PencilIcon/> <span className="sr-only">Edit Skill Group</span>
+                </Link>
+            </Button>
             <DropdownMenu>
                 <DropdownMenuTriggerButton variant="ghost" size="icon" tooltip="Skill Group Options">
                     <EllipsisVerticalIcon/>
@@ -51,41 +39,27 @@ export function SkillGroupDetailsCard_sys({ skillGroupId, skillPackageId }: { sk
                     <DropdownMenuLabel className="text-center">Skill Group</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
-                        <DropdownMenuItem onClick={() => setAction('Edit')}>
-                            <PencilIcon className="mr-1"/>
-                            Edit
+                        <DropdownMenuItem asChild>
+                            <Link href={Paths.system.skillPackage(skillPackageId).group(skillGroupId).update}>
+                                <PencilIcon className="mr-1"/> Edit
+                            </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setAction('Delete')}>
-                            <TrashIcon className="mr-1"/>
-                            Delete
+                        <DropdownMenuItem asChild>
+                            <Link href={Paths.system.skillPackage(skillPackageId).group(skillGroupId).delete}>
+                                <TrashIcon className="mr-1"/> Delete
+                            </Link>
                         </DropdownMenuItem>
                     </DropdownMenuGroup>
                 </DropdownMenuContent>
             </DropdownMenu>
         </CardHeader>
         <CardBody boundary collapsible>
-            <SkillGroupDetailsList_sys skillGroupId={skillGroupId}/>
+            <SkillGroupDetailsList skillGroupId={skillGroupId}/>
         </CardBody>
-
-        {match(action)
-            .with('Edit', () => 
-                <EditSkillGroupDialog 
-                    open onOpenChange={() => setAction(null)} 
-                    skillGroupId={skillGroupId}
-                />
-            )
-            .with('Delete', () => 
-                <DeleteSkillGroupDialog 
-                    open onOpenChange={() => setAction(null)}
-                    onDelete={() => router.push(Paths.system.skillPackages(skillPackageId).index)}
-                    skillGroupId={skillGroupId}
-                />
-            )
-            .otherwise(() => null)}
     </Card>
 }
 
-function SkillGroupDetailsList_sys({ skillGroupId }: { skillGroupId: string }) {
+function SkillGroupDetailsList({ skillGroupId }: { skillGroupId: string }) {
     const trpc = useTRPC()
 
     const { data: skillGroup } = useSuspenseQuery(trpc.skillGroups.byId.queryOptions({ skillGroupId }))
@@ -96,7 +70,7 @@ function SkillGroupDetailsList_sys({ skillGroupId }: { skillGroupId: string }) {
 
         <DLTerm>Skill Package</DLTerm>
         <DLDetails>
-            <TextLink href={Paths.system.skillPackages(skillGroup.skillPackageId).index}>{skillGroup.skillPackage.name}</TextLink>
+            <TextLink href={Paths.system.skillPackage(skillGroup.skillPackageId).index}>{skillGroup.skillPackage.name}</TextLink>
         </DLDetails>
 
         <DLTerm>Name</DLTerm>

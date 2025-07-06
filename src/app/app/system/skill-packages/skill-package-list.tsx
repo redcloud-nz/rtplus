@@ -10,22 +10,21 @@ import { useRouter } from 'next/navigation'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 
-import { CreateSkillPackageDialog } from '@/components/dialogs/create-skill-package'
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
-import { DialogTriggerButton } from '@/components/ui/dialog'
 import { DropdownMenuCheckboxItem, DropdownMenuGroup, DropdownMenuLabel } from '@/components/ui/dropdown-menu'
-import { TextLink } from '@/components/ui/link'
+import { Link, TextLink } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
+import { StatusOptions, useListOptions } from '@/hooks/use-list-options'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
-import { StatusOptions, useListOptions } from '@/hooks/use-list-options'
 
 
 
-export function SkillPackageListCard_sys() {
+export function SkillPackageListCard() {
     const router = useRouter()
 
     const { options, handleOptionChange } = useListOptions({})
@@ -33,12 +32,11 @@ export function SkillPackageListCard_sys() {
     return <Card>
         <CardHeader>
             <CardTitle>Package list</CardTitle>
-            <CreateSkillPackageDialog
-                onCreate={skillPackage => router.push(Paths.system.skillPackage(skillPackage.id).index)}
-                trigger={<DialogTriggerButton variant="ghost" size="icon" tooltip="Create Skill Package">
+            <Button variant="ghost" size="icon" asChild>
+                <Link href={Paths.system.skillPackages.create}>
                     <PlusIcon/>
-                </DialogTriggerButton>}
-            />
+                </Link>
+            </Button>
             <CardMenu title="Skill Package">
                 <DropdownMenuGroup>
                     <DropdownMenuLabel>Status</DropdownMenuLabel>
@@ -54,12 +52,12 @@ export function SkillPackageListCard_sys() {
             </CardMenu>
         </CardHeader>
         <CardBody boundary>
-            <SkillPackageListTable_sys options={options}/>
+            <SkillPackageListTable options={options}/>
         </CardBody>
     </Card>
 }
 
-function SkillPackageListTable_sys({ options }: { options: StatusOptions }) {
+function SkillPackageListTable({ options }: { options: StatusOptions }) {
     const trpc = useTRPC()
 
     const { data: skillPackages } = useSuspenseQuery(trpc.skillPackages.all.queryOptions({}))

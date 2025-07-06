@@ -71,9 +71,15 @@ export const system = {
 
         return {
             index: packageBase,
+            update: `${packageBase}/--update`,
+            delete: `${packageBase}/--delete`,
+            createGroup: `${packageBase}/--create-group`,
+            createSkill: `${packageBase}/--create-skill`,
 
             group: (skillGroupId: string) => ({
                 index: `${packageBase}/groups/${skillGroupId}`,
+                update: `${packageBase}/groups/${skillGroupId}/--update`,
+                delete: `${packageBase}/groups/${skillGroupId}/--delete`,
             } as const),
             groups: {
                 _label: 'Groups',
@@ -81,6 +87,8 @@ export const system = {
 
             skill: (skillId: string) => ({
                 index: `${packageBase}/skills/${skillId}`,
+                update: `${packageBase}/skills/${skillId}/--update`,
+                delete: `${packageBase}/skills/${skillId}/--delete`,
             } as const),
             skills: {
                 _label: 'Skills',
@@ -90,6 +98,7 @@ export const system = {
     skillPackages: {
         _label: 'Skill Packages',
         index: '/app/system/skill-packages',
+        create: '/app/system/skill-packages/--create',
         import: '/app/system/skill-packages/--import',
     } as const,
 }

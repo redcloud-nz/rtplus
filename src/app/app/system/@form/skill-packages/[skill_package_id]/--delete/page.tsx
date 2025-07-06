@@ -1,43 +1,56 @@
 /*
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
+ * 
+ * /app/system/@form/skill-packages/[skill_package_id]/--delete
  */
 'use client'
 
-import { ComponentProps } from 'react'
+import { useRouter } from 'next/navigation'
+import { use } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { Dialog, DialogBody, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
-import { Paragraph } from '@/components/ui/typography'
+import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Form, FormControl, FormActions, FormItem, FormLabel, FormSubmitButton, FormCancelButton, SubmitVerbs, DeleteFormProps, FixedFormValue } from '@/components/ui/form'
+import { ObjectName } from '@/components/ui/typography'
 
-import { SkillPackageFormData } from '@/lib/forms/skill-package'
 import { useToast } from '@/hooks/use-toast'
+import { SkillPackageFormData, skillPackageFormSchema } from '@/lib/forms/skill-package'
+import * as Paths from '@/paths'
 import { SkillPackage, useTRPC } from '@/trpc/client'
 
 
-type DeleteSkillPackageDialogProps = ComponentProps<typeof Dialog> & {
-    skillPackageId: string
-    onDelete?: (skillPackage: SkillPackage) => void
-}
 
-export function DeleteSkillPackageDialog(props: DeleteSkillPackageDialogProps) {
-    return <Dialog {...props}>
+
+
+export default function DeleteSkillPackageDialog(props: { params: Promise<{ skill_package_id: string }> }) {
+    const { skill_package_id: skillPackageId } = use(props.params)
+
+    const router = useRouter()
+
+    return <Dialog open onOpenChange={open => { if(!open) router.back() }}>
         <DialogContent>
             <DialogHeader>
                 <DialogTitle>Delete Skill Package</DialogTitle>
-                <Paragraph>This action will permanently delete the skill package.</Paragraph>
+                <DialogDescription>Permanently delete skill package?</DialogDescription>
             </DialogHeader>
             <DialogBody>
-                <DeleteSkillPackageForm {...props} />
+                <DeleteSkillPackageForm
+                    skillPackageId={skillPackageId}
+                    onClose={() => router.back()}
+                    onDelete={() => router.push(Paths.system.skillPackages.index)}
+                />
             </DialogBody>
         </DialogContent>
     </Dialog>
+
 }
 
-export function DeleteSkillPackageForm({ onOpenChange, onDelete, skillPackageId }: DeleteSkillPackageDialogProps) {
+
+export function DeleteSkillPackageForm({ onClose, onDelete, skillPackageId }: DeleteFormProps<SkillPackage> & { skillPackageId: string }) {
 
     const queryClient = useQueryClient()
     const { toast } = useToast()
@@ -46,13 +59,9 @@ export function DeleteSkillPackageForm({ onOpenChange, onDelete, skillPackageId 
     const { data: skillPackage } = useSuspenseQuery(trpc.skillPackages.byId.queryOptions({ skillPackageId }))
 
     const form = useForm<Pick<SkillPackageFormData, 'skillPackageId'>>({
-        resolver: (data) => ({ values: data, errors: {} }),
+        resolver: zodResolver(skillPackageFormSchema.pick({ skillPackageId: true })),
         defaultValues: { skillPackageId: skillPackage.id }
     })
-
-    function handleClose() {
-        onOpenChange?.(false)
-    }
 
     const mutation = useMutation(trpc.skillPackages.sys_delete.mutationOptions({
         onError(error) {
@@ -61,14 +70,14 @@ export function DeleteSkillPackageForm({ onOpenChange, onDelete, skillPackageId 
                 description: error.message,
                 variant: 'destructive'
             })
-            handleClose()
+            onClose()
         },
         async onSuccess(result) {
             toast({
                 title: 'Skill Package Deleted',
-                description: `The skill package ${result.name} has been deleted.`,
+                description: <>The skill package <ObjectName>{result.name}</ObjectName> has been deleted.</>,
             })
-            handleClose()
+            onClose()
             onDelete?.(result)
 
             await queryClient.invalidateQueries(trpc.skillPackages.all.queryFilter())
@@ -77,7 +86,7 @@ export function DeleteSkillPackageForm({ onOpenChange, onDelete, skillPackageId 
     }))
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))} className='max-w-2xl space-y-4'>
+        <Form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))}>
             <FormItem>
                 <FormLabel>Skill Package</FormLabel>
                 <FormControl>
@@ -86,8 +95,8 @@ export function DeleteSkillPackageForm({ onOpenChange, onDelete, skillPackageId 
             </FormItem>
             <FormActions>
                 <FormSubmitButton labels={SubmitVerbs.delete} variant="destructive"/>
-                <FormCancelButton onClick={handleClose}/>
+                <FormCancelButton onClick={onClose}/>
             </FormActions>
-        </form>
+        </Form>
     </FormProvider>
 }

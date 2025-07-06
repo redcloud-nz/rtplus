@@ -4,7 +4,7 @@
  */
 'use client'
 
-import { InfoIcon, Loader2Icon } from 'lucide-react'
+import { InfoIcon, Loader2Icon, PencilIcon } from 'lucide-react'
 import React from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
@@ -13,6 +13,7 @@ import { Slot } from '@radix-ui/react-slot'
 import { cn } from '@/lib/utils'
 
 import { Link } from './link'
+import { Tooltip, TooltipTrigger } from './tooltip'
 
 
 export const buttonVariants = tv({
@@ -140,5 +141,3 @@ export function DocumentationButton({ topic }: { topic: string }) {
         <Link href={`/documentation/${topic}`}><InfoIcon/></Link>
     </Button>
 }
-
-

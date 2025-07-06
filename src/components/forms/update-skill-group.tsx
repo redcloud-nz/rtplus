@@ -5,42 +5,23 @@
  */
 'use client'
 
-import { ComponentProps } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { pick } from 'remeda'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { FixedFormValue, Form, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs, UpdateFormProps } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 
 import { useToast } from '@/hooks/use-toast'
 import { SkillGroupFormData, skillGroupFormSchema } from '@/lib/forms/skill-group'
-import { useTRPC } from '@/trpc/client'
+import { SkillGroupWithPackage, useTRPC } from '@/trpc/client'
 
 
-
-export function EditSkillGroupDialog({ skillGroupId, ...props }: ComponentProps<typeof Dialog> & { skillGroupId: string }) {
-    return <Dialog {...props}>
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Edit Skill Group</DialogTitle>
-                <DialogDescription>Modify the skill group details.</DialogDescription>
-            </DialogHeader>
-            <DialogBody>
-                <EditSkillGroupForm
-                    skillGroupId={skillGroupId}
-                    onClose={() => props.onOpenChange?.(false)}
-                />
-            </DialogBody>
-        </DialogContent>
-    </Dialog>
-}
-export function EditSkillGroupForm({ onClose, skillGroupId }: { onClose: () => void, skillGroupId: string }) {
+export function UpdateSkillGroupForm({ onClose, skillGroupId }: UpdateFormProps<SkillGroupWithPackage> & { skillGroupId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
@@ -87,7 +68,7 @@ export function EditSkillGroupForm({ onClose, skillGroupId }: { onClose: () => v
     }))
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit((data) => mutation.mutateAsync(data))} className=" max-w-2xl space-y-4">
+        <Form onSubmit={form.handleSubmit((data) => mutation.mutateAsync(data))}>
             <FormItem>
                 <FormLabel>Package</FormLabel>
                 <FormControl>
@@ -143,6 +124,6 @@ export function EditSkillGroupForm({ onClose, skillGroupId }: { onClose: () => v
                 <FormSubmitButton labels={SubmitVerbs.update}/>
                 <FormCancelButton onClick={handleClose}/>
             </FormActions>
-        </form>
+        </Form>
     </FormProvider>
 }

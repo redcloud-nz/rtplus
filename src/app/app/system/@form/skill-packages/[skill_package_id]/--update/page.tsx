@@ -2,49 +2,54 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
+ * /app/system/@form/skill-packages/[skill_package_id]/--update
  */
 'use client'
 
-import { ComponentProps } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { useRouter } from 'next/navigation'
+import { use } from 'react'
 import { pick } from 'remeda'
+
+import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { Form, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs, UpdateFormProps } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Textarea } from '@/components/ui/textarea'
+import { ObjectName } from '@/components/ui/typography'
 
-import { SkillPackageFormData, skillPackageFormSchema } from '@/lib/forms/skill-package'
 import { useToast } from '@/hooks/use-toast'
-import { useTRPC } from '@/trpc/client'
+import { SkillPackageFormData, skillPackageFormSchema } from '@/lib/forms/skill-package'
+import { SkillPackage, useTRPC } from '@/trpc/client'
 
 
 
-export function EditSkillPackageDialog({ skillPackageId, ...props }: ComponentProps<typeof Dialog> & { skillPackageId: string }) {
-    return <Dialog {...props}>
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Edit Skill Package</DialogTitle>
-                <DialogDescription>
-                    Edit the details of this skill package.
-                </DialogDescription>
-            </DialogHeader>
-            <DialogBody>
-                <EditSkillPackageForm 
+export default function UpdateSkillPackageSheet(props: { params: Promise<{ skill_package_id: string}> }) {
+    const { skill_package_id: skillPackageId } = use(props.params)
+
+    const router = useRouter()
+
+    return <Sheet open={true} onOpenChange={open => { if(!open) router.back() }}>
+        <SheetContent>
+            <SheetHeader>
+                <SheetTitle>Update Skill Package</SheetTitle>
+                <SheetDescription>Edit the details of the skill package.</SheetDescription>
+            </SheetHeader>
+            <SheetBody>
+                <UpdateSkillPackageForm 
                     skillPackageId={skillPackageId} 
-                    onClose={() => props.onOpenChange?.(false)} 
+                    onClose={() => router.back()} 
                 />
-            </DialogBody>
-        </DialogContent>
-    </Dialog>
+            </SheetBody>
+        </SheetContent>
+    </Sheet>
 }
 
-
-function EditSkillPackageForm({ skillPackageId, onClose }: { skillPackageId: string, onClose: () => void }) {
+function UpdateSkillPackageForm({ skillPackageId, onClose }: UpdateFormProps<SkillPackage> & { skillPackageId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
@@ -62,7 +67,23 @@ function EditSkillPackageForm({ skillPackageId, onClose }: { skillPackageId: str
     }
 
     const mutation = useMutation(trpc.skillPackages.sys_update.mutationOptions({
-        onError(error) {
+        onMutate({ skillPackageId, ...formData }) {
+            // Cancel any ongoing queries for the skill package
+            queryClient.cancelQueries(trpc.skillPackages.byId.queryFilter({ skillPackageId }))
+            
+            // Optimistically update the skill package in the cache
+            const previousSkillPackage = queryClient.getQueryData<SkillPackage>(trpc.skillPackages.byId.queryKey({ skillPackageId }))
+
+            if(previousSkillPackage) {
+                queryClient.setQueryData(trpc.skillPackages.byId.queryKey({ skillPackageId }), { ...previousSkillPackage, ...formData })
+            }
+
+            return { previousSkillPackage }
+        },
+        onError(error, data, context) {
+            // Rollback to previous data if mutation fails
+            queryClient.setQueryData(trpc.skillPackages.byId.queryKey({ skillPackageId }), context?.previousSkillPackage)
+
             if(error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof SkillPackageFormData, { message: error.shape.message })
             } else {
@@ -74,20 +95,22 @@ function EditSkillPackageForm({ skillPackageId, onClose }: { skillPackageId: str
                 handleClose()
             }
         },
-        async onSuccess(result) {
+        onSuccess(result) {
             toast({ 
                 title: 'Skill package updated', 
-                description: `The skill package ${result.name} has been updated successfully.`
+                description: <>The skill package <ObjectName>{result.name}</ObjectName> has been updated successfully.</>
             })
             handleClose()
 
-            await queryClient.invalidateQueries(trpc.skillPackages.all.queryFilter())
-            await queryClient.invalidateQueries(trpc.skillPackages.byId.queryFilter({ skillPackageId }))
+        },
+        onSettled() {
+            queryClient.invalidateQueries(trpc.skillPackages.byId.queryFilter({ skillPackageId }))
+            queryClient.invalidateQueries(trpc.skillPackages.all.queryFilter())
         }
     }))
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit((formData) => mutation.mutateAsync(formData))} className="max-w-2xl space-y-4">
+        <Form onSubmit={form.handleSubmit((formData) => mutation.mutateAsync(formData))}>
             <FormField
                 control={form.control}
                 name="name"
@@ -141,6 +164,6 @@ function EditSkillPackageForm({ skillPackageId, onClose }: { skillPackageId: str
                 <FormSubmitButton labels={SubmitVerbs.update}/>
                 <FormCancelButton onClick={onClose}/>
             </FormActions>
-        </form>
+        </Form>
     </FormProvider>
 }

@@ -4,44 +4,18 @@
  */
 'use client'
 
-import { ComponentProps } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { Dialog, DialogBody, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
-import { Paragraph } from '@/components/ui/typography'
+import { DeleteFormProps, FixedFormValue, FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 
 import { SkillFormData } from '@/lib/forms/skill'
 import { useToast } from '@/hooks/use-toast'
-import { Skill, useTRPC } from '@/trpc/client'
+import { SkillWithPackageAndGroup, useTRPC } from '@/trpc/client'
 
 
-type DeleteSkillDialogProps = {
-    onDelete?: (skill: Skill) => void
-    skillId: string
-}
-
-export function DeleteSkillDialog({ onDelete, skillId, ...props }: ComponentProps<typeof Dialog> & DeleteSkillDialogProps) {
-    return <Dialog {...props}>
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Delete Skill</DialogTitle>
-                <Paragraph>This action will permanently delete the skill and its assessment history.</Paragraph>
-            </DialogHeader>
-            <DialogBody>
-                <DeleteSkillForm
-                    onClose={() => props.onOpenChange?.(false)} 
-                    onDelete={onDelete}
-                    skillId={skillId}
-                />
-            </DialogBody>
-        </DialogContent>
-    </Dialog>
-}
-
-export function DeleteSkillForm({ onClose, onDelete, skillId }: DeleteSkillDialogProps & { onClose: () => void }) {
+export function DeleteSkillForm({ onClose, onDelete, skillId }: DeleteFormProps<SkillWithPackageAndGroup> & { skillId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()

@@ -29,7 +29,7 @@ export default function DeleteTeamSheet(props: { params: Promise<{ team_id: stri
 
     const router = useRouter()
 
-    return <Sheet open={true} onOpenChange={open => { if(!open) router.back() }}>
+    return <Sheet open onOpenChange={open => { if(!open) router.back() }}>
         <SheetContent>
             <SheetHeader>
                 <SheetTitle>Delete Team</SheetTitle>

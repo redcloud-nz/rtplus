@@ -91,12 +91,16 @@ export const skillsRouter = createTRPCRouter({
         .input(z.object({
             skillId: zodNanoId8
         }))
-        .mutation(async ({ ctx, input: { skillId } }): Promise<Skill> => {
+        .mutation(async ({ ctx, input: { skillId } }): Promise<SkillWithPackageAndGroup> => {
             const skill = await getSkillById(ctx, skillId)
 
             const [deletedSkill] = await ctx.prisma.$transaction([
                 ctx.prisma.skill.delete({
                     where: { id: skillId },
+                    include: {
+                        skillPackage: true,
+                        skillGroup: true,
+                    }
                 }),
 
                 ctx.prisma.skillPackageChangeLog.create({

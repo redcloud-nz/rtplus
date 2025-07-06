@@ -16,6 +16,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { CreateFormProps, Form, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs} from '@/components/ui/form'
 import { Input, SlugInput } from '@/components/ui/input'
 import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
 import { TeamFormData, teamFormSchema } from '@/lib/forms/team'
@@ -23,6 +24,7 @@ import { nanoId8 } from '@/lib/id'
 import { TeamBasic, useTRPC } from '@/trpc/client'
 
 import * as Paths from '@/paths'
+
 
 
 export default function CreateTeamSheet() {
@@ -37,7 +39,7 @@ export default function CreateTeamSheet() {
             <SheetBody>
                 <CreateTeamForm
                     onClose={() => router.back()} 
-                    onCreate={team => router.push(Paths.system.teams(team.id).index)}
+                    onCreate={team => router.push(Paths.system.team(team.id).index)}
                 />
             </SheetBody>
         </SheetContent>
@@ -82,13 +84,13 @@ export function CreateTeamForm({ onClose, onCreate }: CreateFormProps<TeamBasic>
                 handleClose()
             }
         },
-        async onSuccess(newTeam) {
+        async onSuccess(result) {
             toast({
                 title: 'Team created',
-                description: `${newTeam.name} has been created successfully.`,
+                description: <>The team <ObjectName>{result.name}</ObjectName> has been create successfully.</>,
             })
             handleClose()
-            onCreate?.(newTeam)
+            onCreate?.(result)
 
             queryClient.invalidateQueries(trpc.teams.all.queryFilter())
         }

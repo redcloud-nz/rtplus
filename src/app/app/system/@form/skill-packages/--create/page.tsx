@@ -5,50 +5,50 @@
  */
 'use client'
 
-import { useState, type ReactNode, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
+import { useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs} from '@/components/ui/form'
+import { CreateFormProps, Form, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Textarea } from '@/components/ui/textarea'
 
 import { useToast } from '@/hooks/use-toast'
 import { SkillPackageFormData, skillPackageFormSchema } from '@/lib/forms/skill-package'
 import { nanoId8 } from '@/lib/id'
+import * as Paths from '@/paths'
 import { SkillPackage, useTRPC } from '@/trpc/client'
 
 
-type CreateSkillPackageProps = {
-    onCreate?: (skillPackage: SkillPackage) => void,
+
+
+export function CreateSkillPackageSheet() {
+
+    const router = useRouter()
+
+    return <Sheet open onOpenChange={open => { if(!open) router.back() }}>
+       
+        <SheetContent>
+            <SheetHeader>
+                <SheetTitle>New Skill Package</SheetTitle>
+                <SheetDescription>Create a new skill package.</SheetDescription>
+            </SheetHeader>
+            <SheetBody>
+                <CreateSkillPackageForm 
+                    onClose={() => router.back()} 
+                    onCreate={skillPackage => router.push(Paths.system.skillPackage(skillPackage.id).index)}
+                />
+            </SheetBody>
+        </SheetContent>
+    </Sheet>
 }
 
-export function CreateSkillPackageDialog({ trigger, ...props }: CreateSkillPackageProps & { trigger: ReactNode }) {
 
-    const [open, setOpen] = useState(false)
-
-    return <Dialog open={open} onOpenChange={setOpen}>
-        {trigger}
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>New Skill Package</DialogTitle>
-                <DialogDescription>Create a new skill package.</DialogDescription>
-            </DialogHeader>
-            <DialogBody>
-                {open ? <CreateSkillPackageForm 
-                    onClose={() => setOpen(false)} 
-                    {...props}
-                /> : null}
-            </DialogBody>
-        </DialogContent>
-    </Dialog>
-}
-
-
-function CreateSkillPackageForm({ onClose, onCreate }: CreateSkillPackageProps & { onClose: () => void}) {
+function CreateSkillPackageForm({ onClose, onCreate }: CreateFormProps<SkillPackage>) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
@@ -96,7 +96,7 @@ function CreateSkillPackageForm({ onClose, onCreate }: CreateSkillPackageProps &
     }))
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))} className="max-w-2xl space-y-4">
+        <Form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))}>
             <FormField
                 control={form.control}
                 name="name"
@@ -129,6 +129,6 @@ function CreateSkillPackageForm({ onClose, onCreate }: CreateSkillPackageProps &
                 <FormSubmitButton labels={SubmitVerbs.create}/>
                 <FormCancelButton onClick={onClose}/>
             </FormActions>
-        </form>
+        </Form>
     </FormProvider>
 }

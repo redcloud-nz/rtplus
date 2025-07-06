@@ -4,22 +4,10 @@
  * 
  * /app/system/@form
  */
-'use client'
 
-import { LoadingSpinner } from '@/components/ui/loading'
-import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
-import { VisuallyHidden } from '@/components/ui/visually-hidden'
+import { LoadingOverlay } from '@/components/ui/loading'
 
 export default function LoadingSheet() {
 
-    return <Sheet open>
-        <SheetContent>
-            <VisuallyHidden>
-                <SheetTitle>Loading</SheetTitle>
-            </VisuallyHidden>
-            <div className="w-full h-full flex item-center justify-center">
-                <LoadingSpinner/>
-            </div>
-        </SheetContent>
-    </Sheet>
+    return <LoadingOverlay/>
 }

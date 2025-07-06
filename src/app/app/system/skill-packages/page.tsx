@@ -15,7 +15,7 @@ import { Link } from '@/components/ui/link'
 import * as Paths from '@/paths'
 import prisma from '@/server/prisma'
 
-import { SkillPackageListCard_sys } from './skill-package-list'
+import { SkillPackageListCard } from './skill-package-list'
 
 
 export const metadata = { title: "Skill Packages" }
@@ -43,7 +43,7 @@ export default async function SkillPackageListPage() {
                     </Button>
                 </PageControls>
             </PageHeader>
-            <SkillPackageListCard_sys/>
+            <SkillPackageListCard/>
         </AppPageContent>
     </AppPage>
 }

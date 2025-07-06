@@ -49,6 +49,7 @@ export default function UpdateTeamSheet(props: { params: Promise<{ team_id: stri
 
 export function UpdateTeamForm({ teamId, onClose, onUpdate }: UpdateFormProps<TeamBasic> & { teamId: string }) {
     const queryClient = useQueryClient()
+     const { toast } = useToast()
     const trpc = useTRPC()
 
     const { data: team } = useSuspenseQuery(trpc.teams.byId.queryOptions({ teamId }))
@@ -59,8 +60,6 @@ export function UpdateTeamForm({ teamId, onClose, onUpdate }: UpdateFormProps<Te
             ...team
         }
     })
-
-    const { toast } = useToast()
 
     const mutation = useMutation(trpc.teams.sys_update.mutationOptions({
         async onMutate({ teamId, ...formData }) {

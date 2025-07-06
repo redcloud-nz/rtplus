@@ -9,7 +9,7 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 
 import * as Paths from '@/paths'
 
-import { SkillGroupDetailsCard_sys } from './skill-group-details'
+import { SkillGroupDetailsCard } from './skill-group-details'
 import { getSkillGroup, SkillGroupParams } from '.'
 
 
@@ -27,8 +27,8 @@ export default async function SkillGroupPage(props: { params: Promise<SkillGroup
             breadcrumbs={[
                 Paths.system, 
                 Paths.system.skillPackages,
-                { label: skillGroup.skillPackage.name, href: Paths.system.skillPackages(skillGroup.skillPackageId).index },
-                Paths.system.skillPackages(skillGroup.skillPackageId).groups,
+                { label: skillGroup.skillPackage.name, href: Paths.system.skillPackage(skillGroup.skillPackageId).index },
+                Paths.system.skillPackage(skillGroup.skillPackageId).groups,
                 skillGroup.name
             ]}
         />
@@ -37,7 +37,7 @@ export default async function SkillGroupPage(props: { params: Promise<SkillGroup
                 <PageTitle objectType="Skill Group">{skillGroup.name}</PageTitle>    
             </PageHeader>
 
-            <SkillGroupDetailsCard_sys skillGroupId={skillGroup.id} skillPackageId={skillGroup.skillPackageId}/>
+            <SkillGroupDetailsCard skillGroupId={skillGroup.id} skillPackageId={skillGroup.skillPackageId}/>
         </AppPageContent>
     </AppPage>
 }
