@@ -21,7 +21,8 @@ import { Textarea } from '@/components/ui/textarea'
 
 import { CompetenceLevelTerms } from '@/lib/terms'
 
-import { SkillPackageWithGroupsAndSkills, trpc } from '@/trpc/client'
+import { SkillPackageWithGroupsAndSkills, useTRPC} from '@/trpc/client'
+import { useQuery } from '@tanstack/react-query'
 
 
 interface RecordSkillCheckPageProps {
@@ -30,9 +31,10 @@ interface RecordSkillCheckPageProps {
 
 
 export function RecordSkillCheckForm({ cancelHref }: RecordSkillCheckPageProps) {
+    const trpc = useTRPC()
     
-    const skillPackagesQuery = trpc.skillPackages.all.useQuery()
-    const teamMembersQuery = trpc.currentTeam.members.useQuery()
+    const skillPackagesQuery = useQuery(trpc.skillPackages.current.queryOptions())
+    const teamMembersQuery = useQuery(trpc.teamMemberships.byTeam.queryOptions({ teamId: "current" }))
 
     function renderSkillPackageSelectItems(skillPackage: SkillPackageWithGroupsAndSkills) {
         return <React.Fragment key={skillPackage.id}>
@@ -92,7 +94,7 @@ export function RecordSkillCheckForm({ cancelHref }: RecordSkillCheckPageProps) 
                         <SelectContent>
                             {teamMembersQuery.data?.map(membership =>
                                 <SelectItem 
-                                    key={membership.id} 
+                                    key={membership.personId} 
                                     value={membership.person.id}
                                 >{membership.person.name}</SelectItem>
                         )}

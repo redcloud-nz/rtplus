@@ -45,7 +45,7 @@ export function InfoTabContent() {
             <FormField name="status">
                 <FieldLabel>Status</FieldLabel>
                 <FieldControl>
-                    <Select name="status" value={session.status} onValueChange={(newValue) => updateAssessment({ ...session, status: newValue as SkillCheckSessionStatus })}>
+                    <Select name="status" value={session.sessionStatus} onValueChange={(newValue) => updateAssessment({ ...session, sessionStatus: newValue as SkillCheckSessionStatus })}>
                         <SelectTrigger className="w-full sm:w-[180px]">
                             <SelectValue/>
                         </SelectTrigger>

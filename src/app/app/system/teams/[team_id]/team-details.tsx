@@ -20,6 +20,7 @@ import { Link } from '@/components/ui/link'
 
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
+import { Input } from '@/components/ui/input'
 
 
 
@@ -27,14 +28,13 @@ import { useTRPC } from '@/trpc/client'
 
 export function TeamDetailsCard({ teamId }: { teamId: string }) {
 
+    const [editMode, setEditMode] = React.useState(false)
+
     return <Card>
         <CardHeader>
             <CardTitle>Team Details</CardTitle>
-
-            <Button variant="ghost" size="icon" asChild>
-                <Link href={Paths.system.team(teamId).update} title="Edit Team">
-                    <PencilIcon/>
-                </Link>
+            <Button variant="ghost" size="icon" onClick={() => setEditMode(true)}>
+                <PencilIcon/>
             </Button>
         
             <CardMenu title="Team">
@@ -53,12 +53,12 @@ export function TeamDetailsCard({ teamId }: { teamId: string }) {
             </CardMenu>
         </CardHeader>
         <CardBody boundary collapsible>
-            <TeamDetailsList teamId={teamId}/>
+            <TeamDetailsList teamId={teamId} editMode={editMode}/>
         </CardBody>
     </Card>
 }
 
-function TeamDetailsList({ teamId }: { teamId: string }) {
+function TeamDetailsList({ teamId, editMode }: { teamId: string, editMode: boolean }) {
     const trpc = useTRPC()
 
     const { data: team } = useSuspenseQuery(trpc.teams.byId.queryOptions({ teamId }))
@@ -69,7 +69,12 @@ function TeamDetailsList({ teamId }: { teamId: string }) {
         <DLDetails>{team.id}</DLDetails>
 
         <DLTerm>Name</DLTerm>
-        <DLDetails>{team.name}</DLDetails>
+        <DLDetails>
+            { editMode 
+                ? <Input/>
+                : team.name
+            }
+        </DLDetails>
 
         <DLTerm>Short Name</DLTerm>
         <DLDetails>{team.shortName}</DLDetails>

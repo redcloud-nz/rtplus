@@ -29,6 +29,7 @@ export default async function SkillCheckSessionListPage(props: { params: Promise
         <AppPageBreadcrumbs
             breadcrumbs={[
                 { label: team.shortName || team.name, href: Paths.team(team.slug).index },
+                Paths.team(team.slug).competencies,
                 Paths.team(team.slug).competencies.sessions
             ]}
         />
@@ -36,7 +37,7 @@ export default async function SkillCheckSessionListPage(props: { params: Promise
             <PageHeader>
                 <PageTitle>Sessions</PageTitle>
             </PageHeader>
-            <MySessionsListCard team={team}/>
+            <MySessionsListCard teamSlug={team.slug}/>
         </AppPageContent>
     </AppPage>
 }

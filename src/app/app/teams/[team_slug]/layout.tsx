@@ -6,15 +6,14 @@
  */
 
 import { notFound, redirect } from 'next/navigation'
+import { ReactNode } from 'react'
 
 import { auth } from '@clerk/nextjs/server'
 
-import { TeamParams } from '@/app/app/teams/[team_slug]'
+import { TeamParams } from '.'
 
 
-
-
-export default async function TeamLayout(props: { children: React.ReactNode,  params: Promise<TeamParams>}) {
+export default async function TeamLayout(props: { params: Promise<TeamParams>, children: ReactNode }) {
 
     const {team_slug: pathSlug } = await props.params
     const { orgSlug } = await auth()
@@ -26,7 +25,9 @@ export default async function TeamLayout(props: { children: React.ReactNode,  pa
             // The user is signed in to a different organization
             return notFound()
         } else {
-            return props.children
+            return <>
+                {props.children}
+            </>
         }
     } else {
         // The user is not signed in to an organization

@@ -57,10 +57,11 @@ export function DatePicker({ defaultValue = "", onChange = () => {}, placeholder
                     {date ? format(date, 'PP') : <span>{placeholder}</span>}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
+            <PopoverContent className="w-auto overflow-hidden p-0">
                 <Calendar
                     mode="single"
                     selected={date}
+                    captionLayout="dropdown"
                     onSelect={handleSelect}
                     autoFocus
                 />

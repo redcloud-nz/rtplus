@@ -36,7 +36,7 @@ export default function CreatePersonSheet() {
             <SheetBody>
                 <CreatePersonForm
                     onClose={() => router.back()} 
-                    onCreate={person => router.push(Paths.system.personnel(person.id).index)}
+                    onCreate={person => router.push(Paths.system.person(person.id).index)}
                 />
             </SheetBody>
         </SheetContent>

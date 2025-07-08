@@ -46,10 +46,10 @@ export default async function SessionPage(props: { params: Promise<{ sessionId: 
 
     return <AppPage>
         <AppPageBreadcrumbs
-            label={`Assessment: ${assessment.name}`}
             breadcrumbs={[
-                { label: "Competencies", href: Paths.team(orgSlug!).competencies.index }, 
-                { label: "Assessment Sessions", href: Paths.team(orgSlug!).competencies.sessionList },
+                Paths.team(orgSlug!).competencies, 
+                Paths.team(orgSlug!).competencies.sessions,
+                `Assessment: ${assessment.name}`
             ]}
         />
         <LoadStoreData 

@@ -7,35 +7,81 @@
 
 import { formatISO } from 'date-fns'
 import { PlusIcon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 
-import { FiltersPopover, StatusFilter, useFilters } from '@/components/filters'
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
-
-import { DialogTriggerButton } from '@/components/ui/dialog'
+import { AsyncButton, Button } from '@/components/ui/button'
+import { Card, CardBody, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
+import { DropdownMenuCheckboxItem, DropdownMenuGroup, DropdownMenuLabel } from '@/components/ui/dropdown-menu'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
+import { useListOptions } from '@/hooks/use-list-options'
 import * as Paths from '@/paths'
-import { TeamBasic, useTRPC } from '@/trpc/client'
+import { useTRPC } from '@/trpc/client'
 
 
 
-export function MySessionsListCard({ team }: { team: TeamBasic }) {
+type ListOptions = { showDraft: boolean, showComplete: boolean, showDiscarded: boolean }
+
+export function MySessionsListCard({ teamSlug }: { teamSlug: string }) {
+    const router = useRouter()
+    const trpc = useTRPC()
+
+    const createMutation = useMutation(trpc.skillCheckSessions.mySessions.init.mutationOptions({}))
+
+    const { options, handleOptionChange } = useListOptions<ListOptions>({ showDraft: true, showComplete: true, showDiscarded: false  })
+
+    async function handleCreateSession() {
+        const newSession = await createMutation.mutateAsync()
+        // Redirect to the new session page
+        router.push(Paths.team(teamSlug).competencies.session(newSession.id).index)
+    }
+
     return <Card>
         <CardHeader>
             <CardTitle>My Sessions</CardTitle>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <AsyncButton variant="ghost" size="icon" onClick={handleCreateSession}>
+                        <PlusIcon /> <span className="sr-only">New Session</span>
+                    </AsyncButton>
+                </TooltipTrigger>
+                <TooltipContent>
+                    Start new skill check session.
+                </TooltipContent>
+            </Tooltip>
+            
+
+            <CardMenu title="Sessions">
+                <DropdownMenuGroup>
+                    <DropdownMenuLabel>Status</DropdownMenuLabel>
+                    <DropdownMenuCheckboxItem
+                        checked={options.showDraft} 
+                        onCheckedChange={handleOptionChange('showDraft')}
+                    >Draft</DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem 
+                        checked={options.showComplete} 
+                        onCheckedChange={handleOptionChange('showComplete')}
+                    >Complete</DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem 
+                        checked={options.showDiscarded} 
+                        onCheckedChange={handleOptionChange('showDiscarded')}
+                    >Discarded</DropdownMenuCheckboxItem>
+                </DropdownMenuGroup>
+            </CardMenu>
         </CardHeader>
         <CardBody boundary>
-            <SessionsListTable team={team} />
+            <SessionsListTable teamSlug={teamSlug} options={options}/>
         </CardBody>
     </Card>
 }
 
-function SessionsListTable({ team }: { team: TeamBasic }) {
+function SessionsListTable({ teamSlug, options }: { teamSlug: string, options: ListOptions }) {
     const trpc = useTRPC()
 
     const { data: sessions } = useSuspenseQuery(trpc.skillCheckSessions.mySessions.all.queryOptions())
@@ -61,7 +107,7 @@ function SessionsListTable({ team }: { team: TeamBasic }) {
                     .map((session) => (
                         <TableRow key={session.id}>
                             <TableCell>
-                                <Link href={Paths.team(team.slug).competencies.sessions.session(session.id).index}>{session.name}</Link>
+                                <Link href={Paths.team(teamSlug).competencies.session(session.id).index}>{session.name}</Link>
                             </TableCell>
                             <TableCell>{formatISO(session.date, { representation: 'date' })}</TableCell>
                             <TableCell className='hidden md:table-cell text-center'>{session._count.skills}</TableCell>

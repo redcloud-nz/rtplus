@@ -131,17 +131,17 @@ export const team = (teamSlug: string) => {
         competencies: {
             _label: 'Competencies',
             index: competenciesBase,
-            sessionList: `${competenciesBase}/sessions`,
+            session: (sessionId: string) => ({
+                index: `${competenciesBase}/sessions/${sessionId}`
+            } as const),
             sessions: {
-                _label: 'Competency Sessions',
+                _label: 'Sessions',
+                create: `${competenciesBase}/sessions/--create`,
                 index: `${competenciesBase}/sessions`,
-                session: (sessionId: string) => ({
-                    index: `${competenciesBase}/sessions/${sessionId}`
-                } as const)
             },
             record: `${competenciesBase}/record`,
-            reportsList: `${competenciesBase}/reports`,
             reports: {
+                index: `${competenciesBase}/reports`,
                 individual: `${competenciesBase}/reports/individual`,
                 teamSkills: `${competenciesBase}/reports/team-skills`,
                 teamMembers: `${competenciesBase}/reports/team-members`,

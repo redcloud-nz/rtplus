@@ -3,7 +3,6 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { LoaderIcon } from 'lucide-react'
 import Link from 'next/link'
 import React, { ComponentProps } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
@@ -53,15 +52,9 @@ const appPageContentVariants = tv({
 export type AppPageContentProps = ComponentProps<"main"> & VariantProps<typeof appPageContentVariants>
 
 export function AppPageContent({ children, className, variant = 'default', ...props }: AppPageContentProps) {
-    return <React.Suspense
-        fallback={<main className={appPageContentVariants({ variant: 'centered' })}>
-            <LoaderIcon className="animate-spin size-12"/>
-        </main>}
-    >
-        <main className={cn(appPageContentVariants({ variant, className }))} {...props}>
-            {children}
-        </main>
-    </React.Suspense>
+    return <main className={cn(appPageContentVariants({ variant, className }))} {...props}>
+        {children}
+    </main>
 }
 
 type PathBreadcrumb = { index?: string, _label: string }

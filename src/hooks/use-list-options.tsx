@@ -36,7 +36,7 @@ export function useListOptions<T extends {} = {}>(defaultOptions: Partial<Status
 }
 
 export type UseListOptionsReturn<T> = {
-    options: StatusOptions
+    options: T
     setOption: (key: keyof T, value: T[keyof T]) => void
     handleOptionChange: <K extends keyof T>(key: K) => (value: T[K]) => void
 }
