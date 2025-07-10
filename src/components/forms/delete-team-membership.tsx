@@ -9,7 +9,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { DeleteFormProps, FixedFormValue, FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { DeleteFormProps, DisplayValue, FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
@@ -74,13 +74,13 @@ export function DeleteTeamMembershipForm({ personId, teamId, onClose }: DeleteFo
             <FormItem>
                 <FormLabel>Person</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={membership.person.name}/>
+                    <DisplayValue value={membership.person.name}/>
                 </FormControl>
             </FormItem>
             <FormItem>
                 <FormLabel>Team</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={membership.team.name}/>
+                    <DisplayValue value={membership.team.name}/>
                 </FormControl>
             </FormItem>
             <FormActions>

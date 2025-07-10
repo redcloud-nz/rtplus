@@ -9,13 +9,15 @@ import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 
 import { Alert } from './ui/alert'
+import { Skeleton } from './ui/skeleton'
+import { LoadingSpinner } from './ui/loading'
 
 
 export function Boundary({ children }: { children: React.ReactNode }) {
     return <ErrorBoundary fallbackRender={({ error}) => <Alert severity="error" title="An error occured">{error.message}</Alert>}>
         <Suspense 
-            fallback={<div className="w-full flex items-center justify-center p-4">
-                <LoaderCircleIcon className="w-10 h-10 animate-spin"/>
+            fallback={<div className="w-full h-16 flex items-center justify-center rounded-md bg-muted animate-pulse">
+                <LoadingSpinner className="w-12 h-12"/>
             </div>}
         >
             {children}

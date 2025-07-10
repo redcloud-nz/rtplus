@@ -8,7 +8,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { DeleteFormProps, FixedFormValue, FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { DeleteFormProps, DisplayValue, FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 
 import { SkillFormData } from '@/lib/forms/skill'
 import { useToast } from '@/hooks/use-toast'
@@ -55,19 +55,19 @@ export function DeleteSkillForm({ onClose, onDelete, skillId }: DeleteFormProps<
             <FormItem>
                 <FormLabel>Skill Package</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={skill.skillPackage.name} />
+                    <DisplayValue value={skill.skillPackage.name} />
                 </FormControl>
             </FormItem>
             { skill.skillGroup ? <FormItem>
                 <FormLabel>Skill Group</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={skill.skillGroup.name} />
+                    <DisplayValue value={skill.skillGroup.name} />
                 </FormControl>
             </FormItem> : null }
             <FormItem>
                 <FormLabel>Skill</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={skill.name} />
+                    <DisplayValue value={skill.name} />
                 </FormControl>
             </FormItem>
             <FormActions>

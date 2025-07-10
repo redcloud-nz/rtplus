@@ -42,12 +42,11 @@ export default async function WhoAmIPage() {
             label="Who am I?"
             breadcrumbs={[{ label: "Personal", href: Paths.personal.index }]}
         />
-        <AppPageContent>
-        <PageHeader>
-            <PageTitle>Who am I?</PageTitle>
-            <PageDescription>Data connected to your user session.</PageDescription>
-        </PageHeader>
-        <CardGrid>
+        <AppPageContent variant="container">
+            <PageHeader>
+                <PageTitle>Who am I?</PageTitle>
+                <PageDescription>Data connected to your user session.</PageDescription>
+            </PageHeader>
             <Card>
                 <CardHeader>
                     <CardTitle>Clerk</CardTitle>
@@ -99,7 +98,7 @@ export default async function WhoAmIPage() {
                             <DLDetails>{person.email}</DLDetails>
 
                             <DLTerm>Onboarding Status</DLTerm>
-                            <DLDetails>{person.onboardingStatus}</DLDetails>
+                            <DLDetails>REMOVED</DLDetails>
 
                             <DLTerm>Status</DLTerm>
                             <DLDetails>{person.status}</DLDetails>
@@ -108,7 +107,6 @@ export default async function WhoAmIPage() {
                     }
                 </CardBody>
             </Card>
-        </CardGrid>
         </AppPageContent>
     </AppPage>
 }

@@ -7,7 +7,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 
-import { FixedFormValue } from '@/components/ui/form'
+import { DisplayValue } from '@/components/ui/form'
 import { useTRPC } from '@/trpc/client'
 
 
@@ -16,5 +16,5 @@ export function SkillPackageValue({ skillPackageId }: { skillPackageId: string }
 
     const query = useQuery(trpc.skillPackages.byId.queryOptions({ skillPackageId }))
 
-    return <FixedFormValue value={query.data?.name ?? ""} loading={query.isLoading}/>
+    return <DisplayValue value={query.data?.name ?? ""} loading={query.isLoading}/>
 }

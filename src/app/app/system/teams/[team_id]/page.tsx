@@ -14,6 +14,7 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import * as Paths from '@/paths'
 
 import { getTeam, TeamParams } from '.'
+import { Boundary } from '@/components/boundary'
 
 export async function generateMetadata(props: { params: Promise<TeamParams> }) {
     const team = await getTeam(props.params)
@@ -39,7 +40,9 @@ export default async function TeamPage(props: { params: Promise<TeamParams> }) {
                     <PageTitle objectType="Team">{team.name}</PageTitle>
                 </PageHeader>
     
-                <TeamDetailsCard teamId={team.id}/>
+                <Boundary>
+                    <TeamDetailsCard teamId={team.id}/>
+                </Boundary>
                 <TeamMembersCard team={team}/>
                 <TeamUsersCard team={team}/>
             </AppPageContent>

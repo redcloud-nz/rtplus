@@ -15,7 +15,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 
 import { Alert } from '@/components/ui/alert'
 import { Dialog, DialogBody, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { DisplayValue, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
 import { useToast } from '@/hooks/use-toast'
@@ -184,7 +184,7 @@ function AddTeamMemberForm({ email, onClose }: { email: string, onClose: () => v
             <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={email}/>
+                    <DisplayValue value={email}/>
                 </FormControl>
             </FormItem>
 
@@ -211,7 +211,7 @@ function AddTeamMemberForm({ email, onClose }: { email: string, onClose: () => v
                     <FormItem>
                         <FormLabel>Name</FormLabel>
                         <FormControl>
-                            <FixedFormValue value={person.name} />
+                            <DisplayValue value={person.name} />
                         </FormControl>
                     </FormItem>
                 )

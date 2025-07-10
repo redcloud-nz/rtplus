@@ -12,7 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { DisplayValue, FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 
 import { useToast } from '@/hooks/use-toast'
 import { OrgMembershipFormData, orgMembershipFormSchema } from '@/lib/forms/org-membership'
@@ -89,13 +89,13 @@ function DeleteUserForm({ orgMembership, onClose }: { orgMembership: OrgMembersh
             <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={orgMembership.user.name}/>
+                    <DisplayValue value={orgMembership.user.name}/>
                 </FormControl>
             </FormItem>
             <FormItem>
                 <FormLabel>Identifier</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={orgMembership.user.identifier}/>
+                    <DisplayValue value={orgMembership.user.identifier}/>
                 </FormControl>
             </FormItem>
             <FormActions>

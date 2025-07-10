@@ -34,6 +34,7 @@ export const teamsRouter = createTRPCRouter({
                         select: { teamMemberships: true }
                     }
                 },
+                orderBy: { name: 'asc' }
             })
             return teams.map(team => ({
                 id: team.id,

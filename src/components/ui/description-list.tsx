@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 export function DL({ className, ...props }: React.ComponentPropsWithRef<'dl'>) {
     return <dl 
         className={cn(
-            'grid grid-cols-1 text-base/6 sm:grid-cols-[min(30%,--spacing(80))_auto] sm:text-sm/6', 
+            'grid text-base/6 sm:grid-cols-[min(30%,--spacing(80))_auto] sm:text-sm/6', 
             className
         )} 
         {...props}

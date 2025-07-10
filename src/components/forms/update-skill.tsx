@@ -11,7 +11,7 @@ import { pick } from 'remeda'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { FixedFormValue, Form, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs, UpdateFormProps } from '@/components/ui/form'
+import { DisplayValue, Form, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs, UpdateFormProps } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
@@ -73,13 +73,13 @@ export function UpdateSkillForm({ onClose, onUpdate, skillId }: UpdateFormProps<
             <FormItem>
                 <FormLabel>Package</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={skill.skillPackage.name}/>
+                    <DisplayValue value={skill.skillPackage.name}/>
                 </FormControl>
             </FormItem>
             <FormItem>
                 <FormLabel>Group</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={skill.skillGroup.name}/>
+                    <DisplayValue value={skill.skillGroup.name}/>
                 </FormControl>
             </FormItem>
             <FormField

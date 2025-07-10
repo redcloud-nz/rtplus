@@ -12,7 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
 import { SkillPackageValue } from '@/components/controls/skill-package-value'
-import { CreateFormProps, FixedFormValue, Form, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { CreateFormProps, DisplayValue, Form, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
@@ -91,7 +91,7 @@ export function CreateSkillForm({ onClose, onCreate, skillGroupId, skillPackageI
                 ? <FormItem>
                     <FormLabel>Skill Group</FormLabel>
                     <FormControl>
-                        <FixedFormValue value={skillGroups.find(g => g.id == skillGroupId)!.name}/>
+                        <DisplayValue value={skillGroups.find(g => g.id == skillGroupId)!.name}/>
                     </FormControl>
                 </FormItem>
                 : <FormField

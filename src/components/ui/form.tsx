@@ -6,7 +6,7 @@
 
 import { Loader2Icon } from 'lucide-react'
 import { ComponentProps, createContext, useContext, useId } from 'react'
-import { Controller, ControllerProps, FieldPath, FieldValues, useFormContext } from 'react-hook-form'
+import { Controller, ControllerProps, FieldPath, FieldValues, useFormContext, useFormState } from 'react-hook-form'
 import { pick } from 'remeda'
 import { tv, VariantProps } from 'tailwind-variants'
 
@@ -20,20 +20,17 @@ import { Label } from './label'
 import { Link } from './link'
 
 
-
-
 export function Form({ className, ...props }: ComponentProps<'form'>) {
 
-    return <form className={cn("max-w-2xl space-y-4", className)}
-        {...props}
-    />
+    return <form className={cn("space-y-4", className)} {...props}/>
 }
+
 
 type FormFieldContextValue<TFieldValues extends FieldValues = FieldValues, TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>> = {
     name: TName
 }
 
-const FormFieldContext = createContext<FormFieldContextValue>({} as FormFieldContextValue)
+export const FormFieldContext = createContext<FormFieldContextValue>({} as FormFieldContextValue)
 
 export function FormField<TFieldValues extends FieldValues = FieldValues, TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>>({ ...props }: ControllerProps<TFieldValues, TName>) {
     return <FormFieldContext.Provider value={{ name: props.name }}>
@@ -44,7 +41,8 @@ export function FormField<TFieldValues extends FieldValues = FieldValues, TName 
 export const useFormField = () => {
     const fieldContext = useContext(FormFieldContext)
     const itemContext = useContext(FormItemContext)
-    const { getFieldState, formState } = useFormContext()
+    const { getFieldState } = useFormContext()
+    const formState = useFormState()
 
     const fieldState = getFieldState(fieldContext.name, formState)
 
@@ -72,7 +70,9 @@ const FormItemContext = createContext<FormItemContextValue>(
     {} as FormItemContextValue
 )
 
-export function FormItem({ className, ...props }: React.ComponentPropsWithRef<'div'>) {
+
+
+export function FormItem({ className, ...props }: ComponentProps<'div'>) {
     const id = useId()
 
     return <FormItemContext.Provider value={{ id }}>
@@ -85,8 +85,9 @@ export function FormLabel({ className, ...props }: React.ComponentPropsWithRef<t
     const { error, formItemId } = useFormField()
 
     return <Label
-        className={cn(error && "text-destructive", className)}
+        className={cn("data-[error]:text-destructive", className)}
         htmlFor={formItemId}
+        data-error={!!error || undefined}
         {...props}
     />
 }
@@ -102,6 +103,7 @@ export function FormControl({ ...props }:  React.ComponentPropsWithoutRef<typeof
             : `${formDescriptionId} ${formMessageId}`
         }
         aria-invalid={!!error}
+        data-slot="control"
         {...props}
         />
 }
@@ -112,6 +114,7 @@ export function FormDescription({ className, ...props }: React.ComponentPropsWit
     return <p
         id={formDescriptionId}
         className={cn("text-sm text-muted-foreground", className)}
+        data-slot="description"
         {...props}
     />
 }
@@ -125,6 +128,7 @@ export function FormMessage({ className, children, ...props }: React.ComponentPr
     return <p
         id={formMessageId}
         className={cn("text-sm font-medium text-destructive", className)}
+        data-slot="message"
         {...props}
         >
         {body}
@@ -266,6 +270,16 @@ export function FormCancelButton({ children = "Cancel", href, onClick, variant =
     }
 }
 
+const formActionsVariants = tv({
+    base: "flex justify-start gap-2 pt-2",
+    variants: {
+        layout: {
+            default: "",
+            row: "lg:col-start-1 lg:col-span-3 lg:border-t lg:border-zinc-950/5"
+        }
+    },
+})
+
 /**
  * A component that renders a container for form action buttons.
  * It is designed to be used within a form and provides a consistent layout for action buttons.
@@ -274,6 +288,7 @@ export function FormCancelButton({ children = "Cancel", href, onClick, variant =
  * @param props - Additional props to be passed to the underlying `div` element.
  * 
  * @example
+ * 
  * ```tsx
  * <FormActions>
  *   <button type="submit">Submit</button>
@@ -281,26 +296,28 @@ export function FormCancelButton({ children = "Cancel", href, onClick, variant =
  * </FormActions>
  * ```
  */
-export function FormActions({ children, ...props }: React.ComponentPropsWithRef<'div'>) {
-    return <div className="flex justify-start space-x-2 pt-4" {...props}>
-        {children}
-    </div>
+export function FormActions({ className, layout, ...props }: React.ComponentPropsWithRef<'div'> & VariantProps<typeof formActionsVariants>) {
+    return <div 
+        className={formActionsVariants({ layout, className })}
+        data-slot="actions"
+        {...props}
+    />
 
 }
 
-const fixedFormValueVariants = tv({
-    base: "flex h-10 w-full rounded-md border border-slate-200 px-3 py-2 text-sm ring-offset-background",
+const formValueVariants = tv({
+    base: "flex h-9 w-full px-3 py-2 text-base md:text-sm border border-background",
     variants: {
         loading: {
             true : "bg-slate-200 text-slate-500 flex items-center justify-center",
-            false: "bg-slate-100 text-slate-900"
+            false: "text-slate-900"
         }
     }
 })
 
-export function FixedFormValue({ className, loading, value, ...props }: Omit<React.ComponentPropsWithRef<'div'>, 'children'> & VariantProps<typeof fixedFormValueVariants> & { value: string }) {
+export function DisplayValue({ className, loading, value, ...props }: Omit<React.ComponentPropsWithRef<'div'>, 'children'> & VariantProps<typeof formValueVariants> & { value: string }) {
     return <div 
-        className={fixedFormValueVariants({ loading, className })}
+        className={formValueVariants({ loading, className })}
         {...props}
     >{loading ? <div className="animate-spin size-5 rounded-full border-t-1 border-b-1 border-gray-900"/> : value}</div>
 }

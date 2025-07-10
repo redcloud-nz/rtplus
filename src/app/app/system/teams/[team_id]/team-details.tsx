@@ -6,100 +6,255 @@
 'use client'
 
 import { CableIcon, PencilIcon, TrashIcon } from 'lucide-react'
-import * as React from 'react'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { FormProvider, useForm } from 'react-hook-form'
+import { match } from 'ts-pattern'
 
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { Show } from '@/components/show'
+import { TeamValue } from '@/components/controls/team-value'
 import { Button } from '@/components/ui/button'
-import { Card, CardBody, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
-import { ColorValue } from '@/components/ui/color'
-import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
+import { Card, CardActions, CardBody, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTriggerButton } from '@/components/ui/dialog'
 import { DropdownMenuGroup, DropdownMenuItem } from '@/components/ui/dropdown-menu'
+import { DisplayValue as DisplayValue, Form, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { Input, SlugInput } from '@/components/ui/input'
 import { Link } from '@/components/ui/link'
+import { Separator } from '@/components/ui/separator'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { ToruGrid, ToruGridRow } from '@/components/ui/toru-grid'
+import { ObjectName } from '@/components/ui/typography'
 
+import { useToast } from '@/hooks/use-toast'
+import { TeamFormData, teamFormSchema } from '@/lib/forms/team'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
-import { Input } from '@/components/ui/input'
+import { TeamBasic, useTRPC } from '@/trpc/client'
 
 
 
 
 
 export function TeamDetailsCard({ teamId }: { teamId: string }) {
+    const trpc = useTRPC()
 
-    const [editMode, setEditMode] = React.useState(false)
+    const { data: team } = useSuspenseQuery(trpc.teams.byId.queryOptions({ teamId }))
+
+    const [mode, setMode] = useState<'View' | 'Update'>('View')
 
     return <Card>
         <CardHeader>
-            <CardTitle>Team Details</CardTitle>
-            <Button variant="ghost" size="icon" onClick={() => setEditMode(true)}>
-                <PencilIcon/>
-            </Button>
-        
-            <CardMenu title="Team">
-                <DropdownMenuGroup>
-                    <DropdownMenuItem disabled asChild>
-                        <Link href={Paths.system.team(teamId).d4h}>
-                            <CableIcon/> D4H Integration
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                        <Link href={Paths.system.team(teamId).delete} title='Delete Team'>
-                            <TrashIcon/> Delete
-                        </Link>
-                    </DropdownMenuItem>
-                </DropdownMenuGroup>
-            </CardMenu>
+            <CardTitle>Details</CardTitle>
+            <CardActions>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" onClick={() => setMode('Update')} disabled={mode == 'Update'}>
+                            <PencilIcon/>
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Edit team details</TooltipContent>
+                </Tooltip>
+                
+                <DeleteTeamDialog teamId={teamId}/>
+                <Separator orientation="vertical"/>
+            
+                <CardMenu title="Team">
+                    <DropdownMenuGroup>
+                        <DropdownMenuItem disabled asChild>
+                            <Link href={Paths.system.team(teamId).d4h}>
+                                <CableIcon/> D4H Integration
+                            </Link>
+                        </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                </CardMenu>
+            </CardActions>
+            
         </CardHeader>
-        <CardBody boundary collapsible>
-            <TeamDetailsList teamId={teamId} editMode={editMode}/>
+        <CardBody collapsible>
+            {match(mode)
+                .with('View', () => 
+                    <ToruGrid>
+                        <ToruGridRow
+                            label="Team ID"
+                            control={<DisplayValue value={team.id} />}
+                        />
+                        <ToruGridRow
+                            label="Name"
+                            control={<DisplayValue value={team.name} />}
+                        />
+                        <ToruGridRow
+                            label="Short Name"
+                            control={<DisplayValue value={team.shortName} />}
+                        />
+                        <ToruGridRow
+                            label="Slug"
+                            control={<DisplayValue value={team.slug} />}
+                        />
+                    </ToruGrid>)
+                .with('Update', () => 
+                    <UpdateTeamForm 
+                        team={team} 
+                        onClose={() => setMode('View')}
+                    />
+                )
+                .exhaustive()
+            }
         </CardBody>
     </Card>
 }
 
-function TeamDetailsList({ teamId, editMode }: { teamId: string, editMode: boolean }) {
+function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamBasic }) {
+    const queryClient = useQueryClient()
+    const { toast } = useToast()
     const trpc = useTRPC()
 
-    const { data: team } = useSuspenseQuery(trpc.teams.byId.queryOptions({ teamId }))
-    if(team == null) throw new Error(`Team(${teamId}) not found`)
-
-    return <DL>
-        <DLTerm>RT+ ID</DLTerm>
-        <DLDetails>{team.id}</DLDetails>
-
-        <DLTerm>Name</DLTerm>
-        <DLDetails>
-            { editMode 
-                ? <Input/>
-                : team.name
+    const form = useForm<TeamFormData>({
+            resolver: zodResolver(teamFormSchema),
+            defaultValues: {
+                teamId: team.id,
+                ...team
             }
-        </DLDetails>
+        })
 
-        <DLTerm>Short Name</DLTerm>
-        <DLDetails>{team.shortName}</DLDetails>
+    const mutation = useMutation(trpc.teams.sys_update.mutationOptions({
+        onError: (error) => {
+            if(error.shape?.cause?.name == 'FieldConflictError') {
+                form.setError(error.shape.cause.message as keyof TeamFormData, { message: error.shape.message })
+            } else {
+                toast({
+                    title: "Error updating team",
+                    description: error.message,
+                    variant: 'destructive',
+                })
+                onClose()
+            }
+        },
+        onSuccess(result) {
+            toast({
+                title: "Team updated",
+                description: <>The team <ObjectName>{result.name}</ObjectName> has been updated.</>,
+            })
+            onClose()
 
-        <DLTerm>Slug</DLTerm>
-        <DLDetails>{team.slug}</DLDetails>
+            queryClient.invalidateQueries(trpc.teams.byId.queryFilter({ teamId: team.id }))
+            queryClient.invalidateQueries(trpc.teams.all.queryFilter())
+        }
+    }))
 
-        <Show when={team.color != ''}>
-            <DLTerm>Colour</DLTerm>
-            <DLDetails>
-                <ColorValue value={team.color}/>
-            </DLDetails>
-        </Show>
-        
+    return <FormProvider {...form}>
+        <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
+            <ToruGrid mode='form'>
+                <FormField
+                    control={form.control}
+                    name="teamId"
+                    render={({ field }) => <ToruGridRow
+                        label="Team ID"
+                        control={ <DisplayValue value={field.value} />}
+                        description="The unique identifier for the team."
+                    />}
+                />
+                <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => <ToruGridRow
+                        label="Name"
+                        control={<Input maxLength={100} {...field}/>}
+                        description="The full name of the team."
 
-        <DLTerm>Status</DLTerm>
-        <DLDetails>{team.status}</DLDetails>
+                    />}
+                />
+                <FormField
+                    control={form.control}
+                    name="shortName"
+                    render={({ field }) => <ToruGridRow
+                        label="Short Name"
+                        control={<Input maxLength={20} {...field}/>}
+                        description="Short name of the team (eg NZ-RT13)."
+                    />}
+                />
+                <FormField
+                    control={form.control}
+                    name="slug"
+                    render={({ field }) => <ToruGridRow
+                        label="Slug"
+                        control={<SlugInput {...field} onChange={(ev, newValue) => field.onChange(newValue)}/>}
+                        description="URL-friendly identifier for the team."
+                    />}
+                />
+                <FormActions layout="row">
+                    <FormSubmitButton labels={SubmitVerbs.update}/>
+                    <FormCancelButton onClick={onClose}/>
+                </FormActions>
+            </ToruGrid>
+        </Form>
+    </FormProvider>
+}
 
-        {/* {team.d4hInfo?.serverCode ? <>
-            <DLTerm>D4H Server</DLTerm>
-            <DLDetails>{getD4hServer(team.d4hInfo.serverCode as D4hServerCode).name}</DLDetails>
-        </> : null}
-        {team.d4hInfo?.d4hTeamId ? <>
-            <DLTerm>D4H Team ID</DLTerm>
-            <DLDetails>{team.d4hInfo.d4hTeamId}</DLDetails>
-        </> : null} */}
-    </DL>
+
+function DeleteTeamDialog({ teamId }: { teamId: string }) {
+    
+    const queryClient = useQueryClient()
+    const router = useRouter()
+    const { toast } = useToast()
+    const trpc = useTRPC()
+
+    const [open, setOpen] = useState(false)
+
+    const form = useForm<Pick<TeamFormData, 'teamId'>>({
+        resolver: zodResolver(teamFormSchema.pick({ teamId: true })),
+        defaultValues: { teamId }
+    })
+
+    const mutation = useMutation(trpc.teams.sys_delete.mutationOptions({
+        onError(error) {
+            toast({
+                title: 'Error deleting team',
+                description: error.message,
+                variant: 'destructive'
+            })
+            setOpen(false)
+        },
+        onSuccess(result) {
+            toast({
+                title: 'Team deleted',
+                description: <>The team <ObjectName>{result.name}</ObjectName> has been deleted successfully.</>,
+            })
+            setOpen(false)
+            router.push(Paths.system.teams.index)
+
+            queryClient.invalidateQueries(trpc.teams.all.queryFilter())
+            queryClient.setQueryData(trpc.teams.byId.queryKey({ teamId }), undefined)
+        },
+    }))
+
+    return <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTriggerButton tooltip="Delete Team">
+                <TrashIcon/>
+                <span className="sr-only">Delete Team</span>
+        </DialogTriggerButton>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Delete Team</DialogTitle>
+                <DialogDescription>Permanently delete team?</DialogDescription>
+            </DialogHeader>
+            <DialogBody>
+                <FormProvider {...form}>
+                    <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
+                        <FormItem>
+                            <FormLabel>Team</FormLabel>
+                            <FormControl>
+                                <TeamValue teamId={teamId}/>
+                            </FormControl>
+                        </FormItem>
+                        <FormActions>
+                            <FormSubmitButton labels={SubmitVerbs.delete} variant="destructive"/>
+                            <FormCancelButton onClick={() => setOpen(false)}/>
+                        </FormActions>
+                    </Form>
+                </FormProvider>
+            </DialogBody>
+        </DialogContent>
+    </Dialog>
+
 }

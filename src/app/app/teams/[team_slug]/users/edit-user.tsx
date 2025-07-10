@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { DisplayValue, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ObjectName } from '@/components/ui/typography'
 
@@ -97,13 +97,13 @@ function EditUserForm({ orgMembership, onClose }: { orgMembership: OrgMembership
             <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={orgMembership.user.name}/>
+                    <DisplayValue value={orgMembership.user.name}/>
                 </FormControl>
             </FormItem>
             <FormItem>
                 <FormLabel>Identifier</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={orgMembership.user.identifier}/>
+                    <DisplayValue value={orgMembership.user.identifier}/>
                 </FormControl>
             </FormItem>
             <FormField

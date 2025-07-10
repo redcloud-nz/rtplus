@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
 import { Dialog, DialogBody, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FixedFormValue, FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { DisplayValue, FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Paragraph } from '@/components/ui/typography'
 
 import { SkillGroupFormData, skillGroupFormSchema } from '@/lib/forms/skill-group'
@@ -85,13 +85,13 @@ export function DeleteSkillGroupForm({ onClose, onDelete, skillGroupId }: Delete
             <FormItem>
                 <FormLabel>Skill Package</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={skillGroup.skillPackage.name} />
+                    <DisplayValue value={skillGroup.skillPackage.name} />
                 </FormControl>
             </FormItem>
             <FormItem>
                 <FormLabel>Skill Group</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={skillGroup.name} />
+                    <DisplayValue value={skillGroup.name} />
                 </FormControl>
             </FormItem>
             <FormActions>

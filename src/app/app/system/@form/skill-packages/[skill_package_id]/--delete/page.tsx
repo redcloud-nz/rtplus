@@ -14,7 +14,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Form, FormControl, FormActions, FormItem, FormLabel, FormSubmitButton, FormCancelButton, SubmitVerbs, DeleteFormProps, FixedFormValue } from '@/components/ui/form'
+import { Form, FormControl, FormActions, FormItem, FormLabel, FormSubmitButton, FormCancelButton, SubmitVerbs, DeleteFormProps, DisplayValue } from '@/components/ui/form'
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
@@ -90,7 +90,7 @@ export function DeleteSkillPackageForm({ onClose, onDelete, skillPackageId }: De
             <FormItem>
                 <FormLabel>Skill Package</FormLabel>
                 <FormControl>
-                    <FixedFormValue value={skillPackage.name} />
+                    <DisplayValue value={skillPackage.name} />
                 </FormControl>
             </FormItem>
             <FormActions>

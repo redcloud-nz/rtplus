@@ -4,84 +4,30 @@
  */
 'use client'
 
-import { ChevronDownIcon, EllipsisVerticalIcon, InfoIcon, LoaderCircleIcon } from 'lucide-react'
-import { type ComponentProps, createContext, type MouseEventHandler, type ReactNode, Suspense, useContext, useMemo, useState } from 'react'
+import { ChevronDownIcon, EllipsisVerticalIcon, InfoIcon } from 'lucide-react'
+import { type ComponentProps, Suspense, useState } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 
 import { cn } from '@/lib/utils'
 
 import { Alert } from './alert'
 import { Button } from './button'
-import { Link } from './link'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './dropdown-menu'
 import { Popover, PopoverContent, PopoverTriggerButton } from './popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './dropdown-menu'
 
 
-type CardContextType = { isOpen: boolean, setOpen: (open: boolean) => void }
-const CardContext = createContext<CardContextType | null>(null)
+export function Card({ className, ...props }: ComponentProps<'div'>) {
 
-export function useCardContext() {
-    const context = useContext(CardContext)
-    if (!context) {
-        throw new Error("Card components must be used within a Card component")
-    }
-    return context
-}
-
-
-type CardProps = ComponentProps<'div'> & {
-    boundary?: boolean
-    loading?: boolean
-    fallbackHeader?: ReactNode
-}
-
-export function Card({ boundary, className, children, fallbackHeader, loading = false, ...props }: CardProps) {
-    const [open, setOpen] = useState(true)
-
-    const contextValue = useMemo(() => ({ isOpen: open, setOpen }), [open])
-
-    return <CardContext.Provider value={contextValue}>
-        <div
-            className={cn(
-                "rounded-sm border bg-card text-card-foreground shadow-xs mb-2",
-                className
-            )}
+    return <div
+            className={cn("rounded-sm border bg-card text-card-foreground shadow-xs mb-2", className )}
             {...props}
-        >
-            { boundary 
-                ? <ErrorBoundary fallbackRender={({ error }) => <>
-                    {fallbackHeader}
-                    <CardBody>
-                        <Alert severity="error" title="An error occurred">
-                            {error.message}
-                        </Alert>
-                    </CardBody>
-                </>}>
-                    <Suspense fallback={<>
-                        {fallbackHeader}
-                        <CardBody>
-                            <div className="h-full w-full flex items-center justify-center">
-                                <LoaderCircleIcon className="w-10 h-10 animate-spin"/>
-                            </div>
-                        </CardBody>
-                        </>}
-                    >
-                        {children}
-                    </Suspense>
-                </ErrorBoundary>
-                : loading ? <div className="h-full w-full flex items-center justify-center p-10">
-                    <LoaderCircleIcon className=" w-10 h-10 animate-spin"/>
-                </div>
-                : children
-            }
-        </div>
-    </CardContext.Provider>
+        />
 }
 
 export function CardHeader({ className, ...props }: ComponentProps<'div'>) {
     return <div
-        className={cn("relative flex border-b bg-zinc-50", className)}
+        className={cn("h-10 flex items-center border-b", className)}
         {...props}
     />
 }
@@ -97,6 +43,13 @@ export function CardTitle({ className, ...props }: ComponentProps<'div'>) {
     />
 }
 
+export function CardActions({ className, ...props }: ComponentProps<'div'>) {
+    return <div
+        className={cn("h-10 flex items-center lg:gap-1 lg:px-1", className)}
+        {...props}
+    />
+}
+
 export function CardDescription({ className, ...props }: ComponentProps<'div'>) {
     return <div
         className={cn("text-sm text-muted-foreground", className)}
@@ -107,10 +60,28 @@ export function CardDescription({ className, ...props }: ComponentProps<'div'>) 
 type CardContentProps = ComponentProps<'div'> & { boundary?: boolean, collapsible?: boolean }
 
 export function CardBody({ boundary, children, className, collapsible, ...props }: CardContentProps) {
-    const { isOpen, setOpen } = useCardContext()
+    const [open, setOpen] = useState(true)
 
     return <div className="relative">
-        <div className={cn("p-2 min-h-24", className, !isOpen && "hidden")} {...props}>
+        { collapsible ? 
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button
+                        className="absolute -top-[1px] left-[50%] right-[50%] h-4 w-12 p-0 rounded-0"
+                        variant="hanger" 
+                        size="icon"
+                        onClick={() => setOpen(prev => !prev)}
+                    >
+                        <ChevronDownIcon className={cn("transition-transform", open && "rotate-180")}/>
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    {open ? 'Collapse card' : 'Expand card'}
+                </TooltipContent>
+            </Tooltip>
+            : null
+        }
+        <div className={cn("p-2 min-h-24", className, !open && "hidden", collapsible ? "pt-4" : "pt-2")} {...props}>
             { boundary
                 ? <ErrorBoundary fallbackRender={({ error}) => <Alert severity="error" title="An error occured">{error.message}</Alert>}>
                     <Suspense 
@@ -124,30 +95,12 @@ export function CardBody({ boundary, children, className, collapsible, ...props 
                 : children
             }
         </div>
-        { collapsible ? 
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button
-                        className="absolute -top-[1px] -right-[1px] h-5 w-10 p-0 rounded-0"
-                        variant="hanger" 
-                        size="icon"
-                        onClick={() => setOpen(!isOpen)}
-                    >
-                        <ChevronDownIcon className={cn("transition-transform", isOpen && "rotate-180")}/>
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                    {isOpen ? 'Collapse card' : 'Expand card'}
-                </TooltipContent>
-            </Tooltip>
-            : null
-        }
     </div>
 }
 
 export function CardFooter({ className, ...props }: ComponentProps<'div'>) {
     return <div
-        className={cn("flex items-center p-2 pt-0", className)}
+        className={cn("h-10 flex items-center border-t", className)}
         {...props}
     />
 }
@@ -157,61 +110,6 @@ export function CardGrid({ className, ...props}: ComponentProps<'div'>) {
         className={cn("grid grid-cols-1 lg:grid-cols-2 gap-4", className)}
         {...props}
     />
-}
-
-type CardActionButtonProps = Omit<ComponentProps<typeof Button>, 'asChild' | 'children' | 'onClick'> & {
-    icon: React.ReactNode
-    label: React.ReactNode
-} & (
-    { href?: never, onClick: MouseEventHandler<HTMLButtonElement> } | 
-    { href: string, onClick?: never }
-)
-
-export function CardActionButton({ icon, label, href, onClick, ...props }: CardActionButtonProps) {
-    return <Tooltip>
-        <TooltipTrigger asChild>
-            {href
-                ? <Button
-                    variant="ghost" 
-                    size="icon"
-                    {...props}
-                    asChild
-                >
-                    <Link href={href}>{icon}</Link>
-                </Button>
-                :  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={onClick}
-                    {...props}
-                >
-                    {icon}
-                </Button>
-            }
-           
-        </TooltipTrigger>
-        <TooltipContent>
-            {label}
-        </TooltipContent>
-    </Tooltip>
-}
-
-export function CardCollapseToggleButton() {
-    const { isOpen, setOpen } = useCardContext()
-    return <Tooltip>
-        <TooltipTrigger asChild>
-            <Button
-                variant="ghost" 
-                size="icon"
-                onClick={() => setOpen(!isOpen)}
-            >
-                <ChevronDownIcon className={cn("transition-transform", isOpen && "rotate-180")}/>
-            </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-            {isOpen ? 'Collapse card' : 'Expand card'}
-        </TooltipContent>
-    </Tooltip>
 }
 
 
