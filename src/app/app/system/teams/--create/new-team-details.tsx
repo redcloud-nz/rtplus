@@ -6,16 +6,16 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
-import { DisplayValue, Form, FormActions, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { DisplayValue, Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input, SlugInput } from '@/components/ui/input'
-import { ToruGrid, ToruGridRow } from '@/components/ui/toru-grid'
+import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
@@ -68,11 +68,15 @@ export function NewTeamDetailsCard() {
         }
     }))
 
+    useEffect(() => {
+        form.setFocus('name')
+    }, [])
+
     return <Card>
         <CardHeader>
             <CardTitle>Details</CardTitle>
         </CardHeader>
-        <CardBody>
+        <CardContent>
             <FormProvider {...form}>
                 <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
                     <ToruGrid mode='form'>
@@ -113,13 +117,13 @@ export function NewTeamDetailsCard() {
                                 description="URL-friendly identifier for the team."
                             />}
                         />
-                        <FormActions layout="row">
-                            <FormSubmitButton labels={SubmitVerbs.create}/>
-                            <FormCancelButton onClick={() => router.back()}/>
-                        </FormActions>
+                        <ToruGridFooter>
+                            <FormSubmitButton labels={SubmitVerbs.create} size="sm"/>
+                            <FormCancelButton onClick={() => router.back()} size="sm"/>
+                        </ToruGridFooter>
                     </ToruGrid>
                 </Form>
             </FormProvider>
-        </CardBody>
+        </CardContent>
     </Card>
 }

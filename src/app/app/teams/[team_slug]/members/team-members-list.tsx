@@ -12,7 +12,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
 
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DialogTriggerButton } from '@/components/ui/dialog'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
@@ -49,9 +49,9 @@ export function TeamMembersListCard({ teamSlug}: { teamSlug: string }) {
                 </PopoverContent>
             </Popover>
         </CardHeader>
-        <CardBody boundary>
+        <CardContent boundary>
             <TeamMembersListTable teamSlug={teamSlug}/>
-        </CardBody>
+        </CardContent>
     </Card>
 }
 

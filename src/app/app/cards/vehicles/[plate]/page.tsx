@@ -7,7 +7,7 @@
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageTitle } from '@/components/app-page'
 import { NotFound } from '@/components/errors'
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 
 import { VehicleInfo, VehicleList } from '@/data/vehicles'
@@ -35,7 +35,7 @@ export default async function VehicleReferenceCard(props: { params: Promise<{ pl
                     <CardHeader>
                         <CardTitle>Specifications</CardTitle>
                     </CardHeader>
-                    <CardBody>
+                    <CardContent>
                         <DL>
                             <DLTerm>Owner</DLTerm>
                             <DLDetails>{vehicle.owner}</DLDetails>
@@ -70,7 +70,7 @@ export default async function VehicleReferenceCard(props: { params: Promise<{ pl
                                 <div>{vehicle.towing?.braked}kg (braked)</div>
                             </DLDetails>
                         </DL>
-                    </CardBody>
+                    </CardContent>
                     
                 </Card>
                 <DimensionsSection dimensions={vehicle.dimensions}/>
@@ -78,7 +78,7 @@ export default async function VehicleReferenceCard(props: { params: Promise<{ pl
                     <CardHeader>
                         <CardTitle>Basic Maintence</CardTitle>
                     </CardHeader>
-                    <CardBody>
+                    <CardContent>
                         <DL>
                             <DLTerm>Battery</DLTerm>
                             <DLDetails>Under passenger seat. Jump start from contacts in engine bay (nearside).</DLDetails>
@@ -89,7 +89,7 @@ export default async function VehicleReferenceCard(props: { params: Promise<{ pl
                             <DLTerm>Spare Wheel</DLTerm>
                             <DLDetails>In cradle underneath rear. Lower using bolts under covers.</DLDetails>
                         </DL>
-                    </CardBody>
+                    </CardContent>
                 </Card>
             </div>
         </AppPageContent>

@@ -164,6 +164,7 @@ export const teamMembershipsRouter = createTRPCRouter({
 
     update: systemAdminProcedure
         .input(systemTeamMembershipFormSchema)
+        .meta({ schema: teamMembershipFormSchema })
         .mutation(async ({ ctx, input }): Promise<TeamMembershipWithPersonAndTeam> => {
             
             const [person, team] = await Promise.all([

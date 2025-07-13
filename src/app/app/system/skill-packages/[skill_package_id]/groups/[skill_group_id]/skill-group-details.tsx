@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation'
 import { useSuspenseQuery } from '@tanstack/react-query'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTriggerButton } from '@/components/ui/dropdown-menu'
 import { Link, TextLink } from '@/components/ui/link'
@@ -53,9 +53,9 @@ export function SkillGroupDetailsCard({ skillGroupId, skillPackageId }: { skillG
                 </DropdownMenuContent>
             </DropdownMenu>
         </CardHeader>
-        <CardBody boundary collapsible>
+        <CardContent boundary collapsible>
             <SkillGroupDetailsList skillGroupId={skillGroupId}/>
-        </CardBody>
+        </CardContent>
     </Card>
 }
 

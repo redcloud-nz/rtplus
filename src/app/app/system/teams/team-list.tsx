@@ -12,7 +12,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardBody, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
 import { DropdownMenuCheckboxItem, DropdownMenuGroup, DropdownMenuLabel } from '@/components/ui/dropdown-menu'
 import { Link, TextLink } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
@@ -50,9 +50,9 @@ export function TeamsListCard() {
             </CardMenu>
             
         </CardHeader>
-        <CardBody boundary>
+        <CardContent boundary>
             <TeamsListTable options={options}/>
-        </CardBody>
+        </CardContent>
     </Card>
 }
 

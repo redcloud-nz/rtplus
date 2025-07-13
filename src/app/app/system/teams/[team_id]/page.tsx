@@ -15,6 +15,7 @@ import * as Paths from '@/paths'
 
 import { getTeam, TeamParams } from '.'
 import { Boundary } from '@/components/boundary'
+import { HydrateClient } from '@/trpc/server'
 
 export async function generateMetadata(props: { params: Promise<TeamParams> }) {
     const team = await getTeam(props.params)
@@ -35,16 +36,23 @@ export default async function TeamPage(props: { params: Promise<TeamParams> }) {
                     team.shortName || team.name
                 ]}
             />
-            <AppPageContent variant="container">
-                <PageHeader>
-                    <PageTitle objectType="Team">{team.name}</PageTitle>
-                </PageHeader>
-    
-                <Boundary>
-                    <TeamDetailsCard teamId={team.id}/>
-                </Boundary>
-                <TeamMembersCard team={team}/>
-                <TeamUsersCard team={team}/>
-            </AppPageContent>
+            <HydrateClient>
+                <AppPageContent variant="container">
+                    <PageHeader>
+                        <PageTitle objectType="Team">{team.name}</PageTitle>
+                    </PageHeader>
+        
+                    <Boundary>
+                        <TeamDetailsCard teamId={team.id}/>
+                    </Boundary>
+                    <Boundary>
+                        <TeamMembersCard teamId={team.id}/>
+                    </Boundary>
+                    <Boundary>
+                            <TeamUsersCard team={team}/>
+                    </Boundary>
+                </AppPageContent>
+            </HydrateClient>
+            
         </AppPage>
  }

@@ -9,15 +9,12 @@ import { Metadata } from 'next'
 import React from 'react'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
-import * as Paths from '@/paths'
-
-import { prefetch, trpc } from '@/trpc/server'
 import { LoadingSpinner } from '@/components/ui/loading'
+import * as Paths from '@/paths'
 
 export const metadata: Metadata = { title: "Teams" }
 
 export default async function TeamsPage() { 
-    prefetch(trpc.teams.all.queryOptions())
 
     return <AppPage>
             <AppPageBreadcrumbs
@@ -25,8 +22,12 @@ export default async function TeamsPage() {
                     Paths.system,
                 ]}
             />
+                
                  <AppPageContent variant="centered">
-                    <LoadingSpinner/>
+                    <div className="w-full h-full flex flex-col items-center justify-center">
+                        <LoadingSpinner className="w-32 h-32"/>
+                        <div className="p-4">Aquiring parts.</div>
+                    </div>
                 </AppPageContent>
            
         </AppPage>

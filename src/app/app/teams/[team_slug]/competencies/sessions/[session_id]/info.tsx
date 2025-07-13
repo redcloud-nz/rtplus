@@ -10,7 +10,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useSuspenseQuery } from '@tanstack/react-query'
 
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DatePicker } from '@/components/ui/date-picker'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -40,7 +40,7 @@ export function InfoTabContent({ sessionId }: { sessionId: string }) {
         <CardHeader>
             <CardTitle>Session Info</CardTitle>
         </CardHeader>
-        <CardBody>
+        <CardContent>
             <FormProvider {...form}>
                 <Form>
                     <DL>
@@ -71,7 +71,7 @@ export function InfoTabContent({ sessionId }: { sessionId: string }) {
                     />
                 </Form>
             </FormProvider>
-        </CardBody>
+        </CardContent>
     </Card>
     
 }

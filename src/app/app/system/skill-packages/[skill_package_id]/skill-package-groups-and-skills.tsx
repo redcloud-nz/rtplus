@@ -14,7 +14,7 @@ import { Show } from '@/components/show'
 
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuTriggerButton } from '@/components/ui/dropdown-menu'
 import { Link, TextLink } from '@/components/ui/link'
 
@@ -98,9 +98,9 @@ export function SkillPackageGroupsAndSkillCard({ skillPackageId }: { skillPackag
                     </DropdownMenuContent>
                 </DropdownMenu>
             </CardHeader>
-            <CardBody boundary collapsible>
+            <CardContent boundary collapsible>
                 <GroupsAndSkillsTable options={options} skillPackageId={skillPackageId}/>
-            </CardBody>
+            </CardContent>
             
         </Card>
     </>

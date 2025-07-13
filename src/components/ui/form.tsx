@@ -5,7 +5,7 @@
 'use client'
 
 import { Loader2Icon } from 'lucide-react'
-import { ComponentProps, createContext, useContext, useId } from 'react'
+import { ComponentProps, createContext, ReactNode, useContext, useId } from 'react'
 import { Controller, ControllerProps, FieldPath, FieldValues, useFormContext, useFormState } from 'react-hook-form'
 import { pick } from 'remeda'
 import { tv, VariantProps } from 'tailwind-variants'
@@ -15,14 +15,14 @@ import { Slot } from '@radix-ui/react-slot'
 
 import { cn } from '@/lib/utils'
 
-import { Button, buttonVariants } from './button'
+import { Button, ButtonProps, buttonVariants } from './button'
 import { Label } from './label'
 import { Link } from './link'
 
 
 export function Form({ className, ...props }: ComponentProps<'form'>) {
 
-    return <form className={cn("space-y-4", className)} {...props}/>
+    return <form className={cn("spacy-y-4", className)} {...props}/>
 }
 
 
@@ -136,7 +136,7 @@ export function FormMessage({ className, children, ...props }: React.ComponentPr
 }
 
 
-export interface FormSubmitButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+export type FormSubmitButtonProps = ButtonProps & {
     labels?: {
         ready?: React.ReactNode
         validating?: React.ReactNode
@@ -152,7 +152,7 @@ const defaultLabels = {
     submitted: 'Submitted',
 }
 
-export function FormSubmitButton({ children, className, disabled, variant, size, labels = {}, ...props}: FormSubmitButtonProps) {
+export function FormSubmitButton({ children, className, disabled, variant, color, size, labels = {}, ...props}: FormSubmitButtonProps) {
     labels = { ...defaultLabels, ...labels }
 
     const { formState: { isSubmitted, isSubmitSuccessful, isSubmitting, isValidating } } = useFormContext()
@@ -163,7 +163,7 @@ export function FormSubmitButton({ children, className, disabled, variant, size,
         "ready"
 
     return <button
-        className={cn('group', buttonVariants({ variant, size, className }))}
+        className={cn('group', buttonVariants({ variant, color, size, className }))}
         disabled={disabled || isValidating || isSubmitting || (isSubmitted && isSubmitSuccessful)}
         data-state={state}
         type="submit"
@@ -227,7 +227,7 @@ export const SubmitVerbs = {
 } as const
 
 
-export type FormCancelButtonProps = Omit<React.ComponentPropsWithRef<typeof Button>, 'onClick'> & (
+export type FormCancelButtonProps = Omit<ComponentProps<typeof Button>, 'onClick'> & (
     | { onClick: React.MouseEventHandler<HTMLButtonElement>, href?: never }
     | { onClick?: never, href: string }
 )
@@ -270,56 +270,16 @@ export function FormCancelButton({ children = "Cancel", href, onClick, variant =
     }
 }
 
-const formActionsVariants = tv({
-    base: "flex justify-start gap-2 pt-2",
-    variants: {
-        layout: {
-            default: "",
-            row: "lg:col-start-1 lg:col-span-3 lg:border-t lg:border-zinc-950/5"
-        }
-    },
-})
-
-/**
- * A component that renders a container for form action buttons.
- * It is designed to be used within a form and provides a consistent layout for action buttons.
- *
- * @param children - The child elements to be rendered inside the container.
- * @param props - Additional props to be passed to the underlying `div` element.
- * 
- * @example
- * 
- * ```tsx
- * <FormActions>
- *   <button type="submit">Submit</button>
- *   <button type="button">Cancel</button>
- * </FormActions>
- * ```
- */
-export function FormActions({ className, layout, ...props }: React.ComponentPropsWithRef<'div'> & VariantProps<typeof formActionsVariants>) {
+export function FormActions({ children, className, right, ...props }: ComponentProps<'div'> & { right?: ReactNode }) {
     return <div 
-        className={formActionsVariants({ layout, className })}
+        className={cn("flex justify-between pt-2", className)}
         data-slot="actions"
         {...props}
-    />
+    >
+        <div className="flex gap-2">{children}</div>
+        { right ? <div className="flex gap-2">{right}</div> : null }
+    </div>
 
-}
-
-const formValueVariants = tv({
-    base: "flex h-9 w-full px-3 py-2 text-base md:text-sm border border-background",
-    variants: {
-        loading: {
-            true : "bg-slate-200 text-slate-500 flex items-center justify-center",
-            false: "text-slate-900"
-        }
-    }
-})
-
-export function DisplayValue({ className, loading, value, ...props }: Omit<React.ComponentPropsWithRef<'div'>, 'children'> & VariantProps<typeof formValueVariants> & { value: string }) {
-    return <div 
-        className={formValueVariants({ loading, className })}
-        {...props}
-    >{loading ? <div className="animate-spin size-5 rounded-full border-t-1 border-b-1 border-gray-900"/> : value}</div>
 }
 
 

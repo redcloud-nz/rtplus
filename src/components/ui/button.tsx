@@ -5,7 +5,7 @@
 'use client'
 
 import { InfoIcon, Loader2Icon } from 'lucide-react'
-import React from 'react'
+import React, { ComponentProps } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
 import { Slot } from '@radix-ui/react-slot'
@@ -19,28 +19,45 @@ export const buttonVariants = tv({
     base: "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
     variants: {
         variant: {
-            default: "bg-primary text-primary-foreground hover:bg-primary/90",
-            destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-            outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-            secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-            ghost: "hover:bg-accent hover:text-accent-foreground rounded-full active:bg-accent/50 active:text-accent-foreground/50",
+            default: "",
+            outline: "border bg-background hover:bg-accent",
+            ghost: "hover:bg-accent active:bg-accent/50 active:text-accent-foreground/50",
             link: "text-primary underline-offset-4 hover:underline",
-            hanger: "border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-b-md",
+            hanger: "border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-t-0 rounded-b-md",
+        },
+        color: {
+            primary: "",
+            secondary: "",
+            destructive: "",
         },
         size: {
             default: "h-10 rounded-md px-4 py-2",
-            sm: "h-9 rounded-md px-3",
+            sm: "h-8 rounded-md px-3 py-1",
             lg: "h-11 rounded-md px-8",
             icon: "h-10 w-10",
         },
+
     },
+    compoundVariants: [
+        { variant: "default", color: "primary", class: "bg-primary text-primary-foreground hover:bg-primary/90" },
+        { variant: "default", color: "secondary", class: "bg-secondary text-secondary-foreground hover:bg-secondary/80" },
+        { variant: "default", color: "destructive", class: "bg-destructive text-background hover:bg-destructive/90" },
+        { variant: "outline", color: "primary", class: "border-primary hover:text-primary/90" },
+        { variant: "outline", color: "secondary", class: "border-secondary hover:text-secondary/90" },
+        { variant: "outline", color: "destructive", class: "border-destructive text-destructive hover:text-destructive/90" },
+        { variant: "ghost", color: "primary", class: "text-primary hover:text-primary/90" },
+        { variant: "ghost", color: "secondary", class: "text-secondary hover:text-secondary/80" },
+        { variant: "ghost", color: "destructive", class: "text-destructive hover:text-destructive/90" },
+        { variant: "ghost", size: "icon", class: "rounded-full" },
+    ],
     defaultVariants: {
         variant: 'default',
+        color: 'primary',
         size: 'default',
     },
 })
 
-export type ButtonProps = React.ComponentPropsWithRef<'button'> & VariantProps<typeof buttonVariants> & {
+export type ButtonProps = ComponentProps<'button'> & VariantProps<typeof buttonVariants> & {
     asChild?: boolean
 }
 
@@ -53,16 +70,16 @@ export type ButtonProps = React.ComponentPropsWithRef<'button'> & VariantProps<t
  * 
  * @see https://ui.shadcn.com/docs/components/button
  */
-export function Button({ className, variant, size, asChild = false, ...props }: ButtonProps) {
+export function Button({ className, variant, color, size, asChild = false, ...props }: ButtonProps) {
     const Comp = asChild ? Slot : 'button'
     return <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(buttonVariants({ variant, color, size, className }))}
         {...props}
     />
 }
 
 
-export interface AsyncButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+export type AsyncButtonProps = ButtonProps & {
     onClick?: (event: React.MouseEvent<HTMLButtonElement>) => Promise<any>
     label?: React.ReactNode
     pending?: React.ReactNode
@@ -98,7 +115,7 @@ export function AsyncButton({ children, className, disabled, variant, size, onCl
 
 }
 
-export interface SubmitButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+export type SubmitButtonProps = ButtonProps & {
     state: 'ready' | 'pending' | 'done'
     label?: React.ReactNode
     pending?: React.ReactNode
@@ -121,7 +138,7 @@ export function SubmitButton({ children, className, disabled, variant, size, sta
 }
 
 
-export type SubmitButtonLabelProps = React.ComponentPropsWithRef<'span'> & {
+export type SubmitButtonLabelProps = ComponentProps<'span'> & {
     activeState: 'ready' | 'pending' | 'done'
 }
 

@@ -5,16 +5,21 @@
  */
 'use client'
 
+import { ComponentProps } from 'react'
 import { useQuery } from '@tanstack/react-query'
 
-import { DisplayValue } from '@/components/ui/form'
+import { DisplayValue } from '@/components/ui/display-value'
 import { useTRPC } from '@/trpc/client'
 
 
-export function SkillPackageValue({ skillPackageId }: { skillPackageId: string }) {
+
+export function SkillPackageValue({ skillPackageId, ...props }: Omit<ComponentProps<typeof DisplayValue>, 'children' |'loading'> & { skillPackageId: string }) {
     const trpc = useTRPC()
 
     const query = useQuery(trpc.skillPackages.byId.queryOptions({ skillPackageId }))
 
-    return <DisplayValue value={query.data?.name ?? ""} loading={query.isLoading}/>
+    return <DisplayValue 
+        loading={query.isLoading}
+        {...props}
+    >{query.data?.name ?? ""}</DisplayValue>
 }

@@ -17,6 +17,9 @@ export const Popover = PopoverPrimitive.Root
 
 export const PopoverTrigger = PopoverPrimitive.Trigger
 
+export const PopoverClose = PopoverPrimitive.Close
+
+export const PopoverArrow = PopoverPrimitive.Arrow
 
 export function PopoverContent({ children, className, align = "center", portal = true, sideOffset = 4, ...props }: ComponentProps<typeof PopoverPrimitive.Content> & { portal?: boolean }) {
 

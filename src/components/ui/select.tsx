@@ -5,6 +5,7 @@
 
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
 import * as React from 'react'
+import { tv, VariantProps } from 'tailwind-variants'
 
 import * as SelectPrimitive from '@radix-ui/react-select'
 
@@ -17,15 +18,24 @@ export const SelectGroup = SelectPrimitive.Group
 
 export const SelectValue = SelectPrimitive.Value
 
-export function SelectTrigger({ className, children, ...props }: React.ComponentPropsWithRef<typeof SelectPrimitive.Trigger>) {
-    return <SelectPrimitive.Trigger
-        className={cn(
-            "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground",
+export const selectTriggerVariants = tv({
+    base: cn(
+        "flex w-full justify-between border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground",
             "focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2",
             "disabled:cursor-not-allowed disabled:opacity-50", 
             "[&>span]:line-clamp-1",
-            className
-        )}
+    ),
+    variants: {
+        size: {
+            default: "h-10 px-4 py-2.5 rounded-md",
+            sm: "h-8 px-3 py-1.5 rounded-sm"
+        }
+    }
+})
+
+export function SelectTrigger({ className, children, size = "default", ...props }: React.ComponentPropsWithRef<typeof SelectPrimitive.Trigger> & VariantProps<typeof selectTriggerVariants>) {
+    return <SelectPrimitive.Trigger
+        className={selectTriggerVariants({ className, size })}
         {...props}
     >
         {children}

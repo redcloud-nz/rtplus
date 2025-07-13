@@ -15,7 +15,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardBody, CardCollapseToggleButton, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardCollapseToggleButton, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { DialogTriggerButton } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
@@ -46,9 +46,9 @@ export function TeamInvitationsListCard() {
             </CardExplanation>
             <CardCollapseToggleButton/>
         </CardHeader>
-        <CardBody boundary>
+        <CardContent boundary>
             <TeamInvitationsListTable/>
-        </CardBody>
+        </CardContent>
     </Card>
 }
 

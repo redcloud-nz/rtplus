@@ -15,7 +15,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardBody, CardHeader, CardTitle, CardCollapseToggleButton, CardExplanation } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardCollapseToggleButton, CardExplanation } from '@/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTriggerButton } from '@/components/ui/popover'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
@@ -50,9 +50,9 @@ export function TeamUsersListCard() {
             </CardExplanation>
             <CardCollapseToggleButton />
         </CardHeader>
-        <CardBody boundary>
+        <CardContent boundary>
             <TeamUsersListTable/>
-        </CardBody>
+        </CardContent>
     </Card>
 }
 

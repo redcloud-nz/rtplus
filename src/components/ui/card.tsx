@@ -5,22 +5,25 @@
 'use client'
 
 import { ChevronDownIcon, EllipsisVerticalIcon, InfoIcon } from 'lucide-react'
-import { type ComponentProps, Suspense, useState } from 'react'
-import { ErrorBoundary } from 'react-error-boundary'
+import { type ComponentProps, useState } from 'react'
+
 
 import { cn } from '@/lib/utils'
 
-import { Alert } from './alert'
 import { Button } from './button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './dropdown-menu'
 import { Popover, PopoverContent, PopoverTriggerButton } from './popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
 
 
-export function Card({ className, ...props }: ComponentProps<'div'>) {
+export function Card({ className, raised, ...props }: ComponentProps<'div'> & { raised?: boolean }) {
 
     return <div
-            className={cn("rounded-sm border bg-card text-card-foreground shadow-xs mb-2", className )}
+            className={cn(
+                "rounded-sm border bg-card text-card-foreground transition-shadow mb-2",
+                raised ? "shadow-md" : "shadow-sm",
+                className 
+            )}
             {...props}
         />
 }
@@ -35,7 +38,7 @@ export function CardHeader({ className, ...props }: ComponentProps<'div'>) {
 export function CardTitle({ className, ...props }: ComponentProps<'div'>) {
     return <div
         className={cn(
-            "text-2xl font-semibold leading-10 grow px-4",
+            "text-2xl font-semibold leading-10 grow px-3",
             className
         )}
         data-slot="title"
@@ -59,7 +62,7 @@ export function CardDescription({ className, ...props }: ComponentProps<'div'>) 
 
 type CardContentProps = ComponentProps<'div'> & { boundary?: boolean, collapsible?: boolean }
 
-export function CardBody({ boundary, children, className, collapsible, ...props }: CardContentProps) {
+export function CardContent({ className, collapsible = false, boundary = false, ...props }: CardContentProps) {
     const [open, setOpen] = useState(true)
 
     return <div className="relative">
@@ -81,20 +84,14 @@ export function CardBody({ boundary, children, className, collapsible, ...props 
             </Tooltip>
             : null
         }
-        <div className={cn("p-2 min-h-24", className, !open && "hidden", collapsible ? "pt-4" : "pt-2")} {...props}>
-            { boundary
-                ? <ErrorBoundary fallbackRender={({ error}) => <Alert severity="error" title="An error occured">{error.message}</Alert>}>
-                    <Suspense 
-                        fallback={<div className="w-full flex items-center justify-center p-4">
-                            <div className="animate-spin size-10 rounded-full border-t-1 border-b-1 border-gray-900"/>
-                        </div>}
-                    >
-                        {children}
-                    </Suspense>
-                </ErrorBoundary>
-                : children
-            }
-        </div>
+        <div
+            className={cn(
+                "data-[state=open]:h-fit data-[state=closed]:h-0 data-[state=closed]:hidden",
+                //"data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
+            )}
+            data-state={open ? "open" : "closed"}
+            {...props}
+        />
     </div>
 }
 

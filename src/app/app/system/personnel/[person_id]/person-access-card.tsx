@@ -10,7 +10,7 @@ import { match } from 'ts-pattern'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
 import { AsyncButton} from '@/components/ui/button'
-import { Card, CardBody, CardCollapseToggleButton, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardCollapseToggleButton, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 
 import { useTRPC } from '@/trpc/client'
@@ -25,9 +25,9 @@ export function PersonAccessCard(props: { personId: string}) {
                 <CardTitle>Access Details</CardTitle>
                 <CardCollapseToggleButton/>
             </CardHeader>
-            <CardBody boundary>
+            <CardContent boundary>
                 <PersonAccessDetailsList personId={props.personId}/>
-            </CardBody>
+            </CardContent>
         </Card>
 }
 

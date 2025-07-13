@@ -14,7 +14,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardBody, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
@@ -45,12 +45,12 @@ export function TeamUsersCard({ team }: { team: TeamBasic}) {
                     This card displays the users that have access to the team. You can edit or delete user assignments using the actions menu.
                 </CardExplanation>
             </CardHeader>
-            <CardBody boundary collapsible>
+            <CardContent>
                 <TeamUsersCardTable 
                     teamId={team.id}
                     onAction={setActionTarget}
                 />
-            </CardBody>
+            </CardContent>
             
         </Card>
         <SheetContent>

@@ -7,7 +7,7 @@
 
 import { format, formatISO, parseISO } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
-import React from 'react'
+import { useState } from 'react'
 
 import { Button } from './button'
 import { Calendar } from './calendar'
@@ -27,7 +27,7 @@ export interface DatePickerProps {
 
 export function DatePicker({ defaultValue = "", onChange = () => {}, placeholder = "Pick a date", value, ...props }: DatePickerProps) {
 
-    const [internalValue, setInternalValue] = React.useState<string>(value ?? defaultValue)
+    const [internalValue, setInternalValue] = useState<string>(value ?? defaultValue)
 
     function handleSelect(selected: Date | undefined) {
         const str = selected ? formatISO(selected) : ""

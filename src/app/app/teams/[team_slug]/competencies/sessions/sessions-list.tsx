@@ -14,7 +14,7 @@ import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
 import { AsyncButton, Button } from '@/components/ui/button'
-import { Card, CardBody, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
 import { DropdownMenuCheckboxItem, DropdownMenuGroup, DropdownMenuLabel } from '@/components/ui/dropdown-menu'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
@@ -75,9 +75,9 @@ export function MySessionsListCard({ teamSlug }: { teamSlug: string }) {
                 </DropdownMenuGroup>
             </CardMenu>
         </CardHeader>
-        <CardBody boundary>
+        <CardContent boundary>
             <SessionsListTable teamSlug={teamSlug} options={options}/>
-        </CardBody>
+        </CardContent>
     </Card>
 }
 

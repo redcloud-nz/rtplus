@@ -9,12 +9,13 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { DisplayValue, Form, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs, UpdateFormProps } from '@/components/ui/form'
+import { Form, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs, UpdateFormProps } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema } from '@/lib/forms/team-membership'
 import { useToast } from '@/hooks/use-toast'
 import { TeamMembershipWithPersonAndTeam, useTRPC } from '@/trpc/client'
+import { DisplayValue } from '../ui/display-value'
 
 
 /**
@@ -90,13 +91,13 @@ export function UpdateTeamMembershipForm({ onClose, onUpdate, personId, teamId }
             <FormItem>
                 <FormLabel>Person</FormLabel>
                 <FormControl>
-                    <DisplayValue value={membership.person.name} />
+                    <DisplayValue>{membership.person.name}</DisplayValue>
                 </FormControl>
             </FormItem>
             <FormItem>
                 <FormLabel>Team</FormLabel>
                 <FormControl>
-                    <DisplayValue value={membership.team.name} />
+                    <DisplayValue>{membership.team.name}</DisplayValue>
                 </FormControl>
             </FormItem>
             <FormField

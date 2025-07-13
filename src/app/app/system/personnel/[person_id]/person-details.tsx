@@ -10,7 +10,7 @@ import { PencilIcon, TrashIcon } from 'lucide-react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardBody, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 import { DropdownMenuGroup, DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { Link } from '@/components/ui/link'
@@ -46,9 +46,9 @@ export function PersonDetailsCard({ personId }: { personId: string }) {
                 </DropdownMenuGroup>
             </CardMenu>
         </CardHeader>
-        <CardBody boundary collapsible>
+        <CardContent boundary collapsible>
             <PersonDetailsList personId={personId}/>
-        </CardBody>
+        </CardContent>
     </Card>
 }   
 

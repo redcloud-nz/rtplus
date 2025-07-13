@@ -6,7 +6,7 @@
  */
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 import prisma from '@/server/prisma'
 
@@ -41,10 +41,10 @@ function Stat({ title, value, description }: StatProps) {
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{title}</CardTitle>
         </CardHeader>
-        <CardBody>
+        <CardContent>
             <div className="text-2xl font-bold">{value}</div>
             <div className="text-sm text-muted-foreground">{description}</div>
-        </CardBody>
+        </CardContent>
     </Card>
 }
 

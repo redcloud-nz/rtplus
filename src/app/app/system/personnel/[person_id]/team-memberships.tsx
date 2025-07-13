@@ -12,7 +12,7 @@ import {  useSuspenseQuery } from '@tanstack/react-query'
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Link, TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
@@ -37,9 +37,9 @@ export function TeamMembershipsCard({ personId }: { personId: string }) {
                 </Link>
             </Button>
         </CardHeader>
-        <CardBody boundary>
+        <CardContent boundary>
             <TeamMembershipsTable personId={personId}/>
-        </CardBody>
+        </CardContent>
     </Card>
 }
 
