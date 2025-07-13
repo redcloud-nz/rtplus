@@ -5,24 +5,23 @@
  */
 'use client'
 
-import { CableIcon, PencilIcon, TrashIcon } from 'lucide-react'
+import { PencilIcon, TrashIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
+import z from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { TeamValue } from '@/components/controls/team-value'
 import { Button } from '@/components/ui/button'
-import { Card, CardActions, CardContent, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
+import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTriggerButton } from '@/components/ui/dialog'
 import { DisplayValue } from '@/components/ui/display-value'
-import { DropdownMenuGroup, DropdownMenuItem } from '@/components/ui/dropdown-menu'
-import { Form, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { Form, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input, SlugInput } from '@/components/ui/input'
-import { Link } from '@/components/ui/link'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
@@ -30,11 +29,9 @@ import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
 import { TeamFormData, teamFormSchema } from '@/lib/forms/team'
+import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
 import { TeamBasic, useTRPC } from '@/trpc/client'
-
-
-
 
 
 
@@ -57,18 +54,11 @@ export function TeamDetailsCard({ teamId }: { teamId: string }) {
                     </TooltipTrigger>
                     <TooltipContent>Edit team details</TooltipContent>
                 </Tooltip>
-                
+                <DeleteTeamDialog team={team}/>
                 <Separator orientation="vertical"/>
-            
-                <CardMenu title="Team">
-                    <DropdownMenuGroup>
-                        <DropdownMenuItem disabled asChild>
-                            <Link href={Paths.system.team(teamId).d4h}>
-                                <CableIcon/> D4H Integration
-                            </Link>
-                        </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                </CardMenu>
+                <CardExplanation>
+                    This card displays the details of the team and allows you to edit them. You can also delete the team from here.
+                </CardExplanation>
             </CardActions>
             
         </CardHeader>
@@ -92,9 +82,11 @@ export function TeamDetailsCard({ teamId }: { teamId: string }) {
                             label="Slug"
                             control={<DisplayValue>{team.slug}</DisplayValue>}
                         />
-                        <ToruGridFooter>
-                            
-                        </ToruGridFooter>
+                        <ToruGridRow
+                            label="Status"
+                            control={<DisplayValue>{team.status}</DisplayValue>}
+                        />
+                        <ToruGridFooter/>
                     </ToruGrid>
                 
                 )
@@ -124,7 +116,7 @@ function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamBasi
     })
 
     const mutation = useMutation(trpc.teams.sys_update.mutationOptions({
-        onError: (error) => {
+        onError(error) {
             if(error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof TeamFormData, { message: error.shape.message })
             } else {
@@ -170,7 +162,6 @@ function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamBasi
                         label="Name"
                         control={<Input maxLength={100} {...field}/>}
                         description="The full name of the team."
-
                     />}
                 />
                 <FormField
@@ -191,12 +182,28 @@ function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamBasi
                         description="URL-friendly identifier for the team."
                     />}
                 />
-                <ToruGridFooter className="justify-between">
-                    <div className="flex items-center gap-2">
-                        <FormSubmitButton labels={SubmitVerbs.update} size="sm"/>
-                        <FormCancelButton onClick={onClose} size="sm"/>
-                    </div>
-                    <DeleteTeamDialog teamId={team.id}/>
+                <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => <ToruGridRow
+                        label="Status"
+                        control={
+                            <Select {...field} onValueChange={field.onChange}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Active">Active</SelectItem>
+                                    <SelectItem value="Inactive">Inactive</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        }
+                        description="The current status of the team."
+                    />}
+                />
+                <ToruGridFooter>
+                    <FormSubmitButton labels={SubmitVerbs.update} size="sm"/>
+                    <FormCancelButton onClick={onClose} size="sm"/>
                 </ToruGridFooter>
             </ToruGrid>
         </Form>
@@ -204,8 +211,7 @@ function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamBasi
 }
 
 
-function DeleteTeamDialog({ teamId }: { teamId: string }) {
-    
+function DeleteTeamDialog({ team }: { team: TeamBasic}) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -213,9 +219,13 @@ function DeleteTeamDialog({ teamId }: { teamId: string }) {
 
     const [open, setOpen] = useState(false)
 
-    const form = useForm<Pick<TeamFormData, 'teamId'>>({
-        resolver: zodResolver(teamFormSchema.pick({ teamId: true })),
-        defaultValues: { teamId }
+    const form = useForm({
+        resolver: zodResolver(z.object({
+            teamId: zodNanoId8,
+            teamName: z.literal(team.name)
+        })),
+        mode: 'onSubmit',
+        defaultValues: { teamId: team.id, teamName: "" }
     })
 
     const mutation = useMutation(trpc.teams.sys_delete.mutationOptions({
@@ -230,25 +240,24 @@ function DeleteTeamDialog({ teamId }: { teamId: string }) {
         onSuccess(result) {
             toast({
                 title: 'Team deleted',
-                description: <>The team <ObjectName>{result.name}</ObjectName> has been deleted successfully.</>,
+                description: <>The team <ObjectName>{result.name}</ObjectName> has been deleted.</>,
             })
             setOpen(false)
             router.push(Paths.system.teams.index)
 
             queryClient.invalidateQueries(trpc.teams.all.queryFilter())
-            queryClient.setQueryData(trpc.teams.byId.queryKey({ teamId }), undefined)
+            queryClient.setQueryData(trpc.teams.byId.queryKey({ teamId: team.id }), undefined)
         },
     }))
 
     return <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTriggerButton tooltip="Delete Team" color="destructive">
-                <TrashIcon/>
-                <span className="sr-only">Delete Team</span>
+        <DialogTriggerButton tooltip="Delete team">
+            <TrashIcon/>    
         </DialogTriggerButton>
         <DialogContent>
             <DialogHeader>
                 <DialogTitle>Delete Team</DialogTitle>
-                <DialogDescription>Permanently delete team?</DialogDescription>
+                <DialogDescription>This will remove the team from RT+ forever (which is a really long time).</DialogDescription>
             </DialogHeader>
             <DialogBody>
                 <FormProvider {...form}>
@@ -256,11 +265,30 @@ function DeleteTeamDialog({ teamId }: { teamId: string }) {
                         <FormItem>
                             <FormLabel>Team</FormLabel>
                             <FormControl>
-                                <TeamValue teamId={teamId}/>
+                                <DisplayValue>{team.name}</DisplayValue>
                             </FormControl>
                         </FormItem>
+                        <FormField
+                            control={form.control}
+                            name="teamName"
+                            render={({ field }) => <FormItem>
+                                <FormLabel>Enter name</FormLabel>
+                                <FormControl>
+                                    <Input 
+                                        {...field} 
+                                        placeholder="Type the team name to confirm" 
+                                        maxLength={100} 
+                                        autoComplete="off" 
+                                    />
+                                </FormControl>
+                                <FormMessage/>
+                            </FormItem>}
+                        />
                         <FormActions>
-                            <FormSubmitButton labels={SubmitVerbs.delete} color="destructive"/>
+                            <FormSubmitButton 
+                                labels={SubmitVerbs.delete} 
+                                color="destructive"
+                            />
                             <FormCancelButton onClick={() => setOpen(false)}/>
                         </FormActions>
                     </Form>

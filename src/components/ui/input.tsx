@@ -69,15 +69,13 @@ export function TextInput({ className, defaultValue = "", size = "default", valu
     />
 }
 
-export function SlugInput({ className, defaultValue = "", maxLength = 20, size = "default", value, ...props }: ConstrainedInputProps<string>) {
+export function SlugInput({ className, defaultValue = "", maxLength = 20, onValueChange, size = "default", value, ...props }: ConstrainedInputProps<string>) {
     const [internalValue, setInternalValue] = useState<string>(value ?? defaultValue)
 
     function handleChange(ev: React.ChangeEvent<HTMLInputElement>) {
         const newValue = ev.target.value.replace(/[^a-zA-Z0-9-]/g, '')
         setInternalValue(newValue)
-        if (props.onValueChange) {
-            props.onValueChange(newValue)
-        }
+        onValueChange?.(newValue)
     }
 
     const effectiveValue = value ?? internalValue
@@ -94,15 +92,13 @@ export function SlugInput({ className, defaultValue = "", maxLength = 20, size =
 
 }
 
-export function TagsInput({ className,  defaultValue = [], size = "default", value, ...props }: ConstrainedInputProps<string[]>) {
+export function TagsInput({ className,  defaultValue = [], onValueChange,  size = "default", value, ...props }: ConstrainedInputProps<string[]>) {
     const [internalValue, setInternalValue] = useState<string[]>(value ?? defaultValue)
 
     function handleChange(ev: React.ChangeEvent<HTMLInputElement>) {
         const newValue = unique(ev.target.value.split(' ').map(tag => tag.toLowerCase()))
         setInternalValue(newValue)
-        if (props.onValueChange) {
-            props.onValueChange(newValue)
-        }
+        onValueChange?.(newValue)
     }
 
     const effectiveValue = value ?? internalValue

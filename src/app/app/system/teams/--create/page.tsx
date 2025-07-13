@@ -10,8 +10,10 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
+import { HydrateClient } from '@/trpc/server'
 
 import { NewTeamDetailsCard } from './new-team-details'
+
 
 export default async function CreateTeamPage() { 
     
@@ -23,14 +25,17 @@ export default async function CreateTeamPage() {
                 "Create"
             ]}
         />
-        <AppPageContent variant="container">
-            <PageHeader>
-                <PageTitle>Create New Team</PageTitle>
-            </PageHeader>
+        <HydrateClient>
+             <AppPageContent variant="container">
+                <PageHeader>
+                    <PageTitle>Create New Team</PageTitle>
+                </PageHeader>
 
-            <Boundary>
-                <NewTeamDetailsCard/>
-            </Boundary>
-        </AppPageContent>
+                <Boundary>
+                    <NewTeamDetailsCard/>
+                </Boundary>
+            </AppPageContent>
+        </HydrateClient>
+       
     </AppPage>
  }

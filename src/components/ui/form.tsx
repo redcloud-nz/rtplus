@@ -22,7 +22,7 @@ import { Link } from './link'
 
 export function Form({ className, ...props }: ComponentProps<'form'>) {
 
-    return <form className={cn("spacy-y-4", className)} {...props}/>
+    return <form className={cn("space-y-4", className)} {...props}/>
 }
 
 

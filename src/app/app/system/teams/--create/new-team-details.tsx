@@ -13,7 +13,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { DisplayValue, Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { DisplayValue } from '@/components/ui/display-value'
+import { Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input, SlugInput } from '@/components/ui/input'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 import { ObjectName } from '@/components/ui/typography'
@@ -23,6 +24,7 @@ import { TeamFormData, teamFormSchema } from '@/lib/forms/team'
 import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
+
 
 
 export function NewTeamDetailsCard() {
@@ -46,7 +48,7 @@ export function NewTeamDetailsCard() {
     })
 
     const mutation = useMutation(trpc.teams.sys_create.mutationOptions({
-        onError: (error) => {
+        onError(error) {
             if(error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof TeamFormData, { message: error.shape.message })
             } else {
@@ -62,9 +64,9 @@ export function NewTeamDetailsCard() {
                 title: "Team created",
                 description: <>The team <ObjectName>{result.name}</ObjectName> has been created successfully.</>,
             })
-            router.push(Paths.system.team(teamId).index)
 
             queryClient.invalidateQueries(trpc.teams.all.queryFilter())
+            router.push(Paths.system.team(teamId).index)
         }
     }))
 
@@ -78,14 +80,14 @@ export function NewTeamDetailsCard() {
         </CardHeader>
         <CardContent>
             <FormProvider {...form}>
-                <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
+                <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
                     <ToruGrid mode='form'>
                         <FormField
                             control={form.control}
                             name="teamId"
                             render={({ field }) => <ToruGridRow
                                 label="Team ID"
-                                control={ <DisplayValue value={field.value} />}
+                                control={ <DisplayValue>{field.value}</DisplayValue>}
                                 description="The unique identifier for the team."
                             />}
                         />
@@ -113,7 +115,7 @@ export function NewTeamDetailsCard() {
                             name="slug"
                             render={({ field }) => <ToruGridRow
                                 label="Slug"
-                                control={<SlugInput {...field} onChange={(ev, newValue) => field.onChange(newValue)}/>}
+                                control={<SlugInput {...field} onValueChange={field.onChange}/>}
                                 description="URL-friendly identifier for the team."
                             />}
                         />
@@ -122,7 +124,7 @@ export function NewTeamDetailsCard() {
                             <FormCancelButton onClick={() => router.back()} size="sm"/>
                         </ToruGridFooter>
                     </ToruGrid>
-                </Form>
+                </form>
             </FormProvider>
         </CardContent>
     </Card>

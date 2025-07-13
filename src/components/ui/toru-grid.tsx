@@ -18,7 +18,7 @@ const ToruGridContext = createContext<ToruGridContextValue>({ mode: 'default' })
 export function ToruGrid({ className, mode = 'default', ...props }: ComponentProps<'div'> & { mode?: 'default' | 'form' }) {
     return <ToruGridContext.Provider value={{ mode }}>
         <div 
-            className={cn("p-1 sm:grid sm:grid-cols-[min(20%,--spacing(80))_1fr] lg:grid-cols-[min(20%,--spacing(80))_1fr_1fr]", className)}
+            className={cn("sm:grid sm:grid-cols-[min(20%,--spacing(80))_1fr] lg:grid-cols-[min(20%,--spacing(80))_1fr_1fr]", className)}
             data-component="ToruGrid"
             data-mode={mode}
             {...props}

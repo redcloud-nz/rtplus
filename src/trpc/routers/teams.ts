@@ -16,6 +16,7 @@ import { zodNanoId8, zodRecordStatus, zodSlug } from '@/lib/validation'
 
 import { AuthenticatedContext, authenticatedProcedure, AuthenticatedTeamContext, createTRPCRouter, systemAdminProcedure } from '../init'
 import { FieldConflictError, TeamBasic } from '../types'
+import { Organization } from '@clerk/nextjs/server'
 
 
 const logger = new RTPlusLogger('trpc/teams')
@@ -174,17 +175,24 @@ export async function createTeam(ctx: AuthenticatedContext, { teamId, ...input }
     const shortNameConflict = await ctx.prisma.team.findFirst({ where: { shortName: input.shortName } })
     if(shortNameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('shortName') })
 
-    const organization = await ctx.clerkClient.organizations.createOrganization({
-        name: input.name,
-        slug: input.slug,
-        publicMetadata: { teamId }
-    })
+    let clerkOrgId: string
+    try {
+        const organization = await ctx.clerkClient.organizations.createOrganization({
+            name: input.name,
+            slug: input.slug,
+            publicMetadata: { teamId }
+        })
+        clerkOrgId = organization.id
+    } catch (error) {
+        logger.error(`Failed to create Clerk organization for team ${teamId}:`, error)
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: `Failed to create Clerk organization for team ${teamId}.` })
+    }
 
     const createdTeam = await ctx.prisma.team.create({ 
         data: { 
             id: teamId, 
             ...input, 
-            clerkOrgId: organization.id,
+            clerkOrgId,
             changeLogs: { 
                 create: { 
                     id: nanoId16(),
@@ -196,7 +204,7 @@ export async function createTeam(ctx: AuthenticatedContext, { teamId, ...input }
         }
     })
 
-    logger.info(`Team ${teamId} created successfully with Clerk organization ID ${organization.id}.`)
+    logger.info(`Team ${teamId} created successfully with Clerk organization ID ${clerkOrgId}.`)
 
     return createdTeam
 }

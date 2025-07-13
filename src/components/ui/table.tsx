@@ -3,13 +3,13 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import React from 'react'
+import { ComponentProps } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '@/lib/utils'
 
 const tableVariants = tv({
-    base: 'relative w-full overflow-auto',
+    base: 'relative overflow-auto',
     variants: {
         border: {
             true: 'rounded-sm border'
@@ -21,7 +21,7 @@ const tableVariants = tv({
     }
 })
 
-export type TableProps =  Omit<React.ComponentPropsWithRef<'table'>, 'border'> & VariantProps<typeof tableVariants> & {
+export type TableProps =  Omit<ComponentProps<'table'>, 'border'> & VariantProps<typeof tableVariants> & {
     controls?: React.ReactNode
 }
 
@@ -29,35 +29,35 @@ export type TableProps =  Omit<React.ComponentPropsWithRef<'table'>, 'border'> &
 export function Table({ className, controls, border = false, width = 'full', ...props }: TableProps) {
     return <div 
         className={cn(
-            tableVariants({ border }),
+            tableVariants({ border, width }),
             className
         )}
     >
         <table
-            className={cn("w-full caption-bottom text-sm", className)}
+            className={cn("w-full caption-bottom text-sm divide-y divide-gray-300", className)}
             {...props}
         />
     </div>
 }
 
-export function TableHead({ className, ...props }: React.ComponentPropsWithRef<'thead'>) {
-    return <thead className={cn("[&_tr]:border-b", className)} {...props} />
+export function TableHead({ className, ...props }: ComponentProps<'thead'>) {
+    return <thead className={cn("", className)} {...props} />
 }
 
 
 
-export function TableBody({ className, ...props }: React.ComponentPropsWithRef<'tbody'>) {
+export function TableBody({ className, ...props }: ComponentProps<'tbody'>) {
     return <tbody
-        className={cn("[&_tr:last-child]:border-0", className)}
+        className={cn("divide-y divide-gray-200", className)}
         {...props}
     />
 }
 
 
-export function TableFooter({ className, ...props }: React.ComponentPropsWithRef<'tfoot'>) {
+export function TableFooter({ className, ...props }: ComponentProps<'tfoot'>) {
     return <tfoot
         className={cn(
-            "border-t bg-muted/50 font-medium last:[&>tr]:border-b-0",
+            "bg-muted/50 font-medium last:[&>tr]:border-b-0",
             className
         )}
         {...props}
@@ -65,10 +65,10 @@ export function TableFooter({ className, ...props }: React.ComponentPropsWithRef
 }
 
 
-export function TableRow({ className, ...props }: React.ComponentPropsWithRef<'tr'>) {
+export function TableRow({ className, ...props }: ComponentProps<'tr'>) {
     return <tr
         className={cn(
-            "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
+            "transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
             className
         )}
         {...props}
@@ -76,7 +76,7 @@ export function TableRow({ className, ...props }: React.ComponentPropsWithRef<'t
 }
 
 
-export function TableHeadCell({ className, ...props }: React.ComponentPropsWithRef<'th'>) {
+export function TableHeadCell({ children, className, ...props }: ComponentProps<'th'>) {
     return <th
         className={cn(
             "h-10 px-2 text-left align-middle font-medium [&:has([role=checkbox])]:pr-0",
@@ -84,11 +84,13 @@ export function TableHeadCell({ className, ...props }: React.ComponentPropsWithR
         )}
         role="columnheader"
         {...props}
-    />
+    >
+        <div className="w-full flex justify-between items-center">{children}</div>
+    </th>
 }
 
 
-export function TableCell({ className, ...props }: React.ComponentPropsWithRef<'td'>) {
+export function TableCell({ className, ...props }: ComponentProps<'td'>) {
     return <td
         className={cn("p-2 align-middle [&:has([role=checkbox])]:pr-0", className)}
         {...props}
@@ -96,7 +98,7 @@ export function TableCell({ className, ...props }: React.ComponentPropsWithRef<'
 }
 
 
-export function TableCaption({ className, ...props }: React.ComponentPropsWithRef<'caption'>) {
+export function TableCaption({ className, ...props }: ComponentProps<'caption'>) {
     return <caption
         className={cn("mt-4 text-sm text-muted-foreground", className)}
         {...props}

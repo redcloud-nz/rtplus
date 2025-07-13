@@ -13,10 +13,11 @@ import { useQuery } from '@tanstack/react-query'
 
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { selectTriggerVariants } from '@/components/ui/select'
 
 import { cn } from '@/lib/utils'
 import { useTRPC } from '@/trpc/client'
-import { selectTriggerVariants } from '../ui/select'
+
 
 
 

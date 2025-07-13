@@ -21,7 +21,7 @@ import { DisplayValue } from './display-value'
 
 export function GridTable({ className, ...props }: ComponentProps<'div'>) {
     return <div 
-        className={cn("grid text-sm p-1 divide-y divide-gray-300", className)}
+        className={cn("grid text-sm divide-y divide-gray-300", className)}
         role="treegrid"
         data-component="ATable"
         {...props}
@@ -30,7 +30,7 @@ export function GridTable({ className, ...props }: ComponentProps<'div'>) {
 
 export function GridTableHead({ className, ...props }: ComponentProps<'div'>) {
     return <div 
-        className={cn("grid col-span-full grid-cols-subgrid border-b", className)}
+        className={cn("grid col-span-full grid-cols-subgrid", className)}
         data-component="GridTableHead"
         {...props}    
     />
@@ -47,7 +47,7 @@ export function GridTableBody({ className, ...props }: ComponentProps<'div'>) {
 
 export function GridTableHeadRow({ className, ...props }: ComponentProps<'div'>) {
     return <div
-        className={cn("grid col-span-full grid-cols-subgrid items-center gap-2 pl-1 transition-colors", className)}
+        className={cn("grid col-span-full grid-cols-subgrid items-center gap-2 transition-colors", className)}
         data-component="GridTableRow"
         {...props}
     />
@@ -55,7 +55,7 @@ export function GridTableHeadRow({ className, ...props }: ComponentProps<'div'>)
 
 export function GridTableHeadCell({ className, ...props }: ComponentProps<'div'>) {
     return <div 
-        className={cn("h-10 px-3 pt-3 pb-1 align-middle font-medium", className)}
+        className={cn("h-10 flex justify-between items-center px-3 font-medium", className)}
         role="columnheader"
         data-component="GridTableHeadCell"
         {...props}

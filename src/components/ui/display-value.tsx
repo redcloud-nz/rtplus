@@ -2,6 +2,7 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
+'use client'
 
 import { ComponentProps } from 'react'
 import { tv, VariantProps } from 'tailwind-variants'

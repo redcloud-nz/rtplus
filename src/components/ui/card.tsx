@@ -86,7 +86,7 @@ export function CardContent({ className, collapsible = false, boundary = false, 
         }
         <div
             className={cn(
-                "data-[state=open]:h-fit data-[state=closed]:h-0 data-[state=closed]:hidden",
+                "data-[state=open]:h-fit data-[state=closed]:h-0 data-[state=closed]:hidden p-1",
                 //"data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
             )}
             data-state={open ? "open" : "closed"}

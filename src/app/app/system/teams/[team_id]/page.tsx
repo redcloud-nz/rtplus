@@ -5,17 +5,19 @@
  *  Path: /app/system/teams/[team_id]
  */
 
+
+
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
+import { Boundary } from '@/components/boundary'
+
+import * as Paths from '@/paths'
+import { HydrateClient } from '@/trpc/server'
+
 import { TeamDetailsCard } from './team-details'
 import { TeamMembersCard } from './team-members'
 import { TeamUsersCard } from './team-users'
-
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
-
-import * as Paths from '@/paths'
-
 import { getTeam, TeamParams } from '.'
-import { Boundary } from '@/components/boundary'
-import { HydrateClient } from '@/trpc/server'
+
 
 export async function generateMetadata(props: { params: Promise<TeamParams> }) {
     const team = await getTeam(props.params)

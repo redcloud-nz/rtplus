@@ -13,7 +13,7 @@ import { PersonPicker } from '@/components/controls/person-picker'
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardActions, CardContent, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
+import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
 import { DropdownMenuCheckboxItem, DropdownMenuGroup, DropdownMenuLabel } from '@/components/ui/dropdown-menu'
 import { CreateFormProps, UpdateFormProps } from '@/components/ui/form'
 import { GridTable, GridTableBody, GridTableCell, GridTableDeleteRowButton, GridTableHead, GridTableHeadCell, GridTableHeadRow, GridTableRow, GridTableRowActions } from '@/components/ui/grid-table'
@@ -21,11 +21,13 @@ import { TagsInput } from '@/components/ui/input'
 import { TextLink } from '@/components/ui/link'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { useListOptions } from '@/hooks/use-list-options'
 import { useToast } from '@/hooks/use-toast'
 import * as Paths from '@/paths'
 import { PersonBasic, TeamMembershipBasic, useTRPC } from '@/trpc/client'
+
 
 
 
@@ -48,9 +50,9 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
 
             const previousData = queryClient.getQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }))
 
-            queryClient.setQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }), (prev = []) => {
-                return [...prev, { ...newMembership, person }]
-            })
+            queryClient.setQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }), (prev = []) => 
+                [...prev, { ...newMembership, person }]
+            )
 
             return { previousData }
         },
@@ -63,9 +65,10 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
                 variant: 'destructive'
             })
         },
-        onSettled() {
-            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId }))
-        }
+        onSuccess(result) {
+            queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: result.personId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId: result.teamId }))
+        },
     }))
     const updateMutation = useMutation(trpc.teamMemberships.update.mutationOptions({
         async onMutate(update) {
@@ -73,9 +76,9 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
 
             const previousData = queryClient.getQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId: update.teamId }))
 
-            queryClient.setQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId: update.teamId }), (prev = []) => {
-                return prev.map((item) => item.personId == update.personId ? { ...item, update } : item)
-            })
+            queryClient.setQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId: update.teamId }), (prev = []) => 
+                prev.map(m => m.personId == update.personId ? { ...m, update } : m)
+            )
             return { previousData }
         },
         onError(error, data, context) {
@@ -87,9 +90,10 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
                 variant: 'destructive'
             })
         },
-        onSettled() {
-            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId }))
-        }
+        onSuccess(result) {
+            queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: result.personId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId: result.teamId }))
+        },
     }))
     const deleteMutation = useMutation(trpc.teamMemberships.delete.mutationOptions({
         async onMutate({ personId }) {
@@ -97,9 +101,9 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
 
             const previousData = queryClient.getQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }))
 
-            queryClient.setQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }), (prev = []) => {
-                return prev.filter((membership) => membership.person.id !== personId)
-            })
+            queryClient.setQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }), (prev = []) => 
+                prev.filter((m) => m.person.id !== personId)
+            )
 
             return { previousData }
         },
@@ -112,36 +116,31 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
                 variant: 'destructive'
             })
         },
-        onSettled() {
-            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId }))
-        }
+        onSuccess(result) {
+            queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: result.personId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId: result.teamId }))
+        },
     }))
 
     const { options, handleOptionChange } = useListOptions({})
 
-    const [editTarget, setEditTarget] = useState<string | null>(null)
-    const [newRow, setNewRow] = useState(false)
+    const [action, setAction] = useState<{ type: 'update', id: string } | { type: 'create' } | null>(null)
 
-    function handleEdit(personId: string) {
-        setEditTarget(personId)
-        setNewRow(false)
-    }
-
-    function handleNew() {
-        setEditTarget(null)
-        setNewRow(true)
-    }
-
-    const memberIds = teamMemberships.map(m => m.person.id)
+    const existingMemberIds = teamMemberships.map(m => m.personId)
 
     return <Card>
         <CardHeader>
             <CardTitle>Team Members</CardTitle>
             <CardActions>
-                <Button variant="ghost" size="icon" onClick={handleNew}>
-                    <PlusIcon/>
-                </Button>
-                <Separator orientation='vertical'/>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" onClick={() => setAction({ type: 'create' })}>
+                            <PlusIcon/>
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Add a new team member</TooltipContent>
+                </Tooltip>
+                
                 <CardMenu title="Team Members">
                     <DropdownMenuGroup>
                         <DropdownMenuLabel>Status</DropdownMenuLabel>
@@ -155,62 +154,66 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
                         >Inactive</DropdownMenuCheckboxItem>
                     </DropdownMenuGroup>
                 </CardMenu>
+
+                <Separator orientation='vertical'/>
+
+                <CardExplanation>
+                    This card displays the members of the team. You can add new members, edit existing ones, or delete them. 
+                </CardExplanation>
             </CardActions>
         </CardHeader>
         <CardContent>
-                <GridTable className="grid-cols-[1fr_100px_80px] lg:grid-cols-[1fr_1fr_140px_80px]">
-                    <GridTableHead>
-                        <GridTableHeadRow>
-                            <GridTableHeadCell id="columnHeader-name">Name</GridTableHeadCell>
-                            <GridTableHeadCell id="columnHeader-tags" className="hidden lg:block">Tags</GridTableHeadCell>
-                            <GridTableHeadCell id="columnHeader-status">Status</GridTableHeadCell>
-                        </GridTableHeadRow>
-                    </GridTableHead>
-                    <Show
-                        when={teamMemberships.length > 0 || newRow}
-                        fallback={<Alert className="col-span-full w-full" severity="info" title="No team members defined"/>}
-                    >
-                        <GridTableBody>
-                            { newRow ? <NewTeamMembershipForm
-                                key="new-membership"
-                                teamId={teamId}
-                                onClose={() => setNewRow(false)}
-                                onCreate={createMutation.mutate}
-                                existingMembers={memberIds}
-                            /> : null }
-                            {teamMemberships
-                                .sort((a, b) => a.person.name.localeCompare(b.person.name))
-                                .map(({ person, ...membership }) => editTarget == person.id
-                                    ?  <UpdateTeamMembershipForm 
-                                            key={person.id} 
-                                            membership={membership} 
-                                            person={person}
-                                            onClose={() => setEditTarget(null)}
-                                            onUpdate={updateMutation.mutate}
-                                        />
-                                    : <GridTableRow key={person.id}>
-                                        <GridTableCell>
-                                            <TextLink href={Paths.system.person(person.id).index}>{person.name}</TextLink>
-                                        </GridTableCell>
-                                        <GridTableCell className="hidden lg:flex">{membership.tags.join(" ")}</GridTableCell>
-                                        <GridTableCell>{membership.status}</GridTableCell>
-                                        <GridTableRowActions>
-                                            <Button variant="ghost" size="icon" onClick={() => handleEdit(person.id)}>
-                                                <PencilIcon />
-                                            </Button>
-                                            <GridTableDeleteRowButton onDelete={() => deleteMutation.mutate({ personId: person.id, teamId })}/>
-                                        </GridTableRowActions>
-                                    </GridTableRow>
-                                )
-                            }
-                        </GridTableBody>
+            <GridTable className="grid-cols-[1fr_100px_80px] lg:grid-cols-[1fr_1fr_140px_80px]">
+                <GridTableHead>
+                    <GridTableHeadRow>
+                        <GridTableHeadCell id="columnHeader-name">Name</GridTableHeadCell>
+                        <GridTableHeadCell id="columnHeader-tags" className="hidden lg:flex">Tags</GridTableHeadCell>
+                        <GridTableHeadCell id="columnHeader-status">Status</GridTableHeadCell>
+                    </GridTableHeadRow>
+                </GridTableHead>
+                <GridTableBody>
+                    { action?.type == 'create' ? <NewTeamMembershipForm
+                        key="new-membership"
+                        teamId={teamId}
+                        onClose={() => setAction(null)}
+                        onCreate={createMutation.mutate}
+                        excludePersonIds={existingMemberIds}
+                    /> : null }
+                    <Show when={teamMemberships.length == 0 && action?.type != 'create'}>
+                        <Alert className="col-span-full w-full" severity="info" title="No team members defined"/>
                     </Show>
-                </GridTable>
+                    {teamMemberships
+                        .sort((a, b) => a.person.name.localeCompare(b.person.name))
+                        .map(({ person, ...membership }) => action?.type == 'update' && action.id == person.id
+                            ?  <UpdateTeamMembershipForm 
+                                    key={person.id} 
+                                    membership={membership} 
+                                    person={person}
+                                    onClose={() => setAction(null)}
+                                    onUpdate={updateMutation.mutate}
+                                />
+                            : <GridTableRow key={person.id}>
+                                <GridTableCell>
+                                    <TextLink href={Paths.system.person(person.id).index}>{person.name}</TextLink>
+                                </GridTableCell>
+                                <GridTableCell className="hidden lg:flex">{membership.tags.join(" ")}</GridTableCell>
+                                <GridTableCell>{membership.status}</GridTableCell>
+                                <GridTableRowActions>
+                                    <Button variant="ghost" size="icon" onClick={() => setAction({ type: 'update', id: person.id })}>
+                                        <PencilIcon />
+                                    </Button>
+                                    <GridTableDeleteRowButton onDelete={() => deleteMutation.mutate({ personId: person.id, teamId })}/>
+                                </GridTableRowActions>
+                            </GridTableRow>
+                        )
+                    }
+                </GridTableBody>
+            </GridTable>
         </CardContent>
     </Card>
 }
 
-function NewTeamMembershipForm({ existingMembers, teamId, onClose, onCreate }: CreateFormProps<TeamMembershipBasic> & { teamId: string, existingMembers: string[] }) {
+function NewTeamMembershipForm({ excludePersonIds, teamId, onClose, onCreate }: CreateFormProps<TeamMembershipBasic> & { teamId: string, excludePersonIds: string[] }) {
 
     const [data, setData] = useState<TeamMembershipBasic>({
         personId: '',
@@ -232,7 +235,7 @@ function NewTeamMembershipForm({ existingMembers, teamId, onClose, onCreate }: C
                     value={data.personId}
                     onValueChange={(value) => setData(prev => ({ ...prev, personId: value }))}
                     placeholder="Select a person"
-                    exclude={existingMembers}
+                    exclude={excludePersonIds}
                 />
             </GridTableCell>
             <GridTableCell className="hidden lg:flex" asChild>
@@ -241,7 +244,7 @@ function NewTeamMembershipForm({ existingMembers, teamId, onClose, onCreate }: C
                     aria-labelledby="columnHeader-tags"
                     value={data.tags} 
                     onValueChange={(value) => setData(prev => ({ ...prev, tags: value }))}
-                    placeholder="Add tags (e.g. 'developer', 'designer')"
+                    placeholder="Add tags"
                 />
             </GridTableCell>
             <GridTableCell asChild>
@@ -291,7 +294,7 @@ function UpdateTeamMembershipForm({ membership, person, onClose, onUpdate }: Upd
                     aria-labelledby="columnHeader-tags"
                     value={modified.tags} 
                     onValueChange={(value) => setModified(prev => ({ ...prev, tags: value }))}
-                    placeholder="Add tags (e.g. 'developer', 'designer')"
+                    placeholder="Add tags"
                 />
             </GridTableCell>
             <GridTableCell asChild>
