@@ -9,10 +9,12 @@ import { Metadata } from 'next'
 import React from 'react'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
+import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 
 import { TeamsListCard } from './team-list'
 import { HydrateClient, prefetch, trpc } from '@/trpc/server'
+
 
 export const metadata: Metadata = { title: "Teams" }
 
@@ -31,7 +33,9 @@ export default async function TeamsPage() {
                     <PageHeader>
                         <PageTitle>Teams</PageTitle>
                     </PageHeader>
-                    <TeamsListCard/>
+                    <Boundary>
+                        <TeamsListCard/>
+                    </Boundary>
                 </AppPageContent>
             </HydrateClient>
            

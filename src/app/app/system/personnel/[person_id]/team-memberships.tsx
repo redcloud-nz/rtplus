@@ -5,7 +5,7 @@
  */
 'use client'
 
-import { EllipsisVerticalIcon, FunnelIcon, PencilIcon, PlusIcon, SaveIcon, XIcon } from 'lucide-react'
+import { FunnelIcon, PencilIcon, PlusIcon, SaveIcon, XIcon } from 'lucide-react'
 import { useState } from 'react'
 
 import {  useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
@@ -28,7 +28,6 @@ import { useListOptions } from '@/hooks/use-list-options'
 import { useToast } from '@/hooks/use-toast'
 import * as Paths from '@/paths'
 import { TeamBasic, TeamMembershipBasic, useTRPC } from '@/trpc/client'
-import { Dropdown } from 'react-day-picker'
 
 
 /**

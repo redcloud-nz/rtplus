@@ -6,7 +6,6 @@
 'use client'
 
 import { PlusIcon } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 
@@ -18,20 +17,26 @@ import { DropdownMenuCheckboxItem, DropdownMenuGroup, DropdownMenuLabel } from '
 import { Link, TextLink } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
-import { StatusOptions, useListOptions } from '@/hooks/use-list-options'
+import { useListOptions } from '@/hooks/use-list-options'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
 
 
 export function SkillPackageListCard() {
-    const router = useRouter()
+    const trpc = useTRPC()
+
+    const { data: skillPackages } = useSuspenseQuery(trpc.skillPackages.all.queryOptions({}))
 
     const { options, handleOptionChange } = useListOptions({})
 
+    const filtered = skillPackages.filter(skillPackage => 
+        skillPackage.status == 'Active' ? options.showActive : options.showInactive
+    )
+
     return <Card>
         <CardHeader>
-            <CardTitle>Package list</CardTitle>
+            <CardTitle>Packages</CardTitle>
             <Button variant="ghost" size="icon" asChild>
                 <Link href={Paths.system.skillPackages.create}>
                     <PlusIcon/>
@@ -51,39 +56,35 @@ export function SkillPackageListCard() {
                 </DropdownMenuGroup>
             </CardMenu>
         </CardHeader>
-        <CardContent boundary>
-            <SkillPackageListTable options={options}/>
-        </CardContent>
-    </Card>
-}
-
-function SkillPackageListTable({ options }: { options: StatusOptions }) {
-    const trpc = useTRPC()
-
-    const { data: skillPackages } = useSuspenseQuery(trpc.skillPackages.all.queryOptions({}))
-    const filteredRows = skillPackages.filter(skillPackage => 
-        skillPackage.status == 'Active' ? options.showActive = true : options.showInactive = true
-    )
-
-    return <Show
-        when={filteredRows.length > 0}
-        fallback={skillPackages.length == 0
-            ? <Alert severity="info" title="No skill packages defined"/>
-            : <Alert severity="info" title="No skill packages match the selected filters">Adjust your filters to see more skill packages.</Alert>
-        }
-    >
-        <Table>
+        <CardContent>
+            <Table>
             <TableHead>
                 <TableRow>
                     <TableHeadCell>Name</TableHeadCell>
                     
-                    <TableHeadCell className="text-center">Groups in Package</TableHeadCell>
-                    <TableHeadCell className="text-center">Skill in Package</TableHeadCell>
-                    { options.showInactive ? <TableHeadCell className="text-center">Status</TableHeadCell> : null}
+                    <TableHeadCell>Groups in Package</TableHeadCell>
+                    <TableHeadCell>Skill in Package</TableHeadCell>
+                    <TableHeadCell>Status</TableHeadCell> : null
                 </TableRow>
             </TableHead>
             <TableBody>
-                {filteredRows.map(skillPackage =>
+                <Show when={skillPackages.length == 0}>
+                        <tr>
+                            <td colSpan={4}>
+                                <Alert severity="info" title="No skill-packages defined"/>
+                            </td>
+                        </tr>
+                    </Show>
+                    <Show when={skillPackages.length > 0 && filtered.length == 0}>
+                        <tr>
+                            <td colSpan={4}>
+                                <Alert severity="info" title="No skill-packages match the selected filters">
+                                    Adjust your filters to see more skill-packages.
+                                </Alert>
+                            </td>
+                        </tr>
+                    </Show>
+                {filtered.map(skillPackage =>
                     <TableRow key={skillPackage.id}>
                         <TableCell>
                             <TextLink href={Paths.system.skillPackage(skillPackage.id).index}>{skillPackage.name}</TextLink>
@@ -99,5 +100,6 @@ function SkillPackageListTable({ options }: { options: StatusOptions }) {
                 )}
             </TableBody>
         </Table>
-    </Show>
+        </CardContent>
+    </Card>
 }
