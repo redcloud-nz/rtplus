@@ -8,19 +8,59 @@
 import { PlusIcon } from 'lucide-react'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { Show } from '@/components/show'
-import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
-import { DropdownMenuCheckboxItem, DropdownMenuGroup, DropdownMenuLabel } from '@/components/ui/dropdown-menu'
+import { Card, CardActions, CardContent, CardExplanation, CardHeader } from '@/components/ui/card'
+import { DataTableBody, DataTableHead, DataTablePaginationFooter, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
 import { Link, TextLink } from '@/components/ui/link'
-import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
+import { Separator } from '@/components/ui/separator'
+import { Table } from '@/components/ui/table'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
-import { useListOptions } from '@/hooks/use-list-options'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { SkillPackage, useTRPC, WithCounts } from '@/trpc/client'
 
+
+
+const columns = defineColumns<WithCounts<SkillPackage, 'skills' | 'skillGroups'>>(columnHelper => [
+    columnHelper.accessor('id', {
+        header: 'ID',
+        cell: ctx => ctx.getValue(),
+        enableHiding: true,
+        enableSorting: false,
+        enableGlobalFilter: false,
+    }),
+    columnHelper.accessor('name', {
+        header: 'Name',
+        cell: ctx => <TextLink href={Paths.system.skillPackage(ctx.row.original.id).index}>{ctx.getValue()}</TextLink>,
+        enableHiding: false
+    }),
+    columnHelper.accessor('_count.skillGroups', {
+        header: 'Groups',
+        cell: ctx => ctx.getValue(),
+        enableGrouping: false,
+        enableSorting: true,
+        enableGlobalFilter: false,
+    }),
+    columnHelper.accessor('_count.skills', {
+        header: 'Skills',
+        cell: ctx => ctx.getValue(),
+        enableGrouping: false,
+        enableSorting: true,
+        enableGlobalFilter: false,
+    }),
+    columnHelper.accessor('status', {
+        header: 'Status',
+        cell: ctx => ctx.getValue(),
+        enableSorting: false,
+        enableGlobalFilter: false,
+        filterFn: 'arrIncludesSome',
+        meta: {
+            enumOptions: { Active: 'Active', Inactive: 'Inactive' },
+        }
+    }),
+])
 
 
 export function SkillPackageListCard() {
@@ -28,78 +68,62 @@ export function SkillPackageListCard() {
 
     const { data: skillPackages } = useSuspenseQuery(trpc.skillPackages.all.queryOptions({}))
 
-    const { options, handleOptionChange } = useListOptions({})
-
-    const filtered = skillPackages.filter(skillPackage => 
-        skillPackage.status == 'Active' ? options.showActive : options.showInactive
-    )
-
-    return <Card>
-        <CardHeader>
-            <CardTitle>Packages</CardTitle>
-            <Button variant="ghost" size="icon" asChild>
-                <Link href={Paths.system.skillPackages.create}>
-                    <PlusIcon/>
-                </Link>
-            </Button>
-            <CardMenu title="Skill Package">
-                <DropdownMenuGroup>
-                    <DropdownMenuLabel>Status</DropdownMenuLabel>
-                    <DropdownMenuCheckboxItem
-                        checked={options.showActive} 
-                        onCheckedChange={handleOptionChange('showActive')}
-                    >Active</DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem 
-                        checked={options.showInactive} 
-                        onCheckedChange={handleOptionChange('showInactive')}
-                    >Inactive</DropdownMenuCheckboxItem>
-                </DropdownMenuGroup>
-            </CardMenu>
-        </CardHeader>
-        <CardContent>
-            <Table>
-            <TableHead>
-                <TableRow>
-                    <TableHeadCell>Name</TableHeadCell>
+    const table = useReactTable({
+            columns,
+            data: skillPackages,
+            getCoreRowModel: getCoreRowModel(),
+            getFilteredRowModel: getFilteredRowModel(),
+            getSortedRowModel: getSortedRowModel(),
+            getGroupedRowModel: getGroupedRowModel(),
+            getExpandedRowModel: getExpandedRowModel(),
+            initialState: {
+                columnVisibility: {
+                    id: false, name: true, skillGroups: true, skills: true, status: true
+                },
+                columnFilters: [
+                    { id: 'status', value: ['Active'] }
+                ],
+                globalFilter: "",
+                grouping: [],
+                sorting: [
+                    { id: 'name', desc: false }
+                ],
+            }
+        })
+    
+        return <DataTableProvider value={table}>
+            <Card>
+                <CardHeader>
+                    <DataTableSearch size="sm" variant="ghost"/>
+                    <CardActions>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" asChild>
+                                    <Link href={Paths.system.teams.create}>
+                                        <PlusIcon />
+                                    </Link>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                Create new skill package
+                            </TooltipContent>
+                        </Tooltip>
+                        
+                        <CardExplanation>
+                            This is a list of all the available skill packages in the system.
+                        </CardExplanation>
+                        <Separator orientation="vertical"/>
+    
+                        <TableOptionsDropdown/>
+                    </CardActions>
                     
-                    <TableHeadCell>Groups in Package</TableHeadCell>
-                    <TableHeadCell>Skill in Package</TableHeadCell>
-                    <TableHeadCell>Status</TableHeadCell> : null
-                </TableRow>
-            </TableHead>
-            <TableBody>
-                <Show when={skillPackages.length == 0}>
-                        <tr>
-                            <td colSpan={4}>
-                                <Alert severity="info" title="No skill-packages defined"/>
-                            </td>
-                        </tr>
-                    </Show>
-                    <Show when={skillPackages.length > 0 && filtered.length == 0}>
-                        <tr>
-                            <td colSpan={4}>
-                                <Alert severity="info" title="No skill-packages match the selected filters">
-                                    Adjust your filters to see more skill-packages.
-                                </Alert>
-                            </td>
-                        </tr>
-                    </Show>
-                {filtered.map(skillPackage =>
-                    <TableRow key={skillPackage.id}>
-                        <TableCell>
-                            <TextLink href={Paths.system.skillPackage(skillPackage.id).index}>{skillPackage.name}</TextLink>
-                        </TableCell>
-                        <TableCell className="text-center">
-                            {skillPackage._count.skillGroups}
-                        </TableCell>
-                        <TableCell className="text-center">
-                            {skillPackage._count.skills}
-                        </TableCell>
-                        { options.showInactive ? <TableCell className="text-center">{skillPackage.status}</TableCell> : null }
-                    </TableRow>
-                )}
-            </TableBody>
-        </Table>
-        </CardContent>
-    </Card>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <DataTableHead/>
+                        <DataTableBody/>
+                    </Table>
+                </CardContent>
+            </Card>
+        </DataTableProvider>
 }

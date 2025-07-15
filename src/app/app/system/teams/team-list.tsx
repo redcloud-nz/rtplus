@@ -5,24 +5,58 @@
  */
 'use client'
 
-import { FunnelIcon, PlusIcon } from 'lucide-react'
+import { PlusIcon } from 'lucide-react'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { Show } from '@/components/show'
-import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardExplanation, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Card, CardActions, CardContent, CardExplanation, CardHeader } from '@/components/ui/card'
+import { DataTableBody, DataTableHead, DataTablePaginationFooter, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
 import { Link, TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
-import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { Table } from '@/components/ui/table'
 
-import { useListOptions } from '@/hooks/use-list-options'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { TeamBasic, useTRPC, WithCounts } from '@/trpc/client'
 
 
+const columns = defineColumns<WithCounts<TeamBasic, 'teamMemberships'>>(columnHelper => [
+    columnHelper.accessor('id', {
+        header: 'ID',
+        cell: ctx => ctx.getValue(),
+        enableHiding: true,
+        enableSorting: false,
+        enableGlobalFilter: false,
+    }),
+    columnHelper.accessor('name', {
+        header: 'Name',
+        cell: ctx => <TextLink href={Paths.system.team(ctx.row.original.id).index}>{ctx.getValue()}</TextLink>,
+        enableHiding: false
+    }),
+    columnHelper.accessor('shortName', {
+        header: 'Short Name',
+        cell: ctx => ctx.getValue(),
+        enableGrouping: false,
+    }),
+    columnHelper.accessor('_count.teamMemberships', {
+        header: 'Members',
+        cell: ctx => ctx.getValue(),
+        enableSorting: true,
+        enableGlobalFilter: false,
+    }),
+    columnHelper.accessor('status', {
+        header: 'Status',
+        cell: ctx => ctx.getValue(),
+        enableSorting: false,
+        enableGlobalFilter: false,
+        filterFn: 'arrIncludesSome',
+        meta: {
+            enumOptions: { Active: 'Active', Inactive: 'Inactive' },
+        }
+    }),
+])
 
 export function TeamsListCard() {
 
@@ -30,92 +64,68 @@ export function TeamsListCard() {
 
     const { data: teams } = useSuspenseQuery(trpc.teams.all.queryOptions())
 
-    const { options, handleOptionChange } = useListOptions({})
-    
-    const filtered = teams.filter(team => 
-        team.status == 'Active' ? options.showActive : options.showInactive
-    )
-    
-    return <Card>
-        <CardHeader>
-            <CardTitle>List</CardTitle>
-            <Button variant="ghost" size="icon" asChild>
-                <Link href={Paths.system.teams.create} title="Create New Team">
-                    <PlusIcon />
-                </Link>
-            </Button>
+    const table = useReactTable({
+        columns,
+        data: teams,
+        getCoreRowModel: getCoreRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        getGroupedRowModel: getGroupedRowModel(),
+        getExpandedRowModel: getExpandedRowModel(),
+        initialState: {
+            columnVisibility: {
+                id: false, name: true, shortName: true, memberCount: true, status: true
+            },
+            columnFilters: [
+                { id: 'status', value: ['Active'] }
+            ],
+            globalFilter: "",
+            grouping: [],
+            sorting: [
+                { id: 'name', desc: false }
+            ],
+            pagination: {
+                pageIndex: 0,
+                pageSize: 20
+            },
+        }
+    })
 
-            <Separator orientation='vertical'/>
-            <CardExplanation>
-                This is a list of all teams in the system. You can filter by status to show only active or inactive teams.
-            </CardExplanation>
-            
-        </CardHeader>
-        <CardContent>
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <TableHeadCell>Name</TableHeadCell>
-                        <TableHeadCell>Short Name</TableHeadCell>
-                        <TableHeadCell>Members</TableHeadCell>
-                        <TableHeadCell className="w-45">
-                            <div>Status</div>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon">
-                                        <FunnelIcon/>
-                                    </Button>
-                                    </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-48">
-                                    <DropdownMenuGroup>
-                                        <DropdownMenuLabel>Show</DropdownMenuLabel>
-                                        <DropdownMenuCheckboxItem
-                                            checked={options.showActive} 
-                                            onCheckedChange={handleOptionChange('showActive')}
-                                        >Active</DropdownMenuCheckboxItem>
-                                        <DropdownMenuCheckboxItem 
-                                            checked={options.showInactive} 
-                                            onCheckedChange={handleOptionChange('showInactive')}
-                                        >Inactive</DropdownMenuCheckboxItem>
-                                    </DropdownMenuGroup>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </TableHeadCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    <Show when={teams.length == 0}>
-                        <tr>
-                            <td colSpan={4}>
-                                <Alert severity="info" title="No teams defined"/>
-                            </td>
-                        </tr>
-                    </Show>
-                    <Show when={teams.length > 0 && filtered.length == 0}>
-                        <tr>
-                            <td colSpan={4}>
-                                <Alert severity="info" title="No teams match the selected filters">
-                                    Adjust your filters to see more teams.
-                                </Alert>
-                            </td>
-                        </tr>
-                    </Show>
-                    {filtered
-                        .sort((a, b) => a.name.localeCompare(b.name))
-                        .map((team) => 
-                            <TableRow key={team.id}>
-                                <TableCell>
-                                    <TextLink href={Paths.system.team(team.id).index}>{team.name}</TextLink>
-                                </TableCell>
-                                <TableCell>{team.shortName}</TableCell>
-                            
-                                <TableCell>{team.memberCount}</TableCell>
-                                <TableCell>{team.status}</TableCell>
-                            </TableRow>
-                        )
-                    }
-                </TableBody>
-            </Table>
-        </CardContent>
-    </Card>
+    return <DataTableProvider value={table}>
+        <Card>
+            <CardHeader>
+                <DataTableSearch size="sm" variant="ghost"/>
+                <CardActions>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" asChild>
+                                <Link href={Paths.system.teams.create}>
+                                    <PlusIcon />
+                                </Link>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            Create new team
+                        </TooltipContent>
+                    </Tooltip>
+                    
+                    <CardExplanation>
+                        This is a list of all the teams in the system.
+                    </CardExplanation>
+                    <Separator orientation="vertical"/>
+
+                    <TableOptionsDropdown/>
+                </CardActions>
+                
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <DataTableHead/>
+                    <DataTableBody/>
+                    <DataTablePaginationFooter/>
+                </Table>
+            </CardContent>
+        </Card>
+    </DataTableProvider>
 }

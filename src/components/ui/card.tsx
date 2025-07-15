@@ -30,7 +30,7 @@ export function Card({ className, raised, ...props }: ComponentProps<'div'> & { 
 
 export function CardHeader({ className, ...props }: ComponentProps<'div'>) {
     return <div
-        className={cn("h-10 flex items-center border-b", className)}
+        className={cn("h-10 flex items-center border-b gap-2", className)}
         {...props}
     />
 }

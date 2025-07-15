@@ -27,8 +27,8 @@ export const selectTriggerVariants = tv({
     ),
     variants: {
         size: {
-            default: "h-10 px-4 py-2.5 rounded-md",
-            sm: "h-8 px-3 py-1.5 rounded-sm"
+            default: "h-10 pl-4 pr-2 py-2.5 rounded-md",
+            sm: "h-8 pl-3 pr-2 py-1.5 rounded-sm"
         }
     }
 })

@@ -15,8 +15,7 @@ import { RTPlusLogger } from '@/lib/logger'
 import { zodNanoId8, zodRecordStatus, zodSlug } from '@/lib/validation'
 
 import { AuthenticatedContext, authenticatedProcedure, AuthenticatedTeamContext, createTRPCRouter, systemAdminProcedure } from '../init'
-import { FieldConflictError, TeamBasic } from '../types'
-import { Organization } from '@clerk/nextjs/server'
+import { FieldConflictError, TeamBasic, WithCounts } from '../types'
 
 
 const logger = new RTPlusLogger('trpc/teams')
@@ -27,7 +26,7 @@ export const teamsRouter = createTRPCRouter({
         .input(z.object({
             status: zodRecordStatus
         }).optional().default({}))
-        .query(async ({ ctx, input }): Promise<(TeamBasic & { memberCount: number })[]> => {
+        .query(async ({ ctx, input }): Promise<WithCounts<TeamBasic, 'teamMemberships'>[]> => {
             const teams = await ctx.prisma.team.findMany({ 
                 where: { status: { in: input.status} },
                 include: {
@@ -37,15 +36,7 @@ export const teamsRouter = createTRPCRouter({
                 },
                 orderBy: { name: 'asc' }
             })
-            return teams.map(team => ({
-                id: team.id,
-                name: team.name,
-                slug: team.slug,
-                shortName: team.shortName,
-                color: team.color,
-                status: team.status,
-                memberCount: team._count.teamMemberships
-            }))
+            return teams
         }),
 
     allLinkedToD4h: authenticatedProcedure

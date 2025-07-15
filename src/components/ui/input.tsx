@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils'
 
 const inputVariants = tv({
     base: cn(
-        "flex w-full min-w-0 border bg-background text-sm align-middle shadow-xs border-input transition-[color,box-shadow] outline-none",
+        "flex w-full min-w-0 bg-background text-sm align-middle transition-[color,box-shadow] outline-none",
         "dark:bg-input/30",
         "file:text-foreground file:inline-flex file:h-7 file:border-0 file:bg-background file:text-sm file:font-medium",
         "selection:bg-primary selection:text-primary-foreground",
@@ -23,17 +23,25 @@ const inputVariants = tv({
         "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
     ),
     variants: {
+        variant: {
+            default: "shadow-xs border border-input",
+            ghost: ""
+        },
         size: {
             default: "h-10 px-4 py-2.5 rounded-md",
             sm: "h-8 px-3 py-1.5 rounded-sm"
         }
     },
+    defaultVariants: {
+        variant: "default",
+        size: "default"
+    }
 })
 
-export function Input({ className, size = "default", type, ...props }: Omit<ComponentProps<'input'>, 'size'> & VariantProps<typeof inputVariants>) {
+export function Input({ className, size, type, variant, ...props }: Omit<ComponentProps<'input'>, 'size'> & VariantProps<typeof inputVariants>) {
     return <input
         type={type}
-        className={inputVariants({ className, size })}
+        className={inputVariants({ className, size, variant })}
         data-component="Input"
         {...props}
     />
@@ -46,7 +54,7 @@ export function HiddenInput({ name, value }: Omit<ComponentProps<'input'>, 'type
 
 type ConstrainedInputProps<TValue> = Omit<ComponentProps<'input'>, 'defaultValue' | 'onChange' | 'size' | 'type' | 'value'> & VariantProps<typeof inputVariants> & { defaultValue?: TValue, onValueChange?: (value: TValue) => void, value?: TValue }
 
-export function TextInput({ className, defaultValue = "", size = "default", value, ...props }: ConstrainedInputProps<string>) {
+export function TextInput({ className, defaultValue = "", size, value, variant, ...props }: ConstrainedInputProps<string>) {
     const [internalValue, setInternalValue] = useState<string>(value ?? defaultValue)
 
     function handleChange(ev: React.ChangeEvent<HTMLInputElement>) {
@@ -61,7 +69,7 @@ export function TextInput({ className, defaultValue = "", size = "default", valu
 
     return <input
         type="text"
-        className={cn(inputVariants({ className, size }))} 
+        className={cn(inputVariants({ className, size, variant }))} 
         data-component="TextInput"
         {...props}
         value={effectiveValue}
@@ -69,7 +77,7 @@ export function TextInput({ className, defaultValue = "", size = "default", valu
     />
 }
 
-export function SlugInput({ className, defaultValue = "", maxLength = 20, onValueChange, size = "default", value, ...props }: ConstrainedInputProps<string>) {
+export function SlugInput({ className, defaultValue = "", maxLength = 20, onValueChange, size, value, variant, ...props }: ConstrainedInputProps<string>) {
     const [internalValue, setInternalValue] = useState<string>(value ?? defaultValue)
 
     function handleChange(ev: React.ChangeEvent<HTMLInputElement>) {
@@ -82,7 +90,7 @@ export function SlugInput({ className, defaultValue = "", maxLength = 20, onValu
 
     return <input
         type="text"
-        className={cn(inputVariants({ className, size }))} 
+        className={cn(inputVariants({ className, size, variant }))} 
         maxLength={maxLength}
         data-component="SlugInput"
         value={effectiveValue}
@@ -92,7 +100,7 @@ export function SlugInput({ className, defaultValue = "", maxLength = 20, onValu
 
 }
 
-export function TagsInput({ className,  defaultValue = [], onValueChange,  size = "default", value, ...props }: ConstrainedInputProps<string[]>) {
+export function TagsInput({ className,  defaultValue = [], onValueChange,  size, value, variant, ...props }: ConstrainedInputProps<string[]>) {
     const [internalValue, setInternalValue] = useState<string[]>(value ?? defaultValue)
 
     function handleChange(ev: React.ChangeEvent<HTMLInputElement>) {
@@ -105,7 +113,7 @@ export function TagsInput({ className,  defaultValue = [], onValueChange,  size 
 
     return <input
         type="text"
-        className={cn(inputVariants({ className, size }))} 
+        className={cn(inputVariants({ className, size, variant }))} 
         data-component="TagsInput"
         value={effectiveValue.join(' ')}
         onChange={handleChange}

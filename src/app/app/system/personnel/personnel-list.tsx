@@ -5,123 +5,123 @@
  */
 'use client'
 
-import { FunnelIcon, PlusIcon } from 'lucide-react'
+import { PlusIcon } from 'lucide-react'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { Show } from '@/components/show'
-import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardMenu, CardExplanation } from '@/components/ui/card'
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Card, CardContent, CardHeader, CardExplanation, CardActions } from '@/components/ui/card'
+import { DataTableBody, DataTableHead, DataTablePaginationFooter, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown} from '@/components/ui/data-table'
 import { Link, TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
-import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
+import { Table } from '@/components/ui/table'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
-import { StatusOptions, useListOptions } from '@/hooks/use-list-options'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { PersonBasic, useTRPC } from '@/trpc/client'
+import React from 'react'
 
 
-/**
- * Card that displays the list of all personnel and allows the user to create a new person.
- */
+const columns = defineColumns<PersonBasic>(columnHelper => [
+    columnHelper.accessor('id', {
+        header: 'ID',
+        cell: ctx => ctx.getValue(),
+        enableHiding: true,
+        enableSorting: false,
+        enableGlobalFilter: false,
+    }),
+    columnHelper.accessor('name', {
+        header: 'Name',
+        cell : ctx => <TextLink href={Paths.system.person(ctx.row.original.id).index}>{ctx.getValue()}</TextLink>,
+        enableHiding: false
+    }),
+    columnHelper.accessor('email', {
+        header: 'Email',
+        cell: ctx => ctx.getValue(),
+        enableGrouping: false,
+    }),
+    columnHelper.accessor('status', {
+        header: 'Status',
+        cell: ctx => ctx.getValue(),
+        enableSorting: false,
+        enableGlobalFilter: false,
+        filterFn: 'arrIncludesSome',
+        meta: {
+            enumOptions: { Active: 'Active', Inactive: 'Inactive' },
+        }
+    }),
+])
+
 export function PersonnelListCard() {
+
     const trpc = useTRPC()
 
-    const { options, handleOptionChange } = useListOptions({})
-
     const { data: personnel } = useSuspenseQuery(trpc.personnel.all.queryOptions())
-    const filtered = personnel.filter(person => 
-        person.status == 'Active' ? options.showActive : options.showInactive
-    )
 
-    return <Card>
-        <CardHeader>
-            <CardTitle>List</CardTitle>
-            <Button variant="ghost" size="icon" asChild>
-                <Link href={Paths.system.personnel.create} title="Create New Person">
-                    <PlusIcon />
-                </Link>
-            </Button>
-            
-            <CardMenu title="Personnel">
-                <DropdownMenuGroup>
-                    <DropdownMenuLabel>Status</DropdownMenuLabel>
-                    <DropdownMenuCheckboxItem
-                        checked={options.showActive} 
-                        onCheckedChange={handleOptionChange('showActive')}
-                    >Active</DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem 
-                        checked={options.showInactive} 
-                        onCheckedChange={handleOptionChange('showInactive')}
-                    >Inactive</DropdownMenuCheckboxItem>
-                </DropdownMenuGroup>
-            </CardMenu>
-            <Separator orientation="vertical"/>
-            <CardExplanation>
-                Personnel are the people who can be assigned to teams and competencies. 
-                They can be active or inactive, and you can filter the list by status.
-            </CardExplanation>
-        </CardHeader>
-        <CardContent>
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <TableHeadCell className="w-2/5">Name</TableHeadCell>
-                        <TableHeadCell className="w-2/5">Email</TableHeadCell>
-                        <TableHeadCell className="w-1/5">
-                            <div>Status</div>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon">
-                                        <FunnelIcon/>
-                                    </Button>
-                                    </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-48">
-                                    <DropdownMenuGroup>
-                                        <DropdownMenuLabel>Show</DropdownMenuLabel>
-                                        <DropdownMenuCheckboxItem
-                                            checked={options.showActive} 
-                                            onCheckedChange={handleOptionChange('showActive')}
-                                        >Active</DropdownMenuCheckboxItem>
-                                        <DropdownMenuCheckboxItem 
-                                            checked={options.showInactive} 
-                                            onCheckedChange={handleOptionChange('showInactive')}
-                                        >Inactive</DropdownMenuCheckboxItem>
-                                    </DropdownMenuGroup>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </TableHeadCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    <Show when={personnel.length == 0}>
-                        <TableRow>
-                            <TableCell colSpan={3}>
-                                <Alert severity="info" title="No personnel defined">Add a person to get started.</Alert>
-                            </TableCell>
-                        </TableRow>
-                    </Show>
-                    <Show when={personnel.length > 0 && filtered.length == 0}>
-                        <TableRow>
-                            <TableCell colSpan={3}>
-                                <Alert severity="info" title="No personnel match the selected filters">Adjust your filters to see more personnel.</Alert>
-                            </TableCell>
-                        </TableRow>
-                    </Show>
-                    {filtered.map((person: any) =>
-                        <TableRow key={person.id}>
-                            <TableCell>
-                                <TextLink href={Paths.system.person(person.id).index}>{person.name}</TextLink>
-                            </TableCell>
-                            <TableCell>{person.email}</TableCell>
-                            <TableCell>{person.status}</TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
-        </CardContent>
-        
-    </Card>
+    const table = useReactTable({
+        columns,
+        data: personnel,
+        getCoreRowModel: getCoreRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        getGroupedRowModel: getGroupedRowModel(),
+        getExpandedRowModel: getExpandedRowModel(),
+        initialState: {
+            columnVisibility: {
+                id: false, name: true, email: true, status: true
+            },
+            columnFilters: [
+                { id: 'status', value: ['Active' ]}
+            ],
+            globalFilter: "",
+            grouping: [],
+            sorting: [
+                { id: 'name', desc: false }
+            ],
+            pagination: {
+                pageIndex: 0,
+                pageSize: 20
+            },
+        }
+    })
+
+    return <DataTableProvider value={table}>
+        <Card>
+            <CardHeader>
+                <DataTableSearch size="sm" variant="ghost"/>
+                <CardActions>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" asChild>
+                                <Link href={Paths.system.personnel.create}>
+                                    <PlusIcon />
+                                </Link>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            Create new person
+                        </TooltipContent>
+                    </Tooltip>
+                    
+                    <CardExplanation>
+                        Personnel are the people who can be assigned to teams and competencies. 
+                        They can be active or inactive, and you can filter the list by status.
+                    </CardExplanation>
+                    <Separator orientation="vertical"/>
+
+                    <TableOptionsDropdown/>
+                </CardActions>
+                
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <DataTableHead/>
+                    <DataTableBody/>
+                    <DataTablePaginationFooter/>
+                </Table>
+            </CardContent>
+        </Card>
+    </DataTableProvider>
 }

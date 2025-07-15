@@ -72,7 +72,7 @@ export function PersonDetailsCard({ personId }: { personId: string }) {
                 .with('View', () => 
                     <ToruGrid>
                         <ToruGridRow
-                            label="Team ID"
+                            label="Person ID"
                             control={<DisplayValue>{person.id}</DisplayValue>}
                         />
                         <ToruGridRow
