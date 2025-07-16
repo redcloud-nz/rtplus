@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils'
 import { Input } from './input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
+import { match } from 'ts-pattern'
 
 // eslint-disable-next-line
 const DataTableContext = React.createContext<TanstackTable<any> | null>(null)
@@ -93,64 +94,73 @@ function ColumnHeader<T>({ className, children, column, table, ...props }: Colum
         <div className={cn('w-full flex items-center justify-between', className)}>
             {column.columnDef.meta?.align == 'center' && <div className="w-8"/>}
             <div>{children}</div>
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                        <EllipsisVerticalIcon/>
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end">
-                    <DropdownMenuLabel className="text-center">Column Options</DropdownMenuLabel>
-                    {column.getCanSort() ? <>
-                        <DropdownMenuSeparator/>
-                        <DropdownMenuGroup>
-                            <DropdownMenuGroupLabel>Sort</DropdownMenuGroupLabel>
-                            <DropdownMenuItem onClick={() => column.toggleSorting()}>
-                                <ArrowDownAZIcon/>
-                                <span>Ascending</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
-                                <ArrowDownZAIcon/>
-                                <span>Descending</span>
-                            </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                    </> : null}
-                    { enumOptions && <>
-                        <DropdownMenuSeparator/>
-                        <DropdownMenuGroup>
-                            <DropdownMenuGroupLabel>Show</DropdownMenuGroupLabel>
-                            {Object.keys(enumOptions).map(key =>
-                                <DropdownMenuCheckboxItem 
-                                    key={key}
-                                    checked={filterValue.includes(key)}
-                                    onCheckedChange={(checked) => {
-                                        if(checked) column.setFilterValue([...filterValue, key])
-                                        else column.setFilterValue(filterValue.filter(x => x != key))
-                                    }}
+            
+            <div className="flex items-center">
+                {match(column.getIsSorted())
+                    .with(false, () => null)
+                    .with('asc', () => <ArrowDownAZIcon className="w-4 h-4 stroke-muted-foreground"/>)
+                    .with('desc', () => <ArrowDownZAIcon className="w-4 h-4 text-muted-foreground"/>)
+                    .exhaustive()
+                }
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                            <EllipsisVerticalIcon/>
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56" align="end">
+                        <DropdownMenuLabel className="text-center">Column Options</DropdownMenuLabel>
+                        {column.getCanSort() ? <>
+                            <DropdownMenuSeparator/>
+                            <DropdownMenuGroup>
+                                <DropdownMenuGroupLabel>Sort</DropdownMenuGroupLabel>
+                                <DropdownMenuItem onClick={() => column.toggleSorting()}>
+                                    <ArrowDownAZIcon/>
+                                    <span>Ascending</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
+                                    <ArrowDownZAIcon/>
+                                    <span>Descending</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuGroup>
+                        </> : null}
+                        { enumOptions && <>
+                            <DropdownMenuSeparator/>
+                            <DropdownMenuGroup>
+                                <DropdownMenuGroupLabel>Show</DropdownMenuGroupLabel>
+                                {Object.keys(enumOptions).map(key =>
+                                    <DropdownMenuCheckboxItem 
+                                        key={key}
+                                        checked={filterValue.includes(key)}
+                                        onCheckedChange={(checked) => {
+                                            if(checked) column.setFilterValue([...filterValue, key])
+                                            else column.setFilterValue(filterValue.filter(x => x != key))
+                                        }}
+                                    >
+                                        <span>{enumOptions[key]}</span>
+                                    </DropdownMenuCheckboxItem>
+                                )}
+                                
+                            </DropdownMenuGroup>
+                        </>}
+                        {(column.getCanHide() || column.getCanGroup()) && <>
+                            <DropdownMenuSeparator/>
+                            <DropdownMenuGroup>
+                                {column.getCanGroup() && <DropdownMenuItem
+                                    onClick={() => table.setGrouping(column.getIsGrouped() ? [] : [column.id])}
                                 >
-                                    <span>{enumOptions[key]}</span>
-                                </DropdownMenuCheckboxItem>
-                            )}
-                            
-                        </DropdownMenuGroup>
-                    </>}
-                    {(column.getCanHide() || column.getCanGroup()) && <>
-                        <DropdownMenuSeparator/>
-                        <DropdownMenuGroup>
-                            {column.getCanGroup() && <DropdownMenuItem
-                                onClick={() => table.setGrouping(column.getIsGrouped() ? [] : [column.id])}
-                            >
-                                {column.getIsGrouped() ? <UngroupIcon data-slot="icon"/> : <GroupIcon data-slot="icon"/>}
-                                <span>Group by</span>
-                            </DropdownMenuItem>}
-                            {column.getCanHide() && <DropdownMenuItem onClick={handleHideColumn}>
-                                <EyeOffIcon/>
-                                <span>Hide Column</span>
-                            </DropdownMenuItem>}
-                        </DropdownMenuGroup>
-                    </>}
-                </DropdownMenuContent>
-            </DropdownMenu>
+                                    {column.getIsGrouped() ? <UngroupIcon data-slot="icon"/> : <GroupIcon data-slot="icon"/>}
+                                    <span>Group by</span>
+                                </DropdownMenuItem>}
+                                {column.getCanHide() && <DropdownMenuItem onClick={handleHideColumn}>
+                                    <EyeOffIcon/>
+                                    <span>Hide Column</span>
+                                </DropdownMenuItem>}
+                            </DropdownMenuGroup>
+                        </>}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+             </div>
         </div>
     </th>
 }

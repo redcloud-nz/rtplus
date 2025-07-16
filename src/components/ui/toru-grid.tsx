@@ -32,7 +32,7 @@ const toruGridRowVariants = tv({
     slots: {
         label: "pt-3 pl-2",
         control: "sm:col-start-2",
-        description: "sm:col-start-1 lg:col-start-3 sm:col-span-2 lg:col-span-1 pt-2 pl-2",
+        description: "sm:col-start-1 lg:col-start-3 sm:col-span-2 lg:col-span-1 pl-2 align-middle",
         message: "sm:col-start-1 lg:col-start-2 sm:col-span-2 pt-1 pl-2",
     },
 

@@ -143,6 +143,7 @@ export type FormSubmitButtonProps = ButtonProps & {
         submitting?: React.ReactNode
         submitted?: React.ReactNode
     }
+    requireDirty?: boolean
 }
 
 const defaultLabels = {
@@ -152,19 +153,22 @@ const defaultLabels = {
     submitted: 'Submitted',
 }
 
-export function FormSubmitButton({ children, className, disabled, variant, color, size, labels = {}, ...props}: FormSubmitButtonProps) {
+export function FormSubmitButton({ children, className, disabled, variant, color, size, labels = {}, requireDirty = false, ...props}: FormSubmitButtonProps) {
     labels = { ...defaultLabels, ...labels }
 
-    const { formState: { isSubmitted, isSubmitSuccessful, isSubmitting, isValidating } } = useFormContext()
+    const { formState: { isDirty, isSubmitted, isSubmitSuccessful, isSubmitting, isValidating } } = useFormContext()
 
     const state = isValidating ? 'validating' :
         isSubmitting ? 'submitting' :
         (isSubmitted && isSubmitSuccessful) ? 'submitted' : 
         "ready"
 
+    const inProgressOrDone = isValidating || isSubmitting || (isSubmitted && isSubmitSuccessful)
+    const nothingToSubmit = requireDirty && !isDirty
+
     return <button
         className={cn('group', buttonVariants({ variant, color, size, className }))}
-        disabled={disabled || isValidating || isSubmitting || (isSubmitted && isSubmitSuccessful)}
+        disabled={disabled || nothingToSubmit || inProgressOrDone}
         data-state={state}
         type="submit"
         {...props}

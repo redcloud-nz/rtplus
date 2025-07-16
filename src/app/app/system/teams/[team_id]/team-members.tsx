@@ -5,7 +5,7 @@
  */
 'use client'
 
-import { PencilIcon, PlusIcon, SaveIcon, XIcon } from 'lucide-react'
+import { PlusIcon, SaveIcon, XIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
@@ -15,8 +15,7 @@ import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
 import { DropdownMenuCheckboxItem, DropdownMenuGroup, DropdownMenuLabel } from '@/components/ui/dropdown-menu'
-import { CreateFormProps, UpdateFormProps } from '@/components/ui/form'
-import { GridTable, GridTableBody, GridTableCell, GridTableDeleteRowButton, GridTableHead, GridTableHeadCell, GridTableHeadRow, GridTableRow, GridTableRowActions } from '@/components/ui/grid-table'
+import { GridTable, GridTableBody, GridTableCell, GridTableHead, GridTableHeadCell, GridTableHeadRow, GridTableRow, GridTableRowActions } from '@/components/ui/grid-table'
 import { TagsInput } from '@/components/ui/input'
 import { TextLink } from '@/components/ui/link'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -26,101 +25,15 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useListOptions } from '@/hooks/use-list-options'
 import { useToast } from '@/hooks/use-toast'
 import * as Paths from '@/paths'
-import { PersonBasic, TeamMembershipBasic, useTRPC } from '@/trpc/client'
-
+import { TeamMembershipBasic, useTRPC } from '@/trpc/client'
 
 
 
 export function TeamMembersCard({ teamId }: { teamId: string }) {
-    const queryClient = useQueryClient()
-    const { toast } = useToast()
+   
     const trpc = useTRPC()
 
     const { data: teamMemberships } = useSuspenseQuery(trpc.teamMemberships.byTeam.queryOptions({ teamId }))
-
-    // Temporary fix for personnel data fetching
-    // This should be replaced with PersonPicker that returns the person directly and not just the personId.
-    const { data: personnel } = useSuspenseQuery(trpc.personnel.all.queryOptions())
-
-    const createMutation = useMutation(trpc.teamMemberships.create.mutationOptions({
-        async onMutate(newMembership) {
-            await queryClient.cancelQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId }))
-
-            const person = personnel.find(p => p.id === newMembership.personId)!
-
-            const previousData = queryClient.getQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }))
-
-            queryClient.setQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }), (prev = []) => 
-                [...prev, { ...newMembership, person }]
-            )
-
-            return { previousData }
-        },
-        onError(error, data, context) {
-            queryClient.setQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }), context?.previousData)
-
-            toast({
-                title: 'Error Creating Team Membership',
-                description: error.message,
-                variant: 'destructive'
-            })
-        },
-        onSuccess(result) {
-            queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: result.personId }))
-            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId: result.teamId }))
-        },
-    }))
-    const updateMutation = useMutation(trpc.teamMemberships.update.mutationOptions({
-        async onMutate(update) {
-            await queryClient.cancelQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId }))
-
-            const previousData = queryClient.getQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId: update.teamId }))
-
-            queryClient.setQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId: update.teamId }), (prev = []) => 
-                prev.map(m => m.personId == update.personId ? { ...m, update } : m)
-            )
-            return { previousData }
-        },
-        onError(error, data, context) {
-            queryClient.setQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }), context?.previousData)
-
-            toast({
-                title: 'Error Updating Team Membership',
-                description: error.message,
-                variant: 'destructive'
-            })
-        },
-        onSuccess(result) {
-            queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: result.personId }))
-            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId: result.teamId }))
-        },
-    }))
-    const deleteMutation = useMutation(trpc.teamMemberships.delete.mutationOptions({
-        async onMutate({ personId }) {
-            await queryClient.cancelQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId }))
-
-            const previousData = queryClient.getQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }))
-
-            queryClient.setQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }), (prev = []) => 
-                prev.filter((m) => m.person.id !== personId)
-            )
-
-            return { previousData }
-        },
-        onError(error, data, context) {
-            queryClient.setQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }), context?.previousData)
-
-            toast({
-                title: 'Error Deleting Team Member',
-                description: error.message,
-                variant: 'destructive'
-            })
-        },
-        onSuccess(result) {
-            queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: result.personId }))
-            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId: result.teamId }))
-        },
-    }))
 
     const { options, handleOptionChange } = useListOptions({})
 
@@ -176,7 +89,6 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
                         key="new-membership"
                         teamId={teamId}
                         onClose={() => setAction(null)}
-                        onCreate={createMutation.mutate}
                         excludePersonIds={existingMemberIds}
                     /> : null }
                     <Show when={teamMemberships.length == 0 && action?.type != 'create'}>
@@ -184,26 +96,14 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
                     </Show>
                     {teamMemberships
                         .sort((a, b) => a.person.name.localeCompare(b.person.name))
-                        .map(({ person, ...membership }) => action?.type == 'update' && action.id == person.id
-                            ?  <UpdateTeamMembershipForm 
-                                    key={person.id} 
-                                    membership={membership} 
-                                    person={person}
-                                    onClose={() => setAction(null)}
-                                    onUpdate={updateMutation.mutate}
-                                />
-                            : <GridTableRow key={person.id}>
+                        .map(({ person, ...membership }) => 
+                            <GridTableRow key={person.id}>
                                 <GridTableCell>
-                                    <TextLink href={Paths.system.person(person.id).index}>{person.name}</TextLink>
+                                    <TextLink href={Paths.system.team(teamId).member(person.id).index}>{person.name}</TextLink>
                                 </GridTableCell>
                                 <GridTableCell className="hidden lg:flex">{membership.tags.join(" ")}</GridTableCell>
                                 <GridTableCell>{membership.status}</GridTableCell>
-                                <GridTableRowActions>
-                                    <Button variant="ghost" size="icon" onClick={() => setAction({ type: 'update', id: person.id })}>
-                                        <PencilIcon />
-                                    </Button>
-                                    <GridTableDeleteRowButton onDelete={() => deleteMutation.mutate({ personId: person.id, teamId })}/>
-                                </GridTableRowActions>
+                                <GridTableRowActions/>
                             </GridTableRow>
                         )
                     }
@@ -213,7 +113,44 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
     </Card>
 }
 
-function NewTeamMembershipForm({ excludePersonIds, teamId, onClose, onCreate }: CreateFormProps<TeamMembershipBasic> & { teamId: string, excludePersonIds: string[] }) {
+function NewTeamMembershipForm({ excludePersonIds, teamId, onClose }: { teamId: string, excludePersonIds: string[], onClose: () => void }) {
+    const queryClient = useQueryClient()
+    const { toast } = useToast()
+    const trpc = useTRPC()
+
+    // Temporary fix for personnel data fetching
+    // This should be replaced with PersonPicker that returns the person directly and not just the personId.
+    const { data: personnel } = useSuspenseQuery(trpc.personnel.all.queryOptions())
+
+    const mutation = useMutation(trpc.teamMemberships.create.mutationOptions({
+        async onMutate(newMembership) {
+            await queryClient.cancelQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId }))
+
+            const person = personnel.find(p => p.id === newMembership.personId)!
+
+            const previousData = queryClient.getQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }))
+
+            queryClient.setQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }), (prev = []) => 
+                [...prev, { ...newMembership, person }]
+            )
+
+            onClose()
+            return { previousData }
+        },
+        onError(error, data, context) {
+            queryClient.setQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }), context?.previousData)
+
+            toast({
+                title: 'Error Creating Team Membership',
+                description: error.message,
+                variant: 'destructive'
+            })
+        },
+        onSuccess(result) {
+            queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: result.personId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId: result.teamId }))
+        },
+    }))
 
     const [data, setData] = useState<TeamMembershipBasic>({
         personId: '',
@@ -222,13 +159,8 @@ function NewTeamMembershipForm({ excludePersonIds, teamId, onClose, onCreate }: 
         tags: []
     })
 
-    function handleSubmit() {
-        onCreate?.(data)
-        onClose()
-    }
-
     return <GridTableRow asChild>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={() => mutation.mutate(data)}>
             <GridTableCell asChild>
                 <PersonPicker
                     size="sm"
@@ -271,56 +203,5 @@ function NewTeamMembershipForm({ excludePersonIds, teamId, onClose, onCreate }: 
                 </Button>
             </GridTableRowActions>
         </form>
-    </GridTableRow>
-}
-
-function UpdateTeamMembershipForm({ membership, person, onClose, onUpdate }: UpdateFormProps<TeamMembershipBasic> & { membership: TeamMembershipBasic, person: PersonBasic }) {
-    
-    const [modified, setModified] = useState(membership)
-
-    const changed = modified.status !== membership.status || modified.tags !== membership.tags
-
-    function handleSubmit() {
-        if (changed) onUpdate?.(modified)
-        onClose()
-    }
-
-    return <GridTableRow asChild>
-        <form onSubmit={handleSubmit}>
-            <GridTableCell>{person.name}</GridTableCell>
-            <GridTableCell className="hidden lg:flex" asChild>
-                <TagsInput
-                    size="sm"
-                    aria-labelledby="columnHeader-tags"
-                    value={modified.tags} 
-                    onValueChange={(value) => setModified(prev => ({ ...prev, tags: value }))}
-                    placeholder="Add tags"
-                />
-            </GridTableCell>
-            <GridTableCell asChild>
-                <Select
-                    aria-labelled-by="columnHeader-status"
-                    value={modified.status} 
-                    onValueChange={(value) => setModified(prev => ({ ...prev, status: value as 'Active' | 'Inactive' }))}
-                >
-                    <SelectTrigger size="sm">
-                        <SelectValue/>
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="Active">Active</SelectItem>
-                        <SelectItem value="Inactive">Inactive</SelectItem>
-                    </SelectContent>
-                </Select>
-            </GridTableCell>
-            <GridTableRowActions>
-                <Button variant="ghost" size="icon" type="submit">
-                    <SaveIcon /> <span className="sr-only">Save</span>
-                </Button>
-                <Button variant="ghost" size="icon" onClick={onClose}>
-                    <XIcon/> <span className="sr-only">Cancel</span>
-                </Button>
-            </GridTableRowActions>
-        </form>
-       
     </GridTableRow>
 }

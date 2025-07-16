@@ -152,7 +152,7 @@ function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamBasi
                     name="teamId"
                     render={({ field }) => <ToruGridRow
                         label="Team ID"
-                        control={ <DisplayValue>{team.id}</DisplayValue>}
+                        control={ <DisplayValue>{field.value}</DisplayValue>}
                     />}
                 />
                 <FormField

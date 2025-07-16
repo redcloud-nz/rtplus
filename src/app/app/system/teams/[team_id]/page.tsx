@@ -30,31 +30,31 @@ export default async function TeamPage(props: { params: Promise<TeamParams> }) {
 
     const team = await getTeam(props.params)
     
-        return <AppPage>
-            <AppPageBreadcrumbs
-                breadcrumbs={[
-                    Paths.system, 
-                    Paths.system.teams,
-                    team.shortName || team.name
-                ]}
-            />
-            <HydrateClient>
-                <AppPageContent variant="container">
-                    <PageHeader>
-                        <PageTitle objectType="Team">{team.name}</PageTitle>
-                    </PageHeader>
+    return <AppPage>
+        <AppPageBreadcrumbs
+            breadcrumbs={[
+                Paths.system, 
+                Paths.system.teams,
+                team.shortName || team.name
+            ]}
+        />
+        <HydrateClient>
+            <AppPageContent variant="container">
+                <PageHeader>
+                    <PageTitle objectType="Team">{team.name}</PageTitle>
+                </PageHeader>
+    
+                <Boundary>
+                    <TeamDetailsCard teamId={team.id}/>
+                </Boundary>
+                <Boundary>
+                    <TeamMembersCard teamId={team.id}/>
+                </Boundary>
+                <Boundary>
+                        <TeamUsersCard team={team}/>
+                </Boundary>
+            </AppPageContent>
+        </HydrateClient>
         
-                    <Boundary>
-                        <TeamDetailsCard teamId={team.id}/>
-                    </Boundary>
-                    <Boundary>
-                        <TeamMembersCard teamId={team.id}/>
-                    </Boundary>
-                    <Boundary>
-                            <TeamUsersCard team={team}/>
-                    </Boundary>
-                </AppPageContent>
-            </HydrateClient>
-            
-        </AppPage>
+    </AppPage>
  }

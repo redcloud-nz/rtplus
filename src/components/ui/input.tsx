@@ -52,70 +52,57 @@ export function HiddenInput({ name, value }: Omit<ComponentProps<'input'>, 'type
     return <input type="hidden" name={name} value={value}/>
 }
 
-type ConstrainedInputProps<TValue> = Omit<ComponentProps<'input'>, 'defaultValue' | 'onChange' | 'size' | 'type' | 'value'> & VariantProps<typeof inputVariants> & { defaultValue?: TValue, onValueChange?: (value: TValue) => void, value?: TValue }
+type ConstrainedInputProps<TValue> = Omit<ComponentProps<'input'>, 'defaultValue' | 'onChange' | 'size' | 'type' | 'value'> & VariantProps<typeof inputVariants> & { onValueChange?: (value: TValue) => void, value?: TValue }
 
-export function TextInput({ className, defaultValue = "", size, value, variant, ...props }: ConstrainedInputProps<string>) {
-    const [internalValue, setInternalValue] = useState<string>(value ?? defaultValue)
+export function TextInput({ className, onValueChange, size, value = "", variant, ...props }: ConstrainedInputProps<string>) {
 
     function handleChange(ev: React.ChangeEvent<HTMLInputElement>) {
-        const newValue = ev.target.value
-        setInternalValue(newValue)
-        if (props.onValueChange) {
-            props.onValueChange(newValue)
-        }
+        onValueChange?.(ev.target.value)
     }
-
-    const effectiveValue = value ?? internalValue
 
     return <input
         type="text"
         className={cn(inputVariants({ className, size, variant }))} 
         data-component="TextInput"
         {...props}
-        value={effectiveValue}
+        value={value}
         onChange={handleChange}
     />
 }
 
-export function SlugInput({ className, defaultValue = "", maxLength = 20, onValueChange, size, value, variant, ...props }: ConstrainedInputProps<string>) {
-    const [internalValue, setInternalValue] = useState<string>(value ?? defaultValue)
+export function SlugInput({ className, maxLength = 20, onValueChange, size, value = "", variant, ...props }: ConstrainedInputProps<string>) {
 
     function handleChange(ev: React.ChangeEvent<HTMLInputElement>) {
-        const newValue = ev.target.value.replace(/[^a-zA-Z0-9-]/g, '')
-        setInternalValue(newValue)
+        const newValue = ev.target.value.replace(/[^a-zA-Z0-9-]/g, '')        
         onValueChange?.(newValue)
     }
 
-    const effectiveValue = value ?? internalValue
 
     return <input
         type="text"
         className={cn(inputVariants({ className, size, variant }))} 
         maxLength={maxLength}
         data-component="SlugInput"
-        value={effectiveValue}
+        value={value}
         onChange={handleChange}
         {...props}
     />
 
 }
 
-export function TagsInput({ className,  defaultValue = [], onValueChange,  size, value, variant, ...props }: ConstrainedInputProps<string[]>) {
-    const [internalValue, setInternalValue] = useState<string[]>(value ?? defaultValue)
+export function TagsInput({ className, onValueChange,  size, value = [], variant, ...props }: ConstrainedInputProps<string[]>) {
+    if(!Array.isArray(value)) throw new Error("TagsInput value must be an array of strings")
 
     function handleChange(ev: React.ChangeEvent<HTMLInputElement>) {
         const newValue = unique(ev.target.value.split(' ').map(tag => tag.toLowerCase()))
-        setInternalValue(newValue)
         onValueChange?.(newValue)
     }
-
-    const effectiveValue = value ?? internalValue
 
     return <input
         type="text"
         className={cn(inputVariants({ className, size, variant }))} 
         data-component="TagsInput"
-        value={effectiveValue.join(' ')}
+        value={value?.join(' ')}
         onChange={handleChange}
         {...props}
     />
