@@ -8,7 +8,7 @@
 import { PlusIcon } from 'lucide-react'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader } from '@/components/ui/card'
@@ -99,7 +99,7 @@ export function SkillPackageListCard() {
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button variant="ghost" size="icon" asChild>
-                                    <Link href={Paths.system.teams.create}>
+                                    <Link href={Paths.system.skillPackages.create}>
                                         <PlusIcon />
                                     </Link>
                                 </Button>
@@ -122,6 +122,7 @@ export function SkillPackageListCard() {
                     <Table>
                         <DataTableHead/>
                         <DataTableBody/>
+                        <DataTablePaginationFooter/>
                     </Table>
                 </CardContent>
             </Card>

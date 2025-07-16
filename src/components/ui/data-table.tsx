@@ -17,6 +17,7 @@ import { Input } from './input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
 import { match } from 'ts-pattern'
+import { start } from 'repl'
 
 // eslint-disable-next-line
 const DataTableContext = React.createContext<TanstackTable<any> | null>(null)
@@ -374,67 +375,88 @@ export function TableOptionsDropdown() {
 export function DataTablePaginationFooter() {
     const table = useDataTable()
 
-    const state = table.getState().pagination
-    const startRowIndex = state.pageIndex * state.pageSize
+    const pagination = table.getState().pagination
+    const rowCount = table.getRowCount()
+    const startRowIndex = pagination.pageIndex * pagination.pageSize
 
     return <tfoot>
         <tr>
             <td colSpan={table.getVisibleFlatColumns().length}>
-                <div className="grid grid-cols-3 items-center text-sm text-muted-foreground pt-1">
-                    <div className="space-x-1 lg:space-x-1.5 pl-2">
-                        <span className="hidden lg:inline">rows</span>
-                        <span>{startRowIndex + 1}-{Math.min(startRowIndex + state.pageSize, table.getRowCount())}</span>
-                        <span>of</span>
-                        <span>{table.getRowCount()}</span>
-                        
+                { rowCount < 10
+                    ? <div className="pt-3 pb-2 flex items-center text-sm text-muted-foreground">
+                        <RowCount
+                            start={1}
+                            end={rowCount}
+                            total={rowCount}
+                        />
                     </div>
-                    <div className="flex items-center justify-center">
-                        <Button 
-                            variant="ghost"
-                            size="icon"
-                            disabled={!table.getCanPreviousPage()}
-                            onClick={() => table.previousPage()}
-                        >
-                            <ChevronLeftIcon/>
-                        </Button>
-                        <div className="space-x-1 lg:space-x-1.5">
-                            <span className="hidden mg:inline">Page</span>
-                            <span>{state.pageIndex+1}</span>
-                            <span>of</span>
-                            <span>{table.getPageCount()}</span>
+                    : <div className="grid grid-cols-3 items-center text-sm text-muted-foreground pt-1">
+                        <RowCount
+                            start={startRowIndex + 1}
+                            end={Math.min(startRowIndex + pagination.pageSize, rowCount)}
+                            total={rowCount}
+                        />
+                        <div className="flex items-center justify-center">
+                            <Button 
+                                variant="ghost"
+                                size="icon"
+                                disabled={!table.getCanPreviousPage()}
+                                onClick={() => table.previousPage()}
+                            >
+                                <ChevronLeftIcon/>
+                            </Button>
+                            <div className="space-x-1 lg:space-x-1.5">
+                                <span className="hidden mg:inline">Page</span>
+                                <span>{pagination.pageIndex+1}</span>
+                                <span>of</span>
+                                <span>{table.getPageCount()}</span>
+                            </div>
+                            
+                            <Button 
+                                variant="ghost" 
+                                size="icon"
+                                disabled={!table.getCanNextPage()}
+                                onClick={() => table.nextPage()}
+                            >
+                                <ChevronRightIcon/>
+                            </Button>
                         </div>
-                        
-                        <Button 
-                            variant="ghost" 
-                            size="icon"
-                            disabled={!table.getCanNextPage()}
-                            onClick={() => table.nextPage()}
-                        >
-                            <ChevronRightIcon/>
-                        </Button>
-                    </div>
-                    <div className="flex items-center justify-end gap-2">
-                        <div className="space-x-1">
-                            <span className="hidden lg:inline">rows</span>
-                            <span>per page</span>
+                        <div className="flex items-center justify-end gap-2">
+                            <div className="space-x-1">
+                                <span className="hidden lg:inline">rows</span>
+                                <span>per page</span>
+                            </div>
+                            <Select value={pagination.pageSize.toString()} onValueChange={value => table.setPageSize(Number(value))}>
+                                <SelectTrigger className="w-16" size="sm">
+                                    <SelectValue/>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {[10, 20, 50, 100].map(size => 
+                                        <SelectItem key={size} value={size.toString()}>
+                                            {size}
+                                        </SelectItem>
+                                    )}
+                                </SelectContent>
+                            </Select>
                         </div>
-                        <Select value={state.pageSize.toString()} onValueChange={value => table.setPageSize(Number(value))}>
-                            <SelectTrigger className="w-16" size="sm">
-                                <SelectValue/>
-                            </SelectTrigger>
-                            <SelectContent>
-                                {[10, 20, 50, 100].map(size => 
-                                    <SelectItem key={size} value={size.toString()}>
-                                        {size}
-                                    </SelectItem>
-                                )}
-                            </SelectContent>
-                        </Select>
                     </div>
-                </div>
+                }   
+                
+                
             </td>
         </tr>
     </tfoot>
+}
+
+function RowCount({ start, end, total }: { start: number, end: number, total: number }) {
+    if(total == 0) return <div className="pl-2">No rows to display.</div>
+
+    return <div className="space-x-1 lg:space-x-1.5 pl-2">
+        <span className="hidden lg:inline">{total > 1 ? 'rows' : 'row'}</span>
+        <span>{total > 1 ? `${start}-${end}` : '1'}</span>
+        <span>of</span>
+        <span>{total}</span>
+    </div>
 }
 
 // eslint-disable-next-line

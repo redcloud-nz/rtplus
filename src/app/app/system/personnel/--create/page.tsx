@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024 Redcloud Development, Ltd.
+ *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
  *  Path: /app/system/personnel/--create
@@ -11,6 +11,8 @@ import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
 import { HydrateClient } from '@/trpc/server'
+
+import { NewPersonDetailsCard } from './new-person-details'
 
 
 export default async function CreatePersonPage() { 
@@ -30,7 +32,7 @@ export default async function CreatePersonPage() {
                 </PageHeader>
 
                 <Boundary>
-                    TODO Implement
+                    <NewPersonDetailsCard/>
                 </Boundary>
             </AppPageContent>
         </HydrateClient>

@@ -15,45 +15,43 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DisplayValue } from '@/components/ui/display-value'
 import { Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
-import { Input, SlugInput } from '@/components/ui/input'
+import { Input } from '@/components/ui/input'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { TeamFormData, teamFormSchema } from '@/lib/forms/team'
+import { SkillPackageFormData, skillPackageFormSchema } from '@/lib/forms/skill-package'
 import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
+import { Textarea } from '@/components/ui/textarea'
 
 
-
-export function NewTeamDetailsCard() {
+export function NewSkillPackageDetailsCard() {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const teamId = useMemo(() => nanoId8(), [])
+    const skillPackageId = useMemo(() => nanoId8(), [])
 
-    const form = useForm<TeamFormData>({
-        resolver: zodResolver(teamFormSchema),
+    const form = useForm<SkillPackageFormData>({
+        resolver: zodResolver(skillPackageFormSchema),
         defaultValues: {
-            teamId: teamId,
+            skillPackageId,
             name: '',
-            shortName: '',
-            slug: teamId,
-            color: '',
-            status: 'Active'
+            description: '',
+            status: 'Active',
         }
     })
 
-    const mutation = useMutation(trpc.teams.sys_create.mutationOptions({
+    const mutation = useMutation(trpc.skillPackages.sys_create.mutationOptions({
         onError(error) {
-            if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof TeamFormData, { message: error.shape.message })
+            if (error.shape?.cause?.name == 'FieldConflictError') {
+                form.setError(error.shape.cause.message as keyof SkillPackageFormData, { message: error.shape.message })
             } else {
                 toast({
-                    title: "Error creating team",
+                    title: "Error creating skill package",
                     description: error.message,
                     variant: 'destructive',
                 })
@@ -61,12 +59,12 @@ export function NewTeamDetailsCard() {
         },
         onSuccess(result) {
             toast({
-                title: "Team created",
-                description: <>The team <ObjectName>{result.name}</ObjectName> has been created successfully.</>,
+                title: "Skill Package Created",
+                description: <>The skill package <ObjectName>{result.name}</ObjectName> has been created successfully.</>,
             })
 
-            queryClient.invalidateQueries(trpc.teams.all.queryFilter())
-            router.push(Paths.system.team(teamId).index)
+            queryClient.invalidateQueries(trpc.skillPackages.all.queryFilter())
+            router.push(Paths.system.skillPackage(result.id).index)
         }
     }))
 
@@ -81,14 +79,13 @@ export function NewTeamDetailsCard() {
         <CardContent>
             <FormProvider {...form}>
                 <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
-                    <ToruGrid mode='form'>
+                    <ToruGrid mode="form">
                         <FormField
                             control={form.control}
-                            name="teamId"
+                            name="skillPackageId"
                             render={({ field }) => <ToruGridRow
-                                label="Team ID"
-                                control={ <DisplayValue>{field.value}</DisplayValue>}
-                                description="The unique identifier for the team."
+                                label="Skill Package ID"
+                                control={<DisplayValue>{field.value}</DisplayValue>}
                             />}
                         />
                         <FormField
@@ -96,35 +93,26 @@ export function NewTeamDetailsCard() {
                             name="name"
                             render={({ field }) => <ToruGridRow
                                 label="Name"
-                                control={<Input maxLength={100} {...field}/>}
-                                description="The full name of the team."
+                                control={<Input maxLength={100} {...field} />}
+                                description="The name of the skill package."
                             />}
                         />
                         <FormField
                             control={form.control}
-                            name="shortName"
+                            name="description"
                             render={({ field }) => <ToruGridRow
-                                label="Short Name"
-                                control={<Input maxLength={20} {...field}/>}
-                                description="Short name of the team (eg NZ-RT13)."
+                                label="Description"
+                                control={<Textarea maxLength={500} {...field} />}
+                                description="A brief description of the skill package."
                             />}
                         />
-                        <FormField
-                            control={form.control}
-                            name="slug"
-                            render={({ field }) => <ToruGridRow
-                                label="Slug"
-                                control={<SlugInput {...field} onValueChange={field.onChange}/>}
-                                description="URL-friendly identifier for the team."
-                            />}
-                        />
-                         <ToruGridRow
+                        <ToruGridRow
                             label="Status"
                             control={<DisplayValue>Active</DisplayValue>}
                         />
                         <ToruGridFooter>
-                            <FormSubmitButton labels={SubmitVerbs.create} size="sm"/>
-                            <FormCancelButton onClick={() => router.back()} size="sm"/>
+                            <FormSubmitButton labels={SubmitVerbs.create} size="sm" />
+                            <FormCancelButton onClick={() => router.back()} size="sm" />
                         </ToruGridFooter>
                     </ToruGrid>
                 </Form>

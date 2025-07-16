@@ -15,80 +15,77 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DisplayValue } from '@/components/ui/display-value'
 import { Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
-import { Input, SlugInput } from '@/components/ui/input'
+import { Input } from '@/components/ui/input'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { TeamFormData, teamFormSchema } from '@/lib/forms/team'
+import { PersonFormData, personFormSchema } from '@/lib/forms/person'
 import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
 
 
-export function NewTeamDetailsCard() {
+export function NewPersonDetailsCard() {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const teamId = useMemo(() => nanoId8(), [])
+    const personId = useMemo(() => nanoId8(), [])
 
-    const form = useForm<TeamFormData>({
-        resolver: zodResolver(teamFormSchema),
+    const form = useForm<PersonFormData>({
+        resolver: zodResolver(personFormSchema),
         defaultValues: {
-            teamId: teamId,
+            personId: personId,
             name: '',
-            shortName: '',
-            slug: teamId,
-            color: '',
+            email: '',
             status: 'Active'
         }
     })
 
-    const mutation = useMutation(trpc.teams.sys_create.mutationOptions({
+    const mutation = useMutation(trpc.personnel.sys_create.mutationOptions({
         onError(error) {
-            if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof TeamFormData, { message: error.shape.message })
+            if (error.shape?.cause?.name == 'FieldConflictError') {
+                form.setError(error.shape.cause.message as keyof PersonFormData, { message: error.shape.message })
             } else {
                 toast({
-                    title: "Error creating team",
+                    title: "Error creating person",
                     description: error.message,
                     variant: 'destructive',
                 })
             }
         },
-        onSuccess(result) {
+       onSuccess(result) {
             toast({
-                title: "Team created",
-                description: <>The team <ObjectName>{result.name}</ObjectName> has been created successfully.</>,
+                title: "Person created",
+                description: <>The person <ObjectName>{result.name}</ObjectName> has been created successfully.</>,
             })
 
-            queryClient.invalidateQueries(trpc.teams.all.queryFilter())
-            router.push(Paths.system.team(teamId).index)
+            queryClient.invalidateQueries(trpc.personnel.all.queryFilter())
+            router.push(Paths.system.person(personId).index)
         }
     }))
 
     useLayoutEffect(() => {
-        form.setFocus('name')
-    }, [])
+        form.setValue('personId', personId)
+    }, [form, personId])
 
     return <Card>
         <CardHeader>
-            <CardTitle>Details</CardTitle>
+            <CardTitle>New Person</CardTitle>
         </CardHeader>
         <CardContent>
             <FormProvider {...form}>
                 <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
-                    <ToruGrid mode='form'>
+                    <ToruGrid mode="form">
                         <FormField
                             control={form.control}
-                            name="teamId"
+                            name="personId"
                             render={({ field }) => <ToruGridRow
-                                label="Team ID"
+                                label="Person ID"
                                 control={ <DisplayValue>{field.value}</DisplayValue>}
-                                description="The unique identifier for the team."
                             />}
                         />
                         <FormField
@@ -97,28 +94,19 @@ export function NewTeamDetailsCard() {
                             render={({ field }) => <ToruGridRow
                                 label="Name"
                                 control={<Input maxLength={100} {...field}/>}
-                                description="The full name of the team."
+                                description="The full name of the person."
                             />}
                         />
                         <FormField
                             control={form.control}
-                            name="shortName"
+                            name="email"
                             render={({ field }) => <ToruGridRow
-                                label="Short Name"
-                                control={<Input maxLength={20} {...field}/>}
-                                description="Short name of the team (eg NZ-RT13)."
+                                label="Email"
+                                control={<Input type="email" maxLength={100} {...field}/>}
+                                description="The email address of the person (must be unique)."
                             />}
                         />
-                        <FormField
-                            control={form.control}
-                            name="slug"
-                            render={({ field }) => <ToruGridRow
-                                label="Slug"
-                                control={<SlugInput {...field} onValueChange={field.onChange}/>}
-                                description="URL-friendly identifier for the team."
-                            />}
-                        />
-                         <ToruGridRow
+                        <ToruGridRow
                             label="Status"
                             control={<DisplayValue>Active</DisplayValue>}
                         />
@@ -129,6 +117,6 @@ export function NewTeamDetailsCard() {
                     </ToruGrid>
                 </Form>
             </FormProvider>
-        </CardContent>
+            </CardContent>
     </Card>
 }

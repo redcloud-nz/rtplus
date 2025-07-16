@@ -98,7 +98,7 @@ export function SkillPackageGroupsAndSkillCard({ skillPackageId }: { skillPackag
                     </DropdownMenuContent>
                 </DropdownMenu>
             </CardHeader>
-            <CardContent boundary collapsible>
+            <CardContent>
                 <GroupsAndSkillsTable options={options} skillPackageId={skillPackageId}/>
             </CardContent>
             

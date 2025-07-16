@@ -4,7 +4,7 @@
  */
 'use client'
 
-import { ComponentProps, useState } from 'react'
+import { ComponentProps } from 'react'
 import { unique } from 'remeda'
 import { tv, VariantProps } from 'tailwind-variants'
 
@@ -38,6 +38,14 @@ const inputVariants = tv({
     }
 })
 
+/**
+ * Input component with Tailwind CSS styles.
+ * @param className Additional class names to apply.
+ * @param size Size variant of the input.
+ * @param type Type of the input (e.g., text, password).
+ * @param variant Style variant of the input.
+ * @param props Other props to pass to the input element.
+ */
 export function Input({ className, size, type, variant, ...props }: Omit<ComponentProps<'input'>, 'size'> & VariantProps<typeof inputVariants>) {
     return <input
         type={type}
@@ -52,8 +60,20 @@ export function HiddenInput({ name, value }: Omit<ComponentProps<'input'>, 'type
     return <input type="hidden" name={name} value={value}/>
 }
 
+/**
+ * ConstrainedInputProps defines the props for input components constrained to specific value types.
+ */
 type ConstrainedInputProps<TValue> = Omit<ComponentProps<'input'>, 'defaultValue' | 'onChange' | 'size' | 'type' | 'value'> & VariantProps<typeof inputVariants> & { onValueChange?: (value: TValue) => void, value?: TValue }
 
+/**
+ * TextInput component for text input with Tailwind CSS styles.
+ * @param className Additional class names to apply.
+ * @param onValueChange Callback when the value changes.
+ * @param size Size variant of the input.
+ * @param value Current value of the input.
+ * @param variant Style variant of the input.
+ * @param props Other props to pass to the input element.
+ */
 export function TextInput({ className, onValueChange, size, value = "", variant, ...props }: ConstrainedInputProps<string>) {
 
     function handleChange(ev: React.ChangeEvent<HTMLInputElement>) {

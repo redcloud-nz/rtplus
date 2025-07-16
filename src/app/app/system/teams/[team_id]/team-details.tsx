@@ -211,7 +211,7 @@ function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamBasi
 }
 
 
-function DeleteTeamDialog({ team }: { team: TeamBasic}) {
+function DeleteTeamDialog({ team }: { team: TeamBasic }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()

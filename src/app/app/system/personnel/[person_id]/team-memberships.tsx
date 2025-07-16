@@ -108,10 +108,10 @@ export function TeamMembershipsCard({ personId }: { personId: string }) {
                         excludeTeamIds={existingTeamIds}
                     /> : null }
                     <Show when={teamMemberships.length == 0 && action?.type != 'create'}>
-                        <Alert className="col-span-full w-full" severity="info" title="No team members defined"/>
+                        <Alert className="col-span-full w-full" severity="info" title="No team memberships defined"/>
                     </Show>
                     <Show when={teamMemberships.length > 0 && filtered.length == 0}>
-                        <Alert className="col-span-full w-full" severity="info" title="No team members match the selected filters">
+                        <Alert className="col-span-full w-full" severity="info" title="No team memberships match the selected filters">
                             Adjust your filters to see more team memberships.
                         </Alert>
                     </Show>
