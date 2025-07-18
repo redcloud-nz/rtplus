@@ -5,6 +5,7 @@
 
 import { ArrowDownAZIcon, ArrowDownZAIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronsUpDownIcon, EllipsisVerticalIcon, EyeOffIcon, GroupIcon, ListRestartIcon, SettingsIcon, UngroupIcon } from 'lucide-react'
 import React, { ComponentProps } from 'react'
+import { match } from 'ts-pattern'
 
 import { Column, ColumnDef, ColumnHelper, createColumnHelper, flexRender, RowData, Table as TanstackTable } from '@tanstack/react-table'
 
@@ -16,8 +17,6 @@ import { cn } from '@/lib/utils'
 import { Input } from './input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
-import { match } from 'ts-pattern'
-import { start } from 'repl'
 
 // eslint-disable-next-line
 const DataTableContext = React.createContext<TanstackTable<any> | null>(null)
@@ -92,7 +91,7 @@ function ColumnHeader<T>({ className, children, column, table, ...props }: Colum
     }
 
     return <th {...props} className="pl-2 text-left align-middle font-medium">
-        <div className={cn('w-full flex items-center justify-between', className)}>
+        <div className={cn('w-full flex items-center justify-between gap-2', className)}>
             {column.columnDef.meta?.align == 'center' && <div className="w-8"/>}
             <div>{children}</div>
             

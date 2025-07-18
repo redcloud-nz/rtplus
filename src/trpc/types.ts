@@ -63,6 +63,8 @@ export type SkillWithPackageAndGroup = Skill & {
     skillPackage: SkillPackage
 }
 
+export type SkillWithGroup = Skill & { skillGroup: SkillGroup }
+
 export type TeamBasic = Pick<Team, 'id' | 'name' | 'slug' | 'shortName' | 'color' | 'status'>
 
 export type TeamMembershipBasic = Pick<TeamMembership, 'personId' | 'teamId' | 'tags' | 'status'>

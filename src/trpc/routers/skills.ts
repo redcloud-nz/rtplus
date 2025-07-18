@@ -14,7 +14,7 @@ import { zodNanoId8, zodRecordStatus } from '@/lib/validation'
 import { TRPCError } from '@trpc/server'
 
 import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
-import { SkillWithPackageAndGroup } from '../types'
+import { SkillWithGroup, SkillWithPackageAndGroup } from '../types'
 
 
 export const skillsRouter = createTRPCRouter({
@@ -48,6 +48,19 @@ export const skillsRouter = createTRPCRouter({
                 orderBy: { sequence: 'asc' },
             })
         }),
+    bySkillPackageId: authenticatedProcedure
+        .input(z.object({
+            skillPackageId: zodNanoId8,
+            status: zodRecordStatus
+        }))
+        .query(async ({ ctx, input }): Promise<SkillWithGroup[]> => {
+            return ctx.prisma.skill.findMany({
+                where: { skillPackageId: input.skillPackageId, status: { in: input.status } },
+                include: {
+                    skillGroup: true,
+                },
+            })
+        }), 
 
     sys_create: systemAdminProcedure
         .input(skillFormSchema)

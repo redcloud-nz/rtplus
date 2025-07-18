@@ -6,10 +6,12 @@
  */
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
-
+import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
+import { HydrateClient } from '@/trpc/server'
 
 import { SkillGroupDetailsCard } from './skill-group-details'
+import { SkillGroupSkillsListCard } from './skill-group-skills-list'
 import { getSkillGroup, SkillGroupParams } from '.'
 
 
@@ -32,12 +34,20 @@ export default async function SkillGroupPage(props: { params: Promise<SkillGroup
                 skillGroup.name
             ]}
         />
-        <AppPageContent variant='container'>
-            <PageHeader>
-                <PageTitle objectType="Skill Group">{skillGroup.name}</PageTitle>    
-            </PageHeader>
+        <HydrateClient>
+             <AppPageContent variant='container'>
+                <PageHeader>
+                    <PageTitle objectType="Skill Group">{skillGroup.name}</PageTitle>    
+                </PageHeader>
 
-            <SkillGroupDetailsCard skillGroupId={skillGroup.id} skillPackageId={skillGroup.skillPackageId}/>
-        </AppPageContent>
+                <Boundary>
+                     <SkillGroupDetailsCard skillGroupId={skillGroup.id} skillPackageId={skillGroup.skillPackageId}/>
+                </Boundary>
+               <Boundary>
+                    <SkillGroupSkillsListCard skillGroupId={skillGroup.id} skillPackageId={skillGroup.skillPackageId}/>
+                </Boundary>
+            </AppPageContent>
+        </HydrateClient>
+       
     </AppPage>
 }

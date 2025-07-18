@@ -8,11 +8,13 @@
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 
+import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
+import { HydrateClient } from '@/trpc/server'
 
 import { SkillPackageDetailsCard } from './skill-package-details'
-import { SkillPackageGroupsAndSkillCard } from './skill-package-groups-and-skills'
-
+import { SkillPackageGroupsListCard } from './skill-package-groups-list'
+import { SkillPackageSkillsListCard } from './skill-package-skills-list'
 import { getSkillPackage, SkillPackageParams } from '.'
 
 
@@ -32,13 +34,22 @@ export default async function SkillPackagePage(props: { params: Promise<SkillPac
                 skillPackage.name
             ]}
         />
-        <AppPageContent variant='container'>
-            <PageHeader>
-                <PageTitle objectType="Skill Package">{skillPackage.name}</PageTitle>    
-            </PageHeader>
-
-            <SkillPackageDetailsCard skillPackageId={skillPackage.id}/>
-            <SkillPackageGroupsAndSkillCard skillPackageId={skillPackage.id}/>
-        </AppPageContent>
+        <HydrateClient>
+            <AppPageContent variant='container'>
+                <PageHeader>
+                    <PageTitle objectType="Skill Package">{skillPackage.name}</PageTitle>    
+                </PageHeader>
+                <Boundary>
+                    <SkillPackageDetailsCard skillPackageId={skillPackage.id}/>
+                </Boundary>
+                <Boundary>
+                    <SkillPackageGroupsListCard skillPackageId={skillPackage.id}/>
+                </Boundary>
+                <Boundary>
+                    <SkillPackageSkillsListCard skillPackageId={skillPackage.id}/>
+                </Boundary>
+            </AppPageContent>
+        </HydrateClient>
+        
     </AppPage>
 }
