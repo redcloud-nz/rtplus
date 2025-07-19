@@ -10,23 +10,25 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent,  PageHeader, PageTitle } f
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
-import { HydrateClient } from '@/trpc/server'
+import { fetchPerson } from '@/server/fetch'
+import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
 import { PersonDetailsCard } from './person-details'
 import { TeamMembershipsCard } from './team-memberships'
-import { getPerson, PersonParams } from '.'
 
 
 
-export async function generateMetadata(props: { params: Promise<PersonParams> }) {
-    const person = await getPerson(props.params)
 
+export async function generateMetadata(props: { params: Promise<{ person_id: string }> }) {
+    const person = await fetchPerson(props.params)
     return { title: `${person.name} - Personnel` }
 }
 
 
-export default async function PersonPage(props: { params: Promise<PersonParams> }) {
-    const person = await getPerson(props.params)
+export default async function PersonPage(props: { params: Promise<{ person_id: string }> }) {
+    const person = await fetchPerson(props.params)
+
+    prefetch(trpc.teamMemberships.byPerson.queryOptions({ personId: person.id}))
 
     return <AppPage>
         <AppPageBreadcrumbs

@@ -15,9 +15,6 @@ import { createTRPCContext } from './init'
 import { makeQueryClient } from './query-client'
 import { appRouter } from './routers/_app'
 
-
-
-
 export * from './types'
 
 // Create a stable getter for the query client

@@ -10,19 +10,20 @@ import { Metadata } from 'next'
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 import * as Paths from '@/paths'
 
-import { getSkillPackage, SkillPackageParams } from '../..'
-
-import { NewSkillDetailsCard } from './new-skill-details'
+import { fetchSkillPackage } from '@/server/fetch'
 import { HydrateClient } from '@/trpc/server'
 
+import { NewSkillDetailsCard } from './new-skill-details'
+import { Boundary } from '@/components/boundary'
 
-export async function generateMetadata(props: { params: Promise<SkillPackageParams> }): Promise<Metadata> {
-    const skillPackage = await getSkillPackage(props.params)
+
+export async function generateMetadata(props: { params: Promise<{ skill_package_id: string }> }): Promise<Metadata> {
+    const skillPackage = await fetchSkillPackage(props.params)
     return { title: `New Skill | ${skillPackage.name}` }
 }
 
-export default async function NewSkillPage(props: { params: Promise<SkillPackageParams>}) {
-    const skillPackage = await getSkillPackage(props.params)
+export default async function NewSkillPage(props: { params: Promise<{ skill_package_id: string }>}) {
+    const skillPackage = await fetchSkillPackage(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs
@@ -35,13 +36,15 @@ export default async function NewSkillPage(props: { params: Promise<SkillPackage
             ]}
         />
         <HydrateClient>
-            <AppPageContent>
+            <AppPageContent variant='container'>
                 <PageHeader>
                     <PageTitle>New Skill</PageTitle>
                     <PageDescription>Create a new skill within this skill package.</PageDescription>
                 </PageHeader>
                 
-                <NewSkillDetailsCard skillPackageId={skillPackage.id} />
+                <Boundary>
+                      <NewSkillDetailsCard skillPackageId={skillPackage.id} />
+                </Boundary>
             </AppPageContent>
         </HydrateClient>
         

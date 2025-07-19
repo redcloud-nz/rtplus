@@ -10,21 +10,21 @@ import { Boundary } from '@/components/boundary'
 import { SystemTeamMembershipDetailsCard } from '@/components/cards/system-team-membership-details'
 
 import * as Paths from '@/paths'
+import { fetchTeamMembership } from '@/server/fetch'
 import { HydrateClient } from '@/trpc/server'
 
-import { getTeamMembership, TeamMembershipParams } from '.'
 
 
 
-export async function generateMetadata(props: { params: Promise<TeamMembershipParams> }) {
+export async function generateMetadata(props: { params: Promise<{ person_id: string, team_id: string }> }) {
 
-    const membership = await getTeamMembership(props.params)
+    const membership = await fetchTeamMembership(props.params)
 
     return { title: `${membership.person.name} - ${membership.team.shortName || membership.team.name}` }
 }
 
-export default async function TeamMembershipPage(props: { params: Promise<TeamMembershipParams>} ) {
-    const { person, team } = await getTeamMembership(props.params)
+export default async function TeamMembershipPage(props: { params: Promise<{ person_id: string, team_id: string }>} ) {
+    const { person, team } = await fetchTeamMembership(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs

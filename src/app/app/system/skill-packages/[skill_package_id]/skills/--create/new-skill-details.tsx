@@ -12,6 +12,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
+import { SkillPackageValue } from '@/components/controls/skill-package-value'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DisplayValue } from '@/components/ui/display-value'
@@ -27,6 +28,7 @@ import { SkillFormData, skillFormSchema } from '@/lib/forms/skill'
 import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
+
 
 interface NewSkillDetailsCardProps {
     skillPackageId: string
@@ -110,8 +112,8 @@ export function NewSkillDetailsCard({ skillPackageId }: NewSkillDetailsCardProps
                             control={form.control}
                             name="skillPackageId"
                             render={({ field }) => <ToruGridRow
-                                label="Skill Package ID"
-                                control={<DisplayValue>{field.value}</DisplayValue>}
+                                label="Skill Package"
+                                control={<SkillPackageValue skillPackageId={field.value} />}
                             />}
                         />
                         <FormField

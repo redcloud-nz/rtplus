@@ -10,33 +10,33 @@ import { Metadata } from 'next'
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
+import { fetchSkillPackage } from '@/server/fetch'
 import { HydrateClient } from '@/trpc/server'
-
-import { getSkillPackage, SkillPackageParams } from '../..'
 
 import { NewSkillGroupDetailsCard } from './new-skill-group-details'
 
 
-export async function generateMetadata(props: { params: Promise<SkillPackageParams> }): Promise<Metadata> {
-    const skillPackage = await getSkillPackage(props.params)
+
+export async function generateMetadata(props: { params: Promise<{ skill_package_id: string }> }): Promise<Metadata> {
+    const skillPackage = await fetchSkillPackage(props.params)
     return { title: `New Skill | ${skillPackage.name}` }
 }
 
-export default async function NewSkillGroupPage(props: { params: Promise<SkillPackageParams>}) {
-    const skillPackage = await getSkillPackage(props.params)
+export default async function NewSkillGroupPage(props: { params: Promise<{ skill_package_id: string }>}) {
+    const skillPackage = await fetchSkillPackage(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.system.index,
-                Paths.system.skillPackages.index,
+                Paths.system,
+                Paths.system.skillPackages,
                 { label: skillPackage.name, href: Paths.system.skillPackage(skillPackage.id).index },
                 "Groups",
                 "Create"
             ]}
         />
         <HydrateClient>
-            <AppPageContent>
+            <AppPageContent variant='container'>
                 <PageHeader>
                     <PageTitle>New Skill Group</PageTitle>
                     <PageDescription>Create a new skill group within this skill package.</PageDescription>

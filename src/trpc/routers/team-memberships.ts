@@ -94,11 +94,13 @@ export const teamMembershipsRouter = createTRPCRouter({
     byPerson: systemAdminProcedure
         .input(z.object({
             personId: zodNanoId8,
+            status: zodRecordStatus
         }))
         .query(async ({ ctx, input }): Promise<TeamMembershipWithTeam[]> => {
             return ctx.prisma.teamMembership.findMany({
                 where: { 
-                    personId: input.personId, 
+                    personId: input.personId,
+                    status: { in: input.status }
                 },
                 include: { team: true, d4hInfo: true },
                 orderBy: { team: { name: 'asc' }}
@@ -106,7 +108,7 @@ export const teamMembershipsRouter = createTRPCRouter({
         }),
     byPersonInCurrentTeam: teamProcedure
         .input(z.object({
-            personId: zodNanoId8
+            personId: zodNanoId8,
         }))
         .query(async ({ ctx, input }): Promise<TeamMembershipBasic | null> => {
             const team = await getActiveTeam(ctx)

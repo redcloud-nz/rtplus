@@ -44,7 +44,7 @@ import { SkillGroupWithPackage, useTRPC } from '@/trpc/client'
 export function SkillGroupDetailsCard({ skillGroupId, skillPackageId }: { skillGroupId: string, skillPackageId: string }) {
 
     const trpc = useTRPC()
-    const { data: skillGroup } = useSuspenseQuery(trpc.skillGroups.byId.queryOptions({ skillGroupId }))
+    const { data: skillGroup } = useSuspenseQuery(trpc.skillGroups.byId.queryOptions({ skillGroupId, skillPackageId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
 
@@ -61,7 +61,7 @@ export function SkillGroupDetailsCard({ skillGroupId, skillPackageId }: { skillG
                     </TooltipTrigger>
                     <TooltipContent>Edit skill group</TooltipContent>
                 </Tooltip>
-                <DeleteSkillGroupDialog skillGroup={skillGroup} skillPackageId={skillPackageId} />
+                <DeleteSkillGroupDialog skillGroup={skillGroup} />
 
                 <Separator orientation="vertical"/>
 
@@ -103,6 +103,10 @@ export function SkillGroupDetailsCard({ skillGroupId, skillPackageId }: { skillG
                                     {skillGroup.description || <span className="text-muted-foreground">No description provided.</span>}
                                 </DisplayValue>
                             }
+                        />
+                        <ToruGridRow
+                            label="Status"
+                            control={<DisplayValue>{skillGroup.status}</DisplayValue>}
                         />
                         <ToruGridFooter/>
                     </ToruGrid>
@@ -222,9 +226,8 @@ function UpdateSkillGroupForm({ onClose, skillGroup }: { onClose: () => void, sk
  * Dialog component to delete a skill group.
  * It requires the user to confirm by entering the skill group name.
  * @param skillGroup The skill group to delete.
- * @param skillPackageId The ID of the skill package that the skill group belongs to.
  */
-function DeleteSkillGroupDialog({ skillGroup, skillPackageId }: { skillGroup: SkillGroupWithPackage, skillPackageId: string }) {
+function DeleteSkillGroupDialog({ skillGroup }: { skillGroup: SkillGroupWithPackage }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -234,11 +237,12 @@ function DeleteSkillGroupDialog({ skillGroup, skillPackageId }: { skillGroup: Sk
 
     const form = useForm({
         resolver: zodResolver(z.object({
+            skillPackageId: zodNanoId8,
             skillGroupId: zodNanoId8,
             skillGroupName: z.literal(skillGroup.name)
         })),
         mode: 'onSubmit',
-        defaultValues: { skillGroupId: skillGroup.id, skillGroupName: "" }
+        defaultValues: { skillPackageId: skillGroup.skillPackageId, skillGroupId: skillGroup.id, skillGroupName: "" }
     })
 
     const mutation = useMutation(trpc.skillGroups.sys_delete.mutationOptions({
@@ -260,7 +264,7 @@ function DeleteSkillGroupDialog({ skillGroup, skillPackageId }: { skillGroup: Sk
             queryClient.invalidateQueries(trpc.skillGroups.all.queryFilter())
             queryClient.invalidateQueries(trpc.skillGroups.byId.queryFilter({ skillGroupId: skillGroup.id }))
             queryClient.invalidateQueries(trpc.skillGroups.bySkillPackageId.queryFilter({ skillPackageId: skillGroup.skillPackageId }))
-            router.push(Paths.system.skillPackage(skillPackageId).index)
+            router.push(Paths.system.skillPackage(skillGroup.skillPackageId).index)
         }
     }))
 

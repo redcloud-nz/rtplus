@@ -1,11 +1,11 @@
 /*
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
- * 
  */
 'use client'
 
 import { PlusIcon } from 'lucide-react'
+import { useMemo } from 'react'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel,  getSortedRowModel, useReactTable } from '@tanstack/react-table'
@@ -20,7 +20,7 @@ import { Table } from '@/components/ui/table'
 
 import * as Paths from '@/paths'
 import { SkillGroup, useTRPC } from '@/trpc/client'
-import { useMemo } from 'react'
+
 
 export function SkillPackageGroupsListCard({ skillPackageId }: { skillPackageId: string }) {
 

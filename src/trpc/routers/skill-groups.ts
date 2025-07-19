@@ -31,10 +31,11 @@ export const skillGroupsRouter = createTRPCRouter({
 
     byId: authenticatedProcedure
         .input(z.object({
-            skillGroupId: zodNanoId8
+            skillGroupId: zodNanoId8,
+            skillPackageId: zodNanoId8
         }))
-        .query(async ({ ctx, input: { skillGroupId} }): Promise<SkillGroupWithPackage> => {
-            return getSkillGroupById(ctx, skillGroupId)
+        .query(async ({ ctx, input: { skillGroupId, skillPackageId } }): Promise<SkillGroupWithPackage> => {
+            return getSkillGroupById(ctx, skillPackageId, skillGroupId)
         }),
 
     bySkillPackageId: authenticatedProcedure
@@ -89,10 +90,11 @@ export const skillGroupsRouter = createTRPCRouter({
 
     sys_delete: systemAdminProcedure
         .input(z.object({
-            skillGroupId: zodNanoId8
+            skillGroupId: zodNanoId8,
+            skillPackageId: zodNanoId8
         }))
-        .mutation(async ({ ctx, input: { skillGroupId } }): Promise<SkillGroupWithPackage> => {
-            const skillGroup = await getSkillGroupById(ctx, skillGroupId)
+        .mutation(async ({ ctx, input: { skillGroupId, skillPackageId } }): Promise<SkillGroupWithPackage> => {
+            const skillGroup = await getSkillGroupById(ctx, skillPackageId, skillGroupId)
 
             const [deletedGroup] = await ctx.prisma.$transaction([
                 ctx.prisma.skillGroup.delete({
@@ -120,8 +122,8 @@ export const skillGroupsRouter = createTRPCRouter({
 
     sys_update: systemAdminProcedure
         .input(skillGroupFormSchema)
-        .mutation(async ({ ctx, input: { skillGroupId, ...input} }): Promise<SkillGroupWithPackage> => {
-            const existing = await getSkillGroupById(ctx, skillGroupId)
+        .mutation(async ({ ctx, input: { skillGroupId, skillPackageId, ...input} }): Promise<SkillGroupWithPackage> => {
+            const existing = await getSkillGroupById(ctx, skillPackageId, skillGroupId)
 
             const changedFields = pickBy(input, (value, key) => value != existing[key])
 
@@ -152,9 +154,9 @@ export const skillGroupsRouter = createTRPCRouter({
 })
 
 
-export async function getSkillGroupById(ctx: AuthenticatedContext, skillGroupId: string): Promise<SkillGroupWithPackage> {
+export async function getSkillGroupById(ctx: AuthenticatedContext, skillPackageId: string, skillGroupId: string): Promise<SkillGroupWithPackage> {
     const skillGroup = await ctx.prisma.skillGroup.findUnique({
-        where: { id: skillGroupId },
+        where: { id: skillGroupId, skillPackageId },
         include: {
             skillPackage: true,
             parent: true,

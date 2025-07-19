@@ -9,15 +9,16 @@ import { PlusIcon } from 'lucide-react'
 import { useMemo } from 'react'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel,  getSortedRowModel, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel, getFilteredRowModel,  getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTableBody, DataTableHead, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
 import { TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Table } from '@/components/ui/table'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+
 
 import * as Paths from '@/paths'
 import { Skill, useTRPC } from '@/trpc/client'
@@ -86,8 +87,7 @@ export function SkillGroupSkillsListCard({ skillGroupId, skillPackageId }: { ski
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
-        getGroupedRowModel: getGroupedRowModel(),
-        getExpandedRowModel: getExpandedRowModel(),
+        enableGrouping: false,
         initialState: {
             columnVisibility: {
                 id: false, name: true, description: true, frequency: false, status: true
@@ -98,7 +98,7 @@ export function SkillGroupSkillsListCard({ skillGroupId, skillPackageId }: { ski
             globalFilter: '',
             grouping: [],
             sorting: [
-                { id: 'name', desc: false }
+                { id: 'sequence', desc: false }
             ],
         }
     })

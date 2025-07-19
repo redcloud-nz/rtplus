@@ -10,13 +10,13 @@ import { useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
+import { SkillPackageValue } from '@/components/controls/skill-package-value'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DisplayValue } from '@/components/ui/display-value'
 import { Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 import { ObjectName } from '@/components/ui/typography'
@@ -38,12 +38,6 @@ export function NewSkillGroupDetailsCard({ skillPackageId }: NewSkillGroupDetail
     const trpc = useTRPC()
 
     const skillGroupId = useMemo(() => nanoId8(), [])
-
-    // Get available skill groups for parent selection
-    const { data: skillGroups } = useSuspenseQuery(trpc.skillGroups.bySkillPackageId.queryOptions({ 
-        skillPackageId,
-        status: ['Active', 'Inactive']
-    }))
 
     const form = useForm<SkillGroupFormData>({
         resolver: zodResolver(skillGroupFormSchema),
@@ -103,34 +97,8 @@ export function NewSkillGroupDetailsCard({ skillPackageId }: NewSkillGroupDetail
                             control={form.control}
                             name="skillPackageId"
                             render={({ field }) => <ToruGridRow
-                                label="Skill Package ID"
-                                control={<DisplayValue>{field.value}</DisplayValue>}
-                            />}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="parentId"
-                            render={({ field }) => <ToruGridRow
-                                label="Parent Group"
-                                control={
-                                    <Select 
-                                        value={field.value || ''} 
-                                        onValueChange={(value) => field.onChange(value || null)}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select parent group (optional)" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="">No parent</SelectItem>
-                                            {skillGroups.map(group => (
-                                                <SelectItem key={group.id} value={group.id}>
-                                                    {group.name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                }
-                                description="Optional parent group for hierarchical organization."
+                                label="Skill Package"
+                                control={<SkillPackageValue skillPackageId={field.value} />}
                             />}
                         />
                         <FormField

@@ -46,7 +46,7 @@ import { SkillWithPackageAndGroup, useTRPC } from '@/trpc/client'
 export function SkillDetailsCard({ skillId, skillPackageId }: { skillId: string, skillPackageId: string }) {
 
     const trpc = useTRPC()
-    const { data: skill } = useSuspenseQuery(trpc.skills.byId.queryOptions({ skillId }))
+    const { data: skill } = useSuspenseQuery(trpc.skills.byId.queryOptions({ skillId, skillPackageId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
 
@@ -319,10 +319,11 @@ function DeleteSkillDialog({ skill, skillPackageId }: { skill: SkillWithPackageA
     const form = useForm({
         resolver: zodResolver(z.object({
             skillId: zodNanoId8,
+            skillPackageId: zodNanoId8,
             skillName: z.literal(skill.name)
         })),
         mode: 'onSubmit',
-        defaultValues: { skillId: skill.id, skillName: "" }
+        defaultValues: { skillId: skill.id, skillPackageId, skillName: "" }
     })
 
     const mutation = useMutation(trpc.skills.sys_delete.mutationOptions({

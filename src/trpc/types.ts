@@ -6,7 +6,7 @@
 import { OrganizationMembershipRole } from '@clerk/nextjs/server'
 import type { Person, Skill, SkillCheck, SkillCheckSession, SkillGroup, SkillPackage, Team, TeamMembership } from '@prisma/client'
 
-export { Skill, SkillCheck, SkillCheckSession, SkillGroup, SkillPackage }
+export { Person, Skill, SkillCheck, SkillCheckSession, SkillGroup, SkillPackage, Team, TeamMembership }
 
 export type DeleteType = 'Soft' | 'Hard'
 

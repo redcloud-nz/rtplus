@@ -11,24 +11,26 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
-import { HydrateClient } from '@/trpc/server'
+import { fetchTeam } from '@/server/fetch'
+import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
 import { TeamDetailsCard } from './team-details'
 import { TeamMembersCard } from './team-members'
 import { TeamUsersCard } from './team-users'
-import { getTeam, TeamParams } from '.'
 
 
-export async function generateMetadata(props: { params: Promise<TeamParams> }) {
-    const team = await getTeam(props.params)
+
+export async function generateMetadata(props: { params: Promise<{ team_id: string }> }) {
+    const team = await fetchTeam(props.params)
     
     return { title: `${team.shortName || team.name} - Teams` }
 }
 
 
-export default async function TeamPage(props: { params: Promise<TeamParams> }) { 
+export default async function TeamPage(props: { params: Promise<{ team_id: string }> }) { 
+    const team = await fetchTeam(props.params)
 
-    const team = await getTeam(props.params)
+    prefetch(trpc.teamMemberships.byTeam.queryOptions({ teamId: team.id }))
     
     return <AppPage>
         <AppPageBreadcrumbs

@@ -12,6 +12,7 @@ import * as Paths from '@/paths'
 import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
 import { PersonnelListCard } from './personnel-list' 
+import { Boundary } from '@/components/boundary'
 
 
 export const metadata: Metadata = { title: "Personnel" }
@@ -31,7 +32,10 @@ export default async function PersonnelPage() {
                 <PageHeader>
                     <PageTitle>Personnel</PageTitle>
                 </PageHeader>
-                <PersonnelListCard/>
+                <Boundary>
+                    <PersonnelListCard/>
+                </Boundary>
+                
             </AppPageContent>
         </HydrateClient>
     </AppPage>

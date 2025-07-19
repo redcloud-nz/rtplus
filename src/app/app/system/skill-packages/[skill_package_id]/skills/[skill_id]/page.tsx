@@ -6,19 +6,23 @@
  */
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
+import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
+import { fetchSkill } from '@/server/fetch'
+import { HydrateClient } from '@/trpc/server'
 
 import { SkillDetailsCard } from './skill-details'
-import { getSkill, SkillParams } from '.'
 
 
-export async function generateMetadata(props: { params: Promise<SkillParams> }) {
-    const skill = await getSkill(props.params)
+
+
+export async function generateMetadata(props: { params: Promise<{ skill_id: string, skill_package_id: string }> }) {
+    const skill = await fetchSkill(props.params)
     return { title: `${skill.name} - Skills` }
 }
-export default async function SkillPage(props: { params: Promise<SkillParams> }) {
-    const skill = await getSkill(props.params)
+export default async function SkillPage(props: { params: Promise<{ skill_id: string, skill_package_id: string}> }) {
+    const skill = await fetchSkill(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs
@@ -30,12 +34,18 @@ export default async function SkillPage(props: { params: Promise<SkillParams> })
                 skill.name
             ]}
         />
-        <AppPageContent variant='container'>
-            <PageHeader>
-                <PageTitle objectType="Skill">{skill.name}</PageTitle>    
-            </PageHeader>
+        <HydrateClient>
+            <AppPageContent variant='container'>
+                <PageHeader>
+                    <PageTitle objectType="Skill">{skill.name}</PageTitle>    
+                </PageHeader>
 
-            <SkillDetailsCard skillId={skill.id} skillPackageId={skill.skillPackageId}/>
-        </AppPageContent>
+                <Boundary>
+                    <SkillDetailsCard skillId={skill.id} skillPackageId={skill.skillPackageId}/>
+                </Boundary>
+                
+            </AppPageContent>
+        </HydrateClient>
+        
     </AppPage>
 }

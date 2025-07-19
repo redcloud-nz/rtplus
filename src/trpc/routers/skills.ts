@@ -32,9 +32,10 @@ export const skillsRouter = createTRPCRouter({
     byId: authenticatedProcedure
         .input(z.object({
             skillId: zodNanoId8,
+            skillPackageId: zodNanoId8
         }))
         .query(async ({ ctx, input }): Promise<SkillWithPackageAndGroup> => {
-            return getSkillById(ctx, input.skillId)
+            return getSkillById(ctx, input.skillPackageId, input.skillId)
         }),
                             
     bySkillGroupId: authenticatedProcedure
@@ -102,10 +103,11 @@ export const skillsRouter = createTRPCRouter({
 
     sys_delete: systemAdminProcedure
         .input(z.object({
-            skillId: zodNanoId8
+            skillId: zodNanoId8,
+            skillPackageId: zodNanoId8
         }))
-        .mutation(async ({ ctx, input: { skillId } }): Promise<SkillWithPackageAndGroup> => {
-            const skill = await getSkillById(ctx, skillId)
+        .mutation(async ({ ctx, input: { skillId, skillPackageId } }): Promise<SkillWithPackageAndGroup> => {
+            const skill = await getSkillById(ctx, skillPackageId, skillId)
 
             const [deletedSkill] = await ctx.prisma.$transaction([
                 ctx.prisma.skill.delete({
@@ -134,7 +136,7 @@ export const skillsRouter = createTRPCRouter({
     sys_update: systemAdminProcedure
         .input(skillFormSchema)
         .mutation(async ({ ctx, input: { skillPackageId, skillId, ...input } }): Promise<SkillWithPackageAndGroup> => {
-            const skill = await getSkillById(ctx, skillId)
+            const skill = await getSkillById(ctx, skillPackageId, skillId)
 
             const changedFields = pickBy(input, (value, key) => value != skill[key])
 
@@ -165,9 +167,9 @@ export const skillsRouter = createTRPCRouter({
 })
 
 
-export async function getSkillById(ctx: AuthenticatedContext, skillId: string): Promise<SkillWithPackageAndGroup> {
+export async function getSkillById(ctx: AuthenticatedContext, skillPackageId: string, skillId: string): Promise<SkillWithPackageAndGroup> {
     const skill = await ctx.prisma.skill.findUnique({
-        where: { id: skillId },
+        where: { id: skillId, skillPackageId},
         include: {
             skillPackage: true,
             skillGroup: true,

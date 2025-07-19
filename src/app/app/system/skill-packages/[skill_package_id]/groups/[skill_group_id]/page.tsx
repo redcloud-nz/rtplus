@@ -8,21 +8,23 @@
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
-import { HydrateClient } from '@/trpc/server'
+import { fetchSkillGroup } from '@/server/fetch'
+import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
 import { SkillGroupDetailsCard } from './skill-group-details'
 import { SkillGroupSkillsListCard } from './skill-group-skills-list'
-import { getSkillGroup, SkillGroupParams } from '.'
 
 
-export async function generateMetadata(props: { params: Promise<SkillGroupParams> }) {
-    const skillGroup = await getSkillGroup(props.params)
+
+export async function generateMetadata(props: { params: Promise<{ skill_group_id: string, skill_package_id: string }> }) {
+    const skillGroup = await fetchSkillGroup(props.params)
     return { title: `${skillGroup.name} - Skill Groups` }
-    
 }
 
-export default async function SkillGroupPage(props: { params: Promise<SkillGroupParams> }) {
-    const skillGroup = await getSkillGroup(props.params)
+export default async function SkillGroupPage(props: { params: Promise<{ skill_group_id: string, skill_package_id: string }> }) {
+    const skillGroup = await fetchSkillGroup(props.params)
+
+    prefetch(trpc.skills.bySkillGroupId.queryOptions({ skillGroupId: skillGroup.id }))
 
     return <AppPage>
         <AppPageBreadcrumbs

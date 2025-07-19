@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils'
 import { Input } from './input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
+import { Show } from '../show'
 
 // eslint-disable-next-line
 const DataTableContext = React.createContext<TanstackTable<any> | null>(null)
@@ -143,7 +144,7 @@ function ColumnHeader<T>({ className, children, column, table, ...props }: Colum
                                 
                             </DropdownMenuGroup>
                         </>}
-                        {(column.getCanHide() || column.getCanGroup()) && <>
+                        {( column.getCanHide() || column.getCanGroup()) && <>
                             <DropdownMenuSeparator/>
                             <DropdownMenuGroup>
                                 {column.getCanGroup() && <DropdownMenuItem
@@ -319,6 +320,8 @@ export function DataTableResetButton(props: Omit<ButtonProps, 'children' | 'onCl
 export function TableOptionsDropdown() {
     const table = useDataTable()
 
+    const groupableColumns = table.getAllColumns().filter(column => column.getCanGroup())
+
     return <DropdownMenu >
         <Tooltip>
             <TooltipTrigger asChild>
@@ -347,19 +350,21 @@ export function TableOptionsDropdown() {
                     </DropdownMenuCheckboxItem>)
                 }
             </DropdownMenuGroup>
-            <DropdownMenuSeparator/>
-            <DropdownMenuGroup>
-                <DropdownMenuGroupLabel>Group by</DropdownMenuGroupLabel>
-                {table.getAllColumns()
-                    .filter(column => column.getCanGroup())
-                    .map(column => <DropdownMenuCheckboxItem
-                        key={column.id} 
-                        checked={column.getIsGrouped()}
-                        onCheckedChange={() => table.setGrouping(column.getIsGrouped() ? [] : [column.id])}
-                    >
-                        {column.columnDef.header as string}
-                    </DropdownMenuCheckboxItem>)}
-            </DropdownMenuGroup>
+            <Show when={groupableColumns.length > 0}>
+                <DropdownMenuSeparator/>
+                <DropdownMenuGroup>
+                    <DropdownMenuGroupLabel>Group by</DropdownMenuGroupLabel>
+                    {groupableColumns.map(column => 
+                        <DropdownMenuCheckboxItem
+                            key={column.id} 
+                            checked={column.getIsGrouped()}
+                            onCheckedChange={() => table.setGrouping(column.getIsGrouped() ? [] : [column.id])}
+                        >
+                            {column.columnDef.header as string}
+                        </DropdownMenuCheckboxItem>
+                    )}
+                </DropdownMenuGroup>
+            </Show>
             <DropdownMenuSeparator/>
             <DropdownMenuGroup>
                 <DropdownMenuItem onClick={() => table.reset()}>
