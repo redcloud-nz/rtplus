@@ -73,8 +73,6 @@ export const system = {
             index: packageBase,
             update: `${packageBase}/--update`,
             delete: `${packageBase}/--delete`,
-            createGroup: `${packageBase}/--create-group`,
-            createSkill: `${packageBase}/--create-skill`,
 
             group: (skillGroupId: string) => ({
                 index: `${packageBase}/groups/${skillGroupId}`,
@@ -83,6 +81,7 @@ export const system = {
             } as const),
             groups: {
                 _label: 'Groups',
+                create: `${packageBase}/groups/--create`,
             },
 
             skill: (skillId: string) => ({
@@ -92,6 +91,7 @@ export const system = {
             } as const),
             skills: {
                 _label: 'Skills',
+                create: `${packageBase}/skills/--create`,
             },
         } as const
     }, 

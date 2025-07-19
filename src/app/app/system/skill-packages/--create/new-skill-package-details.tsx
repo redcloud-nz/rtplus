@@ -6,7 +6,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useLayoutEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DisplayValue } from '@/components/ui/display-value'
 import { Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 import { ObjectName } from '@/components/ui/typography'
 
@@ -24,7 +25,7 @@ import { SkillPackageFormData, skillPackageFormSchema } from '@/lib/forms/skill-
 import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
-import { Textarea } from '@/components/ui/textarea'
+
 
 
 export function NewSkillPackageDetailsCard() {
@@ -67,10 +68,6 @@ export function NewSkillPackageDetailsCard() {
             router.push(Paths.system.skillPackage(result.id).index)
         }
     }))
-
-    useLayoutEffect(() => {
-        form.setFocus('name')
-    }, [])
 
     return <Card>
         <CardHeader>

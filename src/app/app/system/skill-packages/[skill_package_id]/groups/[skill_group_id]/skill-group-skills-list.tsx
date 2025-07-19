@@ -111,7 +111,7 @@ export function SkillGroupSkillsListCard({ skillGroupId, skillPackageId }: { ski
 
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" disabled>
                                 <PlusIcon/>
                             </Button>
                         </TooltipTrigger>

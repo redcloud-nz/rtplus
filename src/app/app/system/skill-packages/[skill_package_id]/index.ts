@@ -8,13 +8,15 @@
 import { notFound } from 'next/navigation'
 import { cache } from 'react'
 import { SkillPackage } from '@prisma/client'
-import prisma from '@/server/prisma'
+import { getQueryClient, trpc } from '@/trpc/server'
 
 export interface SkillPackageParams { skill_package_id: string }
 
 export const getSkillPackage = cache(async (params: Promise<SkillPackageParams>): Promise<SkillPackage> => {
+    const queryClient = getQueryClient()
+
     const { skill_package_id: skillPackageId } = await params
-    const skillPackage = await prisma.skillPackage.findUnique({ where: { id: skillPackageId } })
+    const skillPackage = await queryClient.fetchQuery(trpc.skillPackages.byId.queryOptions({ skillPackageId }))
 
     return skillPackage ?? notFound()
 })

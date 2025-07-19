@@ -13,7 +13,7 @@ import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRo
 import { Button } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTableBody, DataTableHead, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
-import { TextLink } from '@/components/ui/link'
+import { Link, TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Table } from '@/components/ui/table'
@@ -98,8 +98,10 @@ export function SkillPackageGroupsListCard({ skillPackageId }: { skillPackageId:
                 <CardActions>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                                <PlusIcon/>
+                            <Button variant="ghost" size="icon" asChild>
+                                <Link href={Paths.system.skillPackage(skillPackageId).groups.create}>
+                                    <PlusIcon/>
+                                </Link>
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>
