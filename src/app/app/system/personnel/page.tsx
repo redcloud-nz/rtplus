@@ -18,7 +18,7 @@ import { Boundary } from '@/components/boundary'
 export const metadata: Metadata = { title: "Personnel" }
 
 export default async function PersonnelPage() {
-    prefetch(trpc.personnel.all.queryOptions())
+    prefetch(trpc.personnel.all.queryOptions({}))
 
     return <AppPage>
         <AppPageBreadcrumbs 

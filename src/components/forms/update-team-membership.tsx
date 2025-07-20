@@ -12,16 +12,16 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 import { Form, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs, UpdateFormProps } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
-import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema } from '@/lib/forms/team-membership'
+import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema } from '@/lib/schemas/team-membership'
 import { useToast } from '@/hooks/use-toast'
-import { TeamMembershipWithPersonAndTeam, useTRPC } from '@/trpc/client'
+import { TeamMembershipDataWithPersonAndTeam, useTRPC } from '@/trpc/client'
 import { DisplayValue } from '../ui/display-value'
 
 
 /**
  * Common form for a system admin to update a team membership.
  */
-export function UpdateTeamMembershipForm({ onClose, onUpdate, personId, teamId }: UpdateFormProps<TeamMembershipWithPersonAndTeam> & { personId: string, teamId: string}) {
+export function UpdateTeamMembershipForm({ onClose, onUpdate, personId, teamId }: UpdateFormProps<TeamMembershipDataWithPersonAndTeam> & { personId: string, teamId: string}) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()

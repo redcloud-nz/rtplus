@@ -8,6 +8,7 @@ import { format } from 'date-fns'
 
 import { EllipsisVertical, PencilIcon, TrashIcon } from 'lucide-react'
 import { useState } from 'react'
+import { match } from 'ts-pattern'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 
@@ -18,15 +19,15 @@ import { Card, CardContent, CardExplanation, CardHeader, CardTitle } from '@/com
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
-
-import { OrgMembershipBasic, TeamBasic, useTRPC } from '@/trpc/client'
-import { match } from 'ts-pattern'
 import { ObjectName } from '@/components/ui/typography'
 
+import { OrgMembershipData, TeamData, useTRPC } from '@/trpc/client'
 
-type ActionState = { action: 'Edit' | 'Delete', orgMembership: OrgMembershipBasic } | null
 
-export function TeamUsersCard({ team }: { team: TeamBasic}) {
+
+type ActionState = { action: 'Edit' | 'Delete', orgMembership: OrgMembershipData } | null
+
+export function TeamUsersCard({ team }: { team: TeamData }) {
 
     const [actionTarget, setActionTarget] = useState<ActionState>(null)
     function handleOpenChange(open: boolean) { if (!open) setActionTarget(null) }
@@ -47,7 +48,7 @@ export function TeamUsersCard({ team }: { team: TeamBasic}) {
             </CardHeader>
             <CardContent>
                 <TeamUsersCardTable 
-                    teamId={team.id}
+                    teamId={team.teamId}
                     onAction={setActionTarget}
                 />
             </CardContent>

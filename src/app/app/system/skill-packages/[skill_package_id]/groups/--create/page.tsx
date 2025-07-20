@@ -30,7 +30,7 @@ export default async function NewSkillGroupPage(props: { params: Promise<{ skill
             breadcrumbs={[
                 Paths.system,
                 Paths.system.skillPackages,
-                { label: skillPackage.name, href: Paths.system.skillPackage(skillPackage.id).index },
+                { label: skillPackage.name, href: Paths.system.skillPackage(skillPackage.skillPackageId).index },
                 "Groups",
                 "Create"
             ]}
@@ -43,7 +43,7 @@ export default async function NewSkillGroupPage(props: { params: Promise<{ skill
                 </PageHeader>
                 
                 <Boundary>
-                    <NewSkillGroupDetailsCard skillPackageId={skillPackage.id} />
+                    <NewSkillGroupDetailsCard skillPackageId={skillPackage.skillPackageId} />
                 </Boundary>
                 
             </AppPageContent>

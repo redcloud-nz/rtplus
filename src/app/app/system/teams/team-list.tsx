@@ -6,6 +6,7 @@
 'use client'
 
 import { PlusIcon } from 'lucide-react'
+import { useMemo } from 'react'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
@@ -19,11 +20,17 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { Table } from '@/components/ui/table'
 
 import * as Paths from '@/paths'
-import { TeamBasic, useTRPC, WithCounts } from '@/trpc/client'
+import { useTRPC } from '@/trpc/client'
 
 
-const columns = defineColumns<WithCounts<TeamBasic, 'teamMemberships'>>(columnHelper => [
-    columnHelper.accessor('id', {
+export function TeamsListCard() {
+
+    const trpc = useTRPC()
+
+    const { data: teams } = useSuspenseQuery(trpc.teams.all.queryOptions())
+
+    const columns = useMemo(() => defineColumns<typeof teams[0]>(columnHelper => [
+    columnHelper.accessor('teamId', {
         header: 'ID',
         cell: ctx => ctx.getValue(),
         enableHiding: true,
@@ -32,7 +39,7 @@ const columns = defineColumns<WithCounts<TeamBasic, 'teamMemberships'>>(columnHe
     }),
     columnHelper.accessor('name', {
         header: 'Name',
-        cell: ctx => <TextLink href={Paths.system.team(ctx.row.original.id).index}>{ctx.getValue()}</TextLink>,
+        cell: ctx => <TextLink href={Paths.system.team(ctx.row.original.teamId).index}>{ctx.getValue()}</TextLink>,
         enableHiding: false
     }),
     columnHelper.accessor('shortName', {
@@ -41,12 +48,14 @@ const columns = defineColumns<WithCounts<TeamBasic, 'teamMemberships'>>(columnHe
         enableGrouping: false,
     }),
     columnHelper.accessor('_count.teamMemberships', {
+        id: 'teamMemberCount',
         header: 'Members',
         cell: ctx => ctx.getValue(),
         enableSorting: true,
         enableGlobalFilter: false,
     }),
     columnHelper.accessor('status', {
+        id: 'status',
         header: 'Status',
         cell: ctx => ctx.getValue(),
         enableSorting: false,
@@ -56,13 +65,7 @@ const columns = defineColumns<WithCounts<TeamBasic, 'teamMemberships'>>(columnHe
             enumOptions: { Active: 'Active', Inactive: 'Inactive' },
         }
     }),
-])
-
-export function TeamsListCard() {
-
-    const trpc = useTRPC()
-
-    const { data: teams } = useSuspenseQuery(trpc.teams.all.queryOptions())
+]), [])
 
     const table = useReactTable({
         columns,
@@ -75,7 +78,7 @@ export function TeamsListCard() {
         getExpandedRowModel: getExpandedRowModel(),
         initialState: {
             columnVisibility: {
-                id: false, name: true, shortName: true, memberCount: true, status: true
+                teamId: false, name: true, shortName: true, teamMemberCount: true, status: true
             },
             columnFilters: [
                 { id: 'status', value: ['Active'] }

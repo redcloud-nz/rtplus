@@ -21,7 +21,7 @@ import { Textarea } from '@/components/ui/textarea'
 
 import { CompetenceLevelTerms } from '@/lib/terms'
 
-import { SkillPackageWithGroupsAndSkills, useTRPC} from '@/trpc/client'
+import { SkillPackageDataWithGroupsAndSkills, useTRPC} from '@/trpc/client'
 import { useQuery } from '@tanstack/react-query'
 
 
@@ -36,7 +36,7 @@ export function RecordSkillCheckForm({ cancelHref }: RecordSkillCheckPageProps) 
     const skillPackagesQuery = useQuery(trpc.skillPackages.current.queryOptions())
     const teamMembersQuery = useQuery(trpc.teamMemberships.byTeam.queryOptions({ teamId: "current" }))
 
-    function renderSkillPackageSelectItems(skillPackage: SkillPackageWithGroupsAndSkills) {
+    function renderSkillPackageSelectItems(skillPackage: SkillPackageDataWithGroupsAndSkills) {
         return <React.Fragment key={skillPackage.id}>
             {skillPackage.skillGroups
                 .filter(skillGroup => skillGroup.parentId == null)

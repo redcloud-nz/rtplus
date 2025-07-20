@@ -30,10 +30,14 @@ import { ObjectName } from '@/components/ui/typography'
 import { TextLink } from '@/components/ui/link'
 
 import { useToast } from '@/hooks/use-toast'
-import { SkillFormData, skillFormSchema } from '@/lib/forms/skill'
+import { SkillData, skillSchema } from '@/lib/schemas/skill'
+import { SkillGroupData } from '@/lib/schemas/skill-group'
+import { SkillPackageData } from '@/lib/schemas/skill-package'
+
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
-import { SkillWithPackageAndGroup, useTRPC } from '@/trpc/client'
+import { useTRPC } from '@/trpc/client'
+
 
 
 
@@ -63,7 +67,7 @@ export function SkillDetailsCard({ skillId, skillPackageId }: { skillId: string,
                     </TooltipTrigger>
                     <TooltipContent>Edit skill</TooltipContent>
                 </Tooltip>
-                <DeleteSkillDialog skill={skill} skillPackageId={skillPackageId} />
+                <DeleteSkillDialog skill={skill} />
 
                 <Separator orientation="vertical"/>
 
@@ -82,7 +86,7 @@ export function SkillDetailsCard({ skillId, skillPackageId }: { skillId: string,
                     <ToruGrid>
                         <ToruGridRow
                             label="Skill ID"
-                            control={<DisplayValue>{skill.id}</DisplayValue>}
+                            control={<DisplayValue>{skill.skillId}</DisplayValue>}
                         />
                         <ToruGridRow
                             label="Skill Package"
@@ -133,6 +137,8 @@ export function SkillDetailsCard({ skillId, skillPackageId }: { skillId: string,
                 )
                 .with('Update', () => 
                     <UpdateSkillForm
+                        skillPackage={skill.skillPackage}
+                        skillGroup={skill.skillGroup}
                         skill={skill}
                         onClose={() => setMode('View')}
                     />
@@ -149,29 +155,20 @@ export function SkillDetailsCard({ skillId, skillPackageId }: { skillId: string,
  * @param onClose Callback to close the form.
  * @param skill The skill to update.
  */
-function UpdateSkillForm({ onClose, skill }: { onClose: () => void, skill: SkillWithPackageAndGroup }) {
+function UpdateSkillForm({ onClose, skill, skillPackage, skillGroup }: { onClose: () => void, skill: SkillData, skillPackage: SkillPackageData, skillGroup: SkillGroupData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const form = useForm<SkillFormData>({
-        resolver: zodResolver(skillFormSchema),
-        defaultValues: {
-            skillId: skill.id,
-            skillGroupId: skill.skillGroupId,
-            skillPackageId: skill.skillPackageId,
-            name: skill.name,
-            description: skill.description,
-            frequency: skill.frequency,
-            optional: skill.optional,
-            status: skill.status
-        }
+    const form = useForm<SkillData>({
+        resolver: zodResolver(skillSchema),
+        defaultValues: { ...skill}
     })
 
     const mutation = useMutation(trpc.skills.sys_update.mutationOptions({
         onError(error) {
             if (error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof SkillFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof SkillData, { message: error.shape.message })
             } else {
                 toast({
                     title: 'Error updating skill',
@@ -188,7 +185,7 @@ function UpdateSkillForm({ onClose, skill }: { onClose: () => void, skill: Skill
             })
 
             queryClient.invalidateQueries(trpc.skills.all.queryFilter())
-            queryClient.invalidateQueries(trpc.skills.byId.queryFilter({ skillId: result.id }))
+            queryClient.invalidateQueries(trpc.skills.byId.queryFilter({ skillId: result.skillId }))
             queryClient.invalidateQueries(trpc.skills.bySkillGroupId.queryFilter({ skillGroupId: result.skillGroupId }))
             onClose()
         }
@@ -213,7 +210,7 @@ function UpdateSkillForm({ onClose, skill }: { onClose: () => void, skill: Skill
                         control={
                             <DisplayValue>
                                 <TextLink href={Paths.system.skillPackage(skill.skillPackageId).index}>
-                                    {skill.skillPackage.name}
+                                    {skillPackage.name}
                                 </TextLink>
                             </DisplayValue>
                         }
@@ -227,7 +224,7 @@ function UpdateSkillForm({ onClose, skill }: { onClose: () => void, skill: Skill
                         control={
                             <DisplayValue>
                                 <TextLink href={Paths.system.skillPackage(skill.skillPackageId).group(skill.skillGroupId).index}>
-                                    {skill.skillGroup.name}
+                                    {skillGroup.name}
                                 </TextLink>
                             </DisplayValue>
                         }
@@ -308,7 +305,7 @@ function UpdateSkillForm({ onClose, skill }: { onClose: () => void, skill: Skill
  * @param skill The skill to delete.
  * @param skillPackageId The ID of the skill package that the skill belongs to.
  */
-function DeleteSkillDialog({ skill, skillPackageId }: { skill: SkillWithPackageAndGroup, skillPackageId: string }) {
+function DeleteSkillDialog({ skill }: { skill: SkillData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -323,10 +320,10 @@ function DeleteSkillDialog({ skill, skillPackageId }: { skill: SkillWithPackageA
             skillName: z.literal(skill.name)
         })),
         mode: 'onSubmit',
-        defaultValues: { skillId: skill.id, skillPackageId, skillName: "" }
+        defaultValues: { skillId: skill.skillId, skillPackageId: skill.skillPackageId, skillName: "" }
     })
 
-    const mutation = useMutation(trpc.skills.sys_delete.mutationOptions({
+    const mutation = useMutation(trpc.skills.delete.mutationOptions({
         onError(error) {
             toast({
                 title: 'Error deleting skill',
@@ -343,9 +340,9 @@ function DeleteSkillDialog({ skill, skillPackageId }: { skill: SkillWithPackageA
             setOpen(false)
 
             queryClient.invalidateQueries(trpc.skills.all.queryFilter())
-            queryClient.invalidateQueries(trpc.skills.byId.queryFilter({ skillId: skill.id }))
+            queryClient.invalidateQueries(trpc.skills.byId.queryFilter({ skillId: skill.skillId }))
             queryClient.invalidateQueries(trpc.skills.bySkillGroupId.queryFilter({ skillGroupId: skill.skillGroupId }))
-            router.push(Paths.system.skillPackage(skillPackageId).group(skill.skillGroupId).index)
+            router.push(Paths.system.skillPackage(skill.skillPackageId).group(skill.skillGroupId).index)
         }
     }))
 

@@ -22,31 +22,31 @@ export async function generateMetadata(props: { params: Promise<{ skill_group_id
 }
 
 export default async function SkillGroupPage(props: { params: Promise<{ skill_group_id: string, skill_package_id: string }> }) {
-    const skillGroup = await fetchSkillGroup(props.params)
+    const { skillGroupId, skillPackageId, skillPackage, name} = await fetchSkillGroup(props.params)
 
-    prefetch(trpc.skills.bySkillGroupId.queryOptions({ skillGroupId: skillGroup.id }))
+    prefetch(trpc.skills.bySkillGroupId.queryOptions({ skillGroupId }))
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.system, 
                 Paths.system.skillPackages,
-                { label: skillGroup.skillPackage.name, href: Paths.system.skillPackage(skillGroup.skillPackageId).index },
-                Paths.system.skillPackage(skillGroup.skillPackageId).groups,
-                skillGroup.name
+                { label: skillPackage.name, href: Paths.system.skillPackage(skillPackageId).index },
+                Paths.system.skillPackage(skillPackageId).groups,
+                name
             ]}
         />
         <HydrateClient>
              <AppPageContent variant='container'>
                 <PageHeader>
-                    <PageTitle objectType="Skill Group">{skillGroup.name}</PageTitle>    
+                    <PageTitle objectType="Skill Group">{name}</PageTitle>    
                 </PageHeader>
 
                 <Boundary>
-                     <SkillGroupDetailsCard skillGroupId={skillGroup.id} skillPackageId={skillGroup.skillPackageId}/>
+                     <SkillGroupDetailsCard skillGroupId={skillGroupId} skillPackageId={skillPackageId}/>
                 </Boundary>
                <Boundary>
-                    <SkillGroupSkillsListCard skillGroupId={skillGroup.id} skillPackageId={skillGroup.skillPackageId}/>
+                    <SkillGroupSkillsListCard skillGroupId={skillGroupId} skillPackageId={skillPackageId}/>
                 </Boundary>
             </AppPageContent>
         </HydrateClient>

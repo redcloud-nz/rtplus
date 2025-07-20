@@ -19,13 +19,13 @@ import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 
 import { useToast } from '@/hooks/use-toast'
-import { SkillFormData, skillFormSchema } from '@/lib/forms/skill'
+import { SkillData, skillSchema } from '@/lib/schemas/skill'
 import { nanoId8 } from '@/lib/id'
-import { SkillWithPackageAndGroup, useTRPC } from '@/trpc/client'
+import { SkillDataWithPackageAndGroup, useTRPC } from '@/trpc/client'
 
 
 
-export function CreateSkillForm({ onClose, onCreate, skillGroupId, skillPackageId }: CreateFormProps<SkillWithPackageAndGroup> & { skillGroupId?: string, skillPackageId: string }) {
+export function CreateSkillForm({ onClose, onCreate, skillGroupId, skillPackageId }: CreateFormProps<SkillDataWithPackageAndGroup> & { skillGroupId?: string, skillPackageId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
@@ -34,8 +34,8 @@ export function CreateSkillForm({ onClose, onCreate, skillGroupId, skillPackageI
 
     const skillId = useMemo(() => nanoId8(), [])
 
-    const form = useForm<SkillFormData>({
-        resolver: zodResolver(skillFormSchema),
+    const form = useForm<SkillData>({
+        resolver: zodResolver(skillSchema),
         defaultValues: {
             skillId,
             skillGroupId: skillGroupId ?? "",
@@ -53,10 +53,10 @@ export function CreateSkillForm({ onClose, onCreate, skillGroupId, skillPackageI
         onClose()
     }
 
-    const mutation = useMutation(trpc.skills.sys_create.mutationOptions({
+    const mutation = useMutation(trpc.skills.create.mutationOptions({
         onError(error) {
             if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof SkillFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof SkillData, { message: error.shape.message })
             } else {
                 toast({
                     title: 'Error creating skill',

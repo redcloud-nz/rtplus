@@ -3,19 +3,19 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import { pick, pickBy } from 'remeda'
+import { pickBy } from 'remeda'
 import { z } from 'zod'
 
-import { Team } from '@prisma/client'
+import { Team as TeamRecord } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
-import { TeamFormData, teamFormSchema } from '@/lib/forms/team'
+import { TeamData, teamSchema } from '@/lib/schemas/team'
 import { nanoId16 } from '@/lib/id'
 import { RTPlusLogger } from '@/lib/logger'
-import { zodNanoId8, zodRecordStatus, zodSlug } from '@/lib/validation'
+import { zodNanoId8, zodRecordStatus } from '@/lib/validation'
 
 import { AuthenticatedContext, authenticatedProcedure, AuthenticatedTeamContext, createTRPCRouter, systemAdminProcedure } from '../init'
-import { FieldConflictError, TeamBasic, WithCounts } from '../types'
+import { FieldConflictError } from '../types'
 
 
 const logger = new RTPlusLogger('trpc/teams')
@@ -26,7 +26,12 @@ export const teamsRouter = createTRPCRouter({
         .input(z.object({
             status: zodRecordStatus
         }).optional().default({}))
-        .query(async ({ ctx, input }): Promise<WithCounts<TeamBasic, 'teamMemberships'>[]> => {
+        .output(z.array(teamSchema.extend({
+            _count: z.object({
+                teamMemberships: z.number()
+            })
+        })))
+        .query(async ({ ctx, input }) => {
             const teams = await ctx.prisma.team.findMany({ 
                 where: { status: { in: input.status} },
                 include: {
@@ -36,63 +41,64 @@ export const teamsRouter = createTRPCRouter({
                 },
                 orderBy: { name: 'asc' }
             })
-            return teams
-        }),
-
-    allLinkedToD4h: authenticatedProcedure
-        .query(async ({ ctx }) => {
-            const teams = await ctx.prisma.team.findMany({
-                where: { status: 'Active' },
-                include: { d4hInfo: true }
-            })
-            return teams.filter(team => team.d4hInfo != null )
+            return teams.map(team => ({ teamId: team.id, ...team }))
         }),
 
     byId: authenticatedProcedure
         .input(z.object({ 
             teamId: zodNanoId8
         }))
-        .query(async ({ ctx, input }): Promise<TeamBasic> => {
-            
-            const team = await getTeamById(ctx, input.teamId)
-            return pick(team, ['id', 'name', 'shortName', 'slug', 'color', 'status'])
+        .output(teamSchema)
+        .query(async ({ ctx, input: { teamId } }) => {
+            const team = await getTeamById(ctx, teamId)
+            return { teamId, ...team }
         }),
 
     bySlug: authenticatedProcedure
         .input(z.object({
-            slug: zodSlug
+            teamSlug: z.string()
         }))
+        .output(teamSchema)
         .query(async ({ ctx, input }) => {
-            return ctx.prisma.team.findUnique({ 
-                where: { slug: input.slug },
-                include: { d4hInfo: true }
-            })
+            const team = await ctx.prisma.team.findUnique({ where: { slug: input.teamSlug } })
+            if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: `Team with slug '${input.teamSlug}' not found.` })
+            
+            return { teamId: team.id, ...team }
         }),
 
-    sys_create: systemAdminProcedure
-        .input(teamFormSchema)
-        .mutation(async ({ ctx, input }): Promise<TeamBasic> => {
+    create: systemAdminProcedure
+        .input(teamSchema)
+        .output(teamSchema)
+        .mutation(async ({ ctx, input }) => {
             const team = await createTeam(ctx, input)
-            return pick(team, ['id', 'name', 'shortName', 'slug', 'color', 'status'])
+            return { teamId: team.id, ...team }
         }),
 
-    sys_delete: systemAdminProcedure
+    delete: authenticatedProcedure
         .input(z.object({ 
             teamId: zodNanoId8,
         }))
-        .mutation(async ({ ctx, input }): Promise<TeamBasic> => {
+        .output(teamSchema)
+        .mutation(async ({ ctx, input: { teamId } }) => {
 
-            const deletedTeam = await deleteTeam(ctx, input.teamId)
-            return pick(deletedTeam, ['id', 'name', 'shortName', 'slug', 'color', 'status'])
+            const team = await getTeamById(ctx, teamId)
+            ctx.requireTeamAdmin(team.clerkOrgId)
+
+            const deleted = await deleteTeam(ctx, team)
+            return { teamId, ...deleted }
         }),
             
 
-    sys_update: systemAdminProcedure
-        .input(teamFormSchema)
-        .mutation(async ({ ctx, input }): Promise<TeamBasic> => {
+    update: authenticatedProcedure
+        .input(teamSchema)
+        .output(teamSchema)
+        .mutation(async ({ ctx, input: { teamId, ...update } }) => {
+
+            const team = await getTeamById(ctx, teamId)
+            ctx.requireTeamAdmin(team.clerkOrgId)
             
-            const updatedTeam = await updateTeam(ctx, input)
-            return pick(updatedTeam, ['id', 'name', 'shortName', 'slug', 'color', 'status'])
+            const updated = await updateTeam(ctx, team, update)
+            return { teamId, ...updated }
         }),
 
     updateTeamD4h: systemAdminProcedure
@@ -130,7 +136,7 @@ export const teamsRouter = createTRPCRouter({
  * @returns The active team object.
  * @throws Error if the active team is not found.
  */
-export async function getActiveTeam(ctx: AuthenticatedTeamContext): Promise<Team> {
+export async function getActiveTeam(ctx: AuthenticatedTeamContext): Promise<TeamRecord> {
     const team = await ctx.prisma.team.findUnique({ 
         where: { slug: ctx.teamSlug }
     })
@@ -145,7 +151,7 @@ export async function getActiveTeam(ctx: AuthenticatedTeamContext): Promise<Team
  * @returns The team object if found.
  * @throws TRPCError if the team is not found.
  */
-export async function getTeamById(ctx: AuthenticatedContext, teamId: string): Promise<Team> {
+export async function getTeamById(ctx: AuthenticatedContext, teamId: string): Promise<TeamRecord> {
     const team = await ctx.prisma.team.findUnique({ where: { id: teamId } })
     if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: `Team(${teamId}) not found.` })
     return team
@@ -158,7 +164,7 @@ export async function getTeamById(ctx: AuthenticatedContext, teamId: string): Pr
  * @returns The created team object.
  * @throws TRPCError if a team with the same name or shortName already exists.
  */
-export async function createTeam(ctx: AuthenticatedContext, { teamId, ...input }: TeamFormData): Promise<Team> {
+export async function createTeam(ctx: AuthenticatedContext, { teamId, ...input }: TeamData): Promise<TeamRecord> {
 
     const nameConflict = await ctx.prisma.team.findFirst({ where: { name: input.name } })
     if(nameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('name') })
@@ -208,31 +214,36 @@ export async function createTeam(ctx: AuthenticatedContext, { teamId, ...input }
  * @returns The updated team object.
  * @throws TRPCError if the team is not found or if a team with the new name, shortName, or slug already exists.
  */
-export async function updateTeam(ctx: AuthenticatedContext, { teamId, ...input }: TeamFormData): Promise<Team> {
-    const existing = await getTeamById(ctx, teamId)
+export async function updateTeam(ctx: AuthenticatedContext, team: TeamRecord, update: Omit<TeamData, 'teamId'>): Promise<TeamRecord> {
 
-    if(input.name != existing.name) {
-        const nameConflict = await ctx.prisma.team.findFirst({ where: { name: input.name } })
+    if(update.name != team.name) {
+        const nameConflict = await ctx.prisma.team.findFirst({ where: { name: update.name } })
         if(nameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('name') })
     }
 
-    if(input.shortName != existing.shortName) {
-        const shortNameConflict = await ctx.prisma.team.findFirst({ where: { shortName: input.shortName } })
+    if(update.shortName != team.shortName) {
+        const shortNameConflict = await ctx.prisma.team.findFirst({ where: { shortName: update.shortName } })
         if(shortNameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('shortName') })
     }
 
-    if(input.slug != existing.slug) {
-        const slugConflict = await ctx.prisma.team.findFirst({ where: { slug: input.slug } })
+    if(update.slug != team.slug) {
+        const slugConflict = await ctx.prisma.team.findFirst({ where: { slug: update.slug } })
         if(slugConflict) throw new TRPCError({ code: 'CONFLICT', cause:new FieldConflictError('slug') })
     }
 
+    ctx.clerkClient.organizations.updateOrganization(team.clerkOrgId, {
+        name: update.name,
+        slug: update.slug,
+        publicMetadata: { teamId: team.id }
+    })
+
     // Pick only the fields that have changed
-    const changedFields = pickBy(input, (value, key) => value != existing[key])
+    const changedFields = pickBy(update, (value, key) => value != team [key])
 
     return ctx.prisma.team.update({
-        where: { id: teamId },
+        where: { id: team.id },
         data: { 
-            ...input,
+            ...update,
             changeLogs: { 
                 create: { 
                     id: nanoId16(),
@@ -248,18 +259,16 @@ export async function updateTeam(ctx: AuthenticatedContext, { teamId, ...input }
 /**
  * Deletes a team from the system.
  * @param ctx The authenticated context.
- * @param teamId The ID of the team to delete.
+ * @param team The team object to delete.
  * @returns The deleted team object.
  * @throws TRPCError if the team is not found..
  */
-export async function deleteTeam(ctx: AuthenticatedContext, teamId: string): Promise<Team> {
-    const existing = await getTeamById(ctx, teamId)
+export async function deleteTeam(ctx: AuthenticatedContext, team: TeamRecord): Promise<TeamRecord> {
+    const deleted = await ctx.prisma.team.delete({ where: { id: team.id } })
 
-    await ctx.prisma.team.delete({ where: { id: teamId } })
+    await ctx.clerkClient.organizations.deleteOrganization(deleted.clerkOrgId)
 
-    await ctx.clerkClient.organizations.deleteOrganization(existing.clerkOrgId)
+    logger.info(`Team ${team.id} deleted successfully.`)
 
-    logger.info(`Team ${teamId} deleted successfully.`)
-
-    return existing
+    return deleted
 }

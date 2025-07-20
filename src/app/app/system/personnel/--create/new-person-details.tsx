@@ -20,7 +20,7 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { PersonFormData, personFormSchema } from '@/lib/forms/person'
+import { PersonData, personSchema } from '@/lib/schemas/person'
 import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
@@ -35,8 +35,8 @@ export function NewPersonDetailsCard() {
 
     const personId = useMemo(() => nanoId8(), [])
 
-    const form = useForm<PersonFormData>({
-        resolver: zodResolver(personFormSchema),
+    const form = useForm<PersonData>({
+        resolver: zodResolver(personSchema),
         defaultValues: {
             personId: personId,
             name: '',
@@ -48,7 +48,7 @@ export function NewPersonDetailsCard() {
     const mutation = useMutation(trpc.personnel.sys_create.mutationOptions({
         onError(error) {
             if (error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof PersonFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof PersonData, { message: error.shape.message })
             } else {
                 toast({
                     title: "Error creating person",

@@ -12,15 +12,16 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { DisplayValue, FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { DisplayValue } from '@/components/ui/display-value'
+import { FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 
 import { useToast } from '@/hooks/use-toast'
-import { OrgMembershipFormData, orgMembershipFormSchema } from '@/lib/forms/org-membership'
-import { OrgMembershipBasic, useTRPC } from '@/trpc/client'
+import { OrgMembershipFormData, orgMembershipFormSchema } from '@/lib/schemas/org-membership'
+import { OrgMembershipData, useTRPC } from '@/trpc/client'
 
 
 
-export function DeleteUserDialog({ orgMembership, ...props }: ComponentProps<typeof Dialog> & { orgMembership: OrgMembershipBasic }) {
+export function DeleteUserDialog({ orgMembership, ...props }: ComponentProps<typeof Dialog> & { orgMembership: OrgMembershipData }) {
 
     return <Dialog {...props}>
         <DialogContent>
@@ -37,7 +38,7 @@ export function DeleteUserDialog({ orgMembership, ...props }: ComponentProps<typ
     </Dialog>
 }
 
-function DeleteUserForm({ orgMembership, onClose }: { orgMembership: OrgMembershipBasic, onClose: () => void }) {
+function DeleteUserForm({ orgMembership, onClose }: { orgMembership: OrgMembershipData, onClose: () => void }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
@@ -89,13 +90,13 @@ function DeleteUserForm({ orgMembership, onClose }: { orgMembership: OrgMembersh
             <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                    <DisplayValue value={orgMembership.user.name}/>
+                    <DisplayValue>{orgMembership.user.name}</DisplayValue>
                 </FormControl>
             </FormItem>
             <FormItem>
                 <FormLabel>Identifier</FormLabel>
                 <FormControl>
-                    <DisplayValue value={orgMembership.user.identifier}/>
+                    <DisplayValue>{orgMembership.user.identifier}</DisplayValue>
                 </FormControl>
             </FormItem>
             <FormActions>

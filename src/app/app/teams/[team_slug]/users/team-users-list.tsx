@@ -20,7 +20,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import { Popover, PopoverContent, PopoverTriggerButton } from '@/components/ui/popover'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
-import { OrgMembershipBasic, useTRPC } from '@/trpc/client'
+import { OrgMembershipData, useTRPC } from '@/trpc/client'
 
 import { EditUserDialog } from './edit-user'
 import { DeleteUserDialog } from './delete-user'
@@ -62,7 +62,7 @@ function TeamUsersListTable() {
 
     const { data: orgMemberships } = useSuspenseQuery(trpc.orgMemberships.byCurrentTeam.queryOptions())
 
-    const [actionTarget, setActionTarget] = useState<{ action: 'Edit' | 'Delete', orgMembership: OrgMembershipBasic } | null>(null)
+    const [actionTarget, setActionTarget] = useState<{ action: 'Edit' | 'Delete', orgMembership: OrgMembershipData } | null>(null)
 
     return <Show 
         when={orgMemberships.length > 0}

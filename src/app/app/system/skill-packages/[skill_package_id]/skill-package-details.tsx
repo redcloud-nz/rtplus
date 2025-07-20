@@ -29,10 +29,10 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { SkillPackageFormData, skillPackageFormSchema } from '@/lib/forms/skill-package'
+import { SkillPackageData, skillPackageSchema } from '@/lib/schemas/skill-package'
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
-import { SkillPackage, useTRPC } from '@/trpc/client'
+import { useTRPC } from '@/trpc/client'
 
 
 
@@ -80,7 +80,7 @@ export function SkillPackageDetailsCard({ skillPackageId }: { skillPackageId: st
                     <ToruGrid>
                         <ToruGridRow
                             label="Skill Package ID"
-                            control={<DisplayValue>{skillPackage.id}</DisplayValue>}
+                            control={<DisplayValue>{skillPackage.skillPackageId}</DisplayValue>}
                         />
                         <ToruGridRow
                             label="Name"
@@ -115,25 +115,22 @@ export function SkillPackageDetailsCard({ skillPackageId }: { skillPackageId: st
  * @param onClose Callback to close the form.
  * @param skillPackage The skill package to update.
  */
-function UpdateSkillPackageForm({ onClose, skillPackage }: { onClose: () => void, skillPackage: SkillPackage }) {
+function UpdateSkillPackageForm({ onClose, skillPackage }: { onClose: () => void, skillPackage: SkillPackageData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const form = useForm<SkillPackageFormData>({
-        resolver: zodResolver(skillPackageFormSchema),
+    const form = useForm<SkillPackageData>({
+        resolver: zodResolver(skillPackageSchema),
         defaultValues: {
-            skillPackageId: skillPackage.id,
-            name: skillPackage.name,
-            description: skillPackage.description,
-            status: skillPackage.status
+            ...skillPackage
         }
     })
 
-    const mutation = useMutation(trpc.skillPackages.sys_update.mutationOptions({
+    const mutation = useMutation(trpc.skillPackages.update.mutationOptions({
         onError(error) {
             if (error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof SkillPackageFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof SkillPackageData, { message: error.shape.message })
             } else {
                 toast({
                     title: 'Error updating skill package',
@@ -150,7 +147,7 @@ function UpdateSkillPackageForm({ onClose, skillPackage }: { onClose: () => void
             })
 
             queryClient.invalidateQueries(trpc.skillPackages.all.queryFilter())
-            queryClient.invalidateQueries(trpc.skillPackages.byId.queryFilter({ skillPackageId: result.id }))
+            queryClient.invalidateQueries(trpc.skillPackages.byId.queryFilter({ skillPackageId: result.skillPackageId }))
             onClose()
         }
     }))
@@ -217,7 +214,7 @@ function UpdateSkillPackageForm({ onClose, skillPackage }: { onClose: () => void
  * It requires the user to confirm by entering the skill package name.
  * @param skillPackage The skill package to delete.
  */
-function DeleteSkillPackageDialog({ skillPackage }: { skillPackage: SkillPackage }) {
+function DeleteSkillPackageDialog({ skillPackage }: { skillPackage: SkillPackageData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -231,10 +228,10 @@ function DeleteSkillPackageDialog({ skillPackage }: { skillPackage: SkillPackage
             skillPackageName: z.literal(skillPackage.name)
         })),
         mode: 'onSubmit',
-        defaultValues: { skillPackageId: skillPackage.id, skillPackageName: "" }
+        defaultValues: { skillPackageId: skillPackage.skillPackageId, skillPackageName: "" }
     })
 
-    const mutation = useMutation(trpc.skillPackages.sys_delete.mutationOptions({
+    const mutation = useMutation(trpc.skillPackages.delete.mutationOptions({
         onError(error) {
             toast({
                 title: 'Error deleting skill package',
@@ -251,8 +248,8 @@ function DeleteSkillPackageDialog({ skillPackage }: { skillPackage: SkillPackage
             setOpen(false)
 
             queryClient.invalidateQueries(trpc.skillPackages.all.queryFilter())
-            queryClient.invalidateQueries(trpc.skillPackages.byId.queryFilter({ skillPackageId: skillPackage.id }))
-            queryClient.invalidateQueries(trpc.skillGroups.bySkillPackageId.queryFilter({ skillPackageId: skillPackage.id }))
+            queryClient.invalidateQueries(trpc.skillPackages.byId.queryFilter({ skillPackageId: skillPackage.skillPackageId }))
+            queryClient.invalidateQueries(trpc.skillGroups.bySkillPackageId.queryFilter({ skillPackageId: skillPackage.skillPackageId }))
             router.push(Paths.system.skillPackages.index)
         }
     }))

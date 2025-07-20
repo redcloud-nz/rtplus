@@ -17,12 +17,12 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { useToast } from '@/hooks/use-toast'
-import { OrgInvitationFormData, orgInvitationFormSchema } from '@/lib/forms/org-invitation'
-import { OrgInvitationBasic, useTRPC } from '@/trpc/client'
+import { OrgInvitationFormData, orgInvitationFormSchema } from '@/lib/schemas/org-invitation'
+import { OrgInvitationData, useTRPC } from '@/trpc/client'
 import { z } from 'zod'
 
 
-export function RevokeInvitationDialog({ orgInvitation, ...props }: ComponentProps<typeof Dialog> & { orgInvitation: OrgInvitationBasic }) {
+export function RevokeInvitationDialog({ orgInvitation, ...props }: ComponentProps<typeof Dialog> & { orgInvitation: OrgInvitationData }) {
 
     return <Dialog {...props}>
         <DialogContent>
@@ -39,7 +39,7 @@ export function RevokeInvitationDialog({ orgInvitation, ...props }: ComponentPro
     </Dialog>
 }
 
-function RevokeInvitationForm({ orgInvitation, onClose }: { orgInvitation: OrgInvitationBasic, onClose: () => void }) {
+function RevokeInvitationForm({ orgInvitation, onClose }: { orgInvitation: OrgInvitationData, onClose: () => void }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()

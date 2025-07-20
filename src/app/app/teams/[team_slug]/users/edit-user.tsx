@@ -16,12 +16,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { OrgMembershipFormData, orgMembershipFormSchema } from '@/lib/forms/org-membership'
-import { OrgMembershipBasic, useTRPC } from '@/trpc/client'
+import { OrgMembershipFormData, orgMembershipFormSchema } from '@/lib/schemas/org-membership'
+import { OrgMembershipData, useTRPC } from '@/trpc/client'
 
 
 
-export function EditUserDialog({ orgMembership, ...props }: { orgMembership: OrgMembershipBasic } & React.ComponentProps<typeof Dialog>) {
+export function EditUserDialog({ orgMembership, ...props }: { orgMembership: OrgMembershipData } & React.ComponentProps<typeof Dialog>) {
 
     return <Dialog {...props}>
         <DialogContent>
@@ -39,7 +39,7 @@ export function EditUserDialog({ orgMembership, ...props }: { orgMembership: Org
 }
 
 
-function EditUserForm({ orgMembership, onClose }: { orgMembership: OrgMembershipBasic, onClose: () => void }) {
+function EditUserForm({ orgMembership, onClose }: { orgMembership: OrgMembershipData, onClose: () => void }) {
 
     const queryClient = useQueryClient()
     const { toast } = useToast()

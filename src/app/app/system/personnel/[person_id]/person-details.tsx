@@ -28,10 +28,10 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { PersonFormData, personFormSchema } from '@/lib/forms/person'
+import { PersonData, personSchema } from '@/lib/schemas/person'
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
-import { PersonBasic, useTRPC } from '@/trpc/client'
+import { useTRPC } from '@/trpc/client'
 
 
 
@@ -73,7 +73,7 @@ export function PersonDetailsCard({ personId }: { personId: string }) {
                     <ToruGrid>
                         <ToruGridRow
                             label="Person ID"
-                            control={<DisplayValue>{person.id}</DisplayValue>}
+                            control={<DisplayValue>{person.personId}</DisplayValue>}
                         />
                         <ToruGridRow
                             label="Name"
@@ -103,23 +103,22 @@ export function PersonDetailsCard({ personId }: { personId: string }) {
     </Card>
 }   
 
-function UpdatePersonForm({ onClose, person }: { onClose: () => void, person: PersonBasic }) {
+function UpdatePersonForm({ onClose, person }: { onClose: () => void, person: PersonData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const form = useForm<PersonFormData>({
-        resolver: zodResolver(personFormSchema),
+    const form = useForm<PersonData>({
+        resolver: zodResolver(personSchema),
         defaultValues: {
-            personId: person.id,
             ...person
         }
     })
 
-    const mutation = useMutation(trpc.personnel.sys_update.mutationOptions({
+    const mutation = useMutation(trpc.personnel.update.mutationOptions({
         onError(error) {
             if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof PersonFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof PersonData, { message: error.shape.message })
             } else {
                 toast({
                     title: "Error updating team",
@@ -136,7 +135,7 @@ function UpdatePersonForm({ onClose, person }: { onClose: () => void, person: Pe
             })
             onClose()
 
-            queryClient.invalidateQueries(trpc.personnel.byId.queryFilter({ personId: result.id }))
+            queryClient.invalidateQueries(trpc.personnel.byId.queryFilter({ personId: result.personId }))
             queryClient.invalidateQueries(trpc.personnel.all.queryFilter())
         }
     }))
@@ -153,7 +152,7 @@ function UpdatePersonForm({ onClose, person }: { onClose: () => void, person: Pe
                     name="personId"
                     render={({ field }) => <ToruGridRow
                         label="Person ID"
-                        control={ <DisplayValue>{person.id}</DisplayValue>}
+                        control={ <DisplayValue>{person.personId}</DisplayValue>}
                     />}
                 />
                 <FormField
@@ -202,7 +201,7 @@ function UpdatePersonForm({ onClose, person }: { onClose: () => void, person: Pe
     </FormProvider>
 }
 
-function DeletePersonDialog({ person }: { person: PersonBasic }) {
+function DeletePersonDialog({ person }: { person: PersonData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -215,10 +214,10 @@ function DeletePersonDialog({ person }: { person: PersonBasic }) {
             personId: zodNanoId8,
             personName: z.literal(person.name)
         })),
-        defaultValues: { personId: person.id, personName: "" }
+        defaultValues: { personId: person.personId, personName: "" }
     })
 
-    const mutation = useMutation(trpc.personnel.sys_delete.mutationOptions({
+    const mutation = useMutation(trpc.personnel.delete.mutationOptions({
         onError(error) {
             toast({
                 title: 'Error deleting person',
@@ -235,7 +234,7 @@ function DeletePersonDialog({ person }: { person: PersonBasic }) {
             router.push(Paths.system.personnel.index)
 
             queryClient.invalidateQueries(trpc.personnel.all.queryFilter())
-            queryClient.setQueryData(trpc.personnel.byId.queryKey({ personId: person.id }), undefined)
+            queryClient.setQueryData(trpc.personnel.byId.queryKey({ personId: person.personId }), undefined)
         }
     }))
 

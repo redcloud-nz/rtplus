@@ -7,11 +7,16 @@ import { z } from 'zod'
 
 import { zodNanoId8 } from '../validation'
 
-export const skillPackageFormSchema = z.object({
+export const skillSchema = z.object({
+    skillId: zodNanoId8,
+    skillGroupId: zodNanoId8,
     skillPackageId: zodNanoId8,
     name: z.string().nonempty().max(100),
     description: z.string().max(500),
+    frequency: z.string(),
+    optional: z.boolean().default(false),
+    sequence: z.number(),
     status: z.enum(['Active', 'Inactive'])
 })
 
-export type SkillPackageFormData = z.infer<typeof skillPackageFormSchema>
+export type SkillData = z.infer<typeof skillSchema>

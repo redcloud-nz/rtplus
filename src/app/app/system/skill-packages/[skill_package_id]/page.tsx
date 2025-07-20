@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /system/skill-packages/[skill_package_id]
+ *  Path: /app/system/skill-packages/[skill_package_id]
  */
 
 
@@ -24,32 +24,32 @@ export async function generateMetadata(props: { params: Promise<{ skill_package_
 }
 
 export default async function SkillPackagePage(props: { params: Promise<{ skill_package_id: string }>}) {
-    const skillPackage = await fetchSkillPackage(props.params)
+    const {skillPackageId, name } = await fetchSkillPackage(props.params)
 
-    prefetch(trpc.skillGroups.bySkillPackageId.queryOptions({ skillPackageId: skillPackage.id }))
-    prefetch(trpc.skills.bySkillPackageId.queryOptions({ skillPackageId: skillPackage.id }))
+    prefetch(trpc.skillGroups.bySkillPackageId.queryOptions({ skillPackageId }))
+    prefetch(trpc.skills.bySkillPackageId.queryOptions({ skillPackageId }))
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.system, 
                 Paths.system.skillPackages,
-                skillPackage.name
+                name
             ]}
         />
         <HydrateClient>
             <AppPageContent variant='container'>
                 <PageHeader>
-                    <PageTitle objectType="Skill Package">{skillPackage.name}</PageTitle>    
+                    <PageTitle objectType="Skill Package">{name}</PageTitle>    
                 </PageHeader>
                 <Boundary>
-                    <SkillPackageDetailsCard skillPackageId={skillPackage.id}/>
+                    <SkillPackageDetailsCard skillPackageId={skillPackageId}/>
                 </Boundary>
                 <Boundary>
-                    <SkillPackageGroupsListCard skillPackageId={skillPackage.id}/>
+                    <SkillPackageGroupsListCard skillPackageId={skillPackageId}/>
                 </Boundary>
                 <Boundary>
-                    <SkillPackageSkillsListCard skillPackageId={skillPackage.id}/>
+                    <SkillPackageSkillsListCard skillPackageId={skillPackageId}/>
                 </Boundary>
             </AppPageContent>
         </HydrateClient>

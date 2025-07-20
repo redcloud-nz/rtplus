@@ -18,19 +18,19 @@ import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 
 import { useToast } from '@/hooks/use-toast'
-import { SkillFormData, skillFormSchema } from '@/lib/forms/skill'
-import { SkillWithPackageAndGroup, useTRPC } from '@/trpc/client'
+import { SkillData, skillSchema } from '@/lib/schemas/skill'
+import { SkillDataWithPackageAndGroup, useTRPC } from '@/trpc/client'
 
 
-export function UpdateSkillForm({ onClose, onUpdate, skillId }: UpdateFormProps<SkillWithPackageAndGroup> & { skillId: string }) {
+export function UpdateSkillForm({ onClose, onUpdate, skillId }: UpdateFormProps<SkillDataWithPackageAndGroup> & { skillId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
     const { data: skill } = useSuspenseQuery(trpc.skills.byId.queryOptions({ skillId}))
 
-    const form = useForm<SkillFormData>({
-        resolver: zodResolver(skillFormSchema),
+    const form = useForm<SkillData>({
+        resolver: zodResolver(skillSchema),
         defaultValues: {
             skillId, ...pick(skill, ['skillPackageId', 'skillGroupId', 'name', 'description', 'status', 'frequency', 'optional'])
         }
@@ -44,7 +44,7 @@ export function UpdateSkillForm({ onClose, onUpdate, skillId }: UpdateFormProps<
     const mutation = useMutation(trpc.skills.sys_update.mutationOptions({
         onError(error) {
             if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof SkillFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof SkillData, { message: error.shape.message })
             } else {
                  toast({
                     title: 'Error updating skill',

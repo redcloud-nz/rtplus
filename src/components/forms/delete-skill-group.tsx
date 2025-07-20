@@ -14,7 +14,7 @@ import { Dialog, DialogBody, DialogContent, DialogHeader, DialogTitle } from '@/
 import { DisplayValue, FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Paragraph } from '@/components/ui/typography'
 
-import { SkillGroupFormData, skillGroupFormSchema } from '@/lib/forms/skill-group'
+import { SkillGroupData, skillGroupSchema } from '@/lib/schemas/skill-group'
 import { useToast } from '@/hooks/use-toast'
 import { SkillGroup, useTRPC } from '@/trpc/client'
 
@@ -51,13 +51,13 @@ export function DeleteSkillGroupForm({ onClose, onDelete, skillGroupId }: Delete
 
     const { data: skillGroup } = useSuspenseQuery(trpc.skillGroups.byId.queryOptions({ skillGroupId }))
 
-    const form = useForm<Pick<SkillGroupFormData, 'skillGroupId'>>({
-        resolver: zodResolver(skillGroupFormSchema.pick({ skillGroupId: true })),
+    const form = useForm<Pick<SkillGroupData, 'skillGroupId'>>({
+        resolver: zodResolver(skillGroupSchema.pick({ skillGroupId: true })),
         defaultValues: { skillGroupId: skillGroup.id }
     })
 
 
-    const mutation = useMutation(trpc.skillGroups.sys_delete.mutationOptions({
+    const mutation = useMutation(trpc.skillGroups.delete.mutationOptions({
         onError(error) {
             toast({
                 title: 'Error Deleting Skill Group',

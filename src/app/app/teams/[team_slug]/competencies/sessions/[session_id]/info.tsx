@@ -15,7 +15,7 @@ import { DatePicker } from '@/components/ui/date-picker'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
-import { skillCheckSessionFormSchema } from '@/lib/forms/skill-check-session'
+import { skillCheckSessionFormSchema } from '@/lib/schemas/skill-check-session'
 import { useTRPC } from '@/trpc/client'
 import { DL } from '@/components/ui/description-list'
 

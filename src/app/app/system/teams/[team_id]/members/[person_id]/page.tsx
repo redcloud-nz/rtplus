@@ -29,7 +29,7 @@ export default async function TeamMemberPage(props: { params: Promise<{ person_i
             breadcrumbs={[
                 Paths.system,
                 Paths.system.teams,
-                { label: team.shortName || team.name, href: Paths.system.team(team.id).index },
+                { label: team.shortName || team.name, href: Paths.system.team(team.teamId).index },
                 "Members",
                 person.name
             ]}
@@ -42,8 +42,8 @@ export default async function TeamMemberPage(props: { params: Promise<{ person_i
                 <Boundary>
                     <SystemTeamMembershipDetailsCard 
                         context='team'
-                        personId={person.id}
-                        teamId={team.id}
+                        personId={person.personId}
+                        teamId={team.teamId}
                     />
                 </Boundary>
             </HydrateClient>

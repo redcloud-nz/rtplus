@@ -6,7 +6,7 @@
 import { z } from 'zod'
 import { zodColor, zodNanoId8, zodSlug } from '../validation'
 
-export const teamFormSchema = z.object({
+export const teamSchema = z.object({
     teamId: zodNanoId8,
     name: z.string().min(5).max(100),
     shortName: z.string().max(20),
@@ -15,4 +15,4 @@ export const teamFormSchema = z.object({
     status: z.enum(['Active', 'Inactive'])
 })
 
-export type TeamFormData = z.infer<typeof teamFormSchema>
+export type TeamData = z.infer<typeof teamSchema>

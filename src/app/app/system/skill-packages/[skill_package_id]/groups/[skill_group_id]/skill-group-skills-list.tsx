@@ -19,10 +19,9 @@ import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
-
+import { SkillData } from '@/lib/schemas/skill'
 import * as Paths from '@/paths'
-import { Skill, useTRPC } from '@/trpc/client'
-
+import { useTRPC } from '@/trpc/client'
 
 
 
@@ -31,8 +30,8 @@ export function SkillGroupSkillsListCard({ skillGroupId, skillPackageId }: { ski
 
     const { data: skills } = useSuspenseQuery(trpc.skills.bySkillGroupId.queryOptions({ skillGroupId }))
 
-    const columns = useMemo(() => defineColumns<Skill>(columnHelper => [
-        columnHelper.accessor('id', {
+    const columns = useMemo(() => defineColumns<SkillData>(columnHelper => [
+        columnHelper.accessor('skillId', {
             header: 'ID',
             cell: ctx => ctx.getValue(),
             enableHiding: true,
@@ -42,7 +41,7 @@ export function SkillGroupSkillsListCard({ skillGroupId, skillPackageId }: { ski
         }),
         columnHelper.accessor('name', {
             header: 'Skill',
-            cell: ctx => <TextLink href={Paths.system.skillPackage(skillPackageId).skill(ctx.row.original.id).index}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink href={Paths.system.skillPackage(skillPackageId).skill(ctx.row.original.skillId).index}>{ctx.getValue()}</TextLink>,
             enableGrouping: false,
             enableHiding: false
         }),

@@ -13,7 +13,7 @@ import { DeleteFormProps, DisplayValue, FormActions, FormCancelButton, FormContr
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema } from '@/lib/forms/team-membership'
+import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema } from '@/lib/schemas/team-membership'
 import { TeamMembershipBasic, useTRPC } from '@/trpc/client'
 
 /**

@@ -18,8 +18,10 @@ import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Table } from '@/components/ui/table'
 
+import { SkillGroupData } from '@/lib/schemas/skill-group'
 import * as Paths from '@/paths'
-import { SkillGroup, useTRPC } from '@/trpc/client'
+import { useTRPC } from '@/trpc/client'
+
 
 
 export function SkillPackageGroupsListCard({ skillPackageId }: { skillPackageId: string }) {
@@ -28,8 +30,8 @@ export function SkillPackageGroupsListCard({ skillPackageId }: { skillPackageId:
 
     const { data: groups } = useSuspenseQuery(trpc.skillGroups.bySkillPackageId.queryOptions({ skillPackageId }))
 
-    const columns = useMemo(() => defineColumns<SkillGroup>(columnHelper => [
-        columnHelper.accessor('id', {
+    const columns = useMemo(() => defineColumns<SkillGroupData>(columnHelper => [
+        columnHelper.accessor('skillGroupId', {
             header: 'ID',
             cell: ctx => ctx.getValue(),
             enableHiding: true,
@@ -39,7 +41,7 @@ export function SkillPackageGroupsListCard({ skillPackageId }: { skillPackageId:
         }),
         columnHelper.accessor('name', {
             header: 'Group',
-            cell: ctx => <TextLink href={Paths.system.skillPackage(skillPackageId).group(ctx.row.original.id).index}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink href={Paths.system.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId).index}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('description', {
@@ -81,7 +83,7 @@ export function SkillPackageGroupsListCard({ skillPackageId }: { skillPackageId:
         getExpandedRowModel: getExpandedRowModel(),
         initialState: {
             columnVisibility: {
-                id: false, name: true, description: true, status: true
+                skillGroupId: false, name: true, description: true, status: true
             },
             columnFilters: [
                 { id: 'status', value: ['Active'] }

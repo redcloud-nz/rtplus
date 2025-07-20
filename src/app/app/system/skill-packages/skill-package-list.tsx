@@ -18,13 +18,15 @@ import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
+import { SkillPackageData } from '@/lib/schemas/skill-package'
 import * as Paths from '@/paths'
-import { SkillPackage, useTRPC, WithCounts } from '@/trpc/client'
+import { useTRPC, WithCounts } from '@/trpc/client'
 
 
 
-const columns = defineColumns<WithCounts<SkillPackage, 'skills' | 'skillGroups'>>(columnHelper => [
-    columnHelper.accessor('id', {
+
+const columns = defineColumns<WithCounts<SkillPackageData, 'skills' | 'skillGroups'>>(columnHelper => [
+    columnHelper.accessor('skillPackageId', {
         header: 'ID',
         cell: ctx => ctx.getValue(),
         enableHiding: true,
@@ -33,7 +35,7 @@ const columns = defineColumns<WithCounts<SkillPackage, 'skills' | 'skillGroups'>
     }),
     columnHelper.accessor('name', {
         header: 'Name',
-        cell: ctx => <TextLink href={Paths.system.skillPackage(ctx.row.original.id).index}>{ctx.getValue()}</TextLink>,
+        cell: ctx => <TextLink href={Paths.system.skillPackage(ctx.row.original.skillPackageId).index}>{ctx.getValue()}</TextLink>,
         enableHiding: false
     }),
     columnHelper.accessor('_count.skillGroups', {
@@ -78,7 +80,7 @@ export function SkillPackageListCard() {
             getExpandedRowModel: getExpandedRowModel(),
             initialState: {
                 columnVisibility: {
-                    id: false, name: true, skillGroups: true, skills: true, status: true
+                    skillPackageId: false, name: true, skillGroups: true, skills: true, status: true
                 },
                 columnFilters: [
                     { id: 'status', value: ['Active'] }

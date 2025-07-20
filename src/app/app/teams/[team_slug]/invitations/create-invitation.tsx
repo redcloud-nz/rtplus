@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { useToast } from '@/hooks/use-toast'
-import { OrgInvitationFormData, orgInvitationFormSchema } from '@/lib/forms/org-invitation'
+import { OrgInvitationFormData, orgInvitationFormSchema } from '@/lib/schemas/org-invitation'
 import { useTRPC } from '@/trpc/client'
 
 

@@ -9,11 +9,11 @@ import { z } from 'zod'
 import { OrganizationMembership } from '@clerk/nextjs/server'
 import { TRPCError } from '@trpc/server'
 
-import { orgMembershipFormSchema } from '@/lib/forms/org-membership'
+import { orgMembershipFormSchema } from '@/lib/schemas/org-membership'
 import { zodNanoId8 } from '@/lib/validation'
 
 import { createTRPCRouter, systemAdminProcedure, teamAdminProcedure } from '../init'
-import { OrgMembershipBasic } from '../types'
+import { OrgMembershipData } from '../types'
 
 import { getTeamById } from './teams'
 import { getPersonById } from './personnel'
@@ -26,7 +26,7 @@ export const orgMembershipsRouter = createTRPCRouter({
         .input(z.object({
             personId: zodNanoId8
         }))
-        .query(async ({ ctx, input }): Promise<OrgMembershipBasic[]> => {
+        .query(async ({ ctx, input }): Promise<OrgMembershipData[]> => {
             const person = await getPersonById(ctx, input.personId)
             if(!person.clerkUserId) throw new TRPCError({ code: 'BAD_REQUEST', message: `No linked user found for Person(${input.personId})`})
 
@@ -35,7 +35,7 @@ export const orgMembershipsRouter = createTRPCRouter({
             return response.data.map(toOrgMembershipBasic)
         }),
     byCurrentTeam: teamAdminProcedure
-        .query(async ({ ctx }): Promise<OrgMembershipBasic[]> => {
+        .query(async ({ ctx }): Promise<OrgMembershipData[]> => {
             
             const response = await ctx.clerkClient.organizations.getOrganizationMembershipList({ organizationId: ctx.orgId, limit: 501 })
 
@@ -46,7 +46,7 @@ export const orgMembershipsRouter = createTRPCRouter({
         .input(z.object({
             teamId: zodNanoId8
         }))
-        .query(async ({ ctx, input }): Promise<OrgMembershipBasic[]> => {
+        .query(async ({ ctx, input }): Promise<OrgMembershipData[]> => {
             const team = await getTeamById(ctx, input.teamId)
             
             const response = await ctx.clerkClient.organizations.getOrganizationMembershipList({ organizationId: team.clerkOrgId, limit: 501 })
@@ -84,7 +84,7 @@ export const orgMembershipsRouter = createTRPCRouter({
 
 
 
-function toOrgMembershipBasic(orgMembership: OrganizationMembership): OrgMembershipBasic {
+function toOrgMembershipBasic(orgMembership: OrganizationMembership): OrgMembershipData {
     return {
         id: orgMembership.id,
         role: orgMembership.role,

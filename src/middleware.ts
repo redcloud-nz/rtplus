@@ -26,7 +26,7 @@ export default clerkMiddleware(
                 return NextResponse.redirect('/')
             }
             
-            // Allow authenticated users to all routes
+            // Allow authenticated users to all non-system routes
             return NextResponse.next()
 
 
@@ -43,12 +43,12 @@ export default clerkMiddleware(
     {
         organizationSyncOptions: {
             organizationPatterns: [
-                '/manage/teams/:slug',
-                '/manage/teams/:slug/(.*)'
+                '/app/teams/:slug',
+                '/app/teams/:slug/(.*)'
             ],
             personalAccountPatterns: [
-                '/personal',
-                '/personal/(.*)'
+                '/app/personal',
+                'app/personal/(.*)'
             ]
         }
     }

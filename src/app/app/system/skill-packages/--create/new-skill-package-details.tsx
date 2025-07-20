@@ -21,7 +21,7 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { SkillPackageFormData, skillPackageFormSchema } from '@/lib/forms/skill-package'
+import { SkillPackageData, skillPackageSchema } from '@/lib/schemas/skill-package'
 import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
@@ -36,8 +36,8 @@ export function NewSkillPackageDetailsCard() {
 
     const skillPackageId = useMemo(() => nanoId8(), [])
 
-    const form = useForm<SkillPackageFormData>({
-        resolver: zodResolver(skillPackageFormSchema),
+    const form = useForm<SkillPackageData>({
+        resolver: zodResolver(skillPackageSchema),
         defaultValues: {
             skillPackageId,
             name: '',
@@ -46,10 +46,10 @@ export function NewSkillPackageDetailsCard() {
         }
     })
 
-    const mutation = useMutation(trpc.skillPackages.sys_create.mutationOptions({
+    const mutation = useMutation(trpc.skillPackages.create.mutationOptions({
         onError(error) {
             if (error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof SkillPackageFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof SkillPackageData, { message: error.shape.message })
             } else {
                 toast({
                     title: "Error creating skill package",
@@ -65,7 +65,7 @@ export function NewSkillPackageDetailsCard() {
             })
 
             queryClient.invalidateQueries(trpc.skillPackages.all.queryFilter())
-            router.push(Paths.system.skillPackage(result.id).index)
+            router.push(Paths.system.skillPackage(result.skillPackageId).index)
         }
     }))
 

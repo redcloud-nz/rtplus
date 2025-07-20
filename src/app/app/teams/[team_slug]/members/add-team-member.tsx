@@ -15,18 +15,18 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 
 import { Alert } from '@/components/ui/alert'
 import { Dialog, DialogBody, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { DisplayValue, FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { DisplayValue } from '@/components/ui/display-value'
+import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
 import { nanoId8 } from '@/lib/id'
-import { useTRPC } from '@/trpc/client'
+import { TeamData, useTRPC } from '@/trpc/client'
 
 
 
-
-
-export function AddTeamMemberDialog({ trigger }: { trigger: React.ReactNode }) {
+export function AddTeamMemberDialog({ team, trigger }: { team: TeamData, trigger: React.ReactNode }) {
     const [open, setOpen] = useState(false)
     const [email, setEmail] = useState('')
 
@@ -43,6 +43,7 @@ export function AddTeamMemberDialog({ trigger }: { trigger: React.ReactNode }) {
                         ? <AddTeamMemberForm 
                             email={email} 
                             onClose={() => setOpen(false)}
+                            teamId={team.teamId}
                         />
                         : <SpecifyEmailForm 
                             onSubmit={(email) => {
@@ -112,16 +113,16 @@ const addTeamMemberFormSchema = z.object({
 })
 type AddTeamMemberFormData = z.infer<typeof addTeamMemberFormSchema>
 
-function AddTeamMemberForm({ email, onClose }: { email: string, onClose: () => void }) {
+function AddTeamMemberForm({ email, onClose, teamId }: { email: string, onClose: () => void, teamId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
     const { data: existingPerson } = useSuspenseQuery(trpc.personnel.byEmail.queryOptions({ email }))
-    const { data: existingTeamMemberships } = useSuspenseQuery(trpc.teamMemberships.byCurrentTeam.queryOptions())
-    const existingTeamMembership = existingTeamMemberships.find(m => m.personId === existingPerson?.id) ?? null
+    const { data: existingTeamMemberships } = useSuspenseQuery(trpc.teamMemberships.byTeam.queryOptions({ teamId }))
+    const existingTeamMembership = existingTeamMemberships.find(m => m.personId === existingPerson?.personId) ?? null
 
-    const personId = useMemo(() => existingPerson?.id ?? nanoId8(), [existingPerson])
+    const personId = useMemo(() => existingPerson?.personId ?? nanoId8(), [existingPerson])
 
     const form = useForm<AddTeamMemberFormData>({
         resolver: zodResolver(addTeamMemberFormSchema),
@@ -132,21 +133,21 @@ function AddTeamMemberForm({ email, onClose }: { email: string, onClose: () => v
     })
 
     const createPersonMutation = useMutation(trpc.personnel.create.mutationOptions())
-    const createTeamMembershipMutation = useMutation(trpc.teamMemberships.createInTeam.mutationOptions())
+    const createTeamMembershipMutation = useMutation(trpc.teamMemberships.create.mutationOptions())
 
     const handleSubmit = form.handleSubmit(async (formData) => {
 
         try {
-            const person = existingPerson ?? await createPersonMutation.mutateAsync({ personId, name: formData.name, email, status: 'Active' })
+            const person = existingPerson ?? await createPersonMutation.mutateAsync({ personId, name: formData.name, email, owningTeamId: teamId, status: 'Active' })
 
-            await createTeamMembershipMutation.mutateAsync({ personId: personId, tags: formData.tags, status: 'Active' })
+            await createTeamMembershipMutation.mutateAsync({ teamId, personId, tags: formData.tags, status: 'Active' })
 
-            await queryClient.invalidateQueries(trpc.teamMemberships.byCurrentTeam.queryFilter())
-            queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: person.id }))
+            await queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: person.personId }))
 
             toast({
                 title: "Team membership added",
-                description: `${person.name} has been added to the team.`,
+                description: <>The person <ObjectName>{person.name}</ObjectName> has been successfully added to the team.</>,
             })
 
         } catch (error) {
@@ -184,7 +185,7 @@ function AddTeamMemberForm({ email, onClose }: { email: string, onClose: () => v
             <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                    <DisplayValue value={email}/>
+                    <DisplayValue>{email}</DisplayValue>
                 </FormControl>
             </FormItem>
 
@@ -211,7 +212,7 @@ function AddTeamMemberForm({ email, onClose }: { email: string, onClose: () => v
                     <FormItem>
                         <FormLabel>Name</FormLabel>
                         <FormControl>
-                            <DisplayValue value={person.name} />
+                            <DisplayValue>{person.name}</DisplayValue>
                         </FormControl>
                     </FormItem>
                 )

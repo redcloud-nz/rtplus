@@ -28,7 +28,7 @@ export async function generateMetadata(props: { params: Promise<{ person_id: str
 export default async function PersonPage(props: { params: Promise<{ person_id: string }> }) {
     const person = await fetchPerson(props.params)
 
-    prefetch(trpc.teamMemberships.byPerson.queryOptions({ personId: person.id}))
+    prefetch(trpc.teamMemberships.byPerson.queryOptions({ personId: person.personId}))
 
     return <AppPage>
         <AppPageBreadcrumbs
@@ -45,10 +45,10 @@ export default async function PersonPage(props: { params: Promise<{ person_id: s
                 </PageHeader>
 
                 <Boundary>
-                    <PersonDetailsCard personId={person.id}/>
+                    <PersonDetailsCard personId={person.personId}/>
                 </Boundary>
                 <Boundary>
-                    <TeamMembershipsCard personId={person.id}/>
+                    <TeamMembershipsCard personId={person.personId}/>
                 </Boundary>
             </AppPageContent>
         </HydrateClient>

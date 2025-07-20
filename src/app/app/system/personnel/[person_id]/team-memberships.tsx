@@ -25,8 +25,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 import { useListOptions } from '@/hooks/use-list-options'
 import { useToast } from '@/hooks/use-toast'
+import { TeamMembershipData } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
-import { TeamMembershipBasic, useTRPC } from '@/trpc/client'
+import { useTRPC } from '@/trpc/client'
 
 
 /**
@@ -118,9 +119,9 @@ export function TeamMembershipsCard({ personId }: { personId: string }) {
                     {filtered
                         .sort((a, b) => a.team.name.localeCompare(b.team.name))
                         .map(({ team, ...membership }) => 
-                            <GridTableRow key={team.id}>
+                            <GridTableRow key={team.teamId}>
                                 <GridTableCell>
-                                    <TextLink href={Paths.system.person(personId).teamMembership(team.id).index}>{team.name}</TextLink>
+                                    <TextLink href={Paths.system.person(personId).teamMembership(team.teamId).index}>{team.name}</TextLink>
                                 </GridTableCell>
                                 <GridTableCell className="hidden lg:flex">{membership.tags.join(" ")}</GridTableCell>
                                 <GridTableCell>{membership.status}</GridTableCell>
@@ -148,7 +149,7 @@ function NewTeamMembershipForm({ excludeTeamIds, personId, onClose, }: { personI
         async onMutate(newMembership) {
             await queryClient.cancelQueries(trpc.teamMemberships.byPerson.queryFilter({ personId }))
 
-            const team = teams.find(t => t.id == newMembership.teamId)!
+            const team = teams.find(t => t.teamId == newMembership.teamId)!
 
             const previousData = queryClient.getQueryData(trpc.teamMemberships.byPerson.queryKey({ personId }))
 
@@ -174,7 +175,7 @@ function NewTeamMembershipForm({ excludeTeamIds, personId, onClose, }: { personI
         },
     }))
 
-    const [data, setData] = useState<TeamMembershipBasic>({
+    const [data, setData] = useState<TeamMembershipData>({
         personId,
         teamId: '',
         status: 'Active',

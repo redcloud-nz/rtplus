@@ -7,6 +7,8 @@
 
 import { PlusIcon, SaveIcon, XIcon } from 'lucide-react'
 import { useState } from 'react'
+
+import { FormProvider, useForm } from 'react-hook-form'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
 import { PersonPicker } from '@/components/controls/person-picker'
@@ -15,6 +17,7 @@ import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
 import { DropdownMenuCheckboxItem, DropdownMenuGroup, DropdownMenuLabel } from '@/components/ui/dropdown-menu'
+import { FormField } from '@/components/ui/form'
 import { GridTable, GridTableBody, GridTableCell, GridTableHead, GridTableHeadCell, GridTableHeadRow, GridTableRow, GridTableRowActions } from '@/components/ui/grid-table'
 import { TagsInput } from '@/components/ui/input'
 import { TextLink } from '@/components/ui/link'
@@ -25,7 +28,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useListOptions } from '@/hooks/use-list-options'
 import { useToast } from '@/hooks/use-toast'
 import * as Paths from '@/paths'
-import { TeamMembershipBasic, useTRPC } from '@/trpc/client'
+import { TeamMembershipData, teamMembershipSchema, useTRPC } from '@/trpc/client'
 
 
 
@@ -33,13 +36,13 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
    
     const trpc = useTRPC()
 
-    const { data: teamMemberships } = useSuspenseQuery(trpc.teamMemberships.byTeam.queryOptions({ teamId }))
+    const { data } = useSuspenseQuery(trpc.teamMemberships.byTeam.queryOptions({ teamId }))
 
     const { options, handleOptionChange } = useListOptions({})
 
     const [action, setAction] = useState<{ type: 'update', id: string } | { type: 'create' } | null>(null)
 
-    const existingMemberIds = teamMemberships.map(m => m.personId)
+    const existingMemberIds = data.map(m => m.person.personId)
 
     return <Card>
         <CardHeader>
@@ -91,18 +94,18 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
                         onClose={() => setAction(null)}
                         excludePersonIds={existingMemberIds}
                     /> : null }
-                    <Show when={teamMemberships.length == 0 && action?.type != 'create'}>
+                    <Show when={data.length == 0 && action?.type != 'create'}>
                         <Alert className="col-span-full w-full" severity="info" title="No team members defined"/>
                     </Show>
-                    {teamMemberships
+                    {data
                         .sort((a, b) => a.person.name.localeCompare(b.person.name))
-                        .map(({ person, ...membership }) => 
-                            <GridTableRow key={person.id}>
+                        .map(({ person, ...teamMembership }) => 
+                            <GridTableRow key={person.personId}>
                                 <GridTableCell>
-                                    <TextLink href={Paths.system.team(teamId).member(person.id).index}>{person.name}</TextLink>
+                                    <TextLink href={Paths.system.team(teamId).member(person.personId).index}>{person.name}</TextLink>
                                 </GridTableCell>
-                                <GridTableCell className="hidden lg:flex">{membership.tags.join(" ")}</GridTableCell>
-                                <GridTableCell>{membership.status}</GridTableCell>
+                                <GridTableCell className="hidden lg:flex">{teamMembership.tags.join(" ")}</GridTableCell>
+                                <GridTableCell>{teamMembership.status}</GridTableCell>
                                 <GridTableRowActions/>
                             </GridTableRow>
                         )
@@ -120,13 +123,23 @@ function NewTeamMembershipForm({ excludePersonIds, teamId, onClose }: { teamId: 
 
     // Temporary fix for personnel data fetching
     // This should be replaced with PersonPicker that returns the person directly and not just the personId.
-    const { data: personnel } = useSuspenseQuery(trpc.personnel.all.queryOptions())
+    const { data: personnelData } = useSuspenseQuery(trpc.personnel.all.queryOptions())
+
+    const form = useForm<TeamMembershipData>({
+        defaultValues: {
+            personId: '',
+            teamId,
+            status: 'Active',
+            tags: [],
+        }
+    })
 
     const mutation = useMutation(trpc.teamMemberships.create.mutationOptions({
         async onMutate(newMembership) {
+
             await queryClient.cancelQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId }))
 
-            const person = personnel.find(p => p.id === newMembership.personId)!
+            const person = personnelData.find(p => p.person.personId === newMembership.personId)!.person
 
             const previousData = queryClient.getQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }))
 
@@ -146,62 +159,69 @@ function NewTeamMembershipForm({ excludePersonIds, teamId, onClose }: { teamId: 
                 variant: 'destructive'
             })
         },
-        onSuccess(result) {
-            queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: result.personId }))
-            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId: result.teamId }))
+        onSuccess({ person, team }) {
+            queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: person.personId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId: team.teamId }))
         },
     }))
 
-    const [data, setData] = useState<TeamMembershipBasic>({
-        personId: '',
-        teamId,
-        status: 'Active',
-        tags: []
-    })
-
-    return <GridTableRow asChild>
-        <form onSubmit={() => mutation.mutate(data)}>
-            <GridTableCell asChild>
-                <PersonPicker
-                    size="sm"
-                    value={data.personId}
-                    onValueChange={(value) => setData(prev => ({ ...prev, personId: value }))}
-                    placeholder="Select a person"
-                    exclude={excludePersonIds}
+    return <FormProvider {...form}>
+        <GridTableRow asChild>
+            <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
+                <FormField 
+                    control={form.control}
+                    name="personId"
+                    render={({ field}) => <GridTableCell asChild>
+                        <PersonPicker
+                            size="sm"
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Select a person"
+                            exclude={excludePersonIds}
+                        />
+                    </GridTableCell>}
                 />
-            </GridTableCell>
-            <GridTableCell className="hidden lg:flex" asChild>
-                <TagsInput
-                    size="sm"
-                    aria-labelledby="columnHeader-tags"
-                    value={data.tags} 
-                    onValueChange={(value) => setData(prev => ({ ...prev, tags: value }))}
-                    placeholder="Add tags"
+                <FormField
+                    control={form.control}
+                    name="tags"
+                    render={({ field }) => <GridTableCell className="hidden lg:flex" asChild>
+                        <TagsInput
+                            size="sm"
+                            aria-labelledby="columnHeader-tags"
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Add tags"
+                        />
+                    </GridTableCell>}
                 />
-            </GridTableCell>
-            <GridTableCell asChild>
-                <Select
-                    aria-labelled-by="columnHeader-status"
-                    value={data.status} 
-                    onValueChange={(value) => setData(prev => ({ ...prev, status: value as 'Active' | 'Inactive' }))}
-                >
-                    <SelectTrigger size="sm">
-                        <SelectValue/>
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="Active">Active</SelectItem>
-                        <SelectItem value="Inactive">Inactive</SelectItem>
-                    </SelectContent>
-                </Select>
-            </GridTableCell>
-            <GridTableRowActions>
-                <Button variant="ghost" size="icon" type="submit" disabled={!data.personId}>
-                    <SaveIcon /> <span className="sr-only">Save</span>
-                </Button>
-                <Button variant="ghost" size="icon" onClick={onClose}>
-                    <XIcon/> <span className="sr-only">Cancel</span>
-                </Button>
-            </GridTableRowActions>
-        </form>
-    </GridTableRow>
+                <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => <GridTableCell asChild>
+                        <Select
+                            aria-labelledby="columnHeader-status"
+                            value={field.value}
+                            onValueChange={field.onChange}
+                        >
+                            <SelectTrigger size="sm">
+                                <SelectValue placeholder="Select status"/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Active">Active</SelectItem>
+                                <SelectItem value="Inactive">Inactive</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </GridTableCell>}
+                />
+                <GridTableRowActions>
+                    <Button variant="ghost" size="icon" type="submit" disabled={!form.formState.isValid}>
+                        <SaveIcon /> <span className="sr-only">Save</span>
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={onClose}>
+                        <XIcon/> <span className="sr-only">Cancel</span>
+                    </Button>
+                </GridTableRowActions>
+            </form>
+        </GridTableRow>
+        </FormProvider>
 }

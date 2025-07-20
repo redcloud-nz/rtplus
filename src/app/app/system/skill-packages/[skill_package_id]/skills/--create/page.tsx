@@ -30,7 +30,7 @@ export default async function NewSkillPage(props: { params: Promise<{ skill_pack
             breadcrumbs={[
                 Paths.system,
                 Paths.system.skillPackages,
-                { label: skillPackage.name, href: Paths.system.skillPackage(skillPackage.id).index },
+                { label: skillPackage.name, href: Paths.system.skillPackage(skillPackage.skillPackageId).index },
                 "Skills",
                 "Create"
             ]}
@@ -43,7 +43,7 @@ export default async function NewSkillPage(props: { params: Promise<{ skill_pack
                 </PageHeader>
                 
                 <Boundary>
-                      <NewSkillDetailsCard skillPackageId={skillPackage.id} />
+                      <NewSkillDetailsCard skillPackageId={skillPackage.skillPackageId} />
                 </Boundary>
             </AppPageContent>
         </HydrateClient>

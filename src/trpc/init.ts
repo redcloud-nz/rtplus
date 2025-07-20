@@ -47,6 +47,8 @@ export const publicProcedure = t.procedure
 export type AuthenticatedContext = Context & { 
     personId: string,
     isSystemAdmin: boolean,
+    requireSystemAdmin(): boolean,
+    requireTeamAdmin(orgId: string): boolean,
 }
 
 export const authenticatedProcedure = t.procedure.use((opts) => {
@@ -60,11 +62,20 @@ export const authenticatedProcedure = t.procedure.use((opts) => {
             auth,
             personId: auth.sessionClaims.rt_person_id,
             isSystemAdmin: auth.sessionClaims.rt_system_role === 'admin',
+            requireSystemAdmin: () => {
+                if(auth.sessionClaims.rt_system_role === 'admin') return true
+                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin" })
+            },
+            requireTeamAdmin: (orgId: string) => {
+                if((auth.orgId == orgId && auth.orgRole == 'org:admin') || auth.sessionClaims.rt_system_role == 'admin') return true 
+                    
+                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team or system admin" })
+            },
         } satisfies AuthenticatedContext,
     })
 })
 
-export type AuthenticatedTeamContext = AuthenticatedContext & { teamSlug: string, orgId: string, }
+export type AuthenticatedTeamContext = AuthenticatedContext & { teamSlug: string, orgId: string }
 
 export const teamProcedure = t.procedure.use((opts) => {
     const { auth, ...ctx } = opts.ctx
@@ -80,6 +91,15 @@ export const teamProcedure = t.procedure.use((opts) => {
             orgId: auth.orgId,
             teamSlug: auth.orgSlug!,
             isSystemAdmin: auth.sessionClaims.rt_system_role === 'admin',
+            requireSystemAdmin: () => {
+                if(auth.sessionClaims.rt_system_role === 'admin') return true
+                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin" })
+            },
+            requireTeamAdmin: (orgId: string) => {
+                if((auth.orgId == orgId && auth.orgRole == 'org:admin') || auth.sessionClaims.rt_system_role == 'admin') return true 
+                    
+                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team or system admin" })
+            },
         } satisfies AuthenticatedTeamContext,
     })
 })
@@ -99,6 +119,15 @@ export const teamAdminProcedure = t.procedure.use((opts) => {
             orgId: auth.orgId,
             teamSlug: auth.orgSlug!, 
             isSystemAdmin: auth.sessionClaims.rt_system_role === 'admin',
+            requireSystemAdmin: () => {
+                if(auth.sessionClaims.rt_system_role === 'admin') return true
+                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin" })
+            },
+            requireTeamAdmin: (orgId: string) => {
+                if((auth.orgId == orgId && auth.orgRole == 'org:admin') || auth.sessionClaims.rt_system_role == 'admin') return true 
+                    
+                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team or system admin" })
+            },
         } satisfies AuthenticatedTeamContext,
     })
 })
@@ -116,6 +145,15 @@ export const systemAdminProcedure = t.procedure.use((opts) => {
             auth,
             personId: auth.sessionClaims.rt_person_id,
             isSystemAdmin: auth.sessionClaims.rt_system_role === 'admin',
+            requireSystemAdmin: () => {
+                if(auth.sessionClaims.rt_system_role === 'admin') return true
+                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin" })
+            },
+            requireTeamAdmin: (orgId: string) => {
+                if((auth.orgId == orgId && auth.orgRole == 'org:admin') || auth.sessionClaims.rt_system_role == 'admin') return true 
+                    
+                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team or system admin" })
+            },
         } satisfies AuthenticatedContext,
     })
 })
@@ -131,6 +169,15 @@ export const systemOrTeamAdminProcedure = t.procedure.use((opts) => {
                 auth,
                 personId: auth.sessionClaims.rt_person_id,
                 isSystemAdmin: auth.sessionClaims.rt_system_role === 'admin',
+                requireSystemAdmin: () => {
+                if(auth.sessionClaims.rt_system_role === 'admin') return true
+                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin" })
+            },
+                requireTeamAdmin: (orgId: string) => {
+                if((auth.orgId == orgId && auth.orgRole == 'org:admin') || auth.sessionClaims.rt_system_role == 'admin') return true 
+                    
+                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team or system admin" })
+            },
             } satisfies AuthenticatedContext,
         })
     }

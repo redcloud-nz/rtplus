@@ -41,7 +41,7 @@ export default async function SkillPage(props: { params: Promise<{ skill_id: str
                 </PageHeader>
 
                 <Boundary>
-                    <SkillDetailsCard skillId={skill.id} skillPackageId={skill.skillPackageId}/>
+                    <SkillDetailsCard skillId={skill.skillId} skillPackageId={skill.skillPackageId}/>
                 </Boundary>
                 
             </AppPageContent>

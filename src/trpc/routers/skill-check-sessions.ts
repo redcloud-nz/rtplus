@@ -7,7 +7,7 @@ import { z } from 'zod'
 
 import { TRPCError } from '@trpc/server'
 
-import { skillCheckSessionFormSchema } from '@/lib/forms/skill-check-session'
+import { skillCheckSessionFormSchema } from '@/lib/schemas/skill-check-session'
 import { nanoId8 } from '@/lib/id'
 import { zodNanoId8 } from '@/lib/validation'
 

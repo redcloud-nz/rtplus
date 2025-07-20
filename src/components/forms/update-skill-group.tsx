@@ -17,19 +17,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 
 import { useToast } from '@/hooks/use-toast'
-import { SkillGroupFormData, skillGroupFormSchema } from '@/lib/forms/skill-group'
-import { SkillGroupWithPackage, useTRPC } from '@/trpc/client'
+import { SkillGroupData, skillGroupSchema } from '@/lib/schemas/skill-group'
+import { SkillGroupDataWithPackage, useTRPC } from '@/trpc/client'
 
 
-export function UpdateSkillGroupForm({ onClose, skillGroupId }: UpdateFormProps<SkillGroupWithPackage> & { skillGroupId: string }) {
+export function UpdateSkillGroupForm({ onClose, skillGroupId }: UpdateFormProps<SkillGroupDataWithPackage> & { skillGroupId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
     const { data: skillGroup } = useSuspenseQuery(trpc.skillGroups.byId.queryOptions({ skillGroupId }))
 
-    const form = useForm<SkillGroupFormData>({
-        resolver: zodResolver(skillGroupFormSchema),
+    const form = useForm<SkillGroupData>({
+        resolver: zodResolver(skillGroupSchema),
         defaultValues: {
             skillGroupId, ...pick(skillGroup, ['skillPackageId', 'parentId', 'name', 'description', 'status'])
         }
@@ -40,10 +40,10 @@ export function UpdateSkillGroupForm({ onClose, skillGroupId }: UpdateFormProps<
         onClose()
     }
 
-    const mutation = useMutation(trpc.skillGroups.sys_update.mutationOptions({
+    const mutation = useMutation(trpc.skillGroups.update.mutationOptions({
         onError: (error) => {
             if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof SkillGroupFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof SkillGroupData, { message: error.shape.message })
             } else {
                  toast({
                     title: 'Error updating skill group',

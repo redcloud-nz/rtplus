@@ -3,28 +3,35 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import { pick, pickBy } from 'remeda'
+import { pickBy } from 'remeda'
 import { z } from 'zod'
 
-import { TeamMembership } from '@prisma/client'
+import { Person as PersonRecord, Team as TeamRecord, TeamMembership as TeamMembershipRecord } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
-import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema, teamMembershipFormSchema } from '@/lib/forms/team-membership'
+import { personSchema } from '@/lib/schemas/person'
+import { teamSchema } from '@/lib/schemas/team'
+import { TeamMembershipData, teamMembershipSchema } from '@/lib/schemas/team-membership'
 import { nanoId16 } from '@/lib/id'
 import { zodRecordStatus, zodNanoId8 } from '@/lib/validation'
 
-import { AuthenticatedContext, createTRPCRouter, systemAdminProcedure, teamAdminProcedure, teamProcedure } from '../init'
-import { TeamMembershipBasic, TeamMembershipWithPerson, TeamMembershipWithPersonAndTeam, TeamMembershipWithTeam } from '../types'
+import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
 
 import { getPersonById } from './personnel'
-import { getActiveTeam, getTeamById } from './teams'
+import { getTeamById } from './teams'
+
+
 
 
 export const teamMembershipsRouter = createTRPCRouter({
 
-    create: systemAdminProcedure
-        .input(systemTeamMembershipFormSchema)
-        .mutation(async ({ ctx, input }): Promise<TeamMembershipWithPersonAndTeam> => {
+    create: authenticatedProcedure
+        .input(teamMembershipSchema)
+        .output(teamMembershipSchema.extend({
+            person: personSchema,
+            team: teamSchema
+        }))
+        .mutation(async ({ ctx, input }) => {
 
             // Check if the person and team exist
             const [person, team] = await Promise.all([
@@ -32,63 +39,26 @@ export const teamMembershipsRouter = createTRPCRouter({
                 getTeamById(ctx, input.teamId)
             ])
 
-            const createdMembership = await createTeamMembership(ctx, input)
+            ctx.requireTeamAdmin(team.clerkOrgId)
 
-            return { ...pick(createdMembership, ['teamId', 'personId', 'tags', 'status']), person, team }
+            const created = await createTeamMembership(ctx, input)
+
+            return { ...created, person: { personId: person.id, ...person }, team: { teamId: team.id, ...team } }
         }),
 
-    createInTeam: teamAdminProcedure
-        .input(teamMembershipFormSchema)
-        .mutation(async ({ ctx, input }): Promise<TeamMembershipWithPerson> => {
-            
-            
-            const [person, team] = await Promise.all([
-                getPersonById(ctx, input.personId),
-                getActiveTeam(ctx)
-            ])
-
-            // Create the team membership
-            const createdMembership = await createTeamMembership(ctx, { 
-                personId: input.personId, 
-                teamId: team.id, 
-                tags: input.tags,
-                status: input.status 
-            })
-
-            return { ...pick(createdMembership, ['teamId', 'personId', 'tags', 'status']), person }
-        }),
-    
-    byCurrentTeam: teamProcedure
-        .query(async ({ ctx }): Promise<TeamMembershipWithPerson[]> => {
-            const team = await ctx.prisma.team.findUnique({ 
-                where: { slug: ctx.teamSlug },
-                include: {
-                    teamMemberships: {
-                        include: {
-                            person: true,
-                        },
-                        orderBy: {
-                            person: { name: 'asc' }
-                        }
-                    }
-                }
-            })
-
-            if(!team) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' , message: `Missing active team for teamSlug='${ctx.teamSlug}'` })
-
-            return team.teamMemberships.map(membership => ({
-                ...pick(membership, ['personId', 'teamId', 'tags', 'status']),
-                person: pick(membership.person, ['id', 'name', 'email', 'status'])
-            })) satisfies TeamMembershipWithPerson[]
-        }),
-    byId: systemAdminProcedure
+    byId: authenticatedProcedure
         .input(z.object({
             personId: zodNanoId8,
             teamId: zodNanoId8,
         }))
-        .query(async ({ ctx, input }): Promise<TeamMembershipWithPersonAndTeam> => {
-            const membership =  await getTeamMembershipById(ctx, input)
-            return pick(membership, ['personId', 'teamId', 'tags', 'status', 'person', 'team'])
+        .output(teamMembershipSchema.extend({
+            person: personSchema,
+            team: teamSchema
+        }))
+        .query(async ({ ctx, input }) => {
+            const { person, team, ...membership } =  await getTeamMembershipById(ctx, input)
+
+            return { ...membership, person: { personId: person.id, ...person }, team: { teamId: team.id, ...team } }
         }),
 
     byPerson: systemAdminProcedure
@@ -96,8 +66,11 @@ export const teamMembershipsRouter = createTRPCRouter({
             personId: zodNanoId8,
             status: zodRecordStatus
         }))
-        .query(async ({ ctx, input }): Promise<TeamMembershipWithTeam[]> => {
-            return ctx.prisma.teamMembership.findMany({
+        .output(z.array(teamMembershipSchema.extend({
+            team: teamSchema
+        })))
+        .query(async ({ ctx, input }) => {
+            const memberships = await ctx.prisma.teamMembership.findMany({
                 where: { 
                     personId: input.personId,
                     status: { in: input.status }
@@ -105,21 +78,8 @@ export const teamMembershipsRouter = createTRPCRouter({
                 include: { team: true, d4hInfo: true },
                 orderBy: { team: { name: 'asc' }}
             })
-        }),
-    byPersonInCurrentTeam: teamProcedure
-        .input(z.object({
-            personId: zodNanoId8,
-        }))
-        .query(async ({ ctx, input }): Promise<TeamMembershipBasic | null> => {
-            const team = await getActiveTeam(ctx)
-            const membership = await ctx.prisma.teamMembership.findUnique({
-                where: { personId_teamId: { personId: input.personId, teamId: team.id }},
-                include: { d4hInfo: true }
-            })
-            if(!membership) return null
-            return {
-                ...pick(membership, ['personId', 'teamId', 'tags', 'status']),
-            } satisfies TeamMembershipBasic
+
+            return memberships.map(({ team, ...membership }) => ({ ...membership, team: { teamId: team.id, ...team } }))
         }),
 
     byTeam: systemAdminProcedure
@@ -127,15 +87,20 @@ export const teamMembershipsRouter = createTRPCRouter({
             teamId: zodNanoId8,
             status: zodRecordStatus
         }))
-        .query(async ({ ctx, input }): Promise<TeamMembershipWithPerson[]> => {
-            return ctx.prisma.teamMembership.findMany({
+        .output(z.array(teamMembershipSchema.extend({
+            person: personSchema,
+        })))
+        .query(async ({ ctx, input }) => {
+            const memberships = await ctx.prisma.teamMembership.findMany({
                 where: { 
                     teamId: input.teamId, 
                     status: { in: input.status }
                 },
-                include: { person: true, d4hInfo: true },
+                include: { person: true },
                 orderBy: { person: { name: 'asc' }}
             })
+
+            return memberships.map(({ person, ...membership }) => ({ ...membership, person: { personId: person.id, ...person } }))
         }),
 
     delete: systemAdminProcedure
@@ -143,63 +108,34 @@ export const teamMembershipsRouter = createTRPCRouter({
             teamId: zodNanoId8,
             personId: zodNanoId8,
         }))
-        .mutation(async ({ ctx, input }): Promise<TeamMembershipBasic> => {
+        .output(teamMembershipSchema)
+        .mutation(async ({ ctx, input }) => {
 
-            const deletedMembership = await deleteTeamMembership(ctx, input)
+            const { person, team, ...membership } = await getTeamMembershipById(ctx, input)
 
-            return pick(deletedMembership, ['teamId', 'personId', 'tags', 'status'])
-        }),
+            const deleted = await deleteTeamMembership(ctx, membership)
 
-    deleteInTeam: teamAdminProcedure
-        .input(z.object({
-            personId: zodNanoId8,
-        }))
-        .mutation(async ({ ctx, input }): Promise<TeamMembershipBasic> => {
-
-            const team = await getActiveTeam(ctx)
-
-            const deletedMembership = await deleteTeamMembership(ctx, { personId: input.personId, teamId: team.id })
-
-            return pick(deletedMembership, ['teamId', 'personId', 'tags', 'status'])
+            return deleted
         }),
         
 
-    update: systemAdminProcedure
-        .input(systemTeamMembershipFormSchema)
-        .meta({ schema: teamMembershipFormSchema })
-        .mutation(async ({ ctx, input }): Promise<TeamMembershipWithPersonAndTeam> => {
+    update: authenticatedProcedure
+        .input(teamMembershipSchema)
+        .output(teamMembershipSchema)
+        .mutation(async ({ ctx, input }) => {
             
-            const [person, team] = await Promise.all([
-                getPersonById(ctx, input.personId),
-                getTeamById(ctx, input.teamId)
-            ])
+            const { person, team, ...membership} = await getTeamMembershipById(ctx, input)
 
-            const updatedMembership = updateTeamMembership(ctx, input)
-            return { ...pick(await updatedMembership, ['teamId', 'personId', 'tags', 'status']), person, team }
+            ctx.requireTeamAdmin(team.clerkOrgId)
+
+            const updatedMembership = await updateTeamMembership(ctx, membership, input)
+            return updatedMembership
         }),
 
-    updateInTeam: teamAdminProcedure
-        .input(teamMembershipFormSchema)
-        .mutation(async ({ ctx, input }): Promise<TeamMembershipWithPerson> => {
-
-            const [person, team] = await Promise.all([
-                getPersonById(ctx, input.personId),
-                getActiveTeam(ctx)
-            ])
-
-            const updatedMembership = await updateTeamMembership(ctx, { 
-                personId: input.personId, 
-                teamId: team.id, 
-                tags: input.tags,
-                status: input.status 
-            })
-
-            return { ...pick(updatedMembership, ['teamId', 'personId', 'tags', 'status']), person }
-        }),
 })
 
 
-async function getTeamMembershipById(ctx: AuthenticatedContext, { personId, teamId }: { personId: string, teamId: string }): Promise<TeamMembershipWithPersonAndTeam> {
+async function getTeamMembershipById(ctx: AuthenticatedContext, { personId, teamId }: { personId: string, teamId: string }): Promise<TeamMembershipRecord & { person: PersonRecord, team: TeamRecord }> {
     const membership = await ctx.prisma.teamMembership.findUnique({
         where: { personId_teamId: { personId, teamId } },
         include: { person: true, team: true }
@@ -217,9 +153,9 @@ async function getTeamMembershipById(ctx: AuthenticatedContext, { personId, team
  * @param personId The person ID.
  * @returns The created team membership.
  */
-export async function createTeamMembership(ctx: AuthenticatedContext, { personId, teamId, tags, status }: SystemTeamMembershipFormData): Promise<TeamMembership> {
+export async function createTeamMembership(ctx: AuthenticatedContext, { personId, teamId, tags, status }: TeamMembershipData): Promise<TeamMembershipRecord> {
 
-    const [createdMembership] = await ctx.prisma.$transaction([
+    const [created] = await ctx.prisma.$transaction([
         ctx.prisma.teamMembership.create({
             data: {
                 status,
@@ -239,7 +175,7 @@ export async function createTeamMembership(ctx: AuthenticatedContext, { personId
         })
     ])
 
-    return createdMembership
+    return created
 }
 
 /**
@@ -247,11 +183,9 @@ export async function createTeamMembership(ctx: AuthenticatedContext, { personId
  * @param ctx TRPC Context.
  * @param membership The membership to remove.
  */
-export async function deleteTeamMembership(ctx: AuthenticatedContext, { personId, teamId }: Pick<SystemTeamMembershipFormData, 'personId' | 'teamId'>): Promise<TeamMembershipBasic> {
-    
-    const existing = await getTeamMembershipById(ctx, { personId, teamId })
+export async function deleteTeamMembership(ctx: AuthenticatedContext, { personId, teamId }: TeamMembershipRecord): Promise<TeamMembershipRecord> {
 
-    await ctx.prisma.$transaction([
+    const [deleted] = await ctx.prisma.$transaction([
         ctx.prisma.teamMembership.delete({ where: { personId_teamId: { personId, teamId } }}),
         ctx.prisma.teamChangeLog.create({
             data: {
@@ -264,37 +198,36 @@ export async function deleteTeamMembership(ctx: AuthenticatedContext, { personId
         })
     ])
 
-    return existing
+    return deleted
 }
 
 /**
  * Update a team membership.
  * @param ctx TRPC Context.
  * @param membership The membership to update.
- * @param role The new role.
+ * @param update The data to update the membership with.
  * @returns The updated team membership.
  */
-export async function updateTeamMembership(ctx: AuthenticatedContext, { personId, teamId, ...input  }: SystemTeamMembershipFormData): Promise<TeamMembership> {
-    const existing = await getTeamMembershipById(ctx, { personId, teamId })
+export async function updateTeamMembership(ctx: AuthenticatedContext, membership: TeamMembershipRecord, update: TeamMembershipData): Promise<TeamMembershipRecord> {
     
     // Pick only the fields that have changed
-    const changedFields = pickBy(input, (value, key) => value != existing[key])
+    const changedFields = pickBy(update, (value, key) => value != membership[key])
 
-    const [updatedMembership] = await ctx.prisma.$transaction([
+    const [updated] = await ctx.prisma.$transaction([
         ctx.prisma.teamMembership.update({
-            where: { personId_teamId: { personId, teamId } },
+            where: { personId_teamId: { personId: membership.personId, teamId: membership.teamId } },
             data: changedFields,
         }),
         ctx.prisma.teamChangeLog.create({
             data: {
                 id: nanoId16(),
-                teamId,
+                teamId: membership.teamId,
                 actorId: ctx.personId,
                 event: 'UpdateMember',
-                fields: { personId, ...changedFields }
+                fields: { personId: membership.personId, ...changedFields }
             }
         })
     ])
 
-    return updatedMembership
+    return updated
 }

@@ -20,7 +20,7 @@ import { DialogTriggerButton } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
-import { OrgInvitationBasic, useTRPC } from '@/trpc/client'
+import { OrgInvitationData, useTRPC } from '@/trpc/client'
 
 import { CreateInvitationDialog } from './create-invitation'
 import { RevokeInvitationDialog } from './revoke-invitation'
@@ -57,7 +57,7 @@ function TeamInvitationsListTable() {
 
     const { data: invitations } = useSuspenseQuery(trpc.orgInvitations.byCurrentTeam.queryOptions())
 
-    const [actionTarget, setActionTarget] = useState<{ action: 'Resend' | 'Revoke', orgInvitation: OrgInvitationBasic } | null>(null)
+    const [actionTarget, setActionTarget] = useState<{ action: 'Resend' | 'Revoke', orgInvitation: OrgInvitationData } | null>(null)
 
     return <Show 
         when={invitations.length > 0}

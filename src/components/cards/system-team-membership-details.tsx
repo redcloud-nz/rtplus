@@ -28,9 +28,11 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { SystemTeamMembershipFormData, systemTeamMembershipFormSchema } from '@/lib/forms/team-membership'
+import { PersonData } from '@/lib/schemas/person'
+import { TeamData } from '@/lib/schemas/team'
+import { TeamMembershipData, teamMembershipSchema } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
-import { PersonBasic, TeamBasic, TeamMembershipBasic, useTRPC } from '@/trpc/client'
+import { useTRPC } from '@/trpc/client'
 
 
 
@@ -56,8 +58,8 @@ export function SystemTeamMembershipDetailsCard({ context, personId, teamId }: {
                 </Tooltip>
                 <DeleteTeamMembershipDialog
                     onDelete={() => {
-                        if(context == 'person') router.push(Paths.system.person(person.id).index)
-                        else router.push(Paths.system.team(team.id).index)
+                        if(context == 'person') router.push(Paths.system.person(person.personId).index)
+                        else router.push(Paths.system.team(team.teamId).index)
                     }}
                     personId={personId}
                     teamId={teamId}
@@ -74,11 +76,11 @@ export function SystemTeamMembershipDetailsCard({ context, personId, teamId }: {
                     <ToruGrid>
                         <ToruGridRow
                             label="Team"
-                            control={<DisplayValue><TextLink href={Paths.system.team(team.id).index}>{team.name}</TextLink></DisplayValue>}
+                            control={<DisplayValue><TextLink href={Paths.system.team(team.teamId).index}>{team.name}</TextLink></DisplayValue>}
                         />
                         <ToruGridRow
                             label="Person"
-                            control={<DisplayValue><TextLink href={Paths.system.person(person.id).index}>{person.name}</TextLink></DisplayValue>}
+                            control={<DisplayValue><TextLink href={Paths.system.person(person.personId).index}>{person.name}</TextLink></DisplayValue>}
                         />
                         <ToruGridRow
                             label="Tags"
@@ -106,13 +108,13 @@ export function SystemTeamMembershipDetailsCard({ context, personId, teamId }: {
     </Card>
 }
 
-function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membership: TeamMembershipBasic, onClose: () => void, person: PersonBasic, team: TeamBasic }) {
+function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membership: TeamMembershipData, onClose: () => void, person: PersonData, team: TeamData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const form = useForm<SystemTeamMembershipFormData>({
-        resolver: zodResolver(systemTeamMembershipFormSchema),
+    const form = useForm<TeamMembershipData>({
+        resolver: zodResolver(teamMembershipSchema),
         defaultValues: { ...membership }
     })
 
@@ -146,7 +148,7 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membe
         async onSuccess(result) {
             toast({
                 title: 'Team membership updated',
-                description: `${result.person.name}'s membership in '${result.team.name}' has been updated.`,
+                description: `${person.name}'s membership in '${team.name}' has been updated.`,
             })
 
             await queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: result.personId }))
@@ -212,7 +214,7 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membe
 }
 
 
-function DeleteTeamMembershipDialog({ onDelete, personId, teamId }: { onDelete: (membership: TeamMembershipBasic) => void , personId: string, teamId: string }) {
+function DeleteTeamMembershipDialog({ onDelete, personId, teamId }: { onDelete: (membership: TeamMembershipData) => void , personId: string, teamId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
@@ -221,8 +223,8 @@ function DeleteTeamMembershipDialog({ onDelete, personId, teamId }: { onDelete: 
 
     const [open, setOpen] = useState(false)
 
-    const form = useForm<Pick<SystemTeamMembershipFormData, 'personId' | 'teamId'>>({
-        resolver: zodResolver(systemTeamMembershipFormSchema.pick({ personId: true, teamId: true })),
+    const form = useForm<Pick<TeamMembershipData, 'personId' | 'teamId'>>({
+        resolver: zodResolver(teamMembershipSchema.pick({ personId: true, teamId: true })),
         defaultValues: { personId, teamId }
     })
 

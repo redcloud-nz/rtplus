@@ -22,16 +22,14 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { SkillGroupFormData, skillGroupFormSchema } from '@/lib/forms/skill-group'
+import { SkillGroupData, skillGroupSchema } from '@/lib/schemas/skill-group'
 import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
-interface NewSkillGroupDetailsCardProps {
-    skillPackageId: string
-}
 
-export function NewSkillGroupDetailsCard({ skillPackageId }: NewSkillGroupDetailsCardProps) {
+
+export function NewSkillGroupDetailsCard({ skillPackageId }: { skillPackageId: string }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -39,8 +37,8 @@ export function NewSkillGroupDetailsCard({ skillPackageId }: NewSkillGroupDetail
 
     const skillGroupId = useMemo(() => nanoId8(), [])
 
-    const form = useForm<SkillGroupFormData>({
-        resolver: zodResolver(skillGroupFormSchema),
+    const form = useForm<SkillGroupData>({
+        resolver: zodResolver(skillGroupSchema),
         defaultValues: {
             skillGroupId,
             skillPackageId,
@@ -51,10 +49,10 @@ export function NewSkillGroupDetailsCard({ skillPackageId }: NewSkillGroupDetail
         }
     })
 
-    const mutation = useMutation(trpc.skillGroups.sys_create.mutationOptions({
+    const mutation = useMutation(trpc.skillGroups.create.mutationOptions({
         onError(error) {
             if (error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof SkillGroupFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof SkillGroupData, { message: error.shape.message })
             } else {
                 toast({
                     title: "Error creating skill group",
@@ -73,7 +71,7 @@ export function NewSkillGroupDetailsCard({ skillPackageId }: NewSkillGroupDetail
                 skillPackageId,
                 status: ['Active', 'Inactive']
             }))
-            router.push(Paths.system.skillPackage(skillPackageId).group(result.id).index)
+            router.push(Paths.system.skillPackage(skillPackageId).group(result.skillGroupId).index)
         }
     }))
 

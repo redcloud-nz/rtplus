@@ -28,10 +28,10 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { TeamFormData, teamFormSchema } from '@/lib/forms/team'
+import { TeamData, teamSchema } from '@/lib/schemas/team'
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
-import { TeamBasic, useTRPC } from '@/trpc/client'
+import { useTRPC } from '@/trpc/client'
 
 
 
@@ -68,7 +68,7 @@ export function TeamDetailsCard({ teamId }: { teamId: string }) {
                     <ToruGrid>
                         <ToruGridRow
                             label="Team ID"
-                            control={<DisplayValue>{team.id}</DisplayValue>}
+                            control={<DisplayValue>{team.teamId}</DisplayValue>}
                         />
                         <ToruGridRow
                             label="Name"
@@ -102,23 +102,22 @@ export function TeamDetailsCard({ teamId }: { teamId: string }) {
     </Card>
 }
 
-function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamBasic }) {
+function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const form = useForm<TeamFormData>({
-        resolver: zodResolver(teamFormSchema),
+    const form = useForm<TeamData>({
+        resolver: zodResolver(teamSchema),
         defaultValues: {
-            teamId: team.id,
             ...team
         },
     })
 
-    const mutation = useMutation(trpc.teams.sys_update.mutationOptions({
+    const mutation = useMutation(trpc.teams.update.mutationOptions({
         onError(error) {
             if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof TeamFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as any, { message: error.shape.message })
             } else {
                 toast({
                     title: "Error updating team",
@@ -135,7 +134,7 @@ function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamBasi
             })
             onClose()
 
-            queryClient.invalidateQueries(trpc.teams.byId.queryFilter({ teamId: team.id }))
+            queryClient.invalidateQueries(trpc.teams.byId.queryFilter({ teamId: team.teamId }))
             queryClient.invalidateQueries(trpc.teams.all.queryFilter())
         }
     }))
@@ -211,7 +210,7 @@ function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamBasi
 }
 
 
-function DeleteTeamDialog({ team }: { team: TeamBasic }) {
+function DeleteTeamDialog({ team }: { team: TeamData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -225,10 +224,10 @@ function DeleteTeamDialog({ team }: { team: TeamBasic }) {
             teamName: z.literal(team.name)
         })),
         mode: 'onSubmit',
-        defaultValues: { teamId: team.id, teamName: "" }
+        defaultValues: { teamId: team.teamId, teamName: "" }
     })
 
-    const mutation = useMutation(trpc.teams.sys_delete.mutationOptions({
+    const mutation = useMutation(trpc.teams.delete.mutationOptions({
         onError(error) {
             toast({
                 title: 'Error deleting team',

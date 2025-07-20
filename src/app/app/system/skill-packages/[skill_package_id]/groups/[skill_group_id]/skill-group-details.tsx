@@ -28,10 +28,12 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { SkillGroupFormData, skillGroupFormSchema } from '@/lib/forms/skill-group'
+import { SkillGroupData, skillGroupSchema } from '@/lib/schemas/skill-group'
+import { SkillPackageData } from '@/lib/schemas/skill-package'
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
-import { SkillGroupWithPackage, useTRPC } from '@/trpc/client'
+import { useTRPC } from '@/trpc/client'
+
 
 
 
@@ -80,7 +82,7 @@ export function SkillGroupDetailsCard({ skillGroupId, skillPackageId }: { skillG
                     <ToruGrid>
                         <ToruGridRow
                             label="Skill Group ID"
-                            control={<DisplayValue>{skillGroup.id}</DisplayValue>}
+                            control={<DisplayValue>{skillGroup.skillGroupId}</DisplayValue>}
                         />
                         <ToruGridRow
                             label="Skill Package"
@@ -114,6 +116,7 @@ export function SkillGroupDetailsCard({ skillGroupId, skillPackageId }: { skillG
                 .with('Update', () => 
                     <UpdateSkillGroupForm
                         skillGroup={skillGroup}
+                        skillPackage={skillGroup.skillPackage}
                         onClose={() => setMode('View')}
                     />
                 )
@@ -129,25 +132,20 @@ export function SkillGroupDetailsCard({ skillGroupId, skillPackageId }: { skillG
  * @param onClose Callback to close the form.
  * @param skillGroup The skill group to update.
  */
-function UpdateSkillGroupForm({ onClose, skillGroup }: { onClose: () => void, skillGroup: SkillGroupWithPackage }) {
+function UpdateSkillGroupForm({ onClose, skillGroup, skillPackage }: { onClose: () => void, skillGroup: SkillGroupData, skillPackage: SkillPackageData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const form = useForm<SkillGroupFormData>({
-        resolver: zodResolver(skillGroupFormSchema),
-        defaultValues: {
-            skillGroupId: skillGroup.id,
-            skillPackageId: skillGroup.skillPackageId,
-            name: skillGroup.name,
-            description: skillGroup.description
-        }
+    const form = useForm<SkillGroupData>({
+        resolver: zodResolver(skillGroupSchema),
+        defaultValues: { ...skillGroup }
     })
 
-    const mutation = useMutation(trpc.skillGroups.sys_update.mutationOptions({
+    const mutation = useMutation(trpc.skillGroups.update.mutationOptions({
         onError(error) {
             if (error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof SkillGroupFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof SkillGroupData, { message: error.shape.message })
             } else {
                 toast({
                     title: 'Error updating skill group',
@@ -164,7 +162,7 @@ function UpdateSkillGroupForm({ onClose, skillGroup }: { onClose: () => void, sk
             })
 
             queryClient.invalidateQueries(trpc.skillGroups.all.queryFilter())
-            queryClient.invalidateQueries(trpc.skillGroups.byId.queryFilter({ skillGroupId: result.id }))
+            queryClient.invalidateQueries(trpc.skillGroups.byId.queryFilter({ skillGroupId: result.skillGroupId }))
             queryClient.invalidateQueries(trpc.skillGroups.bySkillPackageId.queryFilter({ skillPackageId: result.skillPackageId }))
             onClose()
         }
@@ -189,7 +187,7 @@ function UpdateSkillGroupForm({ onClose, skillGroup }: { onClose: () => void, sk
                         control={
                             <DisplayValue>
                                 <TextLink href={Paths.system.skillPackage(skillGroup.skillPackageId).index}>
-                                    {skillGroup.skillPackage.name}
+                                    {skillPackage.name}
                                 </TextLink>
                             </DisplayValue>
                         }
@@ -227,7 +225,7 @@ function UpdateSkillGroupForm({ onClose, skillGroup }: { onClose: () => void, sk
  * It requires the user to confirm by entering the skill group name.
  * @param skillGroup The skill group to delete.
  */
-function DeleteSkillGroupDialog({ skillGroup }: { skillGroup: SkillGroupWithPackage }) {
+function DeleteSkillGroupDialog({ skillGroup }: { skillGroup: SkillGroupData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -242,10 +240,10 @@ function DeleteSkillGroupDialog({ skillGroup }: { skillGroup: SkillGroupWithPack
             skillGroupName: z.literal(skillGroup.name)
         })),
         mode: 'onSubmit',
-        defaultValues: { skillPackageId: skillGroup.skillPackageId, skillGroupId: skillGroup.id, skillGroupName: "" }
+        defaultValues: { skillPackageId: skillGroup.skillPackageId, skillGroupId: skillGroup.skillGroupId, skillGroupName: "" }
     })
 
-    const mutation = useMutation(trpc.skillGroups.sys_delete.mutationOptions({
+    const mutation = useMutation(trpc.skillGroups.delete.mutationOptions({
         onError(error) {
             toast({
                 title: 'Error deleting skill group',
@@ -262,7 +260,7 @@ function DeleteSkillGroupDialog({ skillGroup }: { skillGroup: SkillGroupWithPack
             setOpen(false)
 
             queryClient.invalidateQueries(trpc.skillGroups.all.queryFilter())
-            queryClient.invalidateQueries(trpc.skillGroups.byId.queryFilter({ skillGroupId: skillGroup.id }))
+            queryClient.invalidateQueries(trpc.skillGroups.byId.queryFilter({ skillGroupId: skillGroup.skillGroupId }))
             queryClient.invalidateQueries(trpc.skillGroups.bySkillPackageId.queryFilter({ skillPackageId: skillGroup.skillPackageId }))
             router.push(Paths.system.skillPackage(skillGroup.skillPackageId).index)
         }

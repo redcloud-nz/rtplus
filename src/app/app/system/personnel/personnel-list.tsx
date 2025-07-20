@@ -19,12 +19,11 @@ import { Table } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import * as Paths from '@/paths'
-import { PersonBasic, useTRPC } from '@/trpc/client'
-import React from 'react'
+import { PersonData, useTRPC } from '@/trpc/client'
 
 
-const columns = defineColumns<PersonBasic>(columnHelper => [
-    columnHelper.accessor('id', {
+const columns = defineColumns<PersonData>(columnHelper => [
+    columnHelper.accessor('personId', {
         header: 'ID',
         cell: ctx => ctx.getValue(),
         enableHiding: true,
@@ -33,7 +32,7 @@ const columns = defineColumns<PersonBasic>(columnHelper => [
     }),
     columnHelper.accessor('name', {
         header: 'Name',
-        cell : ctx => <TextLink href={Paths.system.person(ctx.row.original.id).index}>{ctx.getValue()}</TextLink>,
+        cell : ctx => <TextLink href={Paths.system.person(ctx.row.original.personId).index}>{ctx.getValue()}</TextLink>,
         enableHiding: false
     }),
     columnHelper.accessor('email', {
@@ -57,7 +56,7 @@ export function PersonnelListCard() {
 
     const trpc = useTRPC()
 
-    const { data: personnel } = useSuspenseQuery(trpc.personnel.all.queryOptions())
+    const { data: personnel } = useSuspenseQuery(trpc.personnel.all.queryOptions({}))
 
     const table = useReactTable({
         columns,
@@ -70,7 +69,7 @@ export function PersonnelListCard() {
         getExpandedRowModel: getExpandedRowModel(),
         initialState: {
             columnVisibility: {
-                id: false, name: true, email: true, status: true
+                personId: false, name: true, email: true, status: true
             },
             columnFilters: [
                 { id: 'status', value: ['Active' ]}

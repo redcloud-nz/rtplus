@@ -30,7 +30,7 @@ export async function generateMetadata(props: { params: Promise<{ team_id: strin
 export default async function TeamPage(props: { params: Promise<{ team_id: string }> }) { 
     const team = await fetchTeam(props.params)
 
-    prefetch(trpc.teamMemberships.byTeam.queryOptions({ teamId: team.id }))
+    prefetch(trpc.teamMemberships.byTeam.queryOptions({ teamId: team.teamId }))
     
     return <AppPage>
         <AppPageBreadcrumbs
@@ -47,10 +47,10 @@ export default async function TeamPage(props: { params: Promise<{ team_id: strin
                 </PageHeader>
     
                 <Boundary>
-                    <TeamDetailsCard teamId={team.id}/>
+                    <TeamDetailsCard teamId={team.teamId}/>
                 </Boundary>
                 <Boundary>
-                    <TeamMembersCard teamId={team.id}/>
+                    <TeamMembersCard teamId={team.teamId}/>
                 </Boundary>
                 <Boundary>
                         <TeamUsersCard team={team}/>

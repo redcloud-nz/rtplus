@@ -15,24 +15,25 @@ import { Alert } from '@/components/ui/alert'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DialogTriggerButton } from '@/components/ui/dialog'
 import { Link } from '@/components/ui/link'
+import { Popover, PopoverContent, PopoverTriggerButton } from '@/components/ui/popover'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { TeamData, useTRPC } from '@/trpc/client'
 
 import { AddTeamMemberDialog } from './add-team-member'
-import { Popover, PopoverContent, PopoverTriggerButton } from '@/components/ui/popover'
+
 
 /**
  * Card that displays the list of all team members and allows the user to add a new member.
  */
-export function TeamMembersListCard({ teamSlug}: { teamSlug: string }) {
+export function TeamMembersListCard({ team }: { team: TeamData }) {
     
-
     return <Card>
         <CardHeader>
             <CardTitle>List</CardTitle>
             <AddTeamMemberDialog
+                team={team}
                 trigger={<DialogTriggerButton variant="ghost" size="icon" tooltip="Add member">
                     <PlusIcon />
                 </DialogTriggerButton>}
@@ -50,15 +51,15 @@ export function TeamMembersListCard({ teamSlug}: { teamSlug: string }) {
             </Popover>
         </CardHeader>
         <CardContent boundary>
-            <TeamMembersListTable teamSlug={teamSlug}/>
+            <TeamMembersListTable team={team}/>
         </CardContent>
     </Card>
 }
 
-function TeamMembersListTable({ teamSlug }: { teamSlug: string }) {
+function TeamMembersListTable({ team }: { team: TeamData }) {
     const trpc = useTRPC()
 
-    const { data: memberships } = useSuspenseQuery(trpc.teamMemberships.byCurrentTeam.queryOptions())
+    const { data: memberships } = useSuspenseQuery(trpc.teamMemberships.byTeam.queryOptions({ teamId: team.teamId }))
 
     return <Show
         when={memberships.length > 0}
@@ -74,9 +75,9 @@ function TeamMembersListTable({ teamSlug }: { teamSlug: string }) {
             </TableHead>
             <TableBody>
                 {memberships.map(memberships => (
-                    <TableRow key={memberships.person.id}>
+                    <TableRow key={memberships.personId}>
                         <TableCell>
-                            <Link href={Paths.team(teamSlug).members.person(memberships.person.id).index} className="hover:underline">
+                            <Link href={Paths.team(team.slug).members.person(memberships.personId).index} className="hover:underline">
                                 {memberships.person.name}
                             </Link>
                         </TableCell>

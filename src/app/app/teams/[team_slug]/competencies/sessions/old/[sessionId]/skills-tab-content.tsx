@@ -15,7 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Description } from '@/components/ui/typography'
 
 import { useSkillCheckStore } from './skill-check-store'
-import { SkillPackageWithGroupsAndSkills, trpc } from '@/trpc/client'
+import { SkillPackageDataWithGroupsAndSkills, trpc } from '@/trpc/client'
 
 
 export function SkillsTabContent() {
@@ -51,7 +51,7 @@ export function SkillsTabContent() {
 }
 
 interface SkillPackageTreeProps {
-    skillPackage: SkillPackageWithGroupsAndSkills
+    skillPackage: SkillPackageDataWithGroupsAndSkills
     selectedSkills: string[]
     handleSelectSkill(sillId: string, selected: boolean): void
 }

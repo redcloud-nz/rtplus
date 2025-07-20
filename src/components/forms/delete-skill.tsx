@@ -10,24 +10,24 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 
 import { DeleteFormProps, DisplayValue, FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 
-import { SkillFormData } from '@/lib/forms/skill'
+import { SkillData } from '@/lib/schemas/skill'
 import { useToast } from '@/hooks/use-toast'
-import { SkillWithPackageAndGroup, useTRPC } from '@/trpc/client'
+import { SkillDataWithPackageAndGroup, useTRPC } from '@/trpc/client'
 
 
-export function DeleteSkillForm({ onClose, onDelete, skillId }: DeleteFormProps<SkillWithPackageAndGroup> & { skillId: string }) {
+export function DeleteSkillForm({ onClose, onDelete, skillId }: DeleteFormProps<SkillDataWithPackageAndGroup> & { skillId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
     const { data: skill } = useSuspenseQuery(trpc.skills.byId.queryOptions({ skillId }))
 
-    const form = useForm<Pick<SkillFormData, 'skillId'>>({
+    const form = useForm<Pick<SkillData, 'skillId'>>({
         resolver: (data) => ({ values: data, errors: {} }),
         defaultValues: { skillId: skill.id }
     })
 
-    const mutation = useMutation(trpc.skills.sys_delete.mutationOptions({
+    const mutation = useMutation(trpc.skills.delete.mutationOptions({
         onError(error) {
             toast({
                 title: 'Error Deleting Skill',

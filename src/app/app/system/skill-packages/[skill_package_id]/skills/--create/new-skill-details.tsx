@@ -24,7 +24,7 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { SkillFormData, skillFormSchema } from '@/lib/forms/skill'
+import { SkillData, skillSchema } from '@/lib/schemas/skill'
 import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
@@ -48,8 +48,8 @@ export function NewSkillDetailsCard({ skillPackageId }: NewSkillDetailsCardProps
         status: ['Active', 'Inactive']
     }))
 
-    const form = useForm<SkillFormData>({
-        resolver: zodResolver(skillFormSchema),
+    const form = useForm<SkillData>({
+        resolver: zodResolver(skillSchema),
         defaultValues: {
             skillId,
             skillPackageId,
@@ -62,10 +62,10 @@ export function NewSkillDetailsCard({ skillPackageId }: NewSkillDetailsCardProps
         }
     })
 
-    const mutation = useMutation(trpc.skills.sys_create.mutationOptions({
+    const mutation = useMutation(trpc.skills.create.mutationOptions({
         onError(error) {
             if (error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof SkillFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof SkillData, { message: error.shape.message })
             } else {
                 toast({
                     title: "Error creating skill",
@@ -88,7 +88,7 @@ export function NewSkillDetailsCard({ skillPackageId }: NewSkillDetailsCardProps
                 skillGroupId: result.skillGroupId,
                 status: ['Active', 'Inactive']
             }))
-            router.push(Paths.system.skillPackage(skillPackageId).skill(result.id).index)
+            router.push(Paths.system.skillPackage(skillPackageId).skill(result.skillId).index)
         }
     }))
 
@@ -131,7 +131,7 @@ export function NewSkillDetailsCard({ skillPackageId }: NewSkillDetailsCardProps
                                         </SelectTrigger>
                                         <SelectContent>
                                             {skillGroups.map(group => (
-                                                <SelectItem key={group.id} value={group.id}>
+                                                <SelectItem key={group.skillGroupId} value={group.skillGroupId}>
                                                     {group.name}
                                                 </SelectItem>
                                             ))}

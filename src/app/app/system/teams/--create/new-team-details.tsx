@@ -20,7 +20,7 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { TeamFormData, teamFormSchema } from '@/lib/forms/team'
+import { TeamData, teamSchema } from '@/lib/schemas/team'
 import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
@@ -35,8 +35,8 @@ export function NewTeamDetailsCard() {
 
     const teamId = useMemo(() => nanoId8(), [])
 
-    const form = useForm<TeamFormData>({
-        resolver: zodResolver(teamFormSchema),
+    const form = useForm<TeamData>({
+        resolver: zodResolver(teamSchema),
         defaultValues: {
             teamId: teamId,
             name: '',
@@ -47,10 +47,10 @@ export function NewTeamDetailsCard() {
         }
     })
 
-    const mutation = useMutation(trpc.teams.sys_create.mutationOptions({
+    const mutation = useMutation(trpc.teams.create.mutationOptions({
         onError(error) {
             if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof TeamFormData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof TeamData, { message: error.shape.message })
             } else {
                 toast({
                     title: "Error creating team",
