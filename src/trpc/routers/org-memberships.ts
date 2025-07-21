@@ -3,97 +3,160 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import { pick } from 'remeda'
 import { z } from 'zod'
 
-import { OrganizationMembership } from '@clerk/nextjs/server'
+import { OrganizationMembership as ClerkOrganizationMembership } from '@clerk/nextjs/server'
 import { TRPCError } from '@trpc/server'
 
-import { orgMembershipFormSchema } from '@/lib/schemas/org-membership'
+import { OrganizationData, organizationSchema } from '@/lib/schemas/organization'
+import { OrgMembershipData, orgMembershipSchema } from '@/lib/schemas/org-membership'
+import { UserData, userSchema } from '@/lib/schemas/user'
 import { zodNanoId8 } from '@/lib/validation'
 
-import { createTRPCRouter, systemAdminProcedure, teamAdminProcedure } from '../init'
-import { OrgMembershipData } from '../types'
+import { authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
 
 import { getTeamById } from './teams'
 import { getPersonById } from './personnel'
 
-
-
+/**
+ * Router for managing organization memberships.
+ * Provides methods to fetch memberships by person or team, and to update or delete memberships.
+ */
 export const orgMembershipsRouter = createTRPCRouter({
 
+    /**
+     * Fetch all organization memberships for a specific person.
+     * @param personId The ID of the person to fetch memberships for.
+     * @returns An array of organization membership data.
+     * @throws TRPCError if the person is not found or has no linked user.
+     */
     byPerson: systemAdminProcedure
         .input(z.object({
             personId: zodNanoId8
         }))
-        .query(async ({ ctx, input }): Promise<OrgMembershipData[]> => {
+        .output(z.array(orgMembershipSchema.extend({
+            user: userSchema,
+            organization: organizationSchema
+        })))
+        .query(async ({ ctx, input }) => {
             const person = await getPersonById(ctx, input.personId)
             if(!person.clerkUserId) throw new TRPCError({ code: 'BAD_REQUEST', message: `No linked user found for Person(${input.personId})`})
 
             const response = await ctx.clerkClient.users.getOrganizationMembershipList({ userId: person.clerkUserId, limit: 501 })
 
-            return response.data.map(toOrgMembershipBasic)
-        }),
-    byCurrentTeam: teamAdminProcedure
-        .query(async ({ ctx }): Promise<OrgMembershipData[]> => {
-            
-            const response = await ctx.clerkClient.organizations.getOrganizationMembershipList({ organizationId: ctx.orgId, limit: 501 })
-
-            return response.data.map(toOrgMembershipBasic)
+            return response.data.map(toOrgMembershipData)
         }),
 
-    byTeam: systemAdminProcedure
+    /**
+     * Fetch all organization memberships for a specific team.
+     * @param teamId The ID of the team to fetch memberships for.
+     * @returns An array of organization membership data.
+     * @throws TRPCError if the team is not found or the user is not an admin of the team.
+     */
+    byTeam: authenticatedProcedure
+        .meta({ teamAdminRequired: true })
         .input(z.object({
             teamId: zodNanoId8
         }))
-        .query(async ({ ctx, input }): Promise<OrgMembershipData[]> => {
+        .output(z.array(orgMembershipSchema.extend({
+            user: userSchema,
+            organization: organizationSchema
+        })))
+        .query(async ({ ctx, input }) => {
             const team = await getTeamById(ctx, input.teamId)
+            ctx.requireTeamAdmin(team.clerkOrgId)
             
-            const response = await ctx.clerkClient.organizations.getOrganizationMembershipList({ organizationId: team.clerkOrgId, limit: 501 })
+            const response = await ctx.clerkClient.organizations.getOrganizationMembershipList({ 
+                organizationId: team.clerkOrgId, limit: 501
+            })
 
-            return response.data.map(toOrgMembershipBasic)
+            return response.data.map(toOrgMembershipData)
         }),
 
-    delete: teamAdminProcedure
+    /**
+     * Delete an organization membership.
+     * @param teamId The ID of the team to delete the membership from.
+     * @param userId The ID of the user to delete the membership for.
+     * @returns The deleted organization membership data.
+     * @throws TRPCError if the team is not found or the user is not an admin of the team.
+     */
+    delete: authenticatedProcedure
+        .meta({ teamAdminRequired: true })
         .input(z.object({
+            teamId: zodNanoId8,
             userId: z.string().min(1, 'User ID is required'),
         }))
+        .output(orgMembershipSchema.extend({
+            user: userSchema,
+            organization: organizationSchema
+        }))
         .mutation(async ({ ctx, input }) => {
+            const team = await getTeamById(ctx, input.teamId)
+            ctx.requireTeamAdmin(team.clerkOrgId)
 
             const response = await ctx.clerkClient.organizations.deleteOrganizationMembership({
-                organizationId: ctx.orgId,
+                organizationId: team.clerkOrgId,
                 userId: input.userId,
             })
 
-            return toOrgMembershipBasic(response)
+            return toOrgMembershipData(response)
         }),
-            
-    update: teamAdminProcedure
-        .input(orgMembershipFormSchema)
+        
+    /**
+     * Update an existing organization membership.
+     * @param teamId The ID of the team to update the membership for.   
+     * @param userId The ID of the user to update the membership for.
+     * @param role The new role to assign to the user (either 'org:admin' or 'org:member').
+     * @returns The updated organization membership data.
+     * @throws TRPCError if the team is not found or the user is not an admin of the team.
+     */
+    update: authenticatedProcedure
+        .meta({ teamAdminRequired: true })
+        .input(z.object({
+            teamId: zodNanoId8,
+            userId: z.string().min(1, 'User ID is required'),
+            role: z.enum(['org:admin', 'org:member']),
+        }))
+        .output(orgMembershipSchema.extend({
+            user: userSchema,
+            organization: organizationSchema
+        }))
         .mutation(async ({ ctx, input }) => {
+            const team = await getTeamById(ctx, input.teamId)
+            ctx.requireTeamAdmin(team.clerkOrgId)
 
             const response = await ctx.clerkClient.organizations.updateOrganizationMembership({
-                organizationId: ctx.orgId,
+                organizationId: team.clerkOrgId,
                 userId: input.userId,
                 role: input.role,
             })
 
-            return toOrgMembershipBasic(response)
+            return toOrgMembershipData(response)
         }),
 })
 
 
-
-function toOrgMembershipBasic(orgMembership: OrganizationMembership): OrgMembershipData {
+/**
+ * Converts a Clerk Organization Membership to the internal OrgMembershipData format.
+ * @param orgMembership The Clerk Organization Membership to convert.
+ * @returns The converted OrgMembershipData.
+ */
+function toOrgMembershipData(orgMembership: ClerkOrganizationMembership): OrgMembershipData & { user: UserData, organization: OrganizationData } {
     return {
-        id: orgMembership.id,
-        role: orgMembership.role,
+        orgMembershipId: orgMembership.id,
+        role: orgMembership.role as 'org:admin' | 'org:member',
+        userId: orgMembership.publicUserData?.userId || '',
         user: {
-            id: orgMembership.publicUserData?.userId || '',
+            userId: orgMembership.publicUserData?.userId || '',
             identifier: orgMembership.publicUserData?.identifier || '',
             name: `${orgMembership.publicUserData?.firstName || ''} ${orgMembership.publicUserData?.lastName || ''}`.trim() || "Unknown User",
         },
-        organization: pick(orgMembership.organization, ['id', 'name', 'slug']),
+        organizationId: orgMembership.organization.id,
+        organization: {
+            orgId: orgMembership.organization.id,
+            name: orgMembership.organization.name,
+            slug: orgMembership.organization.slug || null,
+        },
         createdAt: orgMembership.createdAt,
         updatedAt: orgMembership.updatedAt,
     }

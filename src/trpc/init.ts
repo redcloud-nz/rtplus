@@ -11,7 +11,11 @@ import {  initTRPC, TRPCError } from '@trpc/server'
 
 import prisma from '@/server/prisma'
 
-
+interface Meta {
+    authRequired?: boolean
+    systemAdminRequired?: boolean
+    teamAdminRequired?: boolean
+}
 
 export const createTRPCContext = cache(async ({ headers }: { headers: Headers  }) => {
     return { 
@@ -24,7 +28,7 @@ export const createTRPCContext = cache(async ({ headers }: { headers: Headers  }
 type Context = Awaited<ReturnType<typeof createTRPCContext>>
 
 // Avoid exporting the entire t-object
-const t = initTRPC.context<Context>().create({
+const t = initTRPC.context<Context>().meta<Meta>().create({
     transformer: superjson,
     errorFormatter(opts) {
         const { shape, error } = opts
@@ -51,7 +55,7 @@ export type AuthenticatedContext = Context & {
     requireTeamAdmin(orgId: string): boolean,
 }
 
-export const authenticatedProcedure = t.procedure.use((opts) => {
+export const authenticatedProcedure = t.procedure.meta({ authRequired: true }).use((opts) => {
     const { auth, ...ctx } = opts.ctx
 
     if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })
@@ -104,7 +108,7 @@ export const teamProcedure = t.procedure.use((opts) => {
     })
 })
 
-export const teamAdminProcedure = t.procedure.use((opts) => {
+export const teamAdminProcedure = t.procedure.meta({ authRequired: true, teamAdminRequired: true }).use((opts) => {
     const { auth, ...ctx } = opts.ctx
 
     if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })
@@ -133,7 +137,7 @@ export const teamAdminProcedure = t.procedure.use((opts) => {
 })
 
 
-export const systemAdminProcedure = t.procedure.use((opts) => {
+export const systemAdminProcedure = t.procedure.meta({ authRequired: true, systemAdminRequired: true }).use((opts) => {
     const { auth, ...ctx } = opts.ctx
 
     if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })
@@ -156,31 +160,4 @@ export const systemAdminProcedure = t.procedure.use((opts) => {
             },
         } satisfies AuthenticatedContext,
     })
-})
-
-export const systemOrTeamAdminProcedure = t.procedure.use((opts) => {
-    const { auth, ...ctx } = opts.ctx
-
-    if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })
-    if(auth.sessionClaims.rt_system_role == 'admin' || (auth.orgId != null && auth.orgRole === 'org:admin')) {
-        return opts.next({
-            ctx: {
-                ...ctx,
-                auth,
-                personId: auth.sessionClaims.rt_person_id,
-                isSystemAdmin: auth.sessionClaims.rt_system_role === 'admin',
-                requireSystemAdmin: () => {
-                if(auth.sessionClaims.rt_system_role === 'admin') return true
-                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin" })
-            },
-                requireTeamAdmin: (orgId: string) => {
-                if((auth.orgId == orgId && auth.orgRole == 'org:admin') || auth.sessionClaims.rt_system_role == 'admin') return true 
-                    
-                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team or system admin" })
-            },
-            } satisfies AuthenticatedContext,
-        })
-    }
-    throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system or team admin" })
-    
 })

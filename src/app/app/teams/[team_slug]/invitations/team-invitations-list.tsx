@@ -15,47 +15,52 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardCollapseToggleButton, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { DialogTriggerButton } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Separator } from '@/components/ui/separator'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
-import { OrgInvitationData, useTRPC } from '@/trpc/client'
+import { OrgInvitationData } from '@/lib/schemas/org-invitation'
+import { useTRPC } from '@/trpc/client'
 
 import { CreateInvitationDialog } from './create-invitation'
 import { RevokeInvitationDialog } from './revoke-invitation'
 
 
 
-export function TeamInvitationsListCard() {
+
+export function TeamInvitationsListCard({ teamId }: { teamId: string }) {
     return <Card>
         <CardHeader>
             <CardTitle>List</CardTitle>
-            <Protect role="org:admin">
-                <CreateInvitationDialog trigger={
-                    <DialogTriggerButton variant="ghost" size="icon" tooltip="Create a new invitation">
-                        <PlusIcon/>
-                    </DialogTriggerButton>
-                }/>
-            </Protect>
+            <CardActions>
+                <Protect role="org:admin">
+                    <CreateInvitationDialog trigger={
+                        <DialogTriggerButton variant="ghost" size="icon" tooltip="Create a new invitation">
+                            <PlusIcon/>
+                        </DialogTriggerButton>
+                    }/>
+                </Protect>
+                <Separator orientation="vertical"/>
+                <CardExplanation>
+                    <p>This card displays a list of pending team invitations.</p>
+                    <p>To invite a new user, use the <PlusIcon className="inline-block h-4 w-4"/> button.</p>
+                    <p>You can resend or revoke and invite using the <EllipsisVerticalIcon className="inline-block h-4 w-4"/> button to access the invitation action menu.</p>
+                </CardExplanation>
+            </CardActions>
             
-            <CardExplanation>
-                <p>This card displays a list of pending team invitations.</p>
-                <p>To invite a new user, use the <PlusIcon className="inline-block h-4 w-4"/> button.</p>
-                <p>You can resend or revoke and invite using the <EllipsisVerticalIcon className="inline-block h-4 w-4"/> button to access the invitation action menu.</p>
-            </CardExplanation>
-            <CardCollapseToggleButton/>
         </CardHeader>
         <CardContent boundary>
-            <TeamInvitationsListTable/>
+            <TeamInvitationsListTable teamId={teamId}/>
         </CardContent>
     </Card>
 }
 
-function TeamInvitationsListTable() {
+function TeamInvitationsListTable({ teamId }: { teamId: string }) {
     const trpc = useTRPC()
 
-    const { data: invitations } = useSuspenseQuery(trpc.orgInvitations.byCurrentTeam.queryOptions())
+    const { data: invitations } = useSuspenseQuery(trpc.orgInvitations.byTeam.queryOptions({ teamId }))
 
     const [actionTarget, setActionTarget] = useState<{ action: 'Resend' | 'Revoke', orgInvitation: OrgInvitationData } | null>(null)
 
@@ -74,7 +79,7 @@ function TeamInvitationsListTable() {
             </TableHead>
             <TableBody>
                 {invitations.map(orgInvitation => (
-                    <TableRow key={orgInvitation.id}>
+                    <TableRow key={orgInvitation.invitationId}>
                         <TableCell>{orgInvitation.email}</TableCell>
                         <TableCell>{orgInvitation.role}</TableCell>
                         <TableCell>{format(orgInvitation.createdAt, 'dd MMM yyyy')}</TableCell>

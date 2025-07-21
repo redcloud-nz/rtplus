@@ -6,9 +6,12 @@
 
 import { z } from 'zod'
 
-export const orgInvitationFormSchema = z.object({
+export const orgInvitationSchema = z.object({
+    invitationId: z.string(),
     email: z.string().email('Invalid email address'),
-    role: z.enum(['org:admin', 'org:member'])
+    role: z.enum(['org:admin', 'org:member']),
+    createdAt: z.number(),
+    updatedAt: z.number(),
 })
 
-export type OrgInvitationFormData = z.infer<typeof orgInvitationFormSchema>
+export type OrgInvitationData = z.infer<typeof orgInvitationSchema>

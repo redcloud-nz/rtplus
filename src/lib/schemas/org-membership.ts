@@ -6,9 +6,13 @@
 
 import { z } from 'zod'
 
-export const orgMembershipFormSchema = z.object({
-    userId: z.string().min(1, 'User ID is required'),
-    role: z.enum(['org:admin', 'org:member'])
+export const orgMembershipSchema = z.object({
+    orgMembershipId: z.string(),
+    userId: z.string(),
+    organizationId: z.string(),
+    role: z.enum(['org:admin', 'org:member']),
+    createdAt: z.number(),
+    updatedAt: z.number(),
 })
 
-export type OrgMembershipFormData = z.infer<typeof orgMembershipFormSchema>
+export type OrgMembershipData = z.infer<typeof orgMembershipSchema>

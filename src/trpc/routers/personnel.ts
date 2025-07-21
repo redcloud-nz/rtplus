@@ -67,7 +67,7 @@ export const personnelRouter = createTRPCRouter({
         .input(z.object({
             status: zodRecordStatus
         }))
-        .output(z.array(personSchema,))
+        .output(z.array(personSchema))
         .query(async ({ ctx, input }) => {
             const found = await ctx.prisma.person.findMany({ 
                 where: { status: { in: input.status } },
@@ -201,7 +201,7 @@ export async function createPerson(ctx: AuthenticatedContext, {personId, ...inpu
  * @returns The updated person object.
  * @throws TRPCError If a person with the new email already exists.
  */
-export async function updatePerson(ctx: AuthenticatedContext, person: PersonRecord, update: Omit<PersonData, 'personId'>): Promise<PersonRecord> {
+export async function updatePerson(ctx: AuthenticatedContext, person: PersonRecord, { personId, ...update }: PersonData): Promise<PersonRecord> {
 
     if(update.email != person.email) {
         // Check if a person with the new email already exists

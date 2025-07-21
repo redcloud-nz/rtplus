@@ -10,33 +10,32 @@ import React from 'react'
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 
 import * as Paths from '@/paths'
-
-import { getTeam, TeamParams } from '..'
+import { fetchTeamBySlug } from '@/server/fetch'
 
 import { TeamUsersListCard } from './team-users-list'
 
 
-export async function generateMetadata(props: { params: Promise<TeamParams> }): Promise<Metadata> {
 
-    const team = await getTeam(props.params)
+export async function generateMetadata(props: { params: Promise<{ team_slug: string }> }): Promise<Metadata> {
+    const team = await fetchTeamBySlug(props.params)
 
     return { title: `Users - ${team.shortName || team.name}` }
 }
-export default async function TeamUsersPage(props: { params: Promise<TeamParams> }) {
-    const team = await getTeam(props.params)
+export default async function TeamUsersPage(props: { params: Promise<{  team_slug: string }> }) {
+    const team = await fetchTeamBySlug(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                { label: team.shortName || team.name, href: Paths.team(team.slug).index }, 
-                Paths.team(team.slug).users
+                Paths.team(team), 
+                Paths.team(team).users
             ]}
         />
         <AppPageContent variant="container">
             <PageHeader>
                 <PageTitle>Team Users</PageTitle>
             </PageHeader>
-            <TeamUsersListCard/>
+            <TeamUsersListCard teamId={team.teamId}/>
         </AppPageContent>
     </AppPage>
 }

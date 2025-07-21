@@ -17,8 +17,8 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { useToast } from '@/hooks/use-toast'
-import { OrgInvitationFormData, orgInvitationFormSchema } from '@/lib/schemas/org-invitation'
-import { OrgInvitationData, useTRPC } from '@/trpc/client'
+import { OrgInvitationData, orgInvitationSchema } from '@/lib/schemas/org-invitation'
+import { useTRPC } from '@/trpc/client'
 import { z } from 'zod'
 
 
@@ -46,7 +46,7 @@ function RevokeInvitationForm({ orgInvitation, onClose }: { orgInvitation: OrgIn
 
     const form = useForm({
         resolver: zodResolver(z.object({ invitationId: z.string() })),
-        defaultValues: { invitationId: orgInvitation.id }
+        defaultValues: { invitationId: orgInvitation.invitationId }
     })
 
     function handleClose() {

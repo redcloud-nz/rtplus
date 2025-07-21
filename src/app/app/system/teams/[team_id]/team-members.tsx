@@ -27,8 +27,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 import { useListOptions } from '@/hooks/use-list-options'
 import { useToast } from '@/hooks/use-toast'
+import { TeamMembershipData } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
-import { TeamMembershipData, teamMembershipSchema, useTRPC } from '@/trpc/client'
+import { useTRPC } from '@/trpc/client'
+
 
 
 
@@ -123,7 +125,7 @@ function NewTeamMembershipForm({ excludePersonIds, teamId, onClose }: { teamId: 
 
     // Temporary fix for personnel data fetching
     // This should be replaced with PersonPicker that returns the person directly and not just the personId.
-    const { data: personnelData } = useSuspenseQuery(trpc.personnel.all.queryOptions())
+    const { data: personnelData } = useSuspenseQuery(trpc.personnel.all.queryOptions({}))
 
     const form = useForm<TeamMembershipData>({
         defaultValues: {
@@ -139,7 +141,7 @@ function NewTeamMembershipForm({ excludePersonIds, teamId, onClose }: { teamId: 
 
             await queryClient.cancelQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId }))
 
-            const person = personnelData.find(p => p.person.personId === newMembership.personId)!.person
+            const person = personnelData.find(p => p.personId === newMembership.personId)!
 
             const previousData = queryClient.getQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }))
 

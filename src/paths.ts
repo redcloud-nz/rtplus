@@ -4,6 +4,7 @@
  */
 
 import { PolicyKeyType } from "./lib/policy"
+import { TeamData } from "./lib/schemas/team"
 
 
 //  /------------------------------\
@@ -119,12 +120,14 @@ export const switchTeam = `/app/switch-team`
 
 // Team
 
-export const team = (teamSlug: string) => {
+export const team = (teamOrSlug: TeamData | string) => {
+    const teamSlug = typeof teamOrSlug === 'string' ? teamOrSlug : teamOrSlug.slug
     const base = `/app/teams/${teamSlug}` as const
     const competenciesBase = `${base}/competencies` as const
 
     return {
         index: base,
+        _label: typeof teamOrSlug === 'string' ? undefined as never : (teamOrSlug.shortName || teamOrSlug.name),
         accept: `${base}/accept`,
         availability: `${base}/availability`,
         checklists: `${base}/checklists`,

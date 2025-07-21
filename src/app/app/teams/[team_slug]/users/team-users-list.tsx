@@ -15,12 +15,13 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardCollapseToggleButton, CardExplanation } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardExplanation } from '@/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTriggerButton } from '@/components/ui/popover'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
-import { OrgMembershipData, useTRPC } from '@/trpc/client'
+import { OrgMembershipData } from '@/lib/schemas/org-membership'
+import { useTRPC } from '@/trpc/client'
 
 import { EditUserDialog } from './edit-user'
 import { DeleteUserDialog } from './delete-user'
@@ -28,7 +29,8 @@ import { DeleteUserDialog } from './delete-user'
 
 
 
-export function TeamUsersListCard() {
+
+export function TeamUsersListCard({ teamId }: { teamId: string }) {
     return <Card>
         <CardHeader>
             <CardTitle>List</CardTitle>
@@ -48,19 +50,18 @@ export function TeamUsersListCard() {
                 <p>To add a new user, you will need to invite them from the Invitations Card</p>
                 <p>You can change a users role or delete them uing the <EllipsisVerticalIcon className="inline-block h-4 w-4"/> button to access the user action menu.</p>
             </CardExplanation>
-            <CardCollapseToggleButton />
         </CardHeader>
         <CardContent boundary>
-            <TeamUsersListTable/>
+            <TeamUsersListTable teamId={teamId}/>
         </CardContent>
     </Card>
 }
 
 
-function TeamUsersListTable() {
+function TeamUsersListTable({ teamId }: { teamId: string }) {
     const trpc = useTRPC()
 
-    const { data: orgMemberships } = useSuspenseQuery(trpc.orgMemberships.byCurrentTeam.queryOptions())
+    const { data: orgMemberships } = useSuspenseQuery(trpc.orgMemberships.byTeam.queryOptions({ teamId }))
 
     const [actionTarget, setActionTarget] = useState<{ action: 'Edit' | 'Delete', orgMembership: OrgMembershipData } | null>(null)
 
@@ -81,7 +82,7 @@ function TeamUsersListTable() {
             <TableBody>
                 {orgMemberships
                     .map(orgMembership => 
-                        <TableRow key={orgMembership.id}>
+                        <TableRow key={orgMembership.orgMembershipId}>
                             <TableCell>{orgMembership.user.name}</TableCell>
                             <TableCell>{orgMembership.user.identifier}</TableCell>
                             <TableCell>{orgMembership.role == 'org:admin' ? 'Admin' : 'Member'}</TableCell>
@@ -99,8 +100,8 @@ function TeamUsersListTable() {
                                         <DropdownMenuContent align="end" className="w-32">
                                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                             <DropdownMenuGroup>
-                                                <DropdownMenuItem onClick={() => setActionTarget({ action: 'Edit', orgMembership })}><PencilIcon/> Edit</DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => setActionTarget({ action: 'Delete', orgMembership })}><TrashIcon/> Delete</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => {}}><PencilIcon/> Edit</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => {}}><TrashIcon/> Delete</DropdownMenuItem>
                                             </DropdownMenuGroup>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
@@ -111,7 +112,7 @@ function TeamUsersListTable() {
                 }
             </TableBody>
         </Table>
-        {match(actionTarget)
+        {/* {match(actionTarget)
             .with({ action: 'Edit' }, ({ orgMembership }) =>
                 <EditUserDialog
                     key="edit-user-dialog"
@@ -129,7 +130,7 @@ function TeamUsersListTable() {
                 />
             )
             .otherwise(() => null)
-        }
+        } */}
     </Show>
     
     

@@ -11,12 +11,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { DisplayValue, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { OrgMembershipFormData, orgMembershipFormSchema } from '@/lib/schemas/org-membership'
+import { OrgMembershipData, orgMembershipSchema } from '@/lib/schemas/org-membership'
 import { OrgMembershipData, useTRPC } from '@/trpc/client'
 
 
@@ -45,8 +45,8 @@ function EditUserForm({ orgMembership, onClose }: { orgMembership: OrgMembership
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const form = useForm<OrgMembershipFormData>({
-        resolver: zodResolver(orgMembershipFormSchema),
+    const form = useForm<OrgMembershipData>({
+        resolver: zodResolver(orgMembershipSchema),
         defaultValues: {
             userId: orgMembership.user.id,
             role: orgMembership.role as 'org:admin' | 'org:member',

@@ -16,7 +16,7 @@ import { teamsRouter } from './teams'
 import { teamMembershipsRouter } from './team-memberships'
 import { orgMembershipsRouter } from './org-memberships'
 import { orgInvitationsRouter } from './org-invitations'
-
+import { usersRouter } from './users'
 
 
 export const appRouter = createTRPCRouter({
@@ -31,6 +31,7 @@ export const appRouter = createTRPCRouter({
     skillPackages: skillPackagesRouter,
     teams: teamsRouter,
     teamMemberships: teamMembershipsRouter,
+    users: usersRouter,
     
 })
 

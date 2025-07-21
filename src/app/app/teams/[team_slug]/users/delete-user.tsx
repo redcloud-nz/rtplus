@@ -16,19 +16,20 @@ import { DisplayValue } from '@/components/ui/display-value'
 import { FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 
 import { useToast } from '@/hooks/use-toast'
-import { OrgMembershipFormData, orgMembershipFormSchema } from '@/lib/schemas/org-membership'
-import { OrgMembershipData, useTRPC } from '@/trpc/client'
+import { OrgMembershipData, orgMembershipSchema } from '@/lib/schemas/org-membership'
+import { useTRPC } from '@/trpc/client'
+import { UserData } from '@/lib/schemas/user'
 
 
 
-export function DeleteUserDialog({ orgMembership, ...props }: ComponentProps<typeof Dialog> & { orgMembership: OrgMembershipData }) {
+export function DeleteUserDialog({ orgMembership, user, ...props }: ComponentProps<typeof Dialog> & { orgMembership: OrgMembershipData, user: UserData }) {
 
     return <Dialog {...props}>
         <DialogContent>
             <DialogHeader>
                 <DialogTitle>Delete User</DialogTitle>
                 <DialogDescription>
-                    This action will permanently remove the user {orgMembership.user.name} from the organization.
+                    This action will permanently remove the user {user.name} from the organization.
                 </DialogDescription>
             </DialogHeader>
             <DialogBody>
@@ -43,9 +44,9 @@ function DeleteUserForm({ orgMembership, onClose }: { orgMembership: OrgMembersh
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const form = useForm<Pick<OrgMembershipFormData, 'userId'>>({
-        resolver: zodResolver(orgMembershipFormSchema.pick({ userId: true })),
-        defaultValues: { userId: orgMembership.user.id }
+    const form = useForm<Pick<OrgMembershipData, 'userId'>>({
+        resolver: zodResolver(orgMembershipSchema.pick({ userId: true })),
+        defaultValues: { userId: orgMembership.userId }
     })
 
     function handleClose() {
@@ -59,7 +60,7 @@ function DeleteUserForm({ orgMembership, onClose }: { orgMembership: OrgMembersh
 
             const previousData = queryClient.getQueryData(trpc.orgMemberships.byCurrentTeam.queryKey())
             if (previousData) {
-                queryClient.setQueryData([trpc.orgMemberships.byCurrentTeam.queryKey], previousData.filter(m => m.user.id !== userId))
+                queryClient.setQueryData([trpc.orgMemberships.byCurrentTeam.queryKey], previousData.filter(m => m.userId !== userId))
             }
             return { previousData }
         },
@@ -76,7 +77,7 @@ function DeleteUserForm({ orgMembership, onClose }: { orgMembership: OrgMembersh
         onSuccess() {
             toast({ 
                 title: 'User deleted successfully',
-                description: `User ${orgMembership.user.name} has been removed from the organization.`,
+                description: `User ${user.name} has been removed from the organization.`,
              })
             handleClose()
         },

@@ -26,6 +26,7 @@ import { getTeamById } from './teams'
 export const teamMembershipsRouter = createTRPCRouter({
 
     create: authenticatedProcedure
+        .meta({ teamAdminRequired: true })
         .input(teamMembershipSchema)
         .output(teamMembershipSchema.extend({
             person: personSchema,
@@ -61,7 +62,7 @@ export const teamMembershipsRouter = createTRPCRouter({
             return { ...membership, person: { personId: person.id, ...person }, team: { teamId: team.id, ...team } }
         }),
 
-    byPerson: systemAdminProcedure
+    byPerson: authenticatedProcedure
         .input(z.object({
             personId: zodNanoId8,
             status: zodRecordStatus
@@ -82,7 +83,7 @@ export const teamMembershipsRouter = createTRPCRouter({
             return memberships.map(({ team, ...membership }) => ({ ...membership, team: { teamId: team.id, ...team } }))
         }),
 
-    byTeam: systemAdminProcedure
+    byTeam: authenticatedProcedure
         .input(z.object({
             teamId: zodNanoId8,
             status: zodRecordStatus
@@ -103,7 +104,10 @@ export const teamMembershipsRouter = createTRPCRouter({
             return memberships.map(({ person, ...membership }) => ({ ...membership, person: { personId: person.id, ...person } }))
         }),
 
-    delete: systemAdminProcedure
+    
+
+    delete: authenticatedProcedure
+        .meta({ teamAdminRequired: true })
         .input(z.object({
             teamId: zodNanoId8,
             personId: zodNanoId8,
@@ -113,6 +117,8 @@ export const teamMembershipsRouter = createTRPCRouter({
 
             const { person, team, ...membership } = await getTeamMembershipById(ctx, input)
 
+            ctx.requireTeamAdmin(team.clerkOrgId)
+
             const deleted = await deleteTeamMembership(ctx, membership)
 
             return deleted
@@ -120,6 +126,7 @@ export const teamMembershipsRouter = createTRPCRouter({
         
 
     update: authenticatedProcedure
+        .meta({ teamAdminRequired: true })
         .input(teamMembershipSchema)
         .output(teamMembershipSchema)
         .mutation(async ({ ctx, input }) => {
@@ -133,7 +140,6 @@ export const teamMembershipsRouter = createTRPCRouter({
         }),
 
 })
-
 
 async function getTeamMembershipById(ctx: AuthenticatedContext, { personId, teamId }: { personId: string, teamId: string }): Promise<TeamMembershipRecord & { person: PersonRecord, team: TeamRecord }> {
     const membership = await ctx.prisma.teamMembership.findUnique({

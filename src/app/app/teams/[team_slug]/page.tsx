@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /team/[team-_lug]/dashboard
+ *  Path: /app/team/[team_slug]
  */
 
 import { ClockIcon, CombineIcon, ListChecksIcon, NotebookTextIcon, PocketKnifeIcon, WalletCardsIcon } from 'lucide-react'
@@ -12,8 +12,8 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-pa
 import { DashboardCard, DashboardCardList } from '@/components/ui/dashboard-card'
 
 import * as Paths from '@/paths'
+import { fetchTeamBySlug } from '@/server/fetch'
 
-import { getTeam, TeamParams } from '.'
 
 
 // const dataCards: { name: string, initials: string, href: string, bgColor: string }[] = [
@@ -23,8 +23,8 @@ import { getTeam, TeamParams } from '.'
 //     { name: 'Skill Packages', initials: 'SP', href: Paths.skillPackagesList, bgColor: 'bg-yellow-500' },
 // ]
 
-export default async function TeamHomePage(props: { params: Promise<TeamParams> }) {
-    const team = await getTeam(props.params)
+export default async function TeamHomePage(props: { params: Promise<{ team_slug: string }> }) {
+    const team = await fetchTeamBySlug(props.params)
 
     const teamPath = Paths.team(team.slug)
 
