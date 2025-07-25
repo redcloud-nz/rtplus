@@ -15,21 +15,54 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { selectTriggerVariants } from '@/components/ui/select'
 
+import { TeamData } from '@/lib/schemas/team'
 import { cn } from '@/lib/utils'
 import { useTRPC } from '@/trpc/client'
 
 
+
 interface TeamPickerProps {
+    /**
+     * Optional CSS class name for the component.
+     */
     className?: string
+
+    /**
+     * Default value for the picker, used when no value is provided.
+     */
     defaultValue?: string
+
+    /**
+     * List of team IDs to exclude from the picker options.
+     */
     exclude?: string[]
-    onValueChange?: (personId: string) => void
+
+    /**
+     * Callback function that is called when a team is selected.
+     * It receives the selected team data as an argument.
+     */
+    onValueChange?: (team: TeamData) => void
+
+    /**
+     * Placeholder text to display when no team is selected.
+     */
     placeholder?: string
+
+    /**
+     * Size of the picker, can be 'default' or 'sm'.
+     */
     size?: 'default' | 'sm'
+    
+    /**
+     * Current value of the picker, used to control the selected team.
+     */
     value?: string
 }
 
-
+/**
+ * A component for selecting a team from a list, with search functionality.
+ * It uses a popover to display the list of teams and allows filtering by name.
+ */
 export function TeamPicker({ className, defaultValue = "", exclude = [], onValueChange, placeholder, size, value }: TeamPickerProps) {
     const trpc = useTRPC()
     const query = useQuery(trpc.teams.all.queryOptions({}))
@@ -40,10 +73,15 @@ export function TeamPicker({ className, defaultValue = "", exclude = [], onValue
     const handleSelect = (teamId: string) => {
         if (teamId !== internalValue) {
             setInternalValue(teamId)
-            onValueChange?.(teamId)
+
+            const selectedTeam = query.data?.find(team => team.teamId === teamId)!
+            onValueChange?.(selectedTeam)
             setOpen(false)
         }
     }
+
+    const effectiveValue = value ?? internalValue
+    const filteredTeams = (query.data ?? []).filter(team => team.status === 'Active')
     
     return <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger
@@ -52,8 +90,8 @@ export function TeamPicker({ className, defaultValue = "", exclude = [], onValue
             className={selectTriggerVariants({ className, size })}
         >
             {query.data
-                ? value
-                    ? query.data.find((team) => team.id === value)?.name
+                ? effectiveValue
+                    ? query.data.find((team) => team.teamId === value)?.name
                     : placeholder ?? "Select team..."
                 : "Loading..."
             }
@@ -66,15 +104,15 @@ export function TeamPicker({ className, defaultValue = "", exclude = [], onValue
                 <CommandList>
                     <CommandEmpty>No teams found.</CommandEmpty>
                     <CommandGroup>
-                        {query.data?.map((team) => (
+                        {filteredTeams.map((team) => (
                             <CommandItem
-                                key={team.id}
-                                value={team.id}
-                                disabled={exclude.includes(team.id)}
-                                onSelect={() => handleSelect(team.id)}
-                                className={cn("cursor-pointer", value === team.id && "bg-accent")}
+                                key={team.teamId}
+                                value={team.teamId}
+                                disabled={exclude.includes(team.teamId)}
+                                onSelect={() => handleSelect(team.teamId)}
+                                className={cn("cursor-pointer", value === team.teamId && "bg-accent")}
                             >
-                                <CheckIcon className={cn("mr-2 h-4 w-4", value === team.id ? "opacity-100" : "opacity-0")} />
+                                <CheckIcon className={cn("mr-2 h-4 w-4", value === team.teamId ? "opacity-100" : "opacity-0")} />
                                 {team.name}
                             </CommandItem>
                         ))}

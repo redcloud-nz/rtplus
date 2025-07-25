@@ -21,7 +21,9 @@ import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTit
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 import { ObjectName } from '@/components/ui/typography'
 
-import { OrgMembershipData, TeamData, useTRPC } from '@/trpc/client'
+import { OrgMembershipData } from '@/lib/schemas/org-membership'
+import { TeamData } from '@/lib/schemas/team'
+import { useTRPC } from '@/trpc/client'
 
 
 
@@ -103,7 +105,7 @@ function TeamUsersCardTable({ onAction, teamId }: { onAction: (args: ActionState
                 {orgMemberships
                     .sort((a, b) => a.user.name.localeCompare(b.user.name))
                     .map(orgMembership => 
-                        <TableRow key={orgMembership.id}>
+                        <TableRow key={orgMembership.orgMembershipId} className="hover:bg-muted">
                             <TableCell>{orgMembership.user.name}</TableCell>
                             <TableCell>{orgMembership.user.identifier}</TableCell>
                             <TableCell>{orgMembership.role}</TableCell>

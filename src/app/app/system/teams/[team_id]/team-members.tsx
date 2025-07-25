@@ -5,225 +5,296 @@
  */
 'use client'
 
-import { PlusIcon, SaveIcon, XIcon } from 'lucide-react'
-import { useState } from 'react'
+import { PencilIcon, PlusIcon, SaveIcon, XIcon } from 'lucide-react'
+import { useMemo } from 'react'
+import { match } from 'ts-pattern'
 
-import { FormProvider, useForm } from 'react-hook-form'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
 import { PersonPicker } from '@/components/controls/person-picker'
-import { Show } from '@/components/show'
-import { Alert } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
-import { DropdownMenuCheckboxItem, DropdownMenuGroup, DropdownMenuLabel } from '@/components/ui/dropdown-menu'
-import { FormField } from '@/components/ui/form'
-import { GridTable, GridTableBody, GridTableCell, GridTableHead, GridTableHeadCell, GridTableHeadRow, GridTableRow, GridTableRowActions } from '@/components/ui/grid-table'
+import { Button, DeleteConfimButton } from '@/components/ui/button'
+import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
+import { DataTableBody, DataTableHead, DataTableProvider, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
 import { TagsInput } from '@/components/ui/input'
 import { TextLink } from '@/components/ui/link'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
+import { Table } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
-import { useListOptions } from '@/hooks/use-list-options'
 import { useToast } from '@/hooks/use-toast'
+import { EditableFeature } from '@/lib/editable-feature'
+import { PersonData } from '@/lib/schemas/person'
 import { TeamMembershipData } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
 
-
-
+/**
+ * Card that display the list of team members for a specific team.
+ * It allows adding, editing, and deleting team members.
+ * @param teamId The ID of the team for which to display members.
+ */
 export function TeamMembersCard({ teamId }: { teamId: string }) {
-   
     const trpc = useTRPC()
-
-    const { data } = useSuspenseQuery(trpc.teamMemberships.byTeam.queryOptions({ teamId }))
-
-    const { options, handleOptionChange } = useListOptions({})
-
-    const [action, setAction] = useState<{ type: 'update', id: string } | { type: 'create' } | null>(null)
-
-    const existingMemberIds = data.map(m => m.person.personId)
-
-    return <Card>
-        <CardHeader>
-            <CardTitle>Team Members</CardTitle>
-            <CardActions>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={() => setAction({ type: 'create' })}>
-                            <PlusIcon/>
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Add a new team member</TooltipContent>
-                </Tooltip>
-                
-                <CardMenu title="Team Members">
-                    <DropdownMenuGroup>
-                        <DropdownMenuLabel>Status</DropdownMenuLabel>
-                        <DropdownMenuCheckboxItem
-                            checked={options.showActive} 
-                            onCheckedChange={handleOptionChange('showActive')}
-                        >Active</DropdownMenuCheckboxItem>
-                        <DropdownMenuCheckboxItem 
-                            checked={options.showInactive} 
-                            onCheckedChange={handleOptionChange('showInactive')}
-                        >Inactive</DropdownMenuCheckboxItem>
-                    </DropdownMenuGroup>
-                </CardMenu>
-
-                <Separator orientation='vertical'/>
-
-                <CardExplanation>
-                    This card displays the members of the team. You can add new members, edit existing ones, or delete them. 
-                </CardExplanation>
-            </CardActions>
-        </CardHeader>
-        <CardContent>
-            <GridTable className="grid-cols-[1fr_100px_80px] lg:grid-cols-[1fr_1fr_140px_80px]">
-                <GridTableHead>
-                    <GridTableHeadRow>
-                        <GridTableHeadCell id="columnHeader-name">Name</GridTableHeadCell>
-                        <GridTableHeadCell id="columnHeader-tags" className="hidden lg:flex">Tags</GridTableHeadCell>
-                        <GridTableHeadCell id="columnHeader-status">Status</GridTableHeadCell>
-                    </GridTableHeadRow>
-                </GridTableHead>
-                <GridTableBody>
-                    { action?.type == 'create' ? <NewTeamMembershipForm
-                        key="new-membership"
-                        teamId={teamId}
-                        onClose={() => setAction(null)}
-                        excludePersonIds={existingMemberIds}
-                    /> : null }
-                    <Show when={data.length == 0 && action?.type != 'create'}>
-                        <Alert className="col-span-full w-full" severity="info" title="No team members defined"/>
-                    </Show>
-                    {data
-                        .sort((a, b) => a.person.name.localeCompare(b.person.name))
-                        .map(({ person, ...teamMembership }) => 
-                            <GridTableRow key={person.personId}>
-                                <GridTableCell>
-                                    <TextLink href={Paths.system.team(teamId).member(person.personId).index}>{person.name}</TextLink>
-                                </GridTableCell>
-                                <GridTableCell className="hidden lg:flex">{teamMembership.tags.join(" ")}</GridTableCell>
-                                <GridTableCell>{teamMembership.status}</GridTableCell>
-                                <GridTableRowActions/>
-                            </GridTableRow>
-                        )
-                    }
-                </GridTableBody>
-            </GridTable>
-        </CardContent>
-    </Card>
-}
-
-function NewTeamMembershipForm({ excludePersonIds, teamId, onClose }: { teamId: string, excludePersonIds: string[], onClose: () => void }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
-    const trpc = useTRPC()
 
-    // Temporary fix for personnel data fetching
-    // This should be replaced with PersonPicker that returns the person directly and not just the personId.
-    const { data: personnelData } = useSuspenseQuery(trpc.personnel.all.queryOptions({}))
+    const { data: teamMembers } = useSuspenseQuery(trpc.teamMemberships.byTeam.queryOptions({ teamId }))
 
-    const form = useForm<TeamMembershipData>({
-        defaultValues: {
-            personId: '',
-            teamId,
-            status: 'Active',
-            tags: [],
-        }
-    })
-
-    const mutation = useMutation(trpc.teamMemberships.create.mutationOptions({
-        async onMutate(newMembership) {
-
-            await queryClient.cancelQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId }))
-
-            const person = personnelData.find(p => p.personId === newMembership.personId)!
-
-            const previousData = queryClient.getQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }))
-
-            queryClient.setQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }), (prev = []) => 
-                [...prev, { ...newMembership, person }]
-            )
-
-            onClose()
-            return { previousData }
-        },
-        onError(error, data, context) {
-            queryClient.setQueryData(trpc.teamMemberships.byTeam.queryKey({ teamId }), context?.previousData)
-
+    // Mutations for CRUD operations
+    const createMutation = useMutation(trpc.teamMemberships.create.mutationOptions({
+        onSuccess: () => {
+            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId }))
             toast({
-                title: 'Error Creating Team Membership',
+                title: 'Team member added successfully',
+                variant: 'default'
+            })
+        },
+        onError: (error) => {
+            toast({
+                title: 'Error adding team member',
                 description: error.message,
                 variant: 'destructive'
             })
-        },
-        onSuccess({ person, team }) {
-            queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: person.personId }))
-            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId: team.teamId }))
-        },
+        }
     }))
 
-    return <FormProvider {...form}>
-        <GridTableRow asChild>
-            <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
-                <FormField 
-                    control={form.control}
-                    name="personId"
-                    render={({ field}) => <GridTableCell asChild>
+    const updateMutation = useMutation(trpc.teamMemberships.update.mutationOptions({
+        onSuccess: () => {
+            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId }))
+            toast({
+                title: 'Team member updated successfully',
+                variant: 'default'
+            })
+        },
+        onError: (error) => {
+            toast({
+                title: 'Error updating team member',
+                description: error.message,
+                variant: 'destructive'
+            })
+        }
+    }))
+
+    const deleteMutation = useMutation(trpc.teamMemberships.delete.mutationOptions({
+        onSuccess: () => {
+            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId }))
+            toast({
+                title: 'Team member removed successfully',
+                variant: 'default'
+            })
+        },
+        onError: (error) => {
+            toast({
+                title: 'Error removing team member',
+                description: error.message,
+                variant: 'destructive'
+            })
+        }
+    }))
+
+    const column = useMemo(() => defineColumns<TeamMembershipData & { person: PersonData }>(columnHelper => [
+        columnHelper.accessor('personId', {
+            header: 'ID',
+            cell: ctx => ctx.getValue(),
+            enableGrouping: false,
+            enableHiding: true,
+            enableSorting: false,
+            enableGlobalFilter: false,
+        }),
+        columnHelper.accessor('person.name', {
+            id: 'name',
+            header: 'Name',
+            cell: ctx => (match(ctx.row.getEditMode())
+                .with('Create', () => {
+                    const existingMemberIds = teamMembers.map(m => m.person.personId)
+                    return (
                         <PersonPicker
                             size="sm"
-                            value={field.value}
-                            onValueChange={field.onChange}
+                            className="-m-2"
+                            value={ctx.row.getModifiedRowData().person.personId}
+                            onValueChange={(person) => ctx.row.setModifiedRowData({ person })}
                             placeholder="Select a person"
-                            exclude={excludePersonIds}
+                            exclude={existingMemberIds}
                         />
-                    </GridTableCell>}
-                />
-                <FormField
-                    control={form.control}
-                    name="tags"
-                    render={({ field }) => <GridTableCell className="hidden lg:flex" asChild>
-                        <TagsInput
-                            size="sm"
-                            aria-labelledby="columnHeader-tags"
-                            value={field.value}
-                            onValueChange={field.onChange}
-                            placeholder="Add tags"
-                        />
-                    </GridTableCell>}
-                />
-                <FormField
-                    control={form.control}
-                    name="status"
-                    render={({ field }) => <GridTableCell asChild>
-                        <Select
-                            aria-labelledby="columnHeader-status"
-                            value={field.value}
-                            onValueChange={field.onChange}
-                        >
-                            <SelectTrigger size="sm">
-                                <SelectValue placeholder="Select status"/>
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Active">Active</SelectItem>
-                                <SelectItem value="Inactive">Inactive</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </GridTableCell>}
-                />
-                <GridTableRowActions>
-                    <Button variant="ghost" size="icon" type="submit" disabled={!form.formState.isValid}>
-                        <SaveIcon /> <span className="sr-only">Save</span>
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={onClose}>
-                        <XIcon/> <span className="sr-only">Cancel</span>
-                    </Button>
-                </GridTableRowActions>
-            </form>
-        </GridTableRow>
-        </FormProvider>
+                    )
+                })
+                .otherwise(() => 
+                    <TextLink href={Paths.system.team(teamId).member(ctx.row.original.person.personId).index}>{ctx.getValue()}</TextLink>
+                )
+            ),
+            enableGrouping: false,
+            enableHiding: false
+        }),
+        columnHelper.accessor('tags', {
+            header: 'Tags',
+            cell: ctx => (match(ctx.row.getEditMode())
+                .with('Create', 'Update', () => 
+                    <TagsInput
+                        size="sm"
+                        className="-m-2"
+                        value={ctx.row.getModifiedRowData().tags}
+                        onValueChange={(value) => ctx.row.setModifiedRowData({ tags: value })}
+                        placeholder="Add tags"
+                    />    
+                )
+                .otherwise(() => ctx.getValue().join(' '))
+                
+            ),
+            enableGrouping: false,
+            enableHiding: true,
+            enableSorting: false,
+        }),
+        columnHelper.accessor('status', {
+            id: 'status',
+            header: 'Status',
+            cell: ctx => (match(ctx.row.getEditMode())
+                .with('Create', 'Update', () => 
+                    <Select
+                        value={ctx.row.getModifiedRowData().status}
+                        onValueChange={(value) => ctx.row.setModifiedRowData({ status: value as 'Active' | 'Inactive' })}
+                    >
+                        <SelectTrigger size="sm" className="-m-2">
+                            <SelectValue placeholder="Select status"/>
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Active">Active</SelectItem>
+                            <SelectItem value="Inactive">Inactive</SelectItem>
+                        </SelectContent>
+                    </Select>
+                )
+                .otherwise(() => ctx.getValue())
+            ),
+            enableSorting: false,
+            enableGlobalFilter: false,
+            filterFn: 'arrIncludesSome',
+            meta: {
+                enumOptions: { Active: 'Active', Inactive: 'Inactive' },
+                slotProps: {
+                    th: {
+                        className: 'w-32'
+                    }
+                }
+            }
+        }),
+        columnHelper.display({
+            id: 'actions',
+            header: 'Actions',
+            cell: ctx => <div className="-m-2 flex items-center justify-end">
+                {match(ctx.row.getEditMode())
+                    .with('Create', 'Update', () => <>
+                        <Button variant="ghost" size="icon" onClick={() => ctx.row.saveEdit()}>
+                            <SaveIcon/>
+                            <span className="sr-only">Save</span>
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => {
+                            ctx.row.cancelEdit()
+                        }}>
+                            <XIcon/>
+                            <span className="sr-only">Cancel</span>
+                        </Button>
+                    </>)
+                    .with('View', () => <>
+                        <Button variant="ghost" size="icon" onClick={() => ctx.row.startEdit()}>
+                            <PencilIcon/>
+                            <span className="sr-only">Edit</span>
+                        </Button>
+                        <DeleteConfimButton onDelete={() => ctx.row.delete()}/>
+                       
+                    </>)
+                    .exhaustive()
+                }
+            </div>,
+            enableHiding: false,
+            enableSorting: false,
+            meta: {
+                slotProps: {
+                    th: {
+                        className: 'w-20'
+                    }
+                }
+            }
+        })
+    ]), [teamMembers, teamId])
+
+
+    const table = useReactTable<TeamMembershipData & { person: PersonData }>({
+        _features: [EditableFeature()],
+        columns: column,
+        data: teamMembers,
+        getCoreRowModel: getCoreRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        getGroupedRowModel: getGroupedRowModel(),
+        getExpandedRowModel: getExpandedRowModel(),
+        getRowId: (row) => row.personId,
+        createEmptyRow: () => ({
+            personId: '',
+            teamId,
+            status: 'Active' as const,
+            tags: [],
+            person: {
+                personId: '',
+                name: '',
+                email: '',
+                status: 'Active' as const,
+                owningTeamId: null
+            }
+        }),
+        onUpdate: (rowData) => {
+            updateMutation.mutate(rowData)
+        },
+        onCreate: (rowData) => {
+            createMutation.mutate({ ...rowData, personId: rowData.person.personId }) // Ensure personId is set correctly
+        },
+        onDelete: (rowData) => {
+            deleteMutation.mutate({ teamId, personId: rowData.personId })
+        },
+        initialState: {
+            columnVisibility: {
+                personId: false, name: true, tags: true, status: true, actions: true
+            },
+            columnFilters: [
+                { id: 'status', value: ['Active'] }
+            ],
+            globalFilter: "",
+            grouping: [],
+            sorting: [
+                { id: 'name', desc: false }
+            ],
+        },
+    })
+
+    return <DataTableProvider value={table}>
+        <Card>
+            <CardHeader>
+                <CardTitle>Team Members</CardTitle>
+                <CardActions>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" onClick={() => table.startCreating()}>
+                                <PlusIcon/>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Add a new team member</TooltipContent>
+                    </Tooltip>
+
+                    <TableOptionsDropdown/>
+                    <Separator orientation='vertical'/>
+
+                    <CardExplanation>
+                        This card displays the members of the team. You can add new members, edit existing ones, or delete them. 
+                    </CardExplanation>
+                </CardActions>
+            </CardHeader>
+            <CardContent>
+                <Table className="table-fixed">
+                    <DataTableHead/>
+                    <DataTableBody/>
+                </Table>
+            </CardContent>
+        </Card>
+    </DataTableProvider>
 }

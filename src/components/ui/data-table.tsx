@@ -3,15 +3,15 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { ArrowDownAZIcon, ArrowDownZAIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronsUpDownIcon, EllipsisVerticalIcon, EyeOffIcon, GroupIcon, ListRestartIcon, SettingsIcon, UngroupIcon } from 'lucide-react'
-import React, { ComponentProps } from 'react'
+import { ArrowDownAZIcon, ArrowDownZAIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, EllipsisVerticalIcon, EyeOffIcon, GroupIcon, ListRestartIcon, SettingsIcon, UngroupIcon } from 'lucide-react'
+import React, { ComponentProps, ReactNode } from 'react'
 import { match } from 'ts-pattern'
 
 import { Column, ColumnDef, ColumnHelper, createColumnHelper, flexRender, RowData, Table as TanstackTable } from '@tanstack/react-table'
 
 import { Button, ButtonProps } from './button'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuGroupLabel, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './dropdown-menu'
-import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from './table'
+import { Table, TableBody, TableCell, TableHead, TableRow } from './table'
 
 import { cn } from '@/lib/utils'
 import { Input } from './input'
@@ -28,6 +28,7 @@ const useDataTable = () => {
     if(table == null) throw new Error("useDataTable called outside of provider.")
     return table
 }
+
 
 
 interface DataTableProps extends Omit<ComponentProps<typeof Table>, 'children'> {
@@ -49,16 +50,6 @@ export function DataTableHead(props: Omit<ComponentProps<typeof TableHead>, 'chi
     return <thead {...props}>
         {table.getHeaderGroups().map(headerGroup => 
             <tr key={headerGroup.id} className="divide-x divide-x-gray-400">
-                {/* {enableRowSelection 
-                    ? <TableHeadCell className="w-12 pl-4 leading-4">
-                        <Checkbox
-                            color="zinc"
-                            checked={table.getIsAllRowsSelected() ? true : table.getIsSomeRowsSelected() ? 'indeterminate' : false}
-                            onCheckedChange={() => table.toggleAllRowsSelected()}
-                        />
-                    </TableHeadCell>
-                    : null
-                } */}
                 {headerGroup.headers.map(header => <ColumnHeader
                     key={header.id}
                     table={table}
@@ -76,23 +67,29 @@ export function DataTableHead(props: Omit<ComponentProps<typeof TableHead>, 'chi
 }
 
 
-type ColumnHeaderProps<T> = ComponentProps<typeof TableHeadCell> & {
+type ColumnHeaderProps<T> = {
+    children: ReactNode
     table: TanstackTable<T>
     // eslint-disable-next-line
     column: Column<T, any>
 }
 
-function ColumnHeader<T>({ className, children, column, table, ...props }: ColumnHeaderProps<T>) {
+function ColumnHeader<T>({ children, column, table }: ColumnHeaderProps<T>) {
 
     const enumOptions = column.columnDef.meta?.enumOptions
     const filterValue = column.getFilterValue() as string[] ?? []
+
+    const slotProps = column.columnDef.meta?.slotProps ?? {}
+    const thProps = slotProps.th ?? {}
+
+    const showMenu = column.getCanSort() || !!enumOptions || column.getCanHide() || column.getCanGroup()
 
     function handleHideColumn() {
         column.toggleVisibility()
     }
 
-    return <th {...props} className="pl-2 text-left align-middle font-medium">
-        <div className={cn('w-full flex items-center justify-between gap-2', className)}>
+    return <th {...thProps} className={cn("pl-2 text-left align-middle font-medium", thProps.className)}>
+        <div className={'w-full flex items-center justify-between gap-2'}>
             {column.columnDef.meta?.align == 'center' && <div className="w-8"/>}
             <div>{children}</div>
             
@@ -103,7 +100,7 @@ function ColumnHeader<T>({ className, children, column, table, ...props }: Colum
                     .with('desc', () => <ArrowDownZAIcon className="w-4 h-4 text-muted-foreground"/>)
                     .exhaustive()
                 }
-                <DropdownMenu>
+                { showMenu && <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon">
                             <EllipsisVerticalIcon/>
@@ -111,7 +108,7 @@ function ColumnHeader<T>({ className, children, column, table, ...props }: Colum
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56" align="end">
                         <DropdownMenuLabel className="text-center">Column Options</DropdownMenuLabel>
-                        {column.getCanSort() ? <>
+                        {column.getCanSort() && <>
                             <DropdownMenuSeparator/>
                             <DropdownMenuGroup>
                                 <DropdownMenuGroupLabel>Sort</DropdownMenuGroupLabel>
@@ -124,7 +121,7 @@ function ColumnHeader<T>({ className, children, column, table, ...props }: Colum
                                     <span>Descending</span>
                                 </DropdownMenuItem>
                             </DropdownMenuGroup>
-                        </> : null}
+                        </> }
                         { enumOptions && <>
                             <DropdownMenuSeparator/>
                             <DropdownMenuGroup>
@@ -160,7 +157,7 @@ function ColumnHeader<T>({ className, children, column, table, ...props }: Colum
                             </DropdownMenuGroup>
                         </>}
                     </DropdownMenuContent>
-                </DropdownMenu>
+                </DropdownMenu>}
              </div>
         </div>
     </th>
@@ -169,7 +166,63 @@ function ColumnHeader<T>({ className, children, column, table, ...props }: Colum
 export function DataTableBody(props: Omit<ComponentProps<typeof TableBody>, 'children'>) {
     const table = useDataTable()
 
+    // Check if we have editing state and are in Create mode
+    const editingState = table.getState().editing
+    const isCreating = editingState?.mode === 'Create' && editingState.modifiedRowData
+
     return <TableBody {...props}>
+        {/* Render placeholder row for Create mode */}
+        {isCreating && <TableRow key="__creating__" className="bg-muted/30">
+            {table.getVisibleFlatColumns().map(column => {
+                const columnDef = column.columnDef
+                const cellValue = editingState.modifiedRowData?.[column.id as keyof typeof editingState.modifiedRowData]
+                
+                // Create a synthetic row object for the placeholder
+                const syntheticRow = {
+                    id: '__creating__',
+                    original: editingState.modifiedRowData,
+                    getEditMode: () => 'Create' as const,
+                    getModifiedRowData: () => editingState.modifiedRowData,
+                    setModifiedRowData: (data: any) => {
+                        const updatedData = { ...editingState.modifiedRowData, ...data }
+                        table.setEditingState({ ...editingState, modifiedRowData: updatedData })
+                    },
+                    startEdit: () => {},
+                    cancelEdit: () => {
+                        table.setEditingState({ mode: 'View', rowId: undefined, modifiedRowData: undefined })
+                    },
+                    saveEdit: () => {
+                        if (editingState.modifiedRowData) {
+                            table.options.onCreate?.(editingState.modifiedRowData)
+                        }
+                        table.setEditingState({ mode: 'View', rowId: undefined, modifiedRowData: undefined })
+                    },
+                    delete: () => {}
+                } as any
+                
+                // Create a synthetic cell context
+                const cellContext = {
+                    getValue: () => cellValue,
+                    renderValue: () => cellValue,
+                    row: syntheticRow,
+                    column,
+                    cell: {
+                        id: `__creating__:${column.id}`,
+                        getValue: () => cellValue,
+                        renderValue: () => cellValue,
+                        row: syntheticRow,
+                        column,
+                    },
+                    table
+                } as any
+                
+                return (
+                    <TableCell key={`creating-${column.id}`} align={columnDef.meta?.align}>
+                        {flexRender(columnDef.cell, cellContext)}
+                    </TableCell>
+                )
+            })}
+        </TableRow>}
         {table.getRowModel().rows.map(row => {
             return <TableRow key={row.id}>
                 {/* { enableRowSelection
@@ -468,3 +521,5 @@ export function defineColumns<TData extends RowData>(factory: (columnHelper: Col
     const columnHelper = createColumnHelper<TData>()
     return factory(columnHelper)
 }
+
+

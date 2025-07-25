@@ -4,7 +4,7 @@
  */
 'use client'
 
-import { InfoIcon, Loader2Icon } from 'lucide-react'
+import { InfoIcon, Loader2Icon, TrashIcon } from 'lucide-react'
 import React, { ComponentProps } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
@@ -13,6 +13,7 @@ import { Slot } from '@radix-ui/react-slot'
 import { cn } from '@/lib/utils'
 
 import { Link } from './link'
+import { Popover, PopoverArrow, PopoverClose, PopoverContent, PopoverTrigger } from './popover'
 
 
 export const buttonVariants = tv({
@@ -156,4 +157,27 @@ export function DocumentationButton({ topic }: { topic: string }) {
     return <Button variant="ghost" asChild>
         <Link href={`/documentation/${topic}`}><InfoIcon/></Link>
     </Button>
+}
+
+export function DeleteConfimButton({ onDelete, ...props }: Omit<ComponentProps<typeof Button>, 'onClick'> & { onDelete: () => void }) {
+
+    return <Popover>
+        <PopoverTrigger asChild>
+            <Button variant="ghost" size="icon" {...props}>
+                <TrashIcon />
+            </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-64 flex justify-between items-center gap-2" side="left">
+            <div className="font-semibold">Confirm?</div>
+            <div className="flex gap-2">
+                <PopoverClose asChild>
+                    <Button color="destructive" size="sm" onClick={onDelete}>Delete</Button>
+                </PopoverClose>
+                 <PopoverClose asChild>
+                    <Button variant="ghost" size="sm" autoFocus>Cancel</Button>
+                 </PopoverClose>
+            </div>
+            <PopoverArrow className="fill-destructive border-border" />
+        </PopoverContent>
+    </Popover>
 }

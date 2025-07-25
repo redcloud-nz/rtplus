@@ -15,24 +15,54 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { selectTriggerVariants } from '@/components/ui/select'
 
+import { PersonData } from '@/lib/schemas/person'
 import { cn } from '@/lib/utils'
 import { useTRPC } from '@/trpc/client'
 
 
-
-
 interface PersonPickerProps {
+    /**
+     * Optional CSS class name for the component.
+     */
     className?: string
+
+    /**
+     * Default value for the picker, used when no value is provided.
+     */
     defaultValue?: string
+
+    /**
+     * List of person IDs to exclude from the picker options.
+     */
     exclude?: string[]
-    onValueChange?: (personId: string) => void
+
+    /**
+     * Callback function that is called when a person is selected.
+     * It receives the selected person data as an argument.
+     */
+    onValueChange?: (person: PersonData) => void
+
+    /**
+     * Placeholder text to display when no person is selected.
+     */
     placeholder?: string
+
+    /**
+     * Size of the picker, can be 'default' or 'sm'.
+     */
     size?: 'default' | 'sm'
+
+    /**
+     * Current value of the picker, used to control the selected person.
+     */
     value?: string
-    
 }
 
 
+/**
+ * A component for selecting a person from a list, with search functionality.
+ * It uses a popover to display the list of persons and allows filtering by name.
+ */
 export function PersonPicker({ className, defaultValue = "", exclude = [], onValueChange, placeholder, size, value }: PersonPickerProps) {
     const trpc = useTRPC()
     const query = useQuery(trpc.personnel.all.queryOptions({}))
@@ -43,7 +73,9 @@ export function PersonPicker({ className, defaultValue = "", exclude = [], onVal
     const handleSelect = (personId: string) => {
         if (personId !== internalValue) {
             setInternalValue(personId)
-            onValueChange?.(personId)
+
+            const selectedPerson = query.data?.find(person => person.personId === personId)!
+            onValueChange?.(selectedPerson)
             setOpen(false)
         }
     }
@@ -59,7 +91,7 @@ export function PersonPicker({ className, defaultValue = "", exclude = [], onVal
         >
             {query.data
                 ? effectiveValue
-                    ? query.data.find((person) => person.id === value)?.name
+                    ? query.data.find((person) => person.personId === value)?.name
                     : placeholder ?? "Select person..."
                 : "Loading..."
             }
@@ -73,13 +105,13 @@ export function PersonPicker({ className, defaultValue = "", exclude = [], onVal
                     <CommandGroup>
                         {filteredPersonnel.map((person) => (
                             <CommandItem
-                                key={person.id}
-                                value={person.id}
-                                disabled={exclude.includes(person.id)}
-                                onSelect={() => handleSelect(person.id)}
-                                className={cn("cursor-pointer", value === person.id && "bg-accent")}
+                                key={person.personId}
+                                value={person.personId}
+                                disabled={exclude.includes(person.personId)}
+                                onSelect={() => handleSelect(person.personId)}
+                                className={cn("cursor-pointer", effectiveValue === person.personId && "bg-accent")}
                             >
-                                <CheckIcon className={cn("mr-2 h-4 w-4", value === person.id ? "opacity-100" : "opacity-0")} />
+                                <CheckIcon className={cn("mr-2 h-4 w-4", effectiveValue === person.personId ? "opacity-100" : "opacity-0")} />
                                 {person.name}
                             </CommandItem>
                         ))}

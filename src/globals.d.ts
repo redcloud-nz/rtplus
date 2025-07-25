@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
+import '@clerk/nextjs'
 import '@tanstack/react-table'
 
 import { PersonOnboardingStatus, UserOnboardingStatus } from '@prisma/client'
@@ -12,12 +13,11 @@ declare module '@tanstack/react-table' {
     interface ColumnMeta<TData extends RowData, TValue> {
         align?: 'left' | 'center' | 'right'
         enumOptions?: Record<string, string>
+        slotProps?: {
+            th?: Omit<ComponentProps<'th'>, 'children'>
+        }
     }
 }
-
-export {}
-
-import '@clerk/nextjs'
 
 declare global {
     interface ClerkAuthorization {
