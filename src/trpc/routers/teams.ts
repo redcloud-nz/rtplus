@@ -172,16 +172,18 @@ export async function createTeam(ctx: AuthenticatedContext, { teamId, ...input }
     const shortNameConflict = await ctx.prisma.team.findFirst({ where: { shortName: input.shortName } })
     if(shortNameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('shortName') })
 
+    const clerkOrgCreateParams = {
+        name: input.name,
+        slug: input.slug,
+        publicMetadata: { teamId }
+    } as const
+
     let clerkOrgId: string
     try {
-        const organization = await ctx.clerkClient.organizations.createOrganization({
-            name: input.name,
-            slug: input.slug,
-            publicMetadata: { teamId }
-        })
+        const organization = await ctx.clerkClient.organizations.createOrganization(clerkOrgCreateParams)
         clerkOrgId = organization.id
     } catch (error) {
-        logger.error(`Failed to create Clerk organization for team ${teamId}:`, error)
+        logger.error(`Failed to create Clerk organization for team ${teamId}:`, clerkOrgCreateParams, error)
         throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: `Failed to create Clerk organization for team ${teamId}.` })
     }
 
