@@ -6,36 +6,93 @@
 
 import { format } from 'date-fns'
 
-import { EllipsisVertical, PencilIcon, TrashIcon } from 'lucide-react'
-import { useState } from 'react'
-import { match } from 'ts-pattern'
+import { useMemo } from 'react'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { Show } from '@/components/show'
-import { Alert } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
-import { ObjectName } from '@/components/ui/typography'
+import { DataTableBody, DataTableFooter, DataTableHead, DataTableProvider, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
+import { Separator } from '@/components/ui/separator'
+import { Table } from '@/components/ui/table'
 
+import { OrganizationData } from '@/lib/schemas/organization'
 import { OrgMembershipData } from '@/lib/schemas/org-membership'
-import { TeamData } from '@/lib/schemas/team'
+import { UserData } from '@/lib/schemas/user'
 import { useTRPC } from '@/trpc/client'
 
 
+/**
+ * Card that displays the users associated with a team.
+ * It fetches organization memberships for the team and displays them in a table.
+ * It allows filtering and sorting of the data.
+ * @param teamId The ID of the team to fetch users for.
+ */
+export function TeamUsersCard({ teamId }: { teamId: string }) {
+    const trpc = useTRPC()
 
-type ActionState = { action: 'Edit' | 'Delete', orgMembership: OrgMembershipData } | null
+    const { data: orgMemberships } = useSuspenseQuery(trpc.orgMemberships.byTeam.queryOptions({ teamId }))
 
-export function TeamUsersCard({ team }: { team: TeamData }) {
+    const columns = useMemo(() => defineColumns<OrgMembershipData & { user: UserData, organization: OrganizationData }>(columnHelper => [
+        columnHelper.accessor('user.name', {
+            id: "name",
+            header: "Name",
+            cell: ctx => ctx.getValue(),
+            enableGrouping: false,
+            enableHiding: false,
+            enableSorting: true,
 
-    const [actionTarget, setActionTarget] = useState<ActionState>(null)
-    function handleOpenChange(open: boolean) { if (!open) setActionTarget(null) }
+        }),
+        columnHelper.accessor('user.identifier', {
+            id: "identifier",
+            header: "Identifier",
+            cell: ctx => ctx.getValue(),
+            enableGrouping: false,
+            enableHiding: true,
+            enableSorting: true,
+        }),
+        columnHelper.accessor('role', {
+            header: "Role",
+            cell: ctx => ctx.getValue(),
+            enableGrouping: true,
+            enableHiding: true,
+            enableSorting: false,
+            filterFn: 'arrIncludesSome',
+            meta: {
+                enumOptions: { 'org:admin': 'Admin', 'org:member': 'Member' }
+            }
+        }),
+        columnHelper.accessor('createdAt', {
+            header: "Created",
+            cell: info => format(info.getValue(), "dd MMM yyyy"),
+            enableGrouping: false,
+            enableHiding: true,
+            enableSorting: true,
+        }),
+    ]), [])
 
-    return <Sheet open={actionTarget != null} onOpenChange={handleOpenChange}>
-        <Card>
+    const table = useReactTable<OrgMembershipData & { user: UserData, organization: OrganizationData }>({
+        columns: columns,
+        data: orgMemberships,
+        getCoreRowModel: getCoreRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        getGroupedRowModel: getGroupedRowModel(),
+        getExpandedRowModel: getExpandedRowModel(),
+        initialState: {
+            columnVisibility: {
+                name: true, identifier: true, role: true, createdAt: true
+            },
+            columnFilters: [
+                { id: 'role', value: ['org:admin', 'org:member'] }
+            ],
+            grouping: [],
+            sorting: [{ id: 'name', desc: false }],
+        }
+    })
+
+    return <DataTableProvider value={table}>
+         <Card>
             <CardHeader>
                 <CardTitle>Team Users</CardTitle>
                 {/* <AddTeamMemberDialog
@@ -44,98 +101,23 @@ export function TeamUsersCard({ team }: { team: TeamData }) {
                         <PlusIcon/>
                     </DialogTriggerButton>}
                 /> */}
+
+                <TableOptionsDropdown/>
+                <Separator orientation='vertical'/>
+
                 <CardExplanation>
-                    This card displays the users that have access to the team. You can edit or delete user assignments using the actions menu.
+                    This card displays the users that have access to the team.
                 </CardExplanation>
             </CardHeader>
             <CardContent>
-                <TeamUsersCardTable 
-                    teamId={team.teamId}
-                    onAction={setActionTarget}
-                />
+                <Table className="table-fixed">
+                    <DataTableHead/>
+                    <DataTableBody/>
+                    <DataTableFooter/>
+                </Table>
             </CardContent>
             
         </Card>
-        <SheetContent>
-            {match(actionTarget)
-                .with({ action: 'Edit' }, ({ orgMembership }) => <>
-                    <SheetHeader>
-                        <SheetTitle>Edit User</SheetTitle>
-                        <SheetDescription>Update the role or status of the user in relation to the team <ObjectName>{team.name}</ObjectName>.</SheetDescription>
-                    </SheetHeader>
-                    <SheetBody>
-                        TODO
-                    </SheetBody>
-                </>)
-                .with({ action: 'Delete' }, ({ orgMembership }) => <>
-                    <SheetHeader>
-                        <SheetTitle>Delete User</SheetTitle>
-                        <SheetDescription>Remove the user's access from the team <ObjectName>{team.name}</ObjectName>.</SheetDescription>
-                    </SheetHeader>
-                    <SheetBody>
-                        TODO
-                    </SheetBody>
-                </>)
-                .otherwise(() => null)
-            }
-        </SheetContent>
-    </Sheet>
-}
-
-function TeamUsersCardTable({ onAction, teamId }: { onAction: (args: ActionState) => void, teamId: string }) {
-    const trpc = useTRPC()
-
-    const { data: orgMemberships } = useSuspenseQuery(trpc.orgMemberships.byTeam.queryOptions({ teamId }))
-
-    return <Show
-        when={orgMemberships.length > 0}
-        fallback={<Alert severity="info" title="No users assigned to team"/>}
-    >
-        <Table>
-            <TableHead>
-                <TableRow>
-                    <TableHeadCell>Name</TableHeadCell>
-                    <TableHeadCell>Identifier</TableHeadCell>
-                    <TableHeadCell>Role</TableHeadCell>
-                    <TableHeadCell>Created</TableHeadCell>
-                    <TableCell className="w-10"></TableCell>
-                </TableRow>
-            </TableHead>
-            <TableBody>
-                {orgMemberships
-                    .sort((a, b) => a.user.name.localeCompare(b.user.name))
-                    .map(orgMembership => 
-                        <TableRow key={orgMembership.orgMembershipId} className="hover:bg-muted">
-                            <TableCell>{orgMembership.user.name}</TableCell>
-                            <TableCell>{orgMembership.user.identifier}</TableCell>
-                            <TableCell>{orgMembership.role}</TableCell>
-                            <TableCell>{format(orgMembership.createdAt, "dd MMM yyyy")}</TableCell>
-                            <TableCell className="w-10 p-0">
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" size="icon">
-                                            <span className="sr-only">Actions</span>
-                                            <EllipsisVertical />
-                                    </Button>
-                                    </DropdownMenuTrigger>
-                                    
-                                    <DropdownMenuContent align="end" className="w-32">
-                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                        <DropdownMenuGroup>
-                                            <SheetTrigger asChild>
-                                                <DropdownMenuItem onClick={() => onAction({ action: 'Edit', orgMembership })}><PencilIcon/> Edit</DropdownMenuItem>
-                                            </SheetTrigger>
-                                            <SheetTrigger asChild>
-                                                <DropdownMenuItem onClick={() => onAction({ action: 'Delete', orgMembership })}><TrashIcon/> Delete</DropdownMenuItem>
-                                            </SheetTrigger>
-                                        </DropdownMenuGroup>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </TableCell>
-                        </TableRow>
-                    )
-                }
-            </TableBody>
-        </Table>
-    </Show>
+    </DataTableProvider>
+   
 }

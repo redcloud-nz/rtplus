@@ -15,7 +15,7 @@ import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRo
 import { PersonPicker } from '@/components/controls/person-picker'
 import { Button, DeleteConfimButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
-import { DataTableBody, DataTableHead, DataTableProvider, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
+import { DataTableBody, DataTableHead, DataTableFooter, DataTableProvider, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
 import { TagsInput } from '@/components/ui/input'
 import { TextLink } from '@/components/ui/link'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -95,7 +95,7 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
         }
     }))
 
-    const column = useMemo(() => defineColumns<TeamMembershipData & { person: PersonData }>(columnHelper => [
+    const columnc = useMemo(() => defineColumns<TeamMembershipData & { person: PersonData }>(columnHelper => [
         columnHelper.accessor('personId', {
             header: 'ID',
             cell: ctx => ctx.getValue(),
@@ -167,6 +167,8 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
                 )
                 .otherwise(() => ctx.getValue())
             ),
+            enableGrouping: true,
+            enableHiding: true,
             enableSorting: false,
             enableGlobalFilter: false,
             filterFn: 'arrIncludesSome',
@@ -222,7 +224,7 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
 
     const table = useReactTable<TeamMembershipData & { person: PersonData }>({
         _features: [EditableFeature()],
-        columns: column,
+        columns: columnc,
         data: teamMembers,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
@@ -293,6 +295,7 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
                 <Table className="table-fixed">
                     <DataTableHead/>
                     <DataTableBody/>
+                    <DataTableFooter/>
                 </Table>
             </CardContent>
         </Card>

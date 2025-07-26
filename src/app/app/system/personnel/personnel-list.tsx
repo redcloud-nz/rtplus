@@ -12,14 +12,15 @@ import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRo
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardExplanation, CardActions } from '@/components/ui/card'
-import { DataTableBody, DataTableHead, DataTablePaginationFooter, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown} from '@/components/ui/data-table'
+import { DataTableBody, DataTableHead, DataTableFooter, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown} from '@/components/ui/data-table'
 import { Link, TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
+import { PersonData } from '@/lib/schemas/person'
 import * as Paths from '@/paths'
-import { PersonData, useTRPC } from '@/trpc/client'
+import { useTRPC } from '@/trpc/client'
 
 
 const columns = defineColumns<PersonData>(columnHelper => [
@@ -118,7 +119,7 @@ export function PersonnelListCard() {
                 <Table>
                     <DataTableHead/>
                     <DataTableBody/>
-                    <DataTablePaginationFooter/>
+                    <DataTableFooter variant="pagination"/>
                 </Table>
             </CardContent>
         </Card>

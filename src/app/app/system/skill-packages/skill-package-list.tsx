@@ -12,7 +12,7 @@ import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRo
 
 import { Button } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader } from '@/components/ui/card'
-import { DataTableBody, DataTableHead, DataTablePaginationFooter, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
+import { DataTableBody, DataTableHead, DataTableFooter, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
 import { Link, TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
@@ -124,7 +124,7 @@ export function SkillPackageListCard() {
                     <Table>
                         <DataTableHead/>
                         <DataTableBody/>
-                        <DataTablePaginationFooter/>
+                        <DataTableFooter/>
                     </Table>
                 </CardContent>
             </Card>

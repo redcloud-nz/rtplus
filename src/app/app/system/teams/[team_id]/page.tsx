@@ -53,7 +53,7 @@ export default async function TeamPage(props: { params: Promise<{ team_id: strin
                     <TeamMembersCard teamId={team.teamId}/>
                 </Boundary>
                 <Boundary>
-                        <TeamUsersCard team={team}/>
+                    <TeamUsersCard teamId={team.teamId}/>
                 </Boundary>
             </AppPageContent>
         </HydrateClient>

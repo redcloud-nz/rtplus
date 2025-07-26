@@ -429,7 +429,12 @@ export function TableOptionsDropdown() {
     </DropdownMenu>
 }
 
-export function DataTablePaginationFooter() {
+
+type DataTableFooterProps = {
+    variant?: 'pagination' | 'simple'
+}
+
+export function DataTableFooter({ variant = "simple" }: DataTableFooterProps) {
     const table = useDataTable()
 
     const pagination = table.getState().pagination
@@ -439,67 +444,71 @@ export function DataTablePaginationFooter() {
     return <tfoot>
         <tr>
             <td colSpan={table.getVisibleFlatColumns().length}>
-                { rowCount < 10
-                    ? <div className="pt-3 pb-2 flex items-center text-sm text-muted-foreground">
-                        <RowCount
-                            start={1}
-                            end={rowCount}
-                            total={rowCount}
-                        />
-                    </div>
-                    : <div className="grid grid-cols-3 items-center text-sm text-muted-foreground pt-1">
-                        <RowCount
-                            start={startRowIndex + 1}
-                            end={Math.min(startRowIndex + pagination.pageSize, rowCount)}
-                            total={rowCount}
-                        />
-                        <div className="flex items-center justify-center">
-                            <Button 
-                                variant="ghost"
-                                size="icon"
-                                disabled={!table.getCanPreviousPage()}
-                                onClick={() => table.previousPage()}
-                            >
-                                <ChevronLeftIcon/>
-                            </Button>
-                            <div className="space-x-1 lg:space-x-1.5">
-                                <span className="hidden mg:inline">Page</span>
-                                <span>{pagination.pageIndex+1}</span>
-                                <span>of</span>
-                                <span>{table.getPageCount()}</span>
-                            </div>
-                            
-                            <Button 
-                                variant="ghost" 
-                                size="icon"
-                                disabled={!table.getCanNextPage()}
-                                onClick={() => table.nextPage()}
-                            >
-                                <ChevronRightIcon/>
-                            </Button>
-                        </div>
-                        <div className="flex items-center justify-end gap-2">
-                            <div className="space-x-1">
-                                <span className="hidden lg:inline">rows</span>
-                                <span>per page</span>
-                            </div>
-                            <Select value={pagination.pageSize.toString()} onValueChange={value => table.setPageSize(Number(value))}>
-                                <SelectTrigger className="w-16" size="sm">
-                                    <SelectValue/>
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {[10, 20, 50, 100].map(size => 
-                                        <SelectItem key={size} value={size.toString()}>
-                                            {size}
-                                        </SelectItem>
-                                    )}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                }   
+                {match(variant)
                 
-                
+                    .with('pagination', () => 
+                        <div className="grid grid-cols-3 items-center text-sm text-muted-foreground pt-1">
+                            <RowCount
+                                start={startRowIndex + 1}
+                                end={Math.min(startRowIndex + pagination.pageSize, rowCount)}
+                                total={rowCount}
+                            />
+                            <div className="flex items-center justify-center">
+                                <Button 
+                                    variant="ghost"
+                                    size="icon"
+                                    disabled={!table.getCanPreviousPage()}
+                                    onClick={() => table.previousPage()}
+                                >
+                                    <ChevronLeftIcon/>
+                                </Button>
+                                <div className="space-x-1 lg:space-x-1.5">
+                                    <span className="hidden mg:inline">Page</span>
+                                    <span>{pagination.pageIndex+1}</span>
+                                    <span>of</span>
+                                    <span>{table.getPageCount()}</span>
+                                </div>
+                                
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon"
+                                    disabled={!table.getCanNextPage()}
+                                    onClick={() => table.nextPage()}
+                                >
+                                    <ChevronRightIcon/>
+                                </Button>
+                            </div>
+                            <div className="flex items-center justify-end gap-2">
+                                <div className="space-x-1">
+                                    <span className="hidden lg:inline">rows</span>
+                                    <span>per page</span>
+                                </div>
+                                <Select value={pagination.pageSize.toString()} onValueChange={value => table.setPageSize(Number(value))}>
+                                    <SelectTrigger className="w-16" size="sm">
+                                        <SelectValue/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {[10, 20, 50, 100].map(size => 
+                                            <SelectItem key={size} value={size.toString()}>
+                                                {size}
+                                            </SelectItem>
+                                        )}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                    )
+                    .with('simple', () =>
+                        <div className="pt-3 pb-2 flex items-center text-sm justify-center text-muted-foreground">
+                            { rowCount == 0
+                                ? <span>No rows to display.</span>
+                                : rowCount == 1
+                                    ? <span>1 row</span>
+                                    : <span>{rowCount} rows</span>}
+                        </div>
+                    )
+                    .exhaustive()
+                }
             </td>
         </tr>
     </tfoot>

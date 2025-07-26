@@ -174,6 +174,7 @@ export async function createTeam(ctx: AuthenticatedContext, { teamId, ...input }
 
     const clerkOrgCreateParams = {
         name: input.name,
+        createdBy: ctx.auth.userId!,
         slug: input.slug,
         publicMetadata: { teamId }
     } as const

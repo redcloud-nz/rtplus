@@ -15,7 +15,7 @@ import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRo
 import { TeamPicker } from '@/components/controls/team-picker'
 import { Button, DeleteConfimButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardMenu, CardTitle } from '@/components/ui/card'
-import { DataTableBody, DataTableHead, DataTableProvider, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
+import { DataTableBody, DataTableHead, DataTableFooter, DataTableProvider, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
 import { TagsInput } from '@/components/ui/input'
 import { TextLink } from '@/components/ui/link'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -294,6 +294,7 @@ export function TeamMembershipsCard({ personId }: { personId: string }) {
                 <Table className="table-fixed">
                     <DataTableHead/>
                     <DataTableBody/>
+                    <DataTableFooter/>
                 </Table>
             </CardContent>
         </Card>
