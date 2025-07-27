@@ -22,7 +22,9 @@ import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
 import { nanoId8 } from '@/lib/id'
-import { TeamData, useTRPC } from '@/trpc/client'
+import { TeamData } from '@/lib/schemas/team'
+import { useTRPC } from '@/trpc/client'
+
 
 
 

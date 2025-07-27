@@ -155,6 +155,9 @@ export const team = (teamOrSlug: TeamData | string) => {
             _label: 'Invitations',
             index: `${base}/invitations`
         },
+        member: (personId: string) => ({
+            index: `${base}/members/${personId}`,
+        } as const),
         members: {
             _label: 'Members',
             index: `${base}/members`,

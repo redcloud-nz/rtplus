@@ -95,7 +95,7 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
         }
     }))
 
-    const columnc = useMemo(() => defineColumns<TeamMembershipData & { person: PersonData }>(columnHelper => [
+    const columns = useMemo(() => defineColumns<TeamMembershipData & { person: PersonData }>(columnHelper => [
         columnHelper.accessor('personId', {
             header: 'ID',
             cell: ctx => ctx.getValue(),
@@ -143,7 +143,7 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
                 .otherwise(() => ctx.getValue().join(' '))
                 
             ),
-            enableGrouping: false,
+            enableGrouping: true,
             enableHiding: true,
             enableSorting: false,
         }),
@@ -224,7 +224,7 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
 
     const table = useReactTable<TeamMembershipData & { person: PersonData }>({
         _features: [EditableFeature()],
-        columns: columnc,
+        columns,
         data: teamMembers,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),

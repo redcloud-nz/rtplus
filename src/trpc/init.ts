@@ -14,6 +14,7 @@ import prisma from '@/server/prisma'
 interface Meta {
     authRequired?: boolean
     systemAdminRequired?: boolean
+    teamAccessRequired?: boolean
     teamAdminRequired?: boolean
 }
 
@@ -52,6 +53,7 @@ export type AuthenticatedContext = Context & {
     personId: string,
     isSystemAdmin: boolean,
     requireSystemAdmin(): boolean,
+    requireTeamAccess(orgId: string): boolean,
     requireTeamAdmin(orgId: string): boolean,
 }
 
@@ -69,6 +71,10 @@ export const authenticatedProcedure = t.procedure.meta({ authRequired: true }).u
             requireSystemAdmin: () => {
                 if(auth.sessionClaims.rt_system_role === 'admin') return true
                 else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin" })
+            },
+            requireTeamAccess: (orgId: string) => {
+                if(auth.orgId == orgId || auth.sessionClaims.rt_system_role == 'admin') return true
+                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team member" })
             },
             requireTeamAdmin: (orgId: string) => {
                 if((auth.orgId == orgId && auth.orgRole == 'org:admin') || auth.sessionClaims.rt_system_role == 'admin') return true 
@@ -99,6 +105,10 @@ export const teamProcedure = t.procedure.use((opts) => {
                 if(auth.sessionClaims.rt_system_role === 'admin') return true
                 else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin" })
             },
+            requireTeamAccess: (orgId: string) => {
+                if(auth.orgId == orgId || auth.sessionClaims.rt_system_role == 'admin') return true
+                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team member" })
+            },
             requireTeamAdmin: (orgId: string) => {
                 if((auth.orgId == orgId && auth.orgRole == 'org:admin') || auth.sessionClaims.rt_system_role == 'admin') return true 
                     
@@ -127,6 +137,10 @@ export const teamAdminProcedure = t.procedure.meta({ authRequired: true, teamAdm
                 if(auth.sessionClaims.rt_system_role === 'admin') return true
                 else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin" })
             },
+            requireTeamAccess: (orgId: string) => {
+                if(auth.orgId == orgId || auth.sessionClaims.rt_system_role == 'admin') return true
+                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team member" })
+            },
             requireTeamAdmin: (orgId: string) => {
                 if((auth.orgId == orgId && auth.orgRole == 'org:admin') || auth.sessionClaims.rt_system_role == 'admin') return true 
                     
@@ -152,6 +166,10 @@ export const systemAdminProcedure = t.procedure.meta({ authRequired: true, syste
             requireSystemAdmin: () => {
                 if(auth.sessionClaims.rt_system_role === 'admin') return true
                 else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin" })
+            },
+            requireTeamAccess: (orgId: string) => {
+                if(auth.orgId == orgId || auth.sessionClaims.rt_system_role == 'admin') return true
+                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team member" })
             },
             requireTeamAdmin: (orgId: string) => {
                 if((auth.orgId == orgId && auth.orgRole == 'org:admin') || auth.sessionClaims.rt_system_role == 'admin') return true 

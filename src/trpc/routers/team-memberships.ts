@@ -15,10 +15,10 @@ import { TeamMembershipData, teamMembershipSchema } from '@/lib/schemas/team-mem
 import { nanoId16 } from '@/lib/id'
 import { zodRecordStatus, zodNanoId8 } from '@/lib/validation'
 
-import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
+import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter } from '../init'
 
 import { getPersonById } from './personnel'
-import { getTeamById } from './teams'
+import { getTeamById, getTeamBySlug } from './teams'
 
 
 
@@ -48,6 +48,7 @@ export const teamMembershipsRouter = createTRPCRouter({
         }),
 
     byId: authenticatedProcedure
+        .meta({ teamAccessRequired: true })
         .input(z.object({
             personId: zodNanoId8,
             teamId: zodNanoId8,
@@ -57,7 +58,33 @@ export const teamMembershipsRouter = createTRPCRouter({
             team: teamSchema
         }))
         .query(async ({ ctx, input }) => {
+
             const { person, team, ...membership } =  await getTeamMembershipById(ctx, input)
+
+            ctx.requireTeamAccess(team.clerkOrgId)
+
+            return { ...membership, person: { personId: person.id, ...person }, team: { teamId: team.id, ...team } }
+        }),
+
+    bySlug: authenticatedProcedure
+        .meta({ teamAccessRequired: true })
+        .input(z.object({
+            personId: zodNanoId8,
+            teamSlug: z.string(),
+        }))
+        .output(teamMembershipSchema.extend({
+            person: personSchema,
+            team: teamSchema
+        }))
+        .query(async ({ ctx, input }) => {
+
+            const team = await getTeamBySlug(ctx, input.teamSlug)
+            ctx.requireTeamAccess(team.clerkOrgId)
+
+            const { person, ...membership } = await ctx.prisma.teamMembership.findUniqueOrThrow({
+                where: { personId_teamId: { personId: input.personId, teamId: team.id }},
+                include: { person: true }
+            })
 
             return { ...membership, person: { personId: person.id, ...person }, team: { teamId: team.id, ...team } }
         }),
@@ -92,6 +119,9 @@ export const teamMembershipsRouter = createTRPCRouter({
             person: personSchema,
         })))
         .query(async ({ ctx, input }) => {
+            const team = await getTeamById(ctx, input.teamId)
+            ctx.requireTeamAccess(team.clerkOrgId)
+
             const memberships = await ctx.prisma.teamMembership.findMany({
                 where: { 
                     teamId: input.teamId, 

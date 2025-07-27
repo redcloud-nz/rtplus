@@ -158,6 +158,19 @@ export async function getTeamById(ctx: AuthenticatedContext, teamId: string): Pr
 }
 
 /**
+ * Gets a team by its slug.
+ * @param ctx The authenticated context.
+ * @param teamSLug The Slug of the team to retrieve.
+ * @returns The team object if found.
+ * @throws TRPCError if the team is not found.
+ */
+export async function getTeamBySlug(ctx: AuthenticatedContext, teamSlug: string): Promise<TeamRecord> {
+    const team = await ctx.prisma.team.findUnique({ where: { slug: teamSlug } })
+    if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: `Team(${teamSlug}) not found.` })
+    return team
+}
+
+/**
  * Creates a new team in the system.
  * @param ctx The authenticated context.
  * @param input The input data for the new team.
