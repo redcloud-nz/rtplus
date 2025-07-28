@@ -245,7 +245,7 @@ function DeleteTeamDialog({ team }: { team: TeamData }) {
             router.push(Paths.system.teams.index)
 
             queryClient.invalidateQueries(trpc.teams.all.queryFilter())
-            queryClient.setQueryData(trpc.teams.byId.queryKey({ teamId: team.id }), undefined)
+            queryClient.setQueryData(trpc.teams.byId.queryKey({ teamId: team.teamId }), undefined)
         },
     }))
 
