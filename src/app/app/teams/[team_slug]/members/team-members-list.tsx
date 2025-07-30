@@ -8,33 +8,36 @@
 import { PlusIcon } from 'lucide-react'
 import { useMemo } from 'react'
 
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { Protect } from '@clerk/nextjs'
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button, RefreshButton } from '@/components/ui/button'
+import { Card, CardActions, CardContent, CardExplanation, CardHeader} from '@/components/ui/card'
 import { DataTableBody, DataTableFooter, DataTableHead, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
-import { DialogTriggerButton } from '@/components/ui/dialog'
-import { TextLink } from '@/components/ui/link'
+import { Link, TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 import { Table} from '@/components/ui/table'
 
-import { useToast } from '@/hooks/use-toast'
 import { PersonData } from '@/lib/schemas/person'
-import { TeamData } from '@/lib/schemas/team'
 import { TeamMembershipData } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
-
-import { AddTeamMemberDialog } from './add-team-member'
 
 
 /**
  * Card that displays the list of all team members and allows the user to add a new member.
  */
-export function TeamMembersListCard({ team }: { team: TeamData }) {
+export function ActiveTeam_MembersList_Card() {
+    const queryClient = useQueryClient()
     const trpc = useTRPC()
 
-    const { data: memberships } = useSuspenseQuery(trpc.teamMemberships.byTeam.queryOptions({ teamId: team.teamId }))
+    const { data: team } = useSuspenseQuery(trpc.activeTeam.get.queryOptions())
+    const { data: memberships } = useSuspenseQuery(trpc.activeTeam.members.all.queryOptions({}))
+
+    async function handleRefresh() {
+        await queryClient.invalidateQueries(trpc.activeTeam.members.all.queryFilter({}))
+    }
 
     const columns = useMemo(() => defineColumns<TeamMembershipData & { person: PersonData }>(columnHelper => [
         columnHelper.accessor('personId', {
@@ -114,12 +117,15 @@ export function TeamMembersListCard({ team }: { team: TeamData }) {
             <CardHeader>
                 <DataTableSearch size="sm" variant="ghost"/>
                 <CardActions>
-                      <AddTeamMemberDialog
-                        team={team}
-                        trigger={<DialogTriggerButton variant="ghost" size="icon" tooltip="Add member">
-                            <PlusIcon />
-                        </DialogTriggerButton>}
-                    />
+                    <Protect role="org:admin">
+                        <Button variant="ghost" size="icon" asChild>
+                            <Link href={Paths.team(team.slug).members.create}>
+                                <PlusIcon/>
+                            </Link>
+                        </Button>
+                    </Protect>
+                    <RefreshButton onClick={handleRefresh}/>
+                      
                     <TableOptionsDropdown/>
                     <Separator orientation='vertical'/>
                     <CardExplanation>

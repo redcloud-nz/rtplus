@@ -31,6 +31,10 @@ import { DeleteUserDialog } from './delete-user'
 
 
 export function TeamUsersListCard({ teamId }: { teamId: string }) {
+    const trpc = useTRPC()
+
+    const { data: team } = useSuspenseQuery(trpc.activeTeam.get.queryOptions())
+
     return <Card>
         <CardHeader>
             <CardTitle>List</CardTitle>

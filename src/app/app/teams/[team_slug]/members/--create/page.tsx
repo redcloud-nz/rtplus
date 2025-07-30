@@ -2,7 +2,8 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /app/teams/[team_slug]/members
+ *  Path: /app/teams/[team_slug]/members/--create
+ * 
  */
 
 import { Metadata } from 'next'
@@ -13,39 +14,37 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 import { fetchTeamBySlug } from '@/server/fetch'
-import { HydrateClient, prefetch, trpc } from '@/trpc/server'
+import { HydrateClient } from '@/trpc/server'
 
-import { ActiveTeam_MembersList_Card } from './team-members-list'
-
+import { NewMemberDetailsCard } from './new-member-details'
 
 export async function generateMetadata(props: { params: Promise<{ team_slug: string }> }): Promise<Metadata> {
     const team = await fetchTeamBySlug(props.params)
-    return { title: `Members - ${team.shortName || team.name}` }
+    return { title: `Create Member - ${team.shortName || team.name}` }
 }
 
-export default async function TeamMembersPage(props: { params: Promise<{ team_slug: string }> }) {
+export default async function CreateTeamMemberPage(props: { params: Promise<{ team_slug: string }> }) {
     const team = await fetchTeamBySlug(props.params)
-
-    prefetch(trpc.activeTeam.members.all.queryOptions({}))
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
                 { label: team.shortName || team.name, href: Paths.team(team.slug).index },
-                Paths.team(team.slug).members
+                Paths.team(team.slug).members,
+                "Create"
             ]}
         />
         <HydrateClient>
             <AppPageContent variant="container">
                 <PageHeader>
-                    <PageTitle>Team Members</PageTitle>
+                    <PageTitle>Create Team Member</PageTitle>
                 </PageHeader>
 
                 <Boundary>
-                    <ActiveTeam_MembersList_Card/>
+                    <NewMemberDetailsCard/>
                 </Boundary>
             </AppPageContent>
         </HydrateClient>
-            
+        
     </AppPage>
 }

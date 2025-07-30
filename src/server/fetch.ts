@@ -14,7 +14,19 @@ import { TeamData } from '@/lib/schemas/team'
 import { TeamMembershipData } from '@/lib/schemas/team-membership'
 import { getQueryClient, trpc } from '@/trpc/server'
 import { TRPCError } from '@trpc/server'
+import prisma from './prisma'
 
+
+export async function fetchActiveTeam(): Promise<TeamData> {
+    return getQueryClient()
+        .fetchQuery(trpc.activeTeam.get.queryOptions())
+        .catch(error => {
+            if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
+                notFound()
+            }
+            return error
+        })
+}
 
 /**
  * Fetch a person by its ID through the TRPC query client to ensure the data is available for both server and client components.
@@ -115,49 +127,88 @@ export async function fetchTeam(params: Promise<{ team_id: string }>): Promise<T
         })
 }
 
+
 /**
  * Fetch a team by its slug through the TRPC query client to ensure the data is available for both server and client components.
  * 
+ * Performs the lookup directly in the database (if it is not cached) to bypass the TRPC layer. This is useful for pre-rendering pages without authentication.
+ * 
  * Note: If the team is not found, this function will throw a 404 error.
+ * 
  * @param params The parameters containing the team slug.
  * @returns A promise that resolves to a TeamData object.
  */
 export async function fetchTeamBySlug(params: Promise<{ team_slug: string }>): Promise<TeamData> {
     const { team_slug: teamSlug } = await params
+
+    const queryClient = getQueryClient()
+    const key = trpc.teams.bySlug.queryKey({ teamSlug })
+
+    const cachedTeam = queryClient.getQueryData(key)
+    if (cachedTeam) return cachedTeam
+
+    const teamRecord = await prisma.team.findUnique({ where: { slug: teamSlug } })
+    if(!teamRecord) notFound()
+
+    // Ensure the team data is in the expected format
+    const team = { ...teamRecord, teamId: teamRecord.id }
+
+    queryClient.setQueryData(key, team)
+
+    return team    
+}
+
+export async function fetchTeamMember(params: Promise<{ team_slug: string, person_id: string }>): Promise<TeamMembershipData & { person: PersonData, team: TeamData }> {
+    const { team_slug: teamSlug, person_id: personId } = await params
+
+    const queryClient = getQueryClient()
+    const key = trpc.activeTeam.members.byId.queryKey({ personId })
+
+    const cachedMembership = queryClient.getQueryData(key)
+    if (cachedMembership) return cachedMembership
+
+    const teamRecord = await prisma.team.findUnique({
+        where: { slug: teamSlug },
+        select: {
+            id: true,
+            teamMemberships: {
+                where: { personId },
+                include: { person: true, team: true }
+            }
+        }
+     })
+    if(!teamRecord || teamRecord.teamMemberships.length === 0) notFound()
+
+    const membership = teamRecord.teamMemberships[0]
+
+    const result = { 
+        ...membership, 
+        person: { personId: membership.person.id, ...membership.person }, 
+        team: { teamId: membership.team.id, ...membership.team }
+    }
+
+    queryClient.setQueryData(key, result)
+
+    return result
+}
+
+/**
+ * Fetch a team membership by its person ID and team ID through the TRPC query client to ensure the data is available for both server and client components.
+ * 
+ * Note: If the team is not found, this function will throw a 404 error.
+ * @param params The parameters containing the person ID and team ID.
+ * @returns A promise that resolves to a TeamMembershipDataWithPersonAndTeam object.
+
+ */
+export async function fetchTeamMembership(params: Promise<{ person_id: string, team_id: string }>): Promise<TeamMembershipData & { person: PersonData, team: TeamData }> {
+    const { person_id: personId, team_id: teamId } = await params
+
     return getQueryClient()
-        .fetchQuery(trpc.teams.bySlug.queryOptions({ teamSlug }))
+        .fetchQuery(trpc.teamMemberships.byId.queryOptions({ personId, teamId }))
         .catch(error => {
             if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
                 notFound()
             }
             return error
-        })
-}
-
-/**
- * Fetch a team membership by its person ID and team ID (or slug) through the TRPC query client to ensure the data is available for both server and client components.
- * 
- * Note: If the team is not found, this function will throw a 404 error.
- * @param params The parameters containing the person ID and team ID (or slug).
- * @returns A promise that resolves to a TeamMembershipDataWithPersonAndTeam object.
-
- */
-export async function fetchTeamMembership(params: Promise<{ person_id: string} & ({ team_slug: string } | { team_id: string })>): Promise<TeamMembershipData & { person: PersonData, team: TeamData }> {
-    const awaitedPramas = await params
-
-    return ('team_id' in awaitedPramas
-        ? getQueryClient().fetchQuery(trpc.teamMemberships.byId.queryOptions({
-            personId: awaitedPramas.person_id,
-            teamId: awaitedPramas.team_id
-        }))
-        : getQueryClient().fetchQuery(trpc.teamMemberships.bySlug.queryOptions({
-            personId: awaitedPramas.person_id,
-            teamSlug: awaitedPramas.team_slug
-        }))
-    ).catch(error => {
-        if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
-            notFound()
-        }
-        return error
     })
 }

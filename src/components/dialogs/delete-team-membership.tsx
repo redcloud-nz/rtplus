@@ -14,7 +14,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTriggerButton } from '@/components/ui/dialog'
 import { DisplayValue } from '@/components/ui/display-value'
-import { Form, FormActions, FormCancelButton, FormControl, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { Form, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
@@ -49,7 +49,7 @@ export function DeleteTeamMembershipDialog({ onDelete, personId, teamId }: { onD
         async onSuccess(result) {
             toast({
                 title: 'Team Membership Deleted',
-                description: <>The membership for <ObjectName>{person.name}</ObjectName> in <ObjectName>{team.name}</ObjectName> has been deleted.`</>,
+                description: <>The membership for <ObjectName>{person.name}</ObjectName> in <ObjectName>{team.name}</ObjectName> has been deleted.</>,
             })
 
             setOpen(false)
@@ -57,6 +57,7 @@ export function DeleteTeamMembershipDialog({ onDelete, personId, teamId }: { onD
 
             await queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: result.personId }))
             await queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId: result.teamId }))
+            await queryClient.invalidateQueries(trpc.activeTeam.members.all.queryFilter({}))
         },
     }))
 

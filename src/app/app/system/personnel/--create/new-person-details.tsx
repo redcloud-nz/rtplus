@@ -6,7 +6,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useLayoutEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -45,7 +45,7 @@ export function NewPersonDetailsCard() {
         }
     })
 
-    const mutation = useMutation(trpc.personnel.sys_create.mutationOptions({
+    const mutation = useMutation(trpc.personnel.create.mutationOptions({
         onError(error) {
             if (error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof PersonData, { message: error.shape.message })
@@ -67,10 +67,6 @@ export function NewPersonDetailsCard() {
             router.push(Paths.system.person(personId).index)
         }
     }))
-
-    useLayoutEffect(() => {
-        form.setValue('personId', personId)
-    }, [form, personId])
 
     return <Card>
         <CardHeader>

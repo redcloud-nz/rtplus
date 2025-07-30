@@ -16,6 +16,7 @@ interface Meta {
     systemAdminRequired?: boolean
     teamAccessRequired?: boolean
     teamAdminRequired?: boolean
+    activeTeamRequired?: boolean
 }
 
 export const createTRPCContext = cache(async ({ headers }: { headers: Headers  }) => {
@@ -87,7 +88,7 @@ export const authenticatedProcedure = t.procedure.meta({ authRequired: true }).u
 
 export type AuthenticatedTeamContext = AuthenticatedContext & { teamSlug: string, orgId: string }
 
-export const teamProcedure = t.procedure.use((opts) => {
+export const teamProcedure = t.procedure.meta({ authRequired: true, activeTeamRequired: true }).use((opts) => {
     const { auth, ...ctx } = opts.ctx
 
     if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })
@@ -118,7 +119,7 @@ export const teamProcedure = t.procedure.use((opts) => {
     })
 })
 
-export const teamAdminProcedure = t.procedure.meta({ authRequired: true, teamAdminRequired: true }).use((opts) => {
+export const teamAdminProcedure = t.procedure.meta({ authRequired: true, activeTeamRequired: true, teamAdminRequired: true }).use((opts) => {
     const { auth, ...ctx } = opts.ctx
 
     if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })

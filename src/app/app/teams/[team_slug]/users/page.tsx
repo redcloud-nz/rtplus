@@ -8,11 +8,14 @@ import { Metadata } from 'next'
 import React from 'react'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
+import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
 import { fetchTeamBySlug } from '@/server/fetch'
 
 import { TeamUsersListCard } from './team-users-list'
+import { HydrateClient } from '@/trpc/server'
+
 
 
 
@@ -31,11 +34,16 @@ export default async function TeamUsersPage(props: { params: Promise<{  team_slu
                 Paths.team(team).users
             ]}
         />
-        <AppPageContent variant="container">
-            <PageHeader>
-                <PageTitle>Team Users</PageTitle>
-            </PageHeader>
-            <TeamUsersListCard teamId={team.teamId}/>
-        </AppPageContent>
+        <HydrateClient>
+            <AppPageContent variant="container">
+                <PageHeader>
+                    <PageTitle>Team Users</PageTitle>
+                </PageHeader>
+                <Boundary>
+                    <TeamUsersListCard teamId={team.teamId}/>
+                </Boundary>
+            </AppPageContent>
+        </HydrateClient>
+        
     </AppPage>
 }

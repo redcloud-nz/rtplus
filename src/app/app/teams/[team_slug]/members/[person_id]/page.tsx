@@ -11,7 +11,7 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 
 import * as Paths from '@/paths'
 
-import { fetchTeamMembership } from '@/server/fetch'
+import { fetchTeamMember } from '@/server/fetch'
 import { HydrateClient } from '@/trpc/server'
 import { Boundary } from '@/components/boundary'
 
@@ -20,14 +20,14 @@ import { TeamMemberDetails } from './team-member-details'
 
 
 export async function generateMetadata(props: { params: Promise<{ team_slug: string, person_id: string }> }): Promise<Metadata> {
-    const teamMember = await fetchTeamMembership(props.params)
+    const teamMember = await fetchTeamMember(props.params)
 
     return { title: `${teamMember.person.name} - ${teamMember.team.shortName || teamMember.team.name}` }
 }
 
 
 export default async function TeamMemberPage(props: { params: Promise<{ team_slug: string, person_id: string }>}) {
-    const { person, team } = await fetchTeamMembership(props.params)
+    const { person, team } = await fetchTeamMember(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs
@@ -43,7 +43,7 @@ export default async function TeamMemberPage(props: { params: Promise<{ team_slu
                     <PageTitle objectType="Team Member">{person.name}</PageTitle>
                 </PageHeader>
                 <Boundary>
-                    <TeamMemberDetails personId={person.personId} teamId={team.teamId} />
+                    <TeamMemberDetails personId={person.personId}/>
                 </Boundary>
             </AppPageContent>
         </HydrateClient>

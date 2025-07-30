@@ -161,9 +161,7 @@ export const team = (teamOrSlug: TeamData | string) => {
         members: {
             _label: 'Members',
             index: `${base}/members`,
-            person: (personId: string) => ({
-                index: `${base}/members/${personId}`,
-            } as const)
+            create: `${base}/members/--create`,
         },
         users: {
             _label: 'Users',

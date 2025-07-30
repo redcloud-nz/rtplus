@@ -11,6 +11,7 @@ import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 
+import { Protect } from '@clerk/nextjs'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
@@ -19,7 +20,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { DisplayValue } from '@/components/ui/display-value'
 import { Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
-import { TagsInput } from '@/components/ui/input'
+import { Input, TagsInput } from '@/components/ui/input'
 import { TextLink } from '@/components/ui/link'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
@@ -27,20 +28,20 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 
 import { useToast } from '@/hooks/use-toast'
-import { PersonData } from '@/lib/schemas/person'
+import { PersonData, personSchema } from '@/lib/schemas/person'
 import { TeamData } from '@/lib/schemas/team'
 import { TeamMembershipData, teamMembershipSchema } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
-import { Protect } from '@clerk/nextjs'
 
 
 
-export function TeamMemberDetails({ personId, teamId }: { personId: string, teamId: string }) {
+
+export function TeamMemberDetails({ personId }: { personId: string }) {
     const router = useRouter()
     const trpc = useTRPC()
 
-    const { data: { person, team, ...membership } } = useSuspenseQuery(trpc.teamMemberships.byId.queryOptions({ personId, teamId }))
+    const { data: { person, team, ...membership } } = useSuspenseQuery(trpc.activeTeam.members.byId.queryOptions({ personId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
 
@@ -59,10 +60,10 @@ export function TeamMemberDetails({ personId, teamId }: { personId: string, team
                     </Tooltip>
                     <DeleteTeamMembershipDialog
                         onDelete={() => {
-                            router.push(Paths.team(teamId).members.index)
+                            router.push(Paths.team(team.slug).members.index)
                         }}
                         personId={personId}
-                        teamId={teamId}
+                        teamId={team.teamId}
                     />
 
                     <Separator orientation="vertical" />
@@ -81,8 +82,12 @@ export function TeamMemberDetails({ personId, teamId }: { personId: string, team
                             control={<DisplayValue><TextLink href={Paths.system.team(team.teamId).index}>{team.name}</TextLink></DisplayValue>}
                         />
                         <ToruGridRow
-                            label="Person"
-                            control={<DisplayValue><TextLink href={Paths.system.person(person.personId).index}>{person.name}</TextLink></DisplayValue>}
+                            label="Name"
+                            control={<DisplayValue>{person.name}</DisplayValue>}
+                        />
+                        <ToruGridRow
+                            label="Email"
+                            control={<DisplayValue>{person.email}</DisplayValue>}
                         />
                         <ToruGridRow
                             label="Tags"
@@ -114,23 +119,33 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membe
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const form = useForm<TeamMembershipData>({
-        resolver: zodResolver(teamMembershipSchema),
-        defaultValues: { ...membership }
+    const isOwner = person.owningTeamId === team.teamId
+    const queryKey = trpc.activeTeam.members.byId.queryKey({ personId: person.personId })
+
+    const form = useForm<TeamMembershipData & Pick<PersonData, 'name' | 'email'>>({
+        resolver: zodResolver(teamMembershipSchema.merge(personSchema.pick({ name: true, email: true }))),
+        defaultValues: {
+            personId: person.personId,
+            teamId: team.teamId,
+            name: person.name,
+            email: person.email,
+            tags: membership.tags,
+            status: membership.status
+        }
     })
 
-    const mutation = useMutation(trpc.teamMemberships.update.mutationOptions({
-        async onMutate({ personId, teamId, ...update }) {
+    const mutation = useMutation(trpc.activeTeam.members.update.mutationOptions({
+        async onMutate({ personId,...update }) {
 
 
-            await queryClient.cancelQueries(trpc.teamMemberships.byId.queryFilter({ personId, teamId }))
+            await queryClient.cancelQueries(trpc.activeTeam.members.byId.queryFilter({ personId }))
             
 
             // Snapshot the previous value
-            const previousData = queryClient.getQueryData(trpc.teamMemberships.byId.queryKey({ personId, teamId }))
+            const previousData = queryClient.getQueryData(queryKey)
 
             if(previousData) {
-                queryClient.setQueryData(trpc.teamMemberships.byId.queryKey({ personId, teamId }), { ...previousData, ...update })
+                queryClient.setQueryData(queryKey, { ...previousData, ...update })
             }
 
             onClose()
@@ -138,7 +153,7 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membe
         },
         onError(error, data, context) {
             // Rollback to previous data
-            queryClient.setQueryData(trpc.teamMemberships.byId.queryKey({ personId: data.personId, teamId: data.teamId }), context?.previousData)
+            queryClient.setQueryData(queryKey, context?.previousData)
 
             toast({
                 title: 'Error updating team membership',
@@ -152,9 +167,12 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membe
                 description: `${person.name}'s membership in '${team.name}' has been updated.`,
             })
 
-            await queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: result.personId }))
-            await queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId: result.teamId }))
+            await queryClient.invalidateQueries(trpc.activeTeam.members.byId.queryFilter({ personId: result.personId }))
         },
+        onSettled() {
+            queryClient.invalidateQueries(trpc.activeTeam.members.all.queryFilter({}))
+            queryClient.invalidateQueries(trpc.activeTeam.members.byId.queryFilter({ personId: membership.personId }))
+        }
     }))
 
     return <FormProvider {...form}>
@@ -170,10 +188,20 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membe
                 />
                 <FormField
                     control={form.control}
-                    name="teamId"
+                    name="name"
                     render={({ field }) => <ToruGridRow
-                        label="Person"
-                        control={ <DisplayValue>{person.name}</DisplayValue>}
+                        label="Name"
+                        control={isOwner ? <Input maxLength={100} {...field}/> : <DisplayValue>{field.value}</DisplayValue>}
+                        description="The full name of the person."
+                    />}
+                />
+                <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => <ToruGridRow
+                        label="Email"
+                        control={isOwner ? <Input type="email" maxLength={100} {...field}/> : <DisplayValue>{field.value}</DisplayValue>}
+                        description="The email address of the person (must be unique)."
                     />}
                 />
                 <FormField
@@ -181,7 +209,7 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membe
                     name="tags"
                     render={({ field }) => <ToruGridRow
                         label="Tags"
-                        control={ <TagsInput value={field.value} onValueChange={field.onChange} placeholder="Add tags"/>}
+                        control={<TagsInput value={field.value} onValueChange={field.onChange} placeholder="Add tags"/>}
                         description="Tags can be used to categorize or label the membership for easier searching and filtering."
                     />}
                 />

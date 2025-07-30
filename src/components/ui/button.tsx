@@ -4,16 +4,18 @@
  */
 'use client'
 
-import { InfoIcon, Loader2Icon, TrashIcon } from 'lucide-react'
+import { InfoIcon, Loader2Icon, RefreshCcw, TrashIcon } from 'lucide-react'
 import React, { ComponentProps } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
 import { Slot } from '@radix-ui/react-slot'
 
-import { cn } from '@/lib/utils'
+import { cn, resolveAfter } from '@/lib/utils'
 
 import { Link } from './link'
 import { Popover, PopoverArrow, PopoverClose, PopoverContent, PopoverTrigger } from './popover'
+import { Tooltip, TooltipContent } from './tooltip'
+import { TooltipTrigger } from '@radix-ui/react-tooltip'
 
 
 export const buttonVariants = tv({
@@ -180,4 +182,28 @@ export function DeleteConfimButton({ onDelete, ...props }: Omit<ComponentProps<t
             <PopoverArrow className="fill-destructive border-border" />
         </PopoverContent>
     </Popover>
+}
+
+export function RefreshButton({ onClick, ...props }: Omit<ComponentProps<typeof Button>, 'onClick'> & { onClick: () => Promise<void> }) {
+
+    const [running, setRunning] = React.useState(false)
+
+    async function handleClick() {
+        if(running) return
+        setRunning(true)
+        await onClick()
+        setRunning(false)
+    }
+
+    return <Tooltip>
+        <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" onClick={handleClick} {...props}>
+                <RefreshCcw className={running ? "animate-spin" : ""} />
+            </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+            <span className="text-xs">Refresh results</span>
+            {running ? <span className="text-xs text-muted-foreground">Refreshing...</span> : null}
+        </TooltipContent>
+        </Tooltip>
 }
