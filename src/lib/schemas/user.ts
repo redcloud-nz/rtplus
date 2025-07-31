@@ -3,7 +3,6 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import { formatISO } from 'date-fns'
 import { z } from 'zod'
 
 import { User as ClerkUser, OrganizationMembership as ClerkOrganizationMembership } from '@clerk/nextjs/server'
@@ -39,7 +38,13 @@ export function createUserData(user: ClerkUser, membership: ClerkOrganizationMem
         email: user.emailAddresses[0]?.emailAddress || '',
         clerkUserId: user.id,
         role: membership.role as 'org:admin' | 'org:member',
-        lastActiveAt: user.lastActiveAt ? formatISO(user.lastActiveAt) : null,
-        createdAt: formatISO(user.createdAt),
+        lastActiveAt: user.lastActiveAt ? new Date(user.lastActiveAt).toISOString() : null,
+        createdAt: new Date(user.createdAt).toISOString(),
     }
+}
+
+
+export const UserRoleNameMap: Record<UserRole, string> = {
+    'org:admin': 'Admin',
+    'org:member': 'Member',
 }

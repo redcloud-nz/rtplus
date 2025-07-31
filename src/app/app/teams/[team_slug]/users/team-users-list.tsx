@@ -5,137 +5,237 @@
 'use client'
 
 import { format } from 'date-fns'
-import { EllipsisVertical, EllipsisVerticalIcon, FunnelIcon, PencilIcon, TrashIcon } from 'lucide-react'
-import { useState } from 'react'
+import {  PencilIcon, SaveIcon, TrashIcon, XIcon,  } from 'lucide-react'
+import { useMemo } from 'react'
 import { match } from 'ts-pattern'
 
-import { Protect } from '@clerk/nextjs'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { Show } from '@/components/show'
-import { Alert } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardExplanation } from '@/components/ui/card'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Popover, PopoverContent, PopoverTriggerButton } from '@/components/ui/popover'
-import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
+import { Button, DeleteConfimButton } from '@/components/ui/button'
+import { Card, CardContent, CardHeader,  CardExplanation, CardActions } from '@/components/ui/card'
+import { DataTableBody, DataTableFooter, DataTableHead, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
+import { Table } from '@/components/ui/table'
 
-import { OrgMembershipData } from '@/lib/schemas/org-membership'
+import { useToast } from '@/hooks/use-toast'
+import { EditableFeature } from '@/lib/editable-feature'
+import { UserData2, UserRole, UserRoleNameMap } from '@/lib/schemas/user'
 import { useTRPC } from '@/trpc/client'
 
-import { EditUserDialog } from './edit-user'
-import { DeleteUserDialog } from './delete-user'
 
-
-
-
-
-export function TeamUsersListCard({ teamId }: { teamId: string }) {
+/**
+ * A card that displays the list of all users in the active team.
+ * This card is used to manage users and their roles within the team.
+ */
+export function ActiveTeam_Users_ListCard() {
+    const queryClient = useQueryClient()
+    const { toast} = useToast()
     const trpc = useTRPC()
 
-    const { data: team } = useSuspenseQuery(trpc.activeTeam.get.queryOptions())
+    
 
-    return <Card>
-        <CardHeader>
-            <CardTitle>List</CardTitle>
-            <Popover>
-                <PopoverTriggerButton variant="ghost" size="icon" tooltip="Filter users">
-                    <FunnelIcon />
-                </PopoverTriggerButton>
-                <PopoverContent>
-                    <div className="flex flex-col gap-2">
-                        <p className="text-sm text-muted-foreground">Filters will be added here in the future.</p>
-                        {/* Future filter options can be added here */}
-                    </div>
-                </PopoverContent>
-            </Popover>
-            <CardExplanation>
-                <p>This card displays a list of users that have access to the team.</p>
-                <p>To add a new user, you will need to invite them from the Invitations Card</p>
-                <p>You can change a users role or delete them uing the <EllipsisVerticalIcon className="inline-block h-4 w-4"/> button to access the user action menu.</p>
-            </CardExplanation>
-        </CardHeader>
-        <CardContent boundary>
-            <TeamUsersListTable teamId={teamId}/>
-        </CardContent>
-    </Card>
-}
+    const { data: users } = useSuspenseQuery(trpc.activeTeam.users.all.queryOptions())
 
+    const updateMutation = useMutation(trpc.activeTeam.users.update.mutationOptions({
+        onError(error) {
+            toast({
+                title: "Error updating user",
+                description: error.message,
+                variant: 'destructive',
+            })
+        },
+        onSuccess() {
+            toast({
+                title: "User updated",
+                description: "The user has been successfully updated.",
+            })
+        },
+        onSettled() {
+            queryClient.invalidateQueries(trpc.activeTeam.users.all.queryFilter())
+        }
+    }))
 
-function TeamUsersListTable({ teamId }: { teamId: string }) {
-    const trpc = useTRPC()
+    const deleteMutation = useMutation(trpc.activeTeam.users.delete.mutationOptions({
+        onError(error) {
+            toast({
+                title: "Error deleting user",
+                description: error.message,
+                variant: 'destructive',
+            })
+        },
+        onSuccess() {
+            toast({
+                title: "User deleted",
+                description: "The user has been successfully deleted.",
+            })
+        },
+        onSettled() {
+            queryClient.invalidateQueries(trpc.activeTeam.users.all.queryFilter())
+        }
+    }))
 
-    const { data: orgMemberships } = useSuspenseQuery(trpc.orgMemberships.byTeam.queryOptions({ teamId }))
-
-    const [actionTarget, setActionTarget] = useState<{ action: 'Edit' | 'Delete', orgMembership: OrgMembershipData } | null>(null)
-
-    return <Show 
-        when={orgMemberships.length > 0}
-        fallback={<Alert severity="info" title="No users assigned to team" />}
-    >
-        <Table>
-            <TableHead>
-                <TableRow>
-                    <TableHeadCell>Name</TableHeadCell>
-                    <TableHeadCell>Identifier</TableHeadCell>
-                    <TableHeadCell>Role</TableHeadCell>
-                    <TableHeadCell>Created</TableHeadCell>
-                    <TableHeadCell className="w-10"></TableHeadCell>
-                </TableRow>
-            </TableHead>
-            <TableBody>
-                {orgMemberships
-                    .map(orgMembership => 
-                        <TableRow key={orgMembership.orgMembershipId}>
-                            <TableCell>{orgMembership.user.name}</TableCell>
-                            <TableCell>{orgMembership.user.identifier}</TableCell>
-                            <TableCell>{orgMembership.role == 'org:admin' ? 'Admin' : 'Member'}</TableCell>
-                            <TableCell>{format(orgMembership.createdAt, "dd MMM yyyy")}</TableCell>
-                            <TableCell className="w-10 p-0">
-                                <Protect role="org:admin">
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon">
-                                                <span className="sr-only">Actions</span>
-                                                <EllipsisVertical />
-                                        </Button>
-                                        </DropdownMenuTrigger>
-                                        
-                                        <DropdownMenuContent align="end" className="w-32">
-                                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                            <DropdownMenuGroup>
-                                                <DropdownMenuItem onClick={() => {}}><PencilIcon/> Edit</DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => {}}><TrashIcon/> Delete</DropdownMenuItem>
-                                            </DropdownMenuGroup>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </Protect>
-                            </TableCell>
-                        </TableRow>
-                    )
+    const columns = useMemo(() => defineColumns<UserData2>(columnHelper => [
+        columnHelper.accessor('personId', {
+            header: "Person ID",
+            cell: ctx => ctx.getValue(),
+            enableGrouping: false,
+            enableHiding: true,
+            enableSorting: false,
+            enableGlobalFilter: false,
+        }),
+        columnHelper.accessor('name', {
+            header: "Name",
+            cell: ctx => ctx.getValue(),
+            enableGrouping: false,
+            enableHiding: false,
+            enableSorting: true,
+        }),
+        columnHelper.accessor('email', {
+           
+            header: "Email",
+            cell: ctx => ctx.getValue(),
+            enableGrouping: false,
+            enableHiding: false,
+            enableSorting: true,
+        }),
+        columnHelper.accessor('role', {
+            id: "role",
+            header: "Role",
+            cell: ctx => (match(ctx.row.getEditMode())
+                .with('Update', () => 
+                    <Select
+                        value={ctx.row.getModifiedRowData().role}
+                        onValueChange={value => ctx.row.setModifiedRowData({ role: value as UserRole })}
+                    >
+                        <SelectTrigger size="sm" className="-m-2">
+                            <SelectValue/>
+                        </SelectTrigger>
+                        <SelectContent>
+                            {Object.entries(UserRoleNameMap).map(([value, label]) => (
+                                <SelectItem key={value} value={value}>
+                                    {label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                        
+                    </Select>
+                )
+                .otherwise(() => UserRoleNameMap[ctx.getValue() as UserRole])
+            ),
+            enableGrouping: true,
+            enableHiding: false,
+            enableSorting: true,
+        }),
+        columnHelper.accessor('lastActiveAt', {
+            header: "Last Active",
+            cell: ctx => format(ctx.getValue(), 'dd MMM yyyy'),
+            enableGrouping: false,
+            enableHiding: true,
+            enableSorting: true,
+        }),
+        columnHelper.accessor('createdAt', {
+            id: "createdAt",
+            header: "Created At",
+            cell: ctx => format(ctx.getValue(), 'dd MMM yyyy'),
+            enableGrouping: false,
+            enableHiding: true,
+            enableSorting: true,
+        }),
+        columnHelper.display({
+            id: 'actions',
+            header: 'Actions',
+            cell: ctx => <div className="-m-2 flex items-center justify-end">
+                {match(ctx.row.getEditMode())
+                    .with('Create', 'Update', () => <>
+                        <Button variant="ghost" size="icon" onClick={() => ctx.row.saveEdit()}>
+                            <SaveIcon/>
+                            <span className="sr-only">Save</span>
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => {
+                            ctx.row.cancelEdit()
+                        }}>
+                            <XIcon/>
+                            <span className="sr-only">Cancel</span>
+                        </Button>
+                    </>)
+                    .with('View', () => <>
+                        <Button variant="ghost" size="icon" onClick={() => ctx.row.startEdit()}>
+                            <PencilIcon/>
+                            <span className="sr-only">Edit</span>
+                        </Button>
+                        <DeleteConfimButton onDelete={() => ctx.row.delete()}/>
+                       
+                    </>)
+                    .exhaustive()
                 }
-            </TableBody>
-        </Table>
-        {/* {match(actionTarget)
-            .with({ action: 'Edit' }, ({ orgMembership }) =>
-                <EditUserDialog
-                    key="edit-user-dialog"
-                    orgMembership={orgMembership} 
-                    open
-                    onOpenChange={(open) => { if(!open) setActionTarget(null)}}
-                />
-            )
-            .with({ action: 'Delete' }, ({ orgMembership }) => 
-                <DeleteUserDialog 
-                    key="delete-user-dialog"
-                    orgMembership={orgMembership} 
-                    open
-                    onOpenChange={(open) => { if(!open) setActionTarget(null)}}
-                />
-            )
-            .otherwise(() => null)
-        } */}
-    </Show>
+            </div>,
+            enableGrouping: false,
+            enableHiding: false,
+            enableSorting: false,
+            meta: {
+                slotProps: {
+                    th: {
+                        className: 'w-20',
+                    }
+                }
+            }
+        })
+    ]), [])
+
+    const table = useReactTable<UserData2>({
+        _features: [EditableFeature()],
+        data: users,
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        getGroupedRowModel: getGroupedRowModel(),
+        getExpandedRowModel: getExpandedRowModel(),
+        getRowId: (row) => row.personId,
+        onUpdate: (row) => {
+            updateMutation.mutate(row)
+        },
+        onDelete: (rowData) => {
+            deleteMutation.mutate(rowData)
+        },
+        initialState: {
+            columnVisibility: {
+                personId: false, name: true, email: true, role: true, lastActiveAt: true, createdAt: false
+            },
+            columnFilters: [],
+            globalFilter: "",
+            grouping: [],
+            sorting: [{ id: 'name', desc: false }],
+        },
+    })
+
+    return <DataTableProvider value={table}>
+        <Card>
+            <CardHeader>
+                <DataTableSearch size="sm" variant="ghost"/>
+                <CardActions>
+                     <TableOptionsDropdown/>
+                     <Separator orientation='vertical'/>
+                     <CardExplanation>
+                        <p>This card displays a list of users that have access to the team.</p>
+                        <p>To add a new user, you will need to invite them from the Invitations List.</p>
+                        <p>You can change a users role uing the <PencilIcon className="inline-block h-4 w-4"/> button.</p>
+                        <p>You can remove a user using the <TrashIcon className="inline-block h-4 w-5"/> button.</p>
+                    </CardExplanation>
+                </CardActions>
+               
+            </CardHeader>
+            <CardContent>
+                <Table className="table-fixed">
+                    <DataTableHead/>
+                    <DataTableBody/>
+                    <DataTableFooter/>
+                </Table>
+            </CardContent>
+        </Card>
+    </DataTableProvider>
     
     
 }

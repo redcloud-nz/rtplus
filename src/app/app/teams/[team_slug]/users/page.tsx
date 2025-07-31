@@ -13,7 +13,7 @@ import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 import { fetchTeamBySlug } from '@/server/fetch'
 
-import { TeamUsersListCard } from './team-users-list'
+import { ActiveTeam_Users_ListCard } from './team-users-list'
 import { HydrateClient } from '@/trpc/server'
 
 
@@ -40,7 +40,7 @@ export default async function TeamUsersPage(props: { params: Promise<{  team_slu
                     <PageTitle>Team Users</PageTitle>
                 </PageHeader>
                 <Boundary>
-                    <TeamUsersListCard teamId={team.teamId}/>
+                    <ActiveTeam_Users_ListCard/>
                 </Boundary>
             </AppPageContent>
         </HydrateClient>

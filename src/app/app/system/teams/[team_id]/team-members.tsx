@@ -37,9 +37,9 @@ import { useTRPC } from '@/trpc/client'
  * @param teamId The ID of the team for which to display members.
  */
 export function TeamMembersCard({ teamId }: { teamId: string }) {
-    const trpc = useTRPC()
     const queryClient = useQueryClient()
     const { toast } = useToast()
+    const trpc = useTRPC()
 
     const { data: teamMembers } = useSuspenseQuery(trpc.teamMemberships.byTeam.queryOptions({ teamId }))
 

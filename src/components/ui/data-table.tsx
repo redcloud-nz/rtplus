@@ -90,10 +90,9 @@ function ColumnHeader<T>({ children, column, table }: ColumnHeaderProps<T>) {
 
     return <th {...thProps} className={cn("pl-2 text-left align-middle font-medium", thProps.className)}>
         <div className={'w-full flex items-center justify-between gap-2'}>
-            {column.columnDef.meta?.align == 'center' && <div className="w-8"/>}
-            <div>{children}</div>
+            <div data-slot="name">{children}</div>
             
-            <div className="flex items-center">
+            { (column.getIsSorted() || showMenu) &&  <div className="flex items-center">
                 {match(column.getIsSorted())
                     .with(false, () => null)
                     .with('asc', () => <ArrowDownAZIcon className="w-4 h-4 stroke-muted-foreground"/>)
@@ -148,7 +147,7 @@ function ColumnHeader<T>({ children, column, table }: ColumnHeaderProps<T>) {
                                     onClick={() => table.setGrouping(column.getIsGrouped() ? [] : [column.id])}
                                 >
                                     {column.getIsGrouped() ? <UngroupIcon data-slot="icon"/> : <GroupIcon data-slot="icon"/>}
-                                    <span>Group by</span>
+                                    <span>{column.getIsGrouped() ? "Ungroup by" : "Group by"}</span>
                                 </DropdownMenuItem>}
                                 {column.getCanHide() && <DropdownMenuItem onClick={handleHideColumn}>
                                     <EyeOffIcon/>
@@ -158,7 +157,7 @@ function ColumnHeader<T>({ children, column, table }: ColumnHeaderProps<T>) {
                         </>}
                     </DropdownMenuContent>
                 </DropdownMenu>}
-             </div>
+             </div>}
         </div>
     </th>
 }
@@ -530,5 +529,3 @@ export function defineColumns<TData extends RowData>(factory: (columnHelper: Col
     const columnHelper = createColumnHelper<TData>()
     return factory(columnHelper)
 }
-
-

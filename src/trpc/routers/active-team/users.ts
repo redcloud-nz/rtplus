@@ -33,11 +33,14 @@ export const activeTeamUsersRouter = createTRPCRouter({
 
             const { data: users } = await ctx.clerkClient.users.getUserList({ userId: userIds, limit: 100 })
 
-            return orgMemberships.map(membership => {
+            const result = orgMemberships.map(membership => {
                 const user = users.find(u => u.id === membership.publicUserData!.userId)!
                 
                 return createUserData(user, membership)
             })
+
+            console.log(`Fetched ${result.length} users for team ${team.slug}`, result)
+            return result
         }),
 
     /**
