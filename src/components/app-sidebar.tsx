@@ -16,6 +16,7 @@ import * as Paths from '@/paths'
 
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from './ui/sidebar'
 import { NavUser } from './nav-user'
+import { Protect } from '@clerk/nextjs'
 
 export type AppSidebarProps = React.ComponentProps<typeof Sidebar>
 
@@ -59,10 +60,13 @@ export async function AppSidebar({ children, ...props }: AppSidebarProps) {
                         <NavSubItem label="Reports" href={Paths.team(teamSlug).competencies.reports.index}/>
                     </NavCollapsible>
                     <NavItem path={Paths.team(teamSlug).members} icon={<UsersIcon/>}/>
-                    <NavCollapsible label="Admin" icon={<SettingsIcon/>}>
-                        <NavSubItem path={Paths.team(teamSlug).users}/>
-                        <NavSubItem path={Paths.team(teamSlug).invitations}/>
-                    </NavCollapsible>
+                    <Protect role="org:admin">
+                        <NavCollapsible label="Admin" icon={<SettingsIcon/>}>
+                            <NavSubItem path={Paths.team(teamSlug).users}/>
+                            <NavSubItem path={Paths.team(teamSlug).invitations}/>
+                        </NavCollapsible>
+                    </Protect>
+                    
                 </NavSection> 
                 : null
             }
