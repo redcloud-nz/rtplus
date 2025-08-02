@@ -184,6 +184,47 @@ export function DeleteConfimButton({ onDelete, ...props }: Omit<ComponentProps<t
     </Popover>
 }
 
+
+type ConfirmPopupButtonProps = Omit<ComponentProps<typeof Button>, 'onClick'> & {
+    message?: React.ReactNode
+    slotProps?: {
+        popoverContent?: ComponentProps<typeof PopoverContent>
+        confirmButton?: ComponentProps<typeof Button>
+        cancelButton?: ComponentProps<typeof Button>
+    }
+    tooltip?: React.ReactNode
+}
+
+export function ConfirmPopupButton({ children, message = "Confirm", slotProps = {}, tooltip, ...props }: ConfirmPopupButtonProps) {
+
+    const { className: popoverContentClassName, ...popoverContentProps } = slotProps.popoverContent || {}
+
+    return <Popover>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" {...props}>
+                        {children}
+                    </Button>
+                </PopoverTrigger>
+            </TooltipTrigger>
+            {tooltip ? <TooltipContent>{tooltip}</TooltipContent> : null}
+        </Tooltip>
+        <PopoverContent className={cn("w-64 flex justify-between items-center gap-2", popoverContentClassName)} side="left" {...popoverContentProps}>
+            <div className="font-semibold">{message}</div>
+            <div className="flex gap-2">
+                <PopoverClose asChild>
+                    <Button color="destructive" size="sm" {...slotProps.confirmButton ?? {}}/>
+                </PopoverClose>
+                 <PopoverClose asChild>
+                    <Button variant="ghost" size="sm" autoFocus {...{ children: "Cancel", ...slotProps.cancelButton ?? {}}}/>
+                 </PopoverClose>
+            </div>
+            <PopoverArrow className="fill-destructive border-border" />
+        </PopoverContent>
+    </Popover>
+}
+
 export function RefreshButton({ onClick, ...props }: Omit<ComponentProps<typeof Button>, 'onClick'> & { onClick: () => Promise<void> }) {
 
     const [running, setRunning] = React.useState(false)
@@ -202,8 +243,8 @@ export function RefreshButton({ onClick, ...props }: Omit<ComponentProps<typeof 
             </Button>
         </TooltipTrigger>
         <TooltipContent>
-            <span className="text-xs">Refresh results</span>
-            {running ? <span className="text-xs text-muted-foreground">Refreshing...</span> : null}
+            <span>Refresh results</span>
+            {running ? <span className="text-muted-foreground">Refreshing...</span> : null}
         </TooltipContent>
         </Tooltip>
 }

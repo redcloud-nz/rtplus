@@ -92,7 +92,7 @@ export function TableHeadCell({ children, className, ...props }: ComponentProps<
 
 export function TableCell({ className, ...props }: ComponentProps<'td'>) {
     return <td
-        className={cn("p-2 align-middle [&:has([role=checkbox])]:pr-0", className)}
+        className={cn("p-2 align-middle [&:has([role=checkbox])]:pr-0 overflow-hidden overflow-ellipsis hover:overflow-visible", className)}
         {...props}
     />
 }

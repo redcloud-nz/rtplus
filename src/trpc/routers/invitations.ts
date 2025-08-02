@@ -5,19 +5,18 @@
 
 import { z } from 'zod'
 
-import { OrganizationInvitation as ClerkOrganizationInvitation } from '@clerk/nextjs/server'
 
-import { OrgInvitationData, orgInvitationSchema } from '@/lib/schemas/org-invitation'
+import { teamInvitationSchema, toTeamInvitationData } from '@/lib/schemas/invitation'
 import { zodNanoId8 } from '@/lib/validation'
 
-import { authenticatedProcedure, createTRPCRouter } from '../init'
+import { authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
 import { getTeamById } from './teams'
 
 /**
  * Router for managing organization invitations.
  * Provides methods to fetch, create, and revoke invitations for a specific team.
  */
-export const orgInvitationsRouter = createTRPCRouter({
+export const invitationsRouter = createTRPCRouter({
     
     /**
      * Fetch all pending invitations for a specific team.
@@ -25,19 +24,17 @@ export const orgInvitationsRouter = createTRPCRouter({
      * @returns An array of organization invitation data.
      * @throws TRPCError if the team is not found or the user is not an admin of the team.
      */
-    byTeam: authenticatedProcedure
-        .meta({ teamAdminRequired: true })
+    byTeam: systemAdminProcedure
         .input(z.object({
             teamId: zodNanoId8,
         }))
-        .output(z.array(orgInvitationSchema))
+        .output(z.array(teamInvitationSchema))
         .query(async ({ ctx, input: { teamId } }) => {
             const team = await getTeamById(ctx, teamId)
-            ctx.requireTeamAdmin(team.clerkOrgId)
 
             const response = await ctx.clerkClient.organizations.getOrganizationInvitationList({ organizationId: team.clerkOrgId, limit: 501, status: ['pending'] })
 
-            return response.data.map(toOrgInvitationData)
+            return response.data.map(toTeamInvitationData)
         }),
 
     /**
@@ -55,7 +52,7 @@ export const orgInvitationsRouter = createTRPCRouter({
             email: z.string().email('Invalid email address'),
             role: z.enum(['org:admin', 'org:member']),
         }))
-        .output(orgInvitationSchema)
+        .output(teamInvitationSchema)
         .mutation(async ({ ctx, input }) => {
             const team = await getTeamById(ctx, input.teamId)
             ctx.requireTeamAdmin(team.clerkOrgId)
@@ -67,7 +64,7 @@ export const orgInvitationsRouter = createTRPCRouter({
                 role: input.role,
             })
 
-            return toOrgInvitationData(response)
+            return toTeamInvitationData(response)
         }),
         
     /**
@@ -83,7 +80,7 @@ export const orgInvitationsRouter = createTRPCRouter({
             teamId: zodNanoId8,
             invitationId: z.string().min(1, 'Invitation ID is required'),
         }))
-        .output(orgInvitationSchema)
+        .output(teamInvitationSchema)
         .mutation(async ({ ctx, input }) => {
             const team = await getTeamById(ctx, input.teamId)
             ctx.requireTeamAdmin(team.clerkOrgId)
@@ -94,21 +91,6 @@ export const orgInvitationsRouter = createTRPCRouter({
                 requestingUserId: ctx.auth.userId,
             })
 
-            return toOrgInvitationData(response)
+            return toTeamInvitationData(response)
         }),
 })
-
-/**
- * Converts a Clerk Organization Invitation to the internal OrgInvitationData format.
- * @param invite The Clerk Organization Invitation to convert.
- * @returns The converted OrgInvitationData.
- */
-function toOrgInvitationData(invite: ClerkOrganizationInvitation): OrgInvitationData {
-    return {
-        invitationId: invite.id,
-        email: invite.emailAddress,
-        role: invite.role as 'org:admin' | 'org:member',
-        createdAt: invite.createdAt,
-        updatedAt: invite.updatedAt,
-    }
-}

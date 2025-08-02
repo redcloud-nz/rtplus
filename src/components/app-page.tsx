@@ -29,7 +29,6 @@ export function AppPage({ children }: { children?: React.ReactNode}) {
     </div>
 }
 
-
 const appPageContentVariants = tv({
     base: 'col-span-full overflow-y-auto',
     variants: {

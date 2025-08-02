@@ -26,9 +26,8 @@ export const activeTeamUsersRouter = createTRPCRouter({
     all: teamAdminProcedure
         .output(z.array(userSchema2))
         .query(async ({ ctx }) => {
-            const team = await getActiveTeam(ctx)
 
-            const { data: orgMemberships } = await ctx.clerkClient.organizations.getOrganizationMembershipList({ organizationId: team.clerkOrgId, limit: 100 })
+            const { data: orgMemberships } = await ctx.clerkClient.organizations.getOrganizationMembershipList({ organizationId: ctx.orgId, limit: 100 })
             const userIds = orgMemberships.map(m => m.publicUserData!.userId)
 
             const { data: users } = await ctx.clerkClient.users.getUserList({ userId: userIds, limit: 100 })
@@ -39,7 +38,6 @@ export const activeTeamUsersRouter = createTRPCRouter({
                 return createUserData(user, membership)
             })
 
-            console.log(`Fetched ${result.length} users for team ${team.slug}`, result)
             return result
         }),
 

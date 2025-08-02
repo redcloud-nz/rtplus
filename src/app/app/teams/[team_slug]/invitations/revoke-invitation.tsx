@@ -17,12 +17,12 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { useToast } from '@/hooks/use-toast'
-import { OrgInvitationData, orgInvitationSchema } from '@/lib/schemas/org-invitation'
+import { TeamInvitationData, teamInvitationSchema } from '@/lib/schemas/invitation'
 import { useTRPC } from '@/trpc/client'
 import { z } from 'zod'
 
 
-export function RevokeInvitationDialog({ orgInvitation, ...props }: ComponentProps<typeof Dialog> & { orgInvitation: OrgInvitationData }) {
+export function RevokeInvitationDialog({ orgInvitation, ...props }: ComponentProps<typeof Dialog> & { orgInvitation: TeamInvitationData }) {
 
     return <Dialog {...props}>
         <DialogContent>
@@ -39,7 +39,7 @@ export function RevokeInvitationDialog({ orgInvitation, ...props }: ComponentPro
     </Dialog>
 }
 
-function RevokeInvitationForm({ orgInvitation, onClose }: { orgInvitation: OrgInvitationData, onClose: () => void }) {
+function RevokeInvitationForm({ orgInvitation, onClose }: { orgInvitation: TeamInvitationData, onClose: () => void }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
@@ -54,19 +54,19 @@ function RevokeInvitationForm({ orgInvitation, onClose }: { orgInvitation: OrgIn
         form.reset()
     }
 
-    const mutation = useMutation(trpc.orgInvitations.revoke.mutationOptions({
+    const mutation = useMutation(trpc.invitations.revoke.mutationOptions({
         async onMutate({ invitationId }) {
-            await queryClient.cancelQueries(trpc.orgInvitations.byCurrentTeam.queryFilter())
+            await queryClient.cancelQueries(trpc.invitations.byCurrentTeam.queryFilter())
 
-            const previousData = queryClient.getQueryData(trpc.orgInvitations.byCurrentTeam.queryKey())
+            const previousData = queryClient.getQueryData(trpc.invitations.byCurrentTeam.queryKey())
             if(previousData) {
-                 queryClient.setQueryData(trpc.orgInvitations.byCurrentTeam.queryKey(), previousData.filter(inv => inv.id !== invitationId))
+                 queryClient.setQueryData(trpc.invitations.byCurrentTeam.queryKey(), previousData.filter(inv => inv.id !== invitationId))
             }
            
             return { previousData }
         },
         onError(error, data, context) {
-            queryClient.setQueryData(trpc.orgInvitations.byCurrentTeam.queryKey(), context?.previousData)
+            queryClient.setQueryData(trpc.invitations.byCurrentTeam.queryKey(), context?.previousData)
             toast({
                 title: 'Error revoking invitation',
                 description: error.message,
@@ -82,7 +82,7 @@ function RevokeInvitationForm({ orgInvitation, onClose }: { orgInvitation: OrgIn
             handleClose()
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.orgInvitations.byCurrentTeam.queryFilter())
+            queryClient.invalidateQueries(trpc.invitations.byCurrentTeam.queryFilter())
         }
     }))
 

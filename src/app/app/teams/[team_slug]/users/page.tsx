@@ -7,6 +7,8 @@
 import { Metadata } from 'next'
 import React from 'react'
 
+import { auth } from '@clerk/nextjs/server'
+
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 
@@ -14,7 +16,8 @@ import * as Paths from '@/paths'
 import { fetchTeamBySlug } from '@/server/fetch'
 
 import { ActiveTeam_Users_ListCard } from './team-users-list'
-import { HydrateClient } from '@/trpc/server'
+import { HydrateClient, prefetch, trpc } from '@/trpc/server'
+
 
 
 
@@ -26,6 +29,9 @@ export async function generateMetadata(props: { params: Promise<{ team_slug: str
 }
 export default async function TeamUsersPage(props: { params: Promise<{  team_slug: string }> }) {
     const team = await fetchTeamBySlug(props.params)
+    await auth.protect({ role: 'org:admin' })
+
+    prefetch(trpc.activeTeam.users.all.queryOptions())
 
     return <AppPage>
         <AppPageBreadcrumbs

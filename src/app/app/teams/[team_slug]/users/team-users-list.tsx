@@ -5,16 +5,17 @@
 'use client'
 
 import { format } from 'date-fns'
-import {  PencilIcon, SaveIcon, TrashIcon, XIcon,  } from 'lucide-react'
+import {  PencilIcon, SaveIcon, TrashIcon, XIcon } from 'lucide-react'
 import { useMemo } from 'react'
 import { match } from 'ts-pattern'
 
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { Button, DeleteConfimButton } from '@/components/ui/button'
+import { Button, DeleteConfimButton, RefreshButton } from '@/components/ui/button'
 import { Card, CardContent, CardHeader,  CardExplanation, CardActions } from '@/components/ui/card'
 import { DataTableBody, DataTableFooter, DataTableHead, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
+import { TextLink } from '@/components/ui/link'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
@@ -22,6 +23,7 @@ import { Table } from '@/components/ui/table'
 import { useToast } from '@/hooks/use-toast'
 import { EditableFeature } from '@/lib/editable-feature'
 import { UserData2, UserRole, UserRoleNameMap } from '@/lib/schemas/user'
+import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
 
@@ -34,9 +36,12 @@ export function ActiveTeam_Users_ListCard() {
     const { toast} = useToast()
     const trpc = useTRPC()
 
-    
-
+    const { data: team } = useSuspenseQuery(trpc.activeTeam.get.queryOptions())
     const { data: users } = useSuspenseQuery(trpc.activeTeam.users.all.queryOptions())
+
+    async function handleRefresh() {
+        await queryClient.invalidateQueries(trpc.activeTeam.users.all.queryFilter())
+    }
 
     const updateMutation = useMutation(trpc.activeTeam.users.update.mutationOptions({
         onError(error) {
@@ -127,6 +132,9 @@ export function ActiveTeam_Users_ListCard() {
             enableGrouping: true,
             enableHiding: false,
             enableSorting: true,
+            meta: {
+                enumOptions: UserRoleNameMap,
+            }
         }),
         columnHelper.accessor('lastActiveAt', {
             header: "Last Active",
@@ -216,11 +224,12 @@ export function ActiveTeam_Users_ListCard() {
             <CardHeader>
                 <DataTableSearch size="sm" variant="ghost"/>
                 <CardActions>
+                    <RefreshButton onClick={handleRefresh}/>
                      <TableOptionsDropdown/>
                      <Separator orientation='vertical'/>
                      <CardExplanation>
                         <p>This card displays a list of users that have access to the team.</p>
-                        <p>To add a new user, you will need to invite them from the Invitations List.</p>
+                        <p>To add a new user, you will need to invite them from the <TextLink href={Paths.team(team.slug).invitations.index}>Invitations</TextLink> page.</p>
                         <p>You can change a users role uing the <PencilIcon className="inline-block h-4 w-4"/> button.</p>
                         <p>You can remove a user using the <TrashIcon className="inline-block h-4 w-5"/> button.</p>
                     </CardExplanation>

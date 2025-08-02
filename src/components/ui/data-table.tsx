@@ -37,7 +37,6 @@ interface DataTableProps extends Omit<ComponentProps<typeof Table>, 'children'> 
 
 export function DataTable({ enableRowSelection, ...props }: DataTableProps) {
     const table = useDataTable()
-
     
     return <Table {...props}>
         <DataTableHead/>
@@ -52,7 +51,6 @@ export function DataTableHead(props: Omit<ComponentProps<typeof TableHead>, 'chi
             <tr key={headerGroup.id} className="divide-x divide-x-gray-400">
                 {headerGroup.headers.map(header => <ColumnHeader
                     key={header.id}
-                    table={table}
                     column={header.column}
                 >
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
@@ -69,12 +67,12 @@ export function DataTableHead(props: Omit<ComponentProps<typeof TableHead>, 'chi
 
 type ColumnHeaderProps<T> = {
     children: ReactNode
-    table: TanstackTable<T>
     // eslint-disable-next-line
     column: Column<T, any>
 }
 
-function ColumnHeader<T>({ children, column, table }: ColumnHeaderProps<T>) {
+export function ColumnHeader<T>({ children, column }: ColumnHeaderProps<T>) {
+    const table = useDataTable()
 
     const enumOptions = column.columnDef.meta?.enumOptions
     const filterValue = column.getFilterValue() as string[] ?? []

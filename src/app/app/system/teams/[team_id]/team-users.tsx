@@ -31,7 +31,7 @@ import { useTRPC } from '@/trpc/client'
 export function TeamUsersCard({ teamId }: { teamId: string }) {
     const trpc = useTRPC()
 
-    const { data: orgMemberships } = useSuspenseQuery(trpc.orgMemberships.byTeam.queryOptions({ teamId }))
+    const { data: orgMemberships } = useSuspenseQuery(trpc.users.byTeam.queryOptions({ teamId }))
 
     const columns = useMemo(() => defineColumns<OrgMembershipData & { user: UserData, organization: OrganizationData }>(columnHelper => [
         columnHelper.accessor('user.name', {

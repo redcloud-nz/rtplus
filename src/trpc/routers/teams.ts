@@ -134,13 +134,13 @@ export const teamsRouter = createTRPCRouter({
  * Get the current active team based on the authenticated team context.
  * @param ctx The authenticated team context containing the team slug.
  * @returns The active team object.
- * @throws TRPCError If the active team is not found.
+ * @throws TRPCError(NOT_FOUND) If the active team is not found.
  */
 export async function getActiveTeam(ctx: AuthenticatedTeamContext): Promise<TeamRecord> {
     const team = await ctx.prisma.team.findUnique({ 
         where: { clerkOrgId: ctx.orgId },
     })
-    if(team == null) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' , message: `Missing active team for teamSlug='${ctx.teamSlug}'` })
+    if(team == null) throw new TRPCError({ code: 'NOT_FOUND' , message: `Missing active team for teamSlug='${ctx.teamSlug}'` })
     return team
 }
 

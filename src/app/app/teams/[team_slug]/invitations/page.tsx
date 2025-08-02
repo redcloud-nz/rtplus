@@ -8,11 +8,14 @@ import { Metadata } from 'next'
 import React from 'react'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
+import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
 import { fetchTeamBySlug } from '@/server/fetch'
+import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
-import { TeamInvitationsListCard } from './team-invitations-list'
+import { ActiveTeam_Invitations_ListCard } from './team-invitations-list'
+import { auth } from '@clerk/nextjs/server'
 
 
 
@@ -24,6 +27,10 @@ export async function generateMetadata(props: { params: Promise<{ team_slug: str
 export default async function TeamInvitationsPage(props: { params: Promise<{ team_slug: string }> }) {
     const team = await fetchTeamBySlug(props.params)
 
+    await auth.protect({ role: 'org:admin' })
+
+    prefetch(trpc.activeTeam.invitations.all.queryOptions({}))
+
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
@@ -31,11 +38,15 @@ export default async function TeamInvitationsPage(props: { params: Promise<{ tea
                 Paths.team(team).invitations
             ]}
         />
-        <AppPageContent variant="container">
-            <PageHeader>
-                <PageTitle>Team Invitations</PageTitle>
-            </PageHeader>
-            <TeamInvitationsListCard teamId={team.teamId}/>
-        </AppPageContent>
+        <HydrateClient>
+            <AppPageContent variant="container">
+                <PageHeader>
+                    <PageTitle>Team Invitations</PageTitle>
+                </PageHeader>
+                <Boundary>
+                    <ActiveTeam_Invitations_ListCard teamId={team.teamId}/>
+                </Boundary>
+            </AppPageContent>
+        </HydrateClient>
     </AppPage>
 }
