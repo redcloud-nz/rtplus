@@ -71,11 +71,11 @@ export function TeamsListCard() {
         columns,
         data: teams,
         getCoreRowModel: getCoreRowModel(),
+        getExpandedRowModel: getExpandedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
+        getGroupedRowModel: getGroupedRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
-        getGroupedRowModel: getGroupedRowModel(),
-        getExpandedRowModel: getExpandedRowModel(),
         initialState: {
             columnVisibility: {
                 teamId: false, name: true, shortName: true, teamMemberCount: true, status: true
@@ -112,13 +112,15 @@ export function TeamsListCard() {
                             Create new team
                         </TooltipContent>
                     </Tooltip>
-                    
+
+                    <TableOptionsDropdown/>
+                    <Separator orientation="vertical"/>
+
                     <CardExplanation>
                         This is a list of all the teams in the system.
                     </CardExplanation>
-                    <Separator orientation="vertical"/>
-
-                    <TableOptionsDropdown/>
+                    
+                    
                 </CardActions>
                 
             </CardHeader>

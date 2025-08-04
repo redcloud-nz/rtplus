@@ -225,7 +225,7 @@ export function ConfirmPopupButton({ children, message = "Confirm", slotProps = 
     </Popover>
 }
 
-export function RefreshButton({ onClick, ...props }: Omit<ComponentProps<typeof Button>, 'onClick'> & { onClick: () => Promise<void> }) {
+export function RefreshButton({ onClick, ...props }: Omit<ComponentProps<typeof Button>, 'onClick'> & { onClick: () => Promise<any> }) {
 
     const [running, setRunning] = React.useState(false)
 

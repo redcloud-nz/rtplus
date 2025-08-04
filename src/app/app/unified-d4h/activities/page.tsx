@@ -9,7 +9,9 @@ import { Metadata } from 'next'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 
-import { ActivitiesList } from './activities-list'
+import * as Paths from '@/paths'
+import { UnifiedD4h_Activities_ListCard } from './unified-d4h-activities-list'
+import { Boundary } from '@/components/boundary'
 
 export const metadata: Metadata = { title: "Activities" }
 
@@ -17,10 +19,10 @@ export const metadata: Metadata = { title: "Activities" }
 export default async function ActivitiesPage() {
 
     return <AppPage>
-        <AppPageBreadcrumbs
-            label="Activities" 
-            breadcrumbs={[{ label: "D4H Unified", href: "/unified" }]}
-        />
+        <AppPageBreadcrumbs breadcrumbs={[
+            Paths.unifiedD4h,
+            Paths.unifiedD4h.activities
+        ]}/>
         <AppPageContent>
             <PageHeader>
                 <PageTitle>Activities</PageTitle>
@@ -28,7 +30,9 @@ export default async function ActivitiesPage() {
                     A list of the activities (events, exercises, and incidents) available from your configured teams.
                 </PageDescription>
             </PageHeader>
-            <ActivitiesList/>
+            <Boundary>
+                <UnifiedD4h_Activities_ListCard/>
+            </Boundary>
         </AppPageContent>
     </AppPage>
 }

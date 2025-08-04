@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { BookOpenIcon, InfoIcon, LayoutDashboardIcon, PocketKnifeIcon, SettingsIcon, UsersIcon } from 'lucide-react'
+import { BookOpenIcon, CableIcon, InfoIcon, LayoutDashboardIcon, PocketKnifeIcon, SettingsIcon, UsersIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
@@ -73,13 +73,20 @@ export async function AppSidebar({ children, ...props }: AppSidebarProps) {
             <NavSection title="General">
                 <NavItem label="About" href="/about" icon={<InfoIcon/>}/>
                 <NavItem label="Documentation" href="https://github.com/redcloud-nz/rtplus/wiki" icon={<BookOpenIcon/>}/>
+               
                 <NavItem label="Source Code" href="https://github.com/redcloud-nz/rtplus" icon={<Image aria-hidden src="/github.svg" alt="Githib Icon" width={16} height={16}/>}/>
-            </NavSection>
-            { isSystemAdmin ? <NavSection title="System">
+                { isSystemAdmin ? <NavCollapsible label="System" icon={<SettingsIcon/>}>
                     <NavSubItem path={Paths.system.personnel}/>
                     <NavSubItem path={Paths.system.skillPackages}/>
                     <NavSubItem path={Paths.system.teams}/>
-                </NavSection> : null }
+                </NavCollapsible> : null }
+                 <NavCollapsible label="Unified D4H" icon={<CableIcon/>}>
+                    <NavSubItem path={Paths.unifiedD4h.activities}/>
+                    <NavSubItem path={Paths.unifiedD4h.calendar}/>
+                    <NavSubItem path={Paths.unifiedD4h.equipment}/>
+                    <NavSubItem path={Paths.unifiedD4h.personnel}/>
+                </NavCollapsible>
+            </NavSection>
         </SidebarContent>
         <SidebarFooter>
             <NavUser/>

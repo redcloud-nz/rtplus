@@ -6,33 +6,40 @@
 
 import * as DF from 'date-fns'
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
-import React from 'react'
+import React, { useMemo } from 'react'
+import { mapToObj } from 'remeda'
 
-import { useQueries } from '@tanstack/react-query'
+import { useSuspenseQueries, useSuspenseQuery } from '@tanstack/react-query'
 
 import { Button } from '@/components/ui/button'
 
-import { getListResponseCombiner } from '@/lib/d4h-api/client'
-import { D4hEvent, getFetchEventsQueryOptions } from '@/lib/d4h-api/event'
+import { D4hAccessTokens, extractUniqueTeams } from '@/lib/d4h-access-tokens'
+import { D4hClient } from '@/lib/d4h-api/client'
+import { D4hEvent } from '@/lib/d4h-api/event'
 import { cn } from '@/lib/utils'
-import { trpc } from '@/trpc/client'
+
 
 
 export function MonthView() {
-    const accessKeysQuery = trpc.currentUser.d4hAccessKeys.useQuery()
-    const accessKeys = accessKeysQuery.data ?? []
+    const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions())
+
+    const d4hTeams = useMemo(() => extractUniqueTeams(accessTokens), [accessTokens])
+    const teamNameMap = useMemo(() => mapToObj(d4hTeams, ({ team }) => [team.id, team.name]), [d4hTeams])
 
     const [month, setMonth] = React.useState<Date>(DF.startOfMonth(new Date()))
 
-    const eventsQuery = useQueries({
-        queries: accessKeys.flatMap(accessKey => [
-            getFetchEventsQueryOptions(accessKey, 'event', { refDate: month, scope: 'month' }),
-            getFetchEventsQueryOptions(accessKey, 'exercise', { refDate: month, scope: 'month' }),
-            getFetchEventsQueryOptions(accessKey, 'incident', { refDate: month, scope: 'month' }),
-        ]),
-        combine: getListResponseCombiner<D4hEvent>({
-            sortFn: (a, b) => a.startsAt.localeCompare(b.startsAt)
-        }),
+    const eventsQuery = useSuspenseQueries({
+        queries: accessTokens.flatMap(accessKey => 
+            accessKey.teams.flatMap(team => [
+                D4hClient.events.queryOptions(accessKey, { teamId: team.id, type: 'events', scope: 'month', refDate: month }),
+                D4hClient.events.queryOptions(accessKey, { teamId: team.id, type: 'exercises', scope: 'month', refDate: month }),
+                D4hClient.events.queryOptions(accessKey, { teamId: team.id, type: 'incidents', scope: 'month', refDate: month })
+            ])
+        ),
+        combine: (queryResults) => ({
+            refetch: () => Promise.all(queryResults.map(qr => qr.refetch())),
+            data: queryResults.flatMap(qr => qr.data.results),
+        })
     })
 
     // The number of days displayed is normally 35 (5 rows of 7) except Feburary of a non-leap year that starts on a Monday

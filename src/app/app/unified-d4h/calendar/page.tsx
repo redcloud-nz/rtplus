@@ -2,14 +2,15 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /unified/calendar
+ *  Path: /app/unified-d4h/calendar
  */
 import { Metadata } from 'next'
 import React from 'react'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageBoundary } from '@/components/app-page'
 
-import { HydrateClient} from '@/trpc/server'
+import * as Paths from '@/paths'
+import { HydrateClient } from '@/trpc/server'
 
 import { MonthView } from './month-view'
 
@@ -20,17 +21,17 @@ export const metadata: Metadata = { title: "Calendar | D4H Unified | RT+" }
 export default async function CalendarPage() {
 
     return <AppPage>
-        <AppPageBreadcrumbs
-            label="Calendar"
-            breadcrumbs={[{ label: "D4h Unified", href: "/unified" }]}
-        />
-        <AppPageContent variant="full">
-            <HydrateClient>
+        <AppPageBreadcrumbs breadcrumbs={[
+            Paths.unifiedD4h, 
+            Paths.unifiedD4h.calendar
+        ]}/>
+        <HydrateClient>
+            <AppPageContent variant="full">
                 <PageBoundary>
                     <MonthView/>
                 </PageBoundary>
-            </HydrateClient>
-        </AppPageContent>
+            </AppPageContent>
+        </HydrateClient>
     </AppPage>
 }
 

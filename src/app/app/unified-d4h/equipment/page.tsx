@@ -2,12 +2,13 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /unified
+ *  Path: /unified/equipment
  */
 
 import { NotImplemented } from '@/components/errors'
 
 
-export default async function UnifedPage() {
-    return <NotImplemented title="D4H Unified"/>
+export default async function EquipmentPage() {
+    
+    return <NotImplemented/>
 }

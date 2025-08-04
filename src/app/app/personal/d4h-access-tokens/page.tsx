@@ -10,12 +10,14 @@ import { Metadata } from 'next'
 import * as React from 'react'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageControls, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
+import { Boundary } from '@/components/boundary'
 import { Button } from '@/components/ui/button'
 
 import * as Paths from '@/paths'
 
-import { AccessTokenList } from './access-token-list'
+import { AccessTokenListCard } from './access-token-list'
 import { AddAccessTokenDialog } from './add-access-token'
+
 
 
 
@@ -28,19 +30,19 @@ export default async function D4hAccessTokensPage() {
             label="D4H Access Tokens" 
             breadcrumbs={[{ label: "Personal", href: Paths.personal.index }]}
         />
-        <AppPageContent>
+        <AppPageContent variant="container">
             <PageHeader>
-                <PageTitle>Personal D4H Access Tokens</PageTitle>
-                <PageDescription>
-                    A list of the personal D4H access tokens that you have configured for use on this device.
-                </PageDescription>
-                <PageControls>
+                <PageTitle>My D4H Access Tokens</PageTitle>
+                {/* <PageControls>
                     <AddAccessTokenDialog>
                         <Button><PlusIcon/>Add</Button>
                     </AddAccessTokenDialog>
-                </PageControls>
+                </PageControls> */}
             </PageHeader>
-            <AccessTokenList/>
+            <Boundary>
+                <AccessTokenListCard/>
+            </Boundary>
+            
         </AppPageContent>
     </AppPage>
 }

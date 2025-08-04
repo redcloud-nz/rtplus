@@ -19,7 +19,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 
 import { Textarea } from '@/components/ui/textarea'
 import { Paragraph } from '@/components/ui/typography'
 
-import { addAccessToken, D4hAccessToken } from '@/lib/d4h-access-tokens'
+import { addAccessToken, D4hAccessTokenData } from '@/lib/d4h-access-tokens'
 import { getD4hFetchClient } from '@/lib/d4h-api/client'
 import { D4hServerCode, getD4hServer } from '@/lib/d4h-api/servers'
 import { D4hWhoami } from '@/lib/d4h-api/whoami'
@@ -27,7 +27,7 @@ import { D4hWhoami } from '@/lib/d4h-api/whoami'
 import { createUUID } from '@/lib/id'
 
 
-type PartialTokenObject = Omit<D4hAccessToken, 'createdAt' | 'serverCode' | 'teams'> & { serverCode: D4hServerCode | '' }
+type PartialTokenObject = Omit<D4hAccessTokenData, 'createdAt' | 'serverCode' | 'teams'> & { serverCode: D4hServerCode | '' }
 
 function emptyTokenObject(): PartialTokenObject {
     return {
@@ -80,7 +80,7 @@ export function AddAccessTokenDialog({ children }: NewAccessKeyDialogProps) {
         }
         setStatus('Validating')
 
-        const fetchClient = getD4hFetchClient(tokenObj as D4hAccessToken)
+        const fetchClient = getD4hFetchClient(tokenObj as D4hAccessTokenData)
         const { data, error } = await fetchClient.GET('/v3/whoami')
 
         if(error) {
@@ -102,7 +102,7 @@ export function AddAccessTokenDialog({ children }: NewAccessKeyDialogProps) {
     async function handleSave() {
         
         // Save token to local storage
-        const tokenToSave: D4hAccessToken = { 
+        const tokenToSave: D4hAccessTokenData = { 
             ...tokenObj, 
             createdAt: new Date().toISOString(),
             serverCode: tokenObj.serverCode as D4hServerCode,

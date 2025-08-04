@@ -170,13 +170,27 @@ export const team = (teamOrSlug: TeamData | string) => {
     } as const
 }
 
-export const unified = {
-    index: '/app/unified',
-    activites: '/app/unified/activities',
-    calendar: '/app/unified/calendar',
-    personnel: '/app/unified/personnel',
-    equipment: '/app/unified/equipment',
-}
+export const unifiedD4h = {
+    _label: 'Unified D4H',
+    index: '/app/unified-d4h',
+    activities: {
+        _label: 'Activities',
+        index: '/app/unified-d4h/activities',
+    },
+    calendar: {
+        _label: 'Calendar',
+        index: '/app/unified-d4h/calendar',
+        
+    },
+    personnel: {
+        _label: 'Personnel',
+        index: '/app/unified-d4h/personnel',
+    },
+    equipment: {
+        _label: 'Equipment',
+        index: '/app/unified-d4h/equipment',
+    },
+} as const
 
 //  /------------------------------\
 //  |           Account            |
