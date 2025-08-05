@@ -9,7 +9,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 
 import { AsyncButton, Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -20,9 +20,10 @@ import { Separator } from '@/components/ui/separator'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 import { Heading } from '@/components/ui/typography'
 
-import { useAccessTokensQuery } from '@/lib/d4h-access-tokens'
+import { D4hAccessTokens } from '@/lib/d4h-access-tokens'
 import { D4hServerList, getD4hServer } from '@/lib/d4h-api/servers'
 import { useTRPC } from '@/trpc/client'
+
 
 
 
@@ -43,8 +44,8 @@ interface TeamD4hConfigDialogProps extends React.ComponentProps<typeof Dialog> {
 export function TeamD4hConfigDialog({ teamId, ...props }: TeamD4hConfigDialogProps) {
     const trpc = useTRPC()
 
-    const teamQuery = useQuery(trpc.teams.byId.queryOptions({ teamId }))
-    const accessTokensQuery = useAccessTokensQuery()
+    const teamQuery = useSuspenseQuery(trpc.teams.byId.queryOptions({ teamId }))
+    const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions())
 
     const mutation = useMutation(trpc.teams.updateTeamD4h.mutationOptions({}))
 
@@ -123,7 +124,7 @@ export function TeamD4hConfigDialog({ teamId, ...props }: TeamD4hConfigDialogPro
                    <Separator/>
                     <Heading level={3}>Suggestions</Heading>
                     <div>From your configured access tokens.</div>
-                    { accessTokensQuery.data && <Table>
+                    <Table>
                         <TableHead>
                             <TableRow>
                                 <TableHeadCell>Name</TableHeadCell>
@@ -132,7 +133,7 @@ export function TeamD4hConfigDialog({ teamId, ...props }: TeamD4hConfigDialogPro
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {accessTokensQuery.data.map(token => token.teams.map(team =>
+                            {accessTokens.map(token => token.teams.map(team =>
                                
                                 <TableRow key={team.id}>
                                     <TableCell>{team.name}</TableCell>
@@ -141,9 +142,7 @@ export function TeamD4hConfigDialog({ teamId, ...props }: TeamD4hConfigDialogPro
                                 </TableRow>
                             ))}
                         </TableBody>
-                    </Table>}
-                    
-                   
+                    </Table>
                 </form>
             </FormProvider>
         </DialogContent>

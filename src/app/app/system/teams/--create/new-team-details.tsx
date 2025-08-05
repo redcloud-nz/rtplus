@@ -70,10 +70,6 @@ export function NewTeamDetailsCard() {
         }
     }))
 
-    useLayoutEffect(() => {
-        form.setFocus('name')
-    }, [])
-
     return <Card>
         <CardHeader>
             <CardTitle>Details</CardTitle>

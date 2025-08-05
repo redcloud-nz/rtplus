@@ -7,7 +7,7 @@
 
 import { PencilIcon, TrashIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 import z from 'zod'
@@ -140,10 +140,6 @@ function UpdatePersonForm({ onClose, person }: { onClose: () => void, person: Pe
         }
     }))
 
-    useEffect(() => {
-        form.setFocus('name')
-    }, [])
-
     return <FormProvider {...form}>
         <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
             <ToruGrid mode="form">
@@ -152,7 +148,7 @@ function UpdatePersonForm({ onClose, person }: { onClose: () => void, person: Pe
                     name="personId"
                     render={({ field }) => <ToruGridRow
                         label="Person ID"
-                        control={ <DisplayValue>{person.personId}</DisplayValue>}
+                        control={ <DisplayValue>{field.value}</DisplayValue>}
                     />}
                 />
                 <FormField

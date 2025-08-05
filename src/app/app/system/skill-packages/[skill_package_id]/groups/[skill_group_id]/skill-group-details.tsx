@@ -182,7 +182,7 @@ function UpdateSkillGroupForm({ onClose, skillGroup, skillPackage }: { onClose: 
                 <FormField
                     control={form.control}
                     name="skillPackageId"
-                    render={({ field }) => <ToruGridRow
+                    render={() => <ToruGridRow
                         label="Skill Package"
                         control={
                             <DisplayValue>

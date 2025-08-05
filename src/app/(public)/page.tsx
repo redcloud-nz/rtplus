@@ -130,7 +130,7 @@ export default function LandingPage() {
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Simple, transparent pricing</h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Choose the plan that's right for your business. Upgrade or downgrade at any time.
+                  Choose the plan that&apos;s right for your business. Upgrade or downgrade at any time.
                 </p>
               </div>
             </div>
@@ -254,8 +254,8 @@ export default function LandingPage() {
                 </MarketingCardHeader>
                 <MarketingCardBody>
                   <p className="text-muted-foreground">
-                    "RT+ has completely transformed how we track competencies. The insights we get are
-                    incredible."
+                    &quot;RT+ has completely transformed how we track competencies. The insights we get are
+                    incredible.&quot;
                   </p>
                 </MarketingCardBody>
                 <MarketingCardFooter className="flex items-center gap-3">
@@ -279,7 +279,7 @@ export default function LandingPage() {
                 </MarketingCardHeader>
                 <MarketingCardBody>
                   <p className="text-muted-foreground">
-                    "The feature are great, they help do do things we couldn't do before."
+                    &quot;The features are great, they help do do things we couldn&apos;t do before.&quot;
                   </p>
                 </MarketingCardBody>
                 <MarketingCardFooter className="flex items-center gap-3">
@@ -303,8 +303,7 @@ export default function LandingPage() {
                 </MarketingCardHeader>
                 <MarketingCardBody>
                   <p className="text-muted-foreground">
-                    "Customer support is amazing. They helped us get set up in no time and are always there when we need
-                    them."
+                    &quot;Customer support is amazing. They helped us get set up in no time and are always there when we need them.&quot;
                   </p>
                 </MarketingCardBody>
                 <MarketingCardFooter className="flex items-center gap-3">

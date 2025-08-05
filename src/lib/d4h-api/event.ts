@@ -21,7 +21,7 @@ export interface D4hEvent {
     createdAt: DateString
     createdOrPublishedAt: DateString
     deletedAt: DateString | null
-    desription: string
+    description: string
     distance: number
     endsAt: number
     fullTeam: boolean

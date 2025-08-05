@@ -5,21 +5,21 @@
  */
 'use client'
 
-import { ComponentProps, useState } from 'react'
+import { ComponentProps } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FormActions, FormCancelButton, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { useToast } from '@/hooks/use-toast'
-import { TeamInvitationData, teamInvitationSchema } from '@/lib/schemas/invitation'
+import { TeamInvitationData } from '@/lib/schemas/invitation'
 import { useTRPC } from '@/trpc/client'
-import { z } from 'zod'
+
 
 
 export function RevokeInvitationDialog({ orgInvitation, ...props }: ComponentProps<typeof Dialog> & { orgInvitation: TeamInvitationData }) {
@@ -44,6 +44,8 @@ function RevokeInvitationForm({ orgInvitation, onClose }: { orgInvitation: TeamI
     const { toast } = useToast()
     const trpc = useTRPC()
 
+    const queryKey = trpc.activeTeam.invitations.all.queryKey()
+
     const form = useForm({
         resolver: zodResolver(z.object({ invitationId: z.string() })),
         defaultValues: { invitationId: orgInvitation.invitationId }
@@ -54,19 +56,19 @@ function RevokeInvitationForm({ orgInvitation, onClose }: { orgInvitation: TeamI
         form.reset()
     }
 
-    const mutation = useMutation(trpc.invitations.revoke.mutationOptions({
+    const mutation = useMutation(trpc.activeTeam.invitations.revoke.mutationOptions({
         async onMutate({ invitationId }) {
-            await queryClient.cancelQueries(trpc.invitations.byCurrentTeam.queryFilter())
+            await queryClient.cancelQueries(trpc.activeTeam.invitations.all.queryFilter())
 
-            const previousData = queryClient.getQueryData(trpc.invitations.byCurrentTeam.queryKey())
+            const previousData = queryClient.getQueryData(queryKey)
             if(previousData) {
-                 queryClient.setQueryData(trpc.invitations.byCurrentTeam.queryKey(), previousData.filter(inv => inv.id !== invitationId))
+                 queryClient.setQueryData(queryKey, previousData.filter(inv => inv.invitationId !== invitationId))
             }
            
             return { previousData }
         },
-        onError(error, data, context) {
-            queryClient.setQueryData(trpc.invitations.byCurrentTeam.queryKey(), context?.previousData)
+        onError(error, _, context) {
+            queryClient.setQueryData(queryKey, context?.previousData)
             toast({
                 title: 'Error revoking invitation',
                 description: error.message,
@@ -82,7 +84,7 @@ function RevokeInvitationForm({ orgInvitation, onClose }: { orgInvitation: TeamI
             handleClose()
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.invitations.byCurrentTeam.queryFilter())
+            queryClient.invalidateQueries(trpc.activeTeam.invitations.all.queryFilter())
         }
     }))
 

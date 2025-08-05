@@ -205,7 +205,7 @@ function UpdateSkillForm({ onClose, skill, skillPackage, skillGroup }: { onClose
                 <FormField
                     control={form.control}
                     name="skillPackageId"
-                    render={({ field }) => <ToruGridRow
+                    render={() => <ToruGridRow
                         label="Skill Package"
                         control={
                             <DisplayValue>
@@ -219,7 +219,7 @@ function UpdateSkillForm({ onClose, skill, skillPackage, skillGroup }: { onClose
                 <FormField
                     control={form.control}
                     name="skillGroupId"
-                    render={({ field }) => <ToruGridRow
+                    render={() => <ToruGridRow
                         label="Skill Group"
                         control={
                             <DisplayValue>

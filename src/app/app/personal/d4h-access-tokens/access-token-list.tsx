@@ -67,7 +67,7 @@ export function AccessTokenListCard() {
         columnHelper.accessor('teams', {
             header: 'D4H Teams',
             cell: ctx => <>
-                {ctx.row.original.teams.map(team => <div>{team.name}</div>)}
+                {ctx.row.original.teams.map(team => <div key={team.id}>{team.name}</div>)}
             </>,
             enableHiding: true,
             enableSorting: false,

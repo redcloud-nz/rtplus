@@ -196,11 +196,24 @@ export const unifiedD4h = {
 //  |           Account            |
 //  \------------------------------/
 export const personal = {
+    _label: 'Personal',
     index: '/app/personal/user-profile',
-    organizationList: '/app/personal/organization-list',
-    d4hAccessTokens: '/app/personal/d4h-access-tokens',
-    whoami: '/app/personal/whoami',
-    userProfile: '/app/personal/user-profile',
+    organizationList: {
+        _label: 'Organizations',
+        index: '/app/personal/organizations',
+    },
+    d4hAccessTokens: {
+        _label: 'D4H Access Tokens',
+        index: '/app/personal/d4h-access-tokens',
+    },
+    whoami: {
+        _label: 'Who Am I',
+        index: '/app/personal/whoami',
+    },
+    userProfile: {
+        _label: 'User Profile',
+        index: '/app/personal/user-profile',
+    },
 } as const
 
 
