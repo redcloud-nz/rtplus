@@ -82,6 +82,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v3/organisation/{organisationId}/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve organisation settings
+         * @description Retrieve organisation settings <br></br>**Required modules:**
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description An organisation id */
+                    organisationId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of organisation settings */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v3/team/{teamId}/animal-group-memberships": {
         parameters: {
             query?: never;
@@ -117,6 +159,75 @@ export interface paths {
             };
             responses: {
                 /** @description An animal group membership */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/team/{teamId}/attendance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create an activity attendance
+         * @description Create an activity attendance <br></br>**Required modules:** activities,members
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The numeric identifier for a resource */
+                        memberId: number;
+                        /** @description The numeric identifier for a resource */
+                        activityId: number;
+                        /**
+                         * @description The status of the attendance resource
+                         * @default REQUESTED
+                         * @enum {string}
+                         */
+                        status?: "ABSENT" | "ATTENDING" | "REQUESTED";
+                        /** @description The numeric identifier for a resource */
+                        roleId?: number;
+                        /**
+                         * Format: date-time
+                         * @description An ISO8601 datetime string
+                         */
+                        startsAt: string;
+                        /**
+                         * Format: date-time
+                         * @description An ISO8601 datetime string
+                         */
+                        endsAt: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description An activity attendance */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -195,7 +306,7 @@ export interface paths {
         put?: never;
         /**
          * Create a Health & Safety Report
-         * @description Create a Health & Safety Report <br></br>**Required modules:** MODULE_HEALTHSAFETY
+         * @description Create a Health & Safety Report <br></br>**Required modules:** healthsafety
          */
         post: {
             parameters: {
@@ -271,6 +382,161 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v3/team/{teamId}/incident-involved-injuries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create a record of a person involved injury
+         * @description Create a record of a person involved injury <br></br>**Required modules:** persons_involved_medical
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description Person involved id */
+                        personInvolvedId: number;
+                        /** @description Injury location id (see enum endpoint) */
+                        injuryLocationId: number;
+                        /** @description Injury type id (see enum endpoint) */
+                        injuryTypeId: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description A person involved injury */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/team/{teamId}/incident-involved-persons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create a record of a person involved in an incident
+         * @description Create a record of a person involved in an incident <br></br>**Required modules:** persons_involved
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description Person age */
+                        age?: number;
+                        /**
+                         * @description Is person familiar with the locality
+                         * @enum {string}
+                         */
+                        areaKnowledge?: "UNFAMILIAR" | "FAMILIAR";
+                        /** @description Notes on medical assistance */
+                        assistance?: string;
+                        /**
+                         * @description Cause information
+                         * @default NO_DATA
+                         * @enum {string}
+                         */
+                        cause?: "NO_DATA" | "ACCIDENTAL" | "INTENTIONAL_SELF" | "INTENTIONAL_OTHER" | "UNDETERMINED";
+                        /** @description Contact information */
+                        contact?: string;
+                        /** @description Date of birth */
+                        dateOfBirth?: string;
+                        /**
+                         * @description Handover information
+                         * @enum {string}
+                         */
+                        handover?: "NO_FURTHER_ASSISTANCE" | "HOSPITAL" | "ONSITE_FACILITY";
+                        /** @description Incident's resource id */
+                        incidentId: number;
+                        /** @description Involvement notes */
+                        involvementNotes?: string;
+                        /** @description Person involved involvement type id. Some involvement types also require an outcomeId. See enum endpoint for details. */
+                        involvementTypeId: number;
+                        /** @description Person's name */
+                        name?: string;
+                        /**
+                         * @description Country code representing person's nationality
+                         * @enum {string}
+                         */
+                        nationality?: "AF" | "AL" | "DZ" | "AD" | "AO" | "AG" | "AR" | "AM" | "AU" | "AT" | "AZ" | "BS" | "BH" | "BD" | "BB" | "BY" | "BE" | "BZ" | "BJ" | "BT" | "BO" | "BA" | "BW" | "BR" | "BN" | "BG" | "BF" | "BI" | "KH" | "CM" | "CA" | "CV" | "CF" | "TD" | "CL" | "CN" | "CO" | "KM" | "CG" | "CD" | "CR" | "CI" | "HR" | "CU" | "CY" | "CZ" | "DK" | "DJ" | "DM" | "DO" | "EC" | "EG" | "SV" | "GQ" | "ER" | "EE" | "ET" | "FJ" | "FI" | "FR" | "GA" | "GM" | "GE" | "DE" | "GH" | "GR" | "GD" | "GT" | "GN" | "GW" | "GY" | "HT" | "VA" | "HN" | "HU" | "IS" | "IN" | "ID" | "IR" | "IQ" | "IE" | "IL" | "IT" | "JM" | "JP" | "JO" | "KZ" | "KE" | "KI" | "KR" | "KP" | "KW" | "KG" | "LA" | "LV" | "LB" | "LS" | "LR" | "LY" | "LI" | "LT" | "LU" | "MK" | "MG" | "MW" | "MY" | "MV" | "ML" | "MT" | "MH" | "MR" | "MU" | "MX" | "FM" | "MD" | "MC" | "MN" | "MA" | "MZ" | "MM" | "NA" | "NR" | "NP" | "NL" | "NZ" | "NI" | "NE" | "NG" | "NO" | "OM" | "PK" | "PW" | "PA" | "PG" | "PY" | "PE" | "PH" | "PL" | "PT" | "QA" | "RO" | "RU" | "RW" | "KN" | "LC" | "VC" | "WS" | "SM" | "ST" | "SA" | "SN" | "RS" | "SC" | "SL" | "SG" | "SK" | "SI" | "SB" | "SO" | "ZA" | "ES" | "LK" | "SD" | "SR" | "SZ" | "SE" | "CH" | "SY" | "TW" | "TJ" | "TZ" | "TH" | "TL" | "TG" | "TO" | "TT" | "TN" | "TR" | "TM" | "TV" | "UG" | "UA" | "AE" | "GB" | "US" | "UY" | "UZ" | "VU" | "VE" | "VN" | "VG" | "YE" | "ZM" | "ZW";
+                        /** @description Person involved outcome id. Only applicable to certain involvement types. See enum endpoint for details. */
+                        outcomeId?: number;
+                        /**
+                         * @description The person's sex
+                         * @enum {string}
+                         */
+                        sex?: "MALE" | "FEMALE" | "OTHER";
+                        /**
+                         * @description Spinal injury status
+                         * @default UNDETERMINED
+                         * @enum {string}
+                         */
+                        spinalInjury?: "SUSPECTED" | "CLEARED" | "NOT_INDICATED" | "UNDETERMINED";
+                        /**
+                         * @description How they were transferred to hospital
+                         * @enum {string}
+                         */
+                        transfer?: "SELF" | "HOSPITAL";
+                    };
+                };
+            };
+            responses: {
+                /** @description A person involved in an incident */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v3/team/{teamId}/member-group-memberships": {
         parameters: {
             query?: never;
@@ -322,7 +588,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v3/{context}/{contextId}/equipment-brands": {
+    "/v3/team/{teamId}/settings": {
         parameters: {
             query?: never;
             header?: never;
@@ -330,329 +596,22 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Retrieve a list of equipment brands
-         * @description Retrieve a list of equipment brands <br></br>**Required modules:** MODULE_EQUIPMENT
+         * Retrieve team settings
+         * @description Retrieve team settings <br></br>**Required modules:**
          */
         get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number | number[];
-                    /** @description A simple text search term, compared against the title */
-                    title?: string;
-                    /** @description *Team context*: Exclude entities inherited from the team's org */
-                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
-                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    sort?: "createdAt" | "updatedAt" | "id";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of equipment brands */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create an equipment brand
-         * @description Create an equipment brand <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The brands's title */
-                        title: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description An equipment brand */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/equipment-categories": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of equipment categories
-         * @description Retrieve a list of equipment categories <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number | number[];
-                    /** @description A simple text search term, compared against the title */
-                    title?: string;
-                    /** @description *Team context*: Exclude entities inherited from the team's org */
-                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
-                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    sort?: "createdAt" | "updatedAt" | "id";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
+                    /** @description A team id */
+                    teamId: number;
                 };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description A list of equipment categories */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create an equipment category
-         * @description Create an equipment category <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The category's title */
-                        title: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description An equipment category */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/equipment-funds": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of equipment funds
-         * @description Retrieve a list of equipment funds <br></br>**Required modules:** MODULE_EQUIPMENT_FUNDING
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number | number[];
-                    /** @description A simple text search term, compared against the title */
-                    title?: string;
-                    /** @description *Team context*: Exclude entities inherited from the team's org */
-                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    sort?: "createdAt" | "updatedAt" | "id";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of equipment funds */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create an equipment fund
-         * @description Create an equipment fund <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The title of a resource */
-                        title: string;
-                        /** @description Value of the fund in whole cents, or equivalent sub-unit of team's currency. */
-                        value: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description An equipment fund */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/equipment-inspection-results": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of equipment inspection results
-         * @description Retrieve a list of equipment inspection results <br></br>**Required modules:** MODULE_EQUIPMENT_INSPECTIONS
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number[] & (number | number[]);
-                    /** @description Whether the inspection result is completed */
-                    completed?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                    /** @description The barcode of the equipment being inspected */
-                    barcode?: string;
-                    /** @description A text to filter equipment being inspected based on kind title or ref */
-                    text?: string;
-                    /** @description The id of the equipment resource */
-                    equipment_id?: number;
-                    /** @description The id of the inspection resource */
-                    equipment_inspection_id?: number;
-                    /** @description The identifier of the location to filter on. This will filter based on the location of the equipment - not the Inspection itself */
-                    location_id?: number;
-                    /** @description A team identifier */
-                    team_id?: number;
-                    sort?: "createdAt" | "updatedAt" | "id" | "dateDue" | "text";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of inspection result items */
+                /** @description A list of team settings */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -669,3873 +628,6 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/equipment-inspection-step-results": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve equipment inspection result steps
-         * @description Retrieve equipment inspection result steps <br></br>**Required modules:** MODULE_EQUIPMENT_INSPECTIONS
-         */
-        get: {
-            parameters: {
-                query: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description An inspection result id */
-                    equipment_inspection_result_id: number;
-                    sort?: "createdAt" | "updatedAt" | "id";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of inspection step results */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create an equipment inspection step
-         * @description Create an equipment inspection step <br></br>**Required modules:** MODULE_EQUIPMENT_INSPECTIONS
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The inspection result step notes */
-                        notes?: string;
-                        /**
-                         * @description The outcome of the inspection step
-                         * @enum {string|null}
-                         */
-                        outcome?: "PASS" | "FAIL" | "NA" | null;
-                        /** @description The inspection result step title, should match the inspection step title */
-                        stepText: string;
-                        /** @description An inspection result id */
-                        equipmentInspectionResultId: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description An inspection result step */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/equipment-inspection-steps": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve an equipment inspection steps
-         * @description Retrieve an equipment inspection steps <br></br>**Required modules:** MODULE_EQUIPMENT_INSPECTIONS
-         */
-        get: {
-            parameters: {
-                query: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description An inspection id */
-                    inspection_id: number;
-                    order?: "asc" | "desc";
-                    sort?: "createdAt" | "updatedAt" | "id" | "ordering";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of inspection step items */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create an equipment inspection step
-         * @description Create an equipment inspection step <br></br>**Required modules:** MODULE_EQUIPMENT_INSPECTIONS
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description An inspection id */
-                        inspectionId: number;
-                        /** @description The inspection step text */
-                        text: string;
-                        /** @description The numeric order of this step during the inspection */
-                        ordering: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description An inspection step */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/equipment-inspections": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of equipment inspections
-         * @description Retrieve a list of equipment inspections <br></br>**Required modules:** MODULE_EQUIPMENT_INSPECTIONS
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number[] & (number | number[]);
-                    /** @description Whether the inspection is active or archived */
-                    is_active?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                    /** @description The id of the equipment item the inspection is attached to */
-                    equipment_id?: number;
-                    /** @description The identifier of the location to filter on. This will filter based on the location of the equipment - not the Inspection itself */
-                    equipment_location_id?: number;
-                    /** @description A team identifier */
-                    team_id?: number;
-                    /** @description One or more equipment kind ids */
-                    kind_id?: number[] & (number | number[]);
-                    sort?: "createdAt" | "updatedAt" | "id";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of inspection items */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/equipment-kinds": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of equipment kinds
-         * @description Retrieve a list of equipment kinds <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number[] & (number | number[]);
-                    /** @description A simple text search term, compared against the title */
-                    title?: string;
-                    /** @description *Team context*: Exclude entities inherited from the team's org */
-                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
-                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    /** @description An equipment kind location id */
-                    location_id?: number;
-                    /** @description An equipment category id */
-                    category_id?: number;
-                    sort?: "createdAt" | "updatedAt" | "id";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of equipment kinds */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create an equipment kind
-         * @description Create an equipment kind <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The kind's title */
-                        title: string;
-                        /** @description This kind's parent category id */
-                        categoryId: number;
-                        /**
-                         * @description - `VEHICLE`: A vehicle of some kind
-                         *     - `SUPPLY`: A supply of disposable items
-                         *     - `EQUIPMENT`: A re-usable piece of equipment
-                         * @default EQUIPMENT
-                         * @enum {string}
-                         */
-                        type?: "VEHICLE" | "SUPPLY" | "EQUIPMENT";
-                        /** @description The cost incurred per use */
-                        costPerUse?: number;
-                        /** @description The cost incurred per hour of use */
-                        costPerHour?: number;
-                        /** @description The cost incurred per distance of use */
-                        costPerDistance?: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description An equipment kind */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/equipment-locations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of equipment locations
-         * @description Retrieve a list of equipment locations <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number[] & (number | number[]);
-                    sort?: "createdAt" | "updatedAt" | "id";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of equipment locations */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/equipment-models": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of equipment models
-         * @description Retrieve a list of equipment models <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number | number[];
-                    /** @description A simple text search term, compared against the title */
-                    title?: string;
-                    /** @description *Team context*: Exclude entities inherited from the team's org */
-                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
-                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    /** @description An equipment brand id */
-                    brand_id?: number;
-                    sort?: "createdAt" | "updatedAt" | "id";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of equipment models */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create an equipment model
-         * @description Create an equipment model <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The model's title */
-                        title: string;
-                        /** @description The brand id this model belongs to */
-                        brandId: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description An equipment model */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/equipment-retired-reasons": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of equipment retired reasons
-         * @description Retrieve a list of equipment retired reasons <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number | number[];
-                    /** @description *Team context*: Exclude entities inherited from the team's org */
-                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    sort?: "createdAt" | "updatedAt" | "id";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of equipment retired reasons */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create an equipment retired reason
-         * @description Create an equipment retired reason <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The title of a resource */
-                        title: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description An equipment retired reason resource */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/equipment-supplier-refs": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of equipment supplier references
-         * @description Retrieve a list of equipment supplier references <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number | number[];
-                    /** @description A simple text search term, compared against the title */
-                    title?: string;
-                    /** @description *Team context*: Exclude entities inherited from the team's org */
-                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
-                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    /** @description An equipment supplier reference id */
-                    supplier_id?: number;
-                    sort?: "createdAt" | "updatedAt" | "id";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of equipment references */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create an equipment supplier reference
-         * @description Create an equipment supplier reference <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The supplier ref's title */
-                        title: string;
-                        /** @description The supplier id this reference belongs to */
-                        supplierId: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description An equipment supplier reference */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/equipment-suppliers": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of equipment suppliers
-         * @description Retrieve a list of equipment suppliers <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number | number[];
-                    /** @description A simple text search term, compared against the title */
-                    title?: string;
-                    /** @description *Team context*: Exclude entities inherited from the team's org */
-                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
-                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    sort?: "createdAt" | "updatedAt" | "id";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of equipment suppliers */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create an equipment supplier resource
-         * @description Create an equipment supplier resource <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The supplier's title */
-                        title: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description An equipment supplier resource */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/events": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of events
-         * @description Retrieve a list of events <br></br>**Required modules:** MODULE_ACTIVITIES
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number[] & (number | number[]);
-                    /** @description A simple text search term, compared against the reference and reference description */
-                    reference?: string;
-                    /** @description Return only activities starting before this datetime */
-                    before?: string;
-                    /** @description Return only activities ending before this datetime */
-                    ends_before?: string;
-                    /** @description Return only activities with this tag bundle id */
-                    tag_bundle_id?: number;
-                    /** @description Return only activities with this tag id */
-                    tag_id?: number;
-                    /** @description Return only activities with this team id */
-                    team_id?: number;
-                    /** @description Return only activities ending after this datetime */
-                    after?: string;
-                    /** @description Return only activities starting after this datetime */
-                    starts_after?: string;
-                    /** @description Return only deleted activities */
-                    deleted?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                    /** @description Return only published activities */
-                    published?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                    sort?: "createdAt" | "updatedAt" | "id" | "teamId" | "reference" | "startsAt" | "percAttendance";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of Events */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create an event
-         * @description Create an event
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description Reference code for activity. Must be unique. Only allowed if team has activity auto-id enabled. */
-                        reference?: string;
-                        /** @description A text description for the reference / the activity's title */
-                        referenceDescription?: string;
-                        /**
-                         * @description The activity's description. Supports HTML.
-                         * @default null
-                         */
-                        description?: string | null;
-                        /**
-                         * @description The activity's plan. Supports HTML.
-                         * @default null
-                         */
-                        plan?: string | null;
-                        /** @description The activity's tracking number */
-                        trackingNumber?: string | null;
-                        /** @description Whether the activity is shared across the organisation */
-                        shared?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                        /** @description Whether the activity requires the attendance of the full team or is selective */
-                        fullTeam?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                        address?: {
-                            /** @description Country */
-                            country?: string;
-                            /** @description Postcode or ZIP code */
-                            postcode?: string;
-                            /** @description Province, county or region */
-                            region?: string;
-                            /** @description Number, street and house */
-                            street?: string;
-                            /** @description City or town */
-                            town?: string;
-                        };
-                        location?: {
-                            /** @description The latitude where this entity is located */
-                            latitude: number;
-                            /** @description The longtitude where this entity is located */
-                            longitude: number;
-                        };
-                        /** @description The numeric identifier for a resource */
-                        locationBookmarkId?: number;
-                        /**
-                         * Format: date-time
-                         * @description The activity's starting date
-                         */
-                        startsAt: string;
-                        /**
-                         * Format: date-time
-                         * @description The activity's end date
-                         */
-                        endsAt?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description An event */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/exercises": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of exercises
-         * @description Retrieve a list of exercises <br></br>**Required modules:** MODULE_ACTIVITIES
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number[] & (number | number[]);
-                    /** @description A simple text search term, compared against the reference and reference description */
-                    reference?: string;
-                    /** @description Return only activities starting before this datetime */
-                    before?: string;
-                    /** @description Return only activities ending before this datetime */
-                    ends_before?: string;
-                    /** @description Return only activities with this tag bundle id */
-                    tag_bundle_id?: number;
-                    /** @description Return only activities with this tag id */
-                    tag_id?: number;
-                    /** @description Return only activities with this team id */
-                    team_id?: number;
-                    /** @description Return only activities ending after this datetime */
-                    after?: string;
-                    /** @description Return only activities starting after this datetime */
-                    starts_after?: string;
-                    /** @description Return only deleted activities */
-                    deleted?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                    /** @description Return only published activities */
-                    published?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                    sort?: "createdAt" | "updatedAt" | "id" | "teamId" | "reference" | "startsAt" | "percAttendance";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of Exercises */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create an exercise
-         * @description Create an exercise
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description Reference code for activity. Must be unique. Only allowed if team has activity auto-id enabled. */
-                        reference?: string;
-                        /** @description A text description for the reference / the activity's title */
-                        referenceDescription?: string;
-                        /**
-                         * @description The activity's description. Supports HTML.
-                         * @default null
-                         */
-                        description?: string | null;
-                        /**
-                         * @description The activity's plan. Supports HTML.
-                         * @default null
-                         */
-                        plan?: string | null;
-                        /** @description The activity's tracking number */
-                        trackingNumber?: string | null;
-                        /** @description Whether the activity is shared across the organisation */
-                        shared?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                        /** @description Whether the activity requires the attendance of the full team or is selective */
-                        fullTeam?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                        address?: {
-                            /** @description Country */
-                            country?: string;
-                            /** @description Postcode or ZIP code */
-                            postcode?: string;
-                            /** @description Province, county or region */
-                            region?: string;
-                            /** @description Number, street and house */
-                            street?: string;
-                            /** @description City or town */
-                            town?: string;
-                        };
-                        location?: {
-                            /** @description The latitude where this entity is located */
-                            latitude: number;
-                            /** @description The longtitude where this entity is located */
-                            longitude: number;
-                        };
-                        /** @description The numeric identifier for a resource */
-                        locationBookmarkId?: number;
-                        /**
-                         * Format: date-time
-                         * @description The activity's starting date
-                         */
-                        startsAt: string;
-                        /**
-                         * Format: date-time
-                         * @description The activity's end date
-                         */
-                        endsAt?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description An exercise */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/handler-group-memberships": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of handler group memberships
-         * @description Retrieve a list of handler group memberships <br></br>**Required modules:** MODULE_GROUPS
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number[] & (number | number[]);
-                    /** @description One or more team identifiers */
-                    team_id?: number[] & (number | number[]);
-                    /** @description One or more group identifiers */
-                    group_id?: number[] & (number | number[]);
-                    /** @description One or more handler identifiers */
-                    handler_id?: number[] & (number | number[]);
-                    sort?: "createdAt" | "updatedAt" | "id";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of handler group memberships */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/handler-groups": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of handler groups
-         * @description Retrieve a list of handler groups <br></br>**Required modules:** MODULE_GROUPS
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number[] & (number | number[]);
-                    /** @description One or more team identifiers */
-                    team_id?: number[] & (number | number[]);
-                    /** @description A simple text search term, compared against the title */
-                    title?: string;
-                    order?: "asc" | "desc";
-                    sort?: "createdAt" | "updatedAt" | "id" | "title";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of handler Groups */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create a handler group
-         * @description Create a handler group
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The group's title */
-                        title: string;
-                        /** @description The group's bundle */
-                        deprecatedBundle?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description A handler group */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/handler-qualifications": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of handler qualifications
-         * @description Retrieve a list of handler qualifications
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description The title of a resource */
-                    title?: string;
-                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
-                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    /** @description *Team context*: Exclude entities inherited from the team's org */
-                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    sort?: "createdAt" | "updatedAt" | "id";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of handler qualifications */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/health-safety-categories": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of Health & Safety Categories
-         * @description Retrieve a list of Health & Safety Categories <br></br>**Required modules:** MODULE_HEALTHSAFETY
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number | number[];
-                    /** @description *Team context*: Exclude entities inherited from the team's org */
-                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
-                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    order?: "asc" | "desc";
-                    sort?: "createdAt" | "updatedAt" | "id" | "title";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of Health & Safety Categories */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create a Health & Safety Category
-         * @description Create a Health & Safety Category <br></br>**Required modules:** MODULE_HEALTHSAFETY
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The category title */
-                        title: string;
-                        /**
-                         * @description The colour assigned to the category
-                         * @enum {string}
-                         */
-                        colour: "BLACK" | "BLUE" | "CADET_BLUE" | "DARK_BLUE" | "DARK_GREEN" | "DARK_PURPLE" | "DARK_RED" | "GRAY" | "GREEN" | "LIGHT_GRAY" | "LIGHT_RED" | "ORANGE" | "PURPLE" | "RED";
-                    };
-                };
-            };
-            responses: {
-                /** @description A Health & Safety Category */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/health-safety-reports": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of Health & Safety Reports
-         * @description Retrieve a list of Health & Safety Reports <br></br>**Required modules:** MODULE_HEALTHSAFETY
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description The ID of an associated resource */
-                    target_resource_id?: number;
-                    /** @description The approval state of the report */
-                    approved?: boolean | ("true" | "false" | "1" | "0" | "");
-                    /** @description A Health & Safety Category ID */
-                    category_id?: number;
-                    /** @description The date-time of this occurance */
-                    before?: string | null;
-                    /** @description A list of ids */
-                    id?: number | number[];
-                    order?: "asc" | "desc";
-                    /** @description A Health & Safety Severity ID */
-                    severity_id?: number;
-                    sort?: "createdAt" | "startsAt" | "id" | "updatedAt";
-                    /** @description The date-time of this occurance */
-                    after?: string | null;
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of Health & Safety Reports */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/health-safety-severities": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of Health & Safety Severities
-         * @description Retrieve a list of Health & Safety Severities <br></br>**Required modules:** MODULE_HEALTHSAFETY
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number | number[];
-                    /** @description *Team context*: Exclude entities inherited from the team's org */
-                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
-                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    order?: "asc" | "desc";
-                    sort?: "createdAt" | "updatedAt" | "id" | "score" | "title";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of Health & Safety Severities */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create a Health & Safety Severity
-         * @description Create a Health & Safety Severity <br></br>**Required modules:** MODULE_HEALTHSAFETY
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The severity title */
-                        title: string;
-                        /**
-                         * @description The score assigned to this severity
-                         * @default null
-                         */
-                        score?: number | null;
-                    };
-                };
-            };
-            responses: {
-                /** @description A Health & Safety Severity */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/incidents": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of incidents
-         * @description Retrieve a list of incidents <br></br>**Required modules:** MODULE_ACTIVITIES
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number[] & (number | number[]);
-                    /** @description A simple text search term, compared against the reference and reference description */
-                    reference?: string;
-                    /** @description Return only activities starting before this datetime */
-                    before?: string;
-                    /** @description Return only activities ending before this datetime */
-                    ends_before?: string;
-                    /** @description Return only activities with this tag bundle id */
-                    tag_bundle_id?: number;
-                    /** @description Return only activities with this tag id */
-                    tag_id?: number;
-                    /** @description Return only activities with this team id */
-                    team_id?: number;
-                    /** @description Return only activities ending after this datetime */
-                    after?: string;
-                    /** @description Return only activities starting after this datetime */
-                    starts_after?: string;
-                    /** @description Return only deleted activities */
-                    deleted?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                    /** @description Return only published activities */
-                    published?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                    sort?: "createdAt" | "updatedAt" | "id" | "teamId" | "reference" | "startsAt" | "percAttendance";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of Incidents */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create an incident
-         * @description Create an incident
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description Reference code for activity. Must be unique. Only allowed if team has activity auto-id enabled. */
-                        reference?: string;
-                        /** @description A text description for the reference / the activity's title */
-                        referenceDescription?: string;
-                        /**
-                         * @description The activity's description. Supports HTML.
-                         * @default null
-                         */
-                        description?: string | null;
-                        /**
-                         * @description The activity's plan. Supports HTML.
-                         * @default null
-                         */
-                        plan?: string | null;
-                        /** @description The activity's tracking number */
-                        trackingNumber?: string | null;
-                        /** @description Whether the activity is shared across the organisation */
-                        shared?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                        /** @description Whether the activity requires the attendance of the full team or is selective */
-                        fullTeam?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                        address?: {
-                            /** @description Country */
-                            country?: string;
-                            /** @description Postcode or ZIP code */
-                            postcode?: string;
-                            /** @description Province, county or region */
-                            region?: string;
-                            /** @description Number, street and house */
-                            street?: string;
-                            /** @description City or town */
-                            town?: string;
-                        };
-                        location?: {
-                            /** @description The latitude where this entity is located */
-                            latitude: number;
-                            /** @description The longtitude where this entity is located */
-                            longitude: number;
-                        };
-                        /** @description The numeric identifier for a resource */
-                        locationBookmarkId?: number;
-                        /**
-                         * Format: date-time
-                         * @description The activity's starting date
-                         */
-                        startsAt: string;
-                        /**
-                         * Format: date-time
-                         * @description The activity's end date
-                         */
-                        endsAt?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description An incident entity */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/location-bookmarks": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of location bookmarks
-         * @description Retrieve a list of location bookmarks <br></br>**Required modules:** MODULE_LOCATION
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number[] & (number | number[]);
-                    /** @description *Team context*: Exclude entities inherited from the team's org */
-                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
-                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    sort?: "createdAt" | "updatedAt" | "id";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of location bookmark resources */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/member-group-memberships": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of group memberships
-         * @description Retrieve a list of group memberships <br></br>**Required modules:** MODULE_GROUPS
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number[] & (number | number[]);
-                    /** @description One or more team identifiers */
-                    team_id?: number[] & (number | number[]);
-                    /** @description One or more group identifiers */
-                    group_id?: number[] & (number | number[]);
-                    /** @description One or more member identifiers */
-                    member_id?: number[] & (number | number[]);
-                    sort?: "createdAt" | "updatedAt" | "id";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of member group memberships */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/member-groups": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of member groups
-         * @description Retrieve a list of member groups <br></br>**Required modules:** MODULE_GROUPS
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number[] & (number | number[]);
-                    /** @description One or more team identifiers */
-                    team_id?: number[] & (number | number[]);
-                    /** @description A simple text search term, compared against the title */
-                    title?: string;
-                    order?: "asc" | "desc";
-                    sort?: "createdAt" | "updatedAt" | "id" | "title";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of member Groups */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create a member group
-         * @description Create a member group
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The group's title */
-                        title: string;
-                        /** @description The group's bundle */
-                        deprecatedBundle?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description A member group */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/member-qualification-awards": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of member qualification awards
-         * @description Retrieve a list of member qualification awards
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description The qualification's id */
-                    qualification_id?: number;
-                    /** @description Qualified member. Either an id or "me" */
-                    member_id?: number | "me";
-                    sort?: "createdAt" | "updatedAt" | "id";
-                    order?: "asc" | "desc";
-                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
-                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    /** @description *Team context*: Exclude entities inherited from the team's org */
-                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of member qualification awards */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create a member qualification award
-         * @description Create a member qualification award
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description Qualified member. Either an id or "me" */
-                        memberId: number | "me";
-                        /**
-                         * Format: date-time
-                         * @description Start of award validity period
-                         */
-                        startsAt: string;
-                        /** @description End of award validity period or null for the qualification's default */
-                        endsAt?: string | ("null" | null);
-                        /** @description The qualification's id */
-                        qualificationId: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description A member qualification award */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/member-qualifications": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of member qualifications
-         * @description Retrieve a list of member qualifications
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description The title of a resource */
-                    title?: string;
-                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
-                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    /** @description *Team context*: Exclude entities inherited from the team's org */
-                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    sort?: "createdAt" | "updatedAt" | "id";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of member qualifications */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/members": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of members
-         * @description Retrieve a list of members <br></br>**Required modules:**
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number[] & (number | number[]);
-                    /** @description The numeric identifier for a resource */
-                    team_id?: number;
-                    /** @description RFID tag or barcode */
-                    id_tag?: string;
-                    /** @description One or more member statuses. Some statuses require extra permissions. */
-                    status?: ("OPERATIONAL" | "NON_OPERATIONAL" | "OBSERVER" | "RETIRED") | ("OPERATIONAL" | "NON_OPERATIONAL" | "OBSERVER" | "RETIRED")[];
-                    /** @description Return only deleted members */
-                    deleted?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                    /** @description The member's name */
-                    name?: string;
-                    order?: "asc" | "desc";
-                    sort?: "createdAt" | "updatedAt" | "id" | "name" | "ref" | "percReportingEvent" | "percReportingExercise" | "percReportingIncident" | "percRollingEvent" | "percRollingExercise" | "percRollingIncident" | "countRollingHours" | "countReportingEvent" | "countReportingExercise" | "countReportingHours" | "countReportingIncident" | "countRollingHoursEvent" | "countRollingHoursExercise" | "countRollingHoursIncident";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of members */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/modules": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a particular module status
-         * @description Get a particular module status
-         */
-        get: {
-            parameters: {
-                query: {
-                    setting: "activities" | "activity_approval_states" | "activity_autoid" | "activity_current_location" | "activity_sharing" | "address_book" | "app_equipment_enterprise" | "allow_organisationlink" | "allow_deleteunit" | "analytics" | "animals" | "api_access" | "api_allow_pat_access" | "availability" | "calendar" | "charts" | "chat" | "collaboration" | "costing" | "courses" | "courses_matrix" | "courses_preferred" | "dashboard" | "documents" | "documents_revisions" | "duty" | "member_emergency_contacts" | "equipment" | "equipment_checklists" | "equipment_funding" | "equipment_inspections" | "equipment_purge" | "equipment_repairs" | "equipment_shipping_reports" | "equipment_team_move" | "events" | "exercises" | "groups" | "hazmat" | "healthsafety" | "incidents" | "location" | "location" | "location_elevation" | "location_map" | "lost_behaviour" | "mapsar" | "members" | "member_emergency_contacts" | "old_communication" | "persons_involved" | "persons_involved_demographics" | "persons_involved_id" | "persons_involved_medical" | "hide_qualifications" | "reports" | "resources" | "resources_coordinator" | "resources_detail" | "revision_audit" | "roles" | "tags" | "tasks" | "team_status" | "translation" | "communication" | "communication_for_members" | "vehicles" | "vehicles_involved" | "weather" | "weather_airtemperature" | "weather_avalancherisk" | "weather_cloudbase" | "weather_conditions" | "weather_seastate" | "weather_seaswell" | "weather_snowconditions" | "weather_tide" | "weather_visibility" | "weather_watertemperature" | "weather_wind" | "weather_wind_mps" | "whiteboard";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Whether the module is active or not */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/repairs": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of repairs
-         * @description Retrieve a list of repairs <br></br>**Required modules:** MODULE_EQUIPMENT_REPAIRS
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description Status of task */
-                    status?: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
-                    /** @description A member id */
-                    assigned_member_id?: number;
-                    /** @description ID of the originator */
-                    originator_resource_id?: number;
-                    /** @description Resource types that can be associated with a repair as the originator of the repair */
-                    originator_resource_type?: "EquipmentInspectionResult" | "EquipmentInspectionStepResult";
-                    sort?: "createdAt" | "updatedAt" | "id";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of repair tasks */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create a repair
-         * @description Create a repair <br></br>**Required modules:** MODULE_EQUIPMENT_REPAIRS
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description ID of the resource the repair is assigned to */
-                        targetResourceId: number;
-                        /**
-                         * @description Resource types that can be associated with a repair
-                         * @default Equipment
-                         * @enum {string}
-                         */
-                        targetResourceType?: "Equipment";
-                        /** @description ID of the originator */
-                        originatorResourceId?: number;
-                        /**
-                         * @description Resource types that can be associated with a repair as the originator of the repair
-                         * @enum {string}
-                         */
-                        originatorResourceType?: "EquipmentInspectionResult" | "EquipmentInspectionStepResult";
-                        /** @description The repair resource ref */
-                        ref: string;
-                        /**
-                         * @description Reason for repair
-                         * @enum {string}
-                         */
-                        cause?: "UNKNOWN" | "NATURAL_DETERIORATION" | "USED_AS_INTENDED" | "INCORRECT_OPERATION" | "PLANNED_MAINTENANCE";
-                        /**
-                         * @description Status of repair
-                         * @enum {string}
-                         */
-                        status?: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
-                        /** @description ID of the member resource repair is assigned to */
-                        assignedMemberId?: number;
-                        /** @description Cost in whole cents, or equivalent sub-unit of team's currency. */
-                        cost?: number;
-                        /**
-                         * Format: date-time
-                         * @description Date repair resource is due
-                         */
-                        dueAt?: string;
-                        /** @description Description of repair resource */
-                        description?: string;
-                        /** @description ID of the event, exercise, or incident resource that caused the repair */
-                        activityId?: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description A repair */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/resource-bundles": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of resource bundles
-         * @description Retrieve a list of resource bundles
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number[] & (number | number[]);
-                    /** @description A simple text search term, compared against the title */
-                    title?: string;
-                    resource_type?: "CustomField";
-                    /** @description A resource type that supports custom fields */
-                    sub_resource_type?: "Event" | "Exercise" | "Incident" | "IncidentWeather" | "Equipment" | "HealthSafetyReport" | "Member" | "PersonInvolved" | "Team";
-                    sort?: "createdAt" | "updatedAt" | "id";
-                    order?: "asc" | "desc";
-                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
-                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    /** @description *Team context*: Exclude entities inherited from the team's org */
-                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of resource bundles */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create a resource bundle
-         * @description Create a resource bundle
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The Resource Bundle title */
-                        title: string;
-                        /** @enum {string} */
-                        targetResourceType: "CustomField";
-                        /**
-                         * @description A resource type that supports custom fields
-                         * @enum {string}
-                         */
-                        targetSubResourceType?: "Event" | "Exercise" | "Incident" | "IncidentWeather" | "Equipment" | "HealthSafetyReport" | "Member" | "PersonInvolved" | "Team";
-                        /** @description A user-specified order in which to present the resources */
-                        ordering?: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description A resource bundle */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/roles": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of roles
-         * @description Retrieve a list of roles <br></br>**Required modules:** MODULE_ROLES
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number[] & (number | number[]);
-                    /** @description One or more team identifiers */
-                    team_id?: number[] & (number | number[]);
-                    /** @description The role's bundle */
-                    deprecatedBundle?: string;
-                    /** @description The role's title */
-                    title?: string;
-                    sort?: "createdAt" | "updatedAt" | "id";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of Roles */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/settings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of settings
-         * @description Retrieve a list of settings <br></br>**Required modules:**
-         */
-        get: {
-            parameters: {
-                query?: {
-                    sort?: "updatedAt" | "key";
-                    order?: "asc" | "desc";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of settings */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/tags": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of tags
-         * @description Retrieve a list of tags <br></br>**Required modules:**
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number[] & (number | number[]);
-                    /** @description The title of a resource */
-                    title?: string;
-                    order?: "asc" | "desc";
-                    sort?: "createdAt" | "id" | "updatedAt" | "title";
-                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
-                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    /** @description *Team context*: Exclude entities inherited from the team's org */
-                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of tags */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create a tag
-         * @description Create a tag <br></br>**Required modules:**
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The title of a resource */
-                        title: string;
-                        /** @description Some descriptive text for the resource */
-                        notes?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description A tag resource */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/whiteboard": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a list of whiteboard notes
-         * @description Retrieve a list of whiteboard notes <br></br>**Required modules:** MODULE_WHITEBOARD
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Page number */
-                    page?: number;
-                    /** @description Items per page */
-                    size?: number;
-                    /** @description A list of ids */
-                    id?: number | number[];
-                    /** @description A datetime which a note's archivedAt is before */
-                    archived_at_before?: string;
-                    /** @description A datetime which a note's archivedAt is after */
-                    archived_at_after?: string;
-                    /** @description *Team context*: Exclude entities inherited from the team's org */
-                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
-                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    order?: "asc" | "desc";
-                    sort?: "createdAt" | "updatedAt" | "archivedAt" | "id" | "text";
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A list of whiteboard notes */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create a whiteboard note
-         * @description Create a whiteboard note <br></br>**Required modules:** MODULE_WHITEBOARD
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /**
-                         * Format: date-time
-                         * @description The date-time at which the note is archived
-                         * @default 2024-10-03T12:31:36.477Z
-                         */
-                        archivedAt?: string;
-                        /**
-                         * @description Set to true to mark the note as important
-                         * @default false
-                         */
-                        important?: boolean | ("true" | "false" | "1" | "0" | "");
-                        /** @description The contents of the note. Supports plain text or HTML. */
-                        text: string;
-                        /**
-                         * Format: uri
-                         * @description A http/https RFC-3986 URI to be associate with the note
-                         */
-                        url?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description A whiteboard note */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/whoami": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve credential access for a specific context
-         * @description Retrieve credential access for a specific context
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Access details of credentials for a specific context */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/equipment-supplier-refs/{refId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve an equipment supplier reference
-         * @description Retrieve an equipment supplier reference <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The ID of the equipment supplier reference */
-                    refId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description An equipment supplier reference */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /**
-         * Delete an equipment supplier reference
-         * @description Delete an equipment supplier reference <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The ID of the equipment supplier reference */
-                    refId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description The deleted response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        /**
-         * Update an equipment supplier reference
-         * @description Update an equipment supplier reference <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The ID of the equipment supplier reference */
-                    refId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The supplier ref's title */
-                        title?: string;
-                        /** @description The supplier id this supplier reference belongs to */
-                        supplierId?: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description An equipment supplier reference */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/equipment-suppliers/{supplierId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve an equipment supplier
-         * @description Retrieve an equipment supplier <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The ID of the equipment supplier */
-                    supplierId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description An equipment supplier */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /**
-         * Delete an equipment supplier
-         * @description Delete an equipment supplier <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The ID of the equipment supplier */
-                    supplierId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description The delete response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        /**
-         * Update an equipment supplier
-         * @description Update an equipment supplier <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The ID of the equipment supplier */
-                    supplierId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The supplier's title */
-                        title: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description An equipment supplier */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/exercises/{activityId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve an exercises
-         * @description Retrieve an exercises <br></br>**Required modules:** MODULE_ACTIVITIES
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description An activity identifier */
-                    activityId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description An Exercise resource */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update an exercise
-         * @description Update an exercise <br></br>**Required modules:**
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The activity's identifier */
-                    activityId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description Reference code for activity. Must be unique. Only allowed if team has activity auto-id enabled. */
-                        reference?: string;
-                        /** @description A text description for the reference / the activity's title */
-                        referenceDescription?: string;
-                        /**
-                         * @description The activity's description. Supports HTML.
-                         * @default null
-                         */
-                        description?: string | null;
-                        /**
-                         * @description The activity's plan. Supports HTML.
-                         * @default null
-                         */
-                        plan?: string | null;
-                        /** @description The activity's tracking number */
-                        trackingNumber?: string | null;
-                        /** @description Whether the activity is shared across the organisation */
-                        shared?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                        /** @description Whether the activity requires the attendance of the full team or is selective */
-                        fullTeam?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                        address?: {
-                            /** @description Country */
-                            country?: string;
-                            /** @description Postcode or ZIP code */
-                            postcode?: string;
-                            /** @description Province, county or region */
-                            region?: string;
-                            /** @description Number, street and house */
-                            street?: string;
-                            /** @description City or town */
-                            town?: string;
-                        };
-                        location?: {
-                            /** @description The latitude where this entity is located */
-                            latitude: number;
-                            /** @description The longtitude where this entity is located */
-                            longitude: number;
-                        };
-                        /** @description The numeric identifier for a resource */
-                        locationBookmarkId?: number;
-                        /**
-                         * Format: date-time
-                         * @description The activity's starting date
-                         */
-                        startsAt?: string;
-                        /**
-                         * Format: date-time
-                         * @description The activity's end date
-                         */
-                        endsAt?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description An exercise */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/handler-groups/{groupId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a handler group
-         * @description Retrieve a handler group <br></br>**Required modules:** MODULE_GROUPS
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description A group identifier */
-                    groupId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A handler group */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /**
-         * Delete a handler group
-         * @description Delete a handler group <br></br>**Required modules:**
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The group's identifier */
-                    groupId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description The delete response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        /**
-         * Update a handler group
-         * @description Update a handler group <br></br>**Required modules:**
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The group's identifier */
-                    groupId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The groups's name */
-                        title: string;
-                        /** @description The group's bundle name */
-                        deprecatedBundle?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description A handler Group */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/health-safety-categories/{categoryId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a Health & Safety Category
-         * @description Retrieve a Health & Safety Category <br></br>**Required modules:** MODULE_HEALTHSAFETY
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The ID of the Health & Safety Category */
-                    categoryId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A Health & Safety Category */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /**
-         * Delete a Health & Safety Category
-         * @description Delete a Health & Safety Category <br></br>**Required modules:** MODULE_HEALTHSAFETY
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The ID of the Health & Safety Category */
-                    categoryId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description The delete response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        /**
-         * Update a Health & Safety Category
-         * @description Update a Health & Safety Category <br></br>**Required modules:** MODULE_HEALTHSAFETY
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The ID of the Health & Safety Category */
-                    categoryId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The category title */
-                        title?: string;
-                        /**
-                         * @description The colour assigned to the category
-                         * @enum {string}
-                         */
-                        colour?: "BLACK" | "BLUE" | "CADET_BLUE" | "DARK_BLUE" | "DARK_GREEN" | "DARK_PURPLE" | "DARK_RED" | "GRAY" | "GREEN" | "LIGHT_GRAY" | "LIGHT_RED" | "ORANGE" | "PURPLE" | "RED";
-                    };
-                };
-            };
-            responses: {
-                /** @description A Health & Safety Category */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/health-safety-severities/{severityId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a Health & Safety Severity
-         * @description Retrieve a Health & Safety Severity <br></br>**Required modules:** MODULE_HEALTHSAFETY
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The ID of the Health & Safety Severity */
-                    severityId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A Health & Safety Severity */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /**
-         * Delete a Health & Safety Severity
-         * @description Delete a Health & Safety Severity <br></br>**Required modules:** MODULE_HEALTHSAFETY
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The ID of the Health & Safety Severity */
-                    severityId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description The delete response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        /**
-         * Update a Health & Safety Severity
-         * @description Update a Health & Safety Severity <br></br>**Required modules:** MODULE_HEALTHSAFETY
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The ID of the Health & Safety Severity */
-                    severityId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The severity title */
-                        title?: string;
-                        /**
-                         * @description The score assigned to this severity
-                         * @default null
-                         */
-                        score?: number | null;
-                    };
-                };
-            };
-            responses: {
-                /** @description A Health & Safety Severity */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/location-bookmarks/{bookmarkId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a location bookmark
-         * @description Retrieve a location bookmark <br></br>**Required modules:** MODULE_LOCATION
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description A location bookmark id */
-                    bookmarkId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A location bookmark resource */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/member-groups/{groupId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a member group
-         * @description Retrieve a member group <br></br>**Required modules:** MODULE_GROUPS
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description A group identifier */
-                    groupId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A member group */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /**
-         * Delete a member group
-         * @description Delete a member group <br></br>**Required modules:**
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The group's identifier */
-                    groupId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description The delete response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        /**
-         * Update a member group
-         * @description Update a member group <br></br>**Required modules:**
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The group's identifier */
-                    groupId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The groups's name */
-                        title: string;
-                        /** @description The group's bundle name */
-                        deprecatedBundle?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description A member Group */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/member-qualifications/{qualificationId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a member qualification
-         * @description Retrieve a member qualification
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
-                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                    /** @description *Team context*: Exclude entities inherited from the team's org */
-                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
-                };
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The qualification's id */
-                    qualificationId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A member qualification */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/members/{member}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a member
-         * @description Retrieve a member <br></br>**Required modules:**
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description Member the resource belongs to. Either an id or "me". */
-                    member: number | "me";
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A member */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update a member
-         * @description Update a member <br></br>**Required modules:**
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description Member the resource belongs to. Either an id or "me". */
-                    member: number | "me";
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        name?: string;
-                        ref?: string;
-                        /** @description RFID tag or barcode */
-                        idTag?: string;
-                        /**
-                         * @description Status of member
-                         * @enum {string}
-                         */
-                        status?: "OPERATIONAL" | "NON_OPERATIONAL" | "OBSERVER";
-                        /** @description Custom status identifier */
-                        statusLabelId?: number;
-                        /** @description Retired reason identifer */
-                        retiredReasonId?: number;
-                        /** Format: date-time */
-                        startsAt?: string;
-                        position?: string;
-                        /** @description Role identifier */
-                        roleId?: number;
-                        /** @description Cost per hour in lowest denomination */
-                        costPerHour?: number;
-                        /** @description Cost per activity in lowest denomination */
-                        costPerUse?: number;
-                        /** @description Member contact address */
-                        deprecatedAddress?: string;
-                        location?: {
-                            /** @description The latitude where this entity is located */
-                            latitude: number;
-                            /** @description The longtitude where this entity is located */
-                            longitude: number;
-                        };
-                        /** @description Location bookmark identifier */
-                        locationBookmarkId?: number;
-                        /** Format: email */
-                        email?: string;
-                        phone?: {
-                            mobile?: string;
-                            home?: string;
-                            work?: string;
-                        };
-                        pager?: {
-                            number?: string;
-                            /** Format: email */
-                            email?: string;
-                        };
-                        notes?: string;
-                        primaryEmergencyContact?: {
-                            name?: string;
-                            relation?: string;
-                            primaryPhone?: string;
-                            secondaryPhone?: string;
-                        };
-                        secondaryEmergencyContact?: {
-                            name?: string;
-                            relation?: string;
-                            primaryPhone?: string;
-                            secondaryPhone?: string;
-                        };
-                        customFields?: unknown;
-                    };
-                };
-            };
-            responses: {
-                /** @description A member */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
         trace?: never;
     };
     "/v3/{context}/{contextId}/animal-group-memberships": {
@@ -4547,7 +639,7 @@ export interface paths {
         };
         /**
          * Retrieve a list of animal group memberships
-         * @description Retrieve a list of animal group memberships <br></br>**Required modules:** MODULE_GROUPS
+         * @description Retrieve a list of animal group memberships <br></br>**Required modules:** groups
          */
         get: {
             parameters: {
@@ -4556,7 +648,7 @@ export interface paths {
                     page?: number;
                     /** @description Items per page */
                     size?: number;
-                    /** @description A list of ids */
+                    /** @description A list of numeric identifiers representing resources */
                     id?: number[] & (number | number[]);
                     /** @description One or more team identifiers */
                     team_id?: number[] & (number | number[]);
@@ -4606,7 +698,7 @@ export interface paths {
         };
         /**
          * Retrieve a list of animal groups
-         * @description Retrieve a list of animal groups <br></br>**Required modules:** MODULE_GROUPS
+         * @description Retrieve a list of animal groups <br></br>**Required modules:** groups
          */
         get: {
             parameters: {
@@ -4615,7 +707,7 @@ export interface paths {
                     page?: number;
                     /** @description Items per page */
                     size?: number;
-                    /** @description A list of ids */
+                    /** @description A list of numeric identifiers representing resources */
                     id?: number[] & (number | number[]);
                     /** @description One or more team identifiers */
                     team_id?: number[] & (number | number[]);
@@ -4757,7 +849,7 @@ export interface paths {
         };
         /**
          * Retrieve a list of animals
-         * @description Retrieve a list of animals <br></br>**Required modules:** MODULE_ANIMALS
+         * @description Retrieve a list of animals <br></br>**Required modules:** animals
          */
         get: {
             parameters: {
@@ -4766,7 +858,7 @@ export interface paths {
                     page?: number;
                     /** @description Items per page */
                     size?: number;
-                    /** @description A list of ids */
+                    /** @description A list of numeric identifiers representing resources */
                     id?: number[] & (number | number[]);
                     /** @description The numeric identifier for a resource */
                     team_id?: number;
@@ -4816,7 +908,7 @@ export interface paths {
         };
         /**
          * Retrieve a list of activity attendances
-         * @description Retrieve a list of activity attendances <br></br>**Required modules:** MODULE_ACTIVITIES,MODULE_MEMBERS
+         * @description Retrieve a list of activity attendances <br></br>**Required modules:** activities,members
          */
         get: {
             parameters: {
@@ -4825,7 +917,7 @@ export interface paths {
                     page?: number;
                     /** @description Items per page */
                     size?: number;
-                    /** @description A list of ids */
+                    /** @description A list of numeric identifiers representing resources */
                     id?: number[] & (number | number[]);
                     /** @description One or more member resource identifiers */
                     member_id?: number[] & (number | number[]);
@@ -4833,10 +925,10 @@ export interface paths {
                     activity_id?: number[] & (number | number[]);
                     /** @description One or more role resource identifiers */
                     role_id?: number[] & (number | number[]);
+                    /** @description One or more activity resource types */
+                    activity_resource_type?: ("Event" | "Exercise" | "Incident") | ("Event" | "Exercise" | "Incident")[];
                     /** @description One or more attendance statuses */
-                    activity_resource_type?: Record<string, never>[] & (("Event" | "Exercise" | "Incident") | ("Event" | "Exercise" | "Incident")[]);
-                    /** @description One or more attendance statuses */
-                    status?: Record<string, never>[] & (("ABSENT" | "ATTENDING" | "REQUESTED") | ("ABSENT" | "ATTENDING" | "REQUESTED")[]);
+                    status?: ("ABSENT" | "ATTENDING" | "REQUESTED") | ("ABSENT" | "ATTENDING" | "REQUESTED")[];
                     /** @description Return only resources starting before this datetime */
                     starts_before?: string;
                     /** @description Return only resources starting after this datetime */
@@ -4878,387 +970,6 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/organisations/{organisationId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve an organisation
-         * @description Retrieve an organisation
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description A organisation`s id */
-                    organisationId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A organisation */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/resource-bundles/{resourceBundleId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a resource bundle
-         * @description Retrieve a resource bundle
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The ID of the Resource Bundle */
-                    resourceBundleId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A resource bundle */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/tags/{tagId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a tag
-         * @description Retrieve a tag <br></br>**Required modules:**
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The numeric identifier for a resource */
-                    tagId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A tag resource */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /**
-         * Delete a tag
-         * @description Delete a tag <br></br>**Required modules:**
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The numeric identifier for a resource */
-                    tagId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description The delete response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        /**
-         * Update a tag
-         * @description Update a tag <br></br>**Required modules:**
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The numeric identifier for a resource */
-                    tagId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The title of a resource */
-                        title?: string;
-                        /** @description Some descriptive text for the resource */
-                        notes?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description A tag resource */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/teams/{teamId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a team
-         * @description Retrieve a team
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description A team`s id */
-                    teamId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A team */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/whiteboard/{noteId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a whiteboard note
-         * @description Retrieve a whiteboard note <br></br>**Required modules:** MODULE_WHITEBOARD
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The ID of the Whiteboard note */
-                    noteId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A whiteboard note */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /**
-         * Delete a whiteboard note
-         * @description Delete a whiteboard note <br></br>**Required modules:** MODULE_WHITEBOARD
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The ID of the Whiteboard note */
-                    noteId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description The delete response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        /**
-         * Update a whiteboard note
-         * @description Update a whiteboard note <br></br>**Required modules:** MODULE_WHITEBOARD
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The ID of the Whiteboard note */
-                    noteId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /**
-                         * Format: date-time
-                         * @description The date-time at which the note is archived
-                         */
-                        archivedAt?: string;
-                        /**
-                         * @description Set to true to mark the note as important
-                         * @default false
-                         */
-                        important?: boolean | ("true" | "false" | "1" | "0" | "");
-                        /** @description The contents of the note. Supports plain text or HTML. */
-                        text?: string;
-                        /**
-                         * Format: uri
-                         * @description A http/https RFC-3986 URI to be associate with the note
-                         */
-                        url?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description A whiteboard note */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
         trace?: never;
     };
     "/v3/{context}/{contextId}/custom-field-options": {
@@ -5335,14 +1046,14 @@ export interface paths {
                     page?: number;
                     /** @description Items per page */
                     size?: number;
-                    /** @description A list of ids */
+                    /** @description A list of numeric identifiers representing resources */
                     id?: number[] & (number | number[]);
                     /** @description A resource type that supports custom fields */
                     target_resource_type?: ("Event" | "Exercise" | "Incident" | "IncidentWeather" | "Equipment" | "HealthSafetyReport" | "Member" | "PersonInvolved" | "Team") | ("Event" | "Exercise" | "Incident" | "IncidentWeather" | "Equipment" | "HealthSafetyReport" | "Member" | "PersonInvolved" | "Team")[];
                     /** @description Filter returned custom fields by their archived status */
                     archived?: boolean | ("true" | "false" | "1" | "0" | "");
                     /** @description A resource-bundle id. Use null to get un-bundled fields */
-                    resource_bundle_id?: null & (number | "null");
+                    resource_bundle_id?: null & ("null" | ("null" | null) | number);
                     /** @description - `UNRESTRICTED`: No extra permissions required
                      *     - `RESTRICTED`: Extra permissions required */
                     restricted?: "UNRESTRICTED" | "RESTRICTED";
@@ -5557,7 +1268,6 @@ export interface paths {
                     restricted?: "UNRESTRICTED" | "RESTRICTED";
                     /** @description Whether return or exclude profile documents  */
                     profile?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                    /** @description A resource type that supports attaching documents */
                     target_resource_type: ("Animal" | "AnimalGroup" | "AnimalQualification" | "AnimalQualificationAward" | "Equipment" | "EquipmentBrand" | "EquipmentCategory" | "EquipmentModel" | "EquipmentKind" | "EquipmentSupplier" | "EquipmentSupplierRef" | "Event" | "Exercise" | "Folder" | "Handler" | "HandlerGroup" | "HandlerQualification" | "HandlerQualificationAward" | "HealthSafetyReport" | "Incident" | "EquipmentInspection" | "EquipmentInspectionResult" | "Member" | "MemberGroup" | "MemberQualification" | "MemberQualificationAward" | "Repair" | "Resource" | "Tag" | "Task" | "Team")[];
                     /** @description The related resource id */
                     target_resource_id?: null & ((number | number[]) | "null");
@@ -5622,8 +1332,6 @@ export interface paths {
                          * @default
                          */
                         description?: string;
-                        /** @description The container folder id */
-                        containerId?: string;
                         /**
                          * @description - `UNRESTRICTED`: No extra permissions required
                          *     - `RESTRICTED`: Extra permissions required
@@ -5668,7 +1376,7 @@ export interface paths {
         };
         /**
          * Retrieve a list of duties
-         * @description Retrieve a list of duties <br></br>**Required modules:** MODULE_DUTY
+         * @description Retrieve a list of duties <br></br>**Required modules:** duty
          */
         get: {
             parameters: {
@@ -5677,11 +1385,11 @@ export interface paths {
                     page?: number;
                     /** @description Items per page */
                     size?: number;
-                    /** @description A list of ids */
+                    /** @description A list of numeric identifiers representing resources */
                     id?: number[] & (number | number[]);
-                    /** @description Return only duties before this date */
+                    /** @description Return only duties starting before this date */
                     before?: string;
-                    /** @description Return only duties after this date */
+                    /** @description Return only duties ending after this date */
                     after?: string;
                     /** @description Whether on-call or off-call was specified */
                     type?: "OFF" | "ON";
@@ -5726,7 +1434,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v3/{context}/{contextId}/equipment": {
+    "/v3/{context}/{contextId}/equipment-brands": {
         parameters: {
             query?: never;
             header?: never;
@@ -5734,8 +1442,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Retrieve a list of equipment items
-         * @description Retrieve a list of equipment items <br></br>**Required modules:** MODULE_EQUIPMENT
+         * Retrieve a list of equipment brands
+         * @description Retrieve a list of equipment brands <br></br>**Required modules:** equipment
          */
         get: {
             parameters: {
@@ -5745,29 +1453,1299 @@ export interface paths {
                     /** @description Items per page */
                     size?: number;
                     /** @description A list of ids */
+                    id?: number | number[];
+                    /** @description A simple text search term, compared against the title */
+                    title?: string;
+                    /** @description *Team context*: Exclude entities inherited from the team's org */
+                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
+                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    sort?: "createdAt" | "updatedAt" | "id" | "title";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of equipment brands */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create an equipment brand
+         * @description Create an equipment brand <br></br>**Required modules:** equipment
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The brands's title */
+                        title: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description An equipment brand */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of equipment categories
+         * @description Retrieve a list of equipment categories <br></br>**Required modules:** equipment
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of ids */
+                    id?: number | number[];
+                    /** @description A simple text search term, compared against the title */
+                    title?: string;
+                    /** @description *Team context*: Exclude entities inherited from the team's org */
+                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
+                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    sort?: "createdAt" | "updatedAt" | "id" | "title";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of equipment categories */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create an equipment category
+         * @description Create an equipment category <br></br>**Required modules:** equipment
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The category's title */
+                        title: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description An equipment category */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-funds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of equipment funds
+         * @description Retrieve a list of equipment funds <br></br>**Required modules:** equipment_funding
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of ids */
+                    id?: number | number[];
+                    /** @description A simple text search term, compared against the title */
+                    title?: string;
+                    /** @description *Team context*: Exclude entities inherited from the team's org */
+                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    sort?: "createdAt" | "updatedAt" | "id" | "title";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of equipment funds */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create an equipment fund
+         * @description Create an equipment fund <br></br>**Required modules:** equipment
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The title of a resource */
+                        title: string;
+                        /** @description Value of the fund in whole cents, or equivalent sub-unit of team's currency. */
+                        value: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description An equipment fund */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-inspection-results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of equipment inspection results
+         * @description Retrieve a list of equipment inspection results <br></br>**Required modules:** equipment_inspections
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
                     id?: number[] & (number | number[]);
-                    /** @description This item's ref */
-                    ref?: string;
-                    /** @description This item's brand id */
-                    brand_id?: number;
-                    /** @description This item's model id */
-                    model_id?: number;
-                    /** @description This items's category id */
+                    /** @description Whether the inspection result is completed */
+                    completed?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
+                    /** @description The barcode of the equipment being inspected */
+                    barcode?: string;
+                    /** @description A text to filter equipment being inspected based on kind title or ref */
+                    text?: string;
+                    /** @description The id of the equipment resource */
+                    equipment_id?: number;
+                    /** @description The id or array of ids of the inspection resource */
+                    equipment_inspection_id?: number[] & (number | number[]);
+                    /** @description The identifier of the location to filter on. This will filter based on the location of the equipment - not the Inspection itself */
+                    location_id?: number;
+                    /** @description A team identifier */
+                    team_id?: number;
+                    sort?: "createdAt" | "updatedAt" | "id" | "dateDue" | "text";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of inspection result items */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-inspection-step-results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve equipment inspection result steps
+         * @description Retrieve equipment inspection result steps <br></br>**Required modules:** equipment_inspections
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description An inspection result id */
+                    equipment_inspection_result_id: number;
+                    sort?: "createdAt" | "updatedAt" | "id";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of inspection step results */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create an equipment inspection step result
+         * @description Create an equipment inspection step result <br></br>**Required modules:** equipment_inspections
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The inspection result step notes */
+                        notes?: string;
+                        /**
+                         * @description The outcome of the inspection step
+                         * @enum {string|null}
+                         */
+                        outcome?: "PASS" | "FAIL" | "NA" | null;
+                        /** @description The inspection result step title, should match the inspection step title */
+                        stepText: string;
+                        /** @description An inspection result id */
+                        equipmentInspectionResultId: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description An inspection result step */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-inspection-steps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve an equipment inspection steps
+         * @description Retrieve an equipment inspection steps <br></br>**Required modules:** equipment_inspections
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description An inspection id */
+                    inspection_id: number;
+                    order?: "asc" | "desc";
+                    sort?: "createdAt" | "updatedAt" | "id" | "ordering";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of inspection step items */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create an equipment inspection step
+         * @description Create an equipment inspection step <br></br>**Required modules:** equipment_inspections
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description An inspection id */
+                        inspectionId: number;
+                        /** @description The inspection step text */
+                        text: string;
+                        /** @description The numeric order of this step during the inspection */
+                        ordering: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description An inspection step */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-inspections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of equipment inspections
+         * @description Retrieve a list of equipment inspections <br></br>**Required modules:** equipment_inspections
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    /** @description Whether the inspection is active or archived */
+                    is_active?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
+                    /** @description The id or array of ids of the equipment item the inspection is attached to */
+                    equipment_id?: number[] & (number | number[]);
+                    /** @description The identifier of the location to filter on. This will filter based on the location of the equipment - not the Inspection itself */
+                    equipment_location_id?: number;
+                    /** @description A team identifier */
+                    team_id?: number;
+                    /** @description One or more equipment kind ids */
+                    kind_id?: number[] & (number | number[]);
+                    sort?: "createdAt" | "updatedAt" | "id";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of inspection items */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-kinds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of equipment kinds
+         * @description Retrieve a list of equipment kinds <br></br>**Required modules:** equipment
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    /** @description A simple text search term, compared against the title */
+                    title?: string;
+                    /** @description *Team context*: Exclude entities inherited from the team's org */
+                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
+                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description An equipment kind location id */
+                    location_id?: number;
+                    /** @description An equipment category id */
                     category_id?: number;
-                    /** @description This item's kind id */
-                    kind_id?: number;
-                    /** @description This item's supplier id */
+                    /** @description - `VEHICLE`: A vehicle of some kind
+                     *     - `SUPPLY`: A supply of disposable items
+                     *     - `EQUIPMENT`: A re-usable piece of equipment */
+                    type?: "VEHICLE" | "SUPPLY" | "EQUIPMENT";
+                    sort?: "createdAt" | "updatedAt" | "id" | "title";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of equipment kinds */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create an equipment kind
+         * @description Create an equipment kind <br></br>**Required modules:** equipment
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The kind's title */
+                        title: string;
+                        /** @description This kind's parent category id */
+                        categoryId: number;
+                        /**
+                         * @description - `VEHICLE`: A vehicle of some kind
+                         *     - `SUPPLY`: A supply of disposable items
+                         *     - `EQUIPMENT`: A re-usable piece of equipment
+                         * @default EQUIPMENT
+                         * @enum {string}
+                         */
+                        type?: "VEHICLE" | "SUPPLY" | "EQUIPMENT";
+                        /** @description The cost incurred per use */
+                        costPerUse?: number;
+                        /** @description The cost incurred per hour of use */
+                        costPerHour?: number;
+                        /** @description The cost incurred per distance of use */
+                        costPerDistance?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description An equipment kind */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-locations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of equipment locations
+         * @description Retrieve a list of equipment locations <br></br>**Required modules:** equipment
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    /** @description The title of a resource */
+                    title?: string;
+                    /** @description Return only archived locations */
+                    deleted?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
+                    sort?: "createdAt" | "updatedAt" | "id";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of equipment locations */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-models": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of equipment models
+         * @description Retrieve a list of equipment models <br></br>**Required modules:** equipment
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of ids */
+                    id?: number | number[];
+                    /** @description A simple text search term, compared against the title */
+                    title?: string;
+                    /** @description *Team context*: Exclude entities inherited from the team's org */
+                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
+                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description An equipment brand id */
+                    brand_id?: number;
+                    sort?: "createdAt" | "updatedAt" | "id" | "title";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of equipment models */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create an equipment model
+         * @description Create an equipment model <br></br>**Required modules:** equipment
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The model's title */
+                        title: string;
+                        /** @description The brand id this model belongs to */
+                        brandId: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description An equipment model */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-retired-reasons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of equipment retired reasons
+         * @description Retrieve a list of equipment retired reasons <br></br>**Required modules:** equipment
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of ids */
+                    id?: number | number[];
+                    /** @description *Team context*: Exclude entities inherited from the team's org */
+                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    sort?: "createdAt" | "updatedAt" | "id" | "title";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of equipment retired reasons */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create an equipment retired reason
+         * @description Create an equipment retired reason <br></br>**Required modules:** equipment
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The title of a resource */
+                        title: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description An equipment retired reason resource */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-supplier-refs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of equipment supplier references
+         * @description Retrieve a list of equipment supplier references <br></br>**Required modules:** equipment
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of ids */
+                    id?: number | number[];
+                    /** @description A simple text search term, compared against the title */
+                    title?: string;
+                    /** @description *Team context*: Exclude entities inherited from the team's org */
+                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
+                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description One or more team identifiers */
+                    team_id?: number[] & (number | number[]);
+                    /** @description An equipment supplier reference id */
                     supplier_id?: number;
+                    sort?: "createdAt" | "updatedAt" | "id" | "title";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of equipment references */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create an equipment supplier reference
+         * @description Create an equipment supplier reference <br></br>**Required modules:** equipment
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The supplier ref's title */
+                        title: string;
+                        /** @description The supplier id this reference belongs to */
+                        supplierId: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description An equipment supplier reference */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-suppliers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of equipment suppliers
+         * @description Retrieve a list of equipment suppliers <br></br>**Required modules:** equipment
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of ids */
+                    id?: number | number[];
+                    /** @description A simple text search term, compared against the title */
+                    title?: string;
+                    /** @description One or more team identifiers */
+                    team_id?: number[] & (number | number[]);
+                    /** @description *Team context*: Exclude entities inherited from the team's org */
+                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
+                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    sort?: "createdAt" | "updatedAt" | "id" | "title";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of equipment suppliers */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create an equipment supplier resource
+         * @description Create an equipment supplier resource <br></br>**Required modules:** equipment
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The supplier's title */
+                        title: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description An equipment supplier resource */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-usages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of equipment usages
+         * @description Retrieve a list of equipment usages <br></br>**Required modules:** activities,equipment
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    /** @description A list of numeric identifiers representing resources */
+                    activity_id?: number[] & (number | number[]);
+                    /** @description A list of numeric identifiers representing resources */
+                    equipment_id?: number[] & (number | number[]);
+                    /** @description The resource type of an activity */
+                    activity_resource_type?: "Event" | "Exercise" | "Incident";
+                    /** @description - `VEHICLE`: A vehicle of some kind
+                     *     - `SUPPLY`: A supply of disposable items
+                     *     - `EQUIPMENT`: A re-usable piece of equipment */
+                    equipment_type?: "VEHICLE" | "SUPPLY" | "EQUIPMENT";
+                    /** @description A partial search on the Equipment item entity ref */
+                    ref?: string;
+                    sort?: "createdAt" | "updatedAt" | "id";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of equipment usages */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create an equipment usage
+         * @description Create an equipment usage <br></br>**Required modules:** activities,equipment
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The numeric identifier for a resource */
+                        activityId: number;
+                        /** @description The numeric identifier for a resource */
+                        equipmentId: number;
+                        /** @description The minutes the equipment was used. Only if the Equipment item's type is "Equipment" */
+                        duration?: number;
+                        /** @description The distance the equipment was used in the km / miles. Only if the Equipment item's type is "Vehicle" */
+                        distance?: number;
+                        /** @description The quantity that was used. Only if the Equipment item's type is "Supply" */
+                        used?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description An equipment usage */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of equipment items
+         * @description Retrieve a list of equipment items <br></br>**Required modules:** equipment
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    /** @description This item's ref. Mutually exclusive with search */
+                    ref?: string;
+                    /** @description A simple text search term, compared against the ref and the kind's title. Mutually exclusive with ref */
+                    text?: string;
+                    /** @description This item's brand id */
+                    brand_id?: number[] & (number | number[]);
+                    /** @description This item's model id */
+                    model_id?: number[] & (number | number[]);
+                    /** @description This items's category id */
+                    category_id?: number[] & (number | number[]);
+                    /** @description This item's kind id */
+                    kind_id?: number[] & (number | number[]);
+                    /** @description This item's supplier id */
+                    supplier_id?: number[] & (number | number[]);
                     /** @description This item's supplier ref id */
-                    supplier_ref_id?: number;
+                    supplier_ref_id?: number[] & (number | number[]);
                     /** @description This item's funding source id */
-                    fund_id?: number;
+                    fund_id?: number[] & (number | number[]);
                     /** @description This item's inspection id */
                     inspection_id?: number;
                     /** @description Member holding this item. Either an id or "me". Mutually exclusive with location_id */
                     member_id?: number | "me";
                     /** @description Equipment item in which this item is stored */
-                    parent_id?: number;
+                    parent_id?: null & ("null" | ("null" | null) | number);
                     /** @description Items flagged as critical */
                     is_critical?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
                     /** @description Items flagged as expired */
@@ -5784,8 +2762,8 @@ export interface paths {
                     only_current?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
                     /** @description Only include lost, inactive, retired and other items */
                     exclude_current?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                    /** @description An equipment location, either an id or: "none", "inbox", "outbox", "personal". Mutually exclusive with member_id */
-                    location_id?: number | "all" | "none" | "inbox" | "outbox" | "personal";
+                    /** @description An equipment location, represented by either an id or enum. Mutually exclusive with member_id */
+                    location_id?: (number[] & (number | number[])) | string;
                     sort?: "createdAt" | "updatedAt" | "id" | "ref" | "barcode" | "status" | "memberId" | "locationId" | "manufacturerId" | "modelId" | "serial";
                     order?: "asc" | "desc";
                 };
@@ -5819,769 +2797,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v3/team/{teamId}/events/reference/check": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Check if an auto-id reference is available
-         * @description Check if an auto-id reference is available
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description A team id */
-                    teamId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description Reference code for activity. Must be unique. Only allowed if team has activity auto-id enabled. */
-                        reference: string;
-                        /** @description The numeric identifier for a resource */
-                        targetResourceId?: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description A response indicating availability */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/team/{teamId}/events/reference/increment": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Increment the auto-id reference sequence
-         * @description Increment the auto-id reference sequence
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description A team id */
-                    teamId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A response indicating a reference to be used */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/team/{teamId}/events/reference/peek": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Retrieve the next available auto-id reference
-         * @description Retrieve the next available auto-id reference
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description A team id */
-                    teamId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A response indicating the next available reference */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/team/{teamId}/events/{activityId}/approval": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Change an event approval status
-         * @description Change an event approval status <br></br>**Required modules:** MODULE_ACTIVITIES
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description A team id */
-                    teamId: number;
-                    /** @description The activity identifier */
-                    activityId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description Whether or not an activity is approved */
-                        approved: boolean | ("true" | "false" | "1" | "0" | "");
-                    };
-                };
-            };
-            responses: {
-                /** @description An event */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/team/{teamId}/events/{activityId}/tags": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Set an event's tags
-         * @description Set an event's tags <br></br>**Required modules:** MODULE_ACTIVITIES
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description A team id */
-                    teamId: number;
-                    /** @description The activity identifier */
-                    activityId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The complete list of desired tag ids */
-                        tagIds: number[];
-                    };
-                };
-            };
-            responses: {
-                /** @description An event */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/team/{teamId}/exercises/reference/check": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Check if an auto-id reference is available
-         * @description Check if an auto-id reference is available
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description A team id */
-                    teamId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description Reference code for activity. Must be unique. Only allowed if team has activity auto-id enabled. */
-                        reference: string;
-                        /** @description The numeric identifier for a resource */
-                        targetResourceId?: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description A response indicating availability */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/team/{teamId}/exercises/reference/increment": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Increment the auto-id reference sequence
-         * @description Increment the auto-id reference sequence
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description A team id */
-                    teamId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A response indicating a reference to be used */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/team/{teamId}/exercises/reference/peek": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Retrieve the next available auto-id reference
-         * @description Retrieve the next available auto-id reference
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description A team id */
-                    teamId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A response indicating the next available reference */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/team/{teamId}/exercises/{activityId}/approval": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Change an exercise approval status
-         * @description Change an exercise approval status <br></br>**Required modules:** MODULE_ACTIVITIES
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description A team id */
-                    teamId: number;
-                    /** @description The activity identifier */
-                    activityId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description Whether or not an activity is approved */
-                        approved: boolean | ("true" | "false" | "1" | "0" | "");
-                    };
-                };
-            };
-            responses: {
-                /** @description An exercise */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/team/{teamId}/exercises/{activityId}/tags": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Set an exercise's tags
-         * @description Set an exercise's tags <br></br>**Required modules:** MODULE_ACTIVITIES
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description A team id */
-                    teamId: number;
-                    /** @description The activity identifier */
-                    activityId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The complete list of desired tag ids */
-                        tagIds: number[];
-                    };
-                };
-            };
-            responses: {
-                /** @description An exercise */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/team/{teamId}/health-safety-reports/{resourceId}/approval": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Change a health & safety report's approval status
-         * @description Change a health & safety report's approval status <br></br>**Required modules:** MODULE_HEALTHSAFETY
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description A team id */
-                    teamId: number;
-                    /** @description The resource identifier */
-                    resourceId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description Whether or not a resource is approved */
-                        approved: boolean | ("true" | "false" | "1" | "0" | "");
-                    };
-                };
-            };
-            responses: {
-                /** @description A health & safety report */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/team/{teamId}/incidents/reference/check": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Check if an auto-id reference is available
-         * @description Check if an auto-id reference is available
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description A team id */
-                    teamId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description Reference code for activity. Must be unique. Only allowed if team has activity auto-id enabled. */
-                        reference: string;
-                        /** @description The numeric identifier for a resource */
-                        targetResourceId?: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description A response indicating availability */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/team/{teamId}/incidents/reference/increment": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Increment the auto-id reference sequence
-         * @description Increment the auto-id reference sequence
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description A team id */
-                    teamId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A response indicating a reference to be used */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/team/{teamId}/incidents/reference/peek": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Retrieve the next available auto-id reference
-         * @description Retrieve the next available auto-id reference
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description A team id */
-                    teamId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A response indicating the next available reference */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/team/{teamId}/incidents/{activityId}/approval": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Change an incident approval status
-         * @description Change an incident approval status <br></br>**Required modules:** MODULE_ACTIVITIES
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description A team id */
-                    teamId: number;
-                    /** @description The activity identifier */
-                    activityId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description Whether or not an activity is approved */
-                        approved: boolean | ("true" | "false" | "1" | "0" | "");
-                    };
-                };
-            };
-            responses: {
-                /** @description An incident */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/team/{teamId}/incidents/{activityId}/tags": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Set an incident's tags
-         * @description Set an incident's tags <br></br>**Required modules:** MODULE_ACTIVITIES
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description A team id */
-                    teamId: number;
-                    /** @description The activity identifier */
-                    activityId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The complete list of desired tag ids */
-                        tagIds: number[];
-                    };
-                };
-            };
-            responses: {
-                /** @description An incident */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/documents/{documentId}/download": {
+    "/v3/{context}/{contextId}/events": {
         parameters: {
             query?: never;
             header?: never;
@@ -6589,18 +2805,40 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Download a document
-         * @description Download a document <br></br>**Required modules:**
+         * Retrieve a list of events
+         * @description Retrieve a list of events <br></br>**Required modules:** activities
          */
         get: {
             parameters: {
                 query?: {
-                    /** @description The document size to be downloaded */
-                    size?: "ORIGINAL" | "PREVIEW" | "THUMBNAIL";
-                    /** @description The revision number to be downloaded */
-                    revision?: number;
-                    /** @description Legacy version search */
-                    version?: string;
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    /** @description A simple text search term, compared against the reference and reference description */
+                    reference?: string;
+                    /** @description Return only activities starting before this datetime */
+                    before?: string;
+                    /** @description Return only activities ending before this datetime */
+                    ends_before?: string;
+                    /** @description Return only activities with this tag bundle id */
+                    tag_bundle_id?: number;
+                    /** @description Return only activities with this tag id */
+                    tag_id?: number;
+                    /** @description Return only activities with this team id */
+                    team_id?: number;
+                    /** @description Return only activities ending after this datetime */
+                    after?: string;
+                    /** @description Return only activities starting after this datetime */
+                    starts_after?: string;
+                    /** @description Return only deleted activities */
+                    deleted?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
+                    /** @description Return only published activities */
+                    published?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
+                    sort?: "createdAt" | "updatedAt" | "id" | "teamId" | "reference" | "startsAt" | "percAttendance";
+                    order?: "asc" | "desc";
                 };
                 header?: never;
                 path: {
@@ -6608,14 +2846,332 @@ export interface paths {
                     context: "team" | "organisation" | "admin";
                     /** @description Either a team, organisation or admin's id */
                     contextId: number;
-                    /** @description The ID of the document */
-                    documentId: number;
                 };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description A binary file with the Document file type */
+                /** @description A list of Events */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create an event
+         * @description Create an event
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description Reference code for activity. Must be unique. Only allowed if team has activity auto-id enabled. */
+                        reference?: string;
+                        /** @description A text description for the reference / the activity's title */
+                        referenceDescription?: string;
+                        /**
+                         * @description The activity's description. Supports HTML.
+                         * @default null
+                         */
+                        description?: string | null;
+                        /**
+                         * @description The activity's plan. Supports HTML.
+                         * @default null
+                         */
+                        plan?: string | null;
+                        /** @description The activity's tracking number */
+                        trackingNumber?: string | null;
+                        /** @description Whether the activity is shared across the organisation */
+                        shared?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
+                        /** @description Whether the activity requires the attendance of the full team or is selective. If set true on activity creation, the attendance records will automatically be created for appropriate team members. */
+                        fullTeam?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
+                        address?: {
+                            /** @description Country */
+                            country?: string;
+                            /** @description Postcode or ZIP code */
+                            postcode?: string;
+                            /** @description Province, county or region */
+                            region?: string;
+                            /** @description Number, street and house */
+                            street?: string;
+                            /** @description City or town */
+                            town?: string;
+                        };
+                        location?: {
+                            /** @description The latitude where this entity is located */
+                            latitude: number;
+                            /** @description The longtitude where this entity is located */
+                            longitude: number;
+                        };
+                        /** @description The numeric identifier for a resource */
+                        locationBookmarkId?: number;
+                        /**
+                         * Format: date-time
+                         * @description An ISO8601 datetime string
+                         */
+                        startsAt: string;
+                        /**
+                         * Format: date-time
+                         * @description The activity's end date
+                         */
+                        endsAt?: string;
+                        /** @description An array of objects consisting of the custom-field id and either: the value as a properly formatted string for the field type, or array of ids for choice type fields (with a max of one id for single-choice fields */
+                        customFieldValues?: ({
+                            /** @description custom-field identifier */
+                            id: number;
+                            /** @description array of custom-field option identifiers */
+                            value: number[];
+                        } | {
+                            /** @description custom-field identifier */
+                            id: number;
+                            value: string;
+                        })[];
+                    };
+                };
+            };
+            responses: {
+                /** @description An event */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/exercises": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of exercises
+         * @description Retrieve a list of exercises <br></br>**Required modules:** activities
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    /** @description A simple text search term, compared against the reference and reference description */
+                    reference?: string;
+                    /** @description Return only activities starting before this datetime */
+                    before?: string;
+                    /** @description Return only activities ending before this datetime */
+                    ends_before?: string;
+                    /** @description Return only activities with this tag bundle id */
+                    tag_bundle_id?: number;
+                    /** @description Return only activities with this tag id */
+                    tag_id?: number;
+                    /** @description Return only activities with this team id */
+                    team_id?: number;
+                    /** @description Return only activities ending after this datetime */
+                    after?: string;
+                    /** @description Return only activities starting after this datetime */
+                    starts_after?: string;
+                    /** @description Return only deleted activities */
+                    deleted?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
+                    /** @description Return only published activities */
+                    published?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
+                    sort?: "createdAt" | "updatedAt" | "id" | "teamId" | "reference" | "startsAt" | "percAttendance";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of Exercises */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create an exercise
+         * @description Create an exercise
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description Reference code for activity. Must be unique. Only allowed if team has activity auto-id enabled. */
+                        reference?: string;
+                        /** @description A text description for the reference / the activity's title */
+                        referenceDescription?: string;
+                        /**
+                         * @description The activity's description. Supports HTML.
+                         * @default null
+                         */
+                        description?: string | null;
+                        /**
+                         * @description The activity's plan. Supports HTML.
+                         * @default null
+                         */
+                        plan?: string | null;
+                        /** @description The activity's tracking number */
+                        trackingNumber?: string | null;
+                        /** @description Whether the activity is shared across the organisation */
+                        shared?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
+                        /** @description Whether the activity requires the attendance of the full team or is selective. If set true on activity creation, the attendance records will automatically be created for appropriate team members. */
+                        fullTeam?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
+                        address?: {
+                            /** @description Country */
+                            country?: string;
+                            /** @description Postcode or ZIP code */
+                            postcode?: string;
+                            /** @description Province, county or region */
+                            region?: string;
+                            /** @description Number, street and house */
+                            street?: string;
+                            /** @description City or town */
+                            town?: string;
+                        };
+                        location?: {
+                            /** @description The latitude where this entity is located */
+                            latitude: number;
+                            /** @description The longtitude where this entity is located */
+                            longitude: number;
+                        };
+                        /** @description The numeric identifier for a resource */
+                        locationBookmarkId?: number;
+                        /**
+                         * Format: date-time
+                         * @description An ISO8601 datetime string
+                         */
+                        startsAt: string;
+                        /**
+                         * Format: date-time
+                         * @description The activity's end date
+                         */
+                        endsAt?: string;
+                        /** @description An array of objects consisting of the custom-field id and either: the value as a properly formatted string for the field type, or array of ids for choice type fields (with a max of one id for single-choice fields */
+                        customFieldValues?: ({
+                            /** @description custom-field identifier */
+                            id: number;
+                            /** @description array of custom-field option identifiers */
+                            value: number[];
+                        } | {
+                            /** @description custom-field identifier */
+                            id: number;
+                            value: string;
+                        })[];
+                    };
+                };
+            };
+            responses: {
+                /** @description An exercise */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/handler-group-memberships": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of handler group memberships
+         * @description Retrieve a list of handler group memberships <br></br>**Required modules:** groups
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    /** @description One or more team identifiers */
+                    team_id?: number[] & (number | number[]);
+                    /** @description One or more group identifiers */
+                    group_id?: number[] & (number | number[]);
+                    /** @description One or more handler identifiers */
+                    handler_id?: number[] & (number | number[]);
+                    sort?: "createdAt" | "updatedAt" | "id";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of handler group memberships */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -6634,7 +3190,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v3/{context}/{contextId}/documents/{documentId}/revisions": {
+    "/v3/{context}/{contextId}/handler-groups": {
         parameters: {
             query?: never;
             header?: never;
@@ -6642,8 +3198,159 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Retrieve a single document's revisions
-         * @description Retrieve a single document's revisions <br></br>**Required modules:**
+         * Retrieve a list of handler groups
+         * @description Retrieve a list of handler groups <br></br>**Required modules:** groups
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    /** @description One or more team identifiers */
+                    team_id?: number[] & (number | number[]);
+                    /** @description A simple text search term, compared against the title */
+                    title?: string;
+                    order?: "asc" | "desc";
+                    sort?: "createdAt" | "updatedAt" | "id" | "title";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of handler Groups */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create a handler group
+         * @description Create a handler group
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The group's title */
+                        title: string;
+                        /** @description The group's bundle */
+                        deprecatedBundle?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description A handler group */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/handler-qualifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of handler qualifications
+         * @description Retrieve a list of handler qualifications
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description The title of a resource */
+                    title?: string;
+                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
+                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description *Team context*: Exclude entities inherited from the team's org */
+                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    sort?: "createdAt" | "updatedAt" | "id";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of handler qualifications */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/health-safety-categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of Health & Safety Categories
+         * @description Retrieve a list of Health & Safety Categories <br></br>**Required modules:** healthsafety
          */
         get: {
             parameters: {
@@ -6654,10 +3361,12 @@ export interface paths {
                     size?: number;
                     /** @description A list of ids */
                     id?: number | number[];
-                    /** @description The requested revision number */
-                    revision?: string;
-                    sort?: "createdAt" | "updatedAt" | "id";
+                    /** @description *Team context*: Exclude entities inherited from the team's org */
+                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
+                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
                     order?: "asc" | "desc";
+                    sort?: "createdAt" | "updatedAt" | "id" | "title";
                 };
                 header?: never;
                 path: {
@@ -6665,14 +3374,117 @@ export interface paths {
                     context: "team" | "organisation" | "admin";
                     /** @description Either a team, organisation or admin's id */
                     contextId: number;
-                    /** @description The ID of the document */
-                    documentId: number;
                 };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description A document revision detail */
+                /** @description A list of Health & Safety Categories */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create a Health & Safety Category
+         * @description Create a Health & Safety Category <br></br>**Required modules:** healthsafety
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The category title */
+                        title: string;
+                        /**
+                         * @description The colour assigned to the category
+                         * @enum {string}
+                         */
+                        colour: "BLACK" | "BLUE" | "CADET_BLUE" | "DARK_BLUE" | "DARK_GREEN" | "DARK_PURPLE" | "DARK_RED" | "GRAY" | "GREEN" | "LIGHT_GRAY" | "LIGHT_RED" | "ORANGE" | "PURPLE" | "RED";
+                    };
+                };
+            };
+            responses: {
+                /** @description A Health & Safety Category */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/health-safety-reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of Health & Safety Reports
+         * @description Retrieve a list of Health & Safety Reports <br></br>**Required modules:** healthsafety
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description The ID of an associated resource */
+                    target_resource_id?: number;
+                    /** @description The approval state of the report */
+                    approved?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description A Health & Safety Category ID */
+                    category_id?: number;
+                    /** @description The date-time of this occurance */
+                    before?: string | null;
+                    /** @description A list of ids */
+                    id?: number | number[];
+                    order?: "asc" | "desc";
+                    /** @description A Health & Safety Severity ID */
+                    severity_id?: number;
+                    sort?: "createdAt" | "startsAt" | "id" | "updatedAt";
+                    /** @description The date-time of this occurance */
+                    after?: string | null;
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of Health & Safety Reports */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -6691,7 +3503,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v3/{context}/{contextId}/equipment-inspection-results/{inspectionResultId}/equipment-inspection-step-results": {
+    "/v3/{context}/{contextId}/health-safety-severities": {
         parameters: {
             query?: never;
             header?: never;
@@ -6699,10 +3511,53 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Retrieve an equipment inspection's steps' results
-         * @description Retrieve an equipment inspection's steps' results <br></br>**Required modules:** MODULE_EQUIPMENT_INSPECTIONS
+         * Retrieve a list of Health & Safety Severities
+         * @description Retrieve a list of Health & Safety Severities <br></br>**Required modules:** healthsafety
          */
         get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of ids */
+                    id?: number | number[];
+                    /** @description *Team context*: Exclude entities inherited from the team's org */
+                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
+                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    order?: "asc" | "desc";
+                    sort?: "createdAt" | "updatedAt" | "id" | "score" | "title";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of Health & Safety Severities */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create a Health & Safety Severity
+         * @description Create a Health & Safety Severity <br></br>**Required modules:** healthsafety
+         */
+        post: {
             parameters: {
                 query?: never;
                 header?: never;
@@ -6711,14 +3566,75 @@ export interface paths {
                     context: "team" | "organisation" | "admin";
                     /** @description Either a team, organisation or admin's id */
                     contextId: number;
-                    /** @description An inspection result id */
-                    inspectionResultId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The severity title */
+                        title: string;
+                        /**
+                         * @description The score assigned to this severity
+                         * @default null
+                         */
+                        score?: number | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description A Health & Safety Severity */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/incident-involved-injuries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of person involved injuries
+         * @description Retrieve a list of person involved injuries <br></br>**Required modules:** persons_involved_medical
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    order?: "asc" | "desc";
+                    sort?: "createdAt" | "updatedAt" | "id";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
                 };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description An inspection result's step's results */
+                /** @description A list of person involved injuries */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -6731,6 +3647,1973 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/incident-involved-metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieves data for use with persons / vehicles involved in incidents
+         * @description Retrieves data for use with persons / vehicles involved in incidents <br></br>**Required modules:** persons_involved
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Data for use with persons / vehicles involved in incidents */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/incident-involved-persons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of persons involved in incidents
+         * @description Retrieve a list of persons involved in incidents <br></br>**Required modules:** persons_involved
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    /** @description A list of numeric identifiers representing resources */
+                    incident_id?: number[] & (number | number[]);
+                    order?: "asc" | "desc";
+                    sort?: "createdAt" | "updatedAt" | "id";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of persons involved in incidents */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/incidents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of incidents
+         * @description Retrieve a list of incidents <br></br>**Required modules:** activities
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    /** @description A simple text search term, compared against the reference and reference description */
+                    reference?: string;
+                    /** @description Return only activities starting before this datetime */
+                    before?: string;
+                    /** @description Return only activities ending before this datetime */
+                    ends_before?: string;
+                    /** @description Return only activities with this tag bundle id */
+                    tag_bundle_id?: number;
+                    /** @description Return only activities with this tag id */
+                    tag_id?: number;
+                    /** @description Return only activities with this team id */
+                    team_id?: number;
+                    /** @description Return only activities ending after this datetime */
+                    after?: string;
+                    /** @description Return only activities starting after this datetime */
+                    starts_after?: string;
+                    /** @description Return only deleted activities */
+                    deleted?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
+                    /** @description Return only published activities */
+                    published?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
+                    sort?: "createdAt" | "updatedAt" | "id" | "teamId" | "reference" | "startsAt" | "percAttendance";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of Incidents */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create an incident
+         * @description Create an incident
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description Reference code for activity. Must be unique. Only allowed if team has activity auto-id enabled. */
+                        reference?: string;
+                        /** @description A text description for the reference / the activity's title */
+                        referenceDescription?: string;
+                        /**
+                         * @description The activity's description. Supports HTML.
+                         * @default null
+                         */
+                        description?: string | null;
+                        /**
+                         * @description The activity's plan. Supports HTML.
+                         * @default null
+                         */
+                        plan?: string | null;
+                        /** @description The activity's tracking number */
+                        trackingNumber?: string | null;
+                        /** @description Whether the activity is shared across the organisation */
+                        shared?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
+                        /** @description Whether the activity requires the attendance of the full team or is selective. If set true on activity creation, the attendance records will automatically be created for appropriate team members. */
+                        fullTeam?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
+                        address?: {
+                            /** @description Country */
+                            country?: string;
+                            /** @description Postcode or ZIP code */
+                            postcode?: string;
+                            /** @description Province, county or region */
+                            region?: string;
+                            /** @description Number, street and house */
+                            street?: string;
+                            /** @description City or town */
+                            town?: string;
+                        };
+                        location?: {
+                            /** @description The latitude where this entity is located */
+                            latitude: number;
+                            /** @description The longtitude where this entity is located */
+                            longitude: number;
+                        };
+                        /** @description The numeric identifier for a resource */
+                        locationBookmarkId?: number;
+                        /**
+                         * Format: date-time
+                         * @description An ISO8601 datetime string
+                         */
+                        startsAt: string;
+                        /**
+                         * Format: date-time
+                         * @description The activity's end date
+                         */
+                        endsAt?: string;
+                        /** @description An array of objects consisting of the custom-field id and either: the value as a properly formatted string for the field type, or array of ids for choice type fields (with a max of one id for single-choice fields */
+                        customFieldValues?: ({
+                            /** @description custom-field identifier */
+                            id: number;
+                            /** @description array of custom-field option identifiers */
+                            value: number[];
+                        } | {
+                            /** @description custom-field identifier */
+                            id: number;
+                            value: string;
+                        })[];
+                    };
+                };
+            };
+            responses: {
+                /** @description An incident entity */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/location-bookmarks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of location bookmarks
+         * @description Retrieve a list of location bookmarks <br></br>**Required modules:** location
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    /** @description *Team context*: Exclude entities inherited from the team's org */
+                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
+                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    sort?: "createdAt" | "updatedAt" | "id";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of location bookmark resources */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/member-custom-statuses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of custom member statuses
+         * @description Retrieve a list of custom member statuses <br></br>**Required modules:** members
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description Status of member */
+                    status?: "OPERATIONAL" | "NON_OPERATIONAL" | "RETIRED";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of custom member statuses */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/member-group-memberships": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of group memberships
+         * @description Retrieve a list of group memberships <br></br>**Required modules:** groups
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    /** @description One or more team identifiers */
+                    team_id?: number[] & (number | number[]);
+                    /** @description One or more group identifiers */
+                    group_id?: number[] & (number | number[]);
+                    /** @description One or more member identifiers */
+                    member_id?: number[] & (number | number[]);
+                    member_status?: ("OPERATIONAL" | "NON_OPERATIONAL" | "OBSERVER" | "RETIRED" | "DELETED") | ("OPERATIONAL" | "NON_OPERATIONAL" | "OBSERVER" | "RETIRED" | "DELETED")[];
+                    sort?: "createdAt" | "updatedAt" | "id";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of member group memberships */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/member-groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of member groups
+         * @description Retrieve a list of member groups <br></br>**Required modules:** groups
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    /** @description One or more team identifiers */
+                    team_id?: number[] & (number | number[]);
+                    /** @description A simple text search term, compared against the title */
+                    title?: string;
+                    order?: "asc" | "desc";
+                    sort?: "createdAt" | "updatedAt" | "id" | "title";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of member Groups */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create a member group
+         * @description Create a member group
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The group's title */
+                        title: string;
+                        /** @description The group's bundle */
+                        deprecatedBundle?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description A member group */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/member-qualification-awards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of member qualification awards
+         * @description Retrieve a list of member qualification awards
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    /** @description The qualification's id */
+                    qualification_id?: number;
+                    /** @description Qualified member. Either an id or "me" */
+                    member_id?: number | "me";
+                    sort?: "createdAt" | "updatedAt" | "id";
+                    order?: "asc" | "desc";
+                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
+                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description *Team context*: Exclude entities inherited from the team's org */
+                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of member qualification awards */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create a member qualification award
+         * @description Create a member qualification award
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description Qualified member. Either an id or "me" */
+                        memberId: number | "me";
+                        /**
+                         * Format: date-time
+                         * @description An ISO8601 datetime string
+                         */
+                        startsAt: string;
+                        /**
+                         * Format: date-time
+                         * @description End of award validity period, or null for no expiration
+                         */
+                        endsAt?: string | null;
+                        /** @description The qualification's id */
+                        qualificationId: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description A member qualification award */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/member-qualifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of member qualifications
+         * @description Retrieve a list of member qualifications
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description The title of a resource */
+                    title?: string;
+                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
+                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description *Team context*: Exclude entities inherited from the team's org */
+                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    sort?: "createdAt" | "updatedAt" | "id";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of member qualifications */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/member-retired-reasons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of member retired reasons
+         * @description Retrieve a list of member retired reasons <br></br>**Required modules:** members
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of member retire reason identifiers */
+                    id?: number | number[];
+                    /** @description *Team context*: Exclude entities inherited from the team's org */
+                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
+                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    sort?: "createdAt" | "updatedAt" | "id";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of member retired reasons */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of members
+         * @description Retrieve a list of members <br></br>**Required modules:**
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    /** @description The numeric identifier for a resource */
+                    team_id?: number;
+                    status_label_id?: null & ("null" | ("null" | null) | (number[] & (number | number[])));
+                    /** @description If true or omitted, exclude custom status labels when querying by status. */
+                    status_excludes_label_ids?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
+                    /** @description RFID tag or barcode */
+                    id_tag?: string;
+                    /** @description One or more member statuses. Some statuses require extra permissions. */
+                    status?: ("OPERATIONAL" | "NON_OPERATIONAL" | "OBSERVER" | "RETIRED") | ("OPERATIONAL" | "NON_OPERATIONAL" | "OBSERVER" | "RETIRED")[];
+                    /** @description Return only deleted members */
+                    deleted?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
+                    /** @description The member's name */
+                    name?: string;
+                    order?: "asc" | "desc";
+                    sort?: "createdAt" | "updatedAt" | "id" | "name" | "ref" | "percReportingEvent" | "percReportingExercise" | "percReportingIncident" | "percRollingEvent" | "percRollingExercise" | "percRollingIncident" | "countRollingHours" | "countReportingEvent" | "countReportingExercise" | "countReportingHours" | "countReportingIncident" | "countRollingHoursEvent" | "countRollingHoursExercise" | "countRollingHoursIncident";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of members */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/modules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a particular module status
+         * @description Get a particular module status
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description Module keys */
+                    setting: "activities" | "activity_approval_states" | "activity_autoid" | "activity_current_location" | "activity_sharing" | "address_book" | "allow_deleteunit" | "allow_organisationlink" | "analytics" | "animals" | "api_access" | "api_allow_pat_access" | "app_equipment_enterprise" | "availability" | "calendar" | "charts" | "chat" | "collaboration" | "communication_for_members" | "communication" | "costing" | "courses_matrix" | "courses_preferred" | "courses" | "dashboard" | "documents_revisions" | "documents" | "duty" | "equipment_checklists" | "equipment_funding" | "equipment_inspections" | "equipment_purge" | "equipment_repairs" | "equipment_shipping_reports" | "equipment_team_move" | "equipment" | "events" | "exercises" | "groups" | "hazmat" | "healthsafety" | "hide_qualifications" | "incidents" | "location_custom" | "location_elevation" | "location_map" | "location" | "lost_behaviour" | "mapsar" | "member_emergency_contacts" | "members" | "old_communication" | "persons_involved_demographics" | "persons_involved_id" | "persons_involved_medical" | "persons_involved" | "reports" | "resources_coordinator" | "resources_detail" | "resources" | "revision_audit" | "roles" | "tags" | "tasks" | "team_status" | "translation" | "vehicles_involved" | "vehicles" | "weather_airtemperature" | "weather_avalancherisk" | "weather_cloudbase" | "weather_conditions" | "weather_seastate" | "weather_seaswell" | "weather_snowconditions" | "weather_tide" | "weather_visibility" | "weather_watertemperature" | "weather_wind_mps" | "weather_wind" | "weather" | "whiteboard";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Whether the module is active or not */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/repairs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of repairs
+         * @description Retrieve a list of repairs <br></br>**Required modules:** equipment_repairs
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description Date after which repairs were completed */
+                    completed_after?: string;
+                    /** @description Date before which repairs were completed */
+                    completed_before?: string;
+                    /** @description Date after which repairs were created */
+                    created_after?: string;
+                    /** @description Date before which repairs were created */
+                    created_before?: string;
+                    /** @description Date after which repairs were due for completion */
+                    due_after?: string;
+                    /** @description Date before which repairs were due for completion */
+                    due_before?: string;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    /** @description A member id */
+                    assigned_member_id?: number;
+                    /** @description ID of the originator */
+                    originator_resource_id?: number;
+                    /** @description Resource types that can be associated with a repair as the originator of the repair */
+                    originator_resource_type?: "EquipmentInspectionResult" | "EquipmentInspectionStepResult";
+                    /** @description ID of the resource the repair is assigned to */
+                    target_resource_id?: number;
+                    /** @description Resource types that can be associated with a repair */
+                    target_resource_type?: "Equipment";
+                    /** @description An equipment location, represented by either an id or enum. Only an id or 'NONE' are available in the organisation context. */
+                    location_id?: (number[] & (number | number[])) | string;
+                    /** @description The numeric identifier for a resource */
+                    fund_id?: number;
+                    sort?: "createdAt" | "updatedAt" | "id" | "dueAt";
+                    status?: ("NOT_STARTED" | "IN_PROGRESS" | "COMPLETED") | ("NOT_STARTED" | "IN_PROGRESS" | "COMPLETED")[];
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of repair tasks */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create a repair
+         * @description Create a repair <br></br>**Required modules:** equipment_repairs
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description ID of the resource the repair is assigned to */
+                        targetResourceId: number;
+                        /**
+                         * @description Resource types that can be associated with a repair
+                         * @default Equipment
+                         * @enum {string}
+                         */
+                        targetResourceType?: "Equipment";
+                        /** @description ID of the originator */
+                        originatorResourceId?: number;
+                        /**
+                         * @description Resource types that can be associated with a repair as the originator of the repair
+                         * @enum {string}
+                         */
+                        originatorResourceType?: "EquipmentInspectionResult" | "EquipmentInspectionStepResult";
+                        /** @description The repair resource ref */
+                        ref: string;
+                        /**
+                         * @description Reason for repair
+                         * @default UNKNOWN
+                         * @enum {string}
+                         */
+                        cause?: "UNKNOWN" | "NATURAL_DETERIORATION" | "USED_AS_INTENDED" | "INCORRECT_OPERATION" | "PLANNED_MAINTENANCE";
+                        /**
+                         * @description Status of repair
+                         * @default NOT_STARTED
+                         * @enum {string}
+                         */
+                        status?: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+                        /** @description ID of the member resource repair is assigned to */
+                        assignedMemberId?: number;
+                        /** @description Cost in whole cents, or equivalent sub-unit of team's currency. */
+                        cost?: number;
+                        /**
+                         * Format: date-time
+                         * @description Date repair resource is due
+                         */
+                        dueAt?: string;
+                        /** @description Description of repair resource */
+                        description?: string;
+                        /** @description ID of the event, exercise, or incident resource that caused the repair */
+                        activityId?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description A repair */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/resource-bundles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of resource bundles
+         * @description Retrieve a list of resource bundles
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    /** @description A simple text search term, compared against the title */
+                    title?: string;
+                    resource_type?: "CustomField";
+                    /** @description A resource type that supports custom fields */
+                    sub_resource_type?: "Event" | "Exercise" | "Incident" | "IncidentWeather" | "Equipment" | "HealthSafetyReport" | "Member" | "PersonInvolved" | "Team";
+                    sort?: "createdAt" | "updatedAt" | "id";
+                    order?: "asc" | "desc";
+                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
+                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description *Team context*: Exclude entities inherited from the team's org */
+                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of resource bundles */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create a resource bundle
+         * @description Create a resource bundle
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The Resource Bundle title */
+                        title: string;
+                        /** @enum {string} */
+                        targetResourceType: "CustomField";
+                        /**
+                         * @description A resource type that supports custom fields
+                         * @enum {string}
+                         */
+                        targetSubResourceType?: "Event" | "Exercise" | "Incident" | "IncidentWeather" | "Equipment" | "HealthSafetyReport" | "Member" | "PersonInvolved" | "Team";
+                        /** @description A user-specified order in which to present the resources */
+                        ordering?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description A resource bundle */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of roles
+         * @description Retrieve a list of roles <br></br>**Required modules:** roles
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    /** @description One or more team identifiers */
+                    team_id?: number[] & (number | number[]);
+                    /** @description The role's bundle */
+                    deprecatedBundle?: string;
+                    /** @description The role's title */
+                    title?: string;
+                    sort?: "createdAt" | "updatedAt" | "id";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of Roles */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve search results for a particular query, optionally filtered by resource type
+         * @description Retrieve search results for a particular query, optionally filtered by resource type <br></br>**Required modules:**
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description Query terms used against the search index. Individual complete words separated by spaces works best. */
+                    query: string;
+                    /** @description A valid resource types array */
+                    resource_type?: string[] & (("Account" | "Activity" | "ActivityAttendance" | "ActivityCost" | "Animal" | "AnimalGroupMembership" | "AnimalQualificationAward" | "CustomerIdentifier" | "CustomField" | "Document" | "DocumentRevision" | "Duty" | "Equipment" | "EquipmentBrand" | "EquipmentCategory" | "EquipmentFund" | "EquipmentKind" | "EquipmentInspection" | "EquipmentInspectionResult" | "EquipmentInspectionStep" | "EquipmentInspectionStepResult" | "EquipmentLocation" | "EquipmentModel" | "EquipmentMove" | "EquipmentRetiredReason" | "EquipmentSupplier" | "EquipmentSupplierRef" | "EquipmentUsage" | "Event" | "Exercise" | "Folder" | "Handler" | "HandlerGroupMembership" | "HandlerQualificationAward" | "HealthSafetyCategory" | "HealthSafetyReport" | "HealthSafetySeverity" | "Incident" | "IncidentWeather" | "LocationBookmark" | "Member" | "MemberCustomStatus" | "MemberQualificationAward" | "MemberGroupMembership" | "MemberRetiredReason" | "Officer" | "OfficerPermissionProfile" | "PermissionProfile" | "Repair" | "Resource" | "Role" | "ResourceBundle" | "Tag" | "Task" | "Team" | "PersonInvolved" | "PersonInvolvedInjury" | "Whiteboard" | "AnimalGroup" | "HandlerGroup" | "MemberGroup" | "AnimalQualification" | "HandlerQualification" | "MemberQualification" | "TestTable" | "TestRelatedTable" | "TestTable2TestRelatedTable") | ("Account" | "Activity" | "ActivityAttendance" | "ActivityCost" | "Animal" | "AnimalGroupMembership" | "AnimalQualificationAward" | "CustomerIdentifier" | "CustomField" | "Document" | "DocumentRevision" | "Duty" | "Equipment" | "EquipmentBrand" | "EquipmentCategory" | "EquipmentFund" | "EquipmentKind" | "EquipmentInspection" | "EquipmentInspectionResult" | "EquipmentInspectionStep" | "EquipmentInspectionStepResult" | "EquipmentLocation" | "EquipmentModel" | "EquipmentMove" | "EquipmentRetiredReason" | "EquipmentSupplier" | "EquipmentSupplierRef" | "EquipmentUsage" | "Event" | "Exercise" | "Folder" | "Handler" | "HandlerGroupMembership" | "HandlerQualificationAward" | "HealthSafetyCategory" | "HealthSafetyReport" | "HealthSafetySeverity" | "Incident" | "IncidentWeather" | "LocationBookmark" | "Member" | "MemberCustomStatus" | "MemberQualificationAward" | "MemberGroupMembership" | "MemberRetiredReason" | "Officer" | "OfficerPermissionProfile" | "PermissionProfile" | "Repair" | "Resource" | "Role" | "ResourceBundle" | "Tag" | "Task" | "Team" | "PersonInvolved" | "PersonInvolvedInjury" | "Whiteboard" | "AnimalGroup" | "HandlerGroup" | "MemberGroup" | "AnimalQualification" | "HandlerQualification" | "MemberQualification" | "TestTable" | "TestRelatedTable" | "TestTable2TestRelatedTable")[]);
+                    sort?: "title" | "relevance";
+                    order?: "asc" | "desc";
+                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
+                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description *Team context*: Exclude entities inherited from the team's org */
+                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of search results */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of tags
+         * @description Retrieve a list of tags <br></br>**Required modules:**
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    id?: number[] & (number | number[]);
+                    /** @description The title of a resource */
+                    title?: string;
+                    order?: "asc" | "desc";
+                    sort?: "createdAt" | "id" | "updatedAt" | "title";
+                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
+                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description *Team context*: Exclude entities inherited from the team's org */
+                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of tags */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create a tag
+         * @description Create a tag <br></br>**Required modules:**
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The title of a resource */
+                        title: string;
+                        /** @description Some descriptive text for the resource */
+                        notes?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description A tag resource */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/whiteboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of whiteboard notes
+         * @description Retrieve a list of whiteboard notes <br></br>**Required modules:** whiteboard
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of ids */
+                    id?: number | number[];
+                    /** @description A datetime which a note's archivedAt is before */
+                    archived_at_before?: string;
+                    /** @description A datetime which a note's archivedAt is after */
+                    archived_at_after?: string;
+                    /** @description *Team context*: Exclude entities inherited from the team's org */
+                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
+                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    order?: "asc" | "desc";
+                    sort?: "createdAt" | "updatedAt" | "archivedAt" | "id" | "text";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of whiteboard notes */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create a whiteboard note
+         * @description Create a whiteboard note <br></br>**Required modules:** whiteboard
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: date-time
+                         * @description The date-time at which the note is archived
+                         * @default 2025-08-04T11:37:11.104Z
+                         */
+                        archivedAt?: string;
+                        /**
+                         * @description Set to true to mark the note as important
+                         * @default false
+                         */
+                        important?: boolean | ("true" | "false" | "1" | "0" | "");
+                        /** @description The contents of the note. Supports plain text or HTML. */
+                        text: string;
+                        /**
+                         * Format: uri
+                         * @description A http/https RFC-3986 URI to be associate with the note
+                         */
+                        url?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description A whiteboard note */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/whoami": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve credential access for a specific context
+         * @description Retrieve credential access for a specific context
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Access details of credentials for a specific context */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/team/{teamId}/duties/add-duty-period": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add a duty period
+         * @description Add a duty period <br></br>**Required modules:** duty
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /**
+                         * @description The type of duty period
+                         * @enum {string}
+                         */
+                        type: "OFF" | "ON";
+                        /** @description The numeric identifier for a resource */
+                        memberId: number;
+                        /**
+                         * Format: date-time
+                         * @description An ISO8601 datetime string
+                         */
+                        startsAt: string;
+                        /**
+                         * Format: date-time
+                         * @description An ISO8601 datetime string
+                         */
+                        endsAt: string;
+                        /** @description The numeric identifier for a resource */
+                        roleId?: number;
+                        notes?: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description A duty */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/documents/metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve the context's documents metadata
+         * @description Retrieve the context's documents metadata <br></br>**Required modules:** documents
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Documents metadata */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/duties/on-call-now": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve list of members on-call right now
+         * @description Retrieve list of members on-call right now <br></br>**Required modules:**
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description A team resource id. Ignored in team context. */
+                    team_id?: number;
+                    /** @description A list of numeric identifiers representing resources */
+                    member_id?: number[] & (number | number[]);
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Member on-call data */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-brands/merge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Merge one equipment brand into another
+         * @description Merge one equipment brand into another <br></br>**Required modules:** equipment
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The origin ID of the equipment brand that will be merged */
+                        originId: number;
+                        /** @description The destination ID of the equipment brand that will be merged */
+                        destinationId: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description An equipment brand */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-categories/merge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Merge one equipment category into another
+         * @description Merge one equipment category into another <br></br>**Required modules:** equipment
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The origin ID of the equipment category that will be merged */
+                        originId: number;
+                        /** @description The destination ID of the equipment category that will be merged */
+                        destinationId: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description An equipment category */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-kinds/merge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Merge one equipment kind into another
+         * @description Merge one equipment kind into another <br></br>**Required modules:** equipment
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The origin ID of the equipment kind that will be merged */
+                        originId: number;
+                        /** @description The destination ID of the equipment kind that will be merged */
+                        destinationId: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description An equipment kind */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-models/merge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Merge one equipment model into another
+         * @description Merge one equipment model into another <br></br>**Required modules:** equipment
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The origin ID of the equipment model that will be merged */
+                        originId: number;
+                        /** @description The destination ID of the equipment model that will be merged */
+                        destinationId: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description An equipment model */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-supplier-refs/merge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Merge one equipment supplier reference into another
+         * @description Merge one equipment supplier reference into another <br></br>**Required modules:** equipment
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The origin ID of the equipment supplier reference that will be merged */
+                        originId: number;
+                        /** @description The destination ID of the equipment supplier reference that will be merged */
+                        destinationId: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description An equipment supplier reference */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-suppliers/merge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Merge one equipment supplier into another
+         * @description Merge one equipment supplier into another <br></br>**Required modules:** equipment
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The origin ID of the equipment supplier that will be merged */
+                        originId: number;
+                        /** @description The destination ID of the equipment supplier that will be merged */
+                        destinationId: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description An equipment supplier */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -6760,6 +5643,146 @@ export interface paths {
                     teamId: number;
                     /** @description An animal's group membership identifier */
                     animalGroupMembershipId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The delete response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/team/{teamId}/attendance/{attendanceId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete an activity attendance
+         * @description Delete an activity attendance <br></br>**Required modules:** activities,members
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                    /** @description The numeric identifier for a resource */
+                    attendanceId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The delete response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update an activity attendance
+         * @description Update an activity attendance <br></br>**Required modules:** activities,members
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                    /** @description The numeric identifier for a resource */
+                    attendanceId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /**
+                         * @description The status of the attendance resource
+                         * @enum {string}
+                         */
+                        status?: "ABSENT" | "ATTENDING" | "REQUESTED";
+                        roleId?: null & ("null" | ("null" | null) | number);
+                        /**
+                         * Format: date-time
+                         * @description Start of the attendance period
+                         */
+                        startsAt?: string;
+                        /**
+                         * Format: date-time
+                         * @description End of the attendance period
+                         */
+                        endsAt?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description An activity attendance */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/v3/team/{teamId}/duties/{dutyId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a duty period
+         * @description Delete a duty period <br></br>**Required modules:** duty
+         */
+        delete: {
+            parameters: {
+                query?: {
+                    /** @description If true, all repetitions of the duty later than the target will also be deleted */
+                    all_following?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
+                };
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                    /** @description The numeric identifier for a resource */
+                    dutyId: number;
                 };
                 cookie?: never;
             };
@@ -6837,7 +5860,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a Health & Safety Report
-         * @description Delete a Health & Safety Report <br></br>**Required modules:** MODULE_HEALTHSAFETY
+         * @description Delete a Health & Safety Report <br></br>**Required modules:** healthsafety
          */
         delete: {
             parameters: {
@@ -6868,7 +5891,7 @@ export interface paths {
         head?: never;
         /**
          * Update a Health & Safety Report
-         * @description Update a Health & Safety Report <br></br>**Required modules:** MODULE_HEALTHSAFETY
+         * @description Update a Health & Safety Report <br></br>**Required modules:** healthsafety
          */
         patch: {
             parameters: {
@@ -6942,6 +5965,215 @@ export interface paths {
         };
         trace?: never;
     };
+    "/v3/team/{teamId}/incident-involved-injuries/{involvedInjuryId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a person involved injury
+         * @description Delete a person involved injury <br></br>**Required modules:** persons_involved_medical
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                    /** @description The numeric identifier for a resource */
+                    involvedInjuryId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The delete response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update a record of a person involved injury
+         * @description Update a record of a person involved injury <br></br>**Required modules:** persons_involved_medical
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                    /** @description The numeric identifier for a resource */
+                    involvedInjuryId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description Injury location id (see enum endpoint) */
+                        injuryLocationId?: number;
+                        /** @description Injury type id (see enum endpoint) */
+                        injuryTypeId?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description A person involved injury */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/v3/team/{teamId}/incident-involved-persons/{involvedPersonId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a person involved in an incident
+         * @description Delete a person involved in an incident <br></br>**Required modules:** persons_involved
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                    /** @description Involved person's id */
+                    involvedPersonId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The delete response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update a record of a person involved in an incident
+         * @description Update a record of a person involved in an incident <br></br>**Required modules:** persons_involved
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                    /** @description Involved person's id */
+                    involvedPersonId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description Person age */
+                        age?: number;
+                        /**
+                         * @description Is person familiar with the locality
+                         * @enum {string}
+                         */
+                        areaKnowledge?: "UNFAMILIAR" | "FAMILIAR";
+                        /** @description Notes on medical assistance */
+                        assistance?: string;
+                        /**
+                         * @description Cause information
+                         * @enum {string}
+                         */
+                        cause?: "NO_DATA" | "ACCIDENTAL" | "INTENTIONAL_SELF" | "INTENTIONAL_OTHER" | "UNDETERMINED";
+                        /** @description Contact information */
+                        contact?: string;
+                        /** @description Date of birth */
+                        dateOfBirth?: string;
+                        /**
+                         * @description Handover information
+                         * @enum {string}
+                         */
+                        handover?: "NO_FURTHER_ASSISTANCE" | "HOSPITAL" | "ONSITE_FACILITY";
+                        /** @description Involvement notes */
+                        involvementNotes?: string;
+                        /** @description Person involved involvement type id. Some involvement types also require an outcomeId. See enum endpoint for details. */
+                        involvementTypeId?: number;
+                        /** @description Person's name */
+                        name?: string;
+                        /**
+                         * @description Country code representing person's nationality
+                         * @enum {string}
+                         */
+                        nationality?: "AF" | "AL" | "DZ" | "AD" | "AO" | "AG" | "AR" | "AM" | "AU" | "AT" | "AZ" | "BS" | "BH" | "BD" | "BB" | "BY" | "BE" | "BZ" | "BJ" | "BT" | "BO" | "BA" | "BW" | "BR" | "BN" | "BG" | "BF" | "BI" | "KH" | "CM" | "CA" | "CV" | "CF" | "TD" | "CL" | "CN" | "CO" | "KM" | "CG" | "CD" | "CR" | "CI" | "HR" | "CU" | "CY" | "CZ" | "DK" | "DJ" | "DM" | "DO" | "EC" | "EG" | "SV" | "GQ" | "ER" | "EE" | "ET" | "FJ" | "FI" | "FR" | "GA" | "GM" | "GE" | "DE" | "GH" | "GR" | "GD" | "GT" | "GN" | "GW" | "GY" | "HT" | "VA" | "HN" | "HU" | "IS" | "IN" | "ID" | "IR" | "IQ" | "IE" | "IL" | "IT" | "JM" | "JP" | "JO" | "KZ" | "KE" | "KI" | "KR" | "KP" | "KW" | "KG" | "LA" | "LV" | "LB" | "LS" | "LR" | "LY" | "LI" | "LT" | "LU" | "MK" | "MG" | "MW" | "MY" | "MV" | "ML" | "MT" | "MH" | "MR" | "MU" | "MX" | "FM" | "MD" | "MC" | "MN" | "MA" | "MZ" | "MM" | "NA" | "NR" | "NP" | "NL" | "NZ" | "NI" | "NE" | "NG" | "NO" | "OM" | "PK" | "PW" | "PA" | "PG" | "PY" | "PE" | "PH" | "PL" | "PT" | "QA" | "RO" | "RU" | "RW" | "KN" | "LC" | "VC" | "WS" | "SM" | "ST" | "SA" | "SN" | "RS" | "SC" | "SL" | "SG" | "SK" | "SI" | "SB" | "SO" | "ZA" | "ES" | "LK" | "SD" | "SR" | "SZ" | "SE" | "CH" | "SY" | "TW" | "TJ" | "TZ" | "TH" | "TL" | "TG" | "TO" | "TT" | "TN" | "TR" | "TM" | "TV" | "UG" | "UA" | "AE" | "GB" | "US" | "UY" | "UZ" | "VU" | "VE" | "VN" | "VG" | "YE" | "ZM" | "ZW";
+                        /** @description Person involved outcome id. Only applicable to certain involvement types. See enum endpoint for details. */
+                        outcomeId?: number;
+                        /**
+                         * @description The person's sex
+                         * @enum {string}
+                         */
+                        sex?: "MALE" | "FEMALE" | "OTHER";
+                        /**
+                         * @description Spinal injury status
+                         * @enum {string}
+                         */
+                        spinalInjury?: "SUSPECTED" | "CLEARED" | "NOT_INDICATED" | "UNDETERMINED";
+                        /**
+                         * @description How they were transferred to hospital
+                         * @enum {string}
+                         */
+                        transfer?: "SELF" | "HOSPITAL";
+                    };
+                };
+            };
+            responses: {
+                /** @description A person involved in an incident */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/v3/team/{teamId}/member-group-memberships/{memberGroupMembershipId}": {
         parameters: {
             query?: never;
@@ -6995,7 +6227,7 @@ export interface paths {
         };
         /**
          * Retrieve an animal group membership
-         * @description Retrieve an animal group membership <br></br>**Required modules:** MODULE_GROUPS
+         * @description Retrieve an animal group membership <br></br>**Required modules:** groups
          */
         get: {
             parameters: {
@@ -7041,7 +6273,7 @@ export interface paths {
         };
         /**
          * Retrieve an animal group
-         * @description Retrieve an animal group <br></br>**Required modules:** MODULE_GROUPS
+         * @description Retrieve an animal group <br></br>**Required modules:** groups
          */
         get: {
             parameters: {
@@ -7207,7 +6439,7 @@ export interface paths {
         };
         /**
          * Retrieve an animal
-         * @description Retrieve an animal <br></br>**Required modules:** MODULE_ANIMALS
+         * @description Retrieve an animal <br></br>**Required modules:** animals
          */
         get: {
             parameters: {
@@ -7253,7 +6485,7 @@ export interface paths {
         };
         /**
          * Retrieve an activity attendance
-         * @description Retrieve an activity attendance <br></br>**Required modules:** MODULE_ACTIVITIES,MODULE_MEMBERS
+         * @description Retrieve an activity attendance <br></br>**Required modules:** activities,members
          */
         get: {
             parameters: {
@@ -7485,50 +6717,6 @@ export interface paths {
         };
         trace?: never;
     };
-    "/v3/{context}/{contextId}/documents/metadata": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve the context's documents metadata
-         * @description Retrieve the context's documents metadata <br></br>**Required modules:** MODULE_DOCUMENTS
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Documents metadata */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/v3/{context}/{contextId}/documents/{documentId}": {
         parameters: {
             query?: never;
@@ -7716,7 +6904,7 @@ export interface paths {
         };
         /**
          * Retrieve a duty
-         * @description Retrieve a duty <br></br>**Required modules:** MODULE_DUTY
+         * @description Retrieve a duty <br></br>**Required modules:** duty
          */
         get: {
             parameters: {
@@ -7753,151 +6941,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v3/{context}/{contextId}/equipment/{itemId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve an equipment item
-         * @description Retrieve an equipment item <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The id of the equipment */
-                    itemId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description An equipment item */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update an equipment item
-         * @description Update an equipment item <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                    /** @description The ID of the equipment */
-                    itemId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /**
-                         * @description The status of the equipment
-                         * @enum {string}
-                         */
-                        status?: "OPERATIONAL" | "UNSERVICEABLE" | "LOST" | "WISHLIST" | "INACTIVE";
-                        /** @description Items flagged as critical */
-                        isCritical?: boolean | ("true" | "false" | "1" | "0" | "");
-                        /** @description Items flagged as to be monitored */
-                        isMonitor?: boolean | ("true" | "false" | "1" | "0" | "");
-                        /** @description Notes about the change */
-                        updateNotes?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description An equipment item */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/v3/{context}/{contextId}/equipment-brands/merge": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Merge one equipment brand into another
-         * @description Merge one equipment brand into another <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The origin ID of the equipment brand that will be merged */
-                        originBrandId: number;
-                        /** @description The destination ID of the equipment brand that will be merged */
-                        destinationBrandId: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description An equipment brand */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/v3/{context}/{contextId}/equipment-brands/{brandId}": {
         parameters: {
             query?: never;
@@ -7907,7 +6950,7 @@ export interface paths {
         };
         /**
          * Retrieve an equipment brand
-         * @description Retrieve an equipment brand <br></br>**Required modules:** MODULE_EQUIPMENT
+         * @description Retrieve an equipment brand <br></br>**Required modules:** equipment
          */
         get: {
             parameters: {
@@ -7940,7 +6983,7 @@ export interface paths {
         post?: never;
         /**
          * Delete an equipment brand
-         * @description Delete an equipment brand <br></br>**Required modules:** MODULE_EQUIPMENT
+         * @description Delete an equipment brand <br></br>**Required modules:** equipment
          */
         delete: {
             parameters: {
@@ -7973,7 +7016,7 @@ export interface paths {
         head?: never;
         /**
          * Update an equipment brand
-         * @description Update an equipment brand <br></br>**Required modules:** MODULE_EQUIPMENT
+         * @description Update an equipment brand <br></br>**Required modules:** equipment
          */
         patch: {
             parameters: {
@@ -8011,59 +7054,6 @@ export interface paths {
         };
         trace?: never;
     };
-    "/v3/{context}/{contextId}/equipment-categories/merge": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Merge one equipment category into another
-         * @description Merge one equipment category into another <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The origin ID of the equipment category that will be merged */
-                        originCategoryId: number;
-                        /** @description The destination ID of the equipment category that will be merged */
-                        destinationCategoryId: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description An equipment category */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/v3/{context}/{contextId}/equipment-categories/{categoryId}": {
         parameters: {
             query?: never;
@@ -8073,7 +7063,7 @@ export interface paths {
         };
         /**
          * Retrieve an equipment category
-         * @description Retrieve an equipment category <br></br>**Required modules:** MODULE_EQUIPMENT
+         * @description Retrieve an equipment category <br></br>**Required modules:** equipment
          */
         get: {
             parameters: {
@@ -8106,7 +7096,7 @@ export interface paths {
         post?: never;
         /**
          * Delete an equipment category
-         * @description Delete an equipment category <br></br>**Required modules:** MODULE_EQUIPMENT
+         * @description Delete an equipment category <br></br>**Required modules:** equipment
          */
         delete: {
             parameters: {
@@ -8139,7 +7129,7 @@ export interface paths {
         head?: never;
         /**
          * Update an equipment category
-         * @description Update an equipment category <br></br>**Required modules:** MODULE_EQUIPMENT
+         * @description Update an equipment category <br></br>**Required modules:** equipment
          */
         patch: {
             parameters: {
@@ -8186,7 +7176,7 @@ export interface paths {
         };
         /**
          * Retrieve an equipment fund
-         * @description Retrieve an equipment fund <br></br>**Required modules:** MODULE_EQUIPMENT_FUNDING
+         * @description Retrieve an equipment fund <br></br>**Required modules:** equipment_funding
          */
         get: {
             parameters: {
@@ -8219,7 +7209,7 @@ export interface paths {
         post?: never;
         /**
          * Delete an equipment fund
-         * @description Delete an equipment fund <br></br>**Required modules:** MODULE_EQUIPMENT_FUNDING
+         * @description Delete an equipment fund <br></br>**Required modules:** equipment_funding
          */
         delete: {
             parameters: {
@@ -8252,7 +7242,7 @@ export interface paths {
         head?: never;
         /**
          * Update an equipment fund
-         * @description Update an equipment fund <br></br>**Required modules:** MODULE_EQUIPMENT_FUNDING
+         * @description Update an equipment fund <br></br>**Required modules:** equipment_funding
          */
         patch: {
             parameters: {
@@ -8301,7 +7291,7 @@ export interface paths {
         };
         /**
          * Retrieve an equipment inspection result
-         * @description Retrieve an equipment inspection result <br></br>**Required modules:** MODULE_EQUIPMENT_INSPECTIONS
+         * @description Retrieve an equipment inspection result <br></br>**Required modules:** equipment_inspections
          */
         get: {
             parameters: {
@@ -8332,12 +7322,42 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Delete a completed inspection result
+         * @description Delete a completed inspection result <br></br>**Required modules:**
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the inspection result. Must be a completed one. */
+                    inspectionResultId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The delete response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         /**
          * Update an equipment inspection result
-         * @description Update an equipment inspection result <br></br>**Required modules:** MODULE_EQUIPMENT_INSPECTIONS
+         * @description Update an equipment inspection result <br></br>**Required modules:** equipment_inspections
          */
         patch: {
             parameters: {
@@ -8401,7 +7421,7 @@ export interface paths {
         };
         /**
          * Retrieve an equipment inspection result step
-         * @description Retrieve an equipment inspection result step <br></br>**Required modules:** MODULE_EQUIPMENT_INSPECTIONS
+         * @description Retrieve an equipment inspection result step <br></br>**Required modules:** equipment_inspections
          */
         get: {
             parameters: {
@@ -8434,7 +7454,7 @@ export interface paths {
         post?: never;
         /**
          * Delete an equipment inspection result step
-         * @description Delete an equipment inspection result step <br></br>**Required modules:** MODULE_EQUIPMENT_INSPECTIONS
+         * @description Delete an equipment inspection result step <br></br>**Required modules:** equipment_inspections
          */
         delete: {
             parameters: {
@@ -8467,7 +7487,7 @@ export interface paths {
         head?: never;
         /**
          * Update an equipment inspection result step
-         * @description Update an equipment inspection result step <br></br>**Required modules:** MODULE_EQUIPMENT_INSPECTIONS
+         * @description Update an equipment inspection result step <br></br>**Required modules:** equipment_inspections
          */
         patch: {
             parameters: {
@@ -8519,7 +7539,7 @@ export interface paths {
         };
         /**
          * Retrieve an equipment inspection step
-         * @description Retrieve an equipment inspection step <br></br>**Required modules:** MODULE_EQUIPMENT_INSPECTIONS
+         * @description Retrieve an equipment inspection step <br></br>**Required modules:** equipment_inspections
          */
         get: {
             parameters: {
@@ -8552,7 +7572,7 @@ export interface paths {
         post?: never;
         /**
          * Delete an equipment inspection step
-         * @description Delete an equipment inspection step <br></br>**Required modules:** MODULE_EQUIPMENT_INSPECTIONS
+         * @description Delete an equipment inspection step <br></br>**Required modules:** equipment_inspections
          */
         delete: {
             parameters: {
@@ -8585,7 +7605,7 @@ export interface paths {
         head?: never;
         /**
          * Update an equipment inspection step
-         * @description Update an equipment inspection step <br></br>**Required modules:** MODULE_EQUIPMENT_INSPECTIONS
+         * @description Update an equipment inspection step <br></br>**Required modules:** equipment_inspections
          */
         patch: {
             parameters: {
@@ -8634,7 +7654,7 @@ export interface paths {
         };
         /**
          * Retrieve an equipment inspection
-         * @description Retrieve an equipment inspection <br></br>**Required modules:** MODULE_EQUIPMENT_INSPECTIONS
+         * @description Retrieve an equipment inspection <br></br>**Required modules:** equipment_inspections
          */
         get: {
             parameters: {
@@ -8671,59 +7691,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v3/{context}/{contextId}/equipment-kinds/merge": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Merge one equipment kind into another
-         * @description Merge one equipment kind into another <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The origin ID of the equipment kind that will be merged */
-                        originKindId: number;
-                        /** @description The destination ID of the equipment kind that will be merged */
-                        destinationKindId: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description An equipment kind */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/v3/{context}/{contextId}/equipment-kinds/{kindId}": {
         parameters: {
             query?: never;
@@ -8733,7 +7700,7 @@ export interface paths {
         };
         /**
          * Retrieve an equipment kind
-         * @description Retrieve an equipment kind <br></br>**Required modules:** MODULE_EQUIPMENT
+         * @description Retrieve an equipment kind <br></br>**Required modules:** equipment
          */
         get: {
             parameters: {
@@ -8766,7 +7733,7 @@ export interface paths {
         post?: never;
         /**
          * Delete an equipment kind
-         * @description Delete an equipment kind <br></br>**Required modules:** MODULE_EQUIPMENT
+         * @description Delete an equipment kind <br></br>**Required modules:** equipment
          */
         delete: {
             parameters: {
@@ -8799,7 +7766,7 @@ export interface paths {
         head?: never;
         /**
          * Update an equipment kind
-         * @description Update an equipment kind <br></br>**Required modules:** MODULE_EQUIPMENT
+         * @description Update an equipment kind <br></br>**Required modules:** equipment
          */
         patch: {
             parameters: {
@@ -8898,59 +7865,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v3/{context}/{contextId}/equipment-models/merge": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Merge one equipment model into another
-         * @description Merge one equipment model into another <br></br>**Required modules:** MODULE_EQUIPMENT
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The point of view from where the request takes place */
-                    context: "team" | "organisation" | "admin";
-                    /** @description Either a team, organisation or admin's id */
-                    contextId: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description The origin ID of the equipment model that will be merged */
-                        originModelId: number;
-                        /** @description The destination ID of the equipment model that will be merged */
-                        destinationModelId: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description An equipment model */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/v3/{context}/{contextId}/equipment-models/{modelId}": {
         parameters: {
             query?: never;
@@ -8960,7 +7874,7 @@ export interface paths {
         };
         /**
          * Retrieve an equipment model
-         * @description Retrieve an equipment model <br></br>**Required modules:** MODULE_EQUIPMENT
+         * @description Retrieve an equipment model <br></br>**Required modules:** equipment
          */
         get: {
             parameters: {
@@ -8993,7 +7907,7 @@ export interface paths {
         post?: never;
         /**
          * Delete an equipment model
-         * @description Delete an equipment model <br></br>**Required modules:** MODULE_EQUIPMENT
+         * @description Delete an equipment model <br></br>**Required modules:** equipment
          */
         delete: {
             parameters: {
@@ -9026,7 +7940,7 @@ export interface paths {
         head?: never;
         /**
          * Update an equipment model
-         * @description Update an equipment model <br></br>**Required modules:** MODULE_EQUIPMENT
+         * @description Update an equipment model <br></br>**Required modules:** equipment
          */
         patch: {
             parameters: {
@@ -9066,20 +7980,18 @@ export interface paths {
         };
         trace?: never;
     };
-    "/v3/{context}/{contextId}/equipment-supplier-refs/merge": {
+    "/v3/{context}/{contextId}/equipment-retired-reasons/{reasonId}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
         /**
-         * Merge one equipment supplier reference into another
-         * @description Merge one equipment supplier reference into another <br></br>**Required modules:** MODULE_EQUIPMENT
+         * Retrieve an equipment retired reason
+         * @description Retrieve an equipment retired reason <br></br>**Required modules:** equipment
          */
-        post: {
+        get: {
             parameters: {
                 query?: never;
                 header?: never;
@@ -9088,16 +8000,197 @@ export interface paths {
                     context: "team" | "organisation" | "admin";
                     /** @description Either a team, organisation or admin's id */
                     contextId: number;
+                    /** @description The ID of the equipment retired reason */
+                    reasonId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description An equipment retired reason */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Delete an equipment retired reason resource
+         * @description Delete an equipment retired reason resource <br></br>**Required modules:** equipment
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the equipment retired reason */
+                    reasonId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The deleted id(s) */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update an equipment retired reason
+         * @description Update an equipment retired reason <br></br>**Required modules:** equipment
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the equipment retired reason */
+                    reasonId: number;
                 };
                 cookie?: never;
             };
             requestBody?: {
                 content: {
                     "application/json": {
-                        /** @description The origin ID of the equipment supplier reference that will be merged */
-                        originSupplierRefId: number;
-                        /** @description The destination ID of the equipment supplier reference that will be merged */
-                        destinationSupplierRefId: number;
+                        /** @description The title of a resource */
+                        title: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description An equipment retired reason */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-supplier-refs/{refId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve an equipment supplier reference
+         * @description Retrieve an equipment supplier reference <br></br>**Required modules:** equipment
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the equipment supplier reference */
+                    refId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description An equipment supplier reference */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Delete an equipment supplier reference
+         * @description Delete an equipment supplier reference <br></br>**Required modules:** equipment
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the equipment supplier reference */
+                    refId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The deleted response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update an equipment supplier reference
+         * @description Update an equipment supplier reference <br></br>**Required modules:** equipment
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the equipment supplier reference */
+                    refId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The supplier ref's title */
+                        title?: string;
+                        /** @description The supplier id this supplier reference belongs to */
+                        supplierId?: number;
                     };
                 };
             };
@@ -9113,26 +8206,20 @@ export interface paths {
                 };
             };
         };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
         trace?: never;
     };
-    "/v3/{context}/{contextId}/equipment-suppliers/merge": {
+    "/v3/{context}/{contextId}/equipment-suppliers/{supplierId}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
         /**
-         * Merge one equipment supplier into another
-         * @description Merge one equipment supplier into another <br></br>**Required modules:** MODULE_EQUIPMENT
+         * Retrieve an equipment supplier
+         * @description Retrieve an equipment supplier <br></br>**Required modules:** equipment
          */
-        post: {
+        get: {
             parameters: {
                 query?: never;
                 header?: never;
@@ -9141,16 +8228,82 @@ export interface paths {
                     context: "team" | "organisation" | "admin";
                     /** @description Either a team, organisation or admin's id */
                     contextId: number;
+                    /** @description The ID of the equipment supplier */
+                    supplierId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description An equipment supplier */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Delete an equipment supplier
+         * @description Delete an equipment supplier <br></br>**Required modules:** equipment
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the equipment supplier */
+                    supplierId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The delete response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update an equipment supplier
+         * @description Update an equipment supplier <br></br>**Required modules:** equipment
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the equipment supplier */
+                    supplierId: number;
                 };
                 cookie?: never;
             };
             requestBody?: {
                 content: {
                     "application/json": {
-                        /** @description The origin ID of the equipment supplier that will be merged */
-                        originSupplierId: number;
-                        /** @description The destination ID of the equipment supplier that will be merged */
-                        destinationSupplierId: number;
+                        /** @description The supplier's title */
+                        title: string;
                     };
                 };
             };
@@ -9166,10 +8319,228 @@ export interface paths {
                 };
             };
         };
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-usages/{usageId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve an equipment usage
+         * @description Retrieve an equipment usage <br></br>**Required modules:** activities,equipment
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the equipment usage */
+                    usageId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description An equipment usage */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Delete an equipment activity usage
+         * @description Delete an equipment activity usage <br></br>**Required modules:** activities,equipment
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The equipment usage identifier */
+                    usageId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The equipment activity usage delete response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update an equipment activity usage
+         * @description Update an equipment activity usage <br></br>**Required modules:** activities,equipment
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The equipment usage identifier */
+                    usageId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The minutes the equipment was used. Only if the Equipment item's type is "Equipment" */
+                        duration?: number;
+                        /** @description The distance the equipment was used in the km / miles. Only if the Equipment item's type is "Vehicle" */
+                        distance?: number;
+                        /** @description The quantity that was used. Only if the Equipment item's type is "Supply" */
+                        used?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description An equipment activity usage */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment/{itemId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve an equipment item
+         * @description Retrieve an equipment item <br></br>**Required modules:** equipment
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The id of the equipment */
+                    itemId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description An equipment item */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Update an equipment item
+         * @description Update an equipment item <br></br>**Required modules:** equipment
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the equipment */
+                    itemId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /**
+                         * @description The status of the equipment
+                         * @enum {string}
+                         */
+                        status?: "OPERATIONAL" | "UNSERVICEABLE" | "LOST" | "WISHLIST" | "INACTIVE";
+                        /** @description Items flagged as critical */
+                        isCritical?: boolean | ("true" | "false" | "1" | "0" | "");
+                        /** @description Items flagged as to be monitored */
+                        isMonitor?: boolean | ("true" | "false" | "1" | "0" | "");
+                        /** @description This item's barcode */
+                        barcode?: string;
+                        /** @description Notes about the change */
+                        updateNotes?: string;
+                        /** @description An array of objects consisting of the custom-field id and either: the value as a properly formatted string for the field type, or array of ids for choice type fields (with a max of one id for single-choice fields */
+                        customFieldValues?: ({
+                            /** @description custom-field identifier */
+                            id: number;
+                            /** @description array of custom-field option identifiers */
+                            value: number[];
+                        } | {
+                            /** @description custom-field identifier */
+                            id: number;
+                            value: string;
+                        })[];
+                    };
+                };
+            };
+            responses: {
+                /** @description An equipment item */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/v3/{context}/{contextId}/events/{activityId}": {
@@ -9181,7 +8552,7 @@ export interface paths {
         };
         /**
          * Retrieve an event
-         * @description Retrieve an event <br></br>**Required modules:** MODULE_ACTIVITIES
+         * @description Retrieve an event <br></br>**Required modules:** activities
          */
         get: {
             parameters: {
@@ -9254,7 +8625,7 @@ export interface paths {
                         trackingNumber?: string | null;
                         /** @description Whether the activity is shared across the organisation */
                         shared?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                        /** @description Whether the activity requires the attendance of the full team or is selective */
+                        /** @description Whether the activity requires the attendance of the full team or is selective. If set true on activity creation, the attendance records will automatically be created for appropriate team members. */
                         fullTeam?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
                         address?: {
                             /** @description Country */
@@ -9286,11 +8657,164 @@ export interface paths {
                          * @description The activity's end date
                          */
                         endsAt?: string;
+                        /** @description An array of objects consisting of the custom-field id and either: the value as a properly formatted string for the field type, or array of ids for choice type fields (with a max of one id for single-choice fields */
+                        customFieldValues?: ({
+                            /** @description custom-field identifier */
+                            id: number;
+                            /** @description array of custom-field option identifiers */
+                            value: number[];
+                        } | {
+                            /** @description custom-field identifier */
+                            id: number;
+                            value: string;
+                        })[];
                     };
                 };
             };
             responses: {
                 /** @description An event */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/exercises/{activityId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve an exercises
+         * @description Retrieve an exercises <br></br>**Required modules:** activities
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description An activity identifier */
+                    activityId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description An Exercise resource */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update an exercise
+         * @description Update an exercise <br></br>**Required modules:**
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The activity's identifier */
+                    activityId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description Reference code for activity. Must be unique. Only allowed if team has activity auto-id enabled. */
+                        reference?: string;
+                        /** @description A text description for the reference / the activity's title */
+                        referenceDescription?: string;
+                        /**
+                         * @description The activity's description. Supports HTML.
+                         * @default null
+                         */
+                        description?: string | null;
+                        /**
+                         * @description The activity's plan. Supports HTML.
+                         * @default null
+                         */
+                        plan?: string | null;
+                        /** @description The activity's tracking number */
+                        trackingNumber?: string | null;
+                        /** @description Whether the activity is shared across the organisation */
+                        shared?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
+                        /** @description Whether the activity requires the attendance of the full team or is selective. If set true on activity creation, the attendance records will automatically be created for appropriate team members. */
+                        fullTeam?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
+                        address?: {
+                            /** @description Country */
+                            country?: string;
+                            /** @description Postcode or ZIP code */
+                            postcode?: string;
+                            /** @description Province, county or region */
+                            region?: string;
+                            /** @description Number, street and house */
+                            street?: string;
+                            /** @description City or town */
+                            town?: string;
+                        };
+                        location?: {
+                            /** @description The latitude where this entity is located */
+                            latitude: number;
+                            /** @description The longtitude where this entity is located */
+                            longitude: number;
+                        };
+                        /** @description The numeric identifier for a resource */
+                        locationBookmarkId?: number;
+                        /**
+                         * Format: date-time
+                         * @description The activity's starting date
+                         */
+                        startsAt?: string;
+                        /**
+                         * Format: date-time
+                         * @description The activity's end date
+                         */
+                        endsAt?: string;
+                        /** @description An array of objects consisting of the custom-field id and either: the value as a properly formatted string for the field type, or array of ids for choice type fields (with a max of one id for single-choice fields */
+                        customFieldValues?: ({
+                            /** @description custom-field identifier */
+                            id: number;
+                            /** @description array of custom-field option identifiers */
+                            value: number[];
+                        } | {
+                            /** @description custom-field identifier */
+                            id: number;
+                            value: string;
+                        })[];
+                    };
+                };
+            };
+            responses: {
+                /** @description An exercise */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -9312,7 +8836,7 @@ export interface paths {
         };
         /**
          * Retrieve a handler group membership
-         * @description Retrieve a handler group membership <br></br>**Required modules:** MODULE_GROUPS
+         * @description Retrieve a handler group membership <br></br>**Required modules:** groups
          */
         get: {
             parameters: {
@@ -9347,6 +8871,121 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/handler-groups/{groupId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a handler group
+         * @description Retrieve a handler group <br></br>**Required modules:** groups
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description A group identifier */
+                    groupId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A handler group */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Delete a handler group
+         * @description Delete a handler group <br></br>**Required modules:**
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The group's identifier */
+                    groupId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The delete response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update a handler group
+         * @description Update a handler group <br></br>**Required modules:**
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The group's identifier */
+                    groupId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The groups's name */
+                        title: string;
+                        /** @description The group's bundle name */
+                        deprecatedBundle?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description A handler Group */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/v3/{context}/{contextId}/handler-qualifications/{qualificationId}": {
@@ -9400,6 +9039,124 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v3/{context}/{contextId}/health-safety-categories/{categoryId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a Health & Safety Category
+         * @description Retrieve a Health & Safety Category <br></br>**Required modules:** healthsafety
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the Health & Safety Category */
+                    categoryId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A Health & Safety Category */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Delete a Health & Safety Category
+         * @description Delete a Health & Safety Category <br></br>**Required modules:** healthsafety
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the Health & Safety Category */
+                    categoryId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The delete response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update a Health & Safety Category
+         * @description Update a Health & Safety Category <br></br>**Required modules:** healthsafety
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the Health & Safety Category */
+                    categoryId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The category title */
+                        title?: string;
+                        /**
+                         * @description The colour assigned to the category
+                         * @enum {string}
+                         */
+                        colour?: "BLACK" | "BLUE" | "CADET_BLUE" | "DARK_BLUE" | "DARK_GREEN" | "DARK_PURPLE" | "DARK_RED" | "GRAY" | "GREEN" | "LIGHT_GRAY" | "LIGHT_RED" | "ORANGE" | "PURPLE" | "RED";
+                    };
+                };
+            };
+            responses: {
+                /** @description A Health & Safety Category */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/v3/{context}/{contextId}/health-safety-reports/{reportId}": {
         parameters: {
             query?: never;
@@ -9409,7 +9166,7 @@ export interface paths {
         };
         /**
          * Retrieve a Health & Safety Report
-         * @description Retrieve a Health & Safety Report <br></br>**Required modules:** MODULE_HEALTHSAFETY
+         * @description Retrieve a Health & Safety Report <br></br>**Required modules:** healthsafety
          */
         get: {
             parameters: {
@@ -9446,6 +9203,216 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v3/{context}/{contextId}/health-safety-severities/{severityId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a Health & Safety Severity
+         * @description Retrieve a Health & Safety Severity <br></br>**Required modules:** healthsafety
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the Health & Safety Severity */
+                    severityId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A Health & Safety Severity */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Delete a Health & Safety Severity
+         * @description Delete a Health & Safety Severity <br></br>**Required modules:** healthsafety
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the Health & Safety Severity */
+                    severityId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The delete response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update a Health & Safety Severity
+         * @description Update a Health & Safety Severity <br></br>**Required modules:** healthsafety
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the Health & Safety Severity */
+                    severityId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The severity title */
+                        title?: string;
+                        /**
+                         * @description The score assigned to this severity
+                         * @default null
+                         */
+                        score?: number | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description A Health & Safety Severity */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/incident-involved-injuries/{involvedInjuryId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a person involved injury
+         * @description Retrieve a person involved injury <br></br>**Required modules:** persons_involved_medical
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The numeric identifier for a resource */
+                    involvedInjuryId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A person involved injury */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/incident-involved-persons/{involvedPersonId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a person involved in an incident
+         * @description Retrieve a person involved in an incident <br></br>**Required modules:** persons_involved
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The numeric identifier for a resource */
+                    involvedPersonId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A person involved in an incident */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v3/{context}/{contextId}/incidents/{activityId}": {
         parameters: {
             query?: never;
@@ -9455,7 +9422,7 @@ export interface paths {
         };
         /**
          * Retrieve an incident
-         * @description Retrieve an incident <br></br>**Required modules:** MODULE_ACTIVITIES
+         * @description Retrieve an incident <br></br>**Required modules:** activities
          */
         get: {
             parameters: {
@@ -9528,7 +9495,7 @@ export interface paths {
                         trackingNumber?: string | null;
                         /** @description Whether the activity is shared across the organisation */
                         shared?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
-                        /** @description Whether the activity requires the attendance of the full team or is selective */
+                        /** @description Whether the activity requires the attendance of the full team or is selective. If set true on activity creation, the attendance records will automatically be created for appropriate team members. */
                         fullTeam?: boolean & (boolean | ("true" | "false" | "1" | "0" | ""));
                         address?: {
                             /** @description Country */
@@ -9560,6 +9527,17 @@ export interface paths {
                          * @description The activity's end date
                          */
                         endsAt?: string;
+                        /** @description An array of objects consisting of the custom-field id and either: the value as a properly formatted string for the field type, or array of ids for choice type fields (with a max of one id for single-choice fields */
+                        customFieldValues?: ({
+                            /** @description custom-field identifier */
+                            id: number;
+                            /** @description array of custom-field option identifiers */
+                            value: number[];
+                        } | {
+                            /** @description custom-field identifier */
+                            id: number;
+                            value: string;
+                        })[];
                     };
                 };
             };
@@ -9577,6 +9555,52 @@ export interface paths {
         };
         trace?: never;
     };
+    "/v3/{context}/{contextId}/location-bookmarks/{bookmarkId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a location bookmark
+         * @description Retrieve a location bookmark <br></br>**Required modules:** location
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description A location bookmark id */
+                    bookmarkId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A location bookmark resource */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v3/{context}/{contextId}/member-group-memberships/{memberGroupMembershipId}": {
         parameters: {
             query?: never;
@@ -9586,7 +9610,7 @@ export interface paths {
         };
         /**
          * Retrieve a member group membership
-         * @description Retrieve a member group membership <br></br>**Required modules:** MODULE_GROUPS
+         * @description Retrieve a member group membership <br></br>**Required modules:** groups
          */
         get: {
             parameters: {
@@ -9623,6 +9647,554 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v3/{context}/{contextId}/member-groups/{groupId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a member group
+         * @description Retrieve a member group <br></br>**Required modules:** groups
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description A group identifier */
+                    groupId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A member group */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Delete a member group
+         * @description Delete a member group <br></br>**Required modules:**
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The group's identifier */
+                    groupId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The delete response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update a member group
+         * @description Update a member group <br></br>**Required modules:**
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The group's identifier */
+                    groupId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The groups's name */
+                        title: string;
+                        /** @description The group's bundle name */
+                        deprecatedBundle?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description A member Group */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/member-qualifications/{qualificationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a member qualification
+         * @description Retrieve a member qualification
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description *Organisation context*: Exclude entities belonging to accessible teams */
+                    exclude_teams_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                    /** @description *Team context*: Exclude entities inherited from the team's org */
+                    exclude_org_data?: boolean | ("true" | "false" | "1" | "0" | "");
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The qualification's id */
+                    qualificationId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A member qualification */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/members/{member}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a member
+         * @description Retrieve a member <br></br>**Required modules:**
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description Member the resource belongs to. Either an id or "me". */
+                    member: number | "me";
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A member */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update a member
+         * @description Update a member <br></br>**Required modules:**
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description Member the resource belongs to. Either an id or "me". */
+                    member: number | "me";
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        name?: string;
+                        ref?: string;
+                        /** @description RFID tag or barcode */
+                        idTag?: string;
+                        /**
+                         * @description Status of member
+                         * @enum {string}
+                         */
+                        status?: "OPERATIONAL" | "NON_OPERATIONAL" | "OBSERVER";
+                        /** @description Custom status identifier */
+                        statusLabelId?: number;
+                        /**
+                         * Format: date-time
+                         * @description An ISO8601 datetime string
+                         */
+                        startsAt?: string;
+                        position?: string;
+                        /** @description Role identifier */
+                        roleId?: number;
+                        /** @description Cost per hour in lowest denomination */
+                        costPerHour?: number;
+                        /** @description Cost per activity in lowest denomination */
+                        costPerUse?: number;
+                        /** @description Member contact address */
+                        deprecatedAddress?: string;
+                        location?: {
+                            /** @description The latitude where this entity is located */
+                            latitude: number;
+                            /** @description The longtitude where this entity is located */
+                            longitude: number;
+                        };
+                        /** @description Location bookmark identifier */
+                        locationBookmarkId?: number;
+                        /** Format: email */
+                        email?: string;
+                        phone?: {
+                            mobile?: string;
+                            home?: string;
+                            work?: string;
+                        };
+                        pager?: {
+                            number?: string;
+                            /** Format: email */
+                            email?: string;
+                        };
+                        notes?: string;
+                        primaryEmergencyContact?: {
+                            name?: string;
+                            relation?: string;
+                            primaryPhone?: string;
+                            secondaryPhone?: string;
+                        };
+                        secondaryEmergencyContact?: {
+                            name?: string;
+                            relation?: string;
+                            primaryPhone?: string;
+                            secondaryPhone?: string;
+                        };
+                        /** @description An array of objects consisting of the custom-field id and either: the value as a properly formatted string for the field type, or array of ids for choice type fields (with a max of one id for single-choice fields */
+                        customFieldValues?: ({
+                            /** @description custom-field identifier */
+                            id: number;
+                            /** @description array of custom-field option identifiers */
+                            value: number[];
+                        } | {
+                            /** @description custom-field identifier */
+                            id: number;
+                            value: string;
+                        })[];
+                    };
+                };
+            };
+            responses: {
+                /** @description A member */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/organisations/{organisationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve an organisation
+         * @description Retrieve an organisation
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description A organisation`s id */
+                    organisationId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A organisation */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/repairs/{repairId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a repair
+         * @description Retrieve a repair <br></br>**Required modules:**
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The numeric identifier for a resource */
+                    repairId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A repair resource */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Delete a repair
+         * @description Delete a repair <br></br>**Required modules:**
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The numeric identifier for a resource */
+                    repairId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The delete response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update a repair
+         * @description Update a repair <br></br>**Required modules:**
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The numeric identifier for a resource */
+                    repairId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The repair resource ref */
+                        ref?: string;
+                        /**
+                         * Format: date-time
+                         * @description Date repair was completed. Status must be COMPLETED. Defaults to time of request.
+                         */
+                        completedAt?: string | null;
+                        /**
+                         * Format: date-time
+                         * @description Date repair resource is due
+                         */
+                        dueAt?: string | null;
+                        /** @description The description of a resource */
+                        description?: string;
+                        assignedMemberId?: null & ("null" | ("null" | null) | number);
+                        /** @description Repair cost in the lowest denomination */
+                        cost?: number;
+                        /**
+                         * @description Reason for repair
+                         * @enum {string}
+                         */
+                        cause?: "UNKNOWN" | "NATURAL_DETERIORATION" | "USED_AS_INTENDED" | "INCORRECT_OPERATION" | "PLANNED_MAINTENANCE";
+                        /**
+                         * @description Status of repair
+                         * @enum {string}
+                         */
+                        status?: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+                        fundId?: null & ("null" | ("null" | null) | number);
+                        activityId?: null & ("null" | ("null" | null) | number);
+                    };
+                };
+            };
+            responses: {
+                /** @description A repair resource */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/resource-bundles/{resourceBundleId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a resource bundle
+         * @description Retrieve a resource bundle
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the Resource Bundle */
+                    resourceBundleId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A resource bundle */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v3/{context}/{contextId}/roles/{roleId}": {
         parameters: {
             query?: never;
@@ -9632,7 +10204,7 @@ export interface paths {
         };
         /**
          * Retrieve a role
-         * @description Retrieve a role <br></br>**Required modules:** MODULE_ROLES
+         * @description Retrieve a role <br></br>**Required modules:** roles
          */
         get: {
             parameters: {
@@ -9669,7 +10241,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v3/{context}/{contextId}/equipment-retired-reasons/{reasonId}": {
+    "/v3/{context}/{contextId}/tags/{tagId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -9677,8 +10249,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Retrieve an equipment retired reason
-         * @description Retrieve an equipment retired reason <br></br>**Required modules:** MODULE_EQUIPMENT
+         * Retrieve a tag
+         * @description Retrieve a tag <br></br>**Required modules:**
          */
         get: {
             parameters: {
@@ -9689,14 +10261,14 @@ export interface paths {
                     context: "team" | "organisation" | "admin";
                     /** @description Either a team, organisation or admin's id */
                     contextId: number;
-                    /** @description The ID of the equipment retired reason */
-                    reasonId: number;
+                    /** @description The numeric identifier for a resource */
+                    tagId: number;
                 };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description An equipment retired reason */
+                /** @description A tag resource */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -9710,8 +10282,8 @@ export interface paths {
         put?: never;
         post?: never;
         /**
-         * Delete an equipment retired reason resource
-         * @description Delete an equipment retired reason resource <br></br>**Required modules:** MODULE_EQUIPMENT
+         * Delete a tag
+         * @description Delete a tag <br></br>**Required modules:**
          */
         delete: {
             parameters: {
@@ -9722,14 +10294,14 @@ export interface paths {
                     context: "team" | "organisation" | "admin";
                     /** @description Either a team, organisation or admin's id */
                     contextId: number;
-                    /** @description The ID of the equipment retired reason */
-                    reasonId: number;
+                    /** @description The numeric identifier for a resource */
+                    tagId: number;
                 };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description The deleted id(s) */
+                /** @description The delete response */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -9743,8 +10315,8 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Update an equipment retired reason
-         * @description Update an equipment retired reason <br></br>**Required modules:** MODULE_EQUIPMENT
+         * Update a tag
+         * @description Update a tag <br></br>**Required modules:**
          */
         patch: {
             parameters: {
@@ -9755,8 +10327,8 @@ export interface paths {
                     context: "team" | "organisation" | "admin";
                     /** @description Either a team, organisation or admin's id */
                     contextId: number;
-                    /** @description The ID of the equipment retired reason */
-                    reasonId: number;
+                    /** @description The numeric identifier for a resource */
+                    tagId: number;
                 };
                 cookie?: never;
             };
@@ -9764,12 +10336,14 @@ export interface paths {
                 content: {
                     "application/json": {
                         /** @description The title of a resource */
-                        title: string;
+                        title?: string;
+                        /** @description Some descriptive text for the resource */
+                        notes?: string;
                     };
                 };
             };
             responses: {
-                /** @description An equipment retired reason */
+                /** @description A tag resource */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -9780,6 +10354,1517 @@ export interface paths {
                 };
             };
         };
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/teams/{teamId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a team
+         * @description Retrieve a team
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description A team`s id */
+                    teamId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A team */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/whiteboard/{noteId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a whiteboard note
+         * @description Retrieve a whiteboard note <br></br>**Required modules:** whiteboard
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the Whiteboard note */
+                    noteId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A whiteboard note */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Delete a whiteboard note
+         * @description Delete a whiteboard note <br></br>**Required modules:** whiteboard
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the Whiteboard note */
+                    noteId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The delete response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update a whiteboard note
+         * @description Update a whiteboard note <br></br>**Required modules:** whiteboard
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the Whiteboard note */
+                    noteId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: date-time
+                         * @description The date-time at which the note is archived
+                         */
+                        archivedAt?: string;
+                        /**
+                         * @description Set to true to mark the note as important
+                         * @default false
+                         */
+                        important?: boolean | ("true" | "false" | "1" | "0" | "");
+                        /** @description The contents of the note. Supports plain text or HTML. */
+                        text?: string;
+                        /**
+                         * Format: uri
+                         * @description A http/https RFC-3986 URI to be associate with the note
+                         */
+                        url?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description A whiteboard note */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/v3/team/{teamId}/events/reference/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Check if an auto-id reference is available
+         * @description Check if an auto-id reference is available <br></br>**Required modules:** activity_autoid
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description Reference code for activity. Must be unique. Only allowed if team has activity auto-id enabled. */
+                        reference: string;
+                        /** @description The numeric identifier for a resource */
+                        targetResourceId?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description A response indicating availability */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/team/{teamId}/events/reference/increment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Increment the auto-id reference sequence
+         * @description Increment the auto-id reference sequence <br></br>**Required modules:** activity_autoid
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A response indicating a reference to be used */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/team/{teamId}/events/reference/peek": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Retrieve the next available auto-id reference
+         * @description Retrieve the next available auto-id reference <br></br>**Required modules:** activity_autoid
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A response indicating the next available reference */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/team/{teamId}/exercises/reference/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Check if an auto-id reference is available
+         * @description Check if an auto-id reference is available <br></br>**Required modules:** activity_autoid
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description Reference code for activity. Must be unique. Only allowed if team has activity auto-id enabled. */
+                        reference: string;
+                        /** @description The numeric identifier for a resource */
+                        targetResourceId?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description A response indicating availability */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/team/{teamId}/exercises/reference/increment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Increment the auto-id reference sequence
+         * @description Increment the auto-id reference sequence <br></br>**Required modules:** activity_autoid
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A response indicating a reference to be used */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/team/{teamId}/exercises/reference/peek": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Retrieve the next available auto-id reference
+         * @description Retrieve the next available auto-id reference <br></br>**Required modules:** activity_autoid
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A response indicating the next available reference */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/team/{teamId}/incidents/reference/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Check if an auto-id reference is available
+         * @description Check if an auto-id reference is available <br></br>**Required modules:** activity_autoid
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description Reference code for activity. Must be unique. Only allowed if team has activity auto-id enabled. */
+                        reference: string;
+                        /** @description The numeric identifier for a resource */
+                        targetResourceId?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description A response indicating availability */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/team/{teamId}/incidents/reference/increment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Increment the auto-id reference sequence
+         * @description Increment the auto-id reference sequence <br></br>**Required modules:** activity_autoid
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A response indicating a reference to be used */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/team/{teamId}/incidents/reference/peek": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Retrieve the next available auto-id reference
+         * @description Retrieve the next available auto-id reference <br></br>**Required modules:** activity_autoid
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A response indicating the next available reference */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/team/{teamId}/duties/{dutyId}/update-duty-period": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Update a duty period
+         * @description Update a duty period <br></br>**Required modules:** duty
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                    /** @description The numeric identifier for a resource */
+                    dutyId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        notes?: string | null;
+                        roleId?: null & ("null" | ("null" | null) | number);
+                        /**
+                         * Format: date-time
+                         * @description Start of the duty period
+                         */
+                        startsAt?: string;
+                        /**
+                         * Format: date-time
+                         * @description End of the duty period
+                         */
+                        endsAt?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description A duty period */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/team/{teamId}/events/{activityId}/approval": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Change an event approval status
+         * @description Change an event approval status <br></br>**Required modules:** activities
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                    /** @description The activity identifier */
+                    activityId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description Whether or not an activity is approved */
+                        approved: boolean | ("true" | "false" | "1" | "0" | "");
+                    };
+                };
+            };
+            responses: {
+                /** @description An event */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/team/{teamId}/events/{activityId}/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Set an event's tags
+         * @description Set an event's tags <br></br>**Required modules:** activities
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                    /** @description The activity identifier */
+                    activityId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The complete list of desired tag ids */
+                        tagIds: number[];
+                    };
+                };
+            };
+            responses: {
+                /** @description An event */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/team/{teamId}/exercises/{activityId}/approval": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Change an exercise approval status
+         * @description Change an exercise approval status <br></br>**Required modules:** activities
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                    /** @description The activity identifier */
+                    activityId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description Whether or not an activity is approved */
+                        approved: boolean | ("true" | "false" | "1" | "0" | "");
+                    };
+                };
+            };
+            responses: {
+                /** @description An exercise */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/team/{teamId}/exercises/{activityId}/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Set an exercise's tags
+         * @description Set an exercise's tags <br></br>**Required modules:** activities
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                    /** @description The activity identifier */
+                    activityId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The complete list of desired tag ids */
+                        tagIds: number[];
+                    };
+                };
+            };
+            responses: {
+                /** @description An exercise */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/team/{teamId}/health-safety-reports/{resourceId}/approval": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Change a health & safety report's approval status
+         * @description Change a health & safety report's approval status <br></br>**Required modules:** healthsafety
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                    /** @description The resource identifier */
+                    resourceId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description Whether or not a resource is approved */
+                        approved: boolean | ("true" | "false" | "1" | "0" | "");
+                    };
+                };
+            };
+            responses: {
+                /** @description A health & safety report */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/team/{teamId}/incidents/{activityId}/approval": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Change an incident approval status
+         * @description Change an incident approval status <br></br>**Required modules:** activities
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                    /** @description The activity identifier */
+                    activityId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description Whether or not an activity is approved */
+                        approved: boolean | ("true" | "false" | "1" | "0" | "");
+                    };
+                };
+            };
+            responses: {
+                /** @description An incident */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/team/{teamId}/incidents/{activityId}/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Set an incident's tags
+         * @description Set an incident's tags <br></br>**Required modules:** activities
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description A team id */
+                    teamId: number;
+                    /** @description The activity identifier */
+                    activityId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description The complete list of desired tag ids */
+                        tagIds: number[];
+                    };
+                };
+            };
+            responses: {
+                /** @description An incident */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/documents/{documentId}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download a document
+         * @description Download a document <br></br>**Required modules:**
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The document size to be downloaded */
+                    size?: "ORIGINAL" | "PREVIEW" | "THUMBNAIL";
+                    /** @description The revision number to be downloaded */
+                    revision?: number;
+                    /** @description Legacy version search */
+                    version?: string;
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the document */
+                    documentId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A binary file with the Document file type */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/documents/{documentId}/revisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a single document's revisions
+         * @description Retrieve a single document's revisions <br></br>**Required modules:**
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Page number */
+                    page?: number;
+                    /** @description Items per page */
+                    size?: number;
+                    /** @description A list of ids */
+                    id?: number | number[];
+                    /** @description The requested revision number */
+                    revision?: string;
+                    sort?: "createdAt" | "updatedAt" | "id";
+                    order?: "asc" | "desc";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The ID of the document */
+                    documentId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A document revision detail */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-brands/{brandId}/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download an equipment brand profile image
+         * @description Download an equipment brand profile image <br></br>**Required modules:** equipment
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The image size to be downloaded */
+                    size?: "ORIGINAL" | "PREVIEW" | "THUMBNAIL";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The numeric identifier for a resource */
+                    brandId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A binary image file */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-inspection-results/{inspectionResultId}/equipment-inspection-step-results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve an equipment inspection's steps' results
+         * @description Retrieve an equipment inspection's steps' results <br></br>**Required modules:** equipment_inspections
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description An inspection result id */
+                    inspectionResultId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description An inspection result's step's results */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-models/{modelId}/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download an equipment model profile image
+         * @description Download an equipment model profile image <br></br>**Required modules:** equipment
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The image size to be downloaded */
+                    size?: "ORIGINAL" | "PREVIEW" | "THUMBNAIL";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The numeric identifier for a resource */
+                    modelId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A binary image file */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment-suppliers/{supplierId}/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download an equipment supplier profile image
+         * @description Download an equipment supplier profile image <br></br>**Required modules:** equipment
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The image size to be downloaded */
+                    size?: "ORIGINAL" | "PREVIEW" | "THUMBNAIL";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The numeric identifier for a resource */
+                    supplierId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A binary image file */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/equipment/{itemId}/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download an equipment item profile image
+         * @description Download an equipment item profile image <br></br>**Required modules:** equipment
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The image size to be downloaded */
+                    size?: "ORIGINAL" | "PREVIEW" | "THUMBNAIL";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The numeric identifier for a resource */
+                    itemId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A binary image file */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/members/{member}/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download a member profile image
+         * @description Download a member profile image <br></br>**Required modules:**
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The image size to be downloaded */
+                    size?: "ORIGINAL" | "PREVIEW" | "THUMBNAIL";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description Member the resource belongs to. Either an id or "me". */
+                    member: number | "me";
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A binary image file */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/members/{member}/retire": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Retire or unretire a member
+         * @description Retire or unretire a member <br></br>**Required modules:**
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The numeric identifier for a resource */
+                    member: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: date-time
+                         * @description Member retirement date
+                         */
+                        date?: string;
+                        /** @description A retirement reason identifier */
+                        reasonId?: null & ("null" | ("null" | null) | number);
+                        /**
+                         * @description Whether to retire or unretire the member
+                         * @default RETIRE
+                         * @enum {string}
+                         */
+                        direction?: "RETIRE" | "UNRETIRE";
+                    };
+                };
+            };
+            responses: {
+                /** @description The updated member */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/v3/{context}/{contextId}/teams/{teamId}/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download a team profile image
+         * @description Download a team profile image
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The image size to be downloaded */
+                    size?: "ORIGINAL" | "PREVIEW" | "THUMBNAIL";
+                };
+                header?: never;
+                path: {
+                    /** @description The point of view from where the request takes place */
+                    context: "team" | "organisation" | "admin";
+                    /** @description Either a team, organisation or admin's id */
+                    contextId: number;
+                    /** @description The numeric identifier for a resource */
+                    teamId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A binary image file */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/v3/{context}/{contextId}/documents/{documentId}/revisions/{revisionId}": {
