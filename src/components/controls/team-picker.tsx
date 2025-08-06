@@ -74,7 +74,8 @@ export function TeamPicker({ className, defaultValue = "", exclude = [], onValue
         if (teamId !== internalValue) {
             setInternalValue(teamId)
 
-            const selectedTeam = query.data?.find(team => team.teamId === teamId)!
+            const selectedTeam = query.data!.find(team => team.teamId === teamId)!
+
             onValueChange?.(selectedTeam)
             setOpen(false)
         }

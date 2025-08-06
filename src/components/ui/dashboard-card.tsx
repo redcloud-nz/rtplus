@@ -23,7 +23,7 @@ type DashboardCardProps = React.ComponentPropsWithRef<'li'> & {
     description: string
 }
 
-export function DashboardCard({ className, title, href, icon: Icon, iconForeground, iconBackground, description, ...props}: DashboardCardProps) {
+export function DashboardCard({ className, title, href, /*icon: Icon, iconForeground, iconBackground,*/ description, ...props}: DashboardCardProps) {
 
     return <li className={cn("col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow-sm", className)} {...props}>
         <div className="group relative bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500">

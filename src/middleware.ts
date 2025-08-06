@@ -7,10 +7,6 @@ import { NextResponse } from 'next/server'
 
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
-import {RTPlusLogger} from '@/lib/logger'
-
-const logger = new RTPlusLogger('middleware')
-
 const isPrivateRoute = createRouteMatcher(['/app(/.*)'])
 const isSystemAdminRoute = createRouteMatcher(['/app/system(/.*)'])
 

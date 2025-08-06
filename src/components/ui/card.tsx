@@ -2,18 +2,15 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
-'use client'
 
-import { ChevronDownIcon, EllipsisVerticalIcon, InfoIcon } from 'lucide-react'
-import { type ComponentProps, useState } from 'react'
-
+import { EllipsisVerticalIcon, InfoIcon } from 'lucide-react'
+import { type ComponentProps } from 'react'
 
 import { cn } from '@/lib/utils'
 
 import { Button } from './button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './dropdown-menu'
 import { Popover, PopoverContent, PopoverTriggerButton } from './popover'
-import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
 
 
 export function Card({ className, raised, ...props }: ComponentProps<'div'> & { raised?: boolean }) {
@@ -60,39 +57,12 @@ export function CardDescription({ className, ...props }: ComponentProps<'div'>) 
     />
 }
 
-type CardContentProps = ComponentProps<'div'> & { boundary?: boolean, collapsible?: boolean }
+export function CardContent({ className, ...props }: ComponentProps<'div'>) {
 
-export function CardContent({ className, collapsible = false, boundary = false, ...props }: CardContentProps) {
-    const [open, setOpen] = useState(true)
-
-    return <div className="relative">
-        { collapsible ? 
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button
-                        className="absolute -top-[1px] left-[50%] right-[50%] h-4 w-12 p-0 rounded-0"
-                        variant="hanger" 
-                        size="icon"
-                        onClick={() => setOpen(prev => !prev)}
-                    >
-                        <ChevronDownIcon className={cn("transition-transform", open && "rotate-180")}/>
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                    {open ? 'Collapse card' : 'Expand card'}
-                </TooltipContent>
-            </Tooltip>
-            : null
-        }
-        <div
-            className={cn(
-                "data-[state=open]:h-fit data-[state=closed]:h-0 data-[state=closed]:hidden p-1",
-                //"data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
-            )}
-            data-state={open ? "open" : "closed"}
+    return <div
+            className={cn("p-1", className)}
             {...props}
         />
-    </div>
 }
 
 export function CardFooter({ className, ...props }: ComponentProps<'div'>) {

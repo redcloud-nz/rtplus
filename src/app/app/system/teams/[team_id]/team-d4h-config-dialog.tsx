@@ -44,7 +44,7 @@ interface TeamD4hConfigDialogProps extends React.ComponentProps<typeof Dialog> {
 export function TeamD4hConfigDialog({ teamId, ...props }: TeamD4hConfigDialogProps) {
     const trpc = useTRPC()
 
-    const teamQuery = useSuspenseQuery(trpc.teams.byId.queryOptions({ teamId }))
+    //const teamQuery = useSuspenseQuery(trpc.teams.byId.queryOptions({ teamId }))
     const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions())
 
     const mutation = useMutation(trpc.teams.updateTeamD4h.mutationOptions({}))

@@ -74,7 +74,7 @@ export function PersonPicker({ className, defaultValue = "", exclude = [], onVal
         if (personId !== internalValue) {
             setInternalValue(personId)
 
-            const selectedPerson = query.data?.find(person => person.personId === personId)!
+            const selectedPerson = query.data!.find(person => person.personId === personId)!
             onValueChange?.(selectedPerson)
             setOpen(false)
         }

@@ -6,27 +6,27 @@
 
 import * as DF from 'date-fns'
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
-import React, { useMemo } from 'react'
-import { mapToObj } from 'remeda'
+import { useState } from 'react'
 
 import { useSuspenseQueries, useSuspenseQuery } from '@tanstack/react-query'
 
 import { Button } from '@/components/ui/button'
 
-import { D4hAccessTokens, extractUniqueTeams } from '@/lib/d4h-access-tokens'
+import { D4hAccessTokens } from '@/lib/d4h-access-tokens'
 import { D4hClient } from '@/lib/d4h-api/client'
 import { D4hEvent } from '@/lib/d4h-api/event'
 import { cn } from '@/lib/utils'
 
 
 
+
 export function MonthView() {
     const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions())
 
-    const d4hTeams = useMemo(() => extractUniqueTeams(accessTokens), [accessTokens])
-    const teamNameMap = useMemo(() => mapToObj(d4hTeams, ({ team }) => [team.id, team.name]), [d4hTeams])
+    //const d4hTeams = useMemo(() => extractUniqueTeams(accessTokens), [accessTokens])
+    //const teamNameMap = useMemo(() => mapToObj(d4hTeams, ({ team }) => [team.id, team.name]), [d4hTeams])
 
-    const [month, setMonth] = React.useState<Date>(DF.startOfMonth(new Date()))
+    const [month, setMonth] = useState<Date>(DF.startOfMonth(new Date()))
 
     const eventsQuery = useSuspenseQueries({
         queries: accessTokens.flatMap(accessKey => 

@@ -7,7 +7,7 @@
 
 import { PencilIcon, TrashIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 import z from 'zod'
@@ -117,7 +117,7 @@ function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamData
     const mutation = useMutation(trpc.teams.update.mutationOptions({
         onError(error) {
             if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as any, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof TeamData, { message: error.shape.message })
             } else {
                 toast({
                     title: "Error updating team",
@@ -138,10 +138,6 @@ function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamData
             queryClient.invalidateQueries(trpc.teams.all.queryFilter())
         }
     }))
-
-    useEffect(() => {
-        form.setFocus('name')
-    }, [])
 
     return <FormProvider {...form}>
         <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>

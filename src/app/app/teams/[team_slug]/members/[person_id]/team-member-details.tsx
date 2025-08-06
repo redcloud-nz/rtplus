@@ -181,7 +181,7 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membe
                  <FormField
                     control={form.control}
                     name="teamId"
-                    render={({ field }) => <ToruGridRow
+                    render={() => <ToruGridRow
                         label="Team"
                         control={ <DisplayValue>{team.name}</DisplayValue>}
                     />}

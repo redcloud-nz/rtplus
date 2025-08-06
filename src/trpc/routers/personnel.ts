@@ -13,7 +13,7 @@ import { PersonData, personSchema } from '@/lib/schemas/person'
 import { nanoId16 } from '@/lib/id'
 import { zodRecordStatus, zodNanoId8 } from '@/lib/validation'
 
-import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, systemAdminProcedure, teamAdminProcedure } from '../init'
+import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
 import { FieldConflictError } from '../types'
 import { getTeamById } from './teams'
 
@@ -213,7 +213,7 @@ export async function updatePerson(ctx: AuthenticatedContext, person: PersonReco
     const changedFields = pickBy(update, (value, key) => value != person[key])
 
     return ctx.prisma.person.update({
-        where: { id: person.id },
+        where: { id: personId },
         data: {
             ...update,
             changeLogs: {

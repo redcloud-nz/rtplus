@@ -66,7 +66,7 @@ export function SystemTeamMembershipDetailsCard({ context, personId, teamId }: {
                 />
                 <Separator orientation="vertical"/>
                 <CardExplanation>
-                    This card displays the details of {person.name}'s membership in {team.name}. You can edit the membership details or delete the membership entirely.
+                    This card displays the details of {person.name}&apos;s membership in {team.name}. You can edit the membership details or delete the membership entirely.
                 </CardExplanation>
             </CardActions>
         </CardHeader>
@@ -162,7 +162,7 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membe
                  <FormField
                     control={form.control}
                     name="teamId"
-                    render={({ field }) => <ToruGridRow
+                    render={() => <ToruGridRow
                         label="Team"
                         control={ <DisplayValue>{team.name}</DisplayValue>}
                     />}
@@ -170,7 +170,7 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membe
                 <FormField
                     control={form.control}
                     name="teamId"
-                    render={({ field }) => <ToruGridRow
+                    render={({}) => <ToruGridRow
                         label="Person"
                         control={ <DisplayValue>{person.name}</DisplayValue>}
                     />}

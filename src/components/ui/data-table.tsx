@@ -7,7 +7,7 @@ import { ArrowDownAZIcon, ArrowDownZAIcon, ChevronDownIcon, ChevronLeftIcon, Che
 import React, { ComponentProps, ReactNode } from 'react'
 import { match } from 'ts-pattern'
 
-import { Column, ColumnDef, ColumnHelper, createColumnHelper, flexRender, RowData, Table as TanstackTable } from '@tanstack/react-table'
+import { CellContext, Column, ColumnDef, ColumnHelper, createColumnHelper, flexRender, Row, RowData, Table as TanstackTable } from '@tanstack/react-table'
 
 import { Button, ButtonProps } from './button'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuGroupLabel, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './dropdown-menu'
@@ -19,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
 import { Show } from '../show'
 
-// eslint-disable-next-line
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const DataTableContext = React.createContext<TanstackTable<any> | null>(null)
 
 export const DataTableProvider = DataTableContext.Provider
@@ -35,8 +35,7 @@ interface DataTableProps extends Omit<ComponentProps<typeof Table>, 'children'> 
     enableRowSelection?: boolean
 }
 
-export function DataTable({ enableRowSelection, ...props }: DataTableProps) {
-    const table = useDataTable()
+export function DataTable({ ...props }: DataTableProps) {
     
     return <Table {...props}>
         <DataTableHead/>
@@ -180,7 +179,7 @@ export function DataTableBody(props: Omit<ComponentProps<typeof TableBody>, 'chi
                     original: editingState.modifiedRowData,
                     getEditMode: () => 'Create' as const,
                     getModifiedRowData: () => editingState.modifiedRowData,
-                    setModifiedRowData: (data: any) => {
+                    setModifiedRowData: (data: Partial<typeof editingState.modifiedRowData>) => {
                         const updatedData = { ...editingState.modifiedRowData, ...data }
                         table.setEditingState({ ...editingState, modifiedRowData: updatedData })
                     },
@@ -195,7 +194,7 @@ export function DataTableBody(props: Omit<ComponentProps<typeof TableBody>, 'chi
                         table.setEditingState({ mode: 'View', rowId: undefined, modifiedRowData: undefined })
                     },
                     delete: () => {}
-                } as any
+                } as Row<typeof editingState.modifiedRowData>
                 
                 // Create a synthetic cell context
                 const cellContext = {
@@ -211,7 +210,7 @@ export function DataTableBody(props: Omit<ComponentProps<typeof TableBody>, 'chi
                         column,
                     },
                     table
-                } as any
+                } as CellContext<typeof editingState.modifiedRowData, typeof editingState.modifiedRowData[keyof typeof editingState.modifiedRowData]>
                 
                 return (
                     <TableCell key={`creating-${column.id}`} align={columnDef.meta?.align}>

@@ -33,36 +33,16 @@ import { CreateInvitationDialog } from './create-invitation'
  * A card that displays a list of pending team invitations.
  * This card allows users to manage invitations by resending or revoking them.
  */
-export function ActiveTeam_Invitations_ListCard({ teamId }: { teamId: string }) {
+export function ActiveTeam_Invitations_ListCard() {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const { data: team } = useSuspenseQuery(trpc.activeTeam.get.queryOptions())
     const { data: invitations } = useSuspenseQuery(trpc.activeTeam.invitations.all.queryOptions({}))
 
     async function handleRefresh() {
         await queryClient.invalidateQueries(trpc.activeTeam.invitations.all.queryFilter())
     }
-
-    const createMutation = useMutation(trpc.activeTeam.invitations.create.mutationOptions({
-        onError(error) {
-            toast({
-                title: "Error creating invitation",
-                description: error.message,
-                variant: 'destructive',
-            })
-        },
-        onSuccess(invitation) {
-            toast({
-                title: "Invitation created",
-                description: `The invitation to '${invitation.email}' has been successfully created.`,
-            })
-        },
-        onSettled() {
-            queryClient.invalidateQueries(trpc.activeTeam.invitations.all.queryFilter())
-        }
-    }))
 
     const resendMutation = useMutation(trpc.activeTeam.invitations.resend.mutationOptions({
         onError(error) {
@@ -200,7 +180,7 @@ export function ActiveTeam_Invitations_ListCard({ teamId }: { teamId: string }) 
                 }
             }
         })
-    ]), [])
+    ]), [resendMutation, revokeMutation])
 
     const table = useReactTable<TeamInvitationData>({
         data: invitations,

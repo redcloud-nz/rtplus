@@ -119,6 +119,9 @@ export const skillPackagesRouter = createTRPCRouter({
         .output(skillPackageSchema)
         .mutation(async ({ ctx, input: { skillPackageId} }) => {
             const existing = await getSkillPackageById(ctx, skillPackageId)
+            if(!existing) {
+                throw new TRPCError({ code: 'NOT_FOUND', message: `SkillPackage(${skillPackageId}) not found` })
+            }
 
             const deleted = await ctx.prisma.skillPackage.delete({ where: { id: skillPackageId } })
 

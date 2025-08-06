@@ -21,12 +21,10 @@ const tableVariants = tv({
     }
 })
 
-export type TableProps =  Omit<ComponentProps<'table'>, 'border'> & VariantProps<typeof tableVariants> & {
-    controls?: React.ReactNode
-}
+export type TableProps =  Omit<ComponentProps<'table'>, 'border'> & VariantProps<typeof tableVariants>
 
 
-export function Table({ className, controls, border = false, width = 'full', ...props }: TableProps) {
+export function Table({ className, border = false, width = 'full', ...props }: TableProps) {
     return <div 
         className={cn(
             tableVariants({ border, width }),

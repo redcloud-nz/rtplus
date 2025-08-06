@@ -46,9 +46,9 @@ export const activeTeamRouter = createTRPCRouter({
      */
     update: teamAdminProcedure
         .input(teamSchema)
-        .output(teamSchema)
-        .mutation(async ({ ctx, input }) => {
-            const team = await getActiveTeam(ctx)
+        .output(teamSchema) 
+        .mutation(async () => {
+            //const team = await getActiveTeam(ctx)
 
             throw new TRPCError({ code: 'NOT_IMPLEMENTED', message: 'Active team update is not implemented yet.' })
         })

@@ -17,10 +17,6 @@ export class FieldConflictError extends Error {
 }
 
 
-export interface PersonAccess {
-
-}
-
 export type SkillCheckSessionWithCounts = WithCounts<SkillCheckSessionRecord, 'assessees' | 'checks' | 'skills'>
 
 

@@ -6,7 +6,7 @@
 import { BookOpenIcon, CableIcon, InfoIcon, LayoutDashboardIcon, PocketKnifeIcon, SettingsIcon, UsersIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import React from 'react'
+import type { ComponentProps } from 'react'
 
 import { auth } from '@clerk/nextjs/server'
 
@@ -18,9 +18,9 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } fr
 import { NavUser } from './nav-user'
 import { Protect } from '@clerk/nextjs'
 
-export type AppSidebarProps = React.ComponentProps<typeof Sidebar>
+export type AppSidebarProps = ComponentProps<typeof Sidebar>
 
-export async function AppSidebar({ children, ...props }: AppSidebarProps) {
+export async function AppSidebar({ ...props }: AppSidebarProps) {
     const { orgSlug: teamSlug, sessionClaims } = await auth()
     
     const isSystemAdmin = sessionClaims?.rt_system_role == 'admin'

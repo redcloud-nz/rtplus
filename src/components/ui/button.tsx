@@ -10,7 +10,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 import { Slot } from '@radix-ui/react-slot'
 
-import { cn, resolveAfter } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 
 import { Link } from './link'
 import { Popover, PopoverArrow, PopoverClose, PopoverContent, PopoverTrigger } from './popover'
@@ -83,7 +83,7 @@ export function Button({ className, variant, color, size, asChild = false, ...pr
 
 
 export type AsyncButtonProps = ButtonProps & {
-    onClick?: (event: React.MouseEvent<HTMLButtonElement>) => Promise<any>
+    onClick?: (event: React.MouseEvent<HTMLButtonElement>) => Promise<void>
     label?: React.ReactNode
     pending?: React.ReactNode
     done?: React.ReactNode
@@ -225,7 +225,7 @@ export function ConfirmPopupButton({ children, message = "Confirm", slotProps = 
     </Popover>
 }
 
-export function RefreshButton({ onClick, ...props }: Omit<ComponentProps<typeof Button>, 'onClick'> & { onClick: () => Promise<any> }) {
+export function RefreshButton<R>({ onClick, ...props }: Omit<ComponentProps<typeof Button>, 'onClick'> & { onClick: () => Promise<R> }) {
 
     const [running, setRunning] = React.useState(false)
 

@@ -23,6 +23,7 @@ export const createTRPCContext = cache(async ({ headers }: { headers: Headers  }
     return { 
         prisma,
         auth: await auth(),
+        headers,
         get clerkClient() { return createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY}) },
     }
 })

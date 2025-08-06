@@ -8,7 +8,6 @@ import { Loader2Icon } from 'lucide-react'
 import { ComponentProps, createContext, ReactNode, useContext, useId } from 'react'
 import { Controller, ControllerProps, FieldPath, FieldValues, useFormContext, useFormState } from 'react-hook-form'
 import { pick } from 'remeda'
-import { tv, VariantProps } from 'tailwind-variants'
 
 import * as LabelPrimitive from '@radix-ui/react-label'
 import { Slot } from '@radix-ui/react-slot'

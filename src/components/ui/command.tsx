@@ -33,7 +33,7 @@ type CommandDialogProps = ComponentProps<typeof Dialog> & {
     showCloseButton?: boolean
 }
 
-export function CommandDialog({ title = "Command Palette", description = "Search for a command to run...", children, className, showCloseButton = true, ...props }: CommandDialogProps) {
+export function CommandDialog({ title = "Command Palette", description = "Search for a command to run...", children, className, ...props }: CommandDialogProps) {
     return <Dialog {...props}>
         <DialogHeader className="sr-only">
             <DialogTitle>{title}</DialogTitle>

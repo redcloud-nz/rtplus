@@ -5,7 +5,7 @@
  *  Path: /app/team/[team_slug]
  */
 
-import { ClockIcon, CombineIcon, ListChecksIcon, NotebookTextIcon, PocketKnifeIcon, WalletCardsIcon } from 'lucide-react'
+import { PocketKnifeIcon } from 'lucide-react'
 import Image from 'next/image'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'

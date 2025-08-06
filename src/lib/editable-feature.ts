@@ -150,12 +150,16 @@ export interface EditableFeatureRow<TData extends RowData> {
 }
 
 declare module '@tanstack/react-table' {
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any
     interface TableState extends EditableFeatureTableState<any> {}
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     interface TableOptionsResolved<TData extends RowData> extends EditableFeatureOptions<TData> {}
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     interface Table<TData extends RowData> extends EditableFeatureInstance<TData> {}
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     interface Row<TData extends RowData> extends EditableFeatureRow<TData> {}
 }
 
@@ -263,7 +267,7 @@ export function EditableFeature<TData extends RowData>(): TableFeature<TData> {
             row.saveEdit = () => {
                 const editingState = table.getState().editing
                 if (editingState.mode === 'Update' && editingState.modifiedRowData) {
-                    const updatedRowData = { ...(row.original as Record<string, any>), ...editingState.modifiedRowData }
+                    const updatedRowData = { ...(row.original as Record<string, unknown>), ...editingState.modifiedRowData }
                     table.options.onUpdate?.(updatedRowData as TData)
                 } else if (editingState.mode === 'Create' && editingState.modifiedRowData) {
                     table.options.onCreate?.(editingState.modifiedRowData)

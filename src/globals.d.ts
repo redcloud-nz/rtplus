@@ -6,8 +6,6 @@
 import '@clerk/nextjs'
 import '@tanstack/react-table'
 
-import { PersonOnboardingStatus, UserOnboardingStatus } from '@prisma/client'
-
 declare module '@tanstack/react-table' {
     // eslint-disable-next-line
     interface ColumnMeta<TData extends RowData, TValue> {

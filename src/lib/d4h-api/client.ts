@@ -10,7 +10,7 @@ import createClient, { OpenapiQueryClient } from 'openapi-react-query'
 import { match } from 'ts-pattern'
 
 import { Team, TeamD4hInfo } from '@prisma/client'
-import { QueryKey, UseQueryResult, UseSuspenseQueryResult } from '@tanstack/react-query'
+import { QueryKey, UseQueryResult } from '@tanstack/react-query'
 
 import { D4hAccessTokenData } from '../d4h-access-tokens'
 import type { paths } from './schema'

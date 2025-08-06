@@ -4,7 +4,7 @@
  */
 'use client'
 
-import { type ComponentProps, createContext, useContext, useMemo, useState } from 'react'
+import { type ComponentProps, createContext, useMemo, useState } from 'react'
 
 
 import { Card } from '@/components/ui/card'
@@ -22,15 +22,12 @@ type EditableCardContext = {
 }
 const EditableCardContext = createContext<EditableCardContext | null>(null)
 
-function useEditableCardContext() {
-    return useContext(EditableCardContext)
-}
 
 interface EditableCardProps extends ComponentProps<'div'> {
     defaultState?: Partial<EdiableCardState>
 }
 
-export function EditableCard({ children, defaultState = {}, ...props }: EditableCardProps) {
+export function EditableCard({ defaultState = {}, ...props }: EditableCardProps) {
 
     const [state, setState] = useState<EdiableCardState>({ mode: 'View', targetId: null, ...defaultState})
 
@@ -38,7 +35,7 @@ export function EditableCard({ children, defaultState = {}, ...props }: Editable
         mode: state.mode,
         targetId: state.targetId,
         setMode: (mode: EdiableCardState['mode'], targetId = null) => setState((prev) => ({ ...prev, mode, targetId }))
-    } satisfies EditableCardContext), [state.mode])
+    } satisfies EditableCardContext), [state.mode, state.targetId])
   
     return <EditableCardContext.Provider value={context}>
         <Card {...props}/>

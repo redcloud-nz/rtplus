@@ -44,7 +44,7 @@ export default async function TeamInvitationsPage(props: { params: Promise<{ tea
                     <PageTitle>Team Invitations</PageTitle>
                 </PageHeader>
                 <Boundary>
-                    <ActiveTeam_Invitations_ListCard teamId={team.teamId}/>
+                    <ActiveTeam_Invitations_ListCard/>
                 </Boundary>
             </AppPageContent>
         </HydrateClient>

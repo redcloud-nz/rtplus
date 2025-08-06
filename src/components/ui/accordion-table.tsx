@@ -74,13 +74,14 @@ export function ATableRow({ className, ...props }: ComponentProps<typeof Accordi
     />
 }
 
-export function ATableTrigger({ children, className, ...props }: ComponentProps<typeof AccordionPrimitive.Trigger>) {
+export function ATableTrigger({ className }: ComponentProps<typeof AccordionPrimitive.Trigger>) {
     return <AccordionPrimitive.Trigger asChild>
         <Button
             variant="ghost"
             size="icon"
             className={cn("transition-all [&[data-state=open]>svg]:rotate-180", className)}
             data-component="ATableTrigger"
+           
         >
             <ChevronDownIcon className={cn("h-4 w-4 shrink-0 transition-transform duration-200", className)} />
         </Button>

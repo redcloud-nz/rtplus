@@ -5,7 +5,7 @@
  */
 'use client'
 
-import { ArrowRightLeftIcon, BadgeCheckIcon, BellIcon, CircleUserIcon, KeyRoundIcon, LayoutDashboardIcon, LogInIcon, LogOutIcon, ShieldQuestionIcon, WrenchIcon } from 'lucide-react'
+import { ArrowRightLeftIcon, BadgeCheckIcon, BellIcon, CircleUserIcon, LayoutDashboardIcon, LogInIcon, LogOutIcon, ShieldQuestionIcon, WrenchIcon } from 'lucide-react'
 
 import { SignInButton, useAuth, useClerk, useUser } from '@clerk/nextjs'
 
@@ -97,7 +97,7 @@ export function HeaderControls({ children, className, hidden, showSignIn = true,
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                                <Link href={Paths.personal.whoami}>
+                                <Link href={Paths.personal.whoami.index}>
                                     <ShieldQuestionIcon />
                                     Who am I?
                                 </Link>

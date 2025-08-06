@@ -6,7 +6,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useLayoutEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'

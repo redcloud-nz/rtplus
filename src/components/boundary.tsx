@@ -4,12 +4,10 @@
  */
 'use client'
 
-import { LoaderCircleIcon } from 'lucide-react'
 import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 
 import { Alert } from './ui/alert'
-import { Skeleton } from './ui/skeleton'
 import { LoadingSpinner } from './ui/loading'
 
 
