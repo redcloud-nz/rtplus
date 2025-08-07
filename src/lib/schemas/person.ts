@@ -4,6 +4,9 @@
 */
 
 import { z } from 'zod'
+
+import { Person as PersonRecord } from '@prisma/client'
+
 import { zodNanoId8 } from '../validation'
 
 export const personSchema = z.object({
@@ -15,3 +18,13 @@ export const personSchema = z.object({
 })
 
 export type PersonData = z.infer<typeof personSchema>
+
+export function createPersonData(record: PersonRecord): PersonData {
+    return {
+        personId: record.id,
+        name: record.name,
+        email: record.email,
+        owningTeamId: record.owningTeamId,
+        status: record.status
+    }
+}

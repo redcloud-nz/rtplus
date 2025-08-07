@@ -15,7 +15,7 @@ import { DatePicker } from '@/components/ui/date-picker'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
-import { skillCheckSessionFormSchema } from '@/lib/schemas/skill-check-session'
+import { skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
 import { useTRPC } from '@/trpc/client'
 import { DL } from '@/components/ui/description-list'
 
@@ -27,7 +27,7 @@ export function InfoTabContent({ sessionId }: { sessionId: string }) {
     const { data: session } = useSuspenseQuery(trpc.skillCheckSessions.mySessions.byId.queryOptions({ sessionId }))
     
     const form = useForm({
-        resolver: zodResolver(skillCheckSessionFormSchema),
+        resolver: zodResolver(skillCheckSessionSchema),
         defaultValues: {
             sessionId: session.id,
             name: session.name,

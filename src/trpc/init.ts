@@ -54,74 +54,72 @@ export const publicProcedure = t.procedure
 export type AuthenticatedContext = Context & { 
     personId: string,
     isSystemAdmin: boolean,
+    isCurrentTeamAdmin: boolean,
+    isTeamAdmin(orgId: string): boolean,
     requireSystemAdmin(): boolean,
     requireTeamAccess(orgId: string): boolean,
     requireTeamAdmin(orgId: string): boolean,
 }
 
+function createAuthenticatedContext(ctx: Context): AuthenticatedContext {
+
+    const sessionClaims = ctx.auth.sessionClaims
+    if (sessionClaims == null) throw new TRPCError({ code: 'UNAUTHORIZED', message: "No person ID in session claims" })
+
+    const isSystemAdmin = sessionClaims.rt_system_role === 'admin'
+
+    return {
+        ...ctx,
+        personId: sessionClaims.rt_person_id,
+        isSystemAdmin,
+        isCurrentTeamAdmin: ctx.auth.orgRole === 'org:admin',
+        isTeamAdmin(orgId: string) {
+            return isSystemAdmin || ctx.auth.orgId === orgId && ctx.auth.orgRole === 'org:admin'
+        },
+        requireSystemAdmin() {
+            if (isSystemAdmin) return true
+            throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin" })
+        },
+        requireTeamAccess(orgId: string) {
+            if (ctx.auth.orgId === orgId || isSystemAdmin) return true
+            throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team member" })
+        },
+        requireTeamAdmin(orgId: string) {
+            if ((ctx.auth.orgId === orgId && ctx.auth.orgRole === 'org:admin') || isSystemAdmin) return true
+            throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team or system admin" })
+        },
+    }
+}
+
 export const authenticatedProcedure = t.procedure.meta({ authRequired: true }).use((opts) => {
-    const { auth, ...ctx } = opts.ctx
+    const auth = opts.ctx.auth
 
     if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })
 
     return opts.next({
-        ctx: {
-            ...ctx,
-            auth,
-            personId: auth.sessionClaims.rt_person_id,
-            isSystemAdmin: auth.sessionClaims.rt_system_role === 'admin',
-            requireSystemAdmin: () => {
-                if(auth.sessionClaims.rt_system_role === 'admin') return true
-                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin" })
-            },
-            requireTeamAccess: (orgId: string) => {
-                if(auth.orgId == orgId || auth.sessionClaims.rt_system_role == 'admin') return true
-                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team member" })
-            },
-            requireTeamAdmin: (orgId: string) => {
-                if((auth.orgId == orgId && auth.orgRole == 'org:admin') || auth.sessionClaims.rt_system_role == 'admin') return true 
-                    
-                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team or system admin" })
-            },
-        } satisfies AuthenticatedContext,
+        ctx: createAuthenticatedContext(opts.ctx)
     })
 })
 
 export type AuthenticatedTeamContext = AuthenticatedContext & { teamSlug: string, orgId: string }
 
 export const teamProcedure = t.procedure.meta({ authRequired: true, activeTeamRequired: true }).use((opts) => {
-    const { auth, ...ctx } = opts.ctx
+    const auth = opts.ctx.auth
 
     if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })
     if(auth.orgId == null) throw new TRPCError({ code: 'FORBIDDEN', message: "No active team." })
 
     return opts.next({
         ctx: {
-            ...ctx,
-            auth,
-            personId: auth.sessionClaims.rt_person_id,
-            orgId: auth.orgId,
+            ...createAuthenticatedContext(opts.ctx),
             teamSlug: auth.orgSlug!,
-            isSystemAdmin: auth.sessionClaims.rt_system_role === 'admin',
-            requireSystemAdmin: () => {
-                if(auth.sessionClaims.rt_system_role === 'admin') return true
-                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin" })
-            },
-            requireTeamAccess: (orgId: string) => {
-                if(auth.orgId == orgId || auth.sessionClaims.rt_system_role == 'admin') return true
-                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team member" })
-            },
-            requireTeamAdmin: (orgId: string) => {
-                if((auth.orgId == orgId && auth.orgRole == 'org:admin') || auth.sessionClaims.rt_system_role == 'admin') return true 
-                    
-                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team or system admin" })
-            },
+            orgId: auth.orgId,
         } satisfies AuthenticatedTeamContext,
     })
 })
 
 export const teamAdminProcedure = t.procedure.meta({ authRequired: true, activeTeamRequired: true, teamAdminRequired: true }).use((opts) => {
-    const { auth, ...ctx } = opts.ctx
+    const auth = opts.ctx.auth
 
     if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })
     if(auth.orgId == null) throw new TRPCError({ code: 'FORBIDDEN', message: "No active team." })
@@ -129,55 +127,21 @@ export const teamAdminProcedure = t.procedure.meta({ authRequired: true, activeT
 
     return opts.next({
         ctx: {
-            ...ctx,
-            auth,
-            personId: auth.sessionClaims.rt_person_id,
+            ...createAuthenticatedContext(opts.ctx),
+            teamSlug: auth.orgSlug!,
             orgId: auth.orgId,
-            teamSlug: auth.orgSlug!, 
-            isSystemAdmin: auth.sessionClaims.rt_system_role === 'admin',
-            requireSystemAdmin: () => {
-                if(auth.sessionClaims.rt_system_role === 'admin') return true
-                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin" })
-            },
-            requireTeamAccess: (orgId: string) => {
-                if(auth.orgId == orgId || auth.sessionClaims.rt_system_role == 'admin') return true
-                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team member" })
-            },
-            requireTeamAdmin: (orgId: string) => {
-                if((auth.orgId == orgId && auth.orgRole == 'org:admin') || auth.sessionClaims.rt_system_role == 'admin') return true 
-                    
-                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team or system admin" })
-            },
         } satisfies AuthenticatedTeamContext,
     })
 })
 
 
 export const systemAdminProcedure = t.procedure.meta({ authRequired: true, systemAdminRequired: true }).use((opts) => {
-    const { auth, ...ctx } = opts.ctx
+     const auth = opts.ctx.auth
 
     if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })
     if(auth.sessionClaims.rt_system_role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin" })
 
     return opts.next({
-        ctx: {
-            ...ctx,
-            auth,
-            personId: auth.sessionClaims.rt_person_id,
-            isSystemAdmin: auth.sessionClaims.rt_system_role === 'admin',
-            requireSystemAdmin: () => {
-                if(auth.sessionClaims.rt_system_role === 'admin') return true
-                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin" })
-            },
-            requireTeamAccess: (orgId: string) => {
-                if(auth.orgId == orgId || auth.sessionClaims.rt_system_role == 'admin') return true
-                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team member" })
-            },
-            requireTeamAdmin: (orgId: string) => {
-                if((auth.orgId == orgId && auth.orgRole == 'org:admin') || auth.sessionClaims.rt_system_role == 'admin') return true 
-                    
-                else throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team or system admin" })
-            },
-        } satisfies AuthenticatedContext,
+        ctx: createAuthenticatedContext(opts.ctx)
     })
 })

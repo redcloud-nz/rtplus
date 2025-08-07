@@ -27,13 +27,13 @@ export function MySessionsListCard({ teamSlug }: { teamSlug: string }) {
     const router = useRouter()
     const trpc = useTRPC()
 
-    const createMutation = useMutation(trpc.skillCheckSessions.mySessions.init.mutationOptions({}))
+    const createMutation = useMutation(trpc.activeTeam.skillCheckSessions.createSession.mutationOptions({}))
 
 
     async function handleCreateSession() {
-        const newSession = await createMutation.mutateAsync()
-        // Redirect to the new session page
-        router.push(Paths.team(teamSlug).competencies.session(newSession.id).index)
+        // const newSession = await createMutation.mutateAsync({})
+        // // Redirect to the new session page
+        // router.push(Paths.team(teamSlug).competencies.session(newSession.id).index)
     }
 
     return <Card>
@@ -59,7 +59,7 @@ export function MySessionsListCard({ teamSlug }: { teamSlug: string }) {
 function SessionsListTable({ teamSlug}: { teamSlug: string }) {
     const trpc = useTRPC()
 
-    const { data: sessions } = useSuspenseQuery(trpc.skillCheckSessions.mySessions.all.queryOptions())
+    const { data: sessions } = useSuspenseQuery(trpc.activeTeam.skillCheckSessions.getTeamSessions.queryOptions())
 
     return <Show 
         when={sessions.length > 0}
@@ -78,11 +78,11 @@ function SessionsListTable({ teamSlug}: { teamSlug: string }) {
             </TableHead>
             <TableBody>
                 {sessions
-                    .sort((a, b) => b.date.getTime() - a.date.getTime())
+                   
                     .map((session) => (
-                        <TableRow key={session.id}>
+                        <TableRow key={session.sessionId}>
                             <TableCell>
-                                <Link href={Paths.team(teamSlug).competencies.session(session.id).index}>{session.name}</Link>
+                                <Link href={Paths.team(teamSlug).competencies.session(session.sessionId).index}>{session.name}</Link>
                             </TableCell>
                             <TableCell>{formatISO(session.date, { representation: 'date' })}</TableCell>
                             <TableCell className='hidden md:table-cell text-center'>{session._count.skills}</TableCell>

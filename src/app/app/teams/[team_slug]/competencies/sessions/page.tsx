@@ -7,23 +7,25 @@
 
 import { Metadata } from 'next'
 
-import { getTeam, TeamParams } from '@/app/app/teams/[team_slug]'
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 
 import * as Paths from '@/paths'
+import { fetchTeamBySlug } from '@/server/fetch'
+
 import { MySessionsListCard } from './sessions-list'
 
 
 
-export async function generateMetadata(props: { params: Promise<TeamParams> }): Promise<Metadata> {
-    const team = await getTeam(props.params)
+
+export async function generateMetadata(props: { params: Promise<{ team_slug: string }> }): Promise<Metadata> {
+    const team = await fetchTeamBySlug(props.params)
 
     return { title: `Competencies - ${team.shortName || team.name}` }
 }
 
 
-export default async function SkillCheckSessionListPage(props: { params: Promise<TeamParams>}) {
-    const team = await getTeam(props.params)
+export default async function SkillCheckSessionListPage(props: { params: Promise<{ team_slug: string }> }) {
+    const team = await fetchTeamBySlug(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs

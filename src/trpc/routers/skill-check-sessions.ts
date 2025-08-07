@@ -5,129 +5,635 @@
 
 import { z } from 'zod'
 
+import { UTCDate } from '@date-fns/utc'
 import { TRPCError } from '@trpc/server'
 
-import { skillCheckSessionFormSchema } from '@/lib/schemas/skill-check-session'
-import { nanoId8 } from '@/lib/id'
-import { zodNanoId8 } from '@/lib/validation'
+import { createSkillCheckSessionData, skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
 
-import { authenticatedProcedure, createTRPCRouter } from '../init'
-import { SkillCheckSessionWithCounts } from '../types'
+import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter } from '../init'
+import { zodNanoId16, zodNanoId8 } from '@/lib/validation'
+import { createPersonData, personSchema } from '@/lib/schemas/person'
+import { nanoId16 } from '@/lib/id'
+import { createSkillData, skillSchema } from '@/lib/schemas/skill'
+import { createSkillCheckData, skillCheckSchema } from '@/lib/schemas/skill-check'
+
 
 
 
 export const skillCheckSessionsRouter = createTRPCRouter({
-    mySessions: {
-        all: authenticatedProcedure
-            .query(async ({ ctx }): Promise<SkillCheckSessionWithCounts[]> => {
-                const sessions = await ctx.prisma.skillCheckSession.findMany({
-                    where: { assessorId: ctx.personId },
-                    include: {
-                        _count: {
-                            select: { skills: true, assessees: true, checks: true }
-                        }
-                    }
-                })
-                return sessions
-            }),
-        byId: authenticatedProcedure
-            .input(z.object({ sessionId: zodNanoId8 }))
-            .query(async ({ ctx, input: { sessionId } }): Promise<SkillCheckSessionWithCounts> => {
-                const session = await ctx.prisma.skillCheckSession.findUnique({
-                    where: { id: sessionId, assessorId: ctx.personId },
-                    include: {
-                        _count: {
-                            select: { skills: true, assessees: true, checks: true }
-                        }
-                    }
-                })
-                if(!session) {
-                    throw new TRPCError({ code: 'NOT_FOUND', message: `SkillCheckSession(${sessionId}) not found.` })
-                }
-                return session
-            }),
-        create: authenticatedProcedure
-            .input(skillCheckSessionFormSchema)
-            .mutation(async ({ ctx, input: { sessionId, date, ...input }}): Promise<SkillCheckSessionWithCounts> => {
-                
-                const createdSession = await ctx.prisma.skillCheckSession.create({
-                    data: {
-                        id: sessionId,
-                        assessorId: ctx.personId,
-                        date: date ? new Date(date) : new Date(),
-                        ...input
+
+    /**
+     * Add an assessee to a skill check session.
+     * @param ctx The authenticated context.
+     * @param input The input containing the session ID and assessee ID.
+     * @returns The updated skill check session with counts.
+     * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
+     */
+    addAssessee: authenticatedProcedure
+        .input(z.object({
+            sessionId: zodNanoId8,
+            assesseeId: zodNanoId8
+        }))
+        .output(skillCheckSessionSchema)
+        .mutation(async ({ ctx, input: { sessionId, assesseeId } }) => {
+            await checkAccessToSession(ctx, sessionId)
+
+            const updated = await ctx.prisma.skillCheckSession.update({
+                where: { id: sessionId },
+                data: {
+                    assessees: {
+                        connect: { id: assesseeId }
                     },
-                    include: {
-                        _count: {
-                            select: { skills: true, assessees: true, checks: true }
+                    changeLogs: {
+                        create: {
+                            id: nanoId16(),
+                            event: 'AddAssessee',
+                            actorId: ctx.personId,
+                            meta: { assesseeId }
                         }
                     }
-                })
-                        
-                return createdSession
-            }),
-        init: authenticatedProcedure
-            .mutation(async ({ ctx }): Promise<SkillCheckSessionWithCounts> => {
-                const year = new Date().getFullYear()
-
-                const sessions = await ctx.prisma.skillCheckSession.findMany({
-                    select: { id: true, name: true },
-                    where: { assessorId: ctx.personId,  name: { startsWith: `${year} #` } }
-                })
-
-                let higestSessionNumber = 0
-                for (const session of sessions) {
-                    const number = parseInt(session.name.split(' ')[1])
-                    if (number > higestSessionNumber) {
-                        higestSessionNumber = number
+                },
+                include: {
+                    _count: {
+                        select: {
+                            skills: true,
+                            assessees: true,
+                            assessors: true,
+                            checks: true
+                        }
                     }
                 }
+            })
 
-                const newSessionNumber = higestSessionNumber + 1
+            return createSkillCheckSessionData(updated)
+    }),
 
-                const createdSession = await ctx.prisma.skillCheckSession.create({
-                    data: {
-                        id: nanoId8(),
-                        assessorId: ctx.personId,
-                        date: new Date(),
-                        sessionStatus: 'Draft',
-                        name: `${year} #${newSessionNumber}`
+    /**
+     * Add an assessor to a skill check session.
+     * @param ctx The authenticated context.
+     * @param input The input containing the session ID and assessor ID.
+     * @returns The updated skill check session with counts.
+     * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
+     */
+    addAssessor: authenticatedProcedure
+        .input(z.object({
+            sessionId: zodNanoId8,
+            assessorId: zodNanoId8
+        }))
+        .output(skillCheckSessionSchema)
+        .mutation(async ({ ctx, input: { sessionId, assessorId } }) => {
+            await checkAccessToSession(ctx, sessionId)
+
+            
+            const updated = await ctx.prisma.skillCheckSession.update({
+                where: { id: sessionId },
+                data: {
+                    assessors: {
+                        connect: { id: assessorId }
                     },
-                    include: {
-                        _count: {
-                            select: { skills: true, assessees: true, checks: true }
+                    changeLogs: {
+                        create: {
+                            id: nanoId16(),
+                            event: 'AddAssessor',
+                            actorId: ctx.personId,
+                            meta: { assessorId }
                         }
                     }
-                })
-                
-                return createdSession
-            }),
-        sessionPersonnel: authenticatedProcedure
-            .input(z.object({ sessionId: zodNanoId8 }))
-            .query(async ({ ctx, input: { sessionId } }): Promise<string[]> => {
-                const session = await ctx.prisma.skillCheckSession.findUnique({
-                    where: { id: sessionId, assessorId: ctx.personId },
-                    select: { assessees: { select: { id: true } } }
-                })
-                if(!session) {
-                    throw new TRPCError({ code: 'NOT_FOUND', message: `SkillCheckSession(${sessionId}) not found.` })
+                },
+                include: {
+                    _count: {
+                        select: {
+                            skills: true,
+                            assessees: true,
+                            assessors: true,
+                            checks: true
+                        }
+                    }
                 }
-                return session.assessees.map(assessee => assessee.id)
-            }),
-        sessionSkills: authenticatedProcedure
-            .input(z.object({ sessionId: zodNanoId8 }))
-            .query(async ({ ctx, input: { sessionId } }): Promise<string[]> => {
-                const session = await ctx.prisma.skillCheckSession.findUnique({
-                    where: { id: sessionId, assessorId: ctx.personId },
-                    select: { skills: { select: { id: true } } }
-                })
-                if(!session) {
-                    throw new TRPCError({ code: 'NOT_FOUND', message: `SkillCheckSession(${sessionId}) not found.` })
+            })
+
+            return createSkillCheckSessionData(updated)
+    }),
+
+    /**
+     * Add a skill to a skill check session.
+     * @param ctx The authenticated context.
+     * @param input The input containing the session ID and skill ID.
+     * @returns The updated skill check session with counts.
+     * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
+     */
+    addSkill: authenticatedProcedure
+        .input(z.object({
+            sessionId: zodNanoId8,
+            skillId: zodNanoId8
+        }))
+        .output(skillCheckSessionSchema)
+        .mutation(async ({ ctx, input: { sessionId, skillId } }) => {
+            await checkAccessToSession(ctx, sessionId)
+
+            
+            const updated = await ctx.prisma.skillCheckSession.update({
+                where: { id: sessionId },
+                data: {
+                    skills: {
+                        connect: { id: skillId }
+                    },
+                    changeLogs: {
+                        create: {
+                            id: nanoId16(),
+                            event: 'AddSkill',
+                            actorId: ctx.personId,
+                            meta: { skillId }
+                        }
+                    }
+                },
+                include: {
+                    _count: {
+                        select: {
+                            skills: true,
+                            assessees: true,
+                            assessors: true,
+                            checks: true
+                        }
+                    }
                 }
-                return session.skills.map(skill => skill.id)
-            }),
+            })
+
+            return createSkillCheckSessionData(updated)
+    }),
+
+
+    /**
+     * Create a new skill check within a skill check session.
+     * @param ctx The authenticated context.
+     * @param input The skill check data to create.
+     * @returns The created skill check data.
+     * @throws TRPCError(FORBIDDEN) if the user is not a team admin and no session is provided.
+     */
+    createCheck: authenticatedProcedure
+        .input(skillCheckSchema.omit({ assessorId: true, timestamp: true }).extend({ sessionId: zodNanoId8 }))
+        .output(skillCheckSchema)
+        .mutation(async ({ ctx, input }) => {
+
+            const timestamp = new UTCDate()
+            const assessorId = ctx.personId
+
+            // Ensure the user has access to the session
+            await checkAccessToSession(ctx, input.sessionId)
+
+            const { checks: [created] } = await ctx.prisma.skillCheckSession.update({
+                where: { id: input.sessionId },
+                data: {
+                    checks: {
+                        create: {
+                            id: input.skillCheckId,
+                            result: input.result,
+                            notes: input.notes,
+                            timestamp,
+                            skill: { connect: { id: input.skillId } },
+                            assessee: { connect: { id: input.assesseeId } },
+                            assessor: { connect: { id: assessorId } },
+                        }
+                    },
+                    changeLogs: {
+                        create: {
+                            id: nanoId16(),
+                            event: 'CreateCheck',
+                            actorId: ctx.personId,
+                            timestamp,
+                            meta: {
+                                skillCheckId: input.skillCheckId,
+                                skillId: input.skillId,
+                                assesseeId: input.assesseeId,
+                                assessorId: assessorId,
+                            },
+                            fields: {
+                                result: input.result,
+                                notes: input.notes,
+                                timestamp,
+                            }
+                        }
+                    }
+                },
+                include: {
+                    checks: {
+                        where: { id: input.skillCheckId },
+                    }
+                }
+            })
+            return createSkillCheckData(created)
+        }),
+
+    /**
+     * Delete a skill check from a skill check session.
+     * @param ctx The authenticated context.
+     * @param input The input containing the session ID and skill check ID.
+     * @returns The deleted skill check data.
+     * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
+     */
+    deleteCheck: authenticatedProcedure
+        .input(z.object({
+            sessionId: zodNanoId8,
+            skillCheckId: zodNanoId16
+        }))
+        .output(skillCheckSchema)
+        .mutation(async ({ ctx, input }) => {
+            await checkAccessToSession(ctx, input.sessionId)
+
+            const timestamp = new UTCDate()
+
+            const session = await ctx.prisma.skillCheckSession.findUnique({
+                where: { id: input.sessionId },
+                include: {
+                    checks: {
+                        where: { id: input.skillCheckId },
+                    }
+                }
+            })
+            const existing = session!.checks[0]
+
+            await ctx.prisma.skillCheckSession.update({
+                where: { id: input.sessionId },
+                data: {
+                    checks: {
+                        delete: {
+                            id: input.skillCheckId
+                        }
+                    },
+                    changeLogs: {
+                        create: {
+                            id: nanoId16(),
+                            event: 'DeleteCheck',
+                            actorId: ctx.personId,
+                            timestamp,
+                            meta: {
+                                skillCheckId: input.skillCheckId,
+                                sessionId: input.sessionId,
+                                assesseeId: existing.assesseeId,
+                                assessorId: existing.assessorId,
+                            },
+                        }
+                    }
+                },
+                include: {
+                    checks: {
+                        where: { id: input.skillCheckId },
+                    }
+                }
+            })
+            return createSkillCheckData(existing)
+        }),
+
+    /**
+     * Get a list of assessees for a specific skill check session.
+     * @param ctx The authenticated context.
+     * @param input The input containing the session ID.
+     * @returns An array of assessees for the session.
+     * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
+     */
+    getAssessee: authenticatedProcedure
+        .input(z.object({
+            sessionId: zodNanoId8
+        }))
+        .output(z.array(personSchema))
+        .query(async ({ ctx, input }) => {
+            await checkAccessToSession(ctx, input.sessionId)
+
+            const session = await ctx.prisma.skillCheckSession.findUnique({
+                where: { id: input.sessionId },
+                include: {
+                    assessees: true,
+                }
+            })
+
+            return (session?.assessees ?? []).map(createPersonData)
+        }),
+
+    /**
+     * Get a list of assessors for a specific skill check session.
+     * @param ctx The authenticated context.
+     * @param input The input containing the session ID.
+     * @returns An array of assessors for the session.
+     * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
+     */
+    getAssessors: authenticatedProcedure
+        .input(z.object({
+            sessionId: zodNanoId8
+        }))
+        .output(z.array(personSchema))
+        .query(async ({ ctx, input }) => {
+            await checkAccessToSession(ctx, input.sessionId)
+
+            const session = await ctx.prisma.skillCheckSession.findUnique({
+                where: { id: input.sessionId },
+                include: {
+                    assessors: true,
+                }
+            })
+
+            return (session?.assessors ?? []).map(createPersonData)
+        }),
         
-    },
+    /**
+     * Fetch all skill checks for a specific skill check session.
+     * @param ctx The authenticated context.
+     * @param input The input containing the session ID.
+     * @returns An array of skill checks for the session.
+     * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
+     */
+    getChecks: authenticatedProcedure
+        .input(z.object({
+            sessionId: zodNanoId8
+        }))
+        .output(z.array(skillCheckSchema))
+        .query(async ({ ctx, input }) => {
+            await checkAccessToSession(ctx, input.sessionId)
+            const session = await ctx.prisma.skillCheckSession.findUnique({
+                where: { id: input.sessionId },
+                include: {
+                    checks: true,
+                }
+            })
 
-    
+            return (session?.checks ?? []).map(createSkillCheckData)
+        }),
+
+    /**
+     * Fetch the skill check sessions that the authenticated user is an assessor for.
+     * @param ctx The authenticated context.
+     * @returns An array of skill check sessions with counts.
+     */
+    getMySessions: authenticatedProcedure
+        .output(z.array(skillCheckSessionSchema))
+        .query(async ({ ctx }) => {
+            const sessions = await ctx.prisma.skillCheckSession.findMany({
+                where: {
+                    assessors: {
+                        some: { id: ctx.personId }
+                    }
+                },
+                include: {
+                    _count: {
+                        select: {
+                            skills: true,
+                            assessees: true,
+                            assessors: true,
+                            checks: true
+                        }
+                    }
+                }
+            })
+
+            return sessions.map(createSkillCheckSessionData)
+        }),
+
+    /**
+     * Fetch the skills associated with a skill check session.
+     * @param ctx The authenticated context.
+     * @param input The input containing the session ID.
+     * @returns An array of skills for the session.
+     * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
+     */
+    getSkills: authenticatedProcedure
+        .input(z.object({
+            sessionId: zodNanoId8
+        }))
+        .output(z.array(skillSchema))
+        .query(async ({ ctx, input }) => {
+            await checkAccessToSession(ctx, input.sessionId)
+            const session = await ctx.prisma.skillCheckSession.findUnique({
+                where: { id: input.sessionId },
+                include: {
+                    skills: true,
+                }
+            })
+
+            return (session?.skills ?? []).map(createSkillData)
+        }),
+
+
+    /**
+     * Remove an assessee from a skill check session.
+     * @param ctx The authenticated context.
+     * @param input The input containing the session ID and assessee ID.
+     * @returns The updated skill check session with counts.
+     * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
+     */
+    removeAssessee: authenticatedProcedure
+        .input(z.object({
+            sessionId: zodNanoId8,
+            assesseeId: zodNanoId8
+        }))
+        .output(skillCheckSessionSchema)
+        .mutation(async ({ ctx, input: { sessionId, assesseeId } }) => {
+            await checkAccessToSession(ctx, sessionId)
+
+            const updated = await ctx.prisma.skillCheckSession.update({
+                where: { id: sessionId },
+                data: {
+                    assessees: {
+                        disconnect: { id: assesseeId }
+                    },
+                    changeLogs: {
+                        create: {
+                            id: nanoId16(),
+                            event: 'RemoveAssessee',
+                            actorId: ctx.personId,
+                            meta: { assesseeId }
+                        }
+                    }
+                },
+                include: {
+                    _count: {
+                        select: {
+                            skills: true,
+                            assessees: true,
+                            assessors: true,
+                            checks: true
+                        }
+                    }
+                }
+            })
+
+            return createSkillCheckSessionData(updated)
+        }),
+
+    /**
+     * Remove an assessor from a skill check session.
+     * @param ctx The authenticated context.
+     * @param input The input containing the session ID and assessor ID.
+     * @returns The updated skill check session with counts.
+     * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
+     */
+    removeAssessor: authenticatedProcedure
+        .input(z.object({
+            sessionId: zodNanoId8,
+            assessorId: zodNanoId8
+        }))
+        .output(skillCheckSessionSchema)
+        .mutation(async ({ ctx, input: { sessionId, assessorId } }) => {
+            await checkAccessToSession(ctx, sessionId)
+
+            const updated = await ctx.prisma.skillCheckSession.update({
+                where: { id: sessionId },
+                data: {
+                    assessors: {
+                        disconnect: { id: assessorId }
+                    },
+                    changeLogs: {
+                        create: {
+                            id: nanoId16(),
+                            event: 'RemoveAssessor',
+                            actorId: ctx.personId,
+                            meta: { assessorId }
+                        }
+                    }
+                },
+                include: {
+                    _count: {
+                        select: {
+                            skills: true,
+                            assessees: true,
+                            assessors: true,
+                            checks: true
+                        }
+                    }
+                }
+            })
+
+            return createSkillCheckSessionData(updated)
+        }),
+
+    /**
+     * Remove a skill from a skill check session.
+     * @param ctx The authenticated context.
+     * @param input The input containing the session ID and skill ID.
+     * @returns The updated skill check session with counts.
+     * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
+     */
+    removeSkill: authenticatedProcedure
+        .input(z.object({
+            sessionId: zodNanoId8,
+            skillId: zodNanoId8
+        }))
+        .output(skillCheckSessionSchema)
+        .mutation(async ({ ctx, input: { sessionId, skillId } }) => {
+            await checkAccessToSession(ctx, sessionId)
+
+            const updated = await ctx.prisma.skillCheckSession.update({
+                where: { id: sessionId },
+                data: {
+                    skills: {
+                        disconnect: { id: skillId }
+                    },
+                    changeLogs: {
+                        create: {
+                            id: nanoId16(),
+                            event: 'RemoveSkill',
+                            actorId: ctx.personId,
+                            meta: { skillId }
+                        }
+                    }
+                },
+                include: {
+                    _count: {
+                        select: {
+                            skills: true,
+                            assessees: true,
+                            assessors: true,
+                            checks: true
+                        }
+                    }
+                }
+            })
+
+            return createSkillCheckSessionData(updated)
+        }),
+
+    /**
+     * Update a skill check within a skill check session.
+     * This allows updating the result, notes, and timestamp of an existing skill check.
+     * @param ctx The authenticated context.
+     * @param input The input containing the session data to update.
+     * @returns The updated skill check session data.
+     * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
+     */
+    updateCheck: authenticatedProcedure
+        .input(skillCheckSchema.omit({ assessorId: true, timestamp: true }).extend({ sessionId: zodNanoId8 }))
+        .output(skillCheckSchema)
+        .mutation(async ({ ctx, input }) => {
+
+            await checkAccessToSession(ctx, input.sessionId)
+
+            const timestamp = new UTCDate()
+            const assessorId = ctx.personId
+
+            const { checks: [updated] } = await ctx.prisma.skillCheckSession.update({
+                where: { id: input.sessionId },
+                data: {
+                    checks: {
+                        update: {
+                            where: { id: input.skillCheckId },
+                            data: {
+                                result: input.result,
+                                notes: input.notes,
+                                assessor: { connect: { id: assessorId } },
+                                timestamp
+                            }
+                        }
+                    },
+                    changeLogs: {
+                        create: {
+                            id: nanoId16(),
+                            event: 'UpdateCheck',
+                            actorId: ctx.personId,
+                            meta: {
+                                skillCheckId: input.skillCheckId,
+                                skillId: input.skillId,
+                                assesseeId: input.assesseeId,
+                                assessorId: assessorId,
+                            },
+                            fields: {
+                                result: input.result,
+                                notes: input.notes,
+                                timestamp,
+                            }
+                        }
+                    }
+                },
+                include: {
+                    checks: {
+                        where: { id: input.skillCheckId },
+                    }
+                }
+            })
+            return createSkillCheckData(updated)
+        })
+
 })
+
+
+/**
+ * Check if the authenticated user has access to a skill check session.
+ * 
+ * The user must either be an assessor of the session or an admin of the team that owns the session.
+ * @param ctx The authenticated context.
+ * @param sessionId The ID of the session to check.
+ * @throws TRPCError(NOT_FOUND) if the session is not found or the user does not have access.
+ */
+export async function checkAccessToSession(ctx: AuthenticatedContext, sessionId: string): Promise<void> {
+    const orgIdIfAdmin = (ctx.isCurrentTeamAdmin ? ctx.auth.orgId : "NEVER") ?? "NEVER"
+
+    const session = await ctx.prisma.skillCheckSession.findUnique({
+        where: { 
+            id: sessionId,
+            OR: [
+                { assessors: { some: { id: ctx.personId } } }, // Assessor of the session
+                { team: { clerkOrgId: orgIdIfAdmin } } // Team of the session if user is a team admin
+            ]
+        },
+    })
+
+    if(!session) throw new TRPCError({ code: 'NOT_FOUND', message: `Session with ID ${sessionId} not found.` })
+    
+}
