@@ -29,14 +29,13 @@ import { useTRPC } from '@/trpc/client'
  * Card that displays the list of all team members and allows the user to add a new member.
  */
 export function ActiveTeam_MembersList_Card() {
-    const queryClient = useQueryClient()
     const trpc = useTRPC()
 
-    const { data: team } = useSuspenseQuery(trpc.activeTeam.get.queryOptions())
-    const { data: memberships } = useSuspenseQuery(trpc.activeTeam.members.all.queryOptions({}))
+    const { data: team } = useSuspenseQuery(trpc.activeTeam.getTeam.queryOptions())
+    const membersQuery = useSuspenseQuery(trpc.activeTeam.members.getTeamMembers.queryOptions({}))
 
     async function handleRefresh() {
-        await queryClient.invalidateQueries(trpc.activeTeam.members.all.queryFilter({}))
+        await membersQuery.refetch()
     }
 
     const columns = useMemo(() => defineColumns<TeamMembershipData & { person: PersonData }>(columnHelper => [
@@ -93,7 +92,7 @@ export function ActiveTeam_MembersList_Card() {
 
     const table = useReactTable<TeamMembershipData & { person: PersonData }>({
         columns,
-        data: memberships,
+        data: membersQuery.data,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),

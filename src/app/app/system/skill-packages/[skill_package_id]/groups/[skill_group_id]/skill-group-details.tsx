@@ -36,8 +36,6 @@ import { useTRPC } from '@/trpc/client'
 
 
 
-
-
 /**
  * Card that displays the details of a skill group and allows the user to edit or delete it.
  * @param skillGroupId The ID of the skill group to display.
@@ -46,7 +44,7 @@ import { useTRPC } from '@/trpc/client'
 export function SkillGroupDetailsCard({ skillGroupId, skillPackageId }: { skillGroupId: string, skillPackageId: string }) {
 
     const trpc = useTRPC()
-    const { data: skillGroup } = useSuspenseQuery(trpc.skillGroups.byId.queryOptions({ skillGroupId, skillPackageId }))
+    const { data: skillGroup } = useSuspenseQuery(trpc.skills.getGroup.queryOptions({ skillGroupId, skillPackageId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
 
@@ -142,7 +140,7 @@ function UpdateSkillGroupForm({ onClose, skillGroup, skillPackage }: { onClose: 
         defaultValues: { ...skillGroup }
     })
 
-    const mutation = useMutation(trpc.skillGroups.update.mutationOptions({
+    const mutation = useMutation(trpc.skills.updateGroup.mutationOptions({
         onError(error) {
             if (error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof SkillGroupData, { message: error.shape.message })
@@ -161,9 +159,8 @@ function UpdateSkillGroupForm({ onClose, skillGroup, skillPackage }: { onClose: 
                 description: <>The skill group <ObjectName>{result.name}</ObjectName> has been updated successfully.</>,
             })
 
-            queryClient.invalidateQueries(trpc.skillGroups.all.queryFilter())
-            queryClient.invalidateQueries(trpc.skillGroups.byId.queryFilter({ skillGroupId: result.skillGroupId }))
-            queryClient.invalidateQueries(trpc.skillGroups.bySkillPackageId.queryFilter({ skillPackageId: result.skillPackageId }))
+            queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter())
+            queryClient.invalidateQueries(trpc.skills.getGroup.queryFilter({ skillGroupId: result.skillGroupId }))
             onClose()
         }
     }))
@@ -243,7 +240,7 @@ function DeleteSkillGroupDialog({ skillGroup }: { skillGroup: SkillGroupData }) 
         defaultValues: { skillPackageId: skillGroup.skillPackageId, skillGroupId: skillGroup.skillGroupId, skillGroupName: "" }
     })
 
-    const mutation = useMutation(trpc.skillGroups.delete.mutationOptions({
+    const mutation = useMutation(trpc.skills.deleteGroup.mutationOptions({
         onError(error) {
             toast({
                 title: 'Error deleting skill group',
@@ -259,9 +256,8 @@ function DeleteSkillGroupDialog({ skillGroup }: { skillGroup: SkillGroupData }) 
             })
             setOpen(false)
 
-            queryClient.invalidateQueries(trpc.skillGroups.all.queryFilter())
-            queryClient.invalidateQueries(trpc.skillGroups.byId.queryFilter({ skillGroupId: skillGroup.skillGroupId }))
-            queryClient.invalidateQueries(trpc.skillGroups.bySkillPackageId.queryFilter({ skillPackageId: skillGroup.skillPackageId }))
+            queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter())
+            queryClient.invalidateQueries(trpc.skills.getGroup.queryFilter({ skillGroupId: skillGroup.skillGroupId }))
             router.push(Paths.system.skillPackage(skillGroup.skillPackageId).index)
         }
     }))

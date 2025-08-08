@@ -28,7 +28,7 @@ export function DeleteTeamMembershipDialog({ onDelete, personId, teamId }: { onD
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const { data: { person, team } } = useSuspenseQuery(trpc.teamMemberships.byId.queryOptions({ personId, teamId }))
+    const { data: { person, team } } = useSuspenseQuery(trpc.teamMemberships.getTeamMembership.queryOptions({ personId, teamId }))
 
     const [open, setOpen] = useState(false)
 
@@ -37,7 +37,7 @@ export function DeleteTeamMembershipDialog({ onDelete, personId, teamId }: { onD
         defaultValues: { personId, teamId }
     })
 
-    const mutation = useMutation(trpc.teamMemberships.delete.mutationOptions({
+    const mutation = useMutation(trpc.teamMemberships.deleteTeamMembership.mutationOptions({
         onError(error) {
             toast({
                 title: 'Error deleting team membership',
@@ -55,9 +55,9 @@ export function DeleteTeamMembershipDialog({ onDelete, personId, teamId }: { onD
             setOpen(false)
             onDelete?.(result)
 
-            await queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: result.personId }))
-            await queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId: result.teamId }))
-            await queryClient.invalidateQueries(trpc.activeTeam.members.all.queryFilter({}))
+            await queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ personId: result.personId }))
+            await queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ teamId: result.teamId }))
+            await queryClient.invalidateQueries(trpc.activeTeam.members.getTeamMembers.queryFilter({}))
         },
     }))
 

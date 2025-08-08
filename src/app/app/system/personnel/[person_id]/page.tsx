@@ -28,7 +28,7 @@ export async function generateMetadata(props: { params: Promise<{ person_id: str
 export default async function PersonPage(props: { params: Promise<{ person_id: string }> }) {
     const person = await fetchPerson(props.params)
 
-    prefetch(trpc.teamMemberships.byPerson.queryOptions({ personId: person.personId}))
+    prefetch(trpc.teamMemberships.getTeamMemberships.queryOptions({ personId: person.personId}))
 
     return <AppPage>
         <AppPageBreadcrumbs

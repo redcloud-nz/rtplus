@@ -27,7 +27,7 @@ export function MySessionsListCard({ teamSlug }: { teamSlug: string }) {
     const router = useRouter()
     const trpc = useTRPC()
 
-    const createMutation = useMutation(trpc.activeTeam.skillCheckSessions.createSession.mutationOptions({}))
+    const createMutation = useMutation(trpc.activeTeam.skillChecks.createSession.mutationOptions({}))
 
 
     async function handleCreateSession() {
@@ -59,7 +59,7 @@ export function MySessionsListCard({ teamSlug }: { teamSlug: string }) {
 function SessionsListTable({ teamSlug}: { teamSlug: string }) {
     const trpc = useTRPC()
 
-    const { data: sessions } = useSuspenseQuery(trpc.activeTeam.skillCheckSessions.getTeamSessions.queryOptions())
+    const { data: sessions } = useSuspenseQuery(trpc.activeTeam.skillChecks.getTeamSessions.queryOptions())
 
     return <Show 
         when={sessions.length > 0}

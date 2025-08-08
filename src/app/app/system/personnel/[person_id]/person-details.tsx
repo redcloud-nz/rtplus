@@ -43,7 +43,7 @@ import { useTRPC } from '@/trpc/client'
 export function PersonDetailsCard({ personId }: { personId: string }) {
     const trpc = useTRPC()
 
-    const { data: person } = useSuspenseQuery(trpc.personnel.byId.queryOptions({ personId }))
+    const { data: person } = useSuspenseQuery(trpc.personnel.getPerson.queryOptions({ personId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
 
@@ -115,7 +115,7 @@ function UpdatePersonForm({ onClose, person }: { onClose: () => void, person: Pe
         }
     })
 
-    const mutation = useMutation(trpc.personnel.update.mutationOptions({
+    const mutation = useMutation(trpc.personnel.updatePerson.mutationOptions({
         onError(error) {
             if(error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof PersonData, { message: error.shape.message })
@@ -135,8 +135,8 @@ function UpdatePersonForm({ onClose, person }: { onClose: () => void, person: Pe
             })
             onClose()
 
-            queryClient.invalidateQueries(trpc.personnel.byId.queryFilter({ personId: result.personId }))
-            queryClient.invalidateQueries(trpc.personnel.all.queryFilter())
+            queryClient.invalidateQueries(trpc.personnel.getPerson.queryFilter({ personId: result.personId }))
+            queryClient.invalidateQueries(trpc.personnel.getPersonnel.queryFilter())
         }
     }))
 
@@ -213,7 +213,7 @@ function DeletePersonDialog({ person }: { person: PersonData }) {
         defaultValues: { personId: person.personId, personName: "" }
     })
 
-    const mutation = useMutation(trpc.personnel.delete.mutationOptions({
+    const mutation = useMutation(trpc.personnel.deletePerson.mutationOptions({
         onError(error) {
             toast({
                 title: 'Error deleting person',
@@ -229,8 +229,8 @@ function DeletePersonDialog({ person }: { person: PersonData }) {
             setOpen(false)
             router.push(Paths.system.personnel.index)
 
-            queryClient.invalidateQueries(trpc.personnel.all.queryFilter())
-            queryClient.setQueryData(trpc.personnel.byId.queryKey({ personId: person.personId }), undefined)
+            queryClient.invalidateQueries(trpc.personnel.getPersonnel.queryFilter())
+            queryClient.setQueryData(trpc.personnel.getPerson.queryKey({ personId: person.personId }), undefined)
         }
     }))
 

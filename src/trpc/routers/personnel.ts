@@ -13,57 +13,70 @@ import { PersonData, personSchema } from '@/lib/schemas/person'
 import { nanoId16 } from '@/lib/id'
 import { zodRecordStatus, zodNanoId8 } from '@/lib/validation'
 
-import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
+import { AuthenticatedContext, createTRPCRouter, systemAdminProcedure } from '../init'
 import { FieldConflictError } from '../types'
-import { getTeamById } from './teams'
 
 
 /**
  * TRPC router for personnel management.
  */
 export const personnelRouter = createTRPCRouter({
-    access: {
-        byId: systemAdminProcedure
-            .input(z.object({ personId: zodNanoId8 }))
-            .query(async ({ input, ctx }) => {
-                const person = await ctx.prisma.person.findUnique({ where: { id: input.personId } })
-                if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person(${input.personId}) not found.` })
 
-                return {
-                    id: person.id,
-                    clerkInvitationId: person.clerkInvitationId,
-                    clerkUserId: person.clerkUserId,
-                    inviteStatus: person.inviteStatus,
-                }
-            }),
+    createPerson: systemAdminProcedure
+        .input(personSchema)
+        .output(personSchema)
+        .mutation(async ({ input, ctx }) => {
 
-        invite: systemAdminProcedure
-            .input(z.object({ personId: zodNanoId8, resend: z.boolean().optional().default(false) }))
-            .mutation(async ({ input, ctx }) => {
-                const person = await getPersonById(ctx, input.personId)
+            const person = await createPerson(ctx, input)
+            
+            return { personId: person.id, ...person }
+        }),
 
-                if(person.inviteStatus != 'None') throw new TRPCError({ code: 'BAD_REQUEST', message: `Person(${input.personId}) has already been invited to Clerk.` })
+    deletePerson: systemAdminProcedure
+        .input(z.object({
+            personId: zodNanoId8,
+        }))
+        .output(personSchema)
+        .mutation(async ({ input, ctx }) => {
+            
+            const person = await getPersonById(ctx, input.personId)
+            if(person?.owningTeam) {
+                ctx.requireTeamAdmin(person.owningTeam.clerkOrgId)
+            } else ctx.requireSystemAdmin()
+            
+            const deleted = await deletePerson(ctx, person)
+            return { personId: person.id, ...deleted }
+        }),
 
-                const invitation = await ctx.clerkClient.invitations.createInvitation({
-                    emailAddress: person.email,
-                    publicMetadata: {
-                        person_id: person.id,
-                        onboarding_status: 'Invited'
-                    },
-                    notify: true,
-                    ignoreExisting: input.resend,
+    getPerson: systemAdminProcedure
+        .input(z.object({ 
+            personId: zodNanoId8.optional(),
+            email: z.string().email().optional(),
+        }).refine(data => data.personId || data.email, {
+            message: 'Either personId or email must be provided.'
+        }))
+        .output(personSchema)
+        .query(async ({ ctx, input: { personId, email} }) => {
+
+            if(personId) {
+                const person = await getPersonById(ctx, personId)
+                return { personId: person.id, ...person }
+
+            } else if(email) {
+                const person = await ctx.prisma.person.findUnique({ 
+                    where: { email: email }, 
+                    include: { owningTeam: true }
                 })
 
-                await ctx.prisma.person.update({ 
-                    where: { id: input.personId },
-                    data: {
-                        clerkInvitationId: invitation.id, 
-                        inviteStatus: 'Invited'
-                    }
-                })
-            }),
-    },
-    all: authenticatedProcedure
+                if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person with email ${email} not found.` })
+                return { personId: person.id, ...person }
+
+            } else {
+                throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid input' })
+            }
+        }),
+
+    getPersonnel: systemAdminProcedure
         .input(z.object({
             status: zodRecordStatus
         }))
@@ -77,69 +90,12 @@ export const personnelRouter = createTRPCRouter({
             return found.map(person => ({ personId: person.id, ...person, }))
         }),
 
-    byId: authenticatedProcedure
-        .input(z.object({ 
-            personId: zodNanoId8
-        }))
-        .output(personSchema)
-        .query(async ({ input: { personId }, ctx }) => {
-            const person = await getPersonById(ctx, personId)
-            return { personId, ...person }
-        }),
-
-    byEmail: authenticatedProcedure
-        .input(z.object({ 
-            email: z.string().email() 
-        }))
-        .output(z.union([personSchema, z.null()]))
-        .query(async ({ input, ctx }) => {
-            const person = await ctx.prisma.person.findUnique({
-                where: { email: input.email },
-                select: { id: true, name: true, email: true, owningTeamId: true, status: true }
-            })
-
-            return person ? { personId: person.id, ...person } : null
-        }),
-
-    create: authenticatedProcedure
-        .input(personSchema)
-        .output(personSchema)
-        .mutation(async ({ input, ctx }) => {
-            if(input.owningTeamId) {
-                const team = await getTeamById(ctx, input.owningTeamId)
-                ctx.requireTeamAdmin(team.clerkOrgId)
-            } else ctx.requireSystemAdmin()
-
-            const person = await createPerson(ctx, input)
-            
-            return { personId: person.id, ...person }
-        }),
-
-    delete: authenticatedProcedure
-        .input(z.object({
-            personId: zodNanoId8,
-        }))
-        .output(personSchema)
-        .mutation(async ({ input, ctx }) => {
-            
-            const person = await getPersonById(ctx, input.personId)
-            if(person?.owningTeam) {
-                ctx.requireTeamAdmin(person.owningTeam.clerkOrgId)
-            } else ctx.requireSystemAdmin()
-            
-            const deleted = await deletePerson(ctx, person)
-            return { personId: person.id, ...deleted}
-        }),
-
-    update: authenticatedProcedure
+    updatePerson: systemAdminProcedure
         .input(personSchema)
         .output(personSchema)
         .mutation(async ({ input, ctx }) => {
 
             const person = await getPersonById(ctx, input.personId)
-            if(person?.owningTeam) {
-                ctx.requireTeamAdmin(person.owningTeam.clerkOrgId)
-            } else ctx.requireSystemAdmin()
 
             const updatedPerson = await updatePerson(ctx, person, input)
             return { personId: person.id, ...updatedPerson }

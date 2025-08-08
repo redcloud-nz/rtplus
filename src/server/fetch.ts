@@ -19,7 +19,7 @@ import prisma from './prisma'
 
 export async function fetchActiveTeam(): Promise<TeamData> {
     return getQueryClient()
-        .fetchQuery(trpc.activeTeam.get.queryOptions())
+        .fetchQuery(trpc.activeTeam.getTeam.queryOptions())
         .catch(error => {
             if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
                 notFound()
@@ -39,7 +39,7 @@ export async function fetchPerson(params: Promise<{ person_id: string }>): Promi
     const { person_id: personId } = await params
 
     return getQueryClient()
-        .fetchQuery(trpc.personnel.byId.queryOptions({ personId }))
+        .fetchQuery(trpc.personnel.getPerson.queryOptions({ personId }))
         .catch(error => {
             if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
                 notFound()
@@ -59,7 +59,7 @@ export async function fetchSkill(params: Promise<{ skill_id: string, skill_packa
     const { skill_id: skillId, skill_package_id: skillPackageId } = await params
     
     return getQueryClient()
-        .fetchQuery(trpc.skills.byId.queryOptions({ skillId, skillPackageId }))
+        .fetchQuery(trpc.skills.getSkill.queryOptions({ skillId, skillPackageId }))
         .catch(error => {
             if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
                 notFound()
@@ -78,7 +78,7 @@ export async function fetchSkillGroup(params: Promise<{ skill_group_id: string, 
     const { skill_group_id: skillGroupId, skill_package_id: skillPackageId } = await params
 
     return getQueryClient()
-        .fetchQuery(trpc.skillGroups.byId.queryOptions({ skillGroupId, skillPackageId }))
+        .fetchQuery(trpc.skills.getGroup.queryOptions({ skillGroupId, skillPackageId }))
         .catch(error => {
             if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
                 notFound()
@@ -98,7 +98,7 @@ export async function fetchSkillPackage(params: Promise<{ skill_package_id: stri
     const { skill_package_id: skillPackageId } = await params
     
     return getQueryClient()
-        .fetchQuery(trpc.skillPackages.byId.queryOptions({ skillPackageId }))
+        .fetchQuery(trpc.skills.getPackage.queryOptions({ skillPackageId }))
         .catch(error => {
             if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
                 notFound()
@@ -118,7 +118,7 @@ export async function fetchTeam(params: Promise<{ team_id: string }>): Promise<T
     const { team_id: teamId } = await params
 
     return getQueryClient()
-        .fetchQuery(trpc.teams.byId.queryOptions({ teamId }))
+        .fetchQuery(trpc.teams.getTeam.queryOptions({ teamId }))
         .catch(error => {
             if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
                 notFound()
@@ -142,7 +142,7 @@ export async function fetchTeamBySlug(params: Promise<{ team_slug: string }>): P
     const { team_slug: teamSlug } = await params
 
     const queryClient = getQueryClient()
-    const key = trpc.teams.bySlug.queryKey({ teamSlug })
+    const key = trpc.teams.getTeam.queryKey({ teamSlug })
 
     const cachedTeam = queryClient.getQueryData(key)
     if (cachedTeam) return cachedTeam
@@ -162,7 +162,7 @@ export async function fetchTeamMember(params: Promise<{ team_slug: string, perso
     const { team_slug: teamSlug, person_id: personId } = await params
 
     const queryClient = getQueryClient()
-    const key = trpc.activeTeam.members.byId.queryKey({ personId })
+    const key = trpc.activeTeam.members.getTeamMember.queryKey({ personId })
 
     const cachedMembership = queryClient.getQueryData(key)
     if (cachedMembership) return cachedMembership
@@ -204,7 +204,7 @@ export async function fetchTeamMembership(params: Promise<{ person_id: string, t
     const { person_id: personId, team_id: teamId } = await params
 
     return getQueryClient()
-        .fetchQuery(trpc.teamMemberships.byId.queryOptions({ personId, teamId }))
+        .fetchQuery(trpc.teamMemberships.getTeamMembership.queryOptions({ personId, teamId }))
         .catch(error => {
             if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
                 notFound()

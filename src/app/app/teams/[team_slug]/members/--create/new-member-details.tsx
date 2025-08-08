@@ -47,7 +47,7 @@ export function NewMemberDetailsCard() {
         }
     })
 
-    const mutation = useMutation(trpc.activeTeam.members.createWithPerson.mutationOptions({
+    const mutation = useMutation(trpc.activeTeam.members.createTeamMembershipWithPerson.mutationOptions({
         onError(error) {
             if (error.shape?.cause?.name === 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof FormData, { message: error.shape.message })
@@ -60,7 +60,7 @@ export function NewMemberDetailsCard() {
             }
         },
         onSuccess(result) {
-            queryClient.invalidateQueries(trpc.activeTeam.members.all.queryFilter({}))
+            queryClient.invalidateQueries(trpc.activeTeam.members.getTeamMembers.queryFilter({}))
             toast({
                 title: "Membership Created",
                 description: `${result.person.name} has been added to the team.`,

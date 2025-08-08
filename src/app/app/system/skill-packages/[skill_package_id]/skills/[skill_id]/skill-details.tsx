@@ -50,7 +50,7 @@ import { useTRPC } from '@/trpc/client'
 export function SkillDetailsCard({ skillId, skillPackageId }: { skillId: string, skillPackageId: string }) {
 
     const trpc = useTRPC()
-    const { data: skill } = useSuspenseQuery(trpc.skills.byId.queryOptions({ skillId, skillPackageId }))
+    const { data: skill } = useSuspenseQuery(trpc.skills.getSkill.queryOptions({ skillId, skillPackageId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
 
@@ -165,7 +165,7 @@ function UpdateSkillForm({ onClose, skill, skillPackage, skillGroup }: { onClose
         defaultValues: { ...skill}
     })
 
-    const mutation = useMutation(trpc.skills.sys_update.mutationOptions({
+    const mutation = useMutation(trpc.skills.updateSkill.mutationOptions({
         onError(error) {
             if (error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof SkillData, { message: error.shape.message })
@@ -184,9 +184,8 @@ function UpdateSkillForm({ onClose, skill, skillPackage, skillGroup }: { onClose
                 description: <>The skill <ObjectName>{result.name}</ObjectName> has been updated successfully.</>,
             })
 
-            queryClient.invalidateQueries(trpc.skills.all.queryFilter())
-            queryClient.invalidateQueries(trpc.skills.byId.queryFilter({ skillId: result.skillId }))
-            queryClient.invalidateQueries(trpc.skills.bySkillGroupId.queryFilter({ skillGroupId: result.skillGroupId }))
+            queryClient.invalidateQueries(trpc.skills.getSkills.queryFilter())
+            queryClient.invalidateQueries(trpc.skills.getSkill.queryFilter({ skillId: result.skillId }))
             onClose()
         }
     }))
@@ -323,7 +322,7 @@ function DeleteSkillDialog({ skill }: { skill: SkillData }) {
         defaultValues: { skillId: skill.skillId, skillPackageId: skill.skillPackageId, skillName: "" }
     })
 
-    const mutation = useMutation(trpc.skills.delete.mutationOptions({
+    const mutation = useMutation(trpc.skills.deleteSkill.mutationOptions({
         onError(error) {
             toast({
                 title: 'Error deleting skill',
@@ -339,9 +338,8 @@ function DeleteSkillDialog({ skill }: { skill: SkillData }) {
             })
             setOpen(false)
 
-            queryClient.invalidateQueries(trpc.skills.all.queryFilter())
-            queryClient.invalidateQueries(trpc.skills.byId.queryFilter({ skillId: skill.skillId }))
-            queryClient.invalidateQueries(trpc.skills.bySkillGroupId.queryFilter({ skillGroupId: skill.skillGroupId }))
+            queryClient.invalidateQueries(trpc.skills.getSkills.queryFilter())
+            queryClient.invalidateQueries(trpc.skills.getSkill.queryFilter({ skillId: skill.skillId }))
             router.push(Paths.system.skillPackage(skill.skillPackageId).group(skill.skillGroupId).index)
         }
     }))

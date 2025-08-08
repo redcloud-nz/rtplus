@@ -7,63 +7,51 @@ import { z } from 'zod'
 
 import { TRPCError } from '@trpc/server'
 
+import { teamInvitationSchema, toTeamInvitationData } from '@/lib/schemas/invitation'
 import { orgMembershipSchema, toOrgMembershipData } from '@/lib/schemas/org-membership'
-import { createUserData, userSchema, userSchema2 } from '@/lib/schemas/user'
+import { toUserData, userSchema, userSchema2 } from '@/lib/schemas/user'
 import { zodNanoId8 } from '@/lib/validation'
+import { createTRPCRouter, teamAdminProcedure } from '@/trpc/init'
 
-import { createTRPCRouter, teamAdminProcedure } from '../../init'
 import { getActiveTeam } from '../teams'
 import { getPersonById } from '../personnel'
+
 
 
 export const activeTeamUsersRouter = createTRPCRouter({
 
     /**
-     * Fetch all the users in the active team.
+     * Create a new organization invitation for the active team.
      * @param ctx The authenticated context.
-     * @returns An array of organization membership data with user details.
+     * @param input The input containing the email and role for the invitation.
+     * @param input.email The email address to invite.
+     * @param input.role The role of the invited user (org:admin or org:member).
+     * @returns The created organization invitation data.
+     * @throws TRPCError(BAD_REQUEST) If an invitation for the email already exists.
      */
-    all: teamAdminProcedure
-        .output(z.array(userSchema2))
-        .query(async ({ ctx }) => {
+    createInvitation: teamAdminProcedure
+        .input(teamInvitationSchema.pick({ email: true, role: true }))
+        .output(teamInvitationSchema)
+        .mutation(async ({ ctx, input }) => {
+            // See if there is a person with this email
+            const person = await ctx.prisma.person.findUnique({ where: { email: input.email }})
 
-            const { data: orgMemberships } = await ctx.clerkClient.organizations.getOrganizationMembershipList({ organizationId: ctx.orgId, limit: 100 })
-            const userIds = orgMemberships.map(m => m.publicUserData!.userId)
+            const { data: existingInvitations } = await ctx.clerkClient.organizations.getOrganizationInvitationList({ organizationId: ctx.orgId, status: ['pending'] })
+            if (existingInvitations.some(inv => inv.emailAddress === input.email)) {
+                throw new TRPCError({ code: 'BAD_REQUEST', message: `An invitation for ${input.email} already exists.` })
+            }
 
-            const { data: users } = await ctx.clerkClient.users.getUserList({ userId: userIds, limit: 100 })
-
-            const result = orgMemberships.map(membership => {
-                const user = users.find(u => u.id === membership.publicUserData!.userId)!
-                
-                return createUserData(user, membership)
+            const orgInvitation = await ctx.clerkClient.organizations.createOrganizationInvitation({
+                organizationId: ctx.orgId,
+                inviterUserId: ctx.auth.userId!,
+                emailAddress: input.email,
+                role: input.role,
+                publicMetadata: {
+                    personId: person?.id || null,
+                },
             })
 
-            return result
-        }),
-
-    /**
-     * Fetch a specific user in the active team by person ID.
-     * @param ctx The authenticated context.
-     * @param input The input containing the person ID.
-     * @returns The user data if found, or null if the person is not linked to a user.
-     */
-    byPerson: teamAdminProcedure
-        .input(z.object({
-            personId: zodNanoId8
-        }))
-        .output(userSchema2.nullable())
-        .query(async ({ ctx, input }) => {
-
-            const person = await getPersonById(ctx, input.personId)
-            if (!person.clerkUserId) return null
-            
-
-            const [{ data: [membership] }, user] = await Promise.all([
-                ctx.clerkClient.organizations.getOrganizationMembershipList({ userId: [person.clerkUserId], organizationId: ctx.orgId, limit: 1 }),
-                ctx.clerkClient.users.getUser(person.clerkUserId)
-            ])
-
-            return createUserData(user, membership)
+            return toTeamInvitationData(orgInvitation)
         }),
 
     /**
@@ -73,7 +61,7 @@ export const activeTeamUsersRouter = createTRPCRouter({
      * @returns The created user data.
      * @throws TRPCError(BAD_REQUEST) if the person is not linked to a user.
      */
-    create: teamAdminProcedure
+    createUser: teamAdminProcedure
         .input(z.object({
             personId: zodNanoId8,
             role: z.enum(['org:admin', 'org:member']),
@@ -95,7 +83,7 @@ export const activeTeamUsersRouter = createTRPCRouter({
                 role: input.role,
             })
 
-            return createUserData(user, membership)
+            return toUserData(user, membership)
         }),
 
     /**
@@ -105,7 +93,7 @@ export const activeTeamUsersRouter = createTRPCRouter({
      * @returns The deleted organization membership data with user details.
      * @throws TRPCError(NOT_FOUND) if the membership doesn't exist or the person is not linked to a user.
      */
-    delete: teamAdminProcedure
+    deleteUser: teamAdminProcedure
         .input(z.object({
             personId: zodNanoId8,
         }))
@@ -129,7 +117,137 @@ export const activeTeamUsersRouter = createTRPCRouter({
                 userId: person.clerkUserId
             })
 
-            return createUserData(user, membership)
+            return toUserData(user, membership)
+        }),
+
+    /**
+     * Fetch all invitations for the active team.
+     * @param ctx The authenticated context.
+     * @param input Optional input to filter invitations by status.
+     * @param input.status An array of invitation statuses to filter by (default is ['pending']).
+     * @returns An array of organization invitation data.
+     */
+    getInvitations: teamAdminProcedure
+        .input(z.object({
+            status: z.array(z.enum(['pending', 'accepted', 'revoked', 'expired'])).min(1).max(4).optional().default(['pending'])
+        }))
+        .output(z.array(teamInvitationSchema))
+        .query(async ({ ctx, input }) => {
+
+            const { data: orgInvitations } = await ctx.clerkClient.organizations.getOrganizationInvitationList({ organizationId: ctx.orgId, limit: 100, status: input?.status })
+
+            return orgInvitations.map(toTeamInvitationData)
+        }),
+
+    /**
+     * Fetch a specific user in the active team by person ID.
+     * @param ctx The authenticated context.
+     * @param input The input containing the person ID.
+     * @returns The user data if found, or null if the person is not linked to a user.
+     */
+    getUser: teamAdminProcedure
+        .input(z.object({
+            personId: zodNanoId8
+        }))
+        .output(userSchema2.nullable())
+        .query(async ({ ctx, input }) => {
+
+            const person = await getPersonById(ctx, input.personId)
+            if (!person.clerkUserId) return null
+            
+
+            const [{ data: [membership] }, user] = await Promise.all([
+                ctx.clerkClient.organizations.getOrganizationMembershipList({ userId: [person.clerkUserId], organizationId: ctx.orgId, limit: 1 }),
+                ctx.clerkClient.users.getUser(person.clerkUserId)
+            ])
+
+            return toUserData(user, membership)
+        }),
+
+    /**
+     * Fetch all the users in the active team.
+     * @param ctx The authenticated context.
+     * @returns An array of organization membership data with user details.
+     */
+    getUsers: teamAdminProcedure
+        .output(z.array(userSchema2))
+        .query(async ({ ctx }) => {
+
+            const { data: orgMemberships } = await ctx.clerkClient.organizations.getOrganizationMembershipList({ organizationId: ctx.orgId, limit: 100 })
+            const userIds = orgMemberships.map(m => m.publicUserData!.userId)
+
+            const { data: users } = await ctx.clerkClient.users.getUserList({ userId: userIds, limit: 100 })
+
+            const result = orgMemberships.map(membership => {
+                const user = users.find(u => u.id === membership.publicUserData!.userId)!
+                
+                return toUserData(user, membership)
+            })
+
+            return result
+        }),
+
+    /**
+     * Resend an existing organization invitation.
+     * @param ctx The authenticated context.
+     * @param input The input containing the invitation ID to resend.
+     * @returns The resent organization invitation data.
+     * @throws TRPCError(NOT_FOUND) If the invitation with the given ID does not exist.
+     * @throws TRPCError(BAD_REQUEST) If the invitation is not in the 'pending' status.
+     */
+    resendInvitation: teamAdminProcedure
+        .input(z.object({
+            invitationId: z.string()
+        }))
+        .output(teamInvitationSchema)
+        .mutation(async ({ ctx, input }) => {
+            const orgInvitation = await ctx.clerkClient.organizations.getOrganizationInvitation({ organizationId: ctx.orgId, invitationId: input.invitationId })
+            if (!orgInvitation) {
+                throw new TRPCError({ code: 'NOT_FOUND', message: `Invitation with ID ${input.invitationId} not found.` })
+            }
+            if(orgInvitation.status != 'pending') {
+                throw new TRPCError({ code: 'BAD_REQUEST', message: `Invitation with ID ${input.invitationId} is not pending.` })
+            }
+            
+            // Revoke the existing invitation
+            await ctx.clerkClient.organizations.revokeOrganizationInvitation({ organizationId: ctx.orgId, invitationId: input.invitationId })
+
+            // Create a new invitation with the same email and role
+            // This will send a new email to the user
+            const newInvitation = await ctx.clerkClient.organizations.createOrganizationInvitation({
+                organizationId: ctx.orgId,
+                inviterUserId: ctx.auth.userId!,
+                emailAddress: orgInvitation.emailAddress,
+                role: orgInvitation.role,
+                publicMetadata: orgInvitation.publicMetadata,
+                })
+
+            return toTeamInvitationData(newInvitation)
+        }),
+
+    /**
+     * Revoke an existing organization invitation.
+     * @param ctx The authenticated context.
+     * @param input The input containing the invitation ID to revoke.
+     * @param input.invitationId The ID of the invitation to revoke.
+     * @returns The revoked organization invitation data.
+     * @throws TRPCError(NOT_FOUND) If the invitation with the given ID does not exist.
+     */
+    revokeInvitation: teamAdminProcedure
+        .input(z.object({
+            invitationId: z.string()
+        }))
+        .output(teamInvitationSchema)
+        .mutation(async ({ ctx, input }) => {
+            const orgInvitation = await ctx.clerkClient.organizations.getOrganizationInvitation({ organizationId: ctx.orgId, invitationId: input.invitationId })
+            if (!orgInvitation) {
+                throw new TRPCError({ code: 'NOT_FOUND', message: `Invitation with ID ${input.invitationId} not found.` })
+            }
+
+
+            const revokedInvitation = await ctx.clerkClient.organizations.revokeOrganizationInvitation({ organizationId: ctx.orgId, invitationId: input.invitationId })
+
+            return toTeamInvitationData(revokedInvitation)
         }),
 
     /**
@@ -140,7 +258,7 @@ export const activeTeamUsersRouter = createTRPCRouter({
      * @throws TRPCError(BAD_REQUEST) if the person is not linked to a user.
      * @throws TRPCError(NOT_FOUND) if the membership doesn't exist.
      */
-    update: teamAdminProcedure
+    updateUser: teamAdminProcedure
         .input(z.object({
             personId: zodNanoId8,
             role: z.enum(['org:admin', 'org:member']),

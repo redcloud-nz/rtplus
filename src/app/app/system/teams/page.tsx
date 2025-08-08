@@ -19,7 +19,7 @@ import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 export const metadata: Metadata = { title: "Teams" }
 
 export default async function TeamsPage() { 
-    prefetch(trpc.teams.all.queryOptions())
+    prefetch(trpc.teams.getTeams.queryOptions())
 
     return <AppPage>
             <AppPageBreadcrumbs

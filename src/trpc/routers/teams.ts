@@ -9,12 +9,12 @@ import { z } from 'zod'
 import { Team as TeamRecord } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
-import { TeamData, teamSchema } from '@/lib/schemas/team'
+import { TeamData, teamSchema, toTeamData } from '@/lib/schemas/team'
 import { nanoId16 } from '@/lib/id'
 import { RTPlusLogger } from '@/lib/logger'
 import { zodNanoId8, zodRecordStatus } from '@/lib/validation'
 
-import { AuthenticatedContext, authenticatedProcedure, AuthenticatedTeamContext, createTRPCRouter, systemAdminProcedure } from '../init'
+import { AuthenticatedContext, authenticatedProcedure, AuthenticatedTeamContext, createTRPCRouter, systemAdminProcedure, teamAdminProcedure } from '../init'
 import { FieldConflictError } from '../types'
 
 
@@ -22,7 +22,52 @@ const logger = new RTPlusLogger('trpc/teams')
 
 export const teamsRouter = createTRPCRouter({
 
-    all: authenticatedProcedure
+    createTeam: systemAdminProcedure
+        .input(teamSchema)
+        .output(teamSchema)
+        .mutation(async ({ ctx, input }) => {
+            const team = await createTeam(ctx, input)
+            return toTeamData(team)
+        }),
+
+    deleteTeam: systemAdminProcedure
+        .input(z.object({ 
+            teamId: zodNanoId8,
+        }))
+        .output(teamSchema)
+        .mutation(async ({ ctx, input: { teamId } }) => {
+
+            const team = await getTeamById(ctx, teamId)
+
+            const deleted = await deleteTeam(ctx, team)
+            return toTeamData(deleted)
+        }),
+
+    getTeam: authenticatedProcedure
+        .input(z.object({ 
+            teamId: zodNanoId8.optional(),
+            teamSlug: z.string().optional(),
+        }).refine(data => data.teamId || data.teamSlug, {
+            message: 'Either teamId or teamSlug must be provided.'
+        }))
+        .output(teamSchema)
+        .query(async ({ ctx, input: { teamId, teamSlug } }) => {
+
+            if(teamId) {
+                const team = await getTeamById(ctx, teamId)
+                return toTeamData(team)
+            } else if(teamSlug) {
+                const team = await ctx.prisma.team.findUnique({ where: { slug: teamSlug } })
+
+                if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: `Team with slug ${teamSlug} not found.` })
+                return toTeamData(team)
+
+            } else {
+                throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid input' })
+            }
+        }),
+
+    getTeams: authenticatedProcedure
         .input(z.object({
             status: zodRecordStatus
         }).optional().default({}))
@@ -43,62 +88,17 @@ export const teamsRouter = createTRPCRouter({
             })
             return teams.map(team => ({ teamId: team.id, ...team }))
         }),
-
-    byId: authenticatedProcedure
-        .input(z.object({ 
-            teamId: zodNanoId8
-        }))
-        .output(teamSchema)
-        .query(async ({ ctx, input: { teamId } }) => {
-            const team = await getTeamById(ctx, teamId)
-            return { teamId, ...team }
-        }),
-
-    bySlug: authenticatedProcedure
-        .input(z.object({
-            teamSlug: z.string()
-        }))
-        .output(teamSchema)
-        .query(async ({ ctx, input }) => {
-            const team = await ctx.prisma.team.findUnique({ where: { slug: input.teamSlug } })
-            if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: `Team with slug '${input.teamSlug}' not found.` })
-            
-            return { teamId: team.id, ...team }
-        }),
-
-    create: systemAdminProcedure
-        .input(teamSchema)
-        .output(teamSchema)
-        .mutation(async ({ ctx, input }) => {
-            const team = await createTeam(ctx, input)
-            return { teamId: team.id, ...team }
-        }),
-
-    delete: authenticatedProcedure
-        .input(z.object({ 
-            teamId: zodNanoId8,
-        }))
-        .output(teamSchema)
-        .mutation(async ({ ctx, input: { teamId } }) => {
-
-            const team = await getTeamById(ctx, teamId)
-            ctx.requireTeamAdmin(team.clerkOrgId)
-
-            const deleted = await deleteTeam(ctx, team)
-            return { teamId, ...deleted }
-        }),
             
 
-    update: authenticatedProcedure
+    updateTeam: teamAdminProcedure
         .input(teamSchema)
         .output(teamSchema)
         .mutation(async ({ ctx, input: { teamId, ...update } }) => {
 
             const team = await getTeamById(ctx, teamId)
-            ctx.requireTeamAdmin(team.clerkOrgId)
             
             const updated = await updateTeam(ctx, team, update)
-            return { teamId, ...updated }
+            return toTeamData(updated)
         }),
 
     updateTeamD4h: systemAdminProcedure
@@ -140,7 +140,7 @@ export async function getActiveTeam(ctx: AuthenticatedTeamContext): Promise<Team
     const team = await ctx.prisma.team.findUnique({ 
         where: { clerkOrgId: ctx.orgId },
     })
-    if(team == null) throw new TRPCError({ code: 'NOT_FOUND' , message: `Missing active team for teamSlug='${ctx.teamSlug}'` })
+    if(team == null) throw new TRPCError({ code: 'NOT_FOUND' , message: `Active team not found.` })
     return team
 }
 
@@ -153,7 +153,7 @@ export async function getActiveTeam(ctx: AuthenticatedTeamContext): Promise<Team
  */
 export async function getTeamById(ctx: AuthenticatedContext, teamId: string): Promise<TeamRecord> {
     const team = await ctx.prisma.team.findUnique({ where: { id: teamId } })
-    if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: `Team(${teamId}) not found.` })
+    if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: `Team with ID '${teamId}' not found.` })
     return team
 }
 
@@ -166,7 +166,7 @@ export async function getTeamById(ctx: AuthenticatedContext, teamId: string): Pr
  */
 export async function getTeamBySlug(ctx: AuthenticatedContext, teamSlug: string): Promise<TeamRecord> {
     const team = await ctx.prisma.team.findUnique({ where: { slug: teamSlug } })
-    if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: `Team(${teamSlug}) not found.` })
+    if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: `Team with slug '${teamSlug}' not found.` })
     return team
 }
 
@@ -247,29 +247,39 @@ export async function updateTeam(ctx: AuthenticatedContext, team: TeamRecord, up
         if(slugConflict) throw new TRPCError({ code: 'CONFLICT', cause:new FieldConflictError('slug') })
     }
 
-    ctx.clerkClient.organizations.updateOrganization(team.clerkOrgId, {
-        name: update.name,
-        slug: update.slug,
-        publicMetadata: { teamId: team.id }
-    })
+    if(update.name != team.name || update.slug != team.slug) {
+        // Update the Clerk organization name and slug if they have changed
+        await ctx.clerkClient.organizations.updateOrganization(team.clerkOrgId, {
+            name: update.name,
+            slug: update.slug,
+            publicMetadata: { teamId: team.id }
+        })
+        logger.info(`Updated Clerk organization for team ${team.id} with new name '${update.name}' and slug '${update.slug}'.`)
+    }
 
     // Pick only the fields that have changed
-    const changedFields = pickBy(update, (value, key) => value != team [key])
+    const changedFields = pickBy(update, (value, key) => value != team[key])
 
-    return ctx.prisma.team.update({
-        where: { id: team.id },
-        data: { 
-            ...update,
-            changeLogs: { 
-                create: { 
-                    id: nanoId16(),
-                    actorId: ctx.personId,
-                    event: 'Update',
-                    fields: changedFields
+    if(Object.keys(changedFields).length > 0) {
+        const updated = await ctx.prisma.team.update({
+            where: { id: team.id },
+            data: { 
+                ...changedFields,
+                changeLogs: { 
+                    create: { 
+                        id: nanoId16(),
+                        actorId: ctx.personId,
+                        event: 'Update',
+                        fields: changedFields
+                    }
                 }
             }
-        }
-    })
+        })
+        logger.info(`Team ${team.id} updated successfully.`, changedFields)
+        return updated
+    } else {
+        return team // No changes, return the original team
+    }
 }
 
 /**

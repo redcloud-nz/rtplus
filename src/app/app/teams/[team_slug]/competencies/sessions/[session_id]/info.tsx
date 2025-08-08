@@ -24,7 +24,7 @@ import { DL } from '@/components/ui/description-list'
 export function InfoTabContent({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
 
-    const { data: session } = useSuspenseQuery(trpc.skillCheckSessions.mySessions.byId.queryOptions({ sessionId }))
+    const { data: session } = useSuspenseQuery(trpc.skillCheckSessions.getMySessions.queryOptions({ sessionId }))
     
     const form = useForm({
         resolver: zodResolver(skillCheckSessionSchema),

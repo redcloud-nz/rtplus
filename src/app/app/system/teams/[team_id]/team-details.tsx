@@ -38,7 +38,7 @@ import { useTRPC } from '@/trpc/client'
 export function TeamDetailsCard({ teamId }: { teamId: string }) {
     const trpc = useTRPC()
 
-    const { data: team } = useSuspenseQuery(trpc.teams.byId.queryOptions({ teamId }))
+    const { data: team } = useSuspenseQuery(trpc.teams.getTeam.queryOptions({ teamId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
 
@@ -114,7 +114,7 @@ function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamData
         },
     })
 
-    const mutation = useMutation(trpc.teams.update.mutationOptions({
+    const mutation = useMutation(trpc.teams.updateTeam.mutationOptions({
         onError(error) {
             if(error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof TeamData, { message: error.shape.message })
@@ -134,8 +134,8 @@ function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamData
             })
             onClose()
 
-            queryClient.invalidateQueries(trpc.teams.byId.queryFilter({ teamId: team.teamId }))
-            queryClient.invalidateQueries(trpc.teams.all.queryFilter())
+            queryClient.invalidateQueries(trpc.teams.getTeam.queryFilter({ teamId: team.teamId }))
+            queryClient.invalidateQueries(trpc.teams.getTeams.queryFilter())
         }
     }))
 
@@ -223,7 +223,7 @@ function DeleteTeamDialog({ team }: { team: TeamData }) {
         defaultValues: { teamId: team.teamId, teamName: "" }
     })
 
-    const mutation = useMutation(trpc.teams.delete.mutationOptions({
+    const mutation = useMutation(trpc.teams.deleteTeam.mutationOptions({
         onError(error) {
             toast({
                 title: 'Error deleting team',
@@ -240,8 +240,8 @@ function DeleteTeamDialog({ team }: { team: TeamData }) {
             setOpen(false)
             router.push(Paths.system.teams.index)
 
-            queryClient.invalidateQueries(trpc.teams.all.queryFilter())
-            queryClient.setQueryData(trpc.teams.byId.queryKey({ teamId: team.teamId }), undefined)
+            queryClient.invalidateQueries(trpc.teams.getTeams.queryFilter())
+            queryClient.setQueryData(trpc.teams.getTeam.queryKey({ teamId: team.teamId }), undefined)
         },
     }))
 

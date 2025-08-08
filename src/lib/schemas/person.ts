@@ -19,7 +19,7 @@ export const personSchema = z.object({
 
 export type PersonData = z.infer<typeof personSchema>
 
-export function createPersonData(record: PersonRecord): PersonData {
+export function toPersonData(record: PersonRecord): PersonData {
     return {
         personId: record.id,
         name: record.name,

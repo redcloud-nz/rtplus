@@ -24,7 +24,7 @@ export async function generateMetadata(props: { params: Promise<{ skill_group_id
 export default async function SkillGroupPage(props: { params: Promise<{ skill_group_id: string, skill_package_id: string }> }) {
     const { skillGroupId, skillPackageId, skillPackage, name} = await fetchSkillGroup(props.params)
 
-    prefetch(trpc.skills.bySkillGroupId.queryOptions({ skillGroupId }))
+    prefetch(trpc.skills.getSkills.queryOptions({ skillGroupId }))
 
     return <AppPage>
         <AppPageBreadcrumbs

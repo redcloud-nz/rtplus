@@ -43,7 +43,7 @@ export function NewSkillDetailsCard({ skillPackageId }: NewSkillDetailsCardProps
     const skillId = useMemo(() => nanoId8(), [])
 
     // Get available skill groups for group selection
-    const { data: skillGroups } = useSuspenseQuery(trpc.skillGroups.bySkillPackageId.queryOptions({ 
+    const { data: skillGroups } = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ 
         skillPackageId,
         status: ['Active', 'Inactive']
     }))
@@ -62,7 +62,7 @@ export function NewSkillDetailsCard({ skillPackageId }: NewSkillDetailsCardProps
         }
     })
 
-    const mutation = useMutation(trpc.skills.create.mutationOptions({
+    const mutation = useMutation(trpc.skills.createSkill.mutationOptions({
         onError(error) {
             if (error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof SkillData, { message: error.shape.message })
@@ -80,14 +80,9 @@ export function NewSkillDetailsCard({ skillPackageId }: NewSkillDetailsCardProps
                 description: <>The skill <ObjectName>{result.name}</ObjectName> has been created successfully.</>,
             })
 
-            queryClient.invalidateQueries(trpc.skills.bySkillPackageId.queryFilter({ 
-                skillPackageId,
-                status: ['Active', 'Inactive']
-            }))
-            queryClient.invalidateQueries(trpc.skills.bySkillGroupId.queryFilter({ 
-                skillGroupId: result.skillGroupId,
-                status: ['Active', 'Inactive']
-            }))
+            queryClient.invalidateQueries(trpc.skills.getSkills.queryFilter({ skillPackageId }))
+            queryClient.invalidateQueries(trpc.skills.getSkills.queryFilter({ skillGroupId: result.skillGroupId }))
+
             router.push(Paths.system.skillPackage(skillPackageId).skill(result.skillId).index)
         }
     }))

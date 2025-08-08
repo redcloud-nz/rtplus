@@ -4,7 +4,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { CompetenceLevel } from "@prisma/client"
+type CompetenceLevel = 'NotAssessed' | 'NotTaught' | 'NotCompetent' | 'Competent' | 'HighlyConfident'
 
 export const CompetenceLevelTerms: Record<CompetenceLevel, string> = {
     'NotAssessed': 'Not Assessed',

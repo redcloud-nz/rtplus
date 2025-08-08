@@ -41,7 +41,7 @@ export function TeamMemberDetails({ personId }: { personId: string }) {
     const router = useRouter()
     const trpc = useTRPC()
 
-    const { data: { person, team, ...membership } } = useSuspenseQuery(trpc.activeTeam.members.byId.queryOptions({ personId }))
+    const { data: { person, team, ...membership } } = useSuspenseQuery(trpc.activeTeam.members.getTeamMember.queryOptions({ personId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
 
@@ -120,7 +120,7 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membe
     const trpc = useTRPC()
 
     const isOwner = person.owningTeamId === team.teamId
-    const queryKey = trpc.activeTeam.members.byId.queryKey({ personId: person.personId })
+    const queryKey = trpc.activeTeam.members.getTeamMember.queryKey({ personId: person.personId })
 
     const form = useForm<TeamMembershipData & Pick<PersonData, 'name' | 'email'>>({
         resolver: zodResolver(teamMembershipSchema.merge(personSchema.pick({ name: true, email: true }))),
@@ -134,11 +134,11 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membe
         }
     })
 
-    const mutation = useMutation(trpc.activeTeam.members.update.mutationOptions({
+    const mutation = useMutation(trpc.activeTeam.members.updateTeamMembership.mutationOptions({
         async onMutate({ personId,...update }) {
 
 
-            await queryClient.cancelQueries(trpc.activeTeam.members.byId.queryFilter({ personId }))
+            await queryClient.cancelQueries(trpc.activeTeam.members.getTeamMember.queryFilter({ personId }))
             
 
             // Snapshot the previous value
@@ -167,11 +167,11 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membe
                 description: `${person.name}'s membership in '${team.name}' has been updated.`,
             })
 
-            await queryClient.invalidateQueries(trpc.activeTeam.members.byId.queryFilter({ personId: result.personId }))
+            await queryClient.invalidateQueries(trpc.activeTeam.members.getTeamMember.queryFilter({ personId: result.personId }))
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.activeTeam.members.all.queryFilter({}))
-            queryClient.invalidateQueries(trpc.activeTeam.members.byId.queryFilter({ personId: membership.personId }))
+            queryClient.invalidateQueries(trpc.activeTeam.members.getTeamMembers.queryFilter({}))
+            queryClient.invalidateQueries(trpc.activeTeam.members.getTeamMember.queryFilter({ personId: membership.personId }))
         }
     }))
 

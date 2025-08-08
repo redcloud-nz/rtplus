@@ -41,9 +41,9 @@ export function CreateInvitationDialog({ trigger }: { trigger: React.ReactNode }
         form.reset()
     }
 
-    const mutation = useMutation(trpc.activeTeam.invitations.create.mutationOptions({
+    const mutation = useMutation(trpc.activeTeam.users.createInvitation.mutationOptions({
         async onSuccess(data) {
-            await queryClient.invalidateQueries(trpc.activeTeam.invitations.all.queryFilter())
+            await queryClient.invalidateQueries(trpc.activeTeam.users.getInvitations.queryFilter())
             toast({
                 title: 'Invitation sent',
                 description: `The invitation to ${data.email} has been sent successfully.`,

@@ -46,7 +46,7 @@ export function NewSkillPackageDetailsCard() {
         }
     })
 
-    const mutation = useMutation(trpc.skillPackages.create.mutationOptions({
+    const mutation = useMutation(trpc.skills.createPackage.mutationOptions({
         onError(error) {
             if (error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof SkillPackageData, { message: error.shape.message })
@@ -64,7 +64,7 @@ export function NewSkillPackageDetailsCard() {
                 description: <>The skill package <ObjectName>{result.name}</ObjectName> has been created successfully.</>,
             })
 
-            queryClient.invalidateQueries(trpc.skillPackages.all.queryFilter())
+            queryClient.invalidateQueries(trpc.skills.getPackages.queryFilter())
             router.push(Paths.system.skillPackage(result.skillPackageId).index)
         }
     }))

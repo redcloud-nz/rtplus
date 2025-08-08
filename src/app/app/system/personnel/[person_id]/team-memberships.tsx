@@ -41,12 +41,12 @@ export function TeamMembershipsCard({ personId }: { personId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
-    const { data: teamMemberships } = useSuspenseQuery(trpc.teamMemberships.byPerson.queryOptions({ personId }))
+    const { data: teamMemberships } = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ personId }))
 
     // Mutations for CRUD operations
     const createMutation = useMutation(trpc.teamMemberships.create.mutationOptions({
         onSuccess: () => {
-            queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ personId }))
             toast({
                 title: 'Team membership added successfully',
                 variant: 'default'
@@ -61,9 +61,9 @@ export function TeamMembershipsCard({ personId }: { personId: string }) {
         }
     }))
 
-    const updateMutation = useMutation(trpc.teamMemberships.update.mutationOptions({
+    const updateMutation = useMutation(trpc.teamMemberships.updateTeamMembership.mutationOptions({
         onSuccess: () => {
-            queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ personId }))
             toast({
                 title: 'Team membership updated successfully',
                 variant: 'default'
@@ -78,9 +78,9 @@ export function TeamMembershipsCard({ personId }: { personId: string }) {
         }
     }))
 
-    const deleteMutation = useMutation(trpc.teamMemberships.delete.mutationOptions({
+    const deleteMutation = useMutation(trpc.teamMemberships.deleteTeamMembership.mutationOptions({
         onSuccess: () => {
-            queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ personId }))
             toast({
                 title: 'Team membership removed successfully',
                 variant: 'default'

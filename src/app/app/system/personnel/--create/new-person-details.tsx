@@ -45,7 +45,7 @@ export function NewPersonDetailsCard() {
         }
     })
 
-    const mutation = useMutation(trpc.personnel.create.mutationOptions({
+    const mutation = useMutation(trpc.personnel.createPerson.mutationOptions({
         onError(error) {
             if (error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof PersonData, { message: error.shape.message })
@@ -63,7 +63,7 @@ export function NewPersonDetailsCard() {
                 description: <>The person <ObjectName>{result.name}</ObjectName> has been created successfully.</>,
             })
 
-            queryClient.invalidateQueries(trpc.personnel.all.queryFilter())
+            queryClient.invalidateQueries(trpc.personnel.getPersonnel.queryFilter())
             router.push(Paths.system.person(personId).index)
         }
     }))

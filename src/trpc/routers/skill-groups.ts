@@ -20,50 +20,8 @@ import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, systemA
 
 
 export const skillGroupsRouter = createTRPCRouter({
-    all: authenticatedProcedure
-        .input(z.object({
-            status: zodRecordStatus
-        }))
-        .output(z.array(skillGroupSchema))
-        .query(async ({ ctx, input }) => {
-            const groups = await ctx.prisma.skillGroup.findMany({ 
-                where: { status: { in: input.status } },
-                orderBy: { sequence: 'asc' },
-            })
 
-            return groups.map(group => ({ skillGroupId: group.id, ...group }))
-        }),
-
-    byId: authenticatedProcedure
-        .input(z.object({
-            skillGroupId: zodNanoId8,
-            skillPackageId: zodNanoId8
-        }))
-        .output(skillGroupSchema.extend({
-            skillPackage: skillPackageSchema
-        }))
-        .query(async ({ ctx, input: { skillGroupId, skillPackageId } }) => {
-            const { skillPackage, ...group } = await getSkillGroupById(ctx, skillPackageId, skillGroupId)
-
-            return { skillGroupId, ...group, skillPackage: { skillPackageId, ...skillPackage } }
-        }),
-
-    bySkillPackageId: authenticatedProcedure
-        .input(z.object({
-            skillPackageId: zodNanoId8,
-            status: zodRecordStatus
-        }))
-        .output(z.array(skillGroupSchema))
-        .query(async ({ ctx, input: { skillPackageId, status } }) => {
-            const groups = await ctx.prisma.skillGroup.findMany({
-                where: { skillPackageId, status: { in: status } },
-                orderBy: { sequence: 'asc' },
-            })
-
-            return groups.map(group => ({ skillGroupId: group.id, ...group }))
-        }),
-
-    create: systemAdminProcedure
+    createGroup: systemAdminProcedure
         .input(skillGroupSchema)
         .output(skillGroupSchema)
         .mutation(async ({ ctx, input: { skillPackageId, skillGroupId, ...input} }) => {
@@ -98,7 +56,7 @@ export const skillGroupsRouter = createTRPCRouter({
             return { skillGroupId, ...created }
         }),
 
-    delete: systemAdminProcedure
+    deleteGroup: systemAdminProcedure
         .input(z.object({
             skillGroupId: zodNanoId8,
             skillPackageId: zodNanoId8
@@ -131,7 +89,36 @@ export const skillGroupsRouter = createTRPCRouter({
             return { skillGroupId, ...deleted }
         }),
 
-    update: systemAdminProcedure
+    getGroup: authenticatedProcedure
+        .input(z.object({
+            skillGroupId: zodNanoId8,
+            skillPackageId: zodNanoId8
+        }))
+        .output(skillGroupSchema.extend({
+            skillPackage: skillPackageSchema
+        }))
+        .query(async ({ ctx, input: { skillGroupId, skillPackageId } }) => {
+            const { skillPackage, ...group } = await getSkillGroupById(ctx, skillPackageId, skillGroupId)
+
+            return { skillGroupId, ...group, skillPackage: { skillPackageId, ...skillPackage } }
+        }),
+
+    getGroups: authenticatedProcedure
+        .input(z.object({
+            status: zodRecordStatus,
+            skillPackageId: zodNanoId8.optional()
+        }))
+        .output(z.array(skillGroupSchema))
+        .query(async ({ ctx, input }) => {
+            const groups = await ctx.prisma.skillGroup.findMany({ 
+                where: { status: { in: input.status }, skillPackageId: input.skillPackageId },
+                orderBy: { sequence: 'asc' },
+            })
+
+            return groups.map(group => ({ skillGroupId: group.id, ...group }))
+        }),
+
+    updateGroup: systemAdminProcedure
         .input(skillGroupSchema)
         .output(skillGroupSchema)
         .mutation(async ({ ctx, input: { skillGroupId, skillPackageId, ...input} }) => {

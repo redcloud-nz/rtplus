@@ -16,7 +16,7 @@ import { useTRPC } from '@/trpc/client'
 export function SkillPackageValue({ skillPackageId, ...props }: Omit<ComponentProps<typeof DisplayValue>, 'children' |'loading'> & { skillPackageId: string }) {
     const trpc = useTRPC()
 
-    const query = useQuery(trpc.skillPackages.byId.queryOptions({ skillPackageId }))
+    const query = useQuery(trpc.skills.getPackage.queryOptions({ skillPackageId }))
 
     return <DisplayValue 
         loading={query.isLoading}

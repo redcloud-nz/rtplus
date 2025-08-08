@@ -49,7 +49,7 @@ export function NewSkillGroupDetailsCard({ skillPackageId }: { skillPackageId: s
         }
     })
 
-    const mutation = useMutation(trpc.skillGroups.create.mutationOptions({
+    const mutation = useMutation(trpc.skills.createGroup.mutationOptions({
         onError(error) {
             if (error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof SkillGroupData, { message: error.shape.message })
@@ -67,10 +67,7 @@ export function NewSkillGroupDetailsCard({ skillPackageId }: { skillPackageId: s
                 description: <>The skill group <ObjectName>{result.name}</ObjectName> has been created successfully.</>,
             })
 
-            queryClient.invalidateQueries(trpc.skillGroups.bySkillPackageId.queryFilter({ 
-                skillPackageId,
-                status: ['Active', 'Inactive']
-            }))
+            queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter({ skillPackageId }))
             router.push(Paths.system.skillPackage(skillPackageId).group(result.skillGroupId).index)
         }
     }))

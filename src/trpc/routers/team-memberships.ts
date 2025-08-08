@@ -9,16 +9,16 @@ import { z } from 'zod'
 import { Person as PersonRecord, Team as TeamRecord, TeamMembership as TeamMembershipRecord } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
-import { personSchema } from '@/lib/schemas/person'
-import { teamSchema } from '@/lib/schemas/team'
-import { TeamMembershipData, teamMembershipSchema } from '@/lib/schemas/team-membership'
+import { personSchema, toPersonData } from '@/lib/schemas/person'
+import { teamSchema, toTeamData } from '@/lib/schemas/team'
+import { TeamMembershipData, teamMembershipSchema, toTeamMembershipData } from '@/lib/schemas/team-membership'
 import { nanoId16 } from '@/lib/id'
 import { zodRecordStatus, zodNanoId8 } from '@/lib/validation'
 
 import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter } from '../init'
 
 import { getPersonById } from './personnel'
-import { getTeamById, getTeamBySlug } from './teams'
+import { getTeamById } from './teams'
 
 
 
@@ -44,10 +44,28 @@ export const teamMembershipsRouter = createTRPCRouter({
 
             const created = await createTeamMembership(ctx, input)
 
-            return { ...created, person: { personId: person.id, ...person }, team: { teamId: team.id, ...team } }
+            return { ...toTeamMembershipData(created), person: toPersonData(person), team: toTeamData(team) }
         }),
 
-    byId: authenticatedProcedure
+    deleteTeamMembership: authenticatedProcedure
+        .meta({ teamAdminRequired: true })
+        .input(z.object({
+            teamId: zodNanoId8,
+            personId: zodNanoId8,
+        }))
+        .output(teamMembershipSchema)
+        .mutation(async ({ ctx, input }) => {
+
+            const { team, ...membership } = await getTeamMembershipById(ctx, input)
+
+            ctx.requireTeamAdmin(team.clerkOrgId)
+
+            const deleted = await deleteTeamMembership(ctx, membership)
+
+            return toTeamMembershipData(deleted)
+        }),
+
+    getTeamMembership: authenticatedProcedure
         .meta({ teamAccessRequired: true })
         .input(z.object({
             personId: zodNanoId8,
@@ -63,99 +81,34 @@ export const teamMembershipsRouter = createTRPCRouter({
 
             ctx.requireTeamAccess(team.clerkOrgId)
 
-            return { ...membership, person: { personId: person.id, ...person }, team: { teamId: team.id, ...team } }
+            return { ...toTeamMembershipData(membership), person: toPersonData(person), team: toTeamData(team) }
         }),
 
-    bySlug: authenticatedProcedure
-        .meta({ teamAccessRequired: true })
+    getTeamMemberships: authenticatedProcedure
         .input(z.object({
-            personId: zodNanoId8,
-            teamSlug: z.string(),
-        }))
-        .output(teamMembershipSchema.extend({
-            person: personSchema,
-            team: teamSchema
-        }))
-        .query(async ({ ctx, input }) => {
-
-            const team = await getTeamBySlug(ctx, input.teamSlug)
-            ctx.requireTeamAccess(team.clerkOrgId)
-
-            const { person, ...membership } = await ctx.prisma.teamMembership.findUniqueOrThrow({
-                where: { personId_teamId: { personId: input.personId, teamId: team.id }},
-                include: { person: true }
-            })
-
-            return { ...membership, person: { personId: person.id, ...person }, team: { teamId: team.id, ...team } }
-        }),
-
-    byPerson: authenticatedProcedure
-        .input(z.object({
-            personId: zodNanoId8,
+            personId: zodNanoId8.optional(),
+            teamId: zodNanoId8.optional(),
             status: zodRecordStatus
         }))
         .output(z.array(teamMembershipSchema.extend({
+            person: personSchema,
             team: teamSchema
         })))
         .query(async ({ ctx, input }) => {
             const memberships = await ctx.prisma.teamMembership.findMany({
                 where: { 
                     personId: input.personId,
+                    teamId: input.teamId,
                     status: { in: input.status }
                 },
-                include: { team: true, d4hInfo: true },
+                include: { person: true, team: true, d4hInfo: true },
                 orderBy: { team: { name: 'asc' }}
             })
 
-            return memberships.map(({ team, ...membership }) => ({ ...membership, team: { teamId: team.id, ...team } }))
-        }),
+            return memberships.map(membership => ({ ...toTeamMembershipData(membership), person: toPersonData(membership.person), team: toTeamData(membership.team) }))
+        }),    
 
-    byTeam: authenticatedProcedure
-        .input(z.object({
-            teamId: zodNanoId8,
-            status: zodRecordStatus
-        }))
-        .output(z.array(teamMembershipSchema.extend({
-            person: personSchema,
-        })))
-        .query(async ({ ctx, input }) => {
-            const team = await getTeamById(ctx, input.teamId)
-            ctx.requireTeamAccess(team.clerkOrgId)
-
-            const memberships = await ctx.prisma.teamMembership.findMany({
-                where: { 
-                    teamId: input.teamId, 
-                    status: { in: input.status }
-                },
-                include: { person: true },
-                orderBy: { person: { name: 'asc' }}
-            })
-
-            return memberships.map(({ person, ...membership }) => ({ ...membership, person: { personId: person.id, ...person } }))
-        }),
-
-    
-
-    delete: authenticatedProcedure
-        .meta({ teamAdminRequired: true })
-        .input(z.object({
-            teamId: zodNanoId8,
-            personId: zodNanoId8,
-        }))
-        .output(teamMembershipSchema)
-        .mutation(async ({ ctx, input }) => {
-
-            const { team, ...membership } = await getTeamMembershipById(ctx, input)
-
-            ctx.requireTeamAdmin(team.clerkOrgId)
-
-            const deleted = await deleteTeamMembership(ctx, membership)
-
-            return deleted
-        }),
-        
-
-    update: authenticatedProcedure
+    updateTeamMembership: authenticatedProcedure
         .meta({ teamAdminRequired: true })
         .input(teamMembershipSchema)
         .output(teamMembershipSchema)
@@ -165,8 +118,8 @@ export const teamMembershipsRouter = createTRPCRouter({
 
             ctx.requireTeamAdmin(team.clerkOrgId)
 
-            const updatedMembership = await updateTeamMembership(ctx, membership, input)
-            return updatedMembership
+            const updated = await updateTeamMembership(ctx, membership, input)
+            return toTeamMembershipData(updated)
         }),
 
 })

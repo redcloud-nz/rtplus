@@ -68,7 +68,7 @@ const columns = defineColumns<WithCounts<SkillPackageData, 'skills' | 'skillGrou
 export function SkillPackageListCard() {
     const trpc = useTRPC()
 
-    const { data: skillPackages } = useSuspenseQuery(trpc.skillPackages.all.queryOptions({ status: ['Active', 'Inactive'] }))
+    const { data: skillPackages } = useSuspenseQuery(trpc.skills.getPackages.queryOptions({ status: ['Active', 'Inactive'] }))
 
     const table = useReactTable({
             columns,

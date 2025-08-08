@@ -38,13 +38,13 @@ export function ActiveTeam_Invitations_ListCard() {
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const { data: invitations } = useSuspenseQuery(trpc.activeTeam.invitations.all.queryOptions({}))
+    const invitationsQuery = useSuspenseQuery(trpc.activeTeam.users.getInvitations.queryOptions({}))
 
     async function handleRefresh() {
-        await queryClient.invalidateQueries(trpc.activeTeam.invitations.all.queryFilter())
+        await invitationsQuery.refetch()
     }
 
-    const resendMutation = useMutation(trpc.activeTeam.invitations.resend.mutationOptions({
+    const resendMutation = useMutation(trpc.activeTeam.users.resendInvitation.mutationOptions({
         onError(error) {
             toast({
                 title: "Error resending invitation",
@@ -59,11 +59,11 @@ export function ActiveTeam_Invitations_ListCard() {
             })
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.activeTeam.invitations.all.queryFilter())
+            queryClient.invalidateQueries(trpc.activeTeam.users.getInvitations.queryFilter())
         }
     }))
 
-    const revokeMutation = useMutation(trpc.activeTeam.invitations.revoke.mutationOptions({
+    const revokeMutation = useMutation(trpc.activeTeam.users.revokeInvitation.mutationOptions({
         onError(error) {
             toast({
                 title: "Error revoking invitation",
@@ -78,7 +78,7 @@ export function ActiveTeam_Invitations_ListCard() {
             })
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.activeTeam.invitations.all.queryFilter())
+            queryClient.invalidateQueries(trpc.activeTeam.users.getInvitations.queryFilter())
         }
     }))
 
@@ -183,7 +183,7 @@ export function ActiveTeam_Invitations_ListCard() {
     ]), [resendMutation, revokeMutation])
 
     const table = useReactTable<TeamInvitationData>({
-        data: invitations,
+        data: invitationsQuery.data,
         columns,
          getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),

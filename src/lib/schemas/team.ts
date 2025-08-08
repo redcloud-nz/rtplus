@@ -4,6 +4,9 @@
 */
 
 import { z } from 'zod'
+
+import { Team as TeamRecord } from '@prisma/client'
+
 import { zodColor, zodNanoId8, zodSlug } from '../validation'
 
 export const teamSchema = z.object({
@@ -16,3 +19,14 @@ export const teamSchema = z.object({
 })
 
 export type TeamData = z.infer<typeof teamSchema>
+
+export function toTeamData(record: TeamRecord): TeamData {
+    return {
+        teamId: record.id,
+        name: record.name,
+        shortName: record.shortName,
+        slug: record.slug,
+        color: record.color,
+        status: record.status
+    }
+}

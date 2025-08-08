@@ -27,7 +27,7 @@ export function TeamsListCard() {
 
     const trpc = useTRPC()
 
-    const { data: teams } = useSuspenseQuery(trpc.teams.all.queryOptions())
+    const { data: teams } = useSuspenseQuery(trpc.teams.getTeams.queryOptions())
 
     const columns = useMemo(() => defineColumns<typeof teams[0]>(columnHelper => [
     columnHelper.accessor('teamId', {

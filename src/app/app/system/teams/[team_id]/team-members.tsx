@@ -41,12 +41,12 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const { data: teamMembers } = useSuspenseQuery(trpc.teamMemberships.byTeam.queryOptions({ teamId }))
+    const { data: teamMembers } = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId }))
 
     // Mutations for CRUD operations
     const createMutation = useMutation(trpc.teamMemberships.create.mutationOptions({
         onSuccess: () => {
-            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ teamId }))
             toast({
                 title: 'Team member added successfully',
                 variant: 'default'
@@ -61,9 +61,9 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
         }
     }))
 
-    const updateMutation = useMutation(trpc.teamMemberships.update.mutationOptions({
+    const updateMutation = useMutation(trpc.teamMemberships.updateTeamMembership.mutationOptions({
         onSuccess: () => {
-            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ teamId }))
             toast({
                 title: 'Team member updated successfully',
                 variant: 'default'
@@ -78,9 +78,9 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
         }
     }))
 
-    const deleteMutation = useMutation(trpc.teamMemberships.delete.mutationOptions({
+    const deleteMutation = useMutation(trpc.teamMemberships.deleteTeamMembership.mutationOptions({
         onSuccess: () => {
-            queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ teamId }))
             toast({
                 title: 'Team member removed successfully',
                 variant: 'default'

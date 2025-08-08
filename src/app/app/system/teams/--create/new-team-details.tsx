@@ -47,7 +47,7 @@ export function NewTeamDetailsCard() {
         }
     })
 
-    const mutation = useMutation(trpc.teams.create.mutationOptions({
+    const mutation = useMutation(trpc.teams.createTeam.mutationOptions({
         onError(error) {
             if(error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof TeamData, { message: error.shape.message })
@@ -65,7 +65,7 @@ export function NewTeamDetailsCard() {
                 description: <>The team <ObjectName>{result.name}</ObjectName> has been created successfully.</>,
             })
 
-            queryClient.invalidateQueries(trpc.teams.all.queryFilter())
+            queryClient.invalidateQueries(trpc.teams.getTeams.queryFilter())
             router.push(Paths.system.team(teamId).index)
         }
     }))

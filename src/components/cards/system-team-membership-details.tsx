@@ -40,7 +40,7 @@ export function SystemTeamMembershipDetailsCard({ context, personId, teamId }: {
     const router = useRouter()
     const trpc = useTRPC()
 
-    const { data: { person, team, ...membership } } = useSuspenseQuery(trpc.teamMemberships.byId.queryOptions({ personId, teamId }))
+    const { data: { person, team, ...membership } } = useSuspenseQuery(trpc.teamMemberships.getTeamMembership.queryOptions({ personId, teamId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
 
@@ -118,18 +118,18 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membe
         defaultValues: { ...membership }
     })
 
-    const mutation = useMutation(trpc.teamMemberships.update.mutationOptions({
+    const mutation = useMutation(trpc.teamMemberships.updateTeamMembership.mutationOptions({
         async onMutate({ personId, teamId, ...update }) {
 
 
-            await queryClient.cancelQueries(trpc.teamMemberships.byId.queryFilter({ personId, teamId }))
+            await queryClient.cancelQueries(trpc.teamMemberships.getTeamMembership.queryFilter({ personId, teamId }))
             
 
             // Snapshot the previous value
-            const previousData = queryClient.getQueryData(trpc.teamMemberships.byId.queryKey({ personId, teamId }))
+            const previousData = queryClient.getQueryData(trpc.teamMemberships.getTeamMembership.queryKey({ personId, teamId }))
 
             if(previousData) {
-                queryClient.setQueryData(trpc.teamMemberships.byId.queryKey({ personId, teamId }), { ...previousData, ...update })
+                queryClient.setQueryData(trpc.teamMemberships.getTeamMembership.queryKey({ personId, teamId }), { ...previousData, ...update })
             }
 
             onClose()
@@ -137,7 +137,7 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membe
         },
         onError(error, data, context) {
             // Rollback to previous data
-            queryClient.setQueryData(trpc.teamMemberships.byId.queryKey({ personId: data.personId, teamId: data.teamId }), context?.previousData)
+            queryClient.setQueryData(trpc.teamMemberships.getTeamMembership.queryKey({ personId: data.personId, teamId: data.teamId }), context?.previousData)
 
             toast({
                 title: 'Error updating team membership',
@@ -151,8 +151,8 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membe
                 description: `${person.name}'s membership in '${team.name}' has been updated.`,
             })
 
-            await queryClient.invalidateQueries(trpc.teamMemberships.byPerson.queryFilter({ personId: result.personId }))
-            await queryClient.invalidateQueries(trpc.teamMemberships.byTeam.queryFilter({ teamId: result.teamId }))
+            await queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ personId: result.personId }))
+            await queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ teamId: result.teamId }))
         },
     }))
 

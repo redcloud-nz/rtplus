@@ -21,7 +21,7 @@ import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, systemA
 
 export const skillPackagesRouter = createTRPCRouter({
 
-    all: authenticatedProcedure
+    getPackages: authenticatedProcedure
         .input(z.object({
             status: zodRecordStatus
         }))
@@ -50,7 +50,7 @@ export const skillPackagesRouter = createTRPCRouter({
             return skillPackages.map(pkg => ({ skillPackageId: pkg.id, ...pkg }))
         }),
 
-    byId: authenticatedProcedure
+    getPackage: authenticatedProcedure
         .input(z.object({
             skillPackageId: zodNanoId8
         }))
@@ -61,7 +61,7 @@ export const skillPackagesRouter = createTRPCRouter({
             return { skillPackageId, ...skillPackage }
         }), 
 
-    create: systemAdminProcedure
+    createPackage: systemAdminProcedure
         .input(skillPackageSchema)
         .output(skillPackageSchema)
         .mutation(async ({ ctx, input: { skillPackageId, ...input } }) => {
@@ -94,7 +94,7 @@ export const skillPackagesRouter = createTRPCRouter({
             return { skillPackageId, ...created }
         }),
 
-    current: authenticatedProcedure
+    getTree: authenticatedProcedure
         .query(async ({ ctx }) => {
             return ctx.prisma.skillPackage.findMany({ 
                 where: { status: 'Active' },
@@ -112,7 +112,7 @@ export const skillPackagesRouter = createTRPCRouter({
             })
         }),
 
-    delete: systemAdminProcedure
+    deletePackage: systemAdminProcedure
         .input(z.object({
             skillPackageId: zodNanoId8
         }))
@@ -129,7 +129,7 @@ export const skillPackagesRouter = createTRPCRouter({
         }),
     
 
-    import: systemAdminProcedure
+    importPackage: systemAdminProcedure
         .input(z.object({
             skillPackageId: zodNanoId8
         }))
@@ -148,7 +148,7 @@ export const skillPackagesRouter = createTRPCRouter({
             return { changeCounts: changeCounts, elapsedTime }
         }),
     
-    update: systemAdminProcedure
+    updatePackage: systemAdminProcedure
         .input(skillPackageSchema)
         .output(skillPackageSchema)
         .mutation(async ({ ctx, input: { skillPackageId, ...update } }) => {

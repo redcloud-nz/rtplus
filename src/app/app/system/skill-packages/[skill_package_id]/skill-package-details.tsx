@@ -44,7 +44,7 @@ import { useTRPC } from '@/trpc/client'
 export function SkillPackageDetailsCard({ skillPackageId }: { skillPackageId: string }) {
 
     const trpc = useTRPC()
-    const { data: skillPackage } = useSuspenseQuery(trpc.skillPackages.byId.queryOptions({ skillPackageId }))
+    const { data: skillPackage } = useSuspenseQuery(trpc.skills.getPackage.queryOptions({ skillPackageId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
 
@@ -127,7 +127,7 @@ function UpdateSkillPackageForm({ onClose, skillPackage }: { onClose: () => void
         }
     })
 
-    const mutation = useMutation(trpc.skillPackages.update.mutationOptions({
+    const mutation = useMutation(trpc.skills.updatePackage.mutationOptions({
         onError(error) {
             if (error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof SkillPackageData, { message: error.shape.message })
@@ -146,8 +146,8 @@ function UpdateSkillPackageForm({ onClose, skillPackage }: { onClose: () => void
                 description: <>The skill package <ObjectName>{result.name}</ObjectName> has been updated successfully.</>,
             })
 
-            queryClient.invalidateQueries(trpc.skillPackages.all.queryFilter())
-            queryClient.invalidateQueries(trpc.skillPackages.byId.queryFilter({ skillPackageId: result.skillPackageId }))
+            queryClient.invalidateQueries(trpc.skills.getPackages.queryFilter())
+            queryClient.invalidateQueries(trpc.skills.getPackage.queryFilter({ skillPackageId: result.skillPackageId }))
             onClose()
         }
     }))
@@ -231,7 +231,7 @@ function DeleteSkillPackageDialog({ skillPackage }: { skillPackage: SkillPackage
         defaultValues: { skillPackageId: skillPackage.skillPackageId, skillPackageName: "" }
     })
 
-    const mutation = useMutation(trpc.skillPackages.delete.mutationOptions({
+    const mutation = useMutation(trpc.skills.deletePackage.mutationOptions({
         onError(error) {
             toast({
                 title: 'Error deleting skill package',
@@ -247,9 +247,9 @@ function DeleteSkillPackageDialog({ skillPackage }: { skillPackage: SkillPackage
             })
             setOpen(false)
 
-            queryClient.invalidateQueries(trpc.skillPackages.all.queryFilter())
-            queryClient.invalidateQueries(trpc.skillPackages.byId.queryFilter({ skillPackageId: skillPackage.skillPackageId }))
-            queryClient.invalidateQueries(trpc.skillGroups.bySkillPackageId.queryFilter({ skillPackageId: skillPackage.skillPackageId }))
+            queryClient.invalidateQueries(trpc.skills.getPackages.queryFilter())
+            queryClient.invalidateQueries(trpc.skills.getPackage.queryFilter({ skillPackageId: skillPackage.skillPackageId }))
+            queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter({ skillPackageId: skillPackage.skillPackageId }))
             router.push(Paths.system.skillPackages.index)
         }
     }))

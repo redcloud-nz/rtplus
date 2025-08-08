@@ -65,7 +65,7 @@ interface TeamPickerProps {
  */
 export function TeamPicker({ className, defaultValue = "", exclude = [], onValueChange, placeholder, size, value }: TeamPickerProps) {
     const trpc = useTRPC()
-    const query = useQuery(trpc.teams.all.queryOptions({}))
+    const query = useQuery(trpc.teams.getTeams.queryOptions({}))
 
     const [open, setOpen] = useState(false)
     const [internalValue, setInternalValue] = useState<string>(value ?? defaultValue)

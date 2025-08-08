@@ -65,7 +65,7 @@ interface PersonPickerProps {
  */
 export function PersonPicker({ className, defaultValue = "", exclude = [], onValueChange, placeholder, size, value }: PersonPickerProps) {
     const trpc = useTRPC()
-    const query = useQuery(trpc.personnel.all.queryOptions({}))
+    const query = useQuery(trpc.personnel.getPersonnel.queryOptions({}))
 
     const [open, setOpen] = useState(false)
     const [internalValue, setInternalValue] = useState<string>(value ?? defaultValue)

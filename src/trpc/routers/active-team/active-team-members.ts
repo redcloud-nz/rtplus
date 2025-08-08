@@ -8,9 +8,9 @@ import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
 import { Person as PersonRecord } from '@prisma/client'
 
-import { personSchema } from '@/lib/schemas/person'
-import { teamSchema } from '@/lib/schemas/team'
-import { teamMembershipSchema } from '@/lib/schemas/team-membership'
+import { personSchema, toPersonData } from '@/lib/schemas/person'
+import { teamSchema, toTeamData } from '@/lib/schemas/team'
+import { teamMembershipSchema, toTeamMembershipData } from '@/lib/schemas/team-membership'
 import { nanoId16, nanoId8 } from '@/lib/id'
 import { zodRecordStatus, zodNanoId8 } from '@/lib/validation'
 
@@ -25,74 +25,7 @@ import { getActiveTeam } from '../teams'
  */
 export const activeTeamMembersRouter = createTRPCRouter({
 
-    /**
-     * Fetch all active team members for the active team.
-     * @param ctx The authenticated context.
-     * @param input.status Optional filter for membership status.
-     * @returns An array of team memberships with person details.
-     */
-    all: teamProcedure
-        .input(z.object({
-            status: zodRecordStatus
-        }))
-        .output(z.array(teamMembershipSchema.extend({
-            person: personSchema,
-        })))
-        .query(async ({ ctx, input }) => {
-            
-            const team = await ctx.prisma.team.findUnique({
-                where: { clerkOrgId: ctx.orgId },
-                include: {
-                    teamMemberships: {
-                        where: { status: { in: input.status } },
-                        include: { person: true }
-                    }
-                }
-            })
-            if(!team) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: `No team found for active Organization(${ctx.orgId})` })
-
-            return team.teamMemberships.map(m => ({
-                ...m,
-                person: { personId: m.person.id, ...m.person }
-            }))
-        }),
-        
-    /**
-     * Fetch a specific team membership by person ID for the active team.
-     * @param ctx The authenticated context.
-     * @param input.personId The ID of the person to fetch the membership for.
-     * @returns The team membership with person details.
-     * @throws TRPCError(NOT_FOUND) if the membership doesn't exist.
-     */
-    byId: teamProcedure
-        .input(z.object({
-            personId: zodNanoId8,
-        }))
-        .output(teamMembershipSchema.extend({
-            person: personSchema,
-            team: teamSchema
-        }))
-        .query(async ({ ctx, input }) => {
-            
-            const team = await ctx.prisma.team.findUnique({
-                where: { clerkOrgId: ctx.orgId },
-                include: {
-                    teamMemberships: {
-                        where: { personId: input.personId },
-                        include: { person: true, team: true }
-                    }
-                }
-            })
-            if(!team) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: `No team found for active Organization(${ctx.orgId})` })
-            if(team.teamMemberships.length === 0) throw new TRPCError({ code: 'NOT_FOUND', message: `No membership found for Person(${input.personId}) in Team(${team.id})` })
-
-            const membership = team.teamMemberships[0]
-            return { 
-                ...membership, 
-                person: { personId: membership.person.id, ...membership.person },
-                team: { teamId: membership.team.id, ...membership.team }
-            }
-        }),
+    
 
     /**
      * Create a new team membership for the active team using an existing person.
@@ -104,10 +37,10 @@ export const activeTeamMembersRouter = createTRPCRouter({
      * @throws TRPCError(NOT_FOUND) if the person doesn't exist.
      * @throws TRPCError(CONFLICT) if the person is already a member of the team.
      */
-    create: teamAdminProcedure
+    createTeamMembership: teamAdminProcedure
         .input(teamMembershipSchema.omit({ teamId: true }))
-        .output(teamMembershipSchema.extend({
-            person: personSchema,
+        .output(teamMembershipSchema.extend({ 
+            person: personSchema, 
             team: teamSchema
         }))
         .mutation(async ({ ctx, input: { personId, tags, status } }) => {
@@ -141,10 +74,7 @@ export const activeTeamMembersRouter = createTRPCRouter({
                 })
             ])
 
-            return { ...created, 
-                person: { personId: person.id, ...person }, 
-                team: { teamId: team.id, ...team }
-            }
+            return { ...toTeamMembershipData(created), person: toPersonData(person), team: toTeamData(team) }
         }),
 
     /**
@@ -158,11 +88,10 @@ export const activeTeamMembersRouter = createTRPCRouter({
      * @returns The created team membership with person details.
      * @throws TRPCError(CONFLICT) If a person with the same email is already a member of the team.
      */
-    createWithPerson: teamAdminProcedure
+    createTeamMembershipWithPerson: teamAdminProcedure
         .input(personSchema.pick({ name: true, email: true }).merge(teamMembershipSchema.pick({ tags: true, status: true })))
-        .output(teamMembershipSchema.extend({
-            person: personSchema,
-            team: teamSchema
+        .output(teamMembershipSchema.extend({ 
+            person: personSchema, team: teamSchema
         }))
         .mutation(async ({ ctx, input }) => {
             const team = await getActiveTeam(ctx)
@@ -213,11 +142,7 @@ export const activeTeamMembersRouter = createTRPCRouter({
                 })
             ])
 
-            return { 
-                ...created, 
-                person: { personId: person.id, ...person },
-                team: { teamId: team.id, ...team }
-            }
+            return { ...toTeamMembershipData(created), person: toPersonData(person), team: toTeamData(team) }
         }),
 
     /**
@@ -227,7 +152,7 @@ export const activeTeamMembersRouter = createTRPCRouter({
      * @returns The deleted team membership with person details.
      * @throws TRPCError(NOT_FOUND) if the membership doesn't exist.
      */
-    delete: teamAdminProcedure
+    deleteTeamMembership: teamAdminProcedure
         .input(z.object({
             personId: zodNanoId8,
         }))
@@ -258,9 +183,77 @@ export const activeTeamMembersRouter = createTRPCRouter({
                 })
             ])
 
-            return { ...deleted, person: { personId: membership.person.id, ...membership.person } }
+            return { ...toTeamMembershipData(deleted), person: toPersonData(membership.person) }
         }),
 
+    /**
+     * Fetch a specific team membership by person ID for the active team.
+     * @param ctx The authenticated context.
+     * @param input.personId The ID of the person to fetch the membership for.
+     * @returns The team membership with person details.
+     * @throws TRPCError(NOT_FOUND) if the membership doesn't exist.
+     */
+    getTeamMember: teamProcedure
+        .input(z.object({
+            personId: zodNanoId8,
+        }))
+        .output(teamMembershipSchema.extend({
+            person: personSchema,
+            team: teamSchema
+        }))
+        .query(async ({ ctx, input }) => {
+            
+            const team = await ctx.prisma.team.findUnique({
+                where: { clerkOrgId: ctx.orgId },
+                include: {
+                    teamMemberships: {
+                        where: { personId: input.personId },
+                        include: { person: true, team: true }
+                    }
+                }
+            })
+            if(!team) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: `No team found for active Organization(${ctx.orgId})` })
+            if(team.teamMemberships.length === 0) throw new TRPCError({ code: 'NOT_FOUND', message: `No membership found for Person(${input.personId}) in Team(${team.id})` })
+
+            const membership = team.teamMemberships[0]
+            return { 
+                ...toTeamMembershipData(membership), 
+                person: toPersonData(membership.person),
+                team: toTeamData(membership.team)
+            }
+        }),
+
+    /**
+     * Fetch all team members for the active team.
+     * @param ctx The authenticated context.
+     * @param input.status Optional filter for membership status.
+     * @returns An array of team memberships with person details.
+     */
+    getTeamMembers: teamProcedure
+        .input(z.object({
+            status: zodRecordStatus
+        }))
+        .output(z.array(teamMembershipSchema.extend({
+            person: personSchema,
+        })))
+        .query(async ({ ctx, input }) => {
+            
+            const team = await ctx.prisma.team.findUnique({
+                where: { clerkOrgId: ctx.orgId },
+                include: {
+                    teamMemberships: {
+                        where: { status: { in: input.status } },
+                        include: { person: true }
+                    }
+                }
+            })
+            if(!team) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: `No team found for active Organization(${ctx.orgId})` })
+
+            return team.teamMemberships.map(m => ({
+                ...m,
+                person: { personId: m.person.id, ...m.person }
+            }))
+        }),
 
     /**
      * Update an existing team membership for the active team.
@@ -280,7 +273,7 @@ export const activeTeamMembersRouter = createTRPCRouter({
      * @throws TRPCError(FORBIDDEN) if the person is not owned by the team and the name or email is being changed.
      * @throws TRPCError(CONFLICT) If the email is being changed and a person with the same email already exists.
      */
-    update: teamAdminProcedure
+    updateTeamMembership: teamAdminProcedure
         .input(teamMembershipSchema.omit({ teamId: true }).merge(personSchema.pick({ name: true, email: true })))
         .output(teamMembershipSchema.extend({
             person: personSchema,
@@ -321,9 +314,9 @@ export const activeTeamMembersRouter = createTRPCRouter({
                     })
                 ])
 
-                return { ...updatedMembership, person: { personId: person.id, ...person } }
+                return { ...toTeamMembershipData(updatedMembership), person: toPersonData(person) }
             }
 
-            return { ...existingMembership, person: { personId: person.id, ...person } }
+            return { ...toTeamMembershipData(existingMembership), person: toPersonData(person) }
         })
 })

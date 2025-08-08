@@ -23,7 +23,7 @@ export const skillSchema = z.object({
 
 export type SkillData = z.infer<typeof skillSchema>
 
-export function createSkillData(data: SkillRecord): SkillData {
+export function toSkillData(data: SkillRecord): SkillData {
     return {
         skillId: data.id,
         skillGroupId: data.skillGroupId,

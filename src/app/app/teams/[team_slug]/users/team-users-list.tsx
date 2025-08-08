@@ -36,14 +36,14 @@ export function ActiveTeam_Users_ListCard() {
     const { toast} = useToast()
     const trpc = useTRPC()
 
-    const { data: team } = useSuspenseQuery(trpc.activeTeam.get.queryOptions())
-    const { data: users } = useSuspenseQuery(trpc.activeTeam.users.all.queryOptions())
+    const { data: team } = useSuspenseQuery(trpc.activeTeam.getTeam.queryOptions())
+    const { data: users } = useSuspenseQuery(trpc.activeTeam.users.getUsers.queryOptions())
 
     async function handleRefresh() {
-        await queryClient.invalidateQueries(trpc.activeTeam.users.all.queryFilter())
+        await queryClient.invalidateQueries(trpc.activeTeam.users.getUsers.queryFilter())
     }
 
-    const updateMutation = useMutation(trpc.activeTeam.users.update.mutationOptions({
+    const updateMutation = useMutation(trpc.activeTeam.users.updateUser.mutationOptions({
         onError(error) {
             toast({
                 title: "Error updating user",
@@ -58,11 +58,11 @@ export function ActiveTeam_Users_ListCard() {
             })
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.activeTeam.users.all.queryFilter())
+            queryClient.invalidateQueries(trpc.activeTeam.users.getUsers.queryFilter())
         }
     }))
 
-    const deleteMutation = useMutation(trpc.activeTeam.users.delete.mutationOptions({
+    const deleteMutation = useMutation(trpc.activeTeam.users.deleteUser.mutationOptions({
         onError(error) {
             toast({
                 title: "Error deleting user",
@@ -77,7 +77,7 @@ export function ActiveTeam_Users_ListCard() {
             })
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.activeTeam.users.all.queryFilter())
+            queryClient.invalidateQueries(trpc.activeTeam.users.getUsers.queryFilter())
         }
     }))
 

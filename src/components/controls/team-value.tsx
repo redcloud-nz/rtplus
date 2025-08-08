@@ -15,7 +15,7 @@ import { useTRPC } from '@/trpc/client'
 export function TeamValue({ teamId, ...props }: Omit<ComponentProps<typeof DisplayValue>, 'children' |'loading'> &  { teamId: string }) {
     const trpc = useTRPC()
 
-    const query = useQuery(trpc.teams.byId.queryOptions({ teamId }))
+    const query = useQuery(trpc.teams.getTeam.queryOptions({ teamId }))
 
     return <DisplayValue 
         loading={query.isLoading}

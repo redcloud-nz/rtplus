@@ -44,7 +44,7 @@ function RevokeInvitationForm({ orgInvitation, onClose }: { orgInvitation: TeamI
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const queryKey = trpc.activeTeam.invitations.all.queryKey()
+    const queryKey = trpc.activeTeam.users.getInvitations.queryKey()
 
     const form = useForm({
         resolver: zodResolver(z.object({ invitationId: z.string() })),
@@ -56,9 +56,9 @@ function RevokeInvitationForm({ orgInvitation, onClose }: { orgInvitation: TeamI
         form.reset()
     }
 
-    const mutation = useMutation(trpc.activeTeam.invitations.revoke.mutationOptions({
+    const mutation = useMutation(trpc.activeTeam.users.revokeInvitation.mutationOptions({
         async onMutate({ invitationId }) {
-            await queryClient.cancelQueries(trpc.activeTeam.invitations.all.queryFilter())
+            await queryClient.cancelQueries(trpc.activeTeam.users.getInvitations.queryFilter())
 
             const previousData = queryClient.getQueryData(queryKey)
             if(previousData) {
@@ -84,7 +84,7 @@ function RevokeInvitationForm({ orgInvitation, onClose }: { orgInvitation: TeamI
             handleClose()
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.activeTeam.invitations.all.queryFilter())
+            queryClient.invalidateQueries(trpc.activeTeam.users.getInvitations.queryFilter())
         }
     }))
 

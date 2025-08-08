@@ -29,7 +29,7 @@ export default async function TeamInvitationsPage(props: { params: Promise<{ tea
 
     await auth.protect({ role: 'org:admin' })
 
-    prefetch(trpc.activeTeam.invitations.all.queryOptions({}))
+    prefetch(trpc.activeTeam.users.getInvitations.queryOptions({}))
 
     return <AppPage>
         <AppPageBreadcrumbs

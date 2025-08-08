@@ -57,7 +57,7 @@ export function PersonnelListCard() {
 
     const trpc = useTRPC()
 
-    const { data: personnel } = useSuspenseQuery(trpc.personnel.all.queryOptions({}))
+    const { data: personnel } = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({}))
 
     const table = useReactTable({
         columns,

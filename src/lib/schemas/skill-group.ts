@@ -5,6 +5,8 @@
 
 import { z } from 'zod'
 
+import { SkillGroup as SkillGroupRecord } from '@prisma/client'
+
 import { zodNanoId8 } from '../validation'
 
 export const skillGroupSchema = z.object({
@@ -18,3 +20,15 @@ export const skillGroupSchema = z.object({
 })
 
 export type SkillGroupData = z.infer<typeof skillGroupSchema>
+
+export function toSkillGroupData(data: SkillGroupRecord): SkillGroupData {
+    return {
+        skillGroupId: data.id,
+        skillPackageId: data.skillPackageId,
+        parentId: data.parentId,
+        name: data.name,
+        description: data.description,
+        status: data.status,
+        sequence: data.sequence
+    }
+}

@@ -31,7 +31,7 @@ export default async function TeamUsersPage(props: { params: Promise<{  team_slu
     const team = await fetchTeamBySlug(props.params)
     await auth.protect({ role: 'org:admin' })
 
-    prefetch(trpc.activeTeam.users.all.queryOptions())
+    prefetch(trpc.activeTeam.users.getUsers.queryOptions())
 
     return <AppPage>
         <AppPageBreadcrumbs

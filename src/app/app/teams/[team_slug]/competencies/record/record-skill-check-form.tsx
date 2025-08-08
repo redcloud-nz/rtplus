@@ -8,21 +8,23 @@
 import * as React from 'react'
 import * as R from 'remeda'
 
-import { Skill, SkillGroup } from '@prisma/client'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
-import { Show } from '@/components/show'
 
 import { Button } from '@/components/ui/button'
 import { FieldControl, FieldDescription, FieldLabel, FieldMessage, Form, FormField, FormFooter, FormMessage, FormSubmitButton } from '@/components/ui/action-form'
 import { Link } from '@/components/ui/link'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 
+import { SkillData } from '@/lib/schemas/skill'
+import { SkillPackageData } from '@/lib/schemas/skill-package'
+import { SkillGroupData } from '@/lib/schemas/skill-group'
 import { CompetenceLevelTerms } from '@/lib/terms'
 
-import { SkillPackageDataWithGroupsAndSkills, useTRPC} from '@/trpc/client'
-import { useQuery } from '@tanstack/react-query'
+import { useTRPC } from '@/trpc/client'
+
+
 
 
 interface RecordSkillCheckPageProps {
@@ -33,26 +35,28 @@ interface RecordSkillCheckPageProps {
 export function RecordSkillCheckForm({ cancelHref }: RecordSkillCheckPageProps) {
     const trpc = useTRPC()
     
-    const skillPackagesQuery = useQuery(trpc.skillPackages.current.queryOptions())
-    const teamMembersQuery = useQuery(trpc.teamMemberships.byTeam.queryOptions({ teamId: "current" }))
+    const { data: skillPackages } = useSuspenseQuery(trpc.skills.getTree.queryOptions())
+    const { data: teamMembers } = useSuspenseQuery(trpc.activeTeam.members.getTeamMembers.queryOptions({ status: ['Active'] }))
 
-    function renderSkillPackageSelectItems(skillPackage: SkillPackageDataWithGroupsAndSkills) {
-        return <React.Fragment key={skillPackage.id}>
-            {skillPackage.skillGroups
-                .filter(skillGroup => skillGroup.parentId == null)
-                .map(skillGroup =>
+    function renderSkillPackageSelectItems(skillPackage: SkillPackageData & { skillGroups: SkillGroupData[], skills: SkillData[] }) {
+        if (skillPackage.skillGroups.length) {
+            return <React.Fragment key={skillPackage.skillPackageId}>
+                {skillPackage.skillGroups
+                    .filter(skillGroup => skillGroup.parentId == null)
+                    .map(skillGroup =>
                     renderSkillGroupSelectItems(skillPackage.name, skillGroup, skillPackage.skills)
-            )}
-        </React.Fragment>
+                )}
+            </React.Fragment>
+        }
     }
 
-    function renderSkillGroupSelectItems(parent: string, skillGroup: SkillGroup, skills: Skill[]) {
-        return <SelectGroup key={skillGroup.id}>
+    function renderSkillGroupSelectItems(parent: string, skillGroup: SkillGroupData, skills: SkillData[]) {
+        return <SelectGroup key={skillGroup.skillGroupId}>
             <SelectLabel>{`${parent} / ${skillGroup.name}`}</SelectLabel>
             {skills
-                .filter(skill => skill.skillGroupId == skillGroup.id)
+                .filter(skill => skill.skillGroupId == skillGroup.skillGroupId)
                 .map(skill => 
-                    <SelectItem key={skill.id} value={skill.id}>{skill.name}</SelectItem>
+                    <SelectItem key={skill.skillId} value={skill.skillId}>{skill.name}</SelectItem>
                 )
             }
         </SelectGroup>
@@ -62,20 +66,15 @@ export function RecordSkillCheckForm({ cancelHref }: RecordSkillCheckPageProps) 
         <FormField name="skillId">
             <FieldLabel>Skill</FieldLabel>
             <FieldControl>
-                <Show
-                    when={skillPackagesQuery.isSuccess}
-                    fallback={<Skeleton className="h-10 w-full" variant="text">Finding Skills</Skeleton>}
-                >
-                    <Select name="skillId">
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select a skill ..."/>
-                        </SelectTrigger>
-                        <SelectContent>
-                            
-                            {skillPackagesQuery.data?.map(renderSkillPackageSelectItems)}
-                        </SelectContent>
-                    </Select>
-                </Show>
+                <Select name="skillId">
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select a skill ..."/>
+                    </SelectTrigger>
+                    <SelectContent>
+                        
+                        {skillPackages.map(renderSkillPackageSelectItems)}
+                    </SelectContent>
+                </Select>
             </FieldControl>
             <FieldDescription>The skill to assess.</FieldDescription>
             <FieldMessage/>
@@ -83,24 +82,19 @@ export function RecordSkillCheckForm({ cancelHref }: RecordSkillCheckPageProps) 
         <FormField name="assesseeId">
             <FieldLabel>Person</FieldLabel>
             <FieldControl>
-                <Show
-                    when={skillPackagesQuery.isSuccess}
-                    fallback={<Skeleton className="h-10 w-full" variant="text">Finding Personnel</Skeleton>}
-                >
-                    <Select name="assesseeId">
+                <Select name="assesseeId">
                         <SelectTrigger>
                             <SelectValue placeholder="Select a person ..."/>
                         </SelectTrigger>
                         <SelectContent>
-                            {teamMembersQuery.data?.map(membership =>
+                            {teamMembers.map(membership =>
                                 <SelectItem 
                                     key={membership.personId} 
-                                    value={membership.person.id}
+                                    value={membership.personId}
                                 >{membership.person.name}</SelectItem>
                         )}
                         </SelectContent>
                     </Select>
-                </Show>
             </FieldControl>
             <FieldDescription>The person to assess.</FieldDescription>
             <FieldMessage/>

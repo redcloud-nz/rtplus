@@ -28,7 +28,7 @@ import { useTRPC } from '@/trpc/client'
 export function SkillGroupSkillsListCard({ skillGroupId, skillPackageId }: { skillGroupId: string, skillPackageId: string }) {
     const trpc = useTRPC()
 
-    const { data: skills } = useSuspenseQuery(trpc.skills.bySkillGroupId.queryOptions({ skillGroupId }))
+    const { data: skills } = useSuspenseQuery(trpc.skills.getSkills.queryOptions({ skillGroupId }))
 
     const columns = useMemo(() => defineColumns<SkillData>(columnHelper => [
         columnHelper.accessor('skillId', {

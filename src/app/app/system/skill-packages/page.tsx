@@ -22,7 +22,7 @@ export const metadata = { title: "Skill Packages" }
 
 export default async function SkillPackageListPage() {
 
-    prefetch(trpc.skillPackages.all.queryOptions({ status: ['Active', 'Inactive'] }))
+    prefetch(trpc.skills.getPackages.queryOptions({ status: ['Active', 'Inactive'] }))
 
     return <AppPage>
         <AppPageBreadcrumbs 

@@ -31,7 +31,7 @@ export type UserData2 = z.infer<typeof userSchema2>
 export type UserRole = 'org:admin' | 'org:member'
 
 
-export function createUserData(user: ClerkUser, membership: ClerkOrganizationMembership): UserData2 {
+export function toUserData(user: ClerkUser, membership: ClerkOrganizationMembership): UserData2 {
     return {
         personId: user.publicMetadata.person_id,
         name: user.fullName || "",

@@ -26,7 +26,7 @@ export const skillCheckSessionSchema = z.object({
 export type SkillCheckSessionData = z.infer<typeof skillCheckSessionSchema>
 
 
-export function createSkillCheckSessionData(data: SkillCheckSessionRecord & Pick<SkillCheckSessionData, '_count'>): SkillCheckSessionData {
+export function toSkillCheckSessionData(data: SkillCheckSessionRecord & Pick<SkillCheckSessionData, '_count'>): SkillCheckSessionData {
     return {
         sessionId: data.id,
         name: data.name,

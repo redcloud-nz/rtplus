@@ -99,7 +99,7 @@ function ReviewPackageStep() {
 
     const trpc = useTRPC()
 
-    const mutation = useMutation(trpc.skillPackages.import.mutationOptions())
+    const mutation = useMutation(trpc.skills.importPackage.mutationOptions())
     
     async function handleImport() {
         await importPackage(() => mutation.mutateAsync({ skillPackageId: packageToImport!.id }))

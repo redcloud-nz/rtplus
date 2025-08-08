@@ -8,14 +8,14 @@ import { z } from 'zod'
 import { UTCDate } from '@date-fns/utc'
 import { TRPCError } from '@trpc/server'
 
-import { createSkillCheckSessionData, skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
+import { toSkillCheckSessionData, skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
 
 import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter } from '../init'
 import { zodNanoId16, zodNanoId8 } from '@/lib/validation'
-import { createPersonData, personSchema } from '@/lib/schemas/person'
+import { toPersonData, personSchema } from '@/lib/schemas/person'
 import { nanoId16 } from '@/lib/id'
-import { createSkillData, skillSchema } from '@/lib/schemas/skill'
-import { createSkillCheckData, skillCheckSchema } from '@/lib/schemas/skill-check'
+import { toSkillData, skillSchema } from '@/lib/schemas/skill'
+import { toSkillCheckData, skillCheckSchema } from '@/lib/schemas/skill-check'
 
 
 
@@ -65,7 +65,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                 }
             })
 
-            return createSkillCheckSessionData(updated)
+            return toSkillCheckSessionData(updated)
     }),
 
     /**
@@ -112,7 +112,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                 }
             })
 
-            return createSkillCheckSessionData(updated)
+            return toSkillCheckSessionData(updated)
     }),
 
     /**
@@ -159,7 +159,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                 }
             })
 
-            return createSkillCheckSessionData(updated)
+            return toSkillCheckSessionData(updated)
     }),
 
 
@@ -221,7 +221,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                     }
                 }
             })
-            return createSkillCheckData(created)
+            return toSkillCheckData(created)
         }),
 
     /**
@@ -281,7 +281,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                     }
                 }
             })
-            return createSkillCheckData(existing)
+            return toSkillCheckData(existing)
         }),
 
     /**
@@ -306,7 +306,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                 }
             })
 
-            return (session?.assessees ?? []).map(createPersonData)
+            return (session?.assessees ?? []).map(toPersonData)
         }),
 
     /**
@@ -331,7 +331,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                 }
             })
 
-            return (session?.assessors ?? []).map(createPersonData)
+            return (session?.assessors ?? []).map(toPersonData)
         }),
         
     /**
@@ -355,7 +355,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                 }
             })
 
-            return (session?.checks ?? []).map(createSkillCheckData)
+            return (session?.checks ?? []).map(toSkillCheckData)
         }),
 
     /**
@@ -384,7 +384,34 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                 }
             })
 
-            return sessions.map(createSkillCheckSessionData)
+            return sessions.map(toSkillCheckSessionData)
+        }),
+
+    getSession: authenticatedProcedure
+        .input(z.object({
+            sessionId: zodNanoId8
+        }))
+        .output(skillCheckSessionSchema)
+        .query(async ({ ctx, input }) => {
+            await checkAccessToSession(ctx, input.sessionId)
+
+            const session = await ctx.prisma.skillCheckSession.findUnique({
+                where: { id: input.sessionId },
+                include: {
+                    _count: {
+                        select: {
+                            skills: true,
+                            assessees: true,
+                            assessors: true,
+                            checks: true
+                        }
+                    }
+                }
+            })
+
+            if (!session) throw new TRPCError({ code: 'NOT_FOUND', message: `Skill check session with ID '${input.sessionId}' not found` })
+
+            return toSkillCheckSessionData(session)
         }),
 
     /**
@@ -408,7 +435,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                 }
             })
 
-            return (session?.skills ?? []).map(createSkillData)
+            return (session?.skills ?? []).map(toSkillData)
         }),
 
 
@@ -455,7 +482,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                 }
             })
 
-            return createSkillCheckSessionData(updated)
+            return toSkillCheckSessionData(updated)
         }),
 
     /**
@@ -501,7 +528,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                 }
             })
 
-            return createSkillCheckSessionData(updated)
+            return toSkillCheckSessionData(updated)
         }),
 
     /**
@@ -547,7 +574,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                 }
             })
 
-            return createSkillCheckSessionData(updated)
+            return toSkillCheckSessionData(updated)
         }),
 
     /**
@@ -607,7 +634,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                     }
                 }
             })
-            return createSkillCheckData(updated)
+            return toSkillCheckData(updated)
         })
 
 })
