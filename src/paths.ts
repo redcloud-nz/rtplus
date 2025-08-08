@@ -134,6 +134,14 @@ export const team = (teamOrSlug: TeamData | string) => {
         competencies: {
             _label: 'Competencies',
             index: competenciesBase,
+            checks: {
+                _label: 'Checks',
+                index: `${competenciesBase}/checks`,
+                create: {
+                    _label: 'Record Check',
+                    index: `${competenciesBase}/checks/--create`
+                },
+            },
             session: (sessionId: string) => ({
                 index: `${competenciesBase}/sessions/${sessionId}`
             } as const),

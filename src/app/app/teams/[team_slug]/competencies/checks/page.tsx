@@ -1,8 +1,8 @@
 /*
- *  Copyright (c) 2024 Redcloud Development, Ltd.
+ *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /app/teams/[team_slug]/members
+ *  Path: /app/teams/[team_slug]/checks
  */
 
 import { Metadata } from 'next'
@@ -13,37 +13,38 @@ import * as Paths from '@/paths'
 import { fetchTeamBySlug } from '@/server/fetch'
 import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
-import { ActiveTeam_MembersList_Card } from './team-members-list'
+import { ActiveTeam_SkillChecksList_Card } from './skill-checks-list'
 
 
 export async function generateMetadata(props: { params: Promise<{ team_slug: string }> }): Promise<Metadata> {
     const team = await fetchTeamBySlug(props.params)
-    return { title: `Members - ${team.shortName || team.name}` }
+    return { title: `Skill Checks - ${team.shortName || team.name}` }
 }
 
-export default async function ActiveTeam_Members_Page(props: { params: Promise<{ team_slug: string }> }) {
+export default async function ActiveTeam_SkillChecks_Page(props: { params: Promise<{ team_slug: string }> }) {
     const team = await fetchTeamBySlug(props.params)
 
-    prefetch(trpc.activeTeam.members.getTeamMembers.queryOptions({}))
+    prefetch(trpc.activeTeam.skillChecks.getSkillChecks.queryOptions({ }))
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.team(team),
-                Paths.team(team).members
+                Paths.team(team).competencies,
+                "Skill Checks"
             ]}
         />
         <HydrateClient>
             <AppPageContent variant="container">
                 <PageHeader>
-                    <PageTitle>Team Members</PageTitle>
+                    <PageTitle>Skill Checks</PageTitle>
                 </PageHeader>
 
                 <Boundary>
-                    <ActiveTeam_MembersList_Card/>
+                    <ActiveTeam_SkillChecksList_Card />
                 </Boundary>
             </AppPageContent>
         </HydrateClient>
-            
+        
     </AppPage>
 }

@@ -9,7 +9,7 @@ import { PlusIcon } from 'lucide-react'
 import { useMemo } from 'react'
 
 import { Protect } from '@clerk/nextjs'
-import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
 import { Button, RefreshButton } from '@/components/ui/button'
@@ -94,10 +94,10 @@ export function ActiveTeam_MembersList_Card() {
         columns,
         data: membersQuery.data,
         getCoreRowModel: getCoreRowModel(),
-        getSortedRowModel: getSortedRowModel(),
+        getExpandedRowModel: getExpandedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getGroupedRowModel: getGroupedRowModel(),
-        getExpandedRowModel: getExpandedRowModel(),
+        getSortedRowModel: getSortedRowModel(),
         initialState: {
             columnVisibility: {
                 personId: false, name: true, email: true, tags: false, status: true,

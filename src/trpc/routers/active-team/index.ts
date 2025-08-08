@@ -10,9 +10,9 @@ import { createTRPCRouter, teamAdminProcedure, teamProcedure } from '@/trpc/init
 import { getActiveTeam, updateTeam } from '../teams'
 
 import { activeTeamMembersRouter } from './active-team-members'
-import { activeTeamSkillChecksRouter } from './active-team-skill-check-sessions'
+import { activeTeamSkillChecksRouter } from './active-team-skill-checks'
+import { activeTeamSkillCheckSessionsRouter } from './active-team-skill-check-sessions'
 import { activeTeamUsersRouter } from './active-team-users'
-
 
 
 export const activeTeamRouter = createTRPCRouter({
@@ -21,6 +21,7 @@ export const activeTeamRouter = createTRPCRouter({
 
     members: activeTeamMembersRouter,
     skillChecks: activeTeamSkillChecksRouter,
+    skillCheckSessions: activeTeamSkillCheckSessionsRouter,
     users: activeTeamUsersRouter,
 
     /**

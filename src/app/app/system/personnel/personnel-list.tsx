@@ -82,7 +82,7 @@ export function PersonnelListCard() {
             ],
             pagination: {
                 pageIndex: 0,
-                pageSize: 20
+                pageSize: 50
             },
         }
     })
@@ -104,14 +104,15 @@ export function PersonnelListCard() {
                             Create new person
                         </TooltipContent>
                     </Tooltip>
+
+                    <TableOptionsDropdown/>
+                    <Separator orientation="vertical"/>
                     
                     <CardExplanation>
                         Personnel are the people who can be assigned to teams and competencies. 
                         They can be active or inactive, and you can filter the list by status.
                     </CardExplanation>
-                    <Separator orientation="vertical"/>
-
-                    <TableOptionsDropdown/>
+                    
                 </CardActions>
                 
             </CardHeader>

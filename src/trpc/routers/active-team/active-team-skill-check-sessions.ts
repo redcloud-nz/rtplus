@@ -6,7 +6,6 @@
 import { pickBy } from 'remeda'
 import { z } from 'zod'
 
-import { UTCDate } from '@date-fns/utc'
 import { TRPCError } from '@trpc/server'
 
 import { SkillCheckSession as SkillCheckSessionRecord } from '@prisma/client'
@@ -15,46 +14,10 @@ import { nanoId16 } from '@/lib/id'
 import { toSkillCheckSessionData, skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
 import { zodNanoId8 } from '@/lib/validation'
 import { AuthenticatedTeamContext, createTRPCRouter, teamAdminProcedure, teamProcedure } from '@/trpc/init'
-import { toSkillCheckData, skillCheckSchema } from '@/lib/schemas/skill-check'
 
 
 
-
-
-
-export const activeTeamSkillChecksRouter = createTRPCRouter({
-
-    /**
-     * Create a new skill check independently of a session.
-     * This is typically used by team admins to record skill checks without an active session.
-     * @param ctx The authenticated context.
-     * @param input The skill check data to create.
-     * @returns The created skill check data.
-     * @throws TRPCError(FORBIDDEN) if the user is not a team admin and no session is provided.
-     */
-    createIndependentSkillCheck: teamAdminProcedure
-        .input(skillCheckSchema.omit({ assessorId: true, sessionId: true, timestamp: true }))
-        .output(skillCheckSchema)
-        .mutation(async ({ ctx, input }) => {
-
-            const timestamp = new UTCDate()
-            const assessorId = ctx.personId
-
-            const created = await ctx.prisma.skillCheck.create({
-                data: {
-                    id: input.skillCheckId,
-                    result: input.result,
-                    notes: input.notes,
-                    timestamp,
-                    
-                    skill: { connect: { id: input.skillId } },
-                    assessee: { connect: { id: input.assesseeId } },
-                    assessor: { connect: { id: assessorId } },
-                }
-            })
-
-            return toSkillCheckData(created)
-        }),
+export const activeTeamSkillCheckSessionsRouter = createTRPCRouter({
 
     /**
      * Create a new skill check session in the active team.

@@ -10,7 +10,7 @@ import { PersonData } from '@/lib/schemas/person'
 import { SkillData } from '@/lib/schemas/skill'
 import { SkillGroupData } from '@/lib/schemas/skill-group'
 import { SkillPackageData } from '@/lib/schemas/skill-package'
-import { TeamData } from '@/lib/schemas/team'
+import { TeamData, toTeamData } from '@/lib/schemas/team'
 import { TeamMembershipData } from '@/lib/schemas/team-membership'
 import { getQueryClient, trpc } from '@/trpc/server'
 import { TRPCError } from '@trpc/server'
@@ -140,22 +140,23 @@ export async function fetchTeam(params: Promise<{ team_id: string }>): Promise<T
  */
 export async function fetchTeamBySlug(params: Promise<{ team_slug: string }>): Promise<TeamData> {
     const { team_slug: teamSlug } = await params
+    
 
-    const queryClient = getQueryClient()
-    const key = trpc.teams.getTeam.queryKey({ teamSlug })
+    // const queryClient = getQueryClient()
+    // const key = trpc.teams.getTeam.queryKey({ teamSlug })
 
-    const cachedTeam = queryClient.getQueryData(key)
-    if (cachedTeam) return cachedTeam
+    // const cachedTeam = queryClient.getQueryData(key)
+    // if (cachedTeam) return cachedTeam
 
     const teamRecord = await prisma.team.findUnique({ where: { slug: teamSlug } })
     if(!teamRecord) notFound()
 
     // Ensure the team data is in the expected format
-    const team = { ...teamRecord, teamId: teamRecord.id }
+    const team = toTeamData(teamRecord)
 
-    queryClient.setQueryData(key, team)
+    // queryClient.setQueryData(key, team)
 
-    return team    
+    return team
 }
 
 export async function fetchTeamMember(params: Promise<{ team_slug: string, person_id: string }>): Promise<TeamMembershipData & { person: PersonData, team: TeamData }> {

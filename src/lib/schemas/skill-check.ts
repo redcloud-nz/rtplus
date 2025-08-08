@@ -3,7 +3,6 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import { formatISO } from 'date-fns'
 import { z } from 'zod'
 
 import { SkillCheck as SkillCheckRecord } from '@prisma/client'
@@ -32,6 +31,32 @@ export function toSkillCheckData(data: SkillCheckRecord): SkillCheckData {
         assessorId: data.assessorId,
         result: data.result,
         notes: data.notes,
-        timestamp: formatISO(data.timestamp),
+        timestamp: data.timestamp.toISOString(),
     }
+}
+
+export const skillCheckDetailSchema = skillCheckSchema.extend({
+    skillName: z.string().max(100),
+    assesseeName: z.string().max(100),
+    assessorName: z.string().max(100),
+})
+
+export type SkillCheckDetailData = z.infer<typeof skillCheckDetailSchema>
+
+type CompetenceLevel = 'NotAssessed' | 'NotTaught' | 'NotCompetent' | 'Competent' | 'HighlyConfident'
+
+export const CompetenceLevelTerms: Record<CompetenceLevel, string> = {
+    'NotAssessed': 'Not Assessed',
+    'NotTaught': 'Not Taught',
+    'NotCompetent': 'Not Competent',
+    'Competent': 'Competent',
+    'HighlyConfident': 'Highly Confident',
+}
+
+export const CompetenceLevelDescriptions: Record<CompetenceLevel, string> = {
+    'NotAssessed': 'This skill has not yet been assessed.',
+    'NotTaught': 'Training not complete for skill.',
+    'NotCompetent': 'Unable to complete or required assistance.',
+    'Competent': 'Able to complete unassisted.',
+    'HighlyConfident': 'Able to complete unassisted and teach others.',
 }

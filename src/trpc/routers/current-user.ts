@@ -3,12 +3,12 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import { Person } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
 // import { RTPlusLogger } from '@/lib/logger'
 
 import { authenticatedProcedure, createTRPCRouter } from '../init'
+import { PersonData, toPersonData } from '@/lib/schemas/person'
 
 // const logger = new RTPlusLogger('trpc/current-user')
 
@@ -16,17 +16,17 @@ export const currentUserRouter = createTRPCRouter({
     
 
     /**
-     * Get the current user's person record
+     * Get the current user's person data.
      */
-    person: authenticatedProcedure
-        .query(async ({ ctx }): Promise<Person> => {
+    getPerson: authenticatedProcedure
+        .query(async ({ ctx }): Promise<PersonData> => {
             const person = await ctx.prisma.person.findUnique({ 
                 where: { id: ctx.personId },
                 
             })
-            if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: 'Person not found' })
+            if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person with ID ${ctx.personId} not found.` })
 
-            return person
+            return toPersonData(person)
         }),
 
 })

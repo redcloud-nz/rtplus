@@ -23,3 +23,14 @@ export function PersonValue({ personId, ...props }: Omit<ComponentProps<typeof D
         {...props}
     >{query.data?.name ?? ""}</DisplayValue>
 }
+
+export function CurrentPersonValue(props: Omit<ComponentProps<typeof DisplayValue>, 'children' | 'loading'>) {
+    const trpc = useTRPC()
+
+    const query = useQuery(trpc.currentUser.getPerson.queryOptions())
+
+    return <DisplayValue 
+        loading={query.isLoading}
+        {...props}
+    >{query.data?.name ?? ""}</DisplayValue>
+}
