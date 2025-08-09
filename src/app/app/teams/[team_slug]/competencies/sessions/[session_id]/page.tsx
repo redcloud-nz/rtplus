@@ -9,6 +9,8 @@ import { notFound } from 'next/navigation'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
+import { SkillCheckSession_AssesseesList_Card } from '@/components/cards/skill-check-session-assessees-list'
+import { SkillCheckSession_AssessorsList_Card } from '@/components/cards/skill-check-session-assessors-list'
 import { SkillCheckSession_SkillsList_Card } from '@/components/cards/skill-check-session-skills-list'
 
 import * as Paths from '@/paths'
@@ -16,6 +18,7 @@ import { fetchSkillCheckSession } from '@/server/fetch'
 import { HydrateClient } from '@/trpc/server'
 
 import { ActiveTeam_SessionDetails_Card } from './active-team-session-details'
+
 
 
 
@@ -58,6 +61,12 @@ export default async function ActiveTeam_SkillCheckSession_Page(props: { params:
                 </Boundary>
                 <Boundary>
                     <SkillCheckSession_SkillsList_Card sessionId={session.sessionId} />
+                </Boundary>
+                <Boundary>
+                    <SkillCheckSession_AssesseesList_Card sessionId={session.sessionId} />
+                </Boundary>
+                <Boundary>
+                    <SkillCheckSession_AssessorsList_Card sessionId={session.sessionId} />
                 </Boundary>
             </AppPageContent>
         </HydrateClient>

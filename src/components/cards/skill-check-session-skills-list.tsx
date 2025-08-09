@@ -28,6 +28,10 @@ import { useTRPC } from '@/trpc/client'
 
 type RowData = { skillId: string, skill: SkillData }
 
+/**
+ * Card component to display and manage skills in a skill check session.
+ * Allows adding and removing skills.
+ */
 export function SkillCheckSession_SkillsList_Card({ sessionId }: { sessionId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
@@ -129,7 +133,7 @@ export function SkillCheckSession_SkillsList_Card({ sessionId }: { sessionId: st
                     return <SkillPicker
                         size='sm'
                         className="-m-2"
-                        value={ctx.row.getModifiedRowData().skillId}
+                        value={ctx.row.getModifiedRowData().skill.skillId}
                         onValueChange={skill => ctx.row.setModifiedRowData({ skill })}
                         placeholder='Select skill'
                         exclude={existingSkillIds}

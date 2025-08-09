@@ -4,7 +4,258 @@
  */
 'use client'
 
+import { PlusIcon, SaveIcon, XIcon } from 'lucide-react'
+import { DataTableBody, DataTableFooter, DataTableHead, DataTableProvider, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
+import { useMemo } from 'react'
+import { match } from 'ts-pattern'
+
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
+
+import { PersonPicker } from '@/components/controls/person-picker'
+import { Button, DeleteConfirmButton, RefreshButton } from '@/components/ui/button'
+import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import { Table } from '@/components/ui/table'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+
+import { useToast } from '@/hooks/use-toast'
+import { EditableFeature } from '@/lib/editable-feature'
+import { PersonData } from '@/lib/schemas/person'
+import { useTRPC } from '@/trpc/client'
+
+
+
+type RowData = { assesseeId: string, assessee: PersonData }
+
+/**
+ * Card component to display and manage assessees in a skill check session.
+ * Allows adding and removing assessees.
+ */
 export function SkillCheckSession_AssesseesList_Card({ sessionId }: { sessionId: string }) {
-    
-    return <>{/* TODO Implement with editable list of session assessees */}</>
+    const queryClient = useQueryClient()
+    const { toast } = useToast()
+    const trpc = useTRPC()
+
+    const personnelQuery = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({}))
+    const assignedAssesseesQuery = useSuspenseQuery(trpc.skillCheckSessions.getAssessees.queryOptions({ sessionId }))
+
+    async function handleRefresh() {
+        assignedAssesseesQuery.refetch()
+    }
+
+    const availablePersonnel = useMemo(() => personnelQuery.data.filter(person => person.status === 'Active'), [personnelQuery.data])
+
+    const rowData = useMemo(() => assignedAssesseesQuery.data.map(assessee => ({
+        assesseeId: assessee.personId,
+        assessee
+    })), [assignedAssesseesQuery.data])
+
+    const addAssesseeMutation = useMutation(trpc.skillCheckSessions.addAssessee.mutationOptions({
+        async onMutate(data) {
+            await queryClient.cancelQueries(trpc.skillCheckSessions.getAssessees.queryFilter({ sessionId }))
+
+            const assessee = availablePersonnel.find(p => p.personId === data.assesseeId)
+            if (!assessee) throw new Error(`Assessee with ID ${data.assesseeId} not found in available personnel`)
+
+            const previousData = queryClient.getQueryData<PersonData[]>(trpc.skillCheckSessions.getAssessees.queryKey({ sessionId }))
+            queryClient.setQueryData(trpc.skillCheckSessions.getAssessees.queryKey({ sessionId }), (prev = []) => [...prev, assessee])
+
+            return { previousData }
+        },
+        onError(error, data, context) {
+            queryClient.setQueryData(trpc.skillCheckSessions.getAssessees.queryKey({ sessionId }), context?.previousData)
+
+            toast({
+                title: "Error adding assessee to session",
+                description: error.message,
+                variant: 'destructive',
+            })
+        },
+        onSuccess(result) {
+            toast({
+                title: "Assessee added to session",
+                description: `Assessee '${result.assessee.name}' has been successfully added to the session.`,
+            })
+            queryClient.invalidateQueries(trpc.skillCheckSessions.getSession.queryFilter({ sessionId }))
+        },
+        onSettled() {
+            queryClient.invalidateQueries(trpc.skillCheckSessions.getAssessees.queryFilter({ sessionId }))
+        }
+    }))
+
+    const removeAssesseeMutation = useMutation(trpc.skillCheckSessions.removeAssessee.mutationOptions({
+        async onMutate(data) {
+            await queryClient.cancelQueries(trpc.skillCheckSessions.getAssessees.queryFilter({ sessionId }))
+
+            const previousData = queryClient.getQueryData<PersonData[]>(trpc.skillCheckSessions.getAssessees.queryKey({ sessionId }))
+
+            queryClient.setQueryData(trpc.skillCheckSessions.getAssessees.queryKey({ sessionId }), (prev = []) => prev.filter(a => a.personId !== data.assesseeId))
+
+            return { previousData }
+        },
+        onError(error, data, context) {
+            queryClient.setQueryData(trpc.skillCheckSessions.getAssessees.queryKey({ sessionId }), context?.previousData)
+
+            toast({
+                title: "Error removing assessee from session",
+                description: error.message,
+                variant: 'destructive',
+            })
+        },
+        onSuccess(result) {
+            toast({
+                title: "Assessee removed from session",
+                description: `Assessee '${result.assessee.name}' has been successfully removed from the session.`,
+            })
+            queryClient.invalidateQueries(trpc.skillCheckSessions.getSession.queryFilter({ sessionId }))
+        },
+        onSettled() {
+            queryClient.invalidateQueries(trpc.skillCheckSessions.getAssessees.queryFilter({ sessionId }))
+        }
+    }))
+
+    const columns = useMemo(() => defineColumns<RowData>(columnHelper => [
+        columnHelper.accessor('assesseeId', {
+            id: 'assesseeId',
+            header: 'Assessee ID',
+            cell: ctx => ctx.getValue(),
+            enableGrouping: false,
+            enableHiding: true,
+            enableSorting: true,
+        }),
+        columnHelper.accessor('assessee.name', {
+            id: 'name',
+            header: 'Assessee',
+            cell: ctx => (match(ctx.row.getEditMode())
+                .with('Create', () => {
+                    const existingAssesseeIds = assignedAssesseesQuery.data.map(a => a.personId)
+                    return <PersonPicker
+                        size='sm'
+                        className="-m-2"
+                        value={ctx.row.getModifiedRowData().assessee.personId}
+                        onValueChange={assessee => ctx.row.setModifiedRowData({ assessee })}
+                        placeholder='Select assessee'
+                        exclude={existingAssesseeIds}
+                    />
+                })
+                .otherwise(() => ctx.getValue())
+            ),
+            enableGrouping: false,
+            enableHiding: false,
+            enableSorting: true,
+        }),
+        columnHelper.accessor('assessee.email', {
+            id: 'email',
+            header: 'Email',
+            cell: ctx => ctx.getValue(),
+            enableGrouping: false,
+            enableHiding: true,
+            enableSorting: false,
+        }),
+        columnHelper.display({
+            id: 'actions',
+            header: 'Actions',
+            cell: ctx => <div className="-m-2 flex items-center justify-end">
+                {match(ctx.row.getEditMode())
+                    .with('Create', () => <>
+                        <Button variant="ghost" size="icon" onClick={() => ctx.row.saveEdit()}>
+                            <SaveIcon/>
+                            <span className="sr-only">Save</span>
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => {ctx.row.cancelEdit()}}>
+                            <XIcon/>
+                            <span className="sr-only">Cancel</span>
+                        </Button>
+                    </>)
+                    .with('Update', () => <>{/* Not Supported */}</>)
+                    .with('View', () => <>
+                        <DeleteConfirmButton onDelete={() => ctx.row.delete()}/>
+                    </>)
+                    .exhaustive()
+                }
+            </div>,
+            enableHiding: false,
+            enableSorting: false,
+            meta: {
+                slotProps: {
+                    th: {
+                        className: 'w-20',
+                    }
+                },
+            }
+              
+        })
+
+    ]), [assignedAssesseesQuery.data])
+
+    const table = useReactTable<RowData>({
+        _features: [EditableFeature()],
+        data: rowData,
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getRowId: (row) => row.assesseeId,
+        createEmptyRow: () => ({
+            assesseeId: '',
+            assessee: {
+                personId: '',
+                name: '',
+                email: '',
+                status: 'Active',
+            } as PersonData
+        }),
+        onUpdate() {
+            // Not supported
+        },
+        onCreate({ assessee }) {
+            addAssesseeMutation.mutate({ sessionId, assesseeId: assessee.personId })
+        },
+        onDelete({ assesseeId }) {
+            removeAssesseeMutation.mutate({ sessionId, assesseeId })
+        },
+        initialState: {
+            columnVisibility: {
+                assesseeId: false, name: true, email: true, actions: true
+            },
+            columnFilters: [],
+            grouping: [],
+            sorting: [{ id: 'name', desc: false }],
+        },
+    })
+
+    return <DataTableProvider value={table}>
+        <Card>
+            <CardHeader>
+                <CardTitle>Assessees</CardTitle>
+                <CardActions>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="sm" onClick={() => table.startCreating()}>
+                                <PlusIcon/>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            Add assessee
+                        </TooltipContent>
+                    </Tooltip>
+
+                    <RefreshButton onClick={handleRefresh} />
+                    <TableOptionsDropdown/>
+                    <Separator orientation="vertical" />
+
+                    <CardExplanation>
+                        This card displays the assessees assigned to this session. You can add or remove assessees as needed.
+                    </CardExplanation>
+                </CardActions>
+            </CardHeader>
+            <CardContent>
+                <Table className="table-fixed">
+                    <DataTableHead/>
+                    <DataTableBody/>
+                    <DataTableFooter/>
+                </Table>
+            </CardContent>
+        </Card>
+    </DataTableProvider>
 }

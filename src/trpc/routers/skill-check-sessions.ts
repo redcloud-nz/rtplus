@@ -342,7 +342,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
      * @returns An array of assessees for the session.
      * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
      */
-    getAssessee: authenticatedProcedure
+    getAssessees: authenticatedProcedure
         .input(z.object({
             sessionId: zodNanoId8
         }))

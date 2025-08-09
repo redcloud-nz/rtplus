@@ -29,8 +29,6 @@ const useDataTable = () => {
     return table
 }
 
-
-
 interface DataTableProps extends Omit<ComponentProps<typeof Table>, 'children'> {
     enableRowSelection?: boolean
 }
