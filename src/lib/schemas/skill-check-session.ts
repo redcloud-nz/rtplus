@@ -8,9 +8,11 @@ import { z } from 'zod'
 import { SkillCheckSession as SkillCheckSessionRecord } from '@prisma/client'
 
 import { zodNanoId8 } from '../validation'
+import { formatISO } from 'date-fns'
 
 export const skillCheckSessionSchema = z.object({
     sessionId: zodNanoId8,
+    teamId: zodNanoId8,
     name: z.string().nonempty().max(100),
     date: z.string().date(),
     sessionStatus: z.enum(['Draft', 'Complete', 'Discard']),
@@ -29,8 +31,9 @@ export type SkillCheckSessionData = z.infer<typeof skillCheckSessionSchema>
 export function toSkillCheckSessionData(data: SkillCheckSessionRecord & Pick<SkillCheckSessionData, '_count'>): SkillCheckSessionData {
     return {
         sessionId: data.id,
+        teamId: data.teamId,
         name: data.name,
-        date: data.date.toISOString(),
+        date: formatISO(data.date, { representation: 'date' }),
         sessionStatus: data.sessionStatus,
         _count: data._count
     }

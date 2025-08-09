@@ -7,8 +7,8 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { useTRPC } from '@/trpc/client'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '../ui/select'
-import { SelectValue } from '@radix-ui/react-select'
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 
 
 
@@ -32,7 +32,7 @@ interface TeamMemberPickerProps {
 
 }
 
-export function TeamMemberPicker({ className, defaultValue = "", exclude = [], onValueChange, placeholder, size, status = ['Active'], ...props }: TeamMemberPickerProps) {
+export function TeamMemberPicker({ className, defaultValue = "", exclude = [], onValueChange, placeholder, size, status = ['Active'], value }: TeamMemberPickerProps) {
     const trpc = useTRPC()
     
     const teamMembersQuery = useQuery(trpc.activeTeam.members.getTeamMembers.queryOptions({ status }))
@@ -43,7 +43,7 @@ export function TeamMemberPicker({ className, defaultValue = "", exclude = [], o
         defaultValue={defaultValue}
         onValueChange={onValueChange}
         
-        value={props.value}
+        value={value}
     >
         <SelectTrigger className={className} size={size}>
             <SelectValue placeholder={placeholder} />

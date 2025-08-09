@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation'
 
 import { PersonData } from '@/lib/schemas/person'
 import { SkillData } from '@/lib/schemas/skill'
+import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { SkillGroupData } from '@/lib/schemas/skill-group'
 import { SkillPackageData } from '@/lib/schemas/skill-package'
 import { TeamData, toTeamData } from '@/lib/schemas/team'
@@ -15,6 +16,7 @@ import { TeamMembershipData } from '@/lib/schemas/team-membership'
 import { getQueryClient, trpc } from '@/trpc/server'
 import { TRPCError } from '@trpc/server'
 import prisma from './prisma'
+
 
 
 export async function fetchActiveTeam(): Promise<TeamData> {
@@ -60,6 +62,19 @@ export async function fetchSkill(params: Promise<{ skill_id: string, skill_packa
     
     return getQueryClient()
         .fetchQuery(trpc.skills.getSkill.queryOptions({ skillId, skillPackageId }))
+        .catch(error => {
+            if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
+                notFound()
+            }
+            return error
+        })
+}
+
+export async function fetchSkillCheckSession(params: Promise<{ session_id: string }>) : Promise<SkillCheckSessionData & { team: TeamData }> {
+    const { session_id: sessionId } = await params
+    
+    return getQueryClient()
+        .fetchQuery(trpc.skillCheckSessions.getSession.queryOptions({ sessionId }))
         .catch(error => {
             if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
                 notFound()
@@ -114,17 +129,27 @@ export async function fetchSkillPackage(params: Promise<{ skill_package_id: stri
  * @param params The parameters containing the team ID.
  * @returns A promise that resolves to a TeamData object.
  */
-export async function fetchTeam(params: Promise<{ team_id: string }>): Promise<TeamData>  {
-    const { team_id: teamId } = await params
+export async function fetchTeam(params: Promise<{ team_id: string, team_slug?: never } | { team_id?: never, team_slug: string }>): Promise<TeamData>  {
+    const { team_id: teamId, team_slug: teamSlug } = await params
 
-    return getQueryClient()
-        .fetchQuery(trpc.teams.getTeam.queryOptions({ teamId }))
-        .catch(error => {
-            if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
-                notFound()
-            }
-            return error
-        })
+    const queryClient = getQueryClient()
+
+    const cachedTeam = queryClient.getQueryData(trpc.teams.getTeam.queryKey({ teamId, teamSlug }))
+    if (cachedTeam) return cachedTeam
+
+    // If the team is not cached, fetch it directly from the database
+    const teamRecord = await prisma.team.findUnique({ 
+        where: { id: teamId, slug: teamSlug } 
+    })
+    if(!teamRecord) notFound()
+
+    // Ensure the team data is in the expected format
+    const team = toTeamData(teamRecord)
+
+    queryClient.setQueryData(trpc.teams.getTeam.queryKey({ teamSlug: team.slug }), team)
+    queryClient.setQueryData(trpc.teams.getTeam.queryKey({ teamId: team.teamId }), team)
+
+    return team
 }
 
 
@@ -141,12 +166,10 @@ export async function fetchTeam(params: Promise<{ team_id: string }>): Promise<T
 export async function fetchTeamBySlug(params: Promise<{ team_slug: string }>): Promise<TeamData> {
     const { team_slug: teamSlug } = await params
     
+    const queryClient = getQueryClient()
 
-    // const queryClient = getQueryClient()
-    // const key = trpc.teams.getTeam.queryKey({ teamSlug })
-
-    // const cachedTeam = queryClient.getQueryData(key)
-    // if (cachedTeam) return cachedTeam
+    const cachedTeam = queryClient.getQueryData(trpc.teams.getTeam.queryKey({ teamSlug }))
+    if (cachedTeam) return cachedTeam
 
     const teamRecord = await prisma.team.findUnique({ where: { slug: teamSlug } })
     if(!teamRecord) notFound()
@@ -154,7 +177,8 @@ export async function fetchTeamBySlug(params: Promise<{ team_slug: string }>): P
     // Ensure the team data is in the expected format
     const team = toTeamData(teamRecord)
 
-    // queryClient.setQueryData(key, team)
+    queryClient.setQueryData(trpc.teams.getTeam.queryKey({ teamSlug }), team)
+    queryClient.setQueryData(trpc.teams.getTeam.queryKey({ teamId: team.teamId }), team)
 
     return team
 }

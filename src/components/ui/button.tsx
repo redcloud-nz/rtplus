@@ -161,7 +161,7 @@ export function DocumentationButton({ topic }: { topic: string }) {
     </Button>
 }
 
-export function DeleteConfimButton({ onDelete, ...props }: Omit<ComponentProps<typeof Button>, 'onClick'> & { onDelete: () => void }) {
+export function DeleteConfirmButton({ onDelete, ...props }: Omit<ComponentProps<typeof Button>, 'onClick'> & { onDelete: () => void }) {
 
     return <Popover>
         <PopoverTrigger asChild>

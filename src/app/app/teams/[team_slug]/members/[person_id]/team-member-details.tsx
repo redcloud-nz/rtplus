@@ -137,10 +137,8 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membe
     const mutation = useMutation(trpc.activeTeam.members.updateTeamMembership.mutationOptions({
         async onMutate({ personId,...update }) {
 
-
             await queryClient.cancelQueries(trpc.activeTeam.members.getTeamMember.queryFilter({ personId }))
             
-
             // Snapshot the previous value
             const previousData = queryClient.getQueryData(queryKey)
 

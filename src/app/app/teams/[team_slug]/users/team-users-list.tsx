@@ -12,7 +12,7 @@ import { match } from 'ts-pattern'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { Button, DeleteConfimButton, RefreshButton } from '@/components/ui/button'
+import { Button, DeleteConfirmButton, RefreshButton } from '@/components/ui/button'
 import { Card, CardContent, CardHeader,  CardExplanation, CardActions } from '@/components/ui/card'
 import { DataTableBody, DataTableFooter, DataTableHead, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
 import { TextLink } from '@/components/ui/link'
@@ -173,7 +173,7 @@ export function ActiveTeam_Users_ListCard() {
                             <PencilIcon/>
                             <span className="sr-only">Edit</span>
                         </Button>
-                        <DeleteConfimButton onDelete={() => ctx.row.delete()}/>
+                        <DeleteConfirmButton onDelete={() => ctx.row.delete()}/>
                        
                     </>)
                     .exhaustive()

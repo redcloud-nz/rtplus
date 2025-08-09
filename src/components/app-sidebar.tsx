@@ -57,6 +57,7 @@ export async function AppSidebar({ ...props }: AppSidebarProps) {
                         <NavSubItem path={Paths.team(teamSlug).competencies.checks}/>
                         <NavSubItem path={Paths.team(teamSlug).competencies.checks.create}/>
                         <NavSubItem path={Paths.team(teamSlug).competencies.sessions}/>
+                        <NavSubItem path={Paths.competencies.sessions}/>
                         <NavSubItem label="Reports" href={Paths.team(teamSlug).competencies.reports.index}/>
                     </NavCollapsible>
                     <NavItem path={Paths.team(teamSlug).members} icon={<UsersIcon/>}/>

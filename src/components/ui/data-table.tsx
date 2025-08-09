@@ -462,7 +462,7 @@ export function DataTableFooter({ variant = "simple" }: DataTableFooterProps) {
                                     <span className="hidden mg:inline">Page</span>
                                     <span>{pagination.pageIndex+1}</span>
                                     <span>of</span>
-                                    <span>{table.getPageCount()}</span>
+                                    <span>{Math.max(1, table.getPageCount())}</span>
                                 </div>
                                 
                                 <Button 

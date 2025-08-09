@@ -8,16 +8,17 @@ import { z } from 'zod'
 import { UTCDate } from '@date-fns/utc'
 import { TRPCError } from '@trpc/server'
 
-import { toSkillCheckSessionData, skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
+import { Skill as SkillRecord } from '@prisma/client'
 
-import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter } from '../init'
-import { zodNanoId16, zodNanoId8 } from '@/lib/validation'
-import { toPersonData, personSchema } from '@/lib/schemas/person'
 import { nanoId16 } from '@/lib/id'
+import { toPersonData, personSchema } from '@/lib/schemas/person'
 import { toSkillData, skillSchema } from '@/lib/schemas/skill'
 import { toSkillCheckData, skillCheckSchema } from '@/lib/schemas/skill-check'
+import { toSkillCheckSessionData, skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
+import { teamSchema, toTeamData } from '@/lib/schemas/team'
+import { zodNanoId16, zodNanoId8 } from '@/lib/validation'
 
-
+import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter } from '../init'
 
 
 export const skillCheckSessionsRouter = createTRPCRouter({
@@ -34,7 +35,10 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             sessionId: zodNanoId8,
             assesseeId: zodNanoId8
         }))
-        .output(skillCheckSessionSchema)
+        .output(z.object({
+            session: skillCheckSessionSchema,
+            assessee: personSchema
+        }))
         .mutation(async ({ ctx, input: { sessionId, assesseeId } }) => {
             await checkAccessToSession(ctx, sessionId)
 
@@ -54,6 +58,9 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                     }
                 },
                 include: {
+                    assessees: {
+                        where: { id: assesseeId },
+                    },
                     _count: {
                         select: {
                             skills: true,
@@ -65,7 +72,10 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                 }
             })
 
-            return toSkillCheckSessionData(updated)
+            return {
+                session: toSkillCheckSessionData(updated),
+                assessee: toPersonData(updated.assessees[0])
+            }
     }),
 
     /**
@@ -80,11 +90,13 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             sessionId: zodNanoId8,
             assessorId: zodNanoId8
         }))
-        .output(skillCheckSessionSchema)
+        .output(z.object({
+            session: skillCheckSessionSchema,
+            assessor: personSchema
+        }))
         .mutation(async ({ ctx, input: { sessionId, assessorId } }) => {
             await checkAccessToSession(ctx, sessionId)
 
-            
             const updated = await ctx.prisma.skillCheckSession.update({
                 where: { id: sessionId },
                 data: {
@@ -101,6 +113,9 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                     }
                 },
                 include: {
+                    assessors: {
+                        where: { id: assessorId },
+                    },
                     _count: {
                         select: {
                             skills: true,
@@ -112,7 +127,10 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                 }
             })
 
-            return toSkillCheckSessionData(updated)
+            return {
+                session: toSkillCheckSessionData(updated),
+                assessor: toPersonData(updated.assessors[0])
+            }
     }),
 
     /**
@@ -127,11 +145,13 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             sessionId: zodNanoId8,
             skillId: zodNanoId8
         }))
-        .output(skillCheckSessionSchema)
+        .output(z.object({
+            session: skillCheckSessionSchema,
+            skill: skillSchema
+        }))
         .mutation(async ({ ctx, input: { sessionId, skillId } }) => {
             await checkAccessToSession(ctx, sessionId)
 
-            
             const updated = await ctx.prisma.skillCheckSession.update({
                 where: { id: sessionId },
                 data: {
@@ -148,6 +168,9 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                     }
                 },
                 include: {
+                    skills: {
+                        where: { id: skillId },
+                    },
                     _count: {
                         select: {
                             skills: true,
@@ -155,11 +178,14 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                             assessors: true,
                             checks: true
                         }
-                    }
+                    },
                 }
             })
 
-            return toSkillCheckSessionData(updated)
+            return {
+                session: toSkillCheckSessionData(updated),
+                skill: toSkillData(updated.skills[0])
+            }
     }),
 
 
@@ -172,7 +198,10 @@ export const skillCheckSessionsRouter = createTRPCRouter({
      */
     createCheck: authenticatedProcedure
         .input(skillCheckSchema.omit({ assessorId: true, timestamp: true }).extend({ sessionId: zodNanoId8 }))
-        .output(skillCheckSchema)
+        .output(z.object({
+            session: skillCheckSessionSchema,
+            check: skillCheckSchema,
+        }))
         .mutation(async ({ ctx, input }) => {
 
             const timestamp = new UTCDate()
@@ -181,7 +210,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             // Ensure the user has access to the session
             await checkAccessToSession(ctx, input.sessionId)
 
-            const { checks: [created] } = await ctx.prisma.skillCheckSession.update({
+            const session = await ctx.prisma.skillCheckSession.update({
                 where: { id: input.sessionId },
                 data: {
                     checks: {
@@ -218,10 +247,21 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                 include: {
                     checks: {
                         where: { id: input.skillCheckId },
+                    },
+                    _count: {
+                        select: {
+                            skills: true,
+                            assessees: true,
+                            assessors: true,
+                            checks: true
+                        }
                     }
                 }
             })
-            return toSkillCheckData(created)
+            return {
+                session: toSkillCheckSessionData(session),
+                check: toSkillCheckData(session.checks[0])
+            }
         }),
 
     /**
@@ -236,7 +276,10 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             sessionId: zodNanoId8,
             skillCheckId: zodNanoId16
         }))
-        .output(skillCheckSchema)
+        .output(z.object({
+            session: skillCheckSessionSchema,
+            check: skillCheckSchema
+        }))
         .mutation(async ({ ctx, input }) => {
             await checkAccessToSession(ctx, input.sessionId)
 
@@ -252,7 +295,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             })
             const existing = session!.checks[0]
 
-            await ctx.prisma.skillCheckSession.update({
+            const updated = await ctx.prisma.skillCheckSession.update({
                 where: { id: input.sessionId },
                 data: {
                     checks: {
@@ -276,12 +319,20 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                     }
                 },
                 include: {
-                    checks: {
-                        where: { id: input.skillCheckId },
+                    _count: {
+                        select: {
+                            skills: true,
+                            assessees: true,
+                            assessors: true,
+                            checks: true
+                        }
                     }
                 }
             })
-            return toSkillCheckData(existing)
+            return {
+                session: toSkillCheckSessionData(updated),
+                check: toSkillCheckData(existing)
+            }
         }),
 
     /**
@@ -364,6 +415,9 @@ export const skillCheckSessionsRouter = createTRPCRouter({
      * @returns An array of skill check sessions with counts.
      */
     getMySessions: authenticatedProcedure
+        .input(z.object({
+            status: z.array(z.enum(['Draft', 'Complete', 'Discard'])).optional().default(['Draft'])
+        }))
         .output(z.array(skillCheckSessionSchema))
         .query(async ({ ctx }) => {
             const sessions = await ctx.prisma.skillCheckSession.findMany({
@@ -391,7 +445,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
         .input(z.object({
             sessionId: zodNanoId8
         }))
-        .output(skillCheckSessionSchema)
+        .output(skillCheckSessionSchema.extend({ team: teamSchema }))
         .query(async ({ ctx, input }) => {
             await checkAccessToSession(ctx, input.sessionId)
 
@@ -405,13 +459,17 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                             assessors: true,
                             checks: true
                         }
-                    }
+                    },
+                    team: true
                 }
             })
 
             if (!session) throw new TRPCError({ code: 'NOT_FOUND', message: `Skill check session with ID '${input.sessionId}' not found` })
 
-            return toSkillCheckSessionData(session)
+            return {
+                ...toSkillCheckSessionData(session),
+                team: toTeamData(session.team)
+            }
         }),
 
     /**
@@ -428,6 +486,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
         .output(z.array(skillSchema))
         .query(async ({ ctx, input }) => {
             await checkAccessToSession(ctx, input.sessionId)
+            
             const session = await ctx.prisma.skillCheckSession.findUnique({
                 where: { id: input.sessionId },
                 include: {
@@ -451,7 +510,10 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             sessionId: zodNanoId8,
             assesseeId: zodNanoId8
         }))
-        .output(skillCheckSessionSchema)
+        .output(z.object({
+            session: skillCheckSessionSchema,
+            assessee: personSchema
+        }))
         .mutation(async ({ ctx, input: { sessionId, assesseeId } }) => {
             await checkAccessToSession(ctx, sessionId)
 
@@ -471,6 +533,9 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                     }
                 },
                 include: {
+                    assessees: {
+                        where: { id: assesseeId },
+                    },
                     _count: {
                         select: {
                             skills: true,
@@ -482,7 +547,10 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                 }
             })
 
-            return toSkillCheckSessionData(updated)
+            return {
+                session: toSkillCheckSessionData(updated),
+                assessee: toPersonData(updated.assessees[0])
+            }
         }),
 
     /**
@@ -497,7 +565,10 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             sessionId: zodNanoId8,
             assessorId: zodNanoId8
         }))
-        .output(skillCheckSessionSchema)
+        .output(z.object({
+            session: skillCheckSessionSchema,
+            assessor: personSchema
+        }))
         .mutation(async ({ ctx, input: { sessionId, assessorId } }) => {
             await checkAccessToSession(ctx, sessionId)
 
@@ -517,6 +588,9 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                     }
                 },
                 include: {
+                    assessors: {
+                        where: { id: assessorId },
+                    },
                     _count: {
                         select: {
                             skills: true,
@@ -528,7 +602,10 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                 }
             })
 
-            return toSkillCheckSessionData(updated)
+            return {
+                session: toSkillCheckSessionData(updated),
+                assessor: toPersonData(updated.assessors[0])
+            }
         }),
 
     /**
@@ -543,7 +620,10 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             sessionId: zodNanoId8,
             skillId: zodNanoId8
         }))
-        .output(skillCheckSessionSchema)
+        .output(z.object({
+            session: skillCheckSessionSchema,
+            skill: skillSchema
+        }))
         .mutation(async ({ ctx, input: { sessionId, skillId } }) => {
             await checkAccessToSession(ctx, sessionId)
 
@@ -563,6 +643,9 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                     }
                 },
                 include: {
+                    skills: {
+                        where: { id: skillId },
+                    },
                     _count: {
                         select: {
                             skills: true,
@@ -574,7 +657,10 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                 }
             })
 
-            return toSkillCheckSessionData(updated)
+            return {
+                session: toSkillCheckSessionData(updated),
+                skill: toSkillData(updated.skills[0])
+            }
         }),
 
     /**
@@ -663,4 +749,14 @@ export async function checkAccessToSession(ctx: AuthenticatedContext, sessionId:
 
     if(!session) throw new TRPCError({ code: 'NOT_FOUND', message: `Session with ID ${sessionId} not found.` })
     
+}
+
+export async function getSkillById(ctx: AuthenticatedContext, skillId: string): Promise<SkillRecord> {
+    const skill = await ctx.prisma.skill.findUnique({
+        where: { id: skillId }
+    })
+
+    if (!skill) throw new TRPCError({ code: 'NOT_FOUND', message: `Skill with ID '${skillId}' not found` })
+
+    return skill
 }

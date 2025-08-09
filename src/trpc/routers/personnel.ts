@@ -116,7 +116,7 @@ export async function getPersonById(ctx: AuthenticatedContext, personId: string)
         where: { id: personId },
         include: { owningTeam: true }
     })
-    if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person(${personId}) not found.` })
+    if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person with ID ${personId} not found.` })
     return person
 }
 

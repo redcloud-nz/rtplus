@@ -6,6 +6,17 @@
 import { PolicyKeyType } from "./lib/policy"
 import { TeamData } from "./lib/schemas/team"
 
+export const competencies = {
+    index: '/app/competencies',
+    session: (sessionId: string) => ({
+            index: `/app/competencies/sessions/${sessionId}`,
+    } as const),
+    sessions: {
+        _label: 'My Sessions',
+        index: '/app/competencies/sessions',
+    }
+} as const
+
 
 //  /------------------------------\
 //  |            System            |
@@ -146,7 +157,7 @@ export const team = (teamOrSlug: TeamData | string) => {
                 index: `${competenciesBase}/sessions/${sessionId}`
             } as const),
             sessions: {
-                _label: 'Sessions',
+                _label: 'Team Sessions',
                 create: `${competenciesBase}/sessions/--create`,
                 index: `${competenciesBase}/sessions`,
             },

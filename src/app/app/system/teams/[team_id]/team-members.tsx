@@ -13,7 +13,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
 import { PersonPicker } from '@/components/controls/person-picker'
-import { Button, DeleteConfimButton } from '@/components/ui/button'
+import { Button, DeleteConfirmButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTableBody, DataTableHead, DataTableFooter, DataTableProvider, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
 import { TagsInput } from '@/components/ui/input'
@@ -203,7 +203,7 @@ export function TeamMembersCard({ teamId }: { teamId: string }) {
                             <PencilIcon/>
                             <span className="sr-only">Edit</span>
                         </Button>
-                        <DeleteConfimButton onDelete={() => ctx.row.delete()}/>
+                        <DeleteConfirmButton onDelete={() => ctx.row.delete()}/>
                        
                     </>)
                     .exhaustive()

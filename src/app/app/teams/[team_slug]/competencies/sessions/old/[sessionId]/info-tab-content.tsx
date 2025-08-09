@@ -10,7 +10,7 @@ import React from 'react'
 
 import { type SkillCheckSessionStatus } from '@prisma/client'
 
-import { DatePicker } from '@/components/ui/date-picker'
+import { DatePicker } from '@/components/controls/date-picker'
 import { FieldControl, FieldDescription, FieldLabel, FieldMessage, Form, FormField } from '@/components/ui/action-form'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -37,7 +37,7 @@ export function InfoTabContent() {
             <FormField name="date">
                 <FieldLabel>Session Date</FieldLabel>
                 <FieldControl>
-                    <DatePicker name="date" value={session.date} onChange={(newValue) => updateAssessment({ ...session, date: newValue})} />
+                    <DatePicker name="date" value={session.date} onValueChange={(newValue) => updateAssessment({ ...session, date: newValue})} />
                 </FieldControl>
                 <FieldDescription>The date the assessment is being carried out.</FieldDescription>
                 <FieldMessage/>

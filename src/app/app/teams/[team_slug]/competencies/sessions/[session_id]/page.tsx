@@ -2,64 +2,65 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /teams/[team_slug]/competencies/sessions/[session_id]
+ *  Path: /app/team/[team_slug]/competencies/sessions/[session_id]
  */
 
+import { notFound } from 'next/navigation'
 
-import { ReactNode } from 'react'
-
-import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
+import { Boundary } from '@/components/boundary'
+import { SkillCheckSession_SkillsList_Card } from '@/components/cards/skill-check-session-skills-list'
 
 import * as Paths from '@/paths'
-import { getQueryClient, trpc } from '@/trpc/server'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { InfoTabContent } from './info'
-import { SkillsTabContent } from './skills'
-import { PersonnelTabContent } from './personnel'
-import { AssessTabContent } from './assess'
-import { TranscriptTabContent } from './transcript'
+import { fetchSkillCheckSession } from '@/server/fetch'
+import { HydrateClient } from '@/trpc/server'
 
-export const metadata = { title: 'Session - Competencies' }
+import { ActiveTeam_SessionDetails_Card } from './active-team-session-details'
 
-export default async function SessionLayout(props: { params: Promise<{ team_slug: string, session_id: string }>, children: ReactNode }) {
-    const { team_slug: teamSlug, session_id: sessionId } = await props.params
 
-    const queryClient = getQueryClient()
-    const session = await queryClient.fetchQuery(trpc.skillCheckSessions.mySessions.byId.queryOptions({ sessionId }))
+
+
+export async function generateMetadata(props: { params: Promise<{ session_id: string, team_slug: string }> }) {
+    const { session_id: sessionId } = await props.params
+
+    const session = await fetchSkillCheckSession(Promise.resolve({ session_id: sessionId }))
+    return {
+        title: `${session.name} - Skill Check Sessions - ${session.team.shortName}`,
+    }
+}
+
+export default async function ActiveTeam_SkillCheckSession_Page(props: { params: Promise<{ session_id: string, team_slug: string }> }) {
+    const session = await fetchSkillCheckSession(props.params)
+    const team = session.team
+
+    if(team.slug != (await props.params).team_slug) {
+        // Session doesn't belong to the active team.
+        notFound()
+    }
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.team(teamSlug!).competencies, 
-                Paths.team(teamSlug!).competencies.sessions,
-                `Assessment: ${session.name}`
+                Paths.team(team),
+                Paths.team(team).competencies,
+                Paths.team(team).competencies.sessions,
+                session.name
             ]}
         />
-        <AppPageContent variant="container">
-            <Tabs defaultValue="Info">
-                <TabsList className="mb-4 w-full md:w-auto">
-                    <TabsTrigger value="Info">Info</TabsTrigger>
-                    <TabsTrigger value="Skills">Skills</TabsTrigger>
-                    <TabsTrigger value="Personnel">Personnel</TabsTrigger>
-                    <TabsTrigger value="Assess">Assess</TabsTrigger>
-                    <TabsTrigger value="Transcript">Transcript</TabsTrigger>
-                </TabsList>
-                <TabsContent value="Info">
-                    <InfoTabContent sessionId={sessionId} />
-                </TabsContent>
-                <TabsContent value="Skills">
-                    <SkillsTabContent sessionId={sessionId} />
-                </TabsContent>
-                <TabsContent value="Personnel">
-                    <PersonnelTabContent sessionId={sessionId} />
-                </TabsContent>
-                <TabsContent value="Assess">
-                    <AssessTabContent sessionId={sessionId} />
-                </TabsContent>
-                <TabsContent value="Transcript">
-                    <TranscriptTabContent sessionId={sessionId}/>
-                </TabsContent>    
-            </Tabs>
-        </AppPageContent>
+
+        <HydrateClient>
+            <AppPageContent variant="container">
+                <PageHeader>
+                    <PageTitle objectType="Skill Check Session">{session.name}</PageTitle>
+                </PageHeader>
+                <Boundary>
+                    <ActiveTeam_SessionDetails_Card sessionId={session.sessionId} />
+                </Boundary>
+                <Boundary>
+                    <SkillCheckSession_SkillsList_Card sessionId={session.sessionId} />
+                </Boundary>
+            </AppPageContent>
+        </HydrateClient>
+        
     </AppPage>
 }

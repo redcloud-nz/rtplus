@@ -120,7 +120,7 @@ model SkillCheckSession {
     id            String                       @id @db.VarChar(16)
     teamId        String                       @map("team_id") @db.VarChar(16)
     name          String                       @db.VarChar(100)
-    date          DateTime
+    date          String
     sessionStatus SkillCheckSessionStatus      @default(Draft)
     createdAt     DateTime                     @default(now()) @map("created_at")
     updatedAt     DateTime                     @updatedAt @map("updated_at")

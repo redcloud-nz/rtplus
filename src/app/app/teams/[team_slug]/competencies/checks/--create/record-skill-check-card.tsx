@@ -6,28 +6,25 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Fragment, useMemo } from 'react'
+import { useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import z from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 
 import { CurrentPersonValue } from '@/components/controls/person-value'
+import { SkillPicker } from '@/components/controls/skill-picker'
 import { TeamMemberPicker } from '@/components/controls/team-member-picker'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 
 import { useToast } from '@/hooks/use-toast'
 import { nanoId16 } from '@/lib/id'
-import { SkillData } from '@/lib/schemas/skill'
 import { CompetenceLevelTerms, skillCheckSchema } from '@/lib/schemas/skill-check'
-import { SkillPackageData } from '@/lib/schemas/skill-package'
-import { SkillGroupData } from '@/lib/schemas/skill-group'
-
 import { useTRPC } from '@/trpc/client'
 
 
@@ -39,8 +36,6 @@ export function RecordSkillCheckCard() {
     const router = useRouter()
     const { toast } = useToast()
     const trpc = useTRPC()
-    
-    const { data: skillPackages } = useSuspenseQuery(trpc.skills.getTree.queryOptions())
 
     const skillCheckId = useMemo(() => nanoId16(), [])
 
@@ -76,30 +71,6 @@ export function RecordSkillCheckCard() {
         }
     }))
 
-    function renderSkillPackageSelectItems(skillPackage: SkillPackageData & { skillGroups: SkillGroupData[], skills: SkillData[] }) {
-        if (skillPackage.skillGroups.length) {
-            return <Fragment key={skillPackage.skillPackageId}>
-                {skillPackage.skillGroups
-                    .filter(skillGroup => skillGroup.parentId == null)
-                    .map(skillGroup =>
-                    renderSkillGroupSelectItems(skillPackage.name, skillGroup, skillPackage.skills)
-                )}
-            </Fragment>
-        }
-    }
-
-    function renderSkillGroupSelectItems(parent: string, skillGroup: SkillGroupData, skills: SkillData[]) {
-        return <SelectGroup key={skillGroup.skillGroupId}>
-            <SelectLabel>{`${parent} / ${skillGroup.name}`}</SelectLabel>
-            {skills
-                .filter(skill => skill.skillGroupId == skillGroup.skillGroupId)
-                .map(skill => 
-                    <SelectItem key={skill.skillId} value={skill.skillId}>{skill.name}</SelectItem>
-                )
-            }
-        </SelectGroup>
-    }
-
     return <Card>
         <CardHeader>
             <CardTitle>Record Skill Check</CardTitle>
@@ -132,16 +103,11 @@ export function RecordSkillCheckCard() {
                             name="skillId"
                             render={({ field }) => <ToruGridRow
                                 label="Skill"
-                                control={
-                                    <Select {...field} onValueChange={field.onChange}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select a skill to assess..."/>
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {skillPackages.map(renderSkillPackageSelectItems)}
-                                        </SelectContent>
-                                    </Select>
-                                }
+                                control={<SkillPicker 
+                                    {...field} 
+                                    onValueChange={({ skillId }) => field.onChange(skillId)}
+                                    placeholder="Select a skill to assess..."
+                                />}
                                 description="The skill to assess."
                             />}
                         />

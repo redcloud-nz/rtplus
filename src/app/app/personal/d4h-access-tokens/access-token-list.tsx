@@ -12,7 +12,7 @@ import { match } from 'ts-pattern'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { Button, DeleteConfimButton } from '@/components/ui/button'
+import { Button, DeleteConfirmButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader } from '@/components/ui/card'
 import { DataTableBody, DataTableFooter, DataTableHead, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
 import { Input } from '@/components/ui/input'
@@ -94,7 +94,7 @@ export function AccessTokenListCard() {
                             <PencilIcon/>
                             <span className="sr-only">Edit</span>
                         </Button>
-                        <DeleteConfimButton onDelete={() => ctx.row.delete()}/>
+                        <DeleteConfirmButton onDelete={() => ctx.row.delete()}/>
                        
                     </>)
                 }
