@@ -15,23 +15,23 @@ export const skillCheckSchema = z.object({
     skillId: zodNanoId8,
     assesseeId: zodNanoId8,
     assessorId: zodNanoId8,
-    result: z.string().max(100),
+    result: z.string().nonempty(),
     notes: z.string().max(500),
-    timestamp: z.string().datetime(),
+    date: z.string().date(),
 })
 
 export type SkillCheckData = z.infer<typeof skillCheckSchema>
 
-export function toSkillCheckData(data: SkillCheckRecord): SkillCheckData {
+export function toSkillCheckData(record: SkillCheckRecord): SkillCheckData {
     return {
-        skillCheckId: data.id,
-        sessionId: data.sessionId,
-        skillId: data.skillId,
-        assesseeId: data.assesseeId,
-        assessorId: data.assessorId,
-        result: data.result,
-        notes: data.notes,
-        timestamp: data.timestamp.toISOString(),
+        skillCheckId: record.id,
+        sessionId: record.sessionId,
+        skillId: record.skillId,
+        assesseeId: record.assesseeId,
+        assessorId: record.assessorId,
+        result: record.result,
+        notes: record.notes,
+        date: record.date,
     }
 }
 
@@ -43,7 +43,7 @@ export const skillCheckDetailSchema = skillCheckSchema.extend({
 
 export type SkillCheckDetailData = z.infer<typeof skillCheckDetailSchema>
 
-type CompetenceLevel = 'NotAssessed' | 'NotTaught' | 'NotCompetent' | 'Competent' | 'HighlyConfident'
+export type CompetenceLevel = 'NotAssessed' | 'NotTaught' | 'NotCompetent' | 'Competent' | 'HighlyConfident'
 
 export const CompetenceLevelTerms: Record<CompetenceLevel, string> = {
     'NotAssessed': 'Not Assessed',

@@ -105,7 +105,7 @@ model SkillCheck {
     assessorId      String                    @map("assessor_id") @db.VarChar(16)
     result          String                    @default("")    
     notes           String                    @default("")    
-    timestamp       DateTime                  @default(now())
+    date            String                    
 
     // Relations
     session         SkillCheckSession?        @relation("skill_check_to_skill_check_session", fields: [sessionId], references: [id], onDelete: SetNull)

@@ -9,6 +9,8 @@ import { useQuery } from '@tanstack/react-query'
 import { useTRPC } from '@/trpc/client'
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
+import { TeamMembershipData } from '@/lib/schemas/team-membership'
+import { PersonData } from '@/lib/schemas/person'
 
 
 
@@ -20,7 +22,7 @@ interface TeamMemberPickerProps {
 
     exclude?: string[]
 
-    onValueChange?: (memberId: string) => void
+    onValueChange?: (membership: TeamMembershipData & { person: PersonData }) => void
 
     placeholder?: string
 
@@ -39,10 +41,16 @@ export function TeamMemberPicker({ className, defaultValue = "", exclude = [], o
 
     const teamMembers = teamMembersQuery.data || []
 
+    function handleValueChange(memberId: string) {
+        const member = teamMembers.find(m => m.personId === memberId)
+        if (member && onValueChange) {
+            onValueChange(member)
+        }
+    }
+
     return <Select
         defaultValue={defaultValue}
-        onValueChange={onValueChange}
-        
+        onValueChange={handleValueChange}
         value={value}
     >
         <SelectTrigger className={className} size={size}>

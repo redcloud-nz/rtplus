@@ -26,7 +26,7 @@ export const activeTeamSkillChecksRouter = createTRPCRouter({
      * @throws TRPCError(FORBIDDEN) if the user is not a team admin and no session is provided.
      */
     createIndependentSkillCheck: teamAdminProcedure
-        .input(skillCheckSchema.omit({ assessorId: true, sessionId: true, timestamp: true }))
+        .input(skillCheckSchema.omit({ assessorId: true, sessionId: true }))
         .output(skillCheckSchema)
         .mutation(async ({ ctx, input }) => {
 
@@ -38,7 +38,7 @@ export const activeTeamSkillChecksRouter = createTRPCRouter({
                     id: input.skillCheckId,
                     result: input.result,
                     notes: input.notes,
-                    timestamp,
+                    date: input.date,
                     
                     skill: { connect: { id: input.skillId } },
                     assessee: { connect: { id: input.assesseeId } },
@@ -83,7 +83,7 @@ export const activeTeamSkillChecksRouter = createTRPCRouter({
                     skill: true
                 },
                 orderBy: {
-                    timestamp: 'desc'
+                    date: 'desc'
                 }
             })
 

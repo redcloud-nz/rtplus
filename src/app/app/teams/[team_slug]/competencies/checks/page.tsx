@@ -13,7 +13,7 @@ import * as Paths from '@/paths'
 import { fetchTeamBySlug } from '@/server/fetch'
 import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
-import { ActiveTeam_SkillChecksList_Card } from './skill-checks-list'
+import { ActiveTeam_SkillChecksList_Card } from './active-team-skill-checks-list'
 
 
 export async function generateMetadata(props: { params: Promise<{ team_slug: string }> }): Promise<Metadata> {

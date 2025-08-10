@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2024 Redcloud Development, Ltd.
+ *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
  *  Path: /competencies/sessions/[session_id]
@@ -7,28 +7,32 @@
 
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-
-import * as Paths from '@/paths'
-import { getQueryClient, trpc } from '@/trpc/server'
-
-import { Session_Details_Card } from './session-details'
-
 import { SkillCheckSession_AssesseesList_Card } from '@/components/cards/skill-check-session-assessees-list'
 import { SkillCheckSession_AssessorsList_Card } from '@/components/cards/skill-check-session-assessors-list'
 import { SkillCheckSession_SkillsList_Card } from '@/components/cards/skill-check-session-skills-list'
-import { AssessTabContent } from './assess'
-import { TranscriptTabContent } from './transcript'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+
+import * as Paths from '@/paths'
+import { fetchSkillCheckSession } from '@/server/fetch'
+
+import { SkillCheckSession_Assess_Card } from './skill-check-session-assess'
+import { SkillCheckSession_Details_Card } from './skill-check-session-details'
+import { SkillCheckSession_Transcript_Card } from './skill-check-session-transcript'
 
 
 
-export const metadata = { title: 'Session - Competencies' }
+
+export async function generateMetadata(props: { params: Promise<{ session_id: string }> }) {
+    const session = await fetchSkillCheckSession(props.params)
+
+    return {
+        title: `${session.name} - Skill Check Sessions`,
+    }
+}
 
 export default async function SessionPage(props: { params: Promise<{ session_id: string }> }) {
-    const { session_id: sessionId } = await props.params
 
-    const queryClient = getQueryClient()
-    const session = await queryClient.fetchQuery(trpc.skillCheckSessions.getSession.queryOptions({ sessionId }))
+    const session = await fetchSkillCheckSession(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs
@@ -47,20 +51,20 @@ export default async function SessionPage(props: { params: Promise<{ session_id:
                     <TabsTrigger value="Transcript">Transcript</TabsTrigger>
                 </TabsList>
                 <TabsContent value="Info">
-                    <Session_Details_Card sessionId={sessionId} />
+                    <SkillCheckSession_Details_Card sessionId={session.sessionId} />
                 </TabsContent>
                 <TabsContent value="Skills">
-                    <SkillCheckSession_SkillsList_Card sessionId={sessionId} />
+                    <SkillCheckSession_SkillsList_Card sessionId={session.sessionId} />
                 </TabsContent>
                 <TabsContent value="Personnel">
-                    <SkillCheckSession_AssesseesList_Card sessionId={sessionId} />
-                    <SkillCheckSession_AssessorsList_Card sessionId={sessionId} />
+                    <SkillCheckSession_AssesseesList_Card sessionId={session.sessionId} />
+                    <SkillCheckSession_AssessorsList_Card sessionId={session.sessionId} />
                 </TabsContent>
                 <TabsContent value="Assess">
-                    <AssessTabContent sessionId={sessionId} />
+                    <SkillCheckSession_Assess_Card sessionId={session.sessionId} />
                 </TabsContent>
                 <TabsContent value="Transcript">
-                    <TranscriptTabContent sessionId={sessionId}/>
+                    <SkillCheckSession_Transcript_Card sessionId={session.sessionId}/>
                 </TabsContent>    
             </Tabs>
         </AppPageContent>

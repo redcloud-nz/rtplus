@@ -8,7 +8,7 @@ import { z } from 'zod'
 
 import { TRPCError } from '@trpc/server'
 
-import { SkillCheckSession as SkillCheckSessionRecord } from '@prisma/client'
+import { SkillCheckSession as SkillCheckSessionRecord, Team as TeamRecord } from '@prisma/client'
 
 import { nanoId16 } from '@/lib/id'
 import { toSkillCheckSessionData, skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
@@ -56,7 +56,8 @@ export const activeTeamSkillCheckSessionsRouter = createTRPCRouter({
                 include: {
                     _count: {
                         select: { skills: true, assessees: true, assessors: true, checks: true }
-                    }
+                    },
+                    team: true
                 }
             })
             return toSkillCheckSessionData(session)
@@ -77,10 +78,16 @@ export const activeTeamSkillCheckSessionsRouter = createTRPCRouter({
         .mutation(async ({ ctx, input }) => {
             const session = await getSessionById(ctx, input.sessionId)
 
-            await ctx.prisma.skillCheckSession.delete({
-                where: { id: input.sessionId }
+            const deleted = await ctx.prisma.skillCheckSession.delete({
+                where: { id: input.sessionId },
+                include: {
+                    _count: {
+                        select: { skills: true, assessees: true, assessors: true, checks: true }
+                    },
+                    team: true
+                }
             })
-            return toSkillCheckSessionData(session)
+            return toSkillCheckSessionData(deleted)
         }),
 
     /**
@@ -99,7 +106,8 @@ export const activeTeamSkillCheckSessionsRouter = createTRPCRouter({
                         include: {
                             _count: {
                                 select: { skills: true, assessees: true, assessors: true, checks: true }
-                            }
+                            },
+                            team: true
                         }
                     }
                 }
@@ -159,7 +167,8 @@ export const activeTeamSkillCheckSessionsRouter = createTRPCRouter({
                 include: {
                     _count: {
                         select: { skills: true, assessees: true, assessors: true, checks: true }
-                    }
+                    },
+                    team: true
                 }
             })
             return toSkillCheckSessionData(updatedSession)
@@ -194,7 +203,8 @@ export const activeTeamSkillCheckSessionsRouter = createTRPCRouter({
                 include: {
                     _count: {
                         select: { skills: true, assessees: true, assessors: true, checks: true }
-                    }
+                    },
+                    team: true
                 }
             })
             return toSkillCheckSessionData(updatedSession)
@@ -209,7 +219,7 @@ export const activeTeamSkillCheckSessionsRouter = createTRPCRouter({
  * @returns The skill check session record.
  * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist in the active team.
  */
-async function getSessionById(ctx: AuthenticatedTeamContext, sessionId: string): Promise<SkillCheckSessionRecord & { _count: { skills: number, assessees: number, assessors: number, checks: number } }> {
+async function getSessionById(ctx: AuthenticatedTeamContext, sessionId: string): Promise<SkillCheckSessionRecord & { _count: { skills: number, assessees: number, assessors: number, checks: number }, team: TeamRecord }> {
     const team = await ctx.prisma.team.findUnique({
         where: { slug: ctx.teamSlug },
         include: {
@@ -218,7 +228,8 @@ async function getSessionById(ctx: AuthenticatedTeamContext, sessionId: string):
                 include: {
                     _count: {
                         select: { skills: true, assessees: true, assessors: true, checks: true }
-                    }
+                    },
+                    team: true
                 }
             }
         }

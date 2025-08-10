@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { UTCDate } from '@date-fns/utc'
 import { TRPCError } from '@trpc/server'
 
-import { Skill as SkillRecord } from '@prisma/client'
+import { Skill as SkillRecord, SkillCheckSession as SkillCheckSessionRecord } from '@prisma/client'
 
 import { nanoId16 } from '@/lib/id'
 import { toPersonData, personSchema } from '@/lib/schemas/person'
@@ -68,7 +68,8 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                             assessors: true,
                             checks: true
                         }
-                    }
+                    },
+                    team: true
                 }
             })
 
@@ -123,7 +124,8 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                             assessors: true,
                             checks: true
                         }
-                    }
+                    },
+                    team: true
                 }
             })
 
@@ -168,9 +170,6 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                     }
                 },
                 include: {
-                    skills: {
-                        where: { id: skillId },
-                    },
                     _count: {
                         select: {
                             skills: true,
@@ -179,6 +178,10 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                             checks: true
                         }
                     },
+                    skills: {
+                        where: { id: skillId },
+                    },
+                    team: true
                 }
             })
 
@@ -187,82 +190,6 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                 skill: toSkillData(updated.skills[0])
             }
     }),
-
-
-    /**
-     * Create a new skill check within a skill check session.
-     * @param ctx The authenticated context.
-     * @param input The skill check data to create.
-     * @returns The created skill check data.
-     * @throws TRPCError(FORBIDDEN) if the user is not a team admin and no session is provided.
-     */
-    createCheck: authenticatedProcedure
-        .input(skillCheckSchema.omit({ assessorId: true, timestamp: true }).extend({ sessionId: zodNanoId8 }))
-        .output(z.object({
-            session: skillCheckSessionSchema,
-            check: skillCheckSchema,
-        }))
-        .mutation(async ({ ctx, input }) => {
-
-            const timestamp = new UTCDate()
-            const assessorId = ctx.personId
-
-            // Ensure the user has access to the session
-            await checkAccessToSession(ctx, input.sessionId)
-
-            const session = await ctx.prisma.skillCheckSession.update({
-                where: { id: input.sessionId },
-                data: {
-                    checks: {
-                        create: {
-                            id: input.skillCheckId,
-                            result: input.result,
-                            notes: input.notes,
-                            timestamp,
-                            skill: { connect: { id: input.skillId } },
-                            assessee: { connect: { id: input.assesseeId } },
-                            assessor: { connect: { id: assessorId } },
-                        }
-                    },
-                    changeLogs: {
-                        create: {
-                            id: nanoId16(),
-                            event: 'CreateCheck',
-                            actorId: ctx.personId,
-                            timestamp,
-                            meta: {
-                                skillCheckId: input.skillCheckId,
-                                skillId: input.skillId,
-                                assesseeId: input.assesseeId,
-                                assessorId: assessorId,
-                            },
-                            fields: {
-                                result: input.result,
-                                notes: input.notes,
-                                timestamp,
-                            }
-                        }
-                    }
-                },
-                include: {
-                    checks: {
-                        where: { id: input.skillCheckId },
-                    },
-                    _count: {
-                        select: {
-                            skills: true,
-                            assessees: true,
-                            assessors: true,
-                            checks: true
-                        }
-                    }
-                }
-            })
-            return {
-                session: toSkillCheckSessionData(session),
-                check: toSkillCheckData(session.checks[0])
-            }
-        }),
 
     /**
      * Delete a skill check from a skill check session.
@@ -326,7 +253,8 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                             assessors: true,
                             checks: true
                         }
-                    }
+                    },
+                    team: true
                 }
             })
             return {
@@ -418,7 +346,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
         .input(z.object({
             status: z.array(z.enum(['Draft', 'Complete', 'Discard'])).optional().default(['Draft'])
         }))
-        .output(z.array(skillCheckSessionSchema))
+        .output(z.array(skillCheckSessionSchema.extend({ team: teamSchema })))
         .query(async ({ ctx }) => {
             const sessions = await ctx.prisma.skillCheckSession.findMany({
                 where: {
@@ -434,11 +362,15 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                             assessors: true,
                             checks: true
                         }
-                    }
+                    },
+                    team: true
                 }
             })
 
-            return sessions.map(toSkillCheckSessionData)
+            return sessions.map(session => ({
+                ...toSkillCheckSessionData(session),
+                team: toTeamData(session.team)
+            }))
         }),
 
     getSession: authenticatedProcedure
@@ -543,7 +475,8 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                             assessors: true,
                             checks: true
                         }
-                    }
+                    },
+                    team: true
                 }
             })
 
@@ -598,7 +531,8 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                             assessors: true,
                             checks: true
                         }
-                    }
+                    },
+                    team: true
                 }
             })
 
@@ -643,9 +577,6 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                     }
                 },
                 include: {
-                    skills: {
-                        where: { id: skillId },
-                    },
                     _count: {
                         select: {
                             skills: true,
@@ -653,7 +584,11 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                             assessors: true,
                             checks: true
                         }
-                    }
+                    },
+                    skills: {
+                        where: { id: skillId },
+                    },
+                    team: true
                 }
             })
 
@@ -664,44 +599,63 @@ export const skillCheckSessionsRouter = createTRPCRouter({
         }),
 
     /**
-     * Update a skill check within a skill check session.
-     * This allows updating the result, notes, and timestamp of an existing skill check.
+     * Save a skill check within a skill check session.
      * @param ctx The authenticated context.
-     * @param input The input containing the session data to update.
-     * @returns The updated skill check session data.
-     * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
+     * @param input The skill check data to create.
+     * @returns The created skill check data.
+     * @throws TRPCError(FORBIDDEN) if the user is not a team admin and no session is provided.
      */
-    updateCheck: authenticatedProcedure
-        .input(skillCheckSchema.omit({ assessorId: true, timestamp: true }).extend({ sessionId: zodNanoId8 }))
-        .output(skillCheckSchema)
+    saveCheck: authenticatedProcedure
+        .input(skillCheckSchema.omit({ assessorId: true, date: true }).extend({ sessionId: zodNanoId8 }))
+        .output(z.object({
+            session: skillCheckSessionSchema,
+            check: skillCheckSchema,
+        }))
         .mutation(async ({ ctx, input }) => {
 
-            await checkAccessToSession(ctx, input.sessionId)
-
-            const timestamp = new UTCDate()
             const assessorId = ctx.personId
 
-            const { checks: [updated] } = await ctx.prisma.skillCheckSession.update({
+            // Ensure the user has access to the session
+            const session = await checkAccessToSession(ctx, input.sessionId)
+
+            const existingCheck = await ctx.prisma.skillCheck.findFirst({
+                where: { id: input.skillCheckId, sessionId: input.sessionId },
+            })
+
+            const checkId = existingCheck ? input.skillCheckId : nanoId16()
+
+            const updated = await ctx.prisma.skillCheckSession.update({
                 where: { id: input.sessionId },
                 data: {
-                    checks: {
+                    checks: existingCheck 
+                    ? {
                         update: {
-                            where: { id: input.skillCheckId },
+                            where: { id: existingCheck.id },
                             data: {
                                 result: input.result,
                                 notes: input.notes,
-                                assessor: { connect: { id: assessorId } },
-                                timestamp
+                                date: session.date,
                             }
+                        }
+                    }
+                    : {
+                        create: {
+                            id: checkId,
+                            result: input.result,
+                            notes: input.notes,
+                            date: session.date,
+                            skill: { connect: { id: input.skillId } },
+                            assessee: { connect: { id: input.assesseeId } },
+                            assessor: { connect: { id: assessorId } },
                         }
                     },
                     changeLogs: {
                         create: {
                             id: nanoId16(),
-                            event: 'UpdateCheck',
+                            event: existingCheck ? 'UpdateCheck' : 'CreateCheck',
                             actorId: ctx.personId,
                             meta: {
-                                skillCheckId: input.skillCheckId,
+                                skillCheckId: checkId,
                                 skillId: input.skillId,
                                 assesseeId: input.assesseeId,
                                 assessorId: assessorId,
@@ -709,19 +663,30 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                             fields: {
                                 result: input.result,
                                 notes: input.notes,
-                                timestamp,
                             }
                         }
                     }
                 },
                 include: {
                     checks: {
-                        where: { id: input.skillCheckId },
-                    }
+                        where: { id: checkId },
+                    },
+                    _count: {
+                        select: {
+                            skills: true,
+                            assessees: true,
+                            assessors: true,
+                            checks: true
+                        }
+                    },
+                    team: true
                 }
             })
-            return toSkillCheckData(updated)
-        })
+            return {
+                session: toSkillCheckSessionData(updated),
+                check: toSkillCheckData(updated.checks[0])
+            }
+        }),
 
 })
 
@@ -734,7 +699,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
  * @param sessionId The ID of the session to check.
  * @throws TRPCError(NOT_FOUND) if the session is not found or the user does not have access.
  */
-export async function checkAccessToSession(ctx: AuthenticatedContext, sessionId: string): Promise<void> {
+export async function checkAccessToSession(ctx: AuthenticatedContext, sessionId: string): Promise<SkillCheckSessionRecord> {
     const orgIdIfAdmin = (ctx.isCurrentTeamAdmin ? ctx.auth.orgId : "NEVER") ?? "NEVER"
 
     const session = await ctx.prisma.skillCheckSession.findUnique({
@@ -749,6 +714,7 @@ export async function checkAccessToSession(ctx: AuthenticatedContext, sessionId:
 
     if(!session) throw new TRPCError({ code: 'NOT_FOUND', message: `Session with ID ${sessionId} not found.` })
     
+    return session
 }
 
 export async function getSkillById(ctx: AuthenticatedContext, skillId: string): Promise<SkillRecord> {

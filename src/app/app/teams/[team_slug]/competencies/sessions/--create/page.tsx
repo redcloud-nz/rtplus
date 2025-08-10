@@ -15,7 +15,7 @@ import * as Paths from '@/paths'
 import { fetchTeamBySlug } from '@/server/fetch'
 import { HydrateClient } from '@/trpc/server'
 
-import { NewSession_Details_Card } from './new-session-details'
+import { ActiveTeam_NewSession_Details_Card } from './active-team-new-session-details'
 
 export async function generateMetadata(props: { params: Promise<{ team_slug: string }> }): Promise<Metadata> {
     const team = await fetchTeamBySlug(props.params)
@@ -41,7 +41,7 @@ export default async function CreateSessionPage(props: { params: Promise<{ team_
                 </PageHeader>
 
                 <Boundary>
-                    <NewSession_Details_Card/>
+                    <ActiveTeam_NewSession_Details_Card/>
                 </Boundary>
             </AppPageContent>
         </HydrateClient>

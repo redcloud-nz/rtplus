@@ -6,7 +6,6 @@
 'use client'
 
 import { formatISO } from 'date-fns'
-import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
@@ -25,10 +24,9 @@ import { useTRPC } from '@/trpc/client'
 
 
 export function MySessionsList_Card() {
-    const router = useRouter()
     const trpc = useTRPC()
 
-    const sessionsQuery = useSuspenseQuery(trpc.activeTeam.skillCheckSessions.getTeamSessions.queryOptions())
+    const sessionsQuery = useSuspenseQuery(trpc.skillCheckSessions.getMySessions.queryOptions({}))
 
     async function handleRefresh() {
         await sessionsQuery.refetch()

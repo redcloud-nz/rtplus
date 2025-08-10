@@ -7,11 +7,11 @@
 
 import * as React from 'react'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 
 
 import * as Paths from '@/paths'
-import { RecordSkillCheckCard } from './record-skill-check-card'
+import { ActiveTeam_CreateSkillCheck_Card } from './active-team-record-skill-check'
 import { fetchTeamBySlug } from '@/server/fetch'
 import { HydrateClient } from '@/trpc/server'
 import { Boundary } from '@/components/boundary'
@@ -32,7 +32,7 @@ export default async function RecordSkillCheckPage({ params }: { params: Promise
         <HydrateClient>
             <AppPageContent variant="container">
                 <Boundary>
-                    <RecordSkillCheckCard/> 
+                    <ActiveTeam_CreateSkillCheck_Card/> 
                 </Boundary>
                 
             </AppPageContent>

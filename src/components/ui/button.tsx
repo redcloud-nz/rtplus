@@ -83,7 +83,7 @@ export function Button({ className, variant, color, size, asChild = false, ...pr
 
 
 export type AsyncButtonProps = ButtonProps & {
-    onClick?: (event: React.MouseEvent<HTMLButtonElement>) => Promise<void>
+    onClick?: (event: React.MouseEvent<HTMLButtonElement>)=> Promise<any>
     label?: React.ReactNode
     pending?: React.ReactNode
     done?: React.ReactNode

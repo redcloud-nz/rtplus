@@ -5,6 +5,7 @@
  */
 'use client'
 
+import { formatISO } from 'date-fns'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -13,9 +14,11 @@ import z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 
+import { DatePicker } from '@/components/controls/date-picker'
 import { CurrentPersonValue } from '@/components/controls/person-value'
 import { SkillPicker } from '@/components/controls/skill-picker'
 import { TeamMemberPicker } from '@/components/controls/team-member-picker'
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -29,10 +32,10 @@ import { useTRPC } from '@/trpc/client'
 
 
 
-const singleSkillCheckSchema = skillCheckSchema.omit({ assessorId: true, sessionId: true, timestamp: true })
+const singleSkillCheckSchema = skillCheckSchema.omit({ assessorId: true, sessionId: true })
 
 
-export function RecordSkillCheckCard() {
+export function ActiveTeam_CreateSkillCheck_Card() {
     const router = useRouter()
     const { toast } = useToast()
     const trpc = useTRPC()
@@ -45,24 +48,21 @@ export function RecordSkillCheckCard() {
             skillCheckId,
             skillId: '',
             assesseeId: '',
-            result: 'NotAssessed',
-            notes: ''
+            result: '',
+            notes: '',
+            date: formatISO(new Date(), { representation: 'date' }),
         }
     })
 
     const mutation = useMutation(trpc.activeTeam.skillChecks.createIndependentSkillCheck.mutationOptions({
         onError(error) {
-            if (error.shape?.cause?.name === 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof z.infer<typeof singleSkillCheckSchema>, { message: error.shape.message })
-            } else {
-                toast({
-                    title: "Error recording skill check",
-                    description: error.message,
-                    variant: 'destructive',
-                })
-            }
+            toast({
+                title: "Error saving skill check",
+                description: error.message,
+                variant: 'destructive',
+            })
         },
-        onSuccess() {
+        onSuccess(result) {
             toast({
                 title: "Skill check recorded",
                 description: "The skill check has been successfully recorded.",
@@ -79,10 +79,10 @@ export function RecordSkillCheckCard() {
             <FormProvider {...form}>
                 <Form onSubmit={form.handleSubmit((formData) => mutation.mutateAsync(formData))}>
                     <ToruGrid mode="form">
+                        
                         <ToruGridRow
                             label="Assessor"
                             control={<CurrentPersonValue/>}
-                            description="The person recording the skill check."
                         />
                         <FormField
                             control={form.control}
@@ -95,7 +95,6 @@ export function RecordSkillCheckCard() {
                                     placeholder="Select a person to assess..."
                                    size="default" 
                                 />}
-                                description="The person to assess."
                             />}
                         />
                         <FormField
@@ -108,7 +107,6 @@ export function RecordSkillCheckCard() {
                                     onValueChange={({ skillId }) => field.onChange(skillId)}
                                     placeholder="Select a skill to assess..."
                                 />}
-                                description="The skill to assess."
                             />}
                         />
                         <FormField
@@ -128,7 +126,6 @@ export function RecordSkillCheckCard() {
                                         </SelectContent>
                                     </Select>
                                 }
-                                description="The level of competence demonstrated."
                             />}
                         />
                         <FormField
@@ -137,7 +134,14 @@ export function RecordSkillCheckCard() {
                             render={({ field }) => <ToruGridRow
                                 label="Notes"
                                 control={<Textarea {...field} maxLength={500}/>}
-                                description="Any additional notes or comments."
+                            />}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="date"
+                            render={({ field }) => <ToruGridRow
+                                label="Check Date"
+                                control={<DatePicker {...field} />}
                             />}
                         />
 

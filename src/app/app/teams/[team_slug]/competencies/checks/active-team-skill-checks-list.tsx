@@ -18,9 +18,8 @@ import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
 
 import { PersonData } from '@/lib/schemas/person'
-import { SkillCheckData } from '@/lib/schemas/skill-check'
+import { CompetenceLevel, CompetenceLevelTerms, SkillCheckData } from '@/lib/schemas/skill-check'
 import { SkillData } from '@/lib/schemas/skill'
-import { formatDateTime } from '@/lib/utils'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
@@ -76,16 +75,16 @@ export function ActiveTeam_SkillChecksList_Card() {
         }),
         columnHelper.accessor('result', {
             header: 'Result',
-            cell: ctx => ctx.getValue(),
+            cell: ctx => CompetenceLevelTerms[ctx.getValue() as CompetenceLevel] || ctx.getValue(),
             enableGrouping: true,
             enableHiding: true,
             enableSorting: true,
             enableGlobalFilter: false,
         }),
-        columnHelper.accessor('timestamp', {
-            id: 'timestamp',
-            header: 'Timestamp',
-            cell: ctx => formatDateTime(ctx.getValue()),
+        columnHelper.accessor('date', {
+            id: 'date',
+            header: 'Date',
+            cell: ctx => ctx.getValue(),
             enableGrouping: false,
             enableHiding: true,
             enableSorting: true,
@@ -104,7 +103,7 @@ export function ActiveTeam_SkillChecksList_Card() {
         getPaginationRowModel: getPaginationRowModel(),
         initialState: {
             columnVisibility: {
-                skillCheckId: false, assessee: true, assessor: true, skill: true, result: true, timestamp: true,
+                skillCheckId: false, assessee: true, assessor: true, skill: true, result: true, date: true,
             },
             columnFilters: [],
             globalFilter: '',
@@ -114,7 +113,7 @@ export function ActiveTeam_SkillChecksList_Card() {
                 pageSize: 50,
             },
             sorting: [
-                { id: 'timestamp', desc: true },
+                { id: 'date', desc: true },
             ]
         },
     })

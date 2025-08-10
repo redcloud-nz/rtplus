@@ -12,17 +12,22 @@ import { match } from 'ts-pattern'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { PersonPicker } from '@/components/controls/person-picker'
+import { TeamMemberPicker } from '@/components/controls/team-member-picker'
 import { Button, DeleteConfirmButton, RefreshButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { ObjectName } from '@/components/ui/typography'
 
+import { useSkillCheckSessionUpdater } from '@/hooks/use-skill-check-session-updater'
 import { useToast } from '@/hooks/use-toast'
 import { EditableFeature } from '@/lib/editable-feature'
 import { PersonData } from '@/lib/schemas/person'
 import { useTRPC } from '@/trpc/client'
+
+
+
 
 
 
@@ -51,6 +56,8 @@ export function SkillCheckSession_AssesseesList_Card({ sessionId }: { sessionId:
         assessee
     })), [assignedAssesseesQuery.data])
 
+    const sessionUpdater = useSkillCheckSessionUpdater(queryClient)
+
     const addAssesseeMutation = useMutation(trpc.skillCheckSessions.addAssessee.mutationOptions({
         async onMutate(data) {
             await queryClient.cancelQueries(trpc.skillCheckSessions.getAssessees.queryFilter({ sessionId }))
@@ -75,9 +82,9 @@ export function SkillCheckSession_AssesseesList_Card({ sessionId }: { sessionId:
         onSuccess(result) {
             toast({
                 title: "Assessee added to session",
-                description: `Assessee '${result.assessee.name}' has been successfully added to the session.`,
+                description: <><ObjectName>{result.assessee.name}</ObjectName> has been successfully added to the session as an assessee.</>,
             })
-            queryClient.invalidateQueries(trpc.skillCheckSessions.getSession.queryFilter({ sessionId }))
+            sessionUpdater.updateSession(result.session)
         },
         onSettled() {
             queryClient.invalidateQueries(trpc.skillCheckSessions.getAssessees.queryFilter({ sessionId }))
@@ -106,7 +113,7 @@ export function SkillCheckSession_AssesseesList_Card({ sessionId }: { sessionId:
         onSuccess(result) {
             toast({
                 title: "Assessee removed from session",
-                description: `Assessee '${result.assessee.name}' has been successfully removed from the session.`,
+                description: <><ObjectName>{result.assessee.name}</ObjectName> has been successfully removed (as an assessee) from the session.</>,
             })
             queryClient.invalidateQueries(trpc.skillCheckSessions.getSession.queryFilter({ sessionId }))
         },
@@ -130,11 +137,11 @@ export function SkillCheckSession_AssesseesList_Card({ sessionId }: { sessionId:
             cell: ctx => (match(ctx.row.getEditMode())
                 .with('Create', () => {
                     const existingAssesseeIds = assignedAssesseesQuery.data.map(a => a.personId)
-                    return <PersonPicker
+                    return <TeamMemberPicker
                         size='sm'
                         className="-m-2"
                         value={ctx.row.getModifiedRowData().assessee.personId}
-                        onValueChange={assessee => ctx.row.setModifiedRowData({ assessee })}
+                        onValueChange={member => ctx.row.setModifiedRowData({ assessee: member.person })}
                         placeholder='Select assessee'
                         exclude={existingAssesseeIds}
                     />

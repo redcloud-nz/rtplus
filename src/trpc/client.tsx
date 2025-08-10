@@ -8,7 +8,6 @@ import superjson from 'superjson'
 
 import { type QueryClient, QueryClientProvider, isServer } from '@tanstack/react-query'
 import { createTRPCClient, httpBatchLink } from '@trpc/client'
-import { createTRPCQueryUtils } from '@trpc/react-query'
 import { createTRPCContext } from '@trpc/tanstack-react-query'
 
 import { makeQueryClient } from './query-client'
@@ -51,9 +50,6 @@ const trpcClient = createTRPCClient<AppRouter>({
     ]
 })
 
-export function getTRPCQueryUtils() {
-    return createTRPCQueryUtils({ queryClient: getQueryClient(), client: trpcClient })
-}
 
 export function TRPCReactProvider({ children }: { children: React.ReactNode }) {
     const queryClient = getQueryClient()
@@ -65,12 +61,4 @@ export function TRPCReactProvider({ children }: { children: React.ReactNode }) {
             </TRPCProvider>
         </QueryClientProvider>
     )
-
-    // return (
-    //     <trpc.Provider client={trpcClient} queryClient={queryClient}>
-    //         <QueryClientProvider client={queryClient}>
-    //             {children}
-    //         </QueryClientProvider>
-    //     </trpc.Provider>
-    // )
 }

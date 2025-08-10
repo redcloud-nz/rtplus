@@ -11,13 +11,13 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { DisplayValue } from '@/components/ui/display-value'
 import { Separator } from '@/components/ui/separator'
-import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
+import { ToruGrid, ToruGridRow } from '@/components/ui/toru-grid'
 
 import { useTRPC } from '@/trpc/client'
 
 
 
-export function Session_Details_Card({ sessionId }: { sessionId: string }) {
+export function SkillCheckSession_Details_Card({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
 
     const { data: session } = useSuspenseQuery(trpc.skillCheckSessions.getSession.queryOptions({ sessionId }))
