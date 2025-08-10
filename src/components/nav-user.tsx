@@ -7,7 +7,7 @@
 
 import { ArrowRightLeftIcon, BadgeCheck, ChevronsUpDown, KeyRoundIcon, LogInIcon, LogOutIcon, ShieldQuestionIcon } from 'lucide-react'
 
-import { SignInButton, useClerk, useUser } from '@clerk/nextjs'
+import { RedirectToSignIn, SignInButton, useClerk, useUser } from '@clerk/nextjs'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -91,15 +91,15 @@ export function NavUser() {
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                                <Link href={Paths.personal.whoami}>
+                                <Link href={Paths.personal.whoami.index}>
                                     <ShieldQuestionIcon />
-                                    Who am I?
+                                    {Paths.personal.whoami._label}
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                                <Link href={Paths.personal.d4hAccessTokens}>
+                                <Link href={Paths.personal.d4hAccessTokens.index}>
                                     <KeyRoundIcon/>
-                                    D4H Access Tokens
+                                    {Paths.personal.d4hAccessTokens._label}
                                 </Link>
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
@@ -118,11 +118,7 @@ export function NavUser() {
                         </DropdownMenuGroup>
                     </DropdownMenuContent>
                 </DropdownMenu>
-                : <div className="flex justify-center">
-                    <SignInButton>
-                        <Button variant="outline"><LogInIcon/> Sign In</Button>
-                    </SignInButton>
-                </div>
+                : <RedirectToSignIn/>
             }
         </SidebarMenuItem>
     </SidebarMenu>

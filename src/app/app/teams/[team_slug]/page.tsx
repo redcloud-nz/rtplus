@@ -5,7 +5,7 @@
  *  Path: /app/team/[team_slug]
  */
 
-import { PocketKnifeIcon } from 'lucide-react'
+import { CombineIcon, PocketKnifeIcon, UsersIcon } from 'lucide-react'
 import Image from 'next/image'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
@@ -54,14 +54,7 @@ export default async function TeamHomePage(props: { params: Promise<{ team_slug:
                         iconBackground="bg-teal-50"
                         description="Collect availabilty from your team."
                     />
-                    <DashboardCard
-                        title="Checklists"
-                        href={teamPath.checklists}
-                        icon={ListChecksIcon}
-                        iconForeground="text-purple-700"
-                        iconBackground="bg-purple-50"
-                        description="Create and manage checklists for your team."
-                    /> */}
+                     */}
                     <DashboardCard
                         title="Competencies"
                         href={teamPath.competencies.index}
@@ -69,6 +62,14 @@ export default async function TeamHomePage(props: { params: Promise<{ team_slug:
                         iconForeground="text-sky-700"
                         iconBackground="bg-sky-50"
                         description="Manage, assess, and report competencies for your team."
+                    />
+                     <DashboardCard
+                        title={teamPath.members._label}
+                        href={teamPath.members.index}
+                        icon={UsersIcon}
+                        iconForeground="text-purple-700"
+                        iconBackground="bg-purple-50"
+                        description="Manage the members of your team."
                     />
                     {/* <DashboardCard
                         title="Field Operations Guide"
@@ -86,14 +87,15 @@ export default async function TeamHomePage(props: { params: Promise<{ team_slug:
                         iconBackground="bg-rose-50"
                         description="Access the Reference Cards."
                     />
+                    */}
                     <DashboardCard
-                        title="D4H Unified"
-                        href={Paths.unified.index}
+                        title={Paths.unifiedD4h._label}
+                        href={Paths.unifiedD4h.index}
                         icon={CombineIcon}
                         iconForeground="text-indigo-700"
                         iconBackground="bg-indigo-50"
                         description="Alternate views of the data stored in D4H Team Manager. Unified across multiple teams."
-                    /> */}
+                    />
                 </DashboardCardList>
             </div>
         </AppPageContent>

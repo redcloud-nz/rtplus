@@ -2,17 +2,22 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- * /post-sign-in
+ * Path: /app/onboarding
  */
+
+import { redirect } from 'next/navigation'
 
 import { auth, createClerkClient } from '@clerk/nextjs/server'
 
-import { resolveAfter } from '@/lib/utils'
+import { nanoId8 } from '@/lib/id'
 
+import * as Paths from '@/paths'
 import prisma from '@/server/prisma'
 
 
-export default async function PostSignInLoading() {
+
+export default async function OnBoarding_Page(props: { searchParams: Promise<{ redirect_url?: string }> }) {
+    const { redirect_url } = await props.searchParams
 
     const { sessionClaims, userId } = await auth.protect()
 
@@ -24,7 +29,7 @@ export default async function PostSignInLoading() {
         throw new Error("No email address found for user. Please contact support.")
     }
 
-    const personId = sessionClaims.rt_person_id
+    const personId = sessionClaims.rt_person_id ?? nanoId8()
         
     const person = await prisma.person.findUnique({
         where: { id: personId },
@@ -54,11 +59,14 @@ export default async function PostSignInLoading() {
         })
     }    
 
-    await resolveAfter(null, 2000) // Simulate a delay for loading
+    // Update user public metadata
+    await clerkClient.users.updateUserMetadata(userId, {
+        publicMetadata: {
+            ...user.publicMetadata,
+            person_id: personId,
+            onboarding_status: 'complete',
+        },
+    })
 
-    return (
-        <div className="flex flex-col items-center justify-center w-full h-screen">
-            Loaded
-        </div>
-    )
+    return redirect(redirect_url ?? Paths.switchTeam)
 }

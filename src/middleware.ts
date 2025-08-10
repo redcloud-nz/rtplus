@@ -17,6 +17,11 @@ export default clerkMiddleware(
         if(userId) {
             // Authenticated user
 
+            if(sessionClaims.onboarding_status === 'incomplete') {
+                // Redirect users with incomplete onboarding
+                return NextResponse.redirect(`/app/onboarding?redirect_url=${encodeURIComponent(req.url)}`)
+            }
+
             // Redirect non-system-admin users from system admin routes
             if(isSystemAdminRoute(req) && sessionClaims?.rt_system_role !== 'admin') {
                 return NextResponse.redirect('/')

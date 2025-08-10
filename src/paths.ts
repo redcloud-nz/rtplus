@@ -6,6 +6,10 @@
 import { PolicyKeyType } from "./lib/policy"
 import { TeamData } from "./lib/schemas/team"
 
+export const app = {
+    index: '/app',
+}
+
 export const competencies = {
     index: '/app/competencies',
     session: (sessionId: string) => ({

@@ -28,11 +28,13 @@ declare global {
     interface UserPublicMetadata {
         person_id: string
         system_role?: 'admin' | 'none'
+        onboarding_status: 'incomplete' | 'complete'
     }
     interface CustomJwtSessionClaims {
         org_name: string
         org_slug: string
         rt_person_id: string
         rt_system_role?: 'admin' | 'none'
+        onboarding_status: 'incomplete' | 'complete'
     }
 }

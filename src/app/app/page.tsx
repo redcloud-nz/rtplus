@@ -8,6 +8,11 @@
 import { AppPage } from '@/components/app-page'
 
 export default function AppIndexPage() {
+
+    // This is the main entry point for the app. Redirect to the team dashboard if a team is selected.
+    // Otherwise, redirect to the personal dashboard.
+
+
     return <AppPage>
         
     </AppPage>

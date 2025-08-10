@@ -9,7 +9,10 @@ import Image from 'next/image'
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs'
 
 import { Button } from '@/components/ui/button'
-import {Link} from '@/components/ui/link'
+import { Link } from '@/components/ui/link'
+
+import * as Paths from '@/paths'
+
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
     return <div className="flex flex-col min-h-screen [&>main]:flex-1">
@@ -41,11 +44,11 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <div className="ml-6 flex items-center gap-2">
                 <SignedIn>
                     <Button asChild>
-                        <Link href="/app">RT+ App <ArrowRightIcon/></Link>
+                        <Link href={Paths.app.index}>RT+ App <ArrowRightIcon/></Link>
                     </Button>
                 </SignedIn>
                 <SignedOut>
-                    <SignInButton>
+                    <SignInButton forceRedirectUrl={Paths.app.index}>
                         <Button> Sign In</Button>
                     </SignInButton>
                 </SignedOut>
