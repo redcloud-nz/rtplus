@@ -131,7 +131,10 @@ export const policies = {
 }
 
 // Switch Team
-export const switchTeam = `/app/switch-team`
+export const selectTeam = {
+    index: '/app/select-team',
+    _label: 'Select Team',
+}
 
 // Team
 
@@ -193,25 +196,25 @@ export const team = (teamOrSlug: TeamData | string) => {
     } as const
 }
 
-export const unifiedD4h = {
-    _label: 'Unified D4H',
-    index: '/app/unified-d4h',
+export const d4h = {
+    _label: 'D4H Integration',
+    index: '/app/d4h',
     activities: {
         _label: 'Activities',
-        index: '/app/unified-d4h/activities',
+        index: '/app/d4h/activities',
     },
     calendar: {
         _label: 'Calendar',
-        index: '/app/unified-d4h/calendar',
+        index: '/app/d4h/calendar',
         
     },
     personnel: {
         _label: 'Personnel',
-        index: '/app/unified-d4h/personnel',
+        index: '/app/d4h/personnel',
     },
     equipment: {
         _label: 'Equipment',
-        index: '/app/unified-d4h/equipment',
+        index: '/app/d4h/equipment',
     },
 } as const
 
@@ -220,7 +223,7 @@ export const unifiedD4h = {
 //  \------------------------------/
 export const personal = {
     _label: 'Personal',
-    index: '/app/personal/user-profile',
+    index: '/app/personal',
     organizationList: {
         _label: 'Organizations',
         index: '/app/personal/organizations',
@@ -233,9 +236,9 @@ export const personal = {
         _label: 'Who Am I',
         index: '/app/personal/whoami',
     },
-    userProfile: {
-        _label: 'User Profile',
-        index: '/app/personal/user-profile',
+    account: {
+        _label: 'Account',
+        index: '/app/personal/account',
     },
 } as const
 

@@ -6,7 +6,7 @@
  */
 
 import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
-import { NotImplemented } from '@/components/errors'
+import { NotImplemented } from '@/components/nav/errors'
 
 export default async function SettingsPage() {
     return <AppPage>

@@ -7,7 +7,7 @@
 
 import Image from 'next/image'
 
-import { NotFound } from '@/components/errors'
+import { NotFound } from '@/components/nav/errors'
 
 export default function NotFoundPage() {
     return <div className="w-full h-screen flex flex-col justify-center items-center gap-4">

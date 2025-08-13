@@ -7,8 +7,9 @@
 
 import { z } from 'zod'
 
-export const D4H_ACCESS_TOKENS_QUERY_KEY = ['d4h-access-tokens'] as const
-const LOCAL_STORAGE_KEY = 'rtplus/d4h-access-tokens'
+function createStorageKey(personId: string) {
+    return `rtplus/d4h-access-tokens/${personId}`
+}
 
 const accessTokenSchema = z.object({
     id: z.string().uuid(),
@@ -24,8 +25,8 @@ const accessTokenSchema = z.object({
 
 export type D4hAccessTokenData = z.infer<typeof accessTokenSchema>
 
-export function getAccessTokens(): D4hAccessTokenData[] {
-    const fromStorage = window.localStorage?.getItem(LOCAL_STORAGE_KEY) ?? ''
+export function getAccessTokens(personId: string): D4hAccessTokenData[] {
+    const fromStorage = window.localStorage?.getItem(createStorageKey(personId)) ?? ''
 
     const parsed = JSON.parse(fromStorage || '[]') as object[]
 
@@ -42,41 +43,41 @@ export function getAccessTokens(): D4hAccessTokenData[] {
     return validated
 }
 
-export function addAccessToken(token: D4hAccessTokenData) {
-    const tokens = getAccessTokens()
+export function addAccessToken(personId: string, token: D4hAccessTokenData) {
+    const tokens = getAccessTokens(personId)
     const newTokens = [...tokens, token]
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newTokens))
+    localStorage.setItem(createStorageKey(personId), JSON.stringify(newTokens))
 }
 
-export function updateAccessToken(id: string, updatedToken: Partial<D4hAccessTokenData>) {
-    const tokens = getAccessTokens()
+export function updateAccessToken(personId: string, id: string, updatedToken: Partial<D4hAccessTokenData>) {
+    const tokens = getAccessTokens(personId)
     const newTokens = tokens.map(token => 
         token.id === id ? { ...token, ...updatedToken } : token
     )
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newTokens))
+    localStorage.setItem(createStorageKey(personId), JSON.stringify(newTokens))
 }
 
-export function removeAccessToken(id: string) {
-    const tokens = getAccessTokens()
+export function removeAccessToken(personId: string, id: string) {
+    const tokens = getAccessTokens(personId)
     const newTokens = tokens.filter(token => token.id !== id)
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newTokens))
+    localStorage.setItem(createStorageKey(personId), JSON.stringify(newTokens))
 }
 
 
 export const D4hAccessTokens = {
-    queryKey() {
-        return ['d4h-access-tokens'] as const
+    queryKey(personId: string) {
+        return ['d4h-access-tokens', personId] as const
     },
-    queryOptions() {
+    queryOptions(personId: string) {
          return {
-            queryKey: this.queryKey(),
-            queryFn: getAccessTokens,
+            queryKey: this.queryKey(personId),
+            queryFn: () => getAccessTokens(personId),
         } as const
     }
 }
 
 /**
- * Exract the unique teams associated with the specified D4H access tokens.
+ * Extract the unique teams associated with the specified D4H access tokens.
  * This will return a list of unique teams, each with the access token that provides access to that team.
  * If a team is found on multiple access tokens, it will only be included once.
  * 

@@ -16,7 +16,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar'
-import { ExternalLink, Link } from './ui/link'
+import { ExternalLink, Link } from '../ui/link'
 
 
 export interface INavItem {
@@ -35,14 +35,14 @@ export interface INavSubItem {
 
 
 export interface NavSectionProps {
-    title: string
+    title?: string
     children: React.ReactNode
 }
 
 
 export function NavSection({ title, children }: NavSectionProps) {
     return <SidebarGroup>
-        <SidebarGroupLabel>{title}</SidebarGroupLabel>
+        { title ? <SidebarGroupLabel>{title}</SidebarGroupLabel> : null }
         <SidebarMenu>
             {children}
         </SidebarMenu>

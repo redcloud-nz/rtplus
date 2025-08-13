@@ -17,6 +17,7 @@ import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 
 import * as Paths from '@/paths'
 import prisma from '@/server/prisma'
+import { Whoami_ClerkUser_Card } from './whoami-clerk-user'
 
 
 
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
     title: "Who am I?"
 }
 
-export default async function WhoAmIPage() {
+export default async function Whoami_Page() {
 
     const { sessionClaims } = await auth.protect()
     const clerkUser = (await currentUser())!
@@ -47,40 +48,7 @@ export default async function WhoAmIPage() {
                 <PageTitle>Who am I?</PageTitle>
                 <PageDescription>Data connected to your user session.</PageDescription>
             </PageHeader>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Clerk</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <DL>
-                        <DLTerm>Clerk User ID</DLTerm>
-                        <DLDetails>{clerkUser.id}</DLDetails>
-
-                        {clerkUser.fullName && <>
-                            <DLTerm>Full Name</DLTerm>
-                            <DLDetails>{clerkUser.fullName}</DLDetails>
-                        </>}
-                        {clerkUser.primaryEmailAddress && <>
-                            <DLTerm>Primary Email Address</DLTerm>
-                            <DLDetails>{clerkUser.primaryEmailAddress.emailAddress}</DLDetails>
-                        </>}
-                        {clerkUser.primaryPhoneNumber && <>
-                            <DLTerm>Primary Phone Number</DLTerm>
-                            <DLDetails>{clerkUser.primaryPhoneNumber.phoneNumber}</DLDetails>
-                        </>}
-
-                        <DLTerm>Public Metadata</DLTerm>
-                        <DLDetails className="overflow-auto">
-                            <pre className="font-mono text-sm">
-                                <code>
-                                    {JSON.stringify(clerkUser.publicMetadata, null, 2)}
-                                </code>
-                            </pre>
-                        </DLDetails>
-                        
-                    </DL>
-                </CardContent>
-            </Card>
+            <Whoami_ClerkUser_Card/>
             <Card>
                 <CardHeader>
                     <CardTitle>RT+ Person</CardTitle>
@@ -97,8 +65,6 @@ export default async function WhoAmIPage() {
                             <DLTerm>Email</DLTerm>
                             <DLDetails>{person.email}</DLDetails>
 
-                            <DLTerm>Onboarding Status</DLTerm>
-                            <DLDetails>REMOVED</DLDetails>
 
                             <DLTerm>Status</DLTerm>
                             <DLDetails>{person.status}</DLDetails>

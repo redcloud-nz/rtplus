@@ -6,7 +6,7 @@
  */
 
 import { AppPage } from '@/components/app-page'
-import { NotFound } from '@/components/errors'
+import { NotFound } from '@/components/nav/errors'
 
 export default function AppNotFoundPage() {
     return <AppPage>

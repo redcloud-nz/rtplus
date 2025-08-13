@@ -5,12 +5,11 @@
 
 import { z } from 'zod'
 
-import { OrganizationMembership as ClerkOrganizationMembership } from '@clerk/nextjs/server'
 import { TRPCError } from '@trpc/server'
 
-import { OrganizationData, organizationSchema } from '@/lib/schemas/organization'
-import { OrgMembershipData, orgMembershipSchema } from '@/lib/schemas/org-membership'
-import { UserData, userSchema } from '@/lib/schemas/user'
+import { organizationSchema } from '@/lib/schemas/organization'
+import { orgMembershipSchema, toOrgMembershipDataExtended } from '@/lib/schemas/org-membership'
+import { userSchema } from '@/lib/schemas/user'
 import { zodNanoId8 } from '@/lib/validation'
 
 import { authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
@@ -44,7 +43,7 @@ export const usersRouter = createTRPCRouter({
 
             const response = await ctx.clerkClient.users.getOrganizationMembershipList({ userId: person.clerkUserId, limit: 501 })
 
-            return response.data.map(toOrgMembershipData)
+            return response.data.map(toOrgMembershipDataExtended)
         }),
 
     /**
@@ -70,7 +69,7 @@ export const usersRouter = createTRPCRouter({
                 organizationId: team.clerkOrgId, limit: 501
             })
 
-            return response.data.map(toOrgMembershipData)
+            return response.data.map(toOrgMembershipDataExtended)
         }),
 
     /**
@@ -99,7 +98,7 @@ export const usersRouter = createTRPCRouter({
                 userId: input.userId,
             })
 
-            return toOrgMembershipData(response)
+            return toOrgMembershipDataExtended(response)
         }),
         
     /**
@@ -131,33 +130,6 @@ export const usersRouter = createTRPCRouter({
                 role: input.role,
             })
 
-            return toOrgMembershipData(response)
+            return toOrgMembershipDataExtended(response)
         }),
 })
-
-
-/**
- * Converts a Clerk Organization Membership to the internal OrgMembershipData format.
- * @param orgMembership The Clerk Organization Membership to convert.
- * @returns The converted OrgMembershipData.
- */
-function toOrgMembershipData(orgMembership: ClerkOrganizationMembership): OrgMembershipData & { user: UserData, organization: OrganizationData } {
-    return {
-        orgMembershipId: orgMembership.id,
-        role: orgMembership.role as 'org:admin' | 'org:member',
-        userId: orgMembership.publicUserData?.userId || '',
-        user: {
-            userId: orgMembership.publicUserData?.userId || '',
-            identifier: orgMembership.publicUserData?.identifier || '',
-            name: `${orgMembership.publicUserData?.firstName || ''} ${orgMembership.publicUserData?.lastName || ''}`.trim() || "Unknown User",
-        },
-        organizationId: orgMembership.organization.id,
-        organization: {
-            orgId: orgMembership.organization.id,
-            name: orgMembership.organization.name,
-            slug: orgMembership.organization.slug || null,
-        },
-        createdAt: orgMembership.createdAt,
-        updatedAt: orgMembership.updatedAt,
-    }
-}

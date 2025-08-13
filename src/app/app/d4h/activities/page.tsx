@@ -7,21 +7,26 @@
 
 import { Metadata } from 'next'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
+import { auth } from '@clerk/nextjs/server'
 
-import * as Paths from '@/paths'
-import { UnifiedD4h_Activities_ListCard } from './unified-d4h-activities-list'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 
-export const metadata: Metadata = { title: "Activities" }
+import * as Paths from '@/paths'
+import { D4hActivitiesList_Card } from './d4h-activities-list'
 
 
-export default async function ActivitiesPage() {
+
+export const metadata: Metadata = { title: "Activities - D4H" }
+
+
+export default async function D4HActivities_Page() {
+    const { sessionClaims: { rt_person_id: personId } } = await auth.protect()
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
-            Paths.unifiedD4h,
-            Paths.unifiedD4h.activities
+            Paths.d4h,
+            Paths.d4h.activities
         ]}/>
         <AppPageContent>
             <PageHeader>
@@ -31,7 +36,7 @@ export default async function ActivitiesPage() {
                 </PageDescription>
             </PageHeader>
             <Boundary>
-                <UnifiedD4h_Activities_ListCard/>
+                <D4hActivitiesList_Card personId={personId} />
             </Boundary>
         </AppPageContent>
     </AppPage>

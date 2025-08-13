@@ -7,7 +7,7 @@ import type { Metadata } from 'next'
 import { ReactNode } from 'react'
 
 import { AppFrontendProvider } from '@/components/app-frontend-provider'
-import { AppSidebar } from '@/components/app-sidebar'
+import { AppSidebar } from '@/components/nav/app-sidebar'
 
 
 export const metadata: Metadata = {

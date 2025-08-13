@@ -210,7 +210,7 @@ export function Sidebar({ side = "left", variant = "sidebar", collapsible = "off
 }
 
 
-export function SidebarTrigger({ onClick, ...props }: React.ComponentPropsWithRef<'button'>) {
+export function SidebarTrigger({ onClick, ...props }: React.ComponentPropsWithRef<typeof Button>) {
     const { toggleSidebar } = useSidebar()
 
     return <Tooltip>
@@ -271,7 +271,7 @@ export function SidebarInset({ className, ...props }: React.ComponentPropsWithRe
 }
 
 
-export function SidebarInput({ className, ...props }: React.ComponentPropsWithRef<'input'>) {
+export function SidebarInput({ className, ...props }: React.ComponentPropsWithRef<typeof Input>) {
     return <Input
         data-sidebar="input"
         className={cn(

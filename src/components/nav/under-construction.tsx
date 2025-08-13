@@ -7,7 +7,7 @@
 import { type ReactNode } from 'react'
 
 
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 
 export function UnderConstruction({ children }: { children: ReactNode }) {
     return <div className="relative">

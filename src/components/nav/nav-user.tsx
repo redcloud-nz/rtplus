@@ -5,12 +5,11 @@
 
 'use client'
 
-import { ArrowRightLeftIcon, BadgeCheck, ChevronsUpDown, KeyRoundIcon, LogInIcon, LogOutIcon, ShieldQuestionIcon } from 'lucide-react'
+import { BadgeCheck, ChevronsUpDown, KeyRoundIcon, LogOutIcon } from 'lucide-react'
 
-import { RedirectToSignIn, SignInButton, useClerk, useUser } from '@clerk/nextjs'
+import { RedirectToSignIn, useClerk, useUser } from '@clerk/nextjs'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -85,17 +84,17 @@ export function NavUser() {
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
                             <DropdownMenuItem asChild>
-                                <Link href={Paths.personal.index}>
+                                <Link href={Paths.personal.account.index}>
                                     <BadgeCheck />
                                     Profile
                                 </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
+                            {/* <DropdownMenuItem asChild>
                                 <Link href={Paths.personal.whoami.index}>
                                     <ShieldQuestionIcon />
                                     {Paths.personal.whoami._label}
                                 </Link>
-                            </DropdownMenuItem>
+                            </DropdownMenuItem> */}
                             <DropdownMenuItem asChild>
                                 <Link href={Paths.personal.d4hAccessTokens.index}>
                                     <KeyRoundIcon/>
@@ -105,12 +104,6 @@ export function NavUser() {
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
-                            <DropdownMenuItem asChild>
-                                <Link href={Paths.switchTeam}>
-                                    <ArrowRightLeftIcon/>
-                                    Switch Team
-                                </Link>
-                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => clerk.signOut({ redirectUrl: '/' })}>
                                 <LogOutIcon/>
                                 Sign out

@@ -5,7 +5,7 @@
  *  Path: /checklists
  */
 
-import { NotImplemented } from '@/components/errors'
+import { NotImplemented } from '@/components/nav/errors'
 
 export default async function ChecklistsPage() {
     return <NotImplemented label="Checklists"/>

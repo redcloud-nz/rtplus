@@ -2,33 +2,36 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /app/unified-d4h/personnel
+ *  Path: /app/d4h/personnel
  */
 
 import { Metadata } from 'next'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
+import { auth } from '@clerk/nextjs/server'
 
-import * as Paths from '@/paths'
-import { UnifiedD4h_Personnel_ListCard } from './unified-d4h-personnel-list'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 
+import * as Paths from '@/paths'
+import { D4hPersonnelList_Card } from './d4h-personnel-list'
 
-export const metadata: Metadata = { title: "Personnel - Unified D4H" }
 
-export default async function PersonnelPage() {
+export const metadata: Metadata = { title: "Personnel - D4H" }
+
+export default async function D4HPersonnel_Page() {
+    const { sessionClaims: { rt_person_id: personId } } = await auth.protect()
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
-                Paths.unifiedD4h,
-                Paths.unifiedD4h.personnel
+                Paths.d4h,
+                Paths.d4h.personnel
         ]}/>
         <AppPageContent>
             <PageHeader>
                 <PageTitle>Personnel</PageTitle>
             </PageHeader>
             <Boundary>
-                 <UnifiedD4h_Personnel_ListCard/>
+                 <D4hPersonnelList_Card personId={personId} />
             </Boundary>
         </AppPageContent>
         

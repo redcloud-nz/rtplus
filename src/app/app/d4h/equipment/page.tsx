@@ -5,10 +5,10 @@
  *  Path: /unified/equipment
  */
 
-import { NotImplemented } from '@/components/errors'
+import { NotImplemented } from '@/components/nav/errors'
 
 
-export default async function EquipmentPage() {
+export default async function D4hEquipment_Page() {
     
     return <NotImplemented/>
 }

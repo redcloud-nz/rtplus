@@ -68,5 +68,5 @@ export default async function OnBoarding_Page(props: { searchParams: Promise<{ r
         },
     })
 
-    return redirect(redirect_url ?? Paths.switchTeam)
+    return redirect(redirect_url ?? Paths.selectTeam)
 }

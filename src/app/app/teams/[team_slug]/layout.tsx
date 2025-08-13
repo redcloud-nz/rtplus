@@ -10,10 +10,9 @@ import { ReactNode } from 'react'
 
 import { auth } from '@clerk/nextjs/server'
 
-import { TeamParams } from '.'
+import * as Paths from '@/paths'
 
-
-export default async function TeamLayout(props: { params: Promise<TeamParams>, children: ReactNode }) {
+export default async function TeamLayout(props: { params: Promise<{ team_slug: string }>, children: ReactNode }) {
 
     const {team_slug: pathSlug } = await props.params
     const { orgSlug } = await auth()
@@ -25,14 +24,9 @@ export default async function TeamLayout(props: { params: Promise<TeamParams>, c
             // The user is signed in to a different organization
             return notFound()
         } else {
-            return <>
-                {props.children}
-            </>
+            return props.children
         }
     } else {
-        // The user is not signed in to an organization
-        redirect(`/`)
+        return redirect(Paths.selectTeam.index)
     }
-
-    return props.children
 }

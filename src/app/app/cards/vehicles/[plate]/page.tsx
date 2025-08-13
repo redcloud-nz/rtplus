@@ -6,7 +6,7 @@
  */
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageTitle } from '@/components/app-page'
-import { NotFound } from '@/components/errors'
+import { NotFound } from '@/components/nav/errors'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
 

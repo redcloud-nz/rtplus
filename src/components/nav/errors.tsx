@@ -6,7 +6,7 @@
 import { AppPageContent, AppPageContentProps } from '@/components/app-page'
 import { Separator } from '@/components/ui/separator'
 
-import { Link } from './ui/link'
+import { Link } from '../ui/link'
 
 export function NotFound(props: AppPageContentProps) {
 

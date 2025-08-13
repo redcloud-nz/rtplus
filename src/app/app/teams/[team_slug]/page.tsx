@@ -14,15 +14,6 @@ import { DashboardCard, DashboardCardList } from '@/components/ui/dashboard-card
 import * as Paths from '@/paths'
 import { fetchTeamBySlug } from '@/server/fetch'
 
-
-
-// const dataCards: { name: string, initials: string, href: string, bgColor: string }[] = [
-//     { name: 'Manage', initials: 'M', href: Paths.system, bgColor: 'bg-blue-500' },
-//     { name: 'Teams', initials: 'T', href: Paths.teams.list, bgColor: 'bg-pink-600' },
-//     { name: 'Personnel', initials: 'P', href: Paths.personnel, bgColor: 'bg-purple-600' },
-//     { name: 'Skill Packages', initials: 'SP', href: Paths.skillPackagesList, bgColor: 'bg-yellow-500' },
-// ]
-
 export default async function TeamHomePage(props: { params: Promise<{ team_slug: string }> }) {
     const team = await fetchTeamBySlug(props.params)
 
@@ -89,8 +80,8 @@ export default async function TeamHomePage(props: { params: Promise<{ team_slug:
                     />
                     */}
                     <DashboardCard
-                        title={Paths.unifiedD4h._label}
-                        href={Paths.unifiedD4h.index}
+                        title={Paths.d4h._label}
+                        href={Paths.d4h.index}
                         icon={CombineIcon}
                         iconForeground="text-indigo-700"
                         iconBackground="bg-indigo-50"

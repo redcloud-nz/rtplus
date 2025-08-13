@@ -8,15 +8,18 @@ import Image from 'next/image'
 import Link from 'next/link'
 import type { ComponentProps } from 'react'
 
+import { Protect } from '@clerk/nextjs'
+
 import { auth } from '@clerk/nextjs/server'
 
-import { NavCollapsible, NavItem, NavSection, NavSubItem } from '@/components/nav-section'
+import { NavCollapsible, NavItem, NavSection, NavSubItem } from '@/components/nav/nav-section'
 
 import * as Paths from '@/paths'
 
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from './ui/sidebar'
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '../ui/sidebar'
 import { NavUser } from './nav-user'
-import { Protect } from '@clerk/nextjs'
+
+import { NavOrganization } from './nav-organization'
 
 export type AppSidebarProps = ComponentProps<typeof Sidebar>
 
@@ -27,7 +30,7 @@ export async function AppSidebar({ ...props }: AppSidebarProps) {
 
     return <Sidebar {...props}>
         <SidebarHeader className="flex items-center justify-center">
-            <Link href="/">
+            <Link href={Paths.selectTeam.index}>
                 <Image
                     className="dark:invert"
                     src="/logo.svg"
@@ -38,6 +41,7 @@ export async function AppSidebar({ ...props }: AppSidebarProps) {
                 />
             </Link>
         </SidebarHeader>
+       
         {/* <div className="h-10 flex justify-center items-center">
             <OrganizationSwitcher
                 appearance={{
@@ -51,8 +55,8 @@ export async function AppSidebar({ ...props }: AppSidebarProps) {
         
         <SidebarContent>
             { teamSlug != null 
-                ?<NavSection title="Team">
-                    <NavItem label="Dashboard" href={Paths.team(teamSlug).index} icon={<LayoutDashboardIcon/>}/>
+                ? <NavSection>
+                    <NavOrganization />
                     <NavCollapsible label="Competencies" icon={<PocketKnifeIcon/>}>
                         <NavSubItem path={Paths.team(teamSlug).competencies.checks}/>
                         <NavSubItem path={Paths.team(teamSlug).competencies.checks.create}/>
@@ -81,11 +85,11 @@ export async function AppSidebar({ ...props }: AppSidebarProps) {
                     <NavSubItem path={Paths.system.skillPackages}/>
                     <NavSubItem path={Paths.system.teams}/>
                 </NavCollapsible> : null }
-                 <NavCollapsible label="Unified D4H" icon={<CableIcon/>}>
-                    <NavSubItem path={Paths.unifiedD4h.activities}/>
-                    <NavSubItem path={Paths.unifiedD4h.calendar}/>
-                    <NavSubItem path={Paths.unifiedD4h.equipment}/>
-                    <NavSubItem path={Paths.unifiedD4h.personnel}/>
+                 <NavCollapsible label="D4H" icon={<CableIcon/>}>
+                    <NavSubItem path={Paths.d4h.activities}/>
+                    <NavSubItem path={Paths.d4h.calendar}/>
+                    <NavSubItem path={Paths.d4h.equipment}/>
+                    <NavSubItem path={Paths.d4h.personnel}/>
                 </NavCollapsible>
             </NavSection>
         </SidebarContent>

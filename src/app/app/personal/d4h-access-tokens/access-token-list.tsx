@@ -19,7 +19,7 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
 
-import { D4H_ACCESS_TOKENS_QUERY_KEY, D4hAccessTokenData, getAccessTokens, removeAccessToken, updateAccessToken } from '@/lib/d4h-access-tokens'
+import { D4hAccessTokenData, D4hAccessTokens, removeAccessToken, updateAccessToken } from '@/lib/d4h-access-tokens'
 import { getD4hServer } from '@/lib/d4h-api/servers'
 import { EditableFeature } from '@/lib/editable-feature'
 import { formatDateTime } from '@/lib/utils'
@@ -28,13 +28,10 @@ import { AddAccessTokenDialog } from './add-access-token'
 
 
 
-export function AccessTokenListCard() {
+export function AccessTokenListCard({ personId }: { personId: string }) {
     const queryClient = useQueryClient()
 
-    const accessTokenQuery = useQuery({ 
-        queryKey: D4H_ACCESS_TOKENS_QUERY_KEY, 
-        queryFn: getAccessTokens
-    })
+    const accessTokenQuery = useQuery(D4hAccessTokens.queryOptions(personId))
 
     const columns = useMemo(() => defineColumns<D4hAccessTokenData>(columnHelper => [
         columnHelper.accessor('label', {
@@ -120,12 +117,12 @@ export function AccessTokenListCard() {
         getFilteredRowModel: getFilteredRowModel(),
         getRowId: (row) => row.id,
         onUpdate: (rowData) => {
-            updateAccessToken(rowData.id, rowData)
-            queryClient.invalidateQueries({ queryKey: D4H_ACCESS_TOKENS_QUERY_KEY })
+            updateAccessToken(personId, rowData.id, rowData)
+            queryClient.invalidateQueries({ queryKey: D4hAccessTokens.queryKey(personId) })
         },
         onDelete: (rowData) => {
-            removeAccessToken(rowData.id)
-            queryClient.invalidateQueries({ queryKey: D4H_ACCESS_TOKENS_QUERY_KEY })
+            removeAccessToken(personId, rowData.id)
+            queryClient.invalidateQueries({ queryKey: D4hAccessTokens.queryKey(personId) })
         },
         enableGrouping: false,
         initialState: {

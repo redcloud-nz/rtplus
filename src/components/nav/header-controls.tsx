@@ -40,7 +40,7 @@ export function HeaderControls({ children, className, hidden, showSignIn = true,
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Button variant='ghost' size="icon" asChild>
-                            <Link href={orgSlug ? Paths.team(orgSlug).dashboard : Paths.switchTeam}>
+                            <Link href={orgSlug ? Paths.team(orgSlug).dashboard : Paths.selectTeam}>
                                 <LayoutDashboardIcon/>
                             </Link>  
                         </Button>
@@ -113,7 +113,7 @@ export function HeaderControls({ children, className, hidden, showSignIn = true,
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
                             <DropdownMenuItem asChild>
-                                <Link href={Paths.switchTeam}>
+                                <Link href={Paths.selectTeam}>
                                     <ArrowRightLeftIcon/>
                                     Switch Team
                                 </Link>

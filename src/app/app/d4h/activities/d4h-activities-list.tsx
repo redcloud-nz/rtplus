@@ -24,8 +24,8 @@ import { D4hEvent } from '@/lib/d4h-api/event'
 import { formatDateTime } from '@/lib/utils'
 
 
-export function UnifiedD4h_Activities_ListCard() {
-    const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions())
+export function D4hActivitiesList_Card({ personId }: { personId: string }) {
+    const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions(personId))
 
     const d4hTeams = useMemo(() => extractUniqueTeams(accessTokens), [accessTokens])
     const teamNameMap = useMemo(() => mapToObj(d4hTeams, ({ team }) => [team.id, team.name]), [d4hTeams])

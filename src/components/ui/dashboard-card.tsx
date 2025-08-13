@@ -5,19 +5,20 @@
  */
 
 import { LucideProps } from 'lucide-react'
+import { ComponentProps, ForwardRefExoticComponent, RefAttributes } from 'react'
 
 import { cn } from '@/lib/utils'
 import { Link } from './link'
 
 
-export function DashboardCardList({ className, ...props }: React.ComponentPropsWithRef<'ul'>) {
+export function DashboardCardList({ className, ...props }: ComponentProps<'ul'>) {
     return <ul className={cn("container mx-auto grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3", className)} {...props}/>
 }
 
-type DashboardCardProps = React.ComponentPropsWithRef<'li'> & {
+type DashboardCardProps = ComponentProps<'li'> & {
     title: string
     href: string
-    icon: React.ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & React.RefAttributes<SVGSVGElement>>
+    icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>
     iconForeground: string
     iconBackground: string
     description: string
@@ -25,8 +26,8 @@ type DashboardCardProps = React.ComponentPropsWithRef<'li'> & {
 
 export function DashboardCard({ className, title, href, icon: Icon, iconForeground, iconBackground, description, ...props}: DashboardCardProps) {
 
-    return <li className={cn("col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow-sm", className)} {...props}>
-        <div className="group relative bg-white p-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-50 space-y-2">
+    return <li className={cn("col-span-1 divide-y divide-gray-200 rounded-sm bg-white shadow-sm border", className)} {...props}>
+        <div className="group relative p-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-50 space-y-2">
             <div>
                 <span
                     className={cn(
@@ -57,5 +58,42 @@ export function DashboardCard({ className, title, href, icon: Icon, iconForegrou
                 </svg>
             </span>
         </div>
+    </li>
+}
+
+
+export function BasicDashboardCardList({ className, ...props }: ComponentProps<'ul'>) {
+    return <ul role="list" className={cn("mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4", className)} {...props} />;
+}
+
+type BasicDashboardCardProps = Omit<ComponentProps<'li'>, 'children'> & {
+    label: string
+    href: string
+    bgColor: string
+}
+
+
+export function BasicDashboardCard({ className, label, href, bgColor, ...props }: BasicDashboardCardProps) {
+    return <li className={cn("col-span-1 flex rounded-md shadow-sm", className)} {...props}>
+        <div
+            className={cn(
+                bgColor,
+                "group relative",
+                'flex w-16 shrink-0 items-center justify-center rounded-l-md text-sm font-medium text-white',
+            )}
+        >
+        {label.charAt(0).toUpperCase()}
+        </div>
+        <div className="flex flex-1 items-center justify-between truncate rounded-r-md border-b border-r border-t border-gray-200 bg-white dark:border-white/10 dark:bg-gray-800/50">
+        <div className="flex-1 truncate px-4 py-2 text-sm">
+            <Link
+                href={href}
+                className="font-medium text-gray-900 hover:text-gray-600 dark:text-white dark:hover:text-gray-200"
+            >
+                {label}
+            </Link>
+        </div>
+        </div>
+            
     </li>
 }
