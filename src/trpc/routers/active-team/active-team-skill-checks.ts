@@ -5,9 +5,6 @@
 
 import { z } from 'zod'
 
-import { UTCDate } from '@date-fns/utc'
-
-
 import { toSkillCheckData, skillCheckSchema } from '@/lib/schemas/skill-check'
 import { personSchema, toPersonData } from '@/lib/schemas/person'
 import { skillSchema, toSkillData } from '@/lib/schemas/skill'
@@ -30,7 +27,6 @@ export const activeTeamSkillChecksRouter = createTRPCRouter({
         .output(skillCheckSchema)
         .mutation(async ({ ctx, input }) => {
 
-            const timestamp = new UTCDate()
             const assessorId = ctx.personId
 
             const created = await ctx.prisma.skillCheck.create({

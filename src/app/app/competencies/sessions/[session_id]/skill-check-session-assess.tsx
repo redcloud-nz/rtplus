@@ -130,7 +130,7 @@ export function SkillCheckSession_Assess_Card({ sessionId }: { sessionId: string
                 </Select>
                 <Separator orientation="vertical"/>
                 <CardExplanation>
-                    This form allows you to assess a team member's skill during a session. Select the person being assessed, the skill, and the competence level.
+                    This form allows you to assess a team member&spos;s skill during a session. Select the person being assessed, the skill, and the competence level.
                 </CardExplanation>
             </CardActions>
         </CardHeader>

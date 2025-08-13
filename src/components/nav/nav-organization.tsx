@@ -10,7 +10,6 @@ import { useOrganization } from '@clerk/nextjs'
 
 
 import { Show } from '@/components/show'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Link } from '@/components/ui/link'
 import { Skeleton } from '@/components/ui/skeleton'

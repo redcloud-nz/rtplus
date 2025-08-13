@@ -62,7 +62,7 @@ export function ActiveTeam_CreateSkillCheck_Card() {
                 variant: 'destructive',
             })
         },
-        onSuccess(result) {
+        onSuccess() {
             toast({
                 title: "Skill check recorded",
                 description: "The skill check has been successfully recorded.",

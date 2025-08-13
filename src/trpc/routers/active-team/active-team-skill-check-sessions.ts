@@ -76,7 +76,7 @@ export const activeTeamSkillCheckSessionsRouter = createTRPCRouter({
         }))
         .output(skillCheckSessionSchema)
         .mutation(async ({ ctx, input }) => {
-            const session = await getSessionById(ctx, input.sessionId)
+            await getSessionById(ctx, input.sessionId)
 
             const deleted = await ctx.prisma.skillCheckSession.delete({
                 where: { id: input.sessionId },

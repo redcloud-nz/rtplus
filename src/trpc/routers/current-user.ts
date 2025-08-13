@@ -41,14 +41,4 @@ export const currentUserRouter = createTRPCRouter({
 
             return toPersonData(person)
         }),
-
-    setOrganization: authenticatedProcedure
-        .input(z.object({ orgId: z.string() }))
-        .mutation(async ({ ctx, input }) => {
-            const response = await ctx.clerkClient.users.getOrganizationMembershipList({ userId: ctx.auth.userId!, limit: 501 })
-
-            const membership = response.data.find((membership) => membership.organization.id === input.orgId)
-
-            membership
-        })
 })

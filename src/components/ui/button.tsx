@@ -83,6 +83,8 @@ export function Button({ className, variant, color, size, asChild = false, ...pr
 
 
 export type AsyncButtonProps = ButtonProps & {
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onClick?: (event: React.MouseEvent<HTMLButtonElement>)=> Promise<any>
     label?: React.ReactNode
     pending?: React.ReactNode

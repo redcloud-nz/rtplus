@@ -4,7 +4,7 @@
  */
 'use client'
 
-export function SkillCheckSession_Transcript_Card({ sessionId }: { sessionId: string }) {
+export function SkillCheckSession_Transcript_Card({}: { sessionId: string }) {
     
     return <>Transcript Tab Content</>
 }

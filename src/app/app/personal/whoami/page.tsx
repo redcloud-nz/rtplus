@@ -7,7 +7,7 @@
 
 import { Metadata } from 'next'
 
-import { auth, currentUser } from '@clerk/nextjs/server'
+import { auth} from '@clerk/nextjs/server'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
 
@@ -28,7 +28,6 @@ export const metadata: Metadata = {
 export default async function Whoami_Page() {
 
     const { sessionClaims } = await auth.protect()
-    const clerkUser = (await currentUser())!
 
     const personId = sessionClaims.rt_person_id
 

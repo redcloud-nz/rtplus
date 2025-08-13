@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { BookOpenIcon, CableIcon, InfoIcon, LayoutDashboardIcon, PocketKnifeIcon, SettingsIcon, UsersIcon } from 'lucide-react'
+import { BookOpenIcon, CableIcon, InfoIcon, PocketKnifeIcon, SettingsIcon, UsersIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { ComponentProps } from 'react'

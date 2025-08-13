@@ -18,6 +18,7 @@ import { Link } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
 
+import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
@@ -32,7 +33,7 @@ export function MySessionsList_Card() {
         await sessionsQuery.refetch()
     }
 
-    const columns = useMemo(() => defineColumns<typeof sessionsQuery.data[0]>(columnHelper => [
+    const columns = useMemo(() => defineColumns<SkillCheckSessionData>(columnHelper => [
         columnHelper.accessor('name', {
             header: 'Name',
             cell: ctx => <Link href={Paths.competencies.session(ctx.row.original.sessionId).index}>{ctx.getValue()}</Link>,

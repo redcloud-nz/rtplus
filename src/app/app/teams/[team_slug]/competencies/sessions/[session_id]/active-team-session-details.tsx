@@ -38,7 +38,6 @@ import { useTRPC } from '@/trpc/client'
 
 
 export function ActiveTeam_SessionDetails_Card({ sessionId }: { sessionId: string }) {
-    const router = useRouter()
     const trpc = useTRPC()
 
     const { data: session } = useSuspenseQuery(trpc.activeTeam.skillCheckSessions.getSession.queryOptions({ sessionId }))
