@@ -8,5 +8,5 @@
 import { NotImplemented } from '@/components/nav/errors'
 
 export default async function AvailabilityPage() {
-    return <NotImplemented label="Availability"/>
+    return <NotImplemented/>
 }

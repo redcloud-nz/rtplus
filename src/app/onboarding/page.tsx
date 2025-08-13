@@ -18,6 +18,7 @@ import prisma from '@/server/prisma'
 
 export default async function OnBoarding_Page(props: { searchParams: Promise<{ redirect_url?: string }> }) {
     const { redirect_url } = await props.searchParams
+    const decoded = redirect_url ? decodeURIComponent(redirect_url) : null
 
     const { sessionClaims, userId } = await auth.protect()
 
@@ -68,5 +69,5 @@ export default async function OnBoarding_Page(props: { searchParams: Promise<{ r
         },
     })
 
-    return redirect(redirect_url ?? Paths.selectTeam)
+    return redirect(decoded ?? Paths.selectTeam.index)
 }

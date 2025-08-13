@@ -154,7 +154,7 @@ export function CalendarDayButton({
   day,
   modifiers,
   ...props
-}: React.ComponentProps<typeof DayButton>) {
+}: Omit<React.ComponentProps<typeof DayButton>, 'color'>) {
     const defaultClassNames = getDefaultClassNames()
 
     const ref = React.useRef<HTMLButtonElement>(null)

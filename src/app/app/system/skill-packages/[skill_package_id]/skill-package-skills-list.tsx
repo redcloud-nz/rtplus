@@ -29,7 +29,13 @@ import { useTRPC } from '@/trpc/client'
 export function SkillPackageSkillsListCard({ skillPackageId }: { skillPackageId: string }) {
     const trpc = useTRPC()
 
+    const { data: skillGroups } = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ skillPackageId }))
     const { data: skills } = useSuspenseQuery(trpc.skills.getSkills.queryOptions({ skillPackageId }))
+
+    const rowData = useMemo(() => skills.map(skill => ({
+        ...skill,
+        skillGroup: skillGroups.find(group => group.skillGroupId === skill.skillGroupId)!
+    })), [skills, skillGroups])
 
     const columns = useMemo(() => defineColumns<SkillData & { skillGroup: SkillGroupData }>(columnHelper => [
         columnHelper.accessor('skillId', {
@@ -78,9 +84,9 @@ export function SkillPackageSkillsListCard({ skillPackageId }: { skillPackageId:
         }),
     ]), [skillPackageId])
 
-    const table = useReactTable({
+    const table = useReactTable<SkillData & { skillGroup: SkillGroupData }>({
         columns,
-        data: skills,
+        data: rowData,
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),

@@ -40,9 +40,10 @@ function emptyTokenObject(): PartialTokenObject {
 
 export interface NewAccessKeyDialogProps {
     children: React.ReactNode
+    personId: string
 }
 
-export function AddAccessTokenDialog({ children }: NewAccessKeyDialogProps) {
+export function AddAccessTokenDialog({ children, personId }: NewAccessKeyDialogProps) {
     const queryClient = useQueryClient()
 
     const [open, setOpen] = React.useState(false)
@@ -108,7 +109,7 @@ export function AddAccessTokenDialog({ children }: NewAccessKeyDialogProps) {
             serverCode: tokenObj.serverCode as D4hServerCode,
             teams: whoamiData?.members.map(member => ({ id: member.owner.id, name: member.owner.title })) ?? []
         }
-        addAccessToken(tokenToSave)
+        addAccessToken(personId, tokenToSave)
 
         queryClient.invalidateQueries({ queryKey: ['d4h-access-tokens'] })
 

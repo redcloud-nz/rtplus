@@ -13,11 +13,14 @@ import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 
 import { AccessTokenListCard } from './access-token-list'
+import { auth } from '@clerk/nextjs/server'
 
 
 export const metadata: Metadata = { title: "D4H Access Tokens - Personal" }
 
 export default async function D4hAccessTokensPage() {
+    const { sessionClaims: { rt_person_id: personId } } = await auth.protect()
+
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
@@ -29,7 +32,7 @@ export default async function D4hAccessTokensPage() {
                 <PageTitle>My D4H Access Tokens</PageTitle>
             </PageHeader>
             <Boundary>
-                <AccessTokenListCard/>
+                <AccessTokenListCard personId={personId}/>
             </Boundary>
         </AppPageContent>
     </AppPage>

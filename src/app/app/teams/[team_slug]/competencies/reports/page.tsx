@@ -6,7 +6,6 @@
  */
 
 
-import { TeamParams } from '@/app/manage/teams/[team_slug]'
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
@@ -15,8 +14,8 @@ import * as Paths from '@/paths'
 
 
 
-export default async function ReportCompetenciesPage(props: { params: Promise<TeamParams>}) {
-    const { 'team-slug': teamSlug } = await props.params
+export default async function ReportCompetenciesPage(props: { params: Promise<{ team_slug: string }> }) {
+    const { team_slug: teamSlug } = await props.params
     const competenciesPath = Paths.team(teamSlug).competencies
 
     return <AppPage>

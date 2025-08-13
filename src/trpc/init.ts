@@ -19,7 +19,7 @@ interface Meta {
     activeTeamRequired?: boolean
 }
 
-export const createTRPCContext = cache(async ({ headers }: { headers: Headers  }) => {
+export const createTRPCContext = cache(async ({ headers }: { headers?: Headers  }) => {
     return { 
         prisma,
         auth: await auth(),

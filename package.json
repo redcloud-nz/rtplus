@@ -1,12 +1,12 @@
 {
   "name": "rtplus",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "license": "MIT",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "prisma": "dotenv -e .env.local -- npx prisma",
-    "build": "prisma migrate deploy && next build",
+    "build": "dotenv -e .env.local -- prisma migrate deploy && next build",
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate",

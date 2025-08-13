@@ -8,6 +8,7 @@ import { auth, clerkClient, currentUser } from '@clerk/nextjs/server'
 import { Person} from '@prisma/client'
 
 import prisma from '@/server/prisma'
+import { nanoId16 } from '@/lib/id'
 
 
 interface BootstrapActionResult {
@@ -33,9 +34,9 @@ export async function bootstrapAction(): Promise<BootstrapActionResult> {
             data: {
                 id: personId,
                 name, email,
-                onboardingStatus: 'Complete',
                 changeLogs: {
                     create: {
+                        id: nanoId16(),
                         actorId: personId,
                         event: 'Create',
                         fields: { name, email }

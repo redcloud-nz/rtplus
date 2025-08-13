@@ -138,7 +138,7 @@ export function AccessTokenListCard({ personId }: { personId: string }) {
             <CardHeader>
                 <DataTableSearch size="sm" variant="ghost" placeholder="Search access tokens..." />
                 <CardActions>
-                    <AddAccessTokenDialog>
+                    <AddAccessTokenDialog personId={personId}>
                         <Button variant="ghost" size="icon">
                             <PlusIcon />
                         </Button>

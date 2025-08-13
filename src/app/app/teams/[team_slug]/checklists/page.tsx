@@ -8,5 +8,5 @@
 import { NotImplemented } from '@/components/nav/errors'
 
 export default async function ChecklistsPage() {
-    return <NotImplemented label="Checklists"/>
+    return <NotImplemented/>
 }
