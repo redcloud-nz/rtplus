@@ -12,7 +12,7 @@ import { orgMembershipSchema, toOrgMembershipDataExtended } from '@/lib/schemas/
 import { userSchema } from '@/lib/schemas/user'
 import { zodNanoId8 } from '@/lib/validation'
 
-import { authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
+import { createTRPCRouter, systemAdminProcedure } from '../init'
 
 import { getTeamById } from './teams'
 import { getPersonById } from './personnel'

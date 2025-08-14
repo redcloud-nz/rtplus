@@ -55,7 +55,7 @@ export const teamMembershipsRouter = createTRPCRouter({
         .output(teamMembershipSchema)
         .mutation(async ({ ctx, input }) => {
 
-            const { team, ...membership } = await getTeamMembershipById(ctx, input)
+            const { ...membership } = await getTeamMembershipById(ctx, input)
 
             const deleted = await deleteTeamMembership(ctx, membership)
 
@@ -75,8 +75,6 @@ export const teamMembershipsRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
 
             const { person, team, ...membership } =  await getTeamMembershipById(ctx, input)
-
-            ctx.requireTeamAccess(team.clerkOrgId)
 
             return { ...toTeamMembershipData(membership), person: toPersonData(person), team: toTeamData(team) }
         }),
@@ -111,7 +109,7 @@ export const teamMembershipsRouter = createTRPCRouter({
         .output(teamMembershipSchema)
         .mutation(async ({ ctx, input }) => {
             
-            const { team, ...membership} = await getTeamMembershipById(ctx, input)
+            const { ...membership} = await getTeamMembershipById(ctx, input)
 
             const updated = await updateTeamMembership(ctx, membership, input)
             return toTeamMembershipData(updated)
