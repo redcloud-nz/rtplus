@@ -15,6 +15,7 @@ import z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
+import { Show } from '@/components/show'
 import { Button } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTriggerButton } from '@/components/ui/dialog'
@@ -35,6 +36,7 @@ import { useTRPC } from '@/trpc/client'
 
 
 
+
 export function TeamDetailsCard({ teamId }: { teamId: string }) {
     const trpc = useTRPC()
 
@@ -46,15 +48,17 @@ export function TeamDetailsCard({ teamId }: { teamId: string }) {
         <CardHeader>
             <CardTitle>Details</CardTitle>
             <CardActions>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={() => setMode('Update')} disabled={mode == 'Update'}>
-                            <PencilIcon/>
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Edit team details</TooltipContent>
-                </Tooltip>
-                <DeleteTeamDialog team={team}/>
+                <Show when={team.teamId != 'RT'}>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" onClick={() => setMode('Update')} disabled={mode == 'Update'}>
+                                <PencilIcon/>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Edit team details</TooltipContent>
+                    </Tooltip>
+                    <DeleteTeamDialog team={team}/>
+                </Show>
                 <Separator orientation="vertical"/>
                 <CardExplanation>
                     This card displays the details of the team and allows you to edit them. You can also delete the team from here.

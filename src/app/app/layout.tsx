@@ -7,7 +7,9 @@ import type { Metadata } from 'next'
 import { ReactNode } from 'react'
 
 import { AppFrontendProvider } from '@/components/app-frontend-provider'
+
 import { AppSidebar } from '@/components/nav/app-sidebar'
+import { NavTeamSection } from '@/components/nav/nav-team-section'
 
 
 export const metadata: Metadata = {
@@ -19,11 +21,12 @@ export const metadata: Metadata = {
     description: "RT+ App",
 }
 
-export default function AppLayout({ children, dialog }: Readonly<{ children: ReactNode, dialog: ReactNode }>) {
+export default async function AppLayout({ children }: Readonly<{ children: ReactNode }>) {
 
     return <AppFrontendProvider>
-        <AppSidebar/>
+        <AppSidebar>
+            <NavTeamSection/>
+        </AppSidebar>
         {children}
-        {dialog}
     </AppFrontendProvider>
 }

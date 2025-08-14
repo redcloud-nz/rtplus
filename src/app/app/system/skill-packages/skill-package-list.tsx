@@ -6,6 +6,7 @@
 'use client'
 
 import { PlusIcon } from 'lucide-react'
+import { useMemo } from 'react'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
@@ -24,109 +25,107 @@ import { useTRPC, WithCounts } from '@/trpc/client'
 
 
 
-
-const columns = defineColumns<WithCounts<SkillPackageData, 'skills' | 'skillGroups'>>(columnHelper => [
-    columnHelper.accessor('skillPackageId', {
-        header: 'ID',
-        cell: ctx => ctx.getValue(),
-        enableHiding: true,
-        enableSorting: false,
-        enableGlobalFilter: false,
-    }),
-    columnHelper.accessor('name', {
-        header: 'Name',
-        cell: ctx => <TextLink href={Paths.system.skillPackage(ctx.row.original.skillPackageId).index}>{ctx.getValue()}</TextLink>,
-        enableHiding: false
-    }),
-    columnHelper.accessor('_count.skillGroups', {
-        header: 'Groups',
-        cell: ctx => ctx.getValue(),
-        enableGrouping: false,
-        enableSorting: true,
-        enableGlobalFilter: false,
-    }),
-    columnHelper.accessor('_count.skills', {
-        header: 'Skills',
-        cell: ctx => ctx.getValue(),
-        enableGrouping: false,
-        enableSorting: true,
-        enableGlobalFilter: false,
-    }),
-    columnHelper.accessor('status', {
-        header: 'Status',
-        cell: ctx => ctx.getValue(),
-        enableSorting: false,
-        enableGlobalFilter: false,
-        filterFn: 'arrIncludesSome',
-        meta: {
-            enumOptions: { Active: 'Active', Inactive: 'Inactive' },
-        }
-    }),
-])
-
-
-export function SkillPackageListCard() {
+export function System_SkillPackagesList_Card() {
     const trpc = useTRPC()
 
-    const { data: skillPackages } = useSuspenseQuery(trpc.skills.getPackages.queryOptions({ status: ['Active', 'Inactive'] }))
+    const { data: skillPackages } = useSuspenseQuery(trpc.skills.getPackages.queryOptions({}))
+
+    const columns = useMemo(() => defineColumns<WithCounts<SkillPackageData, 'skills' | 'skillGroups'>>(columnHelper => [
+        columnHelper.accessor('skillPackageId', {
+            header: 'ID',
+            cell: ctx => ctx.getValue(),
+            enableHiding: true,
+            enableSorting: false,
+            enableGlobalFilter: false,
+        }),
+        columnHelper.accessor('name', {
+            header: 'Name',
+            cell: ctx => <TextLink href={Paths.system.skillPackage(ctx.row.original.skillPackageId).index}>{ctx.getValue()}</TextLink>,
+            enableHiding: false
+        }),
+        columnHelper.accessor('_count.skillGroups', {
+            header: 'Groups',
+            cell: ctx => ctx.getValue(),
+            enableGrouping: false,
+            enableSorting: true,
+            enableGlobalFilter: false,
+        }),
+        columnHelper.accessor('_count.skills', {
+            header: 'Skills',
+            cell: ctx => ctx.getValue(),
+            enableGrouping: false,
+            enableSorting: true,
+            enableGlobalFilter: false,
+        }),
+        columnHelper.accessor('status', {
+            header: 'Status',
+            cell: ctx => ctx.getValue(),
+            enableSorting: false,
+            enableGlobalFilter: false,
+            filterFn: 'arrIncludesSome',
+            meta: {
+                enumOptions: { Active: 'Active', Inactive: 'Inactive' },
+            }
+        }),
+    ]), [])
 
     const table = useReactTable({
-            columns,
-            data: skillPackages,
-            getCoreRowModel: getCoreRowModel(),
-            getFilteredRowModel: getFilteredRowModel(),
-            getSortedRowModel: getSortedRowModel(),
-            getGroupedRowModel: getGroupedRowModel(),
-            getExpandedRowModel: getExpandedRowModel(),
-            initialState: {
-                columnVisibility: {
-                    skillPackageId: false, name: true, skillGroups: true, skills: true, status: true
-                },
-                columnFilters: [
-                    { id: 'status', value: ['Active'] }
-                ],
-                globalFilter: "",
-                grouping: [],
-                sorting: [
-                    { id: 'name', desc: false }
-                ],
-            }
-        })
-    
-        return <DataTableProvider value={table}>
-            <Card>
-                <CardHeader>
-                    <DataTableSearch size="sm" variant="ghost"/>
-                    <CardActions>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" asChild>
-                                    <Link href={Paths.system.skillPackages.create}>
-                                        <PlusIcon />
-                                    </Link>
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                Create new skill package
-                            </TooltipContent>
-                        </Tooltip>
-                        
-                        <CardExplanation>
-                            This is a list of all the available skill packages in the system.
-                        </CardExplanation>
-                        <Separator orientation="vertical"/>
-    
-                        <TableOptionsDropdown/>
-                    </CardActions>
+        columns,
+        data: skillPackages,
+        getCoreRowModel: getCoreRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getGroupedRowModel: getGroupedRowModel(),
+        getExpandedRowModel: getExpandedRowModel(),
+        initialState: {
+            columnVisibility: {
+                skillPackageId: false, name: true, skillGroups: true, skills: true, status: true
+            },
+            columnFilters: [
+                { id: 'status', value: ['Active'] }
+            ],
+            globalFilter: "",
+            grouping: [],
+            sorting: [
+                { id: 'name', desc: false }
+            ],
+        }
+    })
+
+    return <DataTableProvider value={table}>
+        <Card>
+            <CardHeader>
+                <DataTableSearch size="sm" variant="ghost"/>
+                <CardActions>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" asChild>
+                                <Link href={Paths.system.skillPackages.create}>
+                                    <PlusIcon />
+                                </Link>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            Create new skill package
+                        </TooltipContent>
+                    </Tooltip>
                     
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <DataTableHead/>
-                        <DataTableBody/>
-                        <DataTableFooter/>
-                    </Table>
-                </CardContent>
-            </Card>
-        </DataTableProvider>
+                    <CardExplanation>
+                        This is a list of all the available skill packages in the system.
+                    </CardExplanation>
+                    <Separator orientation="vertical"/>
+
+                    <TableOptionsDropdown/>
+                </CardActions>
+                
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <DataTableHead/>
+                    <DataTableBody/>
+                    <DataTableFooter/>
+                </Table>
+            </CardContent>
+        </Card>
+    </DataTableProvider>
 }

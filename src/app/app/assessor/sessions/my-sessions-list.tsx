@@ -14,7 +14,7 @@ import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRo
 import { RefreshButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader } from '@/components/ui/card'
 import { DataTableBody, DataTableFooter, DataTableHead, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
-import { Link } from '@/components/ui/link'
+import { TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
 
@@ -27,7 +27,7 @@ import { useTRPC } from '@/trpc/client'
 export function MySessionsList_Card() {
     const trpc = useTRPC()
 
-    const sessionsQuery = useSuspenseQuery(trpc.skillCheckSessions.getMySessions.queryOptions({}))
+    const sessionsQuery = useSuspenseQuery(trpc.skillCheckSessions.getMySessions.queryOptions({ status: ['Discard'] }))
 
     async function handleRefresh() {
         await sessionsQuery.refetch()
@@ -36,7 +36,7 @@ export function MySessionsList_Card() {
     const columns = useMemo(() => defineColumns<SkillCheckSessionData>(columnHelper => [
         columnHelper.accessor('name', {
             header: 'Name',
-            cell: ctx => <Link href={Paths.competencies.session(ctx.row.original.sessionId).index}>{ctx.getValue()}</Link>,
+            cell: ctx => <TextLink href={Paths.competencies.session(ctx.row.original.sessionId).index}>{ctx.getValue()}</TextLink>,
             enableGrouping: false,
             enableHiding: false,
             enableSorting: true,

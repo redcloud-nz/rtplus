@@ -23,11 +23,11 @@ import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
 
-export function TeamsListCard() {
+export function System_TeamsList_Card() {
 
     const trpc = useTRPC()
 
-    const { data: teams } = useSuspenseQuery(trpc.teams.getTeams.queryOptions())
+    const { data: teams } = useSuspenseQuery(trpc.teams.getTeams.queryOptions({}))
 
     const columns = useMemo(() => defineColumns<typeof teams[0]>(columnHelper => [
     columnHelper.accessor('teamId', {

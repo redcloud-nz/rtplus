@@ -13,7 +13,7 @@ import * as Paths from '@/paths'
 
 
 
-export default async function AppIndexPage() {
+export default async function DashboardRedirectPage() {
 
     const { sessionClaims } = await auth.protect()
 

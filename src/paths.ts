@@ -6,14 +6,32 @@
 import { PolicyKeyType } from "./lib/policy"
 import { TeamData } from "./lib/schemas/team"
 
+export const about = {
+    _label: 'About',
+    index: '/app/about',
+}
+
 export const app = {
     index: '/app',
 }
 
+export const assessor = {
+    index: `/app/assessor`,
+    _label: 'Assessor',
+
+    session: (sessionId: string) => ({
+        index: `/app/assessor/sessions/${sessionId}`,
+    } as const),
+    sessions: {
+        _label: 'Sessions',
+        index: '/app/assessor/sessions',
+    },
+} as const
+
 export const competencies = {
     index: '/app/competencies',
     session: (sessionId: string) => ({
-            index: `/app/competencies/sessions/${sessionId}`,
+        index: `/app/competencies/sessions/${sessionId}`,
     } as const),
     sessions: {
         _label: 'My Sessions',
@@ -170,6 +188,7 @@ export const team = (teamOrSlug: TeamData | string) => {
             },
             record: `${competenciesBase}/record`,
             reports: {
+                _label: 'Reports',
                 index: `${competenciesBase}/reports`,
                 individual: `${competenciesBase}/reports/individual`,
                 teamSkills: `${competenciesBase}/reports/team-skills`,
@@ -231,6 +250,10 @@ export const personal = {
     d4hAccessTokens: {
         _label: 'D4H Access Tokens',
         index: '/app/personal/d4h-access-tokens',
+    },
+    settings: {
+        _label: "Personal Settings",
+        index: '/app/personal/settings',
     },
     whoami: {
         _label: 'Who Am I',

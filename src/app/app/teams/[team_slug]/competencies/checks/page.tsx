@@ -5,7 +5,6 @@
  *  Path: /app/teams/[team_slug]/checks
  */
 
-import { Metadata } from 'next'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
@@ -15,10 +14,8 @@ import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
 import { ActiveTeam_SkillChecksList_Card } from './active-team-skill-checks-list'
 
-
-export async function generateMetadata(props: { params: Promise<{ team_slug: string }> }): Promise<Metadata> {
-    const team = await fetchTeamBySlug(props.params)
-    return { title: `Skill Checks - ${team.shortName || team.name}` }
+export const metadata = {
+    title: "Skill Checks",
 }
 
 export default async function ActiveTeam_SkillChecks_Page(props: { params: Promise<{ team_slug: string }> }) {

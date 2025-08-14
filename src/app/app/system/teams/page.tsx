@@ -12,14 +12,19 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 
-import { TeamsListCard } from './team-list'
 import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
+import { System_TeamsList_Card } from './team-list'
+
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = { title: "Teams" }
 
-export default async function TeamsPage() { 
-    prefetch(trpc.teams.getTeams.queryOptions())
+
+export default async function System_TeamsList_Page() {
+
+    prefetch(trpc.teams.getTeams.queryOptions({ }))
 
     return <AppPage>
             <AppPageBreadcrumbs
@@ -34,7 +39,7 @@ export default async function TeamsPage() {
                         <PageTitle>Teams</PageTitle>
                     </PageHeader>
                     <Boundary>
-                        <TeamsListCard/>
+                        <System_TeamsList_Card/>
                     </Boundary>
                 </AppPageContent>
             </HydrateClient>

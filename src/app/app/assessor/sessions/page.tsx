@@ -1,8 +1,8 @@
 /*
- *  Copyright (c) 2024 Redcloud Development, Ltd.
+ *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /app/system/personnel
+ *  Path: /app/assessor/sessions
  */
 
 import { Metadata } from 'next'
@@ -12,34 +12,32 @@ import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
-import { System_PersonnelList_Card } from './personnel-list' 
+import { MySessionsList_Card } from './my-sessions-list'
 
 
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = { title: "Personnel" }
+export const metadata: Metadata = { title: 'Sessions - Assessor' }
 
+export default async function Assessor_SessionsList_Page() {
 
-export default async function System_PersonnelList_Page() {
-
-    prefetch(trpc.personnel.getPersonnel.queryOptions({ }))
+    prefetch(trpc.skillCheckSessions.getMySessions.queryOptions({ status: ['Discard'] }))
 
     return <AppPage>
-        <AppPageBreadcrumbs 
+        <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.system, 
-                Paths.system.personnel
+                Paths.assessor,
+                Paths.assessor.sessions
             ]}
         />
         <HydrateClient>
             <AppPageContent variant="container">
                 <PageHeader>
-                    <PageTitle>Personnel</PageTitle>
+                    <PageTitle>Sessions</PageTitle>
                 </PageHeader>
                 <Boundary>
-                    <System_PersonnelList_Card/>
+                    <MySessionsList_Card />
                 </Boundary>
-                
             </AppPageContent>
         </HydrateClient>
     </AppPage>

@@ -6,6 +6,7 @@
 'use client'
 
 import { PlusIcon } from 'lucide-react'
+import { useMemo } from 'react'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
@@ -22,42 +23,41 @@ import { PersonData } from '@/lib/schemas/person'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
-
-const columns = defineColumns<PersonData>(columnHelper => [
-    columnHelper.accessor('personId', {
-        header: 'ID',
-        cell: ctx => ctx.getValue(),
-        enableHiding: true,
-        enableSorting: false,
-        enableGlobalFilter: false,
-    }),
-    columnHelper.accessor('name', {
-        header: 'Name',
-        cell : ctx => <TextLink href={Paths.system.person(ctx.row.original.personId).index}>{ctx.getValue()}</TextLink>,
-        enableHiding: false
-    }),
-    columnHelper.accessor('email', {
-        header: 'Email',
-        cell: ctx => ctx.getValue(),
-        enableGrouping: false,
-    }),
-    columnHelper.accessor('status', {
-        header: 'Status',
-        cell: ctx => ctx.getValue(),
-        enableSorting: false,
-        enableGlobalFilter: false,
-        filterFn: 'arrIncludesSome',
-        meta: {
-            enumOptions: { Active: 'Active', Inactive: 'Inactive' },
-        }
-    }),
-])
-
-export function PersonnelListCard() {
+export function System_PersonnelList_Card() {
 
     const trpc = useTRPC()
 
     const { data: personnel } = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({}))
+
+    const columns = useMemo(() => defineColumns<PersonData>(columnHelper => [
+        columnHelper.accessor('personId', {
+            header: 'ID',
+            cell: ctx => ctx.getValue(),
+            enableHiding: true,
+            enableSorting: false,
+            enableGlobalFilter: false,
+        }),
+        columnHelper.accessor('name', {
+            header: 'Name',
+            cell : ctx => <TextLink href={Paths.system.person(ctx.row.original.personId).index}>{ctx.getValue()}</TextLink>,
+            enableHiding: false
+        }),
+        columnHelper.accessor('email', {
+            header: 'Email',
+            cell: ctx => ctx.getValue(),
+            enableGrouping: false,
+        }),
+        columnHelper.accessor('status', {
+            header: 'Status',
+            cell: ctx => ctx.getValue(),
+            enableSorting: false,
+            enableGlobalFilter: false,
+            filterFn: 'arrIncludesSome',
+            meta: {
+                enumOptions: { Active: 'Active', Inactive: 'Inactive' },
+            }
+        }),
+    ]), [])
 
     const table = useReactTable({
         columns,

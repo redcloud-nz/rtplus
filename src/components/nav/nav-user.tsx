@@ -5,7 +5,7 @@
 
 'use client'
 
-import { BadgeCheck, ChevronsUpDown, KeyRoundIcon, LogOutIcon } from 'lucide-react'
+import { BadgeCheck, ChevronsUpDown, KeyRoundIcon, LogOutIcon, SettingsIcon } from 'lucide-react'
 
 import { RedirectToSignIn, useClerk, useUser } from '@clerk/nextjs'
 
@@ -35,7 +35,7 @@ export function NavUser() {
 
     const { isMobile } = useSidebar()
     const clerk = useClerk()
-    const { isSignedIn, user} = useUser()
+    const { isSignedIn, user } = useUser()
 
     const fullName = isSignedIn && user.fullName || ""
     const initials = getUserInitials(fullName)
@@ -89,12 +89,12 @@ export function NavUser() {
                                     Profile
                                 </Link>
                             </DropdownMenuItem>
-                            {/* <DropdownMenuItem asChild>
-                                <Link href={Paths.personal.whoami.index}>
-                                    <ShieldQuestionIcon />
-                                    {Paths.personal.whoami._label}
+                            <DropdownMenuItem asChild>
+                                <Link href={Paths.personal.settings.index}>
+                                    <SettingsIcon/>
+                                    {Paths.personal.settings._label}
                                 </Link>
-                            </DropdownMenuItem> */}
+                            </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                                 <Link href={Paths.personal.d4hAccessTokens.index}>
                                     <KeyRoundIcon/>

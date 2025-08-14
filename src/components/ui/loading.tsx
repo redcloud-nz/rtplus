@@ -10,7 +10,11 @@ import { cn } from '@/lib/utils'
 
 
 export function LoadingSpinner({ className, ...props }: ComponentProps<'div'>) {
-    return <div className={cn("animate-spin rounded-full border-t-2 border-b-2 border-gray-900", className)} {...props}/>
+    return <div 
+        className={cn("animate-spin rounded-full border-t-2 border-b-2 border-gray-900", className)}
+        data-slot="spinner"
+        {...props}
+    />
 }
 
 

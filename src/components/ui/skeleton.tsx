@@ -7,7 +7,8 @@ import * as React from 'react'
 import { tv, VariantProps } from 'tailwind-variants'
 
 import { cn } from '@/lib/utils'
-import { LoaderCircle } from 'lucide-react'
+
+import { LoadingSpinner } from './loading'
 
 const skeletonStyles = tv({
     base: 'rounded-md bg-muted animate-pulse',
@@ -29,6 +30,6 @@ export function Skeleton({ className, children, variant = 'default', ...props }:
         {...props}
     >
         {variant == 'text' && children}
-        {variant == 'spinner' && <LoaderCircle className="animate-spin h-5 w-5"/>}
+        {variant == 'spinner' && <LoadingSpinner className="w-5 h-5"/>}
     </div>
 }

@@ -12,9 +12,9 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-pa
 import { LoadingSpinner } from '@/components/ui/loading'
 import * as Paths from '@/paths'
 
-export const metadata: Metadata = { title: "Teams" }
+export const metadata: Metadata = { title: "System" }
 
-export default async function TeamsPage() { 
+export default async function System_Loading() {
 
     return <AppPage>
             <AppPageBreadcrumbs

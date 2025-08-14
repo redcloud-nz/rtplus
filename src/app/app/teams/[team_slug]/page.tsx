@@ -14,7 +14,9 @@ import { DashboardCard, DashboardCardList } from '@/components/ui/dashboard-card
 import * as Paths from '@/paths'
 import { fetchTeamBySlug } from '@/server/fetch'
 
+
 export default async function TeamHomePage(props: { params: Promise<{ team_slug: string }> }) {
+
     const team = await fetchTeamBySlug(props.params)
 
     const teamPath = Paths.team(team.slug)

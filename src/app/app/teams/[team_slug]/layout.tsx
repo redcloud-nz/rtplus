@@ -5,28 +5,26 @@
  * /app/teams/[team-slug]
  */
 
-import { notFound, redirect } from 'next/navigation'
+import { Metadata } from 'next'
 import { ReactNode } from 'react'
 
-import { auth } from '@clerk/nextjs/server'
+import { fetchTeamBySlug } from '@/server/fetch'
 
-import * as Paths from '@/paths'
 
-export default async function TeamLayout(props: { params: Promise<{ team_slug: string }>, children: ReactNode }) {
+export async function generateMetadata(props: { params: Promise<{ team_slug: string }> }): Promise<Metadata> {
+    const team = await fetchTeamBySlug(props.params)
 
-    const {team_slug: pathSlug } = await props.params
-    const { orgSlug } = await auth()
-
-    if(orgSlug) {
-        // The user is signed in to an organization
-
-        if(pathSlug != orgSlug) {
-            // The user is signed in to a different organization
-            return notFound()
-        } else {
-            return props.children
-        }
-    } else {
-        return redirect(Paths.selectTeam.index)
+    return {
+        applicationName: "RT+",
+        title: {
+            template: `%s - ${team.shortName || team.name} | RT+`,
+            default: team.shortName || team.name,
+        },
+        description: "RT+ App",
     }
+}
+
+export default async function TeamLayout(props: { children: ReactNode }) {
+
+    return <>{props.children}</>
 }

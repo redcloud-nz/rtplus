@@ -9,27 +9,24 @@ import { Metadata } from 'next'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 
-import { MySessionsList_Card } from './my-sessions-list'
 import { Boundary } from '@/components/boundary'
+import * as Paths from '@/paths'
 
-export const metadata: Metadata = { title: 'My Sessions - Competencies' }
+export const metadata: Metadata = { title: 'Assessor' }
 
 
-export default async function My_SkillCheckSessionsList_Page() {
+export default async function Assessor_Page() {
 
     return <AppPage>
         <AppPageBreadcrumbs
-            breadcrumbs={[
-                "Competencies",
-                'My Sessions'
-            ]}
+            breadcrumbs={[Paths.assessor]}
         />
         <AppPageContent variant="container">
             <PageHeader>
-                <PageTitle>Sessions</PageTitle>
+                <PageTitle>Assessor</PageTitle>
             </PageHeader>
             <Boundary>
-                <MySessionsList_Card/>
+                <></>
             </Boundary>
         </AppPageContent>
     </AppPage>

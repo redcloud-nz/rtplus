@@ -13,16 +13,18 @@ import { Button } from '@/components/ui/button'
 import { Link } from '@/components/ui/link'
 
 import * as Paths from '@/paths'
-
-import { SkillPackageListCard } from './skill-package-list'
 import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
+import { System_SkillPackagesList_Card } from './skill-package-list'
+
+
+export const dynamic = 'force-dynamic'
 
 export const metadata = { title: "Skill Packages" }
 
-export default async function SkillPackageListPage() {
+export default async function System_SkillPackagesList_Page() {
 
-    prefetch(trpc.skills.getPackages.queryOptions({ status: ['Active', 'Inactive'] }))
+    prefetch(trpc.skills.getPackages.queryOptions({}))
 
     return <AppPage>
         <AppPageBreadcrumbs 
@@ -45,7 +47,7 @@ export default async function SkillPackageListPage() {
                 </PageHeader>
 
                 <Boundary>
-                     <SkillPackageListCard/>
+                     <System_SkillPackagesList_Card/>
                 </Boundary>
             </AppPageContent>
         </HydrateClient>
