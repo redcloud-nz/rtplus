@@ -1,8 +1,11 @@
 {
   "name": "rtplus",
-  "version": "0.4.5",
   "license": "MIT",
   "private": true,
+  "nz.rtplus": {
+    "version": "0.4.6",
+    "versionName": "Philomel"
+  },
   "scripts": {
     "dev": "next dev",
     "prisma": "dotenv -e .env.local -- npx prisma",

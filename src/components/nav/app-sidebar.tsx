@@ -31,8 +31,15 @@ export async function AppSidebar({ children, ...props }: Omit<ComponentProps<typ
             {children}
         </SidebarContent>
         <SidebarFooter>
+            <AppVersion/>
             <NavUser/>
         </SidebarFooter>
         <SidebarRail side="left" />
     </Sidebar>
+}
+
+function AppVersion() {
+    return <div className="text-xs text-center text-muted-foreground">
+        RT+ v{process.env.NEXT_PUBLIC_APP_VERSION} ({process.env.NEXT_PUBLIC_APP_VERSION_NAME})
+    </div>
 }
