@@ -15,12 +15,23 @@ import { Heading } from '@/components/ui/typography'
 import { cn } from '@/lib/utils'
 
 
+interface AppPageProps {
+    children?: React.ReactNode
+    showLeftSidebarTrigger?: boolean
+    showRightSidebarTrigger?: boolean
+}
 
-export function AppPage({ children }: { children?: React.ReactNode}) {
+export function AppPage({ children, showLeftSidebarTrigger = true, showRightSidebarTrigger = false }: AppPageProps) {
     return <div className="h-screen flex-1 grid grid-rows-[48px_1px_1fr_1px_48px] grid-cols-[auto_1fr_auto]">
-        <div className="row-start-1 col-start-1 flex justify-center items-center pl-1">
-            <SidebarTrigger/>
-        </div>
+        { showLeftSidebarTrigger && <div className="row-1 col-1 flex justify-center items-center pl-1 gap-1">
+            <SidebarTrigger side="left"/>
+             <Separator orientation="vertical"/>
+        </div>}
+
+       { showRightSidebarTrigger && <div className="row-1 col-3 flex justify-center items-center pr-1 gap-1">
+        <Separator orientation="vertical"/>
+           <SidebarTrigger side="right"/>
+       </div>}
         <Separator className="row-start-2 col-span-full" orientation="horizontal"/>
         {children}
     </div>
@@ -36,7 +47,7 @@ const appPageContentVariants = tv({
             container: 'flex flex-col items-center gap-4 p-4 *:w-full xl:*:w-4xl',
         },
         hasFooter: {
-            true: 'row-start-3',
+            true: 'row-3',
             false: 'row-start-3 row-span-3'
         }
     },
@@ -71,8 +82,7 @@ export function AppPageBreadcrumbs({ breadcrumbs = [], label }: AppPageBreadcrum
         breadcrumbs = breadcrumbs.slice(0, -1)
     }
 
-    return <div className="row-start-1 col-start-2 flex items-center h-12 gap-2 pr-2">
-        <Separator orientation="vertical" className="h-4"/>
+    return <div className="row-1 col-2 flex items-center h-12 gap-2 pr-2">
         <Breadcrumb className="px-2">
             <BreadcrumbList>
                 {breadcrumbs.map((breadcrumb, idx) => 

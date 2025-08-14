@@ -33,7 +33,7 @@ import * as Paths from '@/paths'
 
 export function NavUser() {
 
-    const { isMobile } = useSidebar()
+    const { isMobile } = useSidebar("left")
     const clerk = useClerk()
     const { isSignedIn, user } = useUser()
 

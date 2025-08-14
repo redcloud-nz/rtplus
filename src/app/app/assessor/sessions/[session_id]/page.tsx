@@ -18,7 +18,8 @@ import { fetchSkillCheckSession } from '@/server/fetch'
 import { SkillCheckSession_Assess_Card } from './skill-check-session-assess'
 import { SkillCheckSession_Details_Card } from './skill-check-session-details'
 import { SkillCheckSession_Transcript_Card } from './skill-check-session-transcript'
-import { Sidebar } from '@/components/ui/sidebar'
+import { Sidebar, SidebarContent, SidebarHeader, SidebarRail } from '@/components/ui/sidebar'
+import { NavItem, NavSection } from '@/components/nav/nav-section'
 
 
 
@@ -37,7 +38,7 @@ export default async function SessionPage(props: { params: Promise<{ session_id:
 
     return <>
         
-        <AppPage>
+        <AppPage showRightSidebarTrigger>
             <AppPageBreadcrumbs
                 breadcrumbs={[
                     Paths.competencies.sessions,
@@ -73,7 +74,24 @@ export default async function SessionPage(props: { params: Promise<{ session_id:
             </AppPageContent>
         </AppPage>
         <Sidebar side="right">
-            Assessor Sidebar.
+            <SidebarRail side="right" />
+            <SidebarHeader>
+                <h2 className="text-lg text-center font-medium">Competency Assessor</h2>
+            </SidebarHeader>
+            <SidebarContent>
+                <NavSection title="Session Configuration">
+                
+                    <NavItem href="./" label="Details"/>
+                    <NavItem href="./skills" label="Skills"/>
+                    <NavItem href="./assessors" label="Assessors"/>
+                    <NavItem href="./assessees" label="Assessees"/>
+                    
+                </NavSection>
+                <NavSection title="Result">
+                    <NavItem href="./transcript" label="Transcript"/>
+                </NavSection>
+            </SidebarContent>
+            
         </Sidebar>
     </>
     

@@ -13,7 +13,7 @@ import * as Paths from '@/paths'
 import { NavUser } from './nav-user'
 
 
-export async function AppSidebar({ children, ...props }: ComponentProps<typeof Sidebar>) {
+export async function AppSidebar({ children, ...props }: Omit<ComponentProps<typeof Sidebar>, 'side'>) {
     return <Sidebar {...props}>
         <SidebarHeader className="flex items-center justify-center">
             <Link href={Paths.selectTeam.index}>
@@ -33,6 +33,6 @@ export async function AppSidebar({ children, ...props }: ComponentProps<typeof S
         <SidebarFooter>
             <NavUser/>
         </SidebarFooter>
-        <SidebarRail />
+        <SidebarRail side="left" />
     </Sidebar>
 }

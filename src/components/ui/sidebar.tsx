@@ -5,7 +5,7 @@
 
 'use client'
 
-import { PanelLeftIcon } from 'lucide-react'
+import { PanelLeftIcon, PanelRightIcon } from 'lucide-react'
 import React from 'react'
 import { tv, type VariantProps} from 'tailwind-variants'
 
@@ -30,82 +30,144 @@ const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
-type SidebarContext = {
+type SidebarState = {
     state: "expanded" | "collapsed"
     open: boolean
     setOpen: (open: boolean) => void
     openMobile: boolean
     setOpenMobile: (open: boolean) => void
-    isMobile: boolean
     toggleSidebar: () => void
+}
+
+type SidebarContext = {
+    left: SidebarState
+    right: SidebarState
+    isMobile: boolean
 }
 
 const SidebarContext = React.createContext<SidebarContext | null>(null)
 
-export function useSidebar() {
+export function useSidebar(side: "left" | "right" = "left") {
     const context = React.useContext(SidebarContext)
     if (!context) {
         throw new Error("useSidebar must be used within a SidebarProvider.")
     }
 
-    return context
+    return {
+        ...context[side],
+        isMobile: context.isMobile
+    }
 }
 
 
 type SidebarProviderProps = React.ComponentPropsWithRef<'div'> & {
-    defaultOpen?: boolean
-    open?: boolean
-    onOpenChange?: (open: boolean) => void
+    defaultOpenLeft?: boolean
+    defaultOpenRight?: boolean
+    openLeft?: boolean
+    openRight?: boolean
+    onOpenChangeLeft?: (open: boolean) => void
+    onOpenChangeRight?: (open: boolean) => void
 }
 
-export function SidebarProvider({ defaultOpen = true, open: openProp, onOpenChange: setOpenProp, className, style, children, ...props }: SidebarProviderProps) {
+export function SidebarProvider({ 
+    defaultOpenLeft = true, 
+    defaultOpenRight = true,
+    openLeft: openLeftProp, 
+    openRight: openRightProp,
+    onOpenChangeLeft: setOpenLeftProp,
+    onOpenChangeRight: setOpenRightProp,
+    className, 
+    style, 
+    children, 
+    ...props 
+}: SidebarProviderProps) {
     const isMobile = useIsMobile()
-    const [openMobile, setOpenMobile] = React.useState(false)
+    const [openMobileLeft, setOpenMobileLeft] = React.useState(false)
+    const [openMobileRight, setOpenMobileRight] = React.useState(false)
 
-    // This is the internal state of the sidebar.
-    // We use openProp and setOpenProp for control from outside the component.
-    const [_open, _setOpen] = React.useState(defaultOpen)
-    const open = openProp ?? _open
-    const setOpen = React.useCallback((value: boolean | ((value: boolean) => boolean)) => {
-        const openState = typeof value === "function" ? value(open) : value
-        if (setOpenProp) {
-            setOpenProp(openState)
+    // Left sidebar state
+    const [_openLeft, _setOpenLeft] = React.useState(defaultOpenLeft)
+    const openLeft = openLeftProp ?? _openLeft
+    const setOpenLeft = React.useCallback((value: boolean | ((value: boolean) => boolean)) => {
+        const openState = typeof value === "function" ? value(openLeft) : value
+        if (setOpenLeftProp) {
+            setOpenLeftProp(openState)
         } else {
-            _setOpen(openState)
+            _setOpenLeft(openState)
         }
 
         // This sets the cookie to keep the sidebar state.
-        document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
-    }, [setOpenProp, open])
+        document.cookie = `${SIDEBAR_COOKIE_NAME}:left=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+    }, [setOpenLeftProp, openLeft])
 
-    // Helper to toggle the sidebar.
-    const toggleSidebar = React.useCallback(() => {
+    // Right sidebar state
+    const [_openRight, _setOpenRight] = React.useState(defaultOpenRight)
+    const openRight = openRightProp ?? _openRight
+    const setOpenRight = React.useCallback((value: boolean | ((value: boolean) => boolean)) => {
+        const openState = typeof value === "function" ? value(openRight) : value
+        if (setOpenRightProp) {
+            setOpenRightProp(openState)
+        } else {
+            _setOpenRight(openState)
+        }
+
+        // This sets the cookie to keep the sidebar state.
+        document.cookie = `${SIDEBAR_COOKIE_NAME}:right=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+    }, [setOpenRightProp, openRight])
+
+    // Helper to toggle the left sidebar.
+    const toggleSidebarLeft = React.useCallback(() => {
         return isMobile
-            ? setOpenMobile((open) => !open)
-            : setOpen((open) => !open)
-    }, [isMobile, setOpen, setOpenMobile])
+            ? setOpenMobileLeft((open) => !open)
+            : setOpenLeft((open) => !open)
+    }, [isMobile, setOpenLeft, setOpenMobileLeft])
 
-    // Adds a keyboard shortcut to toggle the sidebar.
+    // Helper to toggle the right sidebar.
+    const toggleSidebarRight = React.useCallback(() => {
+        return isMobile
+            ? setOpenMobileRight((open) => !open)
+            : setOpenRight((open) => !open)
+    }, [isMobile, setOpenRight, setOpenMobileRight])
+
+    // Adds a keyboard shortcut to toggle the left sidebar.
     React.useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === SIDEBAR_KEYBOARD_SHORTCUT && (event.metaKey || event.ctrlKey)) {
                 event.preventDefault()
-                toggleSidebar()
+                toggleSidebarLeft()
             }
         }
 
         window.addEventListener("keydown", handleKeyDown)
         return () => window.removeEventListener("keydown", handleKeyDown)
-    }, [toggleSidebar])
+    }, [toggleSidebarLeft])
 
     // We add a state so that we can do data-state="expanded" or "collapsed".
     // This makes it easier to style the sidebar with Tailwind classes.
-    const state = open ? "expanded" : "collapsed"
+    const stateLeft = openLeft ? "expanded" : "collapsed"
+    const stateRight = openRight ? "expanded" : "collapsed"
 
     const contextValue = React.useMemo<SidebarContext>(() => ({
-        state, open, setOpen, isMobile, openMobile,
-        setOpenMobile, toggleSidebar,
-    }), [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar])
+        left: {
+            state: stateLeft,
+            open: openLeft,
+            setOpen: setOpenLeft,
+            openMobile: openMobileLeft,
+            setOpenMobile: setOpenMobileLeft,
+            toggleSidebar: toggleSidebarLeft,
+        },
+        right: {
+            state: stateRight,
+            open: openRight,
+            setOpen: setOpenRight,
+            openMobile: openMobileRight,
+            setOpenMobile: setOpenMobileRight,
+            toggleSidebar: toggleSidebarRight,
+        },
+        isMobile,
+    }), [stateLeft, openLeft, setOpenLeft, openMobileLeft, setOpenMobileLeft, toggleSidebarLeft,
+         stateRight, openRight, setOpenRight, openMobileRight, setOpenMobileRight, toggleSidebarRight,
+         isMobile])
 
     return <SidebarContext.Provider value={contextValue}>
         <div
@@ -133,7 +195,7 @@ type SidebarProps = React.ComponentProps<'div'> & {
   }
 
 export function Sidebar({ side = "left", variant = "sidebar", collapsible = "offcanvas", className, children, ...props }: SidebarProps) {
-    const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+    const { isMobile, state, openMobile, setOpenMobile } = useSidebar(side)
 
     if (collapsible === "none") {
         return <div
@@ -210,8 +272,12 @@ export function Sidebar({ side = "left", variant = "sidebar", collapsible = "off
 }
 
 
-export function SidebarTrigger({ onClick, ...props }: React.ComponentPropsWithRef<typeof Button>) {
-    const { toggleSidebar } = useSidebar()
+export function SidebarTrigger({ 
+    side = "left", 
+    onClick, 
+    ...props 
+}: React.ComponentPropsWithRef<typeof Button> & { side?: "left" | "right" }) {
+    const { toggleSidebar } = useSidebar(side)
 
     return <Tooltip>
         <TooltipTrigger asChild>
@@ -225,7 +291,7 @@ export function SidebarTrigger({ onClick, ...props }: React.ComponentPropsWithRe
                 }}
                 {...props}
             >
-                <PanelLeftIcon />
+                { side == 'left' ? <PanelLeftIcon /> : <PanelRightIcon /> }
                 <span className="sr-only">Toggle Sidebar</span>
             </Button>
         </TooltipTrigger>
@@ -236,8 +302,12 @@ export function SidebarTrigger({ onClick, ...props }: React.ComponentPropsWithRe
 }
 
 
-export function SidebarRail({ className, ...props }: React.ComponentPropsWithRef<'button'>) {
-    const { toggleSidebar } = useSidebar()
+export function SidebarRail({ 
+    side = "left", 
+    className, 
+    ...props 
+}: React.ComponentPropsWithRef<'button'> & { side?: "left" | "right" }) {
+    const { toggleSidebar } = useSidebar(side)
 
     return <button
         data-sidebar="rail"
@@ -285,7 +355,7 @@ export function SidebarInput({ className, ...props }: React.ComponentPropsWithRe
 export function SidebarHeader({ className, ...props }: React.ComponentPropsWithRef<'div'>) {
     return <div
         data-sidebar="header"
-        className={cn("flex flex-col gap-2 p-2 border-b", className)}
+        className={cn("h-[49px] flex justify-center items-center p-2 border-b", className)}
         {...props}
     />
 }
@@ -410,11 +480,21 @@ type SidebarMenuButtonProps = React.ComponentPropsWithRef<'button'> & {
     asChild?: boolean
     isActive?: boolean
     tooltip?: string | React.ComponentPropsWithRef<typeof TooltipContent>
+    side?: "left" | "right"
 } & VariantProps<typeof sidebarMenuButtonVariants>
 
-export function SidebarMenuButton({ asChild = false, isActive = false, variant = "default", size = "default", tooltip, className, ...props }: SidebarMenuButtonProps) {
+export function SidebarMenuButton({ 
+    asChild = false, 
+    isActive = false, 
+    variant = "default", 
+    size = "default", 
+    side = "left",
+    tooltip, 
+    className, 
+    ...props 
+}: SidebarMenuButtonProps) {
     const Comp = asChild ? Slot : 'button'
-    const { isMobile, state } = useSidebar()
+    const { isMobile, state } = useSidebar(side)
 
     const button = (
       <Comp
