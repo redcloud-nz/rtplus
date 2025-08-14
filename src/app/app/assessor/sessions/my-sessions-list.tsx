@@ -36,7 +36,7 @@ export function MySessionsList_Card() {
     const columns = useMemo(() => defineColumns<SkillCheckSessionData>(columnHelper => [
         columnHelper.accessor('name', {
             header: 'Name',
-            cell: ctx => <TextLink href={Paths.competencies.session(ctx.row.original.sessionId).index}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink href={Paths.assessor.session(ctx.row.original.sessionId).index}>{ctx.getValue()}</TextLink>,
             enableGrouping: false,
             enableHiding: false,
             enableSorting: true,

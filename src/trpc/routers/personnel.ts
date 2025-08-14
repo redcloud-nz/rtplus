@@ -13,7 +13,7 @@ import { PersonData, personSchema } from '@/lib/schemas/person'
 import { nanoId16 } from '@/lib/id'
 import { zodRecordStatus, zodNanoId8 } from '@/lib/validation'
 
-import { AuthenticatedContext, createTRPCRouter, systemAdminProcedure } from '../init'
+import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
 import { FieldConflictError } from '../types'
 
 
@@ -76,7 +76,7 @@ export const personnelRouter = createTRPCRouter({
             }
         }),
 
-    getPersonnel: systemAdminProcedure
+    getPersonnel: authenticatedProcedure
         .input(z.object({
             status: zodRecordStatus
         }))

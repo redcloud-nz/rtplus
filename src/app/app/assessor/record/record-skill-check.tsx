@@ -31,11 +31,10 @@ import { CompetenceLevelTerms, skillCheckSchema } from '@/lib/schemas/skill-chec
 import { useTRPC } from '@/trpc/client'
 
 
-
 const singleSkillCheckSchema = skillCheckSchema.omit({ assessorId: true, sessionId: true })
 
 
-export function ActiveTeam_CreateSkillCheck_Card() {
+export function RecordSkillCheck_Card() {
     const router = useRouter()
     const { toast } = useToast()
     const trpc = useTRPC()

@@ -52,7 +52,7 @@ export const usersRouter = createTRPCRouter({
      * @returns An array of organization membership data.
      * @throws TRPCError if the team is not found or the user is not an admin of the team.
      */
-    byTeam: authenticatedProcedure
+    byTeam: systemAdminProcedure
         .meta({ teamAdminRequired: true })
         .input(z.object({
             teamId: zodNanoId8
@@ -63,7 +63,6 @@ export const usersRouter = createTRPCRouter({
         })))
         .query(async ({ ctx, input }) => {
             const team = await getTeamById(ctx, input.teamId)
-            ctx.requireTeamAdmin(team.clerkOrgId)
             
             const response = await ctx.clerkClient.organizations.getOrganizationMembershipList({ 
                 organizationId: team.clerkOrgId, limit: 501
@@ -79,7 +78,7 @@ export const usersRouter = createTRPCRouter({
      * @returns The deleted organization membership data.
      * @throws TRPCError if the team is not found or the user is not an admin of the team.
      */
-    delete: authenticatedProcedure
+    delete: systemAdminProcedure
         .meta({ teamAdminRequired: true })
         .input(z.object({
             teamId: zodNanoId8,
@@ -91,7 +90,6 @@ export const usersRouter = createTRPCRouter({
         }))
         .mutation(async ({ ctx, input }) => {
             const team = await getTeamById(ctx, input.teamId)
-            ctx.requireTeamAdmin(team.clerkOrgId)
 
             const response = await ctx.clerkClient.organizations.deleteOrganizationMembership({
                 organizationId: team.clerkOrgId,
@@ -109,7 +107,7 @@ export const usersRouter = createTRPCRouter({
      * @returns The updated organization membership data.
      * @throws TRPCError if the team is not found or the user is not an admin of the team.
      */
-    update: authenticatedProcedure
+    update: systemAdminProcedure
         .meta({ teamAdminRequired: true })
         .input(z.object({
             teamId: zodNanoId8,
@@ -122,7 +120,6 @@ export const usersRouter = createTRPCRouter({
         }))
         .mutation(async ({ ctx, input }) => {
             const team = await getTeamById(ctx, input.teamId)
-            ctx.requireTeamAdmin(team.clerkOrgId)
 
             const response = await ctx.clerkClient.organizations.updateOrganizationMembership({
                 organizationId: team.clerkOrgId,

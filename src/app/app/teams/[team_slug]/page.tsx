@@ -25,8 +25,8 @@ export default async function TeamHomePage(props: { params: Promise<{ team_slug:
         <AppPageBreadcrumbs
             breadcrumbs={[team.shortName || team.name]}
         />
-        <AppPageContent>
-            <div className="container mx-auto">
+        <AppPageContent variant="container">
+           
                 <div className="flex flex-col items-center gap-4 my-4">
                     <Image
                         className="dark:invert"
@@ -90,7 +90,6 @@ export default async function TeamHomePage(props: { params: Promise<{ team_slug:
                         description="Alternate views of the data stored in D4H Team Manager. Unified across multiple teams."
                     />
                 </DashboardCardList>
-            </div>
         </AppPageContent>
     </AppPage>
     

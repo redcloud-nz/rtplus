@@ -22,3 +22,5 @@ export function Boundary({ children }: { children: React.ReactNode }) {
         </Suspense>
     </ErrorBoundary>
 }
+
+

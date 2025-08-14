@@ -18,7 +18,7 @@ export default function SystemConfigPage() {
         <AppPageBreadcrumbs 
             breadcrumbs={[Paths.system]}
         />
-        <AppPageContent variant='container'>
+        <AppPageContent variant="container">
             <PageHeader>
                 <PageTitle>System Configuration</PageTitle>
             </PageHeader>

@@ -19,6 +19,10 @@ export const assessor = {
     index: `/app/assessor`,
     _label: 'Assessor',
 
+    record: {
+        _label: 'Single Check',
+        index: `/app/assessor/record`,
+    },
     session: (sessionId: string) => ({
         index: `/app/assessor/sessions/${sessionId}`,
     } as const),

@@ -15,7 +15,7 @@ import { TeamMembershipData, teamMembershipSchema, toTeamMembershipData } from '
 import { nanoId16 } from '@/lib/id'
 import { zodRecordStatus, zodNanoId8 } from '@/lib/validation'
 
-import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter } from '../init'
+import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
 
 import { getPersonById } from './personnel'
 import { getTeamById } from './teams'
@@ -25,7 +25,7 @@ import { getTeamById } from './teams'
 
 export const teamMembershipsRouter = createTRPCRouter({
 
-    create: authenticatedProcedure
+    create: systemAdminProcedure
         .meta({ teamAdminRequired: true })
         .input(teamMembershipSchema)
         .output(teamMembershipSchema.extend({
@@ -40,14 +40,13 @@ export const teamMembershipsRouter = createTRPCRouter({
                 getTeamById(ctx, input.teamId)
             ])
 
-            ctx.requireTeamAdmin(team.clerkOrgId)
 
             const created = await createTeamMembership(ctx, input)
 
             return { ...toTeamMembershipData(created), person: toPersonData(person), team: toTeamData(team) }
         }),
 
-    deleteTeamMembership: authenticatedProcedure
+    deleteTeamMembership: systemAdminProcedure
         .meta({ teamAdminRequired: true })
         .input(z.object({
             teamId: zodNanoId8,
@@ -57,8 +56,6 @@ export const teamMembershipsRouter = createTRPCRouter({
         .mutation(async ({ ctx, input }) => {
 
             const { team, ...membership } = await getTeamMembershipById(ctx, input)
-
-            ctx.requireTeamAdmin(team.clerkOrgId)
 
             const deleted = await deleteTeamMembership(ctx, membership)
 
@@ -108,15 +105,13 @@ export const teamMembershipsRouter = createTRPCRouter({
             return memberships.map(membership => ({ ...toTeamMembershipData(membership), person: toPersonData(membership.person), team: toTeamData(membership.team) }))
         }),    
 
-    updateTeamMembership: authenticatedProcedure
+    updateTeamMembership: systemAdminProcedure
         .meta({ teamAdminRequired: true })
         .input(teamMembershipSchema)
         .output(teamMembershipSchema)
         .mutation(async ({ ctx, input }) => {
             
             const { team, ...membership} = await getTeamMembershipById(ctx, input)
-
-            ctx.requireTeamAdmin(team.clerkOrgId)
 
             const updated = await updateTeamMembership(ctx, membership, input)
             return toTeamMembershipData(updated)
