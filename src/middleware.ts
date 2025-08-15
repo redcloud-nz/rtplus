@@ -7,8 +7,8 @@ import { NextResponse } from 'next/server'
 
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
-const isPrivateRoute = createRouteMatcher(['/app(/.*)'])
-const isSystemAdminRoute = createRouteMatcher(['/app/system(/.*)'])
+const isPublicRoute = createRouteMatcher(['/', '/about', '/contact', '/privacy-policy', '/terms-of-service'])
+const isSystemRoute = createRouteMatcher(['/system(/.*)'])
 
 export default clerkMiddleware(
     async (auth, req) => {
@@ -17,40 +17,39 @@ export default clerkMiddleware(
         if(userId) {
             // Authenticated user
 
-            if(sessionClaims.onboarding_status === 'incomplete') {
+            if(sessionClaims.rt_onboarding_status != 'complete' && !req.nextUrl.pathname.startsWith('/onboarding')) {
                 // Redirect users with incomplete onboarding
-                return NextResponse.redirect(`/app/onboarding?redirect_url=${encodeURIComponent(req.url)}`)
+                const url = req.nextUrl.clone()
+                url.pathname = '/onboarding'
+                url.searchParams.set('redirect_url', req.url)
+                return NextResponse.redirect(url)
             }
 
-            // Redirect non-system-admin users from system admin routes
-            if(isSystemAdminRoute(req) && sessionClaims?.rt_system_role !== 'admin') {
-                return NextResponse.redirect('/')
+            // Redirect non system users from system routes
+            if(isSystemRoute(req) && sessionClaims?.org_slug != 'system') {
+                return NextResponse.redirect('/dashboard')
             }
             
-            // Allow authenticated users to all non-system routes
+            // Allow access
             return NextResponse.next()
 
 
         } else {
             // Unauthenticated user
 
-            // If request is for a private route, redirect to sign in
-            if(isPrivateRoute(req)) redirectToSignIn({ returnBackUrl: req.url }) 
+            // If request is for a public route, allow access
+            if(isPublicRoute(req)) return NextResponse.next()
 
-            // Otherwise, allow access
-            else return NextResponse.next()
+            // Otherwise, redirect to sign in
+            else return redirectToSignIn({ returnBackUrl: req.url })
         }
     },
     {
         organizationSyncOptions: {
             organizationPatterns: [
-                '/app/teams/:slug',
-                '/app/teams/:slug/(.*)'
+                '/teams/:slug',
+                '/teams/:slug/(.*)'
             ],
-            personalAccountPatterns: [
-                '/app/personal',
-                'app/personal/(.*)'
-            ]
         }
     }
 )

@@ -9,7 +9,7 @@ import Image from 'next/image'
 
 import { NotFound } from '@/components/nav/errors'
 
-export default function NotFoundPage() {
+export default function Root_NotFound() {
     return <div className="w-full h-screen flex flex-col justify-center items-center gap-4">
         <Image
             className="dark:invert"

@@ -8,23 +8,23 @@ import { TeamData } from "./lib/schemas/team"
 
 export const about = {
     _label: 'About',
-    index: '/app/about',
+    index: '/about',
 }
 
-export const app = {
-    index: '/app',
+export const dashboard = {
+    _label: 'Dashboard',
+    index: '/dashboard',
 }
-
 
 //  /------------------------------\
 //  |            System            |
 //  \------------------------------/
 export const system = {
     _label: 'System',
-    index: '/app/system',
+    index: '/system',
 
     team: (teamId: string) => {
-        const teamBase = `/app/system/teams/${teamId}` as const
+        const teamBase = `/system/teams/${teamId}` as const
 
         return {
             index: teamBase,
@@ -46,11 +46,11 @@ export const system = {
     },
     teams: {
         _label: 'Teams',
-        index: '/app/system/teams',
-        create: '/app/system/teams/--create',
+        index: '/system/teams',
+        create: '/system/teams/--create',
     },
     person: (personId: string) => {
-        const personBase = `/app/system/personnel/${personId}` as const
+        const personBase = `/system/personnel/${personId}` as const
         return {
             index: personBase,
             update: `${personBase}/--update`,
@@ -72,12 +72,12 @@ export const system = {
     },
     personnel: {
         _label: 'Personnel',
-        index: '/app/system/personnel',
-        create: '/app/system/personnel/--create',
+        index: '/system/personnel',
+        create: '/system/personnel/--create',
     } as const,
 
     skillPackage: (skillPackageId: string) => {
-        const packageBase = `/app/system/skill-packages/${skillPackageId}` as const
+        const packageBase = `/system/skill-packages/${skillPackageId}` as const
 
         return {
             index: packageBase,
@@ -107,9 +107,9 @@ export const system = {
     }, 
     skillPackages: {
         _label: 'Skill Packages',
-        index: '/app/system/skill-packages',
-        create: '/app/system/skill-packages/--create',
-        import: '/app/system/skill-packages/--import',
+        index: '/system/skill-packages',
+        create: '/system/skill-packages/--create',
+        import: '/system/skill-packages/--import',
     } as const,
 }
 
@@ -124,17 +124,11 @@ export const policies = {
     policy: (policyKey: PolicyKeyType) => `/policies/${policyKey}`,
 }
 
-// Switch Team
-export const selectTeam = {
-    index: '/app/select-team',
-    _label: 'Select Team',
-}
-
 // Team
 
 export const team = (teamOrSlug: TeamData | string) => {
     const teamSlug = typeof teamOrSlug === 'string' ? teamOrSlug : teamOrSlug.slug
-    const base = `/app/teams/${teamSlug}` as const
+    const base = `/teams/${teamSlug}/-` as const
     const competenciesBase = `${base}/competencies` as const
 
     return {
@@ -148,10 +142,10 @@ export const team = (teamOrSlug: TeamData | string) => {
             index: competenciesBase,
             checks: {
                 _label: 'Checks',
-                index: `${competenciesBase}/checks`,
+                index: `${competenciesBase}/skill-checks`,
                 create: {
                     _label: 'Record Check',
-                    index: `${competenciesBase}/checks/--create`
+                    index: `${competenciesBase}/skill-checks/--create`
                 },
             },
             session: (sessionId: string) => ({
@@ -159,8 +153,8 @@ export const team = (teamOrSlug: TeamData | string) => {
             } as const),
             sessions: {
                 _label: 'Team Sessions',
-                create: `${competenciesBase}/sessions/--create`,
-                index: `${competenciesBase}/sessions`,
+                create: `${competenciesBase}/skill-check-sessions/--create`,
+                index: `${competenciesBase}/skill-check-sessions`,
             },
             record: `${competenciesBase}/record`,
             reports: {
@@ -171,7 +165,10 @@ export const team = (teamOrSlug: TeamData | string) => {
                 teamMembers: `${competenciesBase}/reports/team-members`,
             },
         },
-        dashboard: `${base}/dashboard`,
+        dashboard: {
+            _label: 'Dashboard',
+            index: `${base}/dashboard`,
+        },
         invitations: {
             _label: 'Invitations',
             index: `${base}/invitations`
@@ -191,19 +188,26 @@ export const team = (teamOrSlug: TeamData | string) => {
     } as const
 }
 
+export const teams = {
+    select: {
+        index: '/teams/--select',
+        _label: 'Select Team',
+    }
+} as const
+
 
 
 export const tools = {
     competencyRecorder: {
-        index: `/app/tools/competency-recorder`,
+        index: `/tools/competency-recorder`,
         _label: 'Competency Recorder',
 
         single: {
             _label: 'Single Check',
-            index: `/app/tools/competency-recorder/single`,
+            index: `/tools/competency-recorder/single`,
         },
         session: (sessionId: string) => {
-            const sessionBase = `/app/tools/competency-recorder/sessions/${sessionId}`
+            const sessionBase = `/tools/competency-recorder/sessions/${sessionId}`
             return {
                 index: sessionBase,
                 assessees: {
@@ -230,7 +234,7 @@ export const tools = {
         },
         sessions: {
             _label: 'Sessions',
-            index: '/app/tools/competency-recorder/sessions',
+            index: '/tools/competency-recorder/sessions',
         },
     }
 
@@ -238,23 +242,23 @@ export const tools = {
 
 export const d4h = {
     _label: 'D4H Integration',
-    index: '/app/d4h',
+    index: '/d4h',
     activities: {
         _label: 'Activities',
-        index: '/app/d4h/activities',
+        index: '/d4h/activities',
     },
     calendar: {
         _label: 'Calendar',
-        index: '/app/d4h/calendar',
-        
+        index: '/d4h/calendar',
+
     },
     personnel: {
         _label: 'Personnel',
-        index: '/app/d4h/personnel',
+        index: '/d4h/personnel',
     },
     equipment: {
         _label: 'Equipment',
-        index: '/app/d4h/equipment',
+        index: '/d4h/equipment',
     },
 } as const
 
@@ -263,26 +267,26 @@ export const d4h = {
 //  \------------------------------/
 export const personal = {
     _label: 'Personal',
-    index: '/app/personal',
+    index: '/personal',
     organizationList: {
         _label: 'Organizations',
-        index: '/app/personal/organizations',
+        index: '/personal/organizations',
     },
     d4hAccessTokens: {
         _label: 'D4H Access Tokens',
-        index: '/app/personal/d4h-access-tokens',
+        index: '/personal/d4h-access-tokens',
     },
     settings: {
         _label: "Personal Settings",
-        index: '/app/personal/settings',
+        index: '/personal/settings',
     },
     whoami: {
         _label: 'Who Am I',
-        index: '/app/personal/whoami',
+        index: '/personal/whoami',
     },
     account: {
         _label: 'Account',
-        index: '/app/personal/account',
+        index: '/personal/account',
     },
 } as const
 

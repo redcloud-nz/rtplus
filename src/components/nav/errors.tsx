@@ -16,7 +16,7 @@ export function NotFound(props: AppPageContentProps) {
             <div className="font-semibold text-zinc-800">Not Found</div>
             <Separator orientation="horizontal" className="w-40"/>
             <p>
-                The resource you requested was not found.
+                The resource you requested was not found. Have you tried turning it off and on again?
             </p>
         </main>
         
@@ -37,7 +37,7 @@ export function NotImplemented({ docUrl, ...props }: NotImplementedProps) {
             <p>
                 This page is part of a planned feature that has not yet been implemented.
             </p>
-            {docUrl ? <p>Learni more about the concept of this feature in the <Link href={docUrl}>documentation</Link>.</p> : null}
+            {docUrl ? <p>Learn more about the concept of this feature in the <Link href={docUrl}>documentation</Link>.</p> : null}
         </div>
         
     </AppPageContent>

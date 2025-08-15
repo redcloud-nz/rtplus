@@ -10,8 +10,11 @@ interface PackageData {
   dependencies: Record<string, string>;
   devDependencies: Record<string, string>;
   ['nz.rtplus']?: {
+    displayName: string;
+    repositoryUrl: string;
     version: string;
     versionName: string;
+    
     [key: string]: any;
   };
 }
@@ -24,7 +27,9 @@ const appMetadata = packageData['nz.rtplus']
 const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_APP_VERSION: appMetadata?.version,
-    NEXT_PUBLIC_APP_VERSION_NAME: appMetadata?.versionName
+    NEXT_PUBLIC_APP_VERSION_NAME: appMetadata?.versionName,
+    NEXT_PUBLIC_APP_DISPLAY_NAME: appMetadata?.displayName,
+    NEXT_PUBLIC_APP_REPOSITORY_URL: appMetadata?.repositoryUrl,
   }
 }
 

@@ -1,0 +1,17 @@
+/*
+ *  Copyright (c) 2025 Redcloud Development, Ltd.
+ *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
+ * 
+ * Path: /
+ */
+
+import { LoadingSpinner } from '@/components/ui/loading'
+
+export default function SignedIn_Loading() {
+    return (
+        <div className="flex flex-col items-center justify-center w-full h-screen">
+            <LoadingSpinner className="w-32 h-32"/>
+            <div className="p-4">Dont forget to breathe.</div>
+        </div>
+    )
+}

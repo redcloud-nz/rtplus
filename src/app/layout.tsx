@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     description: "RT+ App",
 };
 
-export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function Root_Layout({ children }: Readonly<{ children: React.ReactNode }>) {
     return <ClerkProvider>
         <html lang="en">
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>

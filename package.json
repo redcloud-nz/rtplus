@@ -3,8 +3,11 @@
   "license": "MIT",
   "private": true,
   "nz.rtplus": {
-    "version": "0.4.7",
+    "displayName": "RT+",
+    "repositoryUrl": "https://github.com/redcloud/rtplus",
+    "version": "0.4.8",
     "versionName": "Philomel"
+   
   },
   "scripts": {
     "dev": "next dev",
