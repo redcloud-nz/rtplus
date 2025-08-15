@@ -60,7 +60,7 @@ export function TeamMemberDetails({ personId }: { personId: string }) {
                     </Tooltip>
                     <DeleteTeamMembershipDialog
                         onDelete={() => {
-                            router.push(Paths.team(team.slug).members.index)
+                            router.push(Paths.team(team.slug).members.href)
                         }}
                         personId={personId}
                         teamId={team.teamId}
@@ -79,7 +79,7 @@ export function TeamMemberDetails({ personId }: { personId: string }) {
                     <ToruGrid>
                         <ToruGridRow
                             label="Team"
-                            control={<DisplayValue><TextLink href={Paths.system.team(team.teamId).index}>{team.name}</TextLink></DisplayValue>}
+                            control={<DisplayValue><TextLink href={Paths.system.team(team.teamId).href}>{team.name}</TextLink></DisplayValue>}
                         />
                         <ToruGridRow
                             label="Name"

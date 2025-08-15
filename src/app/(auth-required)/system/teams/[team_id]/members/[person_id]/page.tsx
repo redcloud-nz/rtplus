@@ -29,7 +29,7 @@ export default async function System_Team_Member_Page(props: { params: Promise<{
             breadcrumbs={[
                 Paths.system,
                 Paths.system.teams,
-                { label: team.shortName || team.name, href: Paths.system.team(team.teamId).index },
+                { label: team.shortName || team.name, href: Paths.system.team(team.teamId).href },
                 "Members",
                 person.name
             ]}

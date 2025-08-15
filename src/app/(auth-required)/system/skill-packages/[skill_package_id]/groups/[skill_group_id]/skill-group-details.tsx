@@ -86,7 +86,7 @@ export function SkillGroupDetailsCard({ skillGroupId, skillPackageId }: { skillG
                             label="Skill Package"
                             control={
                                 <DisplayValue>
-                                    <TextLink href={Paths.system.skillPackage(skillGroup.skillPackageId).index}>
+                                    <TextLink href={Paths.system.skillPackage(skillGroup.skillPackageId).href}>
                                         {skillGroup.skillPackage.name}
                                     </TextLink>
                                 </DisplayValue>
@@ -183,7 +183,7 @@ function UpdateSkillGroupForm({ onClose, skillGroup, skillPackage }: { onClose: 
                         label="Skill Package"
                         control={
                             <DisplayValue>
-                                <TextLink href={Paths.system.skillPackage(skillGroup.skillPackageId).index}>
+                                <TextLink href={Paths.system.skillPackage(skillGroup.skillPackageId).href}>
                                     {skillPackage.name}
                                 </TextLink>
                             </DisplayValue>
@@ -258,7 +258,7 @@ function DeleteSkillGroupDialog({ skillGroup }: { skillGroup: SkillGroupData }) 
 
             queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter())
             queryClient.invalidateQueries(trpc.skills.getGroup.queryFilter({ skillGroupId: skillGroup.skillGroupId }))
-            router.push(Paths.system.skillPackage(skillGroup.skillPackageId).index)
+            router.push(Paths.system.skillPackage(skillGroup.skillPackageId).href)
         }
     }))
 

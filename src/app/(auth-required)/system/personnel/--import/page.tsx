@@ -5,11 +5,20 @@
 'use client'
 
 import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
+import { NotImplemented } from '@/components/nav/errors'
+
+import * as Paths from '@/paths'
 
 export default function ImportPersonnel() {
 
 
     return <AppPage>
-        <AppPageBreadcrumbs label="Import Skill Pacakage"/>
+        <AppPageBreadcrumbs 
+            breadcrumbs={[
+                Paths.system,
+                Paths.system.personnel,
+                Paths.system.personnel.import
+            ]} />
+        <NotImplemented />
     </AppPage>
 }

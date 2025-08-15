@@ -21,10 +21,10 @@ export default async function VehicleReferenceCard(props: { params: Promise<{ pl
 
     return <AppPage>
         <AppPageBreadcrumbs
-            label={vehicle.plate}
             breadcrumbs={[
                 { label: 'Cards', href: "/cards" },
                 { label: 'Vehicles', href: "/card/vehicles" },
+                vehicle.plate
             ]}
         />
         <AppPageContent>

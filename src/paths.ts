@@ -3,128 +3,143 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { PolicyKeyType } from "./lib/policy"
-import { TeamData } from "./lib/schemas/team"
+import { CableIcon, PocketKnifeIcon, ShieldHalfIcon, UsersIcon } from 'lucide-react'
+
+import { TeamData } from '@/lib/schemas/team'
 
 export const about = {
-    _label: 'About',
-    index: '/about',
+    label: 'About',
+    href: '/about',
 }
 
 export const dashboard = {
-    _label: 'Dashboard',
-    index: '/dashboard',
+    label: 'Dashboard',
+    href: '/dashboard',
 }
 
-//  /------------------------------\
-//  |            System            |
-//  \------------------------------/
+export const fog = {
+    label: 'Field Operations Guide',
+    href: '/fog',
+} as const
+
+
+export const referenceCards = {
+    label: 'Reference Cards',
+    href: '/cards'
+} as const
+
+export const selectTeam = {
+    label: "Select Team",
+    href: '/select-team'
+} as const
+
 export const system = {
-    _label: 'System',
-    index: '/system',
+    label: 'System',
+    href: '/system',
 
     team: (teamId: string) => {
         const teamBase = `/system/teams/${teamId}` as const
 
         return {
-            index: teamBase,
+            href: teamBase,
             d4h: `${teamBase}/d4h-integration`,
 
             update: `${teamBase}/--update`,
             delete: `${teamBase}/--delete`,
             member: (personId: string) => ({
-                    index: `${teamBase}/members/${personId}`,
+                    href: `${teamBase}/members/${personId}`,
                     update: `${teamBase}/members/${personId}/--update`,
                     delete: `${teamBase}/members/${personId}/--delete`,
             } as const),
             members: {
-                _label: 'Members',
-                index: `${teamBase}/members`,
+                label: 'Members',
+                href: `${teamBase}/members`,
                 create: `${teamBase}/members/--create`,
             }
         } as const
     },
     teams: {
-        _label: 'Teams',
-        index: '/system/teams',
+        label: 'Teams',
+        href: '/system/teams',
+        icon: ShieldHalfIcon,
         create: '/system/teams/--create',
     },
     person: (personId: string) => {
         const personBase = `/system/personnel/${personId}` as const
         return {
-            index: personBase,
+            href: personBase,
             update: `${personBase}/--update`,
             delete: `${personBase}/--delete`,
             access: `${personBase}/access`,
 
             teamMembership: (teamId: string) => ({
-                index: `${personBase}/team-memberships/${teamId}`,
+                href: `${personBase}/team-memberships/${teamId}`,
                 update: `${personBase}/team-memberships/${teamId}/--update`,
                 delete: `${personBase}/team-memberships/${teamId}/--delete`,
             } as const),
 
             teamMemberships: {
-                    _label: 'Team Memberships',
-                    index: `${personBase}/team-memberships`,
+                    label: 'Team Memberships',
+                    href: `${personBase}/team-memberships`,
                     create: `${personBase}/team-memberships/--create`,
             },
         } as const
     },
     personnel: {
-        _label: 'Personnel',
-        index: '/system/personnel',
+        label: 'Personnel',
+        href: '/system/personnel',
+        icon: UsersIcon,
         create: '/system/personnel/--create',
+
+        import: {
+            label: 'Import Personnel',
+            href: '/system/personnel/--import',
+        }
     } as const,
 
     skillPackage: (skillPackageId: string) => {
         const packageBase = `/system/skill-packages/${skillPackageId}` as const
 
         return {
-            index: packageBase,
+            href: packageBase,
             update: `${packageBase}/--update`,
             delete: `${packageBase}/--delete`,
 
             group: (skillGroupId: string) => ({
-                index: `${packageBase}/groups/${skillGroupId}`,
+                href: `${packageBase}/groups/${skillGroupId}`,
                 update: `${packageBase}/groups/${skillGroupId}/--update`,
                 delete: `${packageBase}/groups/${skillGroupId}/--delete`,
             } as const),
             groups: {
-                _label: 'Groups',
+                label: 'Groups',
                 create: `${packageBase}/groups/--create`,
             },
 
             skill: (skillId: string) => ({
-                index: `${packageBase}/skills/${skillId}`,
+                href: `${packageBase}/skills/${skillId}`,
                 update: `${packageBase}/skills/${skillId}/--update`,
                 delete: `${packageBase}/skills/${skillId}/--delete`,
             } as const),
+
             skills: {
-                _label: 'Skills',
+                label: 'Skills',
                 create: `${packageBase}/skills/--create`,
             },
         } as const
     }, 
     skillPackages: {
-        _label: 'Skill Packages',
-        index: '/system/skill-packages',
+        label: 'Skill Packages',
+        href: '/system/skill-packages',
+        icon: PocketKnifeIcon,
         create: '/system/skill-packages/--create',
-        import: '/system/skill-packages/--import',
+        import: {
+            label: 'Import Skill Package',
+            href: '/system/skill-packages/--import',
+        }
     } as const,
 }
 
-export const imports = {
-    index: '/system/imports',
-    personnel: '/system/imports/personnel',
-    skillPackage: '/system/imports/skill-package',
-} as const
 
-export const policies = {
-    index: '/policies',
-    policy: (policyKey: PolicyKeyType) => `/policies/${policyKey}`,
-}
-
-// Team
 
 export const team = (teamOrSlug: TeamData | string) => {
     const teamSlug = typeof teamOrSlug === 'string' ? teamOrSlug : teamOrSlug.slug
@@ -132,133 +147,133 @@ export const team = (teamOrSlug: TeamData | string) => {
     const competenciesBase = `${base}/competencies` as const
 
     return {
-        index: base,
-        _label: typeof teamOrSlug === 'string' ? undefined as never : (teamOrSlug.shortName || teamOrSlug.name),
+        href: base,
+        label: typeof teamOrSlug === 'string' ? undefined as never : (teamOrSlug.shortName || teamOrSlug.name),
         accept: `${base}/accept`,
         availability: `${base}/availability`,
         checklists: `${base}/checklists`,
         competencies: {
-            _label: 'Competencies',
-            index: competenciesBase,
+            label: 'Competencies',
+            href: competenciesBase,
+            icon: PocketKnifeIcon,
             checks: {
-                _label: 'Checks',
-                index: `${competenciesBase}/skill-checks`,
+                label: 'Checks',
+                href: `${competenciesBase}/skill-checks`,
                 create: {
-                    _label: 'Record Check',
-                    index: `${competenciesBase}/skill-checks/--create`
+                    label: 'Record Check',
+                    href: `${competenciesBase}/skill-checks/--create`
                 },
             },
             session: (sessionId: string) => ({
-                index: `${competenciesBase}/sessions/${sessionId}`
+                href: `${competenciesBase}/sessions/${sessionId}`
             } as const),
             sessions: {
-                _label: 'Team Sessions',
+                label: 'Team Sessions',
                 create: `${competenciesBase}/skill-check-sessions/--create`,
-                index: `${competenciesBase}/skill-check-sessions`,
+                href: `${competenciesBase}/skill-check-sessions`
             },
             record: `${competenciesBase}/record`,
             reports: {
-                _label: 'Reports',
-                index: `${competenciesBase}/reports`,
+                label: 'Reports',
+                href: `${competenciesBase}/reports`,
                 individual: `${competenciesBase}/reports/individual`,
                 teamSkills: `${competenciesBase}/reports/team-skills`,
                 teamMembers: `${competenciesBase}/reports/team-members`,
             },
         },
         dashboard: {
-            _label: 'Dashboard',
-            index: `${base}/dashboard`,
+            label: 'Dashboard',
+            href: `${base}/dashboard`
         },
         invitations: {
-            _label: 'Invitations',
-            index: `${base}/invitations`
+            label: 'Invitations',
+            href: `${base}/invitations`
         },
         member: (personId: string) => ({
-            index: `${base}/members/${personId}`,
+            href: `${base}/members/${personId}`
         } as const),
         members: {
-            _label: 'Members',
-            index: `${base}/members`,
+            label: 'Members',
+            icon: UsersIcon,
+            href: `${base}/members`,
             create: `${base}/members/--create`,
         },
         users: {
-            _label: 'Users',
-            index: `${base}/users`
+            label: 'Users',
+            href: `${base}/users`
         },
     } as const
 }
-
-export const teams = {
-    select: {
-        index: '/teams/--select',
-        _label: 'Select Team',
-    }
-} as const
 
 
 
 export const tools = {
     competencyRecorder: {
-        index: `/tools/competency-recorder`,
-        _label: 'Competency Recorder',
+        href: `/tools/competency-recorder`,
+        label: 'Competency Recorder',
 
         single: {
-            _label: 'Single Check',
-            index: `/tools/competency-recorder/single`,
+            label: 'Single Check',
+            href: `/tools/competency-recorder/single`
         },
         session: (sessionId: string) => {
             const sessionBase = `/tools/competency-recorder/sessions/${sessionId}`
             return {
-                index: sessionBase,
+                href: sessionBase,
                 assessees: {
-                    _label: 'Assessees',
-                    index: `${sessionBase}/assessees`,
+                    label: 'Assessees',
+                    href: `${sessionBase}/assessees`,
                 },
                 assessors: {
-                    _label: 'Assessors',
-                    index: `${sessionBase}/assessors`,
+                    label: 'Assessors',
+                    href: `${sessionBase}/assessors`,
                 },
                 recordIndividual: {
-                    _label: 'Individual',
-                    index: `${sessionBase}/record-individual`,
+                    label: 'Individual',
+                    href: `${sessionBase}/record-individual`,
                 },
                 skills: {
-                    _label: 'Skills',
-                    index: `${sessionBase}/skills`,
+                    label: 'Skills',
+                    href: `${sessionBase}/skills`,
                 },
                 transcript: {
-                    _label: 'Transcript',
-                    index: `${sessionBase}/transcript`,
+                    label: 'Transcript',
+                    href: `${sessionBase}/transcript`,
                 },
             } as const
         },
         sessions: {
-            _label: 'Sessions',
-            index: '/tools/competency-recorder/sessions',
+            label: 'Sessions',
+            href: '/tools/competency-recorder/sessions',
         },
     }
 
 } as const
 
 export const d4h = {
-    _label: 'D4H Integration',
-    index: '/d4h',
+    label: 'D4H Integration',
+    icon: CableIcon,
+    href: '/d4h',
     activities: {
-        _label: 'Activities',
-        index: '/d4h/activities',
+        label: 'Activities',
+        href: '/d4h/activities',
+        bgColor: 'bg-teal-400'
     },
     calendar: {
-        _label: 'Calendar',
-        index: '/d4h/calendar',
-
+        label: 'Calendar',
+        href: '/d4h/calendar',
+        bgColor: 'bg-yellow-400'
+    },
+    
+    equipment: {
+        label: 'Equipment',
+        href: '/d4h/equipment',
+        bgColor: 'bg-red-400'
     },
     personnel: {
-        _label: 'Personnel',
-        index: '/d4h/personnel',
-    },
-    equipment: {
-        _label: 'Equipment',
-        index: '/d4h/equipment',
+        label: 'Personnel',
+        href: '/d4h/personnel',
+        bgColor: 'bg-blue-400'
     },
 } as const
 
@@ -266,27 +281,29 @@ export const d4h = {
 //  |           Account            |
 //  \------------------------------/
 export const personal = {
-    _label: 'Personal',
+    label: 'Personal',
     index: '/personal',
+    href: '/personal',
+
     organizationList: {
-        _label: 'Organizations',
-        index: '/personal/organizations',
+        label: 'Organizations',
+        href: '/personal/organizations',
     },
     d4hAccessTokens: {
-        _label: 'D4H Access Tokens',
-        index: '/personal/d4h-access-tokens',
+        label: 'D4H Access Tokens',
+        href: '/personal/d4h-access-tokens',
     },
     settings: {
-        _label: "Personal Settings",
-        index: '/personal/settings',
+        label: "Personal Settings",
+        href: '/personal/settings',
     },
     whoami: {
-        _label: 'Who Am I',
-        index: '/personal/whoami',
+        label: 'Who Am I',
+        href: '/personal/whoami',
     },
     account: {
-        _label: 'Account',
-        index: '/personal/account',
+        label: 'Account',
+        href: '/personal/account',
     },
 } as const
 
@@ -297,7 +314,9 @@ export const documentation = {
     index: `${docsBase}`,
     glossary: `${docsBase}/glossary`,
     competencies: `${docsBase}/competencies`,
-    competencyRecorder: `${docsBase}/Competency-Recorder`,
+    competencyRecorder: {
+        href: `${docsBase}/Competency-Recorder`,
+    },
     personnel: `${docsBase}/personnel`,
     skills: `${docsBase}/skills`,
     skillGroups: `${docsBase}/skill-groups`,

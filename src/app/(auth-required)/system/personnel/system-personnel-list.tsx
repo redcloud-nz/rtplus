@@ -39,7 +39,7 @@ export function System_PersonnelList_Card() {
         }),
         columnHelper.accessor('name', {
             header: 'Name',
-            cell : ctx => <TextLink href={Paths.system.person(ctx.row.original.personId).index}>{ctx.getValue()}</TextLink>,
+            cell : ctx => <TextLink href={Paths.system.person(ctx.row.original.personId).href}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('email', {

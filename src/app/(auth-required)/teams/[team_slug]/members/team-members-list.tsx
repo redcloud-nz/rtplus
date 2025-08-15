@@ -50,7 +50,7 @@ export function Team_MembersList_Card() {
         columnHelper.accessor('person.name', {
             id: "name",
             header: "Name",
-            cell: ctx => <TextLink href={Paths.team(team.slug).member(ctx.row.original.personId).index}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink href={Paths.team(team.slug).member(ctx.row.original.personId).href}>{ctx.getValue()}</TextLink>,
             enableGrouping: false,
             enableHiding: false,
             enableSorting: true,

@@ -41,7 +41,7 @@ export function System_SkillPackage_GroupsList_Card({ skillPackageId }: { skillP
         }),
         columnHelper.accessor('name', {
             header: 'Group',
-            cell: ctx => <TextLink href={Paths.system.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId).index}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink href={Paths.system.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId).href}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('description', {

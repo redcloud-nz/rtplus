@@ -229,7 +229,7 @@ function DeleteSessionDialog({ session }: { session: SkillCheckSessionData }) {
                 description: <>The session <ObjectName>{result.name}</ObjectName> has been deleted.</>,
             })
             setOpen(false)
-            router.push(Paths.team(team).competencies.sessions.index)
+            router.push(Paths.team(team).competencies.sessions.href)
 
             queryClient.invalidateQueries(trpc.activeTeam.skillCheckSessions.getTeamSessions.queryFilter())
             queryClient.setQueryData(trpc.activeTeam.skillCheckSessions.getSession.queryKey({ sessionId: session.sessionId }), undefined)

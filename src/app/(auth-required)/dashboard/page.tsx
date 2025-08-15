@@ -10,6 +10,7 @@ import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
 import { NotImplemented } from '@/components/nav/errors'
 
 
+export const metadata = { title: 'Dashboard' }
 
 export default async function Dashboard_Page() {
 

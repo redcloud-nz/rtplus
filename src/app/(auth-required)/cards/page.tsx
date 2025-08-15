@@ -13,6 +13,7 @@ import { Heading } from '@/components/ui/typography'
 
 import { VehicleList } from '@/data/vehicles'
 
+import * as Paths from '@/paths'
 import { cn } from '@/lib/utils'
 
 
@@ -22,7 +23,9 @@ export default async function ReferenceCardsPage() {
 
     return <AppPage>
         <AppPageBreadcrumbs
-            label="Reference Cards"
+            breadcrumbs={[
+                Paths.referenceCards
+            ]}
         />
         <AppPageContent>
             <PageTitle>Reference Cards</PageTitle>

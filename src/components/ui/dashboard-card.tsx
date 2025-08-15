@@ -16,7 +16,7 @@ export function DashboardCardList({ className, ...props }: ComponentProps<'ul'>)
 }
 
 type DashboardCardProps = ComponentProps<'li'> & {
-    title: string
+    label: string
     href: string
     icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>
     iconForeground: string
@@ -24,7 +24,7 @@ type DashboardCardProps = ComponentProps<'li'> & {
     description: string
 }
 
-export function DashboardCard({ className, title, href, icon: Icon, iconForeground, iconBackground, description, ...props}: DashboardCardProps) {
+export function DashboardCard({ className, label, href, icon: Icon, iconForeground, iconBackground, description, ...props}: DashboardCardProps) {
 
     const LinkComp = href.startsWith('/') ? Link : ExternalLink
 
@@ -45,7 +45,7 @@ export function DashboardCard({ className, title, href, icon: Icon, iconForegrou
                 <LinkComp href={href} className="focus:outline-hidden">
                     {/* Extend touch target to entire panel */}
                     <span aria-hidden="true" className="absolute inset-0" />
-                    {title}
+                    {label}
                 </LinkComp>
             </h3>
             <p className="text-sm text-gray-500">

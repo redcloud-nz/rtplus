@@ -44,11 +44,11 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <div className="ml-6 flex items-center gap-2">
                 <SignedIn>
                     <Button asChild>
-                        <Link href={Paths.dashboard.index}>RT+ Dashboard <ArrowRightIcon/></Link>
+                        <Link href={Paths.dashboard.href}>RT+ Dashboard <ArrowRightIcon/></Link>
                     </Button>
                 </SignedIn>
                 <SignedOut>
-                    <SignInButton forceRedirectUrl={Paths.dashboard.index}>
+                    <SignInButton forceRedirectUrl={Paths.dashboard.href}>
                         <Button> Sign In</Button>
                     </SignInButton>
                 </SignedOut>

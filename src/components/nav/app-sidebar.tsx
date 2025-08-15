@@ -16,7 +16,7 @@ import { NavUser } from './nav-user'
 export async function AppSidebar({ children, ...props }: Omit<ComponentProps<typeof Sidebar>, 'side'>) {
     return <Sidebar {...props}>
         <SidebarHeader className="flex items-center justify-center">
-            <Link href={Paths.teams.select.index}>
+            <Link href={Paths.selectTeam}>
                 <Image
                     className="dark:invert"
                     src="/logo.svg"

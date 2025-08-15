@@ -64,7 +64,7 @@ export function System_NewPerson_Details_Card() {
             })
 
             queryClient.invalidateQueries(trpc.personnel.getPersonnel.queryFilter())
-            router.push(Paths.system.person(personId).index)
+            router.push(Paths.system.person(personId).href)
         }
     }))
 

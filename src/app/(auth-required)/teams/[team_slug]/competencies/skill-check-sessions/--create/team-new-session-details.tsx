@@ -68,7 +68,7 @@ export function Team_NewSkillCheckSession_Details_Card() {
                 title: "Session created",
                 description: `The session ${result.name} has been created successfully.`,
             })
-            router.push(Paths.team(team.slug).competencies.session(sessionId).index)
+            router.push(Paths.team(team.slug).competencies.session(sessionId).href)
         }
     }))
 

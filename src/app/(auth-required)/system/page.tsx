@@ -5,8 +5,6 @@
  *  Path: /system
  */
 
-import { PocketKnifeIcon, ShieldHalfIcon, UsersIcon } from 'lucide-react'
-
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { DashboardCard, DashboardCardList } from '@/components/ui/dashboard-card'
 
@@ -24,25 +22,19 @@ export default function System_Index_Page() {
             </PageHeader>
             <DashboardCardList>
                 <DashboardCard
-                    title="Teams"
-                    href={Paths.system.teams.index}
-                    icon={ShieldHalfIcon}
+                    {...Paths.system.teams}
                     iconBackground='bg-pink-600'
                     iconForeground='text-pink-50'
                     description="Create and manage teams."
                 />
                 <DashboardCard
-                    title="Personnel"
-                    href={Paths.system.personnel.index}
-                    icon={UsersIcon}
+                    {...Paths.system.personnel}
                     iconBackground='bg-purple-600'
                     iconForeground='text-purple-50'
                     description="Create and manage personnel."
                 />
                 <DashboardCard
-                    title="Skills Packages"
-                    href={Paths.system.skillPackages.index}
-                    icon={PocketKnifeIcon}
+                    {...Paths.system.skillPackages}
                     iconBackground='bg-yellow-500'
                     iconForeground='text-yellow-50'
                     description='Manage skills packages.'

@@ -250,7 +250,7 @@ function DeleteSkillPackageDialog({ skillPackage }: { skillPackage: SkillPackage
             queryClient.invalidateQueries(trpc.skills.getPackages.queryFilter())
             queryClient.invalidateQueries(trpc.skills.getPackage.queryFilter({ skillPackageId: skillPackage.skillPackageId }))
             queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter({ skillPackageId: skillPackage.skillPackageId }))
-            router.push(Paths.system.skillPackages.index)
+            router.push(Paths.system.skillPackages.href)
         }
     }))
 

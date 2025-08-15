@@ -6,7 +6,6 @@
 import Link from 'next/link'
 import React, { ComponentProps } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
-import { match, P } from 'ts-pattern'
 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { Separator } from '@/components/ui/separator'
@@ -64,57 +63,41 @@ export function AppPageContent({ children, className, variant = 'default', ...pr
     </main>
 }
 
-type PathBreadcrumb = { index?: string, _label: string }
-export type PageBreadcrumb = { index?: never, label: string, href?: string } | PathBreadcrumb | string
+export type PageBreadcrumb = { label: string, href?: string }
 
-export type AppPageBreadcrumbsProps = { breadcrumbs?: PageBreadcrumb[], label: string } | { breadcrumbs: [...PageBreadcrumb[], PathBreadcrumb | string], label?: never }
+function normalizeBreadcrumbs(breadcrumbs: (PageBreadcrumb | string)[]): PageBreadcrumb[] {
+    return breadcrumbs.map(breadcrumb => 
+        typeof breadcrumb === "string" ? { label: breadcrumb } : breadcrumb
+    )
+}
 
-export function AppPageBreadcrumbs({ breadcrumbs = [], label }: AppPageBreadcrumbsProps) {
-    let pageLabel = label
-    if(label == undefined) {
-        const last = breadcrumbs[breadcrumbs.length - 1] as PathBreadcrumb | string
-        pageLabel = match(last)
-            .with({ _label: P.string }, (breadcrumb) => breadcrumb._label)
-            .with(P.string, (breadcrumb) => breadcrumb)
-            .otherwise(() => {
-                throw new Error("AppPageBreadcrumbs: Invalid breadcrumbs: " + JSON.stringify(breadcrumbs))
-            })
-        breadcrumbs = breadcrumbs.slice(0, -1)
-    }
+export interface AppPageBreadcrumbsProps { 
+    breadcrumbs?: (PageBreadcrumb | string)[] 
+}
+
+export function AppPageBreadcrumbs({ breadcrumbs = [] }: AppPageBreadcrumbsProps) {
+    if(breadcrumbs.length === 0) return null
+    
+    const normalizedBreadcrumbs = normalizeBreadcrumbs(breadcrumbs)
 
     return <div className="row-1 col-2 flex items-center h-12 gap-2 pr-2">
         <Breadcrumb className="px-2">
             <BreadcrumbList>
-                {breadcrumbs.map((breadcrumb, idx) => 
+                {normalizedBreadcrumbs.slice(0, -1).map((breadcrumb, idx) => 
                     <React.Fragment key={idx}>
                         <BreadcrumbItem className="hidden md:block">
-                            {match(breadcrumb)
-                                .with({ _label: P.string, index: P.string }, (breadcrumb) => 
-                                    <BreadcrumbLink asChild>
-                                        <Link href={breadcrumb.index}>{breadcrumb._label}</Link>
-                                    </BreadcrumbLink>
-                                )
-                                .with({ _label: P.string }, (breadcrumb) =>
-                                    <span className="text-muted-foreground">{breadcrumb._label}</span>
-                                )
-                                .with({ href: P.string }, (breadcrumb) => 
-                                    <BreadcrumbLink asChild>
-                                        <Link href={breadcrumb.href}>{breadcrumb.label}</Link>
-                                    </BreadcrumbLink>
-                                )
-                                .with(P.string, (breadcrumb) => 
-                                    <span className="text-muted-foreground">{breadcrumb}</span>
-                                )
-                                .otherwise((breadcrumb) => 
-                                    <span className="text-muted-foreground">{breadcrumb.label}</span>
-                            )
+                            {breadcrumb.href
+                                ? <BreadcrumbLink asChild>
+                                    <Link href={breadcrumb.href}>{breadcrumb.label}</Link>
+                                  </BreadcrumbLink>
+                                : <span className="text-muted-foreground">{breadcrumb.label}</span>
                             }
                         </BreadcrumbItem>
                         <BreadcrumbSeparator className="hidden md:block"/>
                     </React.Fragment>
                 )}
                 <BreadcrumbItem>
-                    <BreadcrumbPage>{pageLabel}</BreadcrumbPage>
+                    <BreadcrumbPage>{normalizedBreadcrumbs[normalizedBreadcrumbs.length - 1].label}</BreadcrumbPage>
                 </BreadcrumbItem>
             </BreadcrumbList>    
         </Breadcrumb>

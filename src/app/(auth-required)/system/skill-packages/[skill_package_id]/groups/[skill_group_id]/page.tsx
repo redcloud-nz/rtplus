@@ -31,7 +31,7 @@ export default async function SkillGroupPage(props: { params: Promise<{ skill_gr
             breadcrumbs={[
                 Paths.system, 
                 Paths.system.skillPackages,
-                { label: skillPackage.name, href: Paths.system.skillPackage(skillPackageId).index },
+                { label: skillPackage.name, href: Paths.system.skillPackage(skillPackageId).href },
                 Paths.system.skillPackage(skillPackageId).groups,
                 name
             ]}

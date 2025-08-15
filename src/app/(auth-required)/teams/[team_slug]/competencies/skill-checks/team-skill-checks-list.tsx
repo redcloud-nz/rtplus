@@ -49,7 +49,7 @@ export function Team_SkillChecksList_Card() {
         columnHelper.accessor('assessee.name', {
             id: 'assessee',
             header: 'Assessee',
-            cell: ctx => <TextLink href={Paths.team(team.slug).member(ctx.row.original.assesseeId).index}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink href={Paths.team(team.slug).member(ctx.row.original.assesseeId).href}>{ctx.getValue()}</TextLink>,
             enableGrouping: true,
             enableHiding: true,
             enableSorting: true,
@@ -58,7 +58,7 @@ export function Team_SkillChecksList_Card() {
         columnHelper.accessor('assessor.name', {
             id: 'assessor',
             header: 'Assessor',
-            cell: ctx => <TextLink href={Paths.team(team.slug).member(ctx.row.original.assessorId).index}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink href={Paths.team(team.slug).member(ctx.row.original.assessorId).href}>{ctx.getValue()}</TextLink>,
             enableGrouping: true,
             enableHiding: true,
             enableSorting: true,

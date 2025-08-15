@@ -31,7 +31,7 @@ export default async function System_Person_TeamMembership_Page(props: { params:
             breadcrumbs={[
                 Paths.system,
                 Paths.system.personnel,
-                { label: person.name, href: Paths.system.person(person.personId).index },
+                { label: person.name, href: Paths.system.person(person.personId).href },
                 "Team Memberships",
                 team.name
             ]}

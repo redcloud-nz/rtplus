@@ -65,7 +65,7 @@ export function Team_NewMember_Details_Card() {
                 title: "Membership Created",
                 description: `${result.person.name} has been added to the team.`,
             })
-            router.push(Paths.team(result.team.slug).members.index)
+            router.push(Paths.team(result.team.slug).members.href)
         }
     }))
 

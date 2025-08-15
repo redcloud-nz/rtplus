@@ -35,24 +35,24 @@ export default async function CompetencyRecorder_Page() {
             </Paragraph>
             <DashboardCardList>
                  <DashboardCard
-                    title="Single"
-                    href={Paths.tools.competencyRecorder.single.index}
+                    label="Single"
+                    href={Paths.tools.competencyRecorder.single.href}
                     icon={CheckIcon}
                     iconForeground="text-sky-700"
                     iconBackground="bg-sky-50"
                     description="Record a single skill check."
                 />
                 <DashboardCard
-                    title="Session"
-                    href={Paths.tools.competencyRecorder.sessions.index}
+                    label="Session"
+                    href={Paths.tools.competencyRecorder.sessions.href}
                     icon={CheckCheckIcon}
                     iconForeground="text-purple-700"
                     iconBackground="bg-purple-50"
                     description="Participate in a skill check session."
                 />
                 <DashboardCard
-                    title="Documentation"
-                    href={Paths.documentation.competencyRecorder}
+                    label="Documentation"
+                    href={Paths.documentation.competencyRecorder.href}
                     icon={BookOpenIcon}
                     iconForeground="text-green-700"
                     iconBackground="bg-green-50"

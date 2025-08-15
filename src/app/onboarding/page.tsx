@@ -71,5 +71,5 @@ export default async function OnBoarding_Page(props: { searchParams: Promise<{ r
 
     
 
-    return redirect(decoded ?? Paths.teams.select.index)
+    return redirect(decoded ?? Paths.selectTeam.href)
 }

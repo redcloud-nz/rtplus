@@ -7,9 +7,11 @@
 import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
 import { NotImplemented } from '@/components/nav/errors'
 
+import * as Paths from '@/paths'
+
 export default async function FOGPage() {
     return <AppPage>
-        <AppPageBreadcrumbs label="Field Operations Guide"/>
+        <AppPageBreadcrumbs breadcrumbs={[Paths.fog]}/>
         <NotImplemented/>
     </AppPage>
 }

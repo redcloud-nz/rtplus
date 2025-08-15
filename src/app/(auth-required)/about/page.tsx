@@ -11,13 +11,15 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageTitle } from '@/compon
 import { Heading, Paragraph } from '@/components/ui/typography'
 import { EmailLink } from '@/components/ui/link'
 
+import * as Paths from '@/paths'
+
 
 export const metadata: Metadata = { title: "About | RT+" }
 
 export default function AboutPage() {
     return <AppPage>
         <AppPageBreadcrumbs
-            label="About"
+           breadcrumbs={[Paths.about]}
         />
         <AppPageContent>
         

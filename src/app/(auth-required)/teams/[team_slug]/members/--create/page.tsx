@@ -26,7 +26,7 @@ export default async function Team_NewMember_Page(props: { params: Promise<{ tea
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                { label: team.shortName || team.name, href: Paths.team(team.slug).index },
+                { label: team.shortName || team.name, href: Paths.team(team.slug).href },
                 Paths.team(team.slug).members,
                 "Create"
             ]}

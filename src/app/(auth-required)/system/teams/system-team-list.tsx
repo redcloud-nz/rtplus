@@ -39,7 +39,7 @@ export function System_TeamsList_Card() {
     }),
     columnHelper.accessor('name', {
         header: 'Name',
-        cell: ctx => <TextLink href={Paths.system.team(ctx.row.original.teamId).index}>{ctx.getValue()}</TextLink>,
+        cell: ctx => <TextLink href={Paths.system.team(ctx.row.original.teamId).href}>{ctx.getValue()}</TextLink>,
         enableHiding: false
     }),
     columnHelper.accessor('shortName', {

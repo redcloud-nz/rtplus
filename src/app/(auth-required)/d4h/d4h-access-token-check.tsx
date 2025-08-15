@@ -29,7 +29,7 @@ export function D4HAccessTokenCheck_Card({ personId }: { personId: string }) {
                 You have not configured any D4H access tokens. Please visit the D4H Access Tokens page to set up your tokens.
             </p>
             <p>
-                <TextLink href={Paths.personal.d4hAccessTokens.index}>Go to D4H Access Tokens</TextLink>
+                <TextLink href={Paths.personal.d4hAccessTokens}>Go to D4H Access Tokens</TextLink>
             </p>
         </Alert>
 

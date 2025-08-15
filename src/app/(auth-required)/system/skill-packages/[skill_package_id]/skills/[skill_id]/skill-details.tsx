@@ -92,7 +92,7 @@ export function SkillDetailsCard({ skillId, skillPackageId }: { skillId: string,
                             label="Skill Package"
                             control={
                                 <DisplayValue>
-                                    <TextLink href={Paths.system.skillPackage(skill.skillPackageId).index}>
+                                    <TextLink href={Paths.system.skillPackage(skill.skillPackageId).href}>
                                         {skill.skillPackage.name}
                                     </TextLink>
                                 </DisplayValue>
@@ -102,7 +102,7 @@ export function SkillDetailsCard({ skillId, skillPackageId }: { skillId: string,
                             label="Skill Group"
                             control={
                                 <DisplayValue>
-                                    <TextLink href={Paths.system.skillPackage(skill.skillPackageId).group(skill.skillGroupId).index}>
+                                    <TextLink href={Paths.system.skillPackage(skill.skillPackageId).group(skill.skillGroupId).href}>
                                         {skill.skillGroup.name}
                                     </TextLink>
                                 </DisplayValue>
@@ -208,7 +208,7 @@ function UpdateSkillForm({ onClose, skill, skillPackage, skillGroup }: { onClose
                         label="Skill Package"
                         control={
                             <DisplayValue>
-                                <TextLink href={Paths.system.skillPackage(skill.skillPackageId).index}>
+                                <TextLink href={Paths.system.skillPackage(skill.skillPackageId).href}>
                                     {skillPackage.name}
                                 </TextLink>
                             </DisplayValue>
@@ -222,7 +222,7 @@ function UpdateSkillForm({ onClose, skill, skillPackage, skillGroup }: { onClose
                         label="Skill Group"
                         control={
                             <DisplayValue>
-                                <TextLink href={Paths.system.skillPackage(skill.skillPackageId).group(skill.skillGroupId).index}>
+                                <TextLink href={Paths.system.skillPackage(skill.skillPackageId).group(skill.skillGroupId).href}>
                                     {skillGroup.name}
                                 </TextLink>
                             </DisplayValue>
@@ -340,7 +340,7 @@ function DeleteSkillDialog({ skill }: { skill: SkillData }) {
 
             queryClient.invalidateQueries(trpc.skills.getSkills.queryFilter())
             queryClient.invalidateQueries(trpc.skills.getSkill.queryFilter({ skillId: skill.skillId }))
-            router.push(Paths.system.skillPackage(skill.skillPackageId).group(skill.skillGroupId).index)
+            router.push(Paths.system.skillPackage(skill.skillPackageId).group(skill.skillGroupId).href)
         }
     }))
 

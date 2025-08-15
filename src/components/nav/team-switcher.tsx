@@ -37,10 +37,10 @@ export function TeamSwitcher() {
         setActive?.({ organization: organizationId })
         
         if(orgSlug == 'system') {
-            router.push(Paths.system.index)
+            router.push(Paths.system.href)
         } else if(organizationId ) {
 
-            router.push(Paths.team(orgSlug!).index)
+            router.push(Paths.team(orgSlug!).href)
         } else {
             router.push(Paths.personal.index)
         }

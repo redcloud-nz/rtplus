@@ -19,7 +19,7 @@ export default function Account_Page() {
         />
         <AppPageContent variant="centered" >
             <UserProfile
-                path={Paths.personal.account.index}
+                path={Paths.personal.account.href}
             />
         </AppPageContent>
         

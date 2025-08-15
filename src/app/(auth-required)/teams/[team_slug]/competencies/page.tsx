@@ -8,15 +8,21 @@
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
+import * as Paths from '@/paths'
+import { fetchTeam } from '@/server/fetch'
 import prisma from '@/server/prisma'
 
-export default async function Team_Competencies_Index_Page() {
+export default async function Team_Competencies_Index_Page(props: { params: Promise<{ team_slug: string }> }) {
+    const team = await fetchTeam(props.params)
 
     const skillCount = await prisma.skill.count()
     const personnelCount = await prisma.person.count()
 
     return <AppPage>
-        <AppPageBreadcrumbs label="Competencies Dashboard"/>
+        <AppPageBreadcrumbs breadcrumbs={[
+            Paths.team(team), 
+            Paths.team(team).competencies
+        ]}/>
         <AppPageContent>
             <PageHeader>
                 <PageTitle>Competencies Dashboard</PageTitle>

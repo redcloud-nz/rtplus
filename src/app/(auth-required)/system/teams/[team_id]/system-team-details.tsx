@@ -242,7 +242,7 @@ function DeleteTeamDialog({ team }: { team: TeamData }) {
                 description: <>The team <ObjectName>{result.name}</ObjectName> has been deleted.</>,
             })
             setOpen(false)
-            router.push(Paths.system.teams.index)
+            router.push(Paths.system.teams.href)
 
             queryClient.invalidateQueries(trpc.teams.getTeams.queryFilter())
             queryClient.setQueryData(trpc.teams.getTeam.queryKey({ teamId: team.teamId }), undefined)

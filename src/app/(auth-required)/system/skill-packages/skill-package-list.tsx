@@ -40,7 +40,7 @@ export function System_SkillPackagesList_Card() {
         }),
         columnHelper.accessor('name', {
             header: 'Name',
-            cell: ctx => <TextLink href={Paths.system.skillPackage(ctx.row.original.skillPackageId).index}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink href={Paths.system.skillPackage(ctx.row.original.skillPackageId).href}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('_count.skillGroups', {

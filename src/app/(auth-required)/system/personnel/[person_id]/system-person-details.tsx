@@ -227,7 +227,7 @@ function DeletePersonDialog({ person }: { person: PersonData }) {
                 description: <>The person <ObjectName>{person.name}</ObjectName> has been deleted.</>,
             })
             setOpen(false)
-            router.push(Paths.system.personnel.index)
+            router.push(Paths.system.personnel.href)
 
             queryClient.invalidateQueries(trpc.personnel.getPersonnel.queryFilter())
             queryClient.setQueryData(trpc.personnel.getPerson.queryKey({ personId: person.personId }), undefined)

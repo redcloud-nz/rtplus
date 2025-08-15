@@ -39,7 +39,7 @@ export function Team_SkillCheckSessionsList_Card() {
     const columns = useMemo(() => defineColumns<SkillCheckSessionData>(columnHelper => [
         columnHelper.accessor('name', {
             header: 'Name',
-            cell: ctx => <Link href={Paths.team(team).competencies.session(ctx.row.original.sessionId).index}>{ctx.getValue()}</Link>,
+            cell: ctx => <Link href={Paths.team(team).competencies.session(ctx.row.original.sessionId).href}>{ctx.getValue()}</Link>,
             enableGrouping: false,
             enableHiding: false,
             enableSorting: true,

@@ -19,16 +19,6 @@ import * as Paths from '@/paths'
 
 import { D4HAccessTokenCheck_Card } from './d4h-access-token-check'
 
-
-
-
-const pages: { _label: string, index: string, bgColor: string }[] = [
-    { ...Paths.d4h.activities, bgColor: 'bg-teal-400' },
-    { ...Paths.d4h.calendar, bgColor: 'bg-yellow-400' },
-    { ...Paths.d4h.equipment, bgColor: 'bg-red-400' },
-    { ...Paths.d4h.personnel, bgColor: 'bg-blue-400' },
-]
-
 export const metadata: Metadata = { title: "D4H Integration" }
 
 export default async function D4HIndex_Page() {
@@ -53,14 +43,10 @@ export default async function D4HIndex_Page() {
             </Boundary>
 
             <BasicDashboardCardList>
-                {pages.map((page) => (
-                    <BasicDashboardCard
-                        key={page.index}
-                        label={page._label}
-                        href={page.index}
-                        bgColor={page.bgColor}
-                    />
-                ))}
+                <BasicDashboardCard {...Paths.d4h.activities}/>
+                <BasicDashboardCard {...Paths.d4h.calendar}/>
+                <BasicDashboardCard {...Paths.d4h.equipment}/>
+                <BasicDashboardCard {...Paths.d4h.personnel}/>
             </BasicDashboardCardList>
                 
 

@@ -33,10 +33,10 @@ export function NavTeamSection() {
             <Button variant="ghost" className="w-full h-8 pl-0 border-0" asChild>
                 <Link 
                     href={isPersonal 
-                        ? Paths.personal.index 
+                        ? Paths.personal
                         : isSystem 
-                            ? Paths.system.index 
-                            : Paths.team(slug).index
+                            ? Paths.system
+                            : Paths.team(slug)
                     }
                     className="w-full h-full flex items-center gap-2"
                 >
@@ -53,7 +53,7 @@ export function NavTeamSection() {
                     <NavSubItem path={Paths.team(slug).competencies.checks}/>
                     <NavSubItem path={Paths.team(slug).competencies.sessions}/>
                     
-                    <NavSubItem label="Reports" href={Paths.team(slug).competencies.reports.index}/>
+                    <NavSubItem {...Paths.team(slug).competencies.reports}/>
                 </NavCollapsible>
             </Show>
 

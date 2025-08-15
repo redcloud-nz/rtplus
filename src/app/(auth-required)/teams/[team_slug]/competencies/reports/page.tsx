@@ -20,8 +20,11 @@ export default async function Team_Competencies_Reports_Index_Page(props: { para
 
     return <AppPage>
         <AppPageBreadcrumbs
-            label="Reports" 
-            breadcrumbs={[{ label: "Competencies", href: competenciesPath.index}]}
+            breadcrumbs={[
+                Paths.team(teamSlug), 
+                Paths.team(teamSlug).competencies, 
+                "Reports"
+            ]}
         />
         <AppPageContent>
             <PageHeader>
