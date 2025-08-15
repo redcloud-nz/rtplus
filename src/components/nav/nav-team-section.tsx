@@ -5,7 +5,7 @@
 
 'use client'
 
-import { BookCheckIcon, BookOpenIcon, CableIcon, PocketKnifeIcon, SettingsIcon, UsersIcon } from 'lucide-react'
+import { BookOpenIcon, CableIcon, HammerIcon, PocketKnifeIcon, SettingsIcon, UsersIcon } from 'lucide-react'
 import Image from 'next/image'
 
 import { Protect, useOrganization } from '@clerk/nextjs'
@@ -47,15 +47,10 @@ export function NavTeamSection() {
             </Button>
 
             {/* <NavItem label="About" href="/about" icon={<InfoIcon/>}/> */}
-            <Show when={isPersonal}>
-                <NavItem path={Paths.assessor} icon={<BookCheckIcon/>}/>
-            </Show>
 
             <Show when={isTeam}>
                 <NavCollapsible label="Competencies" icon={<PocketKnifeIcon/>}>
-                    <NavSubItem path={Paths.assessor}/>
                     <NavSubItem path={Paths.team(slug).competencies.checks}/>
-                    <NavSubItem path={Paths.team(slug).competencies.checks.create}/>
                     <NavSubItem path={Paths.team(slug).competencies.sessions}/>
                     
                     <NavSubItem label="Reports" href={Paths.team(slug).competencies.reports.index}/>
@@ -102,6 +97,9 @@ export function NavTeamSection() {
                     </NavCollapsible>
                 </Protect>
             </Show>
+            <NavCollapsible label="Tools" icon={<HammerIcon/>}>
+                <NavSubItem path={Paths.tools.competencyRecorder}/>
+            </NavCollapsible>
             <Show when={isSystem}>
                 <NavItem path={Paths.system.teams}/>
             </Show>

@@ -12,7 +12,7 @@ import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
-import { MySessionsList_Card } from './my-sessions-list'
+import { Assessor_SessionsList_Card } from './my-sessions-list'
 
 
 export const dynamic = 'force-dynamic'
@@ -26,8 +26,8 @@ export default async function Assessor_SessionsList_Page() {
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.assessor,
-                Paths.assessor.sessions
+                Paths.tools.competencyRecorder,
+                Paths.tools.competencyRecorder.sessions
             ]}
         />
         <HydrateClient>
@@ -36,7 +36,7 @@ export default async function Assessor_SessionsList_Page() {
                     <PageTitle>Sessions</PageTitle>
                 </PageHeader>
                 <Boundary>
-                    <MySessionsList_Card />
+                    <Assessor_SessionsList_Card />
                 </Boundary>
             </AppPageContent>
         </HydrateClient>

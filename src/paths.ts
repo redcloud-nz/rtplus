@@ -15,34 +15,6 @@ export const app = {
     index: '/app',
 }
 
-export const assessor = {
-    index: `/app/assessor`,
-    _label: 'Assessor',
-
-    record: {
-        _label: 'Single Check',
-        index: `/app/assessor/record`,
-    },
-    session: (sessionId: string) => ({
-        index: `/app/assessor/sessions/${sessionId}`,
-    } as const),
-    sessions: {
-        _label: 'Sessions',
-        index: '/app/assessor/sessions',
-    },
-} as const
-
-export const competencies = {
-    index: '/app/competencies',
-    session: (sessionId: string) => ({
-        index: `/app/competencies/sessions/${sessionId}`,
-    } as const),
-    sessions: {
-        _label: 'My Sessions',
-        index: '/app/competencies/sessions',
-    }
-} as const
-
 
 //  /------------------------------\
 //  |            System            |
@@ -219,6 +191,51 @@ export const team = (teamOrSlug: TeamData | string) => {
     } as const
 }
 
+
+
+export const tools = {
+    competencyRecorder: {
+        index: `/app/tools/competency-recorder`,
+        _label: 'Competency Recorder',
+
+        single: {
+            _label: 'Single Check',
+            index: `/app/tools/competency-recorder/single`,
+        },
+        session: (sessionId: string) => {
+            const sessionBase = `/app/tools/competency-recorder/sessions/${sessionId}`
+            return {
+                index: sessionBase,
+                assessees: {
+                    _label: 'Assessees',
+                    index: `${sessionBase}/assessees`,
+                },
+                assessors: {
+                    _label: 'Assessors',
+                    index: `${sessionBase}/assessors`,
+                },
+                recordIndividual: {
+                    _label: 'Individual',
+                    index: `${sessionBase}/record-individual`,
+                },
+                skills: {
+                    _label: 'Skills',
+                    index: `${sessionBase}/skills`,
+                },
+                transcript: {
+                    _label: 'Transcript',
+                    index: `${sessionBase}/transcript`,
+                },
+            } as const
+        },
+        sessions: {
+            _label: 'Sessions',
+            index: '/app/tools/competency-recorder/sessions',
+        },
+    }
+
+} as const
+
 export const d4h = {
     _label: 'D4H Integration',
     index: '/app/d4h',
@@ -270,16 +287,18 @@ export const personal = {
 } as const
 
 
+const docsBase = "https://github.com/redcloud-nz/rtplus/wiki"
 
 export const documentation = {
-    index: '/documentation',
-    glossary: '/documentation/glossary',
-    competencies: '/documentation/competencies',
-    personnel: '/documentation/personnel',
-    skills: '/documentation/skills',
-    skillGroups: '/documentation/skill-groups',
-    skillPackages: '/documentation/skill-packages',
-    teams: '/documentation/teams',
-    unified: '/documentation/unified',
-    account: '/documentation/account',
+    index: `${docsBase}`,
+    glossary: `${docsBase}/glossary`,
+    competencies: `${docsBase}/competencies`,
+    competencyRecorder: `${docsBase}/Competency-Recorder`,
+    personnel: `${docsBase}/personnel`,
+    skills: `${docsBase}/skills`,
+    skillGroups: `${docsBase}/skill-groups`,
+    skillPackages: `${docsBase}/skill-packages`,
+    teams: `${docsBase}/teams`,
+    unified: `${docsBase}/unified`,
+    account: `${docsBase}/account`,
 }

@@ -24,7 +24,7 @@ import { useTRPC } from '@/trpc/client'
 
 
 
-export function MySessionsList_Card() {
+export function Assessor_SessionsList_Card() {
     const trpc = useTRPC()
 
     const sessionsQuery = useSuspenseQuery(trpc.skillCheckSessions.getMySessions.queryOptions({ status: ['Discard'] }))
@@ -36,7 +36,7 @@ export function MySessionsList_Card() {
     const columns = useMemo(() => defineColumns<SkillCheckSessionData>(columnHelper => [
         columnHelper.accessor('name', {
             header: 'Name',
-            cell: ctx => <TextLink href={Paths.assessor.session(ctx.row.original.sessionId).index}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink href={Paths.tools.competencyRecorder.session(ctx.row.original.sessionId).index}>{ctx.getValue()}</TextLink>,
             enableGrouping: false,
             enableHiding: false,
             enableSorting: true,

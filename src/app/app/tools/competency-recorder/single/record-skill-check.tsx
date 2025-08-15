@@ -34,7 +34,7 @@ import { useTRPC } from '@/trpc/client'
 const singleSkillCheckSchema = skillCheckSchema.omit({ assessorId: true, sessionId: true })
 
 
-export function RecordSkillCheck_Card() {
+export function CompetencyRecorder_Single_Card() {
     const router = useRouter()
     const { toast } = useToast()
     const trpc = useTRPC()

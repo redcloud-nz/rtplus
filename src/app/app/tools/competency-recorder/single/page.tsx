@@ -2,7 +2,7 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /app/assessor/record
+ *  Path: /tools/competency-recorder/single
  */
 
 import * as React from 'react'
@@ -15,16 +15,16 @@ import * as Paths from '@/paths'
 
 import { HydrateClient } from '@/trpc/server'
 
-import { RecordSkillCheck_Card } from './record-skill-check'
+import { CompetencyRecorder_Single_Card } from './record-skill-check'
 
 
-export default async function Record_SkillCheck_Page() {
+export default async function CompetencyRecorder_Single_Page() {
    
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
-                Paths.assessor,
-                Paths.assessor.record
+                Paths.tools.competencyRecorder,
+                Paths.tools.competencyRecorder.single
             ]}
         />
         
@@ -32,7 +32,7 @@ export default async function Record_SkillCheck_Page() {
             <AppPageContent variant="container">
                 <Boundary>
                     <RequireActiveTeam>
-                        <RecordSkillCheck_Card/> 
+                        <CompetencyRecorder_Single_Card/> 
                     </RequireActiveTeam>
                 </Boundary>
                 

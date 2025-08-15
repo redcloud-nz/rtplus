@@ -8,7 +8,7 @@ import { LucideProps } from 'lucide-react'
 import { ComponentProps, ForwardRefExoticComponent, RefAttributes } from 'react'
 
 import { cn } from '@/lib/utils'
-import { Link } from './link'
+import { ExternalLink, Link } from './link'
 
 
 export function DashboardCardList({ className, ...props }: ComponentProps<'ul'>) {
@@ -26,6 +26,8 @@ type DashboardCardProps = ComponentProps<'li'> & {
 
 export function DashboardCard({ className, title, href, icon: Icon, iconForeground, iconBackground, description, ...props}: DashboardCardProps) {
 
+    const LinkComp = href.startsWith('/') ? Link : ExternalLink
+
     return <li className={cn("col-span-1 divide-y divide-gray-200 rounded-sm bg-white shadow-sm border", className)} {...props}>
         <div className="group relative p-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-50 space-y-2">
             <div>
@@ -40,11 +42,11 @@ export function DashboardCard({ className, title, href, icon: Icon, iconForegrou
                 </span>
             </div>
             <h3 className="text-base font-semibold text-gray-900">
-                <Link href={href} className="focus:outline-hidden">
+                <LinkComp href={href} className="focus:outline-hidden">
                     {/* Extend touch target to entire panel */}
                     <span aria-hidden="true" className="absolute inset-0" />
                     {title}
-                </Link>
+                </LinkComp>
             </h3>
             <p className="text-sm text-gray-500">
                 {description}

@@ -11,6 +11,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 import { CurrentPersonValue } from '@/components/controls/person-value'
 import { Show } from '@/components/show'
 
+import { Alert } from '@/components/ui/alert'
 import { AsyncButton, Button } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form } from '@/components/ui/form'
@@ -28,7 +29,7 @@ import { useTRPC } from '@/trpc/client'
 
 
 
-export function SkillCheckSession_Assess_Card({ sessionId }: { sessionId: string }) {
+export function CompetencyAssessor_Session_RecordIndividual_Card({ sessionId }: { sessionId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
@@ -110,27 +111,19 @@ export function SkillCheckSession_Assess_Card({ sessionId }: { sessionId: string
 
     return <Card>
         <CardHeader>
-            <CardTitle>Assess Skill</CardTitle>
+            <CardTitle>Record Check</CardTitle>
             <CardActions>
-                <Select value="Single" disabled>
-                    <SelectTrigger size="sm">
-                        <SelectValue/>
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="Single">
-                            Single Mode
-                        </SelectItem>
-                        <SelectItem value="Person">
-                            Person Mode
-                        </SelectItem>
-                        <SelectItem value="Skill">
-                            Skill Mode
-                        </SelectItem>
-                    </SelectContent>
-                </Select>
+
                 <Separator orientation="vertical"/>
                 <CardExplanation>
-                    This form allows you to assess a team member&spos;s skill during a session. Select the person being assessed, the skill, and the competence level.
+                    <div>This form allows you to record a skill check for an individual within the session.</div>
+                    <div>Steps</div>
+                    <ol className="list-decimal pl-4">
+                        <li>Select the person being assessed and the skill they are being assessed on.</li>
+                        <li>Choose the competence level and provide any additional notes.</li>
+                        <li>Save the skill check.</li>
+                    </ol>
+                    
                 </CardExplanation>
             </CardActions>
         </CardHeader>
@@ -143,41 +136,49 @@ export function SkillCheckSession_Assess_Card({ sessionId }: { sessionId: string
                     />
                     <ToruGridRow
                         label="Assessee"
-                        control={<Select 
+                        control={assessees.length > 0
+                            ? <Select 
                             value={formData.assesseeId} 
                             onValueChange={assesseeId => handleChange({ assesseeId })}
                             disabled={modified}
                         >
                             <SelectTrigger>
-                                <SelectValue placeholder="Select a person to assess..." />
+                                <SelectValue placeholder="Select a person..." />
                             </SelectTrigger>
                             <SelectContent>
+                                
                                 {assessees.map(assessee => (
                                     <SelectItem key={assessee.personId} value={assessee.personId} disabled={assessee.personId === assessor.personId}>
                                         {assessee.name}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
-                        </Select>}
+                        </Select>
+                        : <Alert title="No assessees defined" severity="warning" className="p-2.5"/>
+
+                        }
                     />
                     <ToruGridRow
                         label="Skill"
-                        control={<Select 
-                            value={formData.skillId} 
-                            onValueChange={skillId => handleChange({ skillId })}
-                            disabled={modified}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select a skill to assess..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {skills.map(skill => (
-                                    <SelectItem key={skill.skillId} value={skill.skillId}>
-                                        {skill.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>}
+                        control={skills.length > 0
+                            ? <Select 
+                                value={formData.skillId} 
+                                onValueChange={skillId => handleChange({ skillId })}
+                                disabled={modified}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a skill..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {skills.map(skill => (
+                                        <SelectItem key={skill.skillId} value={skill.skillId}>
+                                            {skill.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            : <Alert title="No skills defined" severity="warning" className="p-2.5"/>
+                        }
                     />
                     <ToruGridRow
                         label="Competence Level"
@@ -216,7 +217,7 @@ export function SkillCheckSession_Assess_Card({ sessionId }: { sessionId: string
                                 pending={prevData ? "Updating..." : "Saving..."}
                                 disabled={formData.result == ''}
                             />
-                            <Button variant="ghost" size="sm" onClick={handleReset}>Reset</Button>
+                            <Button variant="ghost" size="sm" onClick={handleReset}>Clear</Button>
                         </Show>
                         
                     </ToruGridFooter>
