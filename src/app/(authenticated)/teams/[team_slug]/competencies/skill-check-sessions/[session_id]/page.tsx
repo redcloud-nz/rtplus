@@ -7,11 +7,12 @@
 
 import { notFound } from 'next/navigation'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageControls, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 import { SkillCheckSession_AssesseesList_Card } from '@/components/cards/skill-check-session-assessees-list'
 import { SkillCheckSession_AssessorsList_Card } from '@/components/cards/skill-check-session-assessors-list'
 import { SkillCheckSession_SkillsList_Card } from '@/components/cards/skill-check-session-skills-list'
+import { SkillCheckSession_Transcript_Card } from '@/components/cards/skill-check-session-transcript'
 
 import * as Paths from '@/paths'
 import { fetchSkillCheckSession } from '@/server/fetch'
@@ -19,8 +20,7 @@ import { HydrateClient } from '@/trpc/server'
 
 import { Team_SkillCheckSession_Details_Card } from './team-session-details'
 
-
-
+import { GoToRecorder } from './go-to-recorder-button'
 
 
 export async function generateMetadata(props: { params: Promise<{ session_id: string, team_slug: string }> }) {
@@ -55,6 +55,9 @@ export default async function Team_SkillCheckSession_Page(props: { params: Promi
             <AppPageContent variant="container">
                 <PageHeader>
                     <PageTitle objectType="Skill Check Session">{session.name}</PageTitle>
+                    <PageControls>
+                        <GoToRecorder sessionId={session.sessionId} />
+                    </PageControls>
                 </PageHeader>
                 <Boundary>
                     <Team_SkillCheckSession_Details_Card sessionId={session.sessionId} />
@@ -67,6 +70,9 @@ export default async function Team_SkillCheckSession_Page(props: { params: Promi
                 </Boundary>
                 <Boundary>
                     <SkillCheckSession_AssessorsList_Card sessionId={session.sessionId} />
+                </Boundary>
+                <Boundary>
+                    <SkillCheckSession_Transcript_Card sessionId={session.sessionId}/>
                 </Boundary>
             </AppPageContent>
         </HydrateClient>

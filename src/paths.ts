@@ -169,8 +169,11 @@ export const team = (teamOrSlug: TeamData | string) => {
             } as const),
             sessions: {
                 label: 'Team Sessions',
-                create: `${competenciesBase}/skill-check-sessions/--create`,
-                href: `${competenciesBase}/skill-check-sessions`
+                href: `${competenciesBase}/skill-check-sessions`,
+                create: {
+                    label: 'Create',
+                    href: `${competenciesBase}/skill-check-sessions/--create`,
+                },
             },
             record: `${competenciesBase}/record`,
             reports: {

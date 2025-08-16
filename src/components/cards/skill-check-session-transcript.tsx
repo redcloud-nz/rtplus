@@ -24,7 +24,7 @@ import { formatDateTime } from '@/lib/utils'
 
 type RowData = SkillCheckData & { assessee: PersonData, assessor: PersonData, skill: SkillData }
 
-export function CompetencyRecorder_Session_Transcript_Card({ sessionId}: { sessionId: string }) {
+export function SkillCheckSession_Transcript_Card({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
 
     const assesseesQuery = useSuspenseQuery(trpc.skillCheckSessions.getAssessees.queryOptions({ sessionId }))

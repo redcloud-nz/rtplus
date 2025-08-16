@@ -11,22 +11,22 @@ import { Link } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
 import * as Paths from '@/paths'
+import { fetchTeam } from '@/server/fetch'
 
 
 
 export default async function Team_Competencies_Reports_Index_Page(props: { params: Promise<{ team_slug: string }> }) {
-    const { team_slug: teamSlug } = await props.params
-    const competenciesPath = Paths.team(teamSlug).competencies
+    const team = await fetchTeam(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.team(teamSlug), 
-                Paths.team(teamSlug).competencies, 
-                "Reports"
+                Paths.team(team), 
+                Paths.team(team).competencies, 
+                Paths.team(team).competencies.reports
             ]}
         />
-        <AppPageContent>
+        <AppPageContent variant="container">
             <PageHeader>
                 <PageTitle>Competency Reports</PageTitle>
             </PageHeader>
@@ -40,13 +40,13 @@ export default async function Team_Competencies_Reports_Index_Page(props: { para
                 <TableBody>
                     <TableRow>
                         <TableCell>
-                            <Link href={competenciesPath.reports.individual}>Individual</Link>
+                            <Link href={Paths.team(team).competencies.reports.individual}>Individual</Link>
                         </TableCell>
                         <TableCell>A report of an individuals competencies.</TableCell>
                     </TableRow>
                     <TableRow>
                         <TableCell>
-                            <Link href={competenciesPath.reports.teamSkills}>Team Skills</Link>
+                            <Link href={Paths.team(team).competencies.reports.teamSkills}>Team Skills</Link>
                         </TableCell>
                         <TableCell>A report of the teams skills as the percentage of members currently competent.</TableCell>
                     </TableRow>

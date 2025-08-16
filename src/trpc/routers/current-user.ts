@@ -11,7 +11,7 @@ import { TRPCError } from '@trpc/server'
 
 import { organizationSchema } from '@/lib/schemas/organization'
 import { orgMembershipSchema, toOrgMembershipDataExtended } from '@/lib/schemas/org-membership'
-import { PersonData, toPersonData } from '@/lib/schemas/person'
+import { PersonData, personSchema, toPersonData } from '@/lib/schemas/person'
 
 import { authenticatedProcedure, createTRPCRouter } from '../init'
 
@@ -32,6 +32,7 @@ export const currentUserRouter = createTRPCRouter({
      * Get the current user's person data.
      */
     getPerson: authenticatedProcedure
+        .output(personSchema)
         .query(async ({ ctx }): Promise<PersonData> => {
             const person = await ctx.prisma.person.findUnique({ 
                 where: { id: ctx.personId },
