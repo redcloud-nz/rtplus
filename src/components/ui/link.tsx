@@ -49,6 +49,8 @@ export function ExternalLink({ className, href, noDecoration: noUnderline = fals
 
     return <a 
         className={cn(!noUnderline && 'hover:underline', className)}
+        data-component="ExternalLink"
+        data-slot="link"
         href={href}
         target='_blank'
         rel='noopener noreferrer'
@@ -60,5 +62,18 @@ export function TextLink({ className, ...props }: React.ComponentProps<typeof Li
     return <Link
         className={cn('text-blue-900 hover:underline', className)}
         {...props}    
+    />
+}
+
+export type GitHubIssueLinkProps = Omit<ExternalLinkProps, 'href'> & { issueNumber: number }
+
+export function GitHubIssueLink({ className, issueNumber, ...props }: GitHubIssueLinkProps) {
+
+    return <ExternalLink
+        className={cn('text-blue-900 hover:underline', className)}
+        href={`${process.env.NEXT_PUBLIC_APP_REPOSITORY_URL}/issues/${issueNumber}`}
+        data-component="GitHubIssueLink"
+        data-slot="link"
+        {...props}
     />
 }

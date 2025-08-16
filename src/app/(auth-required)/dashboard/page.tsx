@@ -16,6 +16,6 @@ export default async function Dashboard_Page() {
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[Paths.dashboard]}/>
-        <NotImplemented />
+        <NotImplemented ghIssueNumber={11}/>
     </AppPage>
 }

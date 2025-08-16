@@ -4,9 +4,12 @@
  */
 
 import { AppPageContent, AppPageContentProps } from '@/components/app-page'
+import { GitHubIssueLink, Link } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
+import { Paragraph } from '@/components/ui/typography'
 
-import { Link } from '../ui/link'
+
+
 
 export function NotFound(props: AppPageContentProps) {
 
@@ -15,9 +18,9 @@ export function NotFound(props: AppPageContentProps) {
             <div className="font-semibold text-2xl text-zinc-800">404</div>
             <div className="font-semibold text-zinc-800">Not Found</div>
             <Separator orientation="horizontal" className="w-40"/>
-            <p>
+            <Paragraph>
                 The resource you requested was not found. Have you tried turning it off and on again?
-            </p>
+            </Paragraph>
         </main>
         
     </AppPageContent>
@@ -25,19 +28,22 @@ export function NotFound(props: AppPageContentProps) {
 
 export type NotImplementedProps = AppPageContentProps & { 
     docUrl?: string
+    ghIssueNumber?: number
 }
 
-export function NotImplemented({ docUrl, ...props }: NotImplementedProps) {
+export function NotImplemented({ docUrl, ghIssueNumber, ...props }: NotImplementedProps) {
 
     return <AppPageContent variant="centered" {...props}>
         <div className="flex flex-col gap-2 justify-center items-center">
             <div className="font-semibold text-2xl text-zinc-800">501</div>
             <div className="font-semibold text-zinc-800">Not Implemented</div>
             <Separator orientation="horizontal" className="w-40"/>
-            <p>
-                This page is part of a planned feature that has not yet been implemented.
-            </p>
-            {docUrl ? <p>Learn more about the concept of this feature in the <Link href={docUrl}>documentation</Link>.</p> : null}
+            <Paragraph>
+                This page is part of a planned or proposed feature that has not yet been implemented.
+            </Paragraph>
+            {docUrl ? <Paragraph>Learn more about the concept of this feature in the <Link href={docUrl}>documentation</Link>.</Paragraph> : null}
+
+            {ghIssueNumber ? <GitHubIssueLink issueNumber={ghIssueNumber}>See the proposal on GitHub</GitHubIssueLink> : null}
         </div>
         
     </AppPageContent>
@@ -50,9 +56,9 @@ export function Unauthorized({ ...props }: AppPageContentProps) {
             <div className="font-semibold text-2xl text-zinc-800">401</div>
             <div className="font-semibold text-zinc-800">Unauthorized</div>
             <Separator orientation="horizontal" className="w-40"/>
-            <p>
+            <Paragraph>
                 You need to be signed in to access this feature.
-            </p>
+            </Paragraph>
         </div>
         
     </AppPageContent>
@@ -64,9 +70,9 @@ export function Forbidden({ ...props }: AppPageContentProps) {
             <div className="font-semibold text-2xl text-zinc-800">403</div>
             <div className="font-semibold text-zinc-800">Forbidden</div>
             <Separator orientation="horizontal" className="w-40"/>
-            <p>
+            <Paragraph>
                 You do not have permission to access this page.
-            </p>
+            </Paragraph>
         </div>
         
     </AppPageContent>

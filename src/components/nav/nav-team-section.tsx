@@ -66,7 +66,7 @@ export function NavTeamSection() {
                 </NavCollapsible>
             </Show>
 
-            <NavItem label="Documentation" href="https://github.com/redcloud-nz/rtplus/wiki" icon={<BookOpenIcon/>}/>
+            <NavItem label="Documentation" href={`${process.env.NEXT_PUBLIC_APP_REPOSITORY_URL}/wiki`} icon={<BookOpenIcon/>}/>
 
             <Show when={isTeam}>
                 <NavItem path={Paths.team(slug).members} icon={<UsersIcon/>}/> 
@@ -80,7 +80,7 @@ export function NavTeamSection() {
                 <NavItem path={Paths.system.skillPackages}/>
             </Show>
 
-            <NavItem label="Source Code" href="https://github.com/redcloud-nz/rtplus" icon={<Image aria-hidden src="/github.svg" alt="Githib Icon" width={16} height={16}/>}/>
+            <NavItem label="Source Code" href={`${process.env.NEXT_PUBLIC_APP_REPOSITORY_URL}`} icon={<Image aria-hidden src="/github.svg" alt="Githib Icon" width={16} height={16}/>}/>
 
             <Show when={isSystem}>
                 <NavCollapsible label="System Team">
