@@ -19,6 +19,7 @@ import { PersonData } from '@/lib/schemas/person'
 import { SkillData } from '@/lib/schemas/skill'
 import { SkillCheckData } from '@/lib/schemas/skill-check'
 import { useTRPC } from '@/trpc/client'
+import { formatDateTime } from '@/lib/utils'
 
 
 type RowData = SkillCheckData & { assessee: PersonData, assessor: PersonData, skill: SkillData }
@@ -72,23 +73,31 @@ export function CompetencyRecorder_Session_Transcript_Card({ sessionId}: { sessi
             header: "Notes",
             cell: info => info.getValue(),
         }),
+        columnHelper.accessor("timestamp", {
+            header: "Timestamp",
+            cell: info => formatDateTime(info.getValue()),
+            enableSorting: true,
+        }),
     ]), [])
 
     const table = useReactTable<RowData>({
         data: rows,
         columns,
         getCoreRowModel: getCoreRowModel(),
-        getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
+        getSortedRowModel: getSortedRowModel(),
         initialState: {
-            sorting: [],
             columnFilters: [],
             columnVisibility: {
                 skillId: true,
                 assesseeId: true,
                 result: true,
                 notes: true,
-            }
+                timestamp: true,
+            },
+            sorting: [
+                { id: 'timestamp', desc: true }
+            ],
         },
     })
 

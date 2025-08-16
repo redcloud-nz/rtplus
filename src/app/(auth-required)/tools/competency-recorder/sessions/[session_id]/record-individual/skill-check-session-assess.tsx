@@ -212,7 +212,7 @@ export function CompetencyAssessor_Session_RecordIndividual_Card({ sessionId }: 
                         <Show when={checkDefined}>
                             <AsyncButton
                                 size="sm"
-                                onClick={() => mutation.mutateAsync({ sessionId, ...formData })}
+                                onClick={() => mutation.mutateAsync({ sessionId, timestamp: new Date().toISOString(), ...formData })}
                                 label={prevData ? "Update" : "Save"}
                                 pending={prevData ? "Updating..." : "Saving..."}
                                 disabled={formData.result == ''}

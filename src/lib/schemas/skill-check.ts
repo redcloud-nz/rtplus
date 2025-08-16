@@ -18,6 +18,7 @@ export const skillCheckSchema = z.object({
     result: z.string().nonempty(),
     notes: z.string().max(500),
     date: z.string().date(),
+    timestamp: z.string().datetime()
 })
 
 export type SkillCheckData = z.infer<typeof skillCheckSchema>
@@ -32,6 +33,7 @@ export function toSkillCheckData(record: SkillCheckRecord): SkillCheckData {
         result: record.result,
         notes: record.notes,
         date: record.date,
+        timestamp: record.timestamp.toISOString(),
     }
 }
 
