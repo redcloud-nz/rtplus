@@ -19,10 +19,12 @@ import { DataTableBody, DataTableFooter, DataTableHead, DataTableProvider, DataT
 import { Link } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
+
 
 
 
@@ -119,11 +121,19 @@ export function Team_SkillCheckSessionsList_Card() {
                 <DataTableSearch size="sm" variant="ghost"/>
                 <CardActions>
                     <Protect role="org:admin">
-                        <Button variant="ghost" size="icon" asChild>
-                            <Link href={Paths.team(team.slug).competencies.sessions.create}>
-                                <PlusIcon/>
-                            </Link>
-                        </Button>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" asChild>
+                                    <Link href={Paths.team(team.slug).competencies.sessions.create}>
+                                        <PlusIcon/>
+                                    </Link>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                Create a new skill check session for the team.
+                            </TooltipContent>
+                        </Tooltip>
+                        
                     </Protect>
                     <RefreshButton onClick={handleRefresh} />
                     <TableOptionsDropdown/>

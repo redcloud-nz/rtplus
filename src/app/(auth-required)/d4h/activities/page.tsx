@@ -13,7 +13,7 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeade
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
-import { D4hActivitiesList_Card } from './d4h-activities-list'
+import { D4h_ActivitiesList_Card } from './d4h-activities-list'
 
 
 
@@ -36,7 +36,7 @@ export default async function D4HActivities_Page() {
                 </PageDescription>
             </PageHeader>
             <Boundary>
-                <D4hActivitiesList_Card personId={personId} />
+                <D4h_ActivitiesList_Card personId={personId} />
             </Boundary>
         </AppPageContent>
     </AppPage>

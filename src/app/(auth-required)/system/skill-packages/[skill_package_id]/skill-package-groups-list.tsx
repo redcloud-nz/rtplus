@@ -10,7 +10,7 @@ import { useMemo } from 'react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel,  getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { Button } from '@/components/ui/button'
+import { Button, RefreshButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTableBody, DataTableHead, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
 import { Link, TextLink } from '@/components/ui/link'
@@ -28,7 +28,11 @@ export function System_SkillPackage_GroupsList_Card({ skillPackageId }: { skillP
 
      const trpc = useTRPC()
 
-    const { data: groups } = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ skillPackageId }))
+    const groupsQuery = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ skillPackageId }))
+
+    async function handleRefresh() {
+        await groupsQuery.refetch()
+    }
 
     const columns = useMemo(() => defineColumns<SkillGroupData>(columnHelper => [
         columnHelper.accessor('skillGroupId', {
@@ -74,7 +78,7 @@ export function System_SkillPackage_GroupsList_Card({ skillPackageId }: { skillP
 
     const table = useReactTable({
         columns,
-        data: groups,
+        data: groupsQuery.data,
         onSortingChange: () => {},
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
@@ -111,12 +115,12 @@ export function System_SkillPackage_GroupsList_Card({ skillPackageId }: { skillP
                         </TooltipContent>
                     </Tooltip>
 
+                    <RefreshButton onClick={handleRefresh}/>
+                    <TableOptionsDropdown/> 
+                    <Separator orientation="vertical"/>
                     <CardExplanation>
                         Groups are used to organize skills within a skill package. You can create, edit, and delete groups as needed.
                     </CardExplanation>
-                    <Separator orientation="vertical"/>
-
-                    <TableOptionsDropdown/>
 
                 </CardActions>
                 

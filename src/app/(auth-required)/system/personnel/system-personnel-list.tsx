@@ -11,7 +11,7 @@ import { useMemo } from 'react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { Button } from '@/components/ui/button'
+import { Button, RefreshButton } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardExplanation, CardActions } from '@/components/ui/card'
 import { DataTableBody, DataTableHead, DataTableFooter, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown} from '@/components/ui/data-table'
 import { Link, TextLink } from '@/components/ui/link'
@@ -23,11 +23,16 @@ import { PersonData } from '@/lib/schemas/person'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
+
 export function System_PersonnelList_Card() {
 
     const trpc = useTRPC()
 
-    const { data: personnel } = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({}))
+    const personnelQuery = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({}))
+
+    async function handleRefresh() {
+        await personnelQuery.refetch()
+    }
 
     const columns = useMemo(() => defineColumns<PersonData>(columnHelper => [
         columnHelper.accessor('personId', {
@@ -61,7 +66,7 @@ export function System_PersonnelList_Card() {
 
     const table = useReactTable({
         columns,
-        data: personnel,
+        data: personnelQuery.data,
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
@@ -105,6 +110,7 @@ export function System_PersonnelList_Card() {
                         </TooltipContent>
                     </Tooltip>
 
+                    <RefreshButton onClick={handleRefresh}/>
                     <TableOptionsDropdown/>
                     <Separator orientation="vertical"/>
                     

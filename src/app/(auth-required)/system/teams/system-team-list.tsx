@@ -11,7 +11,7 @@ import { useMemo } from 'react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { Button } from '@/components/ui/button'
+import { Button, RefreshButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader } from '@/components/ui/card'
 import { DataTableBody, DataTableHead, DataTableFooter, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
 import { Link, TextLink } from '@/components/ui/link'
@@ -19,17 +19,24 @@ import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Table } from '@/components/ui/table'
 
+import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
+
+type RowData = TeamData & { _count: { teamMemberships: number } }
 
 export function System_TeamsList_Card() {
 
     const trpc = useTRPC()
 
-    const { data: teams } = useSuspenseQuery(trpc.teams.getTeams.queryOptions({}))
+    const teamsQuery = useSuspenseQuery(trpc.teams.getTeams.queryOptions({}))
 
-    const columns = useMemo(() => defineColumns<typeof teams[0]>(columnHelper => [
+    async function handleRefresh() {
+        await teamsQuery.refetch()
+    }
+
+    const columns = useMemo(() => defineColumns<RowData>(columnHelper => [
     columnHelper.accessor('teamId', {
         header: 'ID',
         cell: ctx => ctx.getValue(),
@@ -67,9 +74,9 @@ export function System_TeamsList_Card() {
     }),
 ]), [])
 
-    const table = useReactTable({
+    const table = useReactTable<RowData>({
         columns,
-        data: teams,
+        data: teamsQuery.data,
         getCoreRowModel: getCoreRowModel(),
         getExpandedRowModel: getExpandedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
@@ -113,6 +120,7 @@ export function System_TeamsList_Card() {
                         </TooltipContent>
                     </Tooltip>
 
+                    <RefreshButton onClick={handleRefresh}/>
                     <TableOptionsDropdown/>
                     <Separator orientation="vertical"/>
 

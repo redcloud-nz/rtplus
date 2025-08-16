@@ -13,7 +13,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
 import { PersonPicker } from '@/components/controls/person-picker'
-import { Button, DeleteConfirmButton } from '@/components/ui/button'
+import { Button, DeleteConfirmButton, RefreshButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTableBody, DataTableHead, DataTableFooter, DataTableProvider, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
 import { TagsInput } from '@/components/ui/input'
@@ -41,7 +41,11 @@ export function System_Team_Members_Card({ teamId }: { teamId: string }) {
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const { data: teamMembers } = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId }))
+    const teamMembersQuery = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId }))
+
+    async function handleRefresh() {
+        await teamMembersQuery.refetch()
+    }
 
     // Mutations for CRUD operations
     const createMutation = useMutation(trpc.teamMemberships.create.mutationOptions({
@@ -109,7 +113,7 @@ export function System_Team_Members_Card({ teamId }: { teamId: string }) {
             header: 'Name',
             cell: ctx => (match(ctx.row.getEditMode())
                 .with('Create', () => {
-                    const existingMemberIds = teamMembers.map(m => m.person.personId)
+                    const existingMemberIds = teamMembersQuery.data.map(m => m.person.personId)
                     return (
                         <PersonPicker
                             size="sm"
@@ -219,13 +223,13 @@ export function System_Team_Members_Card({ teamId }: { teamId: string }) {
                 }
             }
         })
-    ]), [teamMembers, teamId])
+    ]), [teamMembersQuery.data, teamId])
 
 
     const table = useReactTable<TeamMembershipData & { person: PersonData }>({
         _features: [EditableFeature()],
         columns,
-        data: teamMembers,
+        data: teamMembersQuery.data,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
@@ -283,6 +287,7 @@ export function System_Team_Members_Card({ teamId }: { teamId: string }) {
                         <TooltipContent>Add a new team member</TooltipContent>
                     </Tooltip>
 
+                    <RefreshButton onClick={handleRefresh}/>
                     <TableOptionsDropdown/>
                     <Separator orientation='vertical'/>
 

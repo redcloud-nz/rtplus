@@ -1,7 +1,6 @@
 /*
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
- * 
  */
 
 import { LucideProps } from 'lucide-react'
@@ -15,7 +14,8 @@ export function DashboardCardList({ className, ...props }: ComponentProps<'ul'>)
     return <ul className={cn("container mx-auto grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3", className)} {...props}/>
 }
 
-type DashboardCardProps = ComponentProps<'li'> & {
+type DashboardCardProps = {
+    className?: string
     label: string
     href: string
     icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>
@@ -24,11 +24,11 @@ type DashboardCardProps = ComponentProps<'li'> & {
     description: string
 }
 
-export function DashboardCard({ className, label, href, icon: Icon, iconForeground, iconBackground, description, ...props}: DashboardCardProps) {
+export function DashboardCard({ className, label, href, icon: Icon, iconForeground, iconBackground, description}: DashboardCardProps) {
 
     const LinkComp = href.startsWith('/') ? Link : ExternalLink
 
-    return <li className={cn("col-span-1 divide-y divide-gray-200 rounded-sm bg-white shadow-sm border", className)} {...props}>
+    return <li className={cn("col-span-1 divide-y divide-gray-200 rounded-sm bg-white shadow-sm border", className)}>
         <div className="group relative p-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-50 space-y-2">
             <div>
                 <span
@@ -68,15 +68,16 @@ export function BasicDashboardCardList({ className, ...props }: ComponentProps<'
     return <ul role="list" className={cn("mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4", className)} {...props} />;
 }
 
-type BasicDashboardCardProps = Omit<ComponentProps<'li'>, 'children'> & {
+type BasicDashboardCardProps = {
+    className?: string
     label: string
     href: string
     bgColor: string
 }
 
 
-export function BasicDashboardCard({ className, label, href, bgColor, ...props }: BasicDashboardCardProps) {
-    return <li className={cn("col-span-1 flex rounded-md shadow-sm", className)} {...props}>
+export function BasicDashboardCard({ className, label, href, bgColor }: BasicDashboardCardProps) {
+    return <li className={cn("col-span-1 flex rounded-md shadow-sm", className)}>
         <div
             className={cn(
                 bgColor,

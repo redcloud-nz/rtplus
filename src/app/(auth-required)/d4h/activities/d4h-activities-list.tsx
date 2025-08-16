@@ -24,7 +24,7 @@ import { D4hEvent } from '@/lib/d4h-api/event'
 import { formatDateTime } from '@/lib/utils'
 
 
-export function D4hActivitiesList_Card({ personId }: { personId: string }) {
+export function D4h_ActivitiesList_Card({ personId }: { personId: string }) {
     const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions(personId))
 
     const d4hTeams = useMemo(() => extractUniqueTeams(accessTokens), [accessTokens])
@@ -45,6 +45,10 @@ export function D4hActivitiesList_Card({ personId }: { personId: string }) {
             data: queryResults.flatMap(qr => qr.data.results),
         })
     })
+
+    async function handleRefresh() {
+        await activitiesQuery.refetch()
+    }
 
     const columns = React.useMemo(() => {
         return defineColumns<D4hEvent>(columnHelper => [
@@ -139,7 +143,7 @@ export function D4hActivitiesList_Card({ personId }: { personId: string }) {
             <CardHeader>
                 <DataTableSearch size="sm" variant="ghost"/>
                 <CardActions>
-                    <RefreshButton onClick={() => activitiesQuery.refetch()} size="sm" variant="ghost"/>
+                    <RefreshButton onClick={handleRefresh}/>
                     <TableOptionsDropdown/>
                     <Separator orientation="vertical"/>
                     <CardExplanation>

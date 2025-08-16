@@ -10,7 +10,7 @@ import { useMemo } from 'react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel,  getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { Button } from '@/components/ui/button'
+import { Button, RefreshButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTableBody, DataTableHead, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
 import { Link, TextLink } from '@/components/ui/link'
@@ -29,13 +29,17 @@ import { useTRPC } from '@/trpc/client'
 export function System_SkillPackage_SkillsList_Card({ skillPackageId }: { skillPackageId: string }) {
     const trpc = useTRPC()
 
-    const { data: skillGroups } = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ skillPackageId }))
-    const { data: skills } = useSuspenseQuery(trpc.skills.getSkills.queryOptions({ skillPackageId }))
+    const skillGroupsQuery = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ skillPackageId }))
+    const skillsQuery = useSuspenseQuery(trpc.skills.getSkills.queryOptions({ skillPackageId }))
 
-    const rowData = useMemo(() => skills.map(skill => ({
+    async function handleRefresh() {
+        await Promise.all([skillsQuery.refetch(), skillGroupsQuery.refetch()])
+    }
+
+    const rowData = useMemo(() => skillsQuery.data.map(skill => ({
         ...skill,
-        skillGroup: skillGroups.find(group => group.skillGroupId === skill.skillGroupId)!
-    })), [skills, skillGroups])
+        skillGroup: skillGroupsQuery.data.find(group => group.skillGroupId === skill.skillGroupId)!
+    })), [skillsQuery.data, skillGroupsQuery.data])
 
     const columns = useMemo(() => defineColumns<SkillData & { skillGroup: SkillGroupData }>(columnHelper => [
         columnHelper.accessor('skillId', {
@@ -127,13 +131,13 @@ export function System_SkillPackage_SkillsList_Card({ skillPackageId }: { skillP
                         </TooltipContent>
                     </Tooltip>
 
+                    <RefreshButton onClick={handleRefresh}/>
+                    <TableOptionsDropdown/>
+                    <Separator orientation="vertical"/>
                     <CardExplanation>
                         Skills are the individual abilities or tasks that can be performed within a skill package. You can create, edit, and delete skills as needed.
                     </CardExplanation>
-                     <Separator orientation="vertical"/>
-
-
-                    <TableOptionsDropdown/>
+                    
                 </CardActions>
             </CardHeader>
             <CardContent>

@@ -23,6 +23,7 @@ import { PersonData } from '@/lib/schemas/person'
 import { TeamMembershipData } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 
 /**
@@ -117,11 +118,19 @@ export function Team_MembersList_Card() {
                 <DataTableSearch size="sm" variant="ghost"/>
                 <CardActions>
                     <Protect role="org:admin">
-                        <Button variant="ghost" size="icon" asChild>
-                            <Link href={Paths.team(team.slug).members.create}>
-                                <PlusIcon/>
-                            </Link>
-                        </Button>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" asChild>
+                                    <Link href={Paths.team(team.slug).members.create.href}>
+                                        <PlusIcon/>
+                                    </Link>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                Add Team Member
+                            </TooltipContent>
+                        </Tooltip>
+                        
                     </Protect>
                     <RefreshButton onClick={handleRefresh}/>
                       

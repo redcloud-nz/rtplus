@@ -11,6 +11,7 @@ import { useMemo } from 'react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
+import { RefreshButton } from '@/components/ui/button'
 import { Card, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTableBody, DataTableFooter, DataTableHead, DataTableProvider, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
 import { Separator } from '@/components/ui/separator'
@@ -21,6 +22,7 @@ import { OrgMembershipData } from '@/lib/schemas/org-membership'
 import { UserData } from '@/lib/schemas/user'
 import { useTRPC } from '@/trpc/client'
 
+type RowData = OrgMembershipData & { user: UserData, organization: OrganizationData }
 
 /**
  * Card that displays the users associated with a team.
@@ -31,9 +33,13 @@ import { useTRPC } from '@/trpc/client'
 export function TeamUsersCard({ teamId }: { teamId: string }) {
     const trpc = useTRPC()
 
-    const { data: orgMemberships } = useSuspenseQuery(trpc.users.byTeam.queryOptions({ teamId }))
+    const usersQuery = useSuspenseQuery(trpc.users.byTeam.queryOptions({ teamId }))
 
-    const columns = useMemo(() => defineColumns<OrgMembershipData & { user: UserData, organization: OrganizationData }>(columnHelper => [
+    async function handleRefresh() {
+        await usersQuery.refetch()
+    }
+
+    const columns = useMemo(() => defineColumns<RowData>(columnHelper => [
         columnHelper.accessor('user.name', {
             id: "name",
             header: "Name",
@@ -71,9 +77,9 @@ export function TeamUsersCard({ teamId }: { teamId: string }) {
         }),
     ]), [])
 
-    const table = useReactTable<OrgMembershipData & { user: UserData, organization: OrganizationData }>({
+    const table = useReactTable<RowData>({
         columns: columns,
-        data: orgMemberships,
+        data: usersQuery.data,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
@@ -102,6 +108,7 @@ export function TeamUsersCard({ teamId }: { teamId: string }) {
                     </DialogTriggerButton>}
                 /> */}
 
+                <RefreshButton onClick={handleRefresh}/>
                 <TableOptionsDropdown/>
                 <Separator orientation='vertical'/>
 

@@ -28,13 +28,14 @@ export default async function Team_SkillCheckSessionsList_Page(props: { params: 
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.team(team),
+                Paths.team(team).competencies,
                 Paths.team(team).competencies.sessions,
             ]}
         />
         <HydrateClient>
             <AppPageContent variant="container">
                 <PageHeader>
-                    <PageTitle>Sessions</PageTitle>
+                    <PageTitle>Skill Check Sessions</PageTitle>
                 </PageHeader>
                 <Boundary>
                      <Team_SkillCheckSessionsList_Card/>

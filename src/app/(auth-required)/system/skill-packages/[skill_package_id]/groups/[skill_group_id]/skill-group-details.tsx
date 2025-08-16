@@ -41,7 +41,7 @@ import { useTRPC } from '@/trpc/client'
  * @param skillGroupId The ID of the skill group to display.
  * @param skillPackageId The ID of the skill package that the skill group belongs to.
  */
-export function SkillGroupDetailsCard({ skillGroupId, skillPackageId }: { skillGroupId: string, skillPackageId: string }) {
+export function SkillGroup_Details_Card({ skillGroupId, skillPackageId }: { skillGroupId: string, skillPackageId: string }) {
 
     const trpc = useTRPC()
     const { data: skillGroup } = useSuspenseQuery(trpc.skills.getGroup.queryOptions({ skillGroupId, skillPackageId }))

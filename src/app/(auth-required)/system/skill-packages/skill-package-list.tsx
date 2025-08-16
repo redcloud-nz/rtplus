@@ -11,7 +11,7 @@ import { useMemo } from 'react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { Button } from '@/components/ui/button'
+import { Button, RefreshButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader } from '@/components/ui/card'
 import { DataTableBody, DataTableHead, DataTableFooter, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
 import { Link, TextLink } from '@/components/ui/link'
@@ -28,7 +28,11 @@ import { useTRPC, WithCounts } from '@/trpc/client'
 export function System_SkillPackagesList_Card() {
     const trpc = useTRPC()
 
-    const { data: skillPackages } = useSuspenseQuery(trpc.skills.getPackages.queryOptions({}))
+    const skillPackagesQuery = useSuspenseQuery(trpc.skills.getPackages.queryOptions({}))
+
+    async function handleRefresh() {
+        await skillPackagesQuery.refetch()
+    }
 
     const columns = useMemo(() => defineColumns<WithCounts<SkillPackageData, 'skills' | 'skillGroups'>>(columnHelper => [
         columnHelper.accessor('skillPackageId', {
@@ -71,7 +75,7 @@ export function System_SkillPackagesList_Card() {
 
     const table = useReactTable({
         columns,
-        data: skillPackages,
+        data: skillPackagesQuery.data,
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
@@ -109,13 +113,14 @@ export function System_SkillPackagesList_Card() {
                             Create new skill package
                         </TooltipContent>
                     </Tooltip>
-                    
+
+                    <RefreshButton onClick={handleRefresh}/>
+                    <TableOptionsDropdown/>
+                    <Separator orientation="vertical"/>
                     <CardExplanation>
                         This is a list of all the available skill packages in the system.
                     </CardExplanation>
-                    <Separator orientation="vertical"/>
-
-                    <TableOptionsDropdown/>
+                   
                 </CardActions>
                 
             </CardHeader>

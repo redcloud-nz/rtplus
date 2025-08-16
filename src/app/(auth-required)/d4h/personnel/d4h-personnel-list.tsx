@@ -48,7 +48,11 @@ export function D4hPersonnelList_Card({ personId }: { personId: string }) {
             refetch: () => Promise.all(queryResults.map(qr => qr.refetch())),
             data: queryResults.flatMap(qr => (qr.data).results),
         })
-    })   
+    })
+    
+    async function handleRefresh() {
+        await membersQuery.refetch()
+    }
 
     const columns = useMemo(() => defineColumns<D4hMember>(columnHelper => [
         columnHelper.accessor('name', {
@@ -164,7 +168,7 @@ export function D4hPersonnelList_Card({ personId }: { personId: string }) {
             <CardHeader>
                 <DataTableSearch size="sm" variant="ghost"/>
                 <CardActions>
-                    <RefreshButton onClick={membersQuery.refetch} size="sm" variant="ghost"/>
+                    <RefreshButton onClick={handleRefresh}/>
                     <TableOptionsDropdown/>
                     <Separator orientation="vertical"/>
                     <CardExplanation>

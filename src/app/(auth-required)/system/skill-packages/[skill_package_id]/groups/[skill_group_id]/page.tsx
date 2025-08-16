@@ -11,8 +11,8 @@ import * as Paths from '@/paths'
 import { fetchSkillGroup } from '@/server/fetch'
 import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
-import { SkillGroupDetailsCard } from './skill-group-details'
-import { SkillGroupSkillsListCard } from './skill-group-skills-list'
+import { SkillGroup_Details_Card } from './skill-group-details'
+import { SkillGroup_SkillsList_Card } from './skill-group-skills-list'
 
 
 
@@ -21,7 +21,7 @@ export async function generateMetadata(props: { params: Promise<{ skill_group_id
     return { title: `${skillGroup.name} - Skill Groups` }
 }
 
-export default async function SkillGroupPage(props: { params: Promise<{ skill_group_id: string, skill_package_id: string }> }) {
+export default async function SkillGroup_Page(props: { params: Promise<{ skill_group_id: string, skill_package_id: string }> }) {
     const { skillGroupId, skillPackageId, skillPackage, name} = await fetchSkillGroup(props.params)
 
     prefetch(trpc.skills.getSkills.queryOptions({ skillGroupId }))
@@ -43,10 +43,10 @@ export default async function SkillGroupPage(props: { params: Promise<{ skill_gr
                 </PageHeader>
 
                 <Boundary>
-                     <SkillGroupDetailsCard skillGroupId={skillGroupId} skillPackageId={skillPackageId}/>
+                     <SkillGroup_Details_Card skillGroupId={skillGroupId} skillPackageId={skillPackageId}/>
                 </Boundary>
                <Boundary>
-                    <SkillGroupSkillsListCard skillGroupId={skillGroupId} skillPackageId={skillPackageId}/>
+                    <SkillGroup_SkillsList_Card skillGroupId={skillGroupId} skillPackageId={skillPackageId}/>
                 </Boundary>
             </AppPageContent>
         </HydrateClient>

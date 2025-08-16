@@ -143,7 +143,7 @@ export const system = {
 
 export const team = (teamOrSlug: TeamData | string) => {
     const teamSlug = typeof teamOrSlug === 'string' ? teamOrSlug : teamOrSlug.slug
-    const base = `/teams/${teamSlug}/-` as const
+    const base = `/teams/${teamSlug}` as const
     const competenciesBase = `${base}/competencies` as const
 
     return {
@@ -165,7 +165,7 @@ export const team = (teamOrSlug: TeamData | string) => {
                 },
             },
             session: (sessionId: string) => ({
-                href: `${competenciesBase}/sessions/${sessionId}`
+                href: `${competenciesBase}/skill-check-sessions/${sessionId}`
             } as const),
             sessions: {
                 label: 'Team Sessions',
@@ -196,7 +196,9 @@ export const team = (teamOrSlug: TeamData | string) => {
             label: 'Members',
             icon: UsersIcon,
             href: `${base}/members`,
-            create: `${base}/members/--create`,
+            create: {
+                href: `${base}/members/--create`,
+            },
         },
         users: {
             label: 'Users',

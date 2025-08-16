@@ -11,7 +11,7 @@ import { useMemo } from 'react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getFilteredRowModel,  getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { Button } from '@/components/ui/button'
+import { Button, RefreshButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTableBody, DataTableHead, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
 import { TextLink } from '@/components/ui/link'
@@ -25,10 +25,14 @@ import { useTRPC } from '@/trpc/client'
 
 
 
-export function SkillGroupSkillsListCard({ skillGroupId, skillPackageId }: { skillGroupId: string, skillPackageId: string }) {
+export function SkillGroup_SkillsList_Card({ skillGroupId, skillPackageId }: { skillGroupId: string, skillPackageId: string }) {
     const trpc = useTRPC()
 
-    const { data: skills } = useSuspenseQuery(trpc.skills.getSkills.queryOptions({ skillGroupId }))
+    const skillsQuery = useSuspenseQuery(trpc.skills.getSkills.queryOptions({ skillGroupId }))
+
+    async function handleRefresh() {
+        await skillsQuery.refetch()
+    }
 
     const columns = useMemo(() => defineColumns<SkillData>(columnHelper => [
         columnHelper.accessor('skillId', {
@@ -82,7 +86,7 @@ export function SkillGroupSkillsListCard({ skillGroupId, skillPackageId }: { ski
 
     const table = useReactTable({
         columns,
-        data: skills,
+        data: skillsQuery.data,
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
@@ -119,13 +123,12 @@ export function SkillGroupSkillsListCard({ skillGroupId, skillPackageId }: { ski
                         </TooltipContent>
                     </Tooltip>
 
+                    <RefreshButton onClick={handleRefresh}/>
+                    <TableOptionsDropdown/>
+                    <Separator orientation="vertical"/>
                     <CardExplanation>
                         Skills are the individual abilities or tasks that can be performed within a skill package. You can create, edit, and delete skills as needed.
                     </CardExplanation>
-                     <Separator orientation="vertical"/>
-
-
-                    <TableOptionsDropdown/>
                 </CardActions>
             </CardHeader>
             <CardContent>
