@@ -32,11 +32,11 @@ export function ATableHead({ className, ...props }: ComponentProps<'div'>) {
 }
 
 
-export function ATableBody({ children, className }: Pick<ComponentProps<typeof AccordionPrimitive.Root>, 'className' | 'children'>) {
+export function ATableBody({ children, className, type = 'single' }: Pick<ComponentProps<typeof AccordionPrimitive.Root>, 'className' | 'children' | 'type'>) {
     return <AccordionPrimitive.Root 
         className={cn("grid col-span-full grid-cols-subgrid divide-y divide-gray-200", className)}
         data-component="ATableBody"
-        type="single"
+        type={type}
         collapsible
     >{children}</AccordionPrimitive.Root>
 }
@@ -58,18 +58,18 @@ export function ATableHeadCell({ className, ...props }: ComponentProps<'div'>) {
     />
 }
 
-export function ATableItem({ className, ...props }: ComponentProps<typeof AccordionPrimitive.Item>) {
+export function ATableSection({ className, ...props }: ComponentProps<typeof AccordionPrimitive.Item>) {
     return <AccordionPrimitive.Item
         className={cn("grid col-span-full grid-cols-subgrid", className)}
-        data-component="ATableItem"
+        data-component="ATableSection"
         {...props}
     />
 }
 
-export function ATableRow({ className, ...props }: ComponentProps<typeof AccordionPrimitive.Header>) {
+export function ATableSectionHeader({ className, ...props }: ComponentProps<typeof AccordionPrimitive.Header>) {
     return <AccordionPrimitive.Header
         className={cn("grid col-span-full grid-cols-subgrid items-center pl-1 last:border-0 transition-colors hover:bg-muted/50", className)}
-        data-component="ATableRow"
+        data-component="ATableHeader"
         {...props}
     />
 }
@@ -88,13 +88,25 @@ export function ATableTrigger({ className }: ComponentProps<typeof AccordionPrim
     </AccordionPrimitive.Trigger>
 }
 
-export function ATableContent({ className, ...props }: ComponentProps<typeof AccordionPrimitive.Content>) {
+export function ATableSectionContent({ className, ...props }: ComponentProps<typeof AccordionPrimitive.Content>) {
     return <AccordionPrimitive.Content
         className={cn("grid col-span-full grid-cols-subgrid", className)}
-        data-component="ATableRowContent"
+        data-component="ATableSectionContent"
         {...props}
     />
 }
+
+export function ATableRow({ className, ...props }: ComponentProps<'div'>) {
+    return <div
+        className={cn("grid col-span-full grid-cols-subgrid hover:bg-muted/50", className)}
+        data-component="ATableRow"
+        {...props}
+    />
+}
+
+
+
+
 
 export function ATableCell({ className, ...props }: ComponentProps<'div'>) {
     return <div 

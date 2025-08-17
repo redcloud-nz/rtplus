@@ -9,14 +9,15 @@ import { Metadata } from 'next'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
-import { CardButton, CardButtonList } from '@/components/ui/card-button'
+import { Alert } from '@/components/ui/alert'
 
 import * as Paths from '@/paths'
 import { fetchTeamMember } from '@/server/fetch'
 import { HydrateClient } from '@/trpc/server'
 
 
-import { Team_Member_Details_Card } from './team-member-details'
+import { Team_Member_Competencies_Card } from './team-member-competencies'
+
 
 
 export async function generateMetadata(props: { params: Promise<{ team_slug: string, person_id: string }> }): Promise<Metadata> {
@@ -26,7 +27,7 @@ export async function generateMetadata(props: { params: Promise<{ team_slug: str
 }
 
 
-export default async function Team_Member_Page(props: { params: Promise<{ team_slug: string, person_id: string }>}) {
+export default async function Team_Member_Competencies_Page(props: { params: Promise<{ team_slug: string, person_id: string }>}) {
     const { person, team } = await fetchTeamMember(props.params)
 
     return <AppPage>
@@ -34,7 +35,8 @@ export default async function Team_Member_Page(props: { params: Promise<{ team_s
             breadcrumbs={[
                 Paths.team(team),
                 Paths.team(team).members,
-                person.name
+                { label: person.name, href: Paths.team(team).member(person.personId).href },
+                Paths.team(team).member(person.personId).competencies
             ]}
         />
         <HydrateClient>
@@ -42,12 +44,12 @@ export default async function Team_Member_Page(props: { params: Promise<{ team_s
                 <PageHeader>
                     <PageTitle objectType="Team Member">{person.name}</PageTitle>
                 </PageHeader>
+                <Alert severity="warning" title="Design Mockup">
+                   This page is a design mockup that is implemented with randomly generated skill checks.
+                </Alert>
                 <Boundary>
-                    <Team_Member_Details_Card personId={person.personId}/>
+                    <Team_Member_Competencies_Card personId={person.personId}/>
                 </Boundary>
-                <CardButtonList>
-                    <CardButton {...Paths.team(team).member(person.personId).competencies}/>
-                </CardButtonList>
             </AppPageContent>
         </HydrateClient>
         

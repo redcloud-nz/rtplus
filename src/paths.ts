@@ -7,6 +7,8 @@ import { CableIcon, PocketKnifeIcon, ShieldHalfIcon, UsersIcon } from 'lucide-re
 
 import { TeamData } from '@/lib/schemas/team'
 
+const CompetenciesIcon = PocketKnifeIcon
+
 export const about = {
     label: 'About',
     href: '/about',
@@ -130,7 +132,7 @@ export const system = {
     skillPackages: {
         label: 'Skill Packages',
         href: '/system/skill-packages',
-        icon: PocketKnifeIcon,
+        icon: CompetenciesIcon,
         create: '/system/skill-packages/--create',
         import: {
             label: 'Import Skill Package',
@@ -155,7 +157,7 @@ export const team = (teamOrSlug: TeamData | string) => {
         competencies: {
             label: 'Competencies',
             href: competenciesBase,
-            icon: PocketKnifeIcon,
+            icon: CompetenciesIcon,
             checks: {
                 label: 'Checks',
                 href: `${competenciesBase}/skill-checks`,
@@ -193,7 +195,13 @@ export const team = (teamOrSlug: TeamData | string) => {
             href: `${base}/invitations`
         },
         member: (personId: string) => ({
-            href: `${base}/members/${personId}`
+            href: `${base}/members/${personId}`,
+            competencies: {
+                label: 'Competencies',
+                href: `${base}/members/${personId}/competencies`,
+                icon: CompetenciesIcon,
+                bgColor: 'bg-blue-500'
+            },
         } as const),
         members: {
             label: 'Members',

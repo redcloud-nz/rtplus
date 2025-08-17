@@ -37,7 +37,7 @@ import { useTRPC } from '@/trpc/client'
 
 
 
-export function TeamMemberDetails({ personId }: { personId: string }) {
+export function Team_Member_Details_Card({ personId }: { personId: string }) {
     const router = useRouter()
     const trpc = useTRPC()
 

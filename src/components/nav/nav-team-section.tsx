@@ -35,8 +35,8 @@ export function NavTeamSection() {
                     href={isPersonal 
                         ? Paths.personal
                         : isSystem 
-                            ? Paths.system
-                            : Paths.team(slug)
+                            ? Paths.system.href
+                            : Paths.team(slug).href
                     }
                     className="w-full h-full flex items-center gap-2"
                 >
