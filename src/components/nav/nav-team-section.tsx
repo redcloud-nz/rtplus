@@ -52,8 +52,8 @@ export function NavTeamSection() {
                 <NavCollapsible label="Competencies" icon={<PocketKnifeIcon/>}>
                     <NavSubItem path={Paths.team(slug).competencies.checks}/>
                     <NavSubItem path={Paths.team(slug).competencies.sessions}/>
-                    
-                    <NavSubItem {...Paths.team(slug).competencies.reports}/>
+                    <NavSubItem path={Paths.team(slug).competencies.skills}/>
+                    <NavSubItem path={Paths.team(slug).competencies.reports}/>
                 </NavCollapsible>
             </Show>
 

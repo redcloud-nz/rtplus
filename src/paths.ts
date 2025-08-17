@@ -177,6 +177,10 @@ export const team = (teamOrSlug: TeamData | string) => {
                     href: `${competenciesBase}/skill-check-sessions/--create`,
                 },
             },
+            skills: {
+                label: 'Skills',
+                href: `${competenciesBase}/skills`
+            },
             record: `${competenciesBase}/record`,
             reports: {
                 label: 'Reports',
