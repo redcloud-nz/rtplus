@@ -26,8 +26,9 @@ import { Textarea } from '@/components/ui/textarea'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 
 import { useToast } from '@/hooks/use-toast'
+import { CompetenceLevelTerms } from '@/lib/competencies'
 import { nanoId16 } from '@/lib/id'
-import { CompetenceLevelTerms, skillCheckSchema } from '@/lib/schemas/skill-check'
+import { skillCheckSchema } from '@/lib/schemas/skill-check'
 import { useTRPC } from '@/trpc/client'
 
 

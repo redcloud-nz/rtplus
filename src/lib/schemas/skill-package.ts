@@ -5,9 +5,11 @@
 
 import { z } from 'zod'
 
-import { SkillPackage as SkillPackageRecord } from '@prisma/client'
+import { Skill as SkillRecord, SkillGroup as SkillGroupRecord, SkillPackage as SkillPackageRecord } from '@prisma/client'
 
 import { zodNanoId8 } from '../validation'
+import { skillGroupSchema, toSkillGroupData } from './skill-group'
+import { skillSchema, toSkillData } from './skill'
 
 export const skillPackageSchema = z.object({
     skillPackageId: zodNanoId8,

@@ -6,7 +6,8 @@
 import { z } from 'zod'
 
 import { SkillCheck as SkillCheckRecord } from '@prisma/client'
-import { zodNanoId16, zodNanoId8 } from '../validation'
+
+import { zodNanoId16, zodNanoId8 } from '@/lib/validation'
 
 
 export const skillCheckSchema = z.object({
@@ -35,30 +36,4 @@ export function toSkillCheckData(record: SkillCheckRecord): SkillCheckData {
         date: record.date,
         timestamp: record.timestamp.toISOString(),
     }
-}
-
-export const skillCheckDetailSchema = skillCheckSchema.extend({
-    skillName: z.string().max(100),
-    assesseeName: z.string().max(100),
-    assessorName: z.string().max(100),
-})
-
-export type SkillCheckDetailData = z.infer<typeof skillCheckDetailSchema>
-
-export type CompetenceLevel = 'NotAssessed' | 'NotTaught' | 'NotCompetent' | 'Competent' | 'HighlyConfident'
-
-export const CompetenceLevelTerms: Record<CompetenceLevel, string> = {
-    'NotAssessed': 'Not Assessed',
-    'NotTaught': 'Not Taught',
-    'NotCompetent': 'Not Competent',
-    'Competent': 'Competent',
-    'HighlyConfident': 'Highly Confident',
-}
-
-export const CompetenceLevelDescriptions: Record<CompetenceLevel, string> = {
-    'NotAssessed': 'This skill has not yet been assessed.',
-    'NotTaught': 'Training not complete for skill.',
-    'NotCompetent': 'Unable to complete or required assistance.',
-    'Competent': 'Able to complete unassisted.',
-    'HighlyConfident': 'Able to complete unassisted and teach others.',
 }

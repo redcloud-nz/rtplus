@@ -22,8 +22,9 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 
 import { useSkillCheckSessionUpdater } from '@/hooks/use-skill-check-session-updater'
 import { useToast } from '@/hooks/use-toast'
+import { CompetenceLevelTerms } from '@/lib/competencies'
 import { nanoId16,  } from '@/lib/id'
-import { CompetenceLevelTerms, SkillCheckData } from '@/lib/schemas/skill-check'
+import { SkillCheckData } from '@/lib/schemas/skill-check'
 import { useTRPC } from '@/trpc/client'
 
 

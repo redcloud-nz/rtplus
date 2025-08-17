@@ -11,14 +11,15 @@ import { match } from 'ts-pattern'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 
+import { ATable, ATableCell, ATableSectionContent, ATableHead, ATableHeadRow, ATableSection, ATableRow, ATableTrigger, ATableSectionHeader, ATableBody, ATableHeadCell } from '@/components/ui/accordion-table'
 import { RefreshButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 
 import { createRandomValueGenerator, randomDate } from '@/lib/generate-values'
-import { CompetenceLevel, CompetenceLevelTerms } from '@/lib/schemas/skill-check'
+import { CompetenceLevel, CompetenceLevelTerms } from '@/lib/competencies'
 import { useTRPC } from '@/trpc/client'
-import { ATable, ATableCell, ATableSectionContent, ATableHead, ATableHeadRow, ATableSection, ATableRow, ATableTrigger, ATableSectionHeader, ATableBody, ATableHeadCell } from '@/components/ui/accordion-table'
+
 
 
 const statusGenerator = createRandomValueGenerator<CompetenceLevel>({
