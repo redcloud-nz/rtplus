@@ -281,8 +281,12 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             const session = await ctx.prisma.skillCheckSession.findUnique({
                 where: { id: input.sessionId },
                 include: {
-                    assessees: true,
-                }
+                    assessees: {
+                        orderBy: {
+                            name: 'asc'
+                        }
+                    }
+                },
             })
 
             return (session?.assessees ?? []).map(toPersonData)

@@ -28,9 +28,11 @@ RT+ is build using a number of cutting edge web technologies:
 
 ## Cost
 
-All technologies used are either free/open-source or a currently setup with a free plan (Clerk, Neon Postgres, and Vercel).
-Depending on future use, we may need to ask for donations to cover hosting costs.
+Hosting costs are currently covered by Redcloud Development.
 
+buymeacoffee.com/alexwestphal
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/alexwestphal)
 
 ## Bugs / Feature Requests
 

@@ -43,7 +43,7 @@ export function NotImplemented({ docUrl, ghIssueNumber, ...props }: NotImplement
             </Paragraph>
             {docUrl ? <Paragraph>Learn more about the concept of this feature in the <Link href={docUrl}>documentation</Link>.</Paragraph> : null}
 
-            {ghIssueNumber ? <GitHubIssueLink issueNumber={ghIssueNumber}>See the proposal on GitHub</GitHubIssueLink> : null}
+            {ghIssueNumber ? <Paragraph>Learn more about this proposal: <GitHubIssueLink issueNumber={ghIssueNumber}></GitHubIssueLink>.</Paragraph> : null}
         </div>
         
     </AppPageContent>

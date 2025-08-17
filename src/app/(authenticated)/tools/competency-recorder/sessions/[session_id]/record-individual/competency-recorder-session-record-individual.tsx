@@ -30,7 +30,7 @@ import { useTRPC } from '@/trpc/client'
 
 
 
-export function CompetencyAssessor_Session_RecordIndividual_Card({ sessionId }: { sessionId: string }) {
+export function CompetencyRecorder_Session_RecordIndividual_Card({ sessionId }: { sessionId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()

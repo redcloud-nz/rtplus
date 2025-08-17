@@ -52,7 +52,7 @@ export default async function CompetencyRecorder_Page() {
                 />
                 <DashboardCard
                     label="Documentation"
-                    href={Paths.documentation.competencyRecorder.href}
+                    href={Paths.documentation.competencies.href}
                     icon={BookOpenIcon}
                     iconForeground="text-green-700"
                     iconBackground="bg-green-50"

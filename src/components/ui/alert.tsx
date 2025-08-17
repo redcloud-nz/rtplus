@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { CircleCheckIcon, TriangleAlertIcon, InfoIcon, CircleXIcon } from 'lucide-react'
+import { CircleCheckIcon, TriangleAlertIcon, InfoIcon, CircleXIcon, FlaskConicalIcon } from 'lucide-react'
 import { tv, VariantProps } from 'tailwind-variants'
 
 import { cn } from '@/lib/utils'
@@ -42,6 +42,12 @@ const alertStyles = tv({
                 title: 'text-red-800',
                 description: 'text-red-700'
             },
+            mockup: {
+                root: 'bg-pink-50',
+                icon: 'text-pink-400',
+                title: 'text-pink-800',
+                description: 'text-pink-700'
+            },
         }
     }
 })
@@ -50,7 +56,8 @@ const alertIcons = {
     info: InfoIcon,
     success: CircleCheckIcon,
     warning: TriangleAlertIcon,
-    error: CircleXIcon
+    error: CircleXIcon,
+    mockup: FlaskConicalIcon
 }
 
 export type AlertProps = React.ComponentPropsWithRef<'div'> & VariantProps<typeof alertStyles> &{ action?: React.ReactNode, title: string } 

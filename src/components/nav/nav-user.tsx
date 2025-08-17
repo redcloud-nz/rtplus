@@ -84,19 +84,19 @@ export function NavUser() {
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
                             <DropdownMenuItem asChild>
-                                <Link href={Paths.personal.account}>
+                                <Link href={Paths.personal.account.href}>
                                     <BadgeCheck />
                                     Profile
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                                <Link href={Paths.personal.settings}>
+                                <Link href={Paths.personal.settings.href}>
                                     <SettingsIcon/>
                                     {Paths.personal.settings.label}
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                                <Link href={Paths.personal.d4hAccessTokens}>
+                                <Link href={Paths.personal.d4hAccessTokens.href}>
                                     <KeyRoundIcon/>
                                     {Paths.personal.d4hAccessTokens.label}
                                 </Link>

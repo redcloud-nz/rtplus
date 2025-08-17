@@ -75,5 +75,5 @@ export function GitHubIssueLink({ className, issueNumber, ...props }: GitHubIssu
         data-component="GitHubIssueLink"
         data-slot="link"
         {...props}
-    />
+    >{`Issue #${issueNumber}`}</ExternalLink>
 }

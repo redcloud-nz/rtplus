@@ -241,6 +241,10 @@ export const tools = {
                     label: 'Assessors',
                     href: `${sessionBase}/assessors`,
                 },
+                recordBySkill: {
+                    label: 'By Skill',
+                    href: `${sessionBase}/record-by-skill`,
+                },
                 recordIndividual: {
                     label: 'Individual',
                     href: `${sessionBase}/record-individual`,
@@ -326,9 +330,8 @@ const docsBase = "https://github.com/redcloud-nz/rtplus/wiki"
 export const documentation = {
     index: `${docsBase}`,
     glossary: `${docsBase}/glossary`,
-    competencies: `${docsBase}/competencies`,
-    competencyRecorder: {
-        href: `${docsBase}/Competency-Recorder`,
+    competencies: {
+        href: `${docsBase}/Competencies`,
     },
     personnel: `${docsBase}/personnel`,
     skills: `${docsBase}/skills`,

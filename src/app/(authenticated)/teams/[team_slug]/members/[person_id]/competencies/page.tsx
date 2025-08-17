@@ -44,7 +44,7 @@ export default async function Team_Member_Competencies_Page(props: { params: Pro
                 <PageHeader>
                     <PageTitle objectType="Team Member">{person.name}</PageTitle>
                 </PageHeader>
-                <Alert severity="warning" title="Design Mockup">
+                <Alert severity="mockup" title="Design Mockup">
                    This page is a design mockup that is implemented with randomly generated skill checks.
                 </Alert>
                 <Boundary>
