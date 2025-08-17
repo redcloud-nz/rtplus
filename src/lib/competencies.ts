@@ -3,10 +3,10 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { SkillCheckData } from '@/lib/schemas/skill-check'
-import { SkillPackageData } from './schemas/skill-package'
-import { SkillGroupData } from './schemas/skill-group'
 import { SkillData } from './schemas/skill'
+import { SkillCheckData } from '@/lib/schemas/skill-check'
+import { SkillGroupData } from './schemas/skill-group'
+import { SkillPackageData } from './schemas/skill-package'
 
 
 export type CompetenceLevel = 'NotAssessed' | 'NotTaught' | 'NotCompetent' | 'Competent' | 'HighlyConfident'
@@ -32,7 +32,7 @@ export type CompetenceStatus = 'None' | 'NotCompetent' | 'Competent' | 'Expired'
 
 
 
-class CurrentCompetencyCalculator {
+export class CurrentCompetencyCalculator {
     private readonly skillPackages: (SkillPackageData & { skillGroups: SkillGroupData[], skills: SkillData[] })[]
     private readonly skillChecks: SkillCheckData[]
 

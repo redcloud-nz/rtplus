@@ -32,7 +32,7 @@ const statusGenerator = createRandomValueGenerator<CompetenceLevel>({
 
 
 
-export function Team_Member_Competencies_Card({ personId }: { personId: string }) {
+export function Team_Member_Competencies_Card({}: { personId: string }) {
     const trpc = useTRPC()
 
     const skillPackagesQuery = useSuspenseQuery(trpc.skills.getTree.queryOptions())
@@ -96,7 +96,7 @@ export function Team_Member_Competencies_Card({ personId }: { personId: string }
         })
 
 
-    }, [skillPackagesQuery.data])
+    }, [skillPackagesQuery.data, skillChecks])
 
     
 

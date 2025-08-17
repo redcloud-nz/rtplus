@@ -2,32 +2,29 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
+
+/* eslint-disable */
 'use client'
 
 import { useState } from 'react'
 
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { CurrentPersonValue } from '@/components/controls/person-value'
-import { Show } from '@/components/show'
 
-import { Alert } from '@/components/ui/alert'
 import { AsyncButton, Button } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 
-import { useSkillCheckSessionUpdater } from '@/hooks/use-skill-check-session-updater'
 import { useToast } from '@/hooks/use-toast'
 import { CompetenceLevelTerms } from '@/lib/competencies'
-import { nanoId16,  } from '@/lib/id'
 import { SkillCheckData } from '@/lib/schemas/skill-check'
 import { useTRPC } from '@/trpc/client'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
+
+
 
 export function CompetencyRecorder_Session_RecordBySkill_Card({ sessionId }: { sessionId: string }) {
     const queryClient = useQueryClient()
@@ -43,12 +40,12 @@ export function CompetencyRecorder_Session_RecordBySkill_Card({ sessionId }: { s
     const [selectedSkillId, setSelectedSkillId] = useState<string | null>(null)
 
     const [prevData, setPrevData] = useState<Pick<SkillCheckData, 'assesseeId' | 'result' | 'notes'>[]| null>(null)
-    const [formData, setFormData] = useState<Pick<SkillCheckData, 'assesseeId' | 'result' | 'notes'>[]>([])
 
     function handleChangeSkill(skillId: string) {
         setSelectedSkillId(skillId)
 
         if(skillId) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const existingChecks = checks.filter(check => check.skillId === skillId && check.assessorId === assessor.personId)
 
             // TODO Setup form data

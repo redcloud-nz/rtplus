@@ -17,7 +17,7 @@ export default async function CompetencyRecorder_Session_RecordBySkill_Page(prop
 
     return <AppPageContent variant="container">
         <Alert severity="mockup" title="Design Mockup">
-            This page is a design mockup that doesn't actually record any data.
+            {"This page is a design mockup that doesn't actually record any data."}
             <p>See <GitHubIssueLink issueNumber={13}/> for feedback or suggestions.</p>
         </Alert>
         <CompetencyRecorder_Session_RecordBySkill_Card sessionId={sessionId} />
