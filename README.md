@@ -22,17 +22,17 @@ RT+ is build using a number of cutting edge web technologies:
 - [Tailwind CSS](https://tailwindcss.com/) - Utility first CSS framework.
 - [TanStack Query](https://tanstack.com/query/latest) - Client side data synchronisation library.
 - [TanStack Table](https://tanstack.com/table/latest) - Headless UI for building tables and datagrids.
-- [Typescript](https://www.typescriptlang.org/) - Strongly typed programming language that builds on JavaScript.
+- [tRPC][https://trpc.io/] -Statically typed API endpoints.
+- [TypeScript](https://www.typescriptlang.org/) - Strongly typed programming language that builds on JavaScript.
 - [Vercel](https://vercel.com/) - Cloud hosting for Next.js
+- [Zod](zod.dev) - TypeScript-first schema validation with status type inference.
 
 
 ## Cost
 
 Hosting costs are currently covered by Redcloud Development.
 
-buymeacoffee.com/alexwestphal
-
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/alexwestphal)
+Want to support our work: [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/alexwestphal)
 
 ## Bugs / Feature Requests
 
