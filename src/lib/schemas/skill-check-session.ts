@@ -30,14 +30,14 @@ export const skillCheckSessionSchema = z.object({
 export type SkillCheckSessionData = z.infer<typeof skillCheckSessionSchema>
 
 
-export function toSkillCheckSessionData(data: SkillCheckSessionRecord & { _count: SkillCheckSessionData['_count'], team: TeamRecord} ): SkillCheckSessionData {
+export function toSkillCheckSessionData(record: SkillCheckSessionRecord & { _count: SkillCheckSessionData['_count'], team: TeamRecord} ): SkillCheckSessionData {
     return {
-        sessionId: data.id,
-        teamId: data.teamId,
-        name: data.name,
-        date: formatISO(data.date, { representation: 'date' }),
-        sessionStatus: data.sessionStatus,
-        _count: data._count,
-        team: toTeamData(data.team)
+        sessionId: record.id,
+        teamId: record.teamId,
+        name: record.name,
+        date: formatISO(record.date, { representation: 'date' }),
+        sessionStatus: record.sessionStatus,
+        _count: record._count,
+        team: toTeamData(record.team)
     }
 }

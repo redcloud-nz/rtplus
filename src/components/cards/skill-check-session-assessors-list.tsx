@@ -12,7 +12,7 @@ import { match } from 'ts-pattern'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { TeamMemberPicker } from '@/components/controls/team-member-picker'
+import { PersonPicker } from '@/components/controls/person-picker'
 import { Button, DeleteConfirmButton, RefreshButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
@@ -24,6 +24,7 @@ import { useToast } from '@/hooks/use-toast'
 import { EditableFeature } from '@/lib/editable-feature'
 import { PersonData } from '@/lib/schemas/person'
 import { useTRPC } from '@/trpc/client'
+
 
 
 
@@ -133,13 +134,14 @@ export function SkillCheckSession_AssessorsList_Card({ sessionId }: { sessionId:
             cell: ctx => (match(ctx.row.getEditMode())
                 .with('Create', () => {
                     const existingAssessorIds = assignedAssessorsQuery.data.map(a => a.personId)
-                    return <TeamMemberPicker
+                    return <PersonPicker
                         size='sm'
                         className="-m-2"
                         value={ctx.row.getModifiedRowData().assessor.personId}
-                        onValueChange={member => ctx.row.setModifiedRowData({ assessor: member.person })}
+                        onValueChange={person => ctx.row.setModifiedRowData({ assessor: person })}
                         placeholder='Select assessor'
                         exclude={existingAssessorIds}
+                        filter={{ isUser: true }}
                     />
                 })
                 .otherwise(() => ctx.getValue())

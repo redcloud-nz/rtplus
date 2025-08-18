@@ -9,7 +9,7 @@ import { z } from 'zod'
 import { Person as PersonRecord, Team as TeamRecord } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
-import { PersonData, personSchema } from '@/lib/schemas/person'
+import { PersonData, personSchema, toPersonData } from '@/lib/schemas/person'
 import { nanoId16 } from '@/lib/id'
 import { zodRecordStatus, zodNanoId8 } from '@/lib/validation'
 
@@ -29,7 +29,7 @@ export const personnelRouter = createTRPCRouter({
 
             const person = await createPerson(ctx, input)
             
-            return { personId: person.id, ...person }
+            return toPersonData(person)
         }),
 
     deletePerson: systemAdminProcedure
@@ -45,10 +45,10 @@ export const personnelRouter = createTRPCRouter({
             } else ctx.requireSystemAdmin()
             
             const deleted = await deletePerson(ctx, person)
-            return { personId: person.id, ...deleted }
+            return toPersonData(deleted)
         }),
 
-    getPerson: systemAdminProcedure
+    getPerson: authenticatedProcedure
         .input(z.object({ 
             personId: zodNanoId8.optional(),
             email: z.string().email().optional(),
@@ -78,16 +78,19 @@ export const personnelRouter = createTRPCRouter({
 
     getPersonnel: authenticatedProcedure
         .input(z.object({
-            status: zodRecordStatus
+            status: zodRecordStatus,
+            isUser: z.boolean().optional()
         }))
         .output(z.array(personSchema))
         .query(async ({ ctx, input }) => {
-            const found = await ctx.prisma.person.findMany({ 
-                where: { status: { in: input.status } },
-                select: { id: true, name: true, email: true, owningTeamId: true, status: true },
+            const found = await ctx.prisma.person.findMany({
+                where: { 
+                    status: { in: input.status },
+                    clerkUserId: input.isUser ? { not: null } : undefined
+                },
                 orderBy: { name: 'asc' }
             })
-            return found.map(person => ({ personId: person.id, ...person, }))
+            return found.map(toPersonData)
         }),
 
     updatePerson: systemAdminProcedure
@@ -97,8 +100,8 @@ export const personnelRouter = createTRPCRouter({
 
             const person = await getPersonById(ctx, input.personId)
 
-            const updatedPerson = await updatePerson(ctx, person, input)
-            return { personId: person.id, ...updatedPerson }
+            const updated = await updatePerson(ctx, person, input)
+            return toPersonData(updated)
         }),
         
 })

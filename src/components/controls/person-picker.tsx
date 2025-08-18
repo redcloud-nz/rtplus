@@ -36,6 +36,11 @@ interface PersonPickerProps {
      */
     exclude?: string[]
 
+    filter?: {
+        status?: ('Active' | 'Inactive')[]
+        isUser?: boolean
+    }
+
     /**
      * Callback function that is called when a person is selected.
      * It receives the selected person data as an argument.
@@ -63,9 +68,11 @@ interface PersonPickerProps {
  * A component for selecting a person from a list, with search functionality.
  * It uses a popover to display the list of persons and allows filtering by name.
  */
-export function PersonPicker({ className, defaultValue = "", exclude = [], onValueChange, placeholder, size, value }: PersonPickerProps) {
+export function PersonPicker({ className, defaultValue = "", exclude = [], filter = {}, onValueChange, placeholder, size, value }: PersonPickerProps) {
+    filter = { status: ['Active'], ...filter }
+
     const trpc = useTRPC()
-    const query = useQuery(trpc.personnel.getPersonnel.queryOptions({}))
+    const query = useQuery(trpc.personnel.getPersonnel.queryOptions(filter))
 
     const [open, setOpen] = useState(false)
     const [internalValue, setInternalValue] = useState<string>(value ?? defaultValue)
