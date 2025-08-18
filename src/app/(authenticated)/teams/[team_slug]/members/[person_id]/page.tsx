@@ -9,7 +9,7 @@ import { Metadata } from 'next'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
-import { CardButton, CardButtonList } from '@/components/ui/card-button'
+import { CardLink, CardLinkList } from '@/components/ui/card-button'
 
 import * as Paths from '@/paths'
 import { fetchTeamMember } from '@/server/fetch'
@@ -45,9 +45,9 @@ export default async function Team_Member_Page(props: { params: Promise<{ team_s
                 <Boundary>
                     <Team_Member_Details_Card personId={person.personId}/>
                 </Boundary>
-                <CardButtonList>
-                    <CardButton {...Paths.team(team).member(person.personId).competencies}/>
-                </CardButtonList>
+                <CardLinkList>
+                    <CardLink path={Paths.team(team).member(person.personId).competencies}/>
+                </CardLinkList>
             </AppPageContent>
         </HydrateClient>
         

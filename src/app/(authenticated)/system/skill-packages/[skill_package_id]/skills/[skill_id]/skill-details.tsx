@@ -92,7 +92,7 @@ export function SkillDetailsCard({ skillId, skillPackageId }: { skillId: string,
                             label="Skill Package"
                             control={
                                 <DisplayValue>
-                                    <TextLink href={Paths.system.skillPackage(skill.skillPackageId).href}>
+                                    <TextLink to={Paths.system.skillPackage(skill.skillPackageId)}>
                                         {skill.skillPackage.name}
                                     </TextLink>
                                 </DisplayValue>
@@ -102,7 +102,7 @@ export function SkillDetailsCard({ skillId, skillPackageId }: { skillId: string,
                             label="Skill Group"
                             control={
                                 <DisplayValue>
-                                    <TextLink href={Paths.system.skillPackage(skill.skillPackageId).group(skill.skillGroupId).href}>
+                                    <TextLink to={Paths.system.skillPackage(skill.skillPackageId).group(skill.skillGroupId)}>
                                         {skill.skillGroup.name}
                                     </TextLink>
                                 </DisplayValue>
@@ -208,7 +208,7 @@ function UpdateSkillForm({ onClose, skill, skillPackage, skillGroup }: { onClose
                         label="Skill Package"
                         control={
                             <DisplayValue>
-                                <TextLink href={Paths.system.skillPackage(skill.skillPackageId).href}>
+                                <TextLink to={Paths.system.skillPackage(skill.skillPackageId)}>
                                     {skillPackage.name}
                                 </TextLink>
                             </DisplayValue>
@@ -222,7 +222,7 @@ function UpdateSkillForm({ onClose, skill, skillPackage, skillGroup }: { onClose
                         label="Skill Group"
                         control={
                             <DisplayValue>
-                                <TextLink href={Paths.system.skillPackage(skill.skillPackageId).group(skill.skillGroupId).href}>
+                                <TextLink to={Paths.system.skillPackage(skill.skillPackageId).group(skill.skillGroupId)}>
                                     {skillGroup.name}
                                 </TextLink>
                             </DisplayValue>

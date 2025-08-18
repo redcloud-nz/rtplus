@@ -126,7 +126,7 @@ export function System_Person_TeamMemberships_Card({ personId }: { personId: str
                     )
                 })
                 .otherwise(() => 
-                    <TextLink href={Paths.system.person(personId).teamMembership(ctx.row.original.teamId).href}>{ctx.getValue()}</TextLink>
+                    <TextLink to={Paths.system.person(personId).teamMembership(ctx.row.original.teamId)}>{ctx.getValue()}</TextLink>
                 )
             ),
             enableGrouping: false,

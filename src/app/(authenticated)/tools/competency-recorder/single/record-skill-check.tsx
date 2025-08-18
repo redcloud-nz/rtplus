@@ -29,6 +29,7 @@ import { useToast } from '@/hooks/use-toast'
 import { CompetenceLevelTerms } from '@/lib/competencies'
 import { nanoId16 } from '@/lib/id'
 import { skillCheckSchema } from '@/lib/schemas/skill-check'
+import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
 
@@ -67,7 +68,7 @@ export function CompetencyRecorder_Single_Card() {
                 title: "Skill check recorded",
                 description: "The skill check has been successfully recorded.",
             })
-            router.push(`./`)
+            router.push(Paths.tools.competencyRecorder.href)
         }
     }))
 
@@ -147,7 +148,7 @@ export function CompetencyRecorder_Single_Card() {
 
                         <ToruGridFooter>
                             <FormSubmitButton labels={SubmitVerbs.save} size="sm"/>
-                            <FormCancelButton href="./" size="sm"/>
+                            <FormCancelButton redirectTo={Paths.tools.competencyRecorder} size="sm"/>
                         </ToruGridFooter>
                         
                     </ToruGrid>

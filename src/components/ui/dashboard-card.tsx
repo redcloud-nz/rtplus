@@ -16,17 +16,18 @@ export function DashboardCardList({ className, ...props }: ComponentProps<'ul'>)
 
 type DashboardCardProps = {
     className?: string
-    label: string
-    href: string
-    icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>
+    external?: boolean
+    linksTo: {
+        label: string
+        href: string
+        icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>
+    }
     iconForeground: string
     iconBackground: string
     description: string
 }
 
-export function DashboardCard({ className, label, href, icon: Icon, iconForeground, iconBackground, description}: DashboardCardProps) {
-
-    const LinkComp = href.startsWith('/') ? Link : ExternalLink
+export function DashboardCard({ className, description, external = false, iconForeground, iconBackground,  linksTo }: DashboardCardProps) {
 
     return <li className={cn("col-span-1 divide-y divide-gray-200 rounded-sm bg-white shadow-sm border", className)}>
         <div className="group relative p-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-50 space-y-2">
@@ -38,15 +39,23 @@ export function DashboardCard({ className, label, href, icon: Icon, iconForegrou
                         'inline-flex rounded-lg p-3 ring-4 ring-white',
                     )}
                     >
-                    <Icon aria-hidden="true" className="size-6" />
+                    <linksTo.icon aria-hidden="true" className="size-6" />
                 </span>
             </div>
             <h3 className="text-base font-semibold text-gray-900">
-                <LinkComp href={href} className="focus:outline-hidden">
-                    {/* Extend touch target to entire panel */}
-                    <span aria-hidden="true" className="absolute inset-0" />
-                    {label}
-                </LinkComp>
+                {external ? (
+                    <ExternalLink href={linksTo.href} className="focus:outline-hidden">
+                        {/* Extend touch target to entire panel */}
+                        <span aria-hidden="true" className="absolute inset-0" />
+                        {linksTo.label}
+                    </ExternalLink>
+                ) : (
+                    <Link to={linksTo} className="focus:outline-hidden">
+                        {/* Extend touch target to entire panel */}
+                        <span aria-hidden="true" className="absolute inset-0" />
+                        {linksTo.label}
+                    </Link>
+                )}
             </h3>
             <p className="text-sm text-gray-500">
                 {description}
@@ -60,43 +69,5 @@ export function DashboardCard({ className, label, href, icon: Icon, iconForegrou
                 </svg>
             </span>
         </div>
-    </li>
-}
-
-
-export function BasicDashboardCardList({ className, ...props }: ComponentProps<'ul'>) {
-    return <ul role="list" className={cn("mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4", className)} {...props} />;
-}
-
-type BasicDashboardCardProps = {
-    className?: string
-    label: string
-    href: string
-    bgColor: string
-}
-
-
-export function BasicDashboardCard({ className, label, href, bgColor }: BasicDashboardCardProps) {
-    return <li className={cn("col-span-1 flex rounded-md shadow-sm", className)}>
-        <div
-            className={cn(
-                bgColor,
-                "group relative",
-                'flex w-16 shrink-0 items-center justify-center rounded-l-md text-sm font-medium text-white',
-            )}
-        >
-        {label.charAt(0).toUpperCase()}
-        </div>
-        <div className="flex flex-1 items-center justify-between truncate rounded-r-md border-b border-r border-t border-gray-200 bg-white dark:border-white/10 dark:bg-gray-800/50">
-        <div className="flex-1 truncate px-4 py-2 text-sm">
-            <Link
-                href={href}
-                className="font-medium text-gray-900 hover:text-gray-600 dark:text-white dark:hover:text-gray-200"
-            >
-                {label}
-            </Link>
-        </div>
-        </div>
-            
     </li>
 }

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, LucideProps } from 'lucide-react'
 
 import { Collapsible, CollapsibleContent, CollapsibleProps, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {
@@ -17,6 +17,7 @@ import {
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar'
 import { ExternalLink, Link } from '../ui/link'
+import { ForwardRefExoticComponent, ReactNode, RefAttributes } from 'react'
 
 
 export interface INavItem {
@@ -49,26 +50,33 @@ export function NavSection({ title, children }: NavSectionProps) {
     </SidebarGroup>
 }
 
+type NavItemExternalProps = { external: true, label: string, href: string, icon?: ReactNode }
+type NavItemInternalProps = { external?: never, href?: never, path: { label: string, href: string, icon?: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> }, label?: string, icon?: ReactNode }
+type NavItemProps = NavItemExternalProps | NavItemInternalProps
 
-type NavItemProps = ({ label: string, href: string } | { path: { label: string, href: string } }) & { icon?: React.ReactNode }
+export function NavItem({ external, ...props }: NavItemProps) {
 
-export function NavItem({ icon, ...props }: NavItemProps) {
-    const { label, href } = 'label' in props ? props : { label: props.path.label, href: props.path.href }
-
-    return <SidebarMenuItem>
-        <SidebarMenuButton tooltip={label} asChild>
-            {href.startsWith('/')
-                ? <Link href={href}>
-                    {icon}
-                    <span>{label}</span>
+    if(external) {
+        props = props as NavItemExternalProps
+        return <SidebarMenuItem>
+            <SidebarMenuButton tooltip={props.label} asChild>
+                <ExternalLink href={props.href} noDecoration>
+                    {props.icon}
+                    <span>{props.label}</span>
+                    </ExternalLink>
+            </SidebarMenuButton>
+        </SidebarMenuItem>
+    } else {
+        props = props as NavItemInternalProps
+        return <SidebarMenuItem>
+            <SidebarMenuButton tooltip={props.label ?? props.path.label} asChild>
+                <Link to={props.path}>
+                    {props.icon ?? (props.path.icon ? <props.path.icon /> : null)}
+                    <span>{props.label ?? props.path.label}</span>
                 </Link>
-                : <ExternalLink href={href} noDecoration>
-                    {icon}
-                    <span>{label}</span>
-                </ExternalLink>
-            }
-        </SidebarMenuButton>
-    </SidebarMenuItem>
+            </SidebarMenuButton>
+        </SidebarMenuItem>
+    }
 }
 
 
@@ -100,17 +108,29 @@ export function NavCollapsible({ label, icon, children, ...props }: NavCollapsib
     </Collapsible>
 }
 
-type NavSubItemProps = { label: string, href: string } | { path: { label: string, href: string } }
+type NavSubItemExternalProps = { external: true, label: string, href: string }
+type NavSubItemInternalProps = { external?: never, href?: never, path: { label: string, href: string }, label?: string }
+type NavSubItemProps = NavSubItemExternalProps | NavSubItemInternalProps
 
-export function NavSubItem(props: NavSubItemProps) {
-    const { label, href } = 'label' in props ? props : { label: props.path.label, href: props.path.href }
+export function NavSubItem({ external, ...props }: NavSubItemProps) {
 
-    return <SidebarMenuSubItem>
-        <SidebarMenuSubButton asChild>
-        {href.startsWith('/')
-            ? <Link href={href}>{label}</Link>
-            : <ExternalLink href={href} noDecoration>{label}</ExternalLink>
-        }
-        </SidebarMenuSubButton>
-    </SidebarMenuSubItem>
+    if(external) {
+        props = props as NavItemExternalProps
+        return <SidebarMenuSubItem>
+            <SidebarMenuSubButton asChild>
+                <ExternalLink href={props.href} noDecoration>
+                    <span>{props.label}</span>
+                    </ExternalLink>
+            </SidebarMenuSubButton>
+        </SidebarMenuSubItem>
+    } else {
+        props = props as NavItemInternalProps
+        return <SidebarMenuSubItem>
+            <SidebarMenuSubButton asChild>
+                <Link to={props.path}>
+                    <span>{props.label ?? props.path.label}</span>
+                </Link>
+            </SidebarMenuSubButton>
+        </SidebarMenuSubItem>
+    }
 }

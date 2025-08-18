@@ -79,7 +79,7 @@ export function Team_Member_Details_Card({ personId }: { personId: string }) {
                     <ToruGrid>
                         <ToruGridRow
                             label="Team"
-                            control={<DisplayValue><TextLink href={Paths.system.team(team.teamId).href}>{team.name}</TextLink></DisplayValue>}
+                            control={<DisplayValue><TextLink to={Paths.system.team(team.teamId)}>{team.name}</TextLink></DisplayValue>}
                         />
                         <ToruGridRow
                             label="Name"

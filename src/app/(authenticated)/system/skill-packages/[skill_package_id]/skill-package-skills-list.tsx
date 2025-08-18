@@ -52,13 +52,13 @@ export function System_SkillPackage_SkillsList_Card({ skillPackageId }: { skillP
         }),
         columnHelper.accessor('name', {
             header: 'Skill',
-            cell: ctx => <TextLink href={Paths.system.skillPackage(skillPackageId).skill(ctx.row.original.skillId).href}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.system.skillPackage(skillPackageId).skill(ctx.row.original.skillId)}>{ctx.getValue()}</TextLink>,
             enableGrouping: false,
             enableHiding: false
         }),
          columnHelper.accessor('skillGroup.name', {
             header: 'Group',
-            cell: ctx => <TextLink href={Paths.system.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId).href}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.system.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId)}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('description', {
@@ -120,7 +120,7 @@ export function System_SkillPackage_SkillsList_Card({ skillPackageId }: { skillP
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button variant="ghost" size="icon" asChild>
-                                <Link href={Paths.system.skillPackage(skillPackageId).skills.create}>
+                                <Link to={Paths.system.skillPackage(skillPackageId).skills.create}>
                                     <PlusIcon/>
                                 </Link>
                                 

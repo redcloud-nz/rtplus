@@ -44,7 +44,7 @@ export function System_PersonnelList_Card() {
         }),
         columnHelper.accessor('name', {
             header: 'Name',
-            cell : ctx => <TextLink href={Paths.system.person(ctx.row.original.personId).href}>{ctx.getValue()}</TextLink>,
+            cell : ctx => <TextLink to={Paths.system.person(ctx.row.original.personId)}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('email', {
@@ -100,7 +100,7 @@ export function System_PersonnelList_Card() {
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button variant="ghost" size="icon" asChild>
-                                <Link href={Paths.system.personnel.create}>
+                                <Link to={Paths.system.personnel.create}>
                                     <PlusIcon />
                                 </Link>
                             </Button>

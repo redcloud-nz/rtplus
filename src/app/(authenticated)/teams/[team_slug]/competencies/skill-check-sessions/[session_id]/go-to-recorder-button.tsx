@@ -29,7 +29,7 @@ export function GoToRecorder({ sessionId }: { sessionId: string }) {
         <TooltipTrigger asChild>
             {isAssessor
                 ? <Button asChild>
-                    <Link href={Paths.tools.competencyRecorder.session(sessionId).href}>
+                    <Link to={Paths.tools.competencyRecorder.session(sessionId)}>
                         Recorder <ArrowRightIcon/>
                     </Link>
                 </Button>

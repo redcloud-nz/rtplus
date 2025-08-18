@@ -86,7 +86,7 @@ export function SkillGroup_Details_Card({ skillGroupId, skillPackageId }: { skil
                             label="Skill Package"
                             control={
                                 <DisplayValue>
-                                    <TextLink href={Paths.system.skillPackage(skillGroup.skillPackageId).href}>
+                                    <TextLink to={Paths.system.skillPackage(skillGroup.skillPackageId)}>
                                         {skillGroup.skillPackage.name}
                                     </TextLink>
                                 </DisplayValue>
@@ -183,7 +183,7 @@ function UpdateSkillGroupForm({ onClose, skillGroup, skillPackage }: { onClose: 
                         label="Skill Package"
                         control={
                             <DisplayValue>
-                                <TextLink href={Paths.system.skillPackage(skillGroup.skillPackageId).href}>
+                                <TextLink to={Paths.system.skillPackage(skillPackage.skillPackageId)}>
                                     {skillPackage.name}
                                 </TextLink>
                             </DisplayValue>

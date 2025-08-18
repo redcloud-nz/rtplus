@@ -3,11 +3,44 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { CableIcon, PocketKnifeIcon, ShieldHalfIcon, UsersIcon } from 'lucide-react'
+import { BookOpenIcon, CableIcon, CheckCheckIcon, CheckIcon, PocketKnifeIcon, ShieldHalfIcon, UsersIcon } from 'lucide-react'
 
 import { TeamData } from '@/lib/schemas/team'
 
 const CompetenciesIcon = PocketKnifeIcon
+
+export const marketing = {
+
+    index: { href: '/' },
+    contact: {
+        label: 'Contact',
+        href: '/contact',
+    },
+    faq: {
+        label: 'FAQ',
+        href: '/#faq',
+    },
+    features: {
+        label: 'Features',
+        href: '/#features',
+    },
+    pricing: {
+        label: 'Pricing',
+        href: '/#pricing',
+    },
+    privacyPolicy: {
+        label: 'Privacy Policy',
+        href: '/privacy-policy',
+    },
+    termsOfService: {
+        label: 'Terms of Service',
+        href: '/terms-of-service',
+    },
+    testimonials: {
+        label: 'Testimonials',
+        href: '/#testimonials',
+    },
+}
 
 export const about = {
     label: 'About',
@@ -64,7 +97,10 @@ export const system = {
         label: 'Teams',
         href: '/system/teams',
         icon: ShieldHalfIcon,
-        create: '/system/teams/--create',
+        create: {
+            label: "Create",
+            href: '/system/teams/--create',
+        },
     },
     person: (personId: string) => {
         const personBase = `/system/personnel/${personId}` as const
@@ -91,7 +127,10 @@ export const system = {
         label: 'Personnel',
         href: '/system/personnel',
         icon: UsersIcon,
-        create: '/system/personnel/--create',
+        create: {
+            label: "Create",
+            href: '/system/personnel/--create'
+        },
 
         import: {
             label: 'Import Personnel',
@@ -114,7 +153,9 @@ export const system = {
             } as const),
             groups: {
                 label: 'Groups',
-                create: `${packageBase}/groups/--create`,
+                create: {
+                    href: `${packageBase}/groups/--create`
+                },
             },
 
             skill: (skillId: string) => ({
@@ -125,7 +166,9 @@ export const system = {
 
             skills: {
                 label: 'Skills',
-                create: `${packageBase}/skills/--create`,
+                create: {
+                    href: `${packageBase}/skills/--create`
+                },
             },
         } as const
     }, 
@@ -133,7 +176,9 @@ export const system = {
         label: 'Skill Packages',
         href: '/system/skill-packages',
         icon: CompetenciesIcon,
-        create: '/system/skill-packages/--create',
+        create: {
+            href: '/system/skill-packages/--create'
+        },
         import: {
             label: 'Import Skill Package',
             href: '/system/skill-packages/--import',
@@ -185,9 +230,18 @@ export const team = (teamOrSlug: TeamData | string) => {
             reports: {
                 label: 'Reports',
                 href: `${competenciesBase}/reports`,
-                individual: `${competenciesBase}/reports/individual`,
-                teamSkills: `${competenciesBase}/reports/team-skills`,
-                teamMembers: `${competenciesBase}/reports/team-members`,
+                individual: {
+                    href: `${competenciesBase}/reports/individual`,
+                    label: 'Individual',
+                },
+                teamSkills: {
+                    href: `${competenciesBase}/reports/team-skills`,
+                    label: 'Team Skills',
+                },
+                teamMembers: {
+                    href: `${competenciesBase}/reports/team-members`,
+                    label: 'Team Members',
+                },
             },
         },
         dashboard: {
@@ -230,12 +284,14 @@ export const tools = {
         label: 'Competency Recorder',
 
         single: {
-            label: 'Single Check',
-            href: `/tools/competency-recorder/single`
+            label: 'Single',
+            href: `/tools/competency-recorder/single`,
+            icon: CheckIcon
         },
         session: (sessionId: string) => {
             const sessionBase = `/tools/competency-recorder/sessions/${sessionId}`
             return {
+                label: 'Session',
                 href: sessionBase,
                 assessees: {
                     label: 'Assessees',
@@ -266,6 +322,7 @@ export const tools = {
         sessions: {
             label: 'Sessions',
             href: '/tools/competency-recorder/sessions',
+            icon: CheckCheckIcon
         },
     }
 
@@ -335,7 +392,9 @@ export const documentation = {
     index: `${docsBase}`,
     glossary: `${docsBase}/glossary`,
     competencies: {
+        label: 'Documentation',
         href: `${docsBase}/Competencies`,
+        icon: BookOpenIcon
     },
     personnel: `${docsBase}/personnel`,
     skills: `${docsBase}/skills`,

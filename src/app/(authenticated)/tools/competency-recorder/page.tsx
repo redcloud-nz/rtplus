@@ -5,7 +5,6 @@
  *  Path: /tools/competency-recorder
  */
 
-import { BookOpenIcon, CheckCheckIcon, CheckIcon } from 'lucide-react'
 import { Metadata } from 'next'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
@@ -35,25 +34,19 @@ export default async function CompetencyRecorder_Page() {
             </Paragraph>
             <DashboardCardList>
                  <DashboardCard
-                    label="Single"
-                    href={Paths.tools.competencyRecorder.single.href}
-                    icon={CheckIcon}
+                    linksTo={Paths.tools.competencyRecorder.single}
                     iconForeground="text-sky-700"
                     iconBackground="bg-sky-50"
                     description="Record a single skill check."
                 />
                 <DashboardCard
-                    label="Session"
-                    href={Paths.tools.competencyRecorder.sessions.href}
-                    icon={CheckCheckIcon}
+                    linksTo={Paths.tools.competencyRecorder.sessions}
                     iconForeground="text-purple-700"
                     iconBackground="bg-purple-50"
                     description="Participate in a skill check session."
                 />
                 <DashboardCard
-                    label="Documentation"
-                    href={Paths.documentation.competencies.href}
-                    icon={BookOpenIcon}
+                    linksTo={Paths.documentation.competencies}
                     iconForeground="text-green-700"
                     iconBackground="bg-green-50"
                     description="View the documentation for the Competency Recorder tool."

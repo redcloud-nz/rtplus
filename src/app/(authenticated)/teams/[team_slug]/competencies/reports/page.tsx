@@ -40,13 +40,13 @@ export default async function Team_Competencies_Reports_Index_Page(props: { para
                 <TableBody>
                     <TableRow>
                         <TableCell>
-                            <Link href={Paths.team(team).competencies.reports.individual}>Individual</Link>
+                            <Link to={Paths.team(team).competencies.reports.individual}>Individual</Link>
                         </TableCell>
                         <TableCell>A report of an individuals competencies.</TableCell>
                     </TableRow>
                     <TableRow>
                         <TableCell>
-                            <Link href={Paths.team(team).competencies.reports.teamSkills}>Team Skills</Link>
+                            <Link to={Paths.team(team).competencies.reports.teamSkills}>Team Skills</Link>
                         </TableCell>
                         <TableCell>A report of the teams skills as the percentage of members currently competent.</TableCell>
                     </TableRow>

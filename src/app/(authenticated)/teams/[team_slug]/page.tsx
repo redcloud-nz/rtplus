@@ -50,13 +50,13 @@ export default async function Team_Dashboard_Page(props: { params: Promise<{ tea
                     />
                      */}
                     <DashboardCard
-                        {...teamPath.competencies}
+                        linksTo={teamPath.competencies}
                         iconForeground="text-sky-700"
                         iconBackground="bg-sky-50"
                         description="Manage, assess, and report competencies for your team."
                     />
                      <DashboardCard
-                        {...teamPath.members}
+                        linksTo={teamPath.members}
                         iconForeground="text-purple-700"
                         iconBackground="bg-purple-50"
                         description="Manage the members of your team."
@@ -79,7 +79,7 @@ export default async function Team_Dashboard_Page(props: { params: Promise<{ tea
                     />
                     */}
                     <DashboardCard
-                        {...Paths.d4h}
+                        linksTo={Paths.d4h}
                         iconForeground="text-indigo-700"
                         iconBackground="bg-indigo-50"
                         description="Alternate views of the data stored in D4H Team Manager. Unified across multiple teams."

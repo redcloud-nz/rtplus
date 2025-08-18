@@ -51,7 +51,7 @@ export function Team_MembersList_Card() {
         columnHelper.accessor('person.name', {
             id: "name",
             header: "Name",
-            cell: ctx => <TextLink href={Paths.team(team.slug).member(ctx.row.original.personId).href}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.team(team).member(ctx.row.original.personId)}>{ctx.getValue()}</TextLink>,
             enableGrouping: false,
             enableHiding: false,
             enableSorting: true,
@@ -121,7 +121,7 @@ export function Team_MembersList_Card() {
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button variant="ghost" size="icon" asChild>
-                                    <Link href={Paths.team(team.slug).members.create.href}>
+                                    <Link to={Paths.team(team.slug).members.create}>
                                         <PlusIcon/>
                                     </Link>
                                 </Button>

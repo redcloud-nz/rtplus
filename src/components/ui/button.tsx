@@ -4,7 +4,7 @@
  */
 'use client'
 
-import { InfoIcon, Loader2Icon, RefreshCcw, TrashIcon } from 'lucide-react'
+import { Loader2Icon, RefreshCcw, TrashIcon } from 'lucide-react'
 import React, { ComponentProps } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
@@ -12,7 +12,6 @@ import { Slot } from '@radix-ui/react-slot'
 
 import { cn } from '@/lib/utils'
 
-import { Link } from './link'
 import { Popover, PopoverArrow, PopoverClose, PopoverContent, PopoverTrigger } from './popover'
 import { Tooltip, TooltipContent } from './tooltip'
 import { TooltipTrigger } from '@radix-ui/react-tooltip'
@@ -155,12 +154,6 @@ export function SubmitButtonLabel({ children, className, activeState, ...props }
         activeState == 'done' && 'group-data-[state=done]:inline', 
         className
     )} {...props}>{children}</span>
-}
-
-export function DocumentationButton({ topic }: { topic: string }) {
-    return <Button variant="ghost" asChild>
-        <Link href={`/documentation/${topic}`}><InfoIcon/></Link>
-    </Button>
 }
 
 export function DeleteConfirmButton({ onDelete, ...props }: Omit<ComponentProps<typeof Button>, 'onClick'> & { onDelete: () => void }) {

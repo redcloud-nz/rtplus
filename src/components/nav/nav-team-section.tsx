@@ -32,11 +32,11 @@ export function NavTeamSection() {
         ? <NavSection>
             <Button variant="ghost" className="w-full h-8 pl-0 border-0" asChild>
                 <Link 
-                    href={isPersonal 
+                    to={isPersonal 
                         ? Paths.personal
                         : isSystem 
-                            ? Paths.system.href
-                            : Paths.team(slug).href
+                            ? Paths.system
+                            : Paths.team(slug)
                     }
                     className="w-full h-full flex items-center gap-2"
                 >
@@ -66,7 +66,7 @@ export function NavTeamSection() {
                 </NavCollapsible>
             </Show>
 
-            <NavItem label="Documentation" href={`${process.env.NEXT_PUBLIC_APP_REPOSITORY_URL}/wiki`} icon={<BookOpenIcon/>}/>
+            <NavItem external label="Documentation" href={`${process.env.NEXT_PUBLIC_APP_REPOSITORY_URL}/wiki`} icon={<BookOpenIcon/>}/>
 
             <Show when={isTeam}>
                 <NavItem path={Paths.team(slug).members} icon={<UsersIcon/>}/> 
@@ -80,7 +80,7 @@ export function NavTeamSection() {
                 <NavItem path={Paths.system.skillPackages}/>
             </Show>
 
-            <NavItem label="Source Code" href={`${process.env.NEXT_PUBLIC_APP_REPOSITORY_URL}`} icon={<Image aria-hidden src="/github.svg" alt="Githib Icon" width={16} height={16}/>}/>
+            <NavItem external label="Source Code" href={`${process.env.NEXT_PUBLIC_APP_REPOSITORY_URL}`} icon={<Image aria-hidden src="/github.svg" alt="Githib Icon" width={16} height={16}/>}/>
 
             <Show when={isSystem}>
                 <NavCollapsible label="System Team">

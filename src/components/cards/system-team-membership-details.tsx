@@ -76,11 +76,11 @@ export function System_TeamMembership_Details_Card({ context, personId, teamId }
                     <ToruGrid>
                         <ToruGridRow
                             label="Team"
-                            control={<DisplayValue><TextLink href={Paths.system.team(team.teamId).href}>{team.name}</TextLink></DisplayValue>}
+                            control={<DisplayValue><TextLink to={Paths.system.team(team.teamId)}>{team.name}</TextLink></DisplayValue>}
                         />
                         <ToruGridRow
                             label="Person"
-                            control={<DisplayValue><TextLink href={Paths.system.person(person.personId).href}>{person.name}</TextLink></DisplayValue>}
+                            control={<DisplayValue><TextLink to={Paths.system.person(person.personId)}>{person.name}</TextLink></DisplayValue>}
                         />
                         <ToruGridRow
                             label="Tags"

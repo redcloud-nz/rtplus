@@ -229,7 +229,7 @@ export function Team_UsersList_Card() {
                      <Separator orientation='vertical'/>
                      <CardExplanation>
                         <p>This card displays a list of users that have access to the team.</p>
-                        <p>To add a new user, you will need to invite them from the <TextLink href={Paths.team(team.slug).invitations.href}>Invitations</TextLink> page.</p>
+                        <p>To add a new user, you will need to invite them from the <TextLink to={Paths.team(team.slug).invitations}>Invitations</TextLink> page.</p>
                         <p>You can change a users role uing the <PencilIcon className="inline-block h-4 w-4"/> button.</p>
                         <p>You can remove a user using the <TrashIcon className="inline-block h-4 w-5"/> button.</p>
                     </CardExplanation>

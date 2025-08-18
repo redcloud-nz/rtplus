@@ -13,20 +13,22 @@ import { cn } from '@/lib/utils'
 import { Link } from './link'
 
 
-export function CardButtonList({ className, ...props }: ComponentProps<'ul'>) {
+export function CardLinkList({ className, ...props }: ComponentProps<'ul'>) {
     return <ul role="list" className={cn("grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4", className)} {...props} />;
 }
 
-type CardButtonProps = {
+type CardLinkProps = {
     className?: string
-    label: string
-    href: string
-    bgColor: string
-    icon?: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>
+    path: {
+        label: string
+        href: string
+        bgColor: string
+        icon?: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>
+    }
 }
 
 
-export function CardButton({ className, label, href, bgColor, icon: Icon }: CardButtonProps) {
+export function CardLink({ className, path }: CardLinkProps) {
     return <li className={cn("col-span-1 flex rounded-md shadow-sm", className)}>
         <Link 
             className={cn(
@@ -35,24 +37,22 @@ export function CardButton({ className, label, href, bgColor, icon: Icon }: Card
                 "disabled:pointer-events-none disabled:opacity-50",
                 "hover:bg-accent hover:text-accent-foreground",
             )}
-            href={href}
+            to={path}
         >
              <div
                 className={cn(
-                    bgColor,
+                    path.bgColor,
                     'flex w-12 shrink-0 items-center justify-center rounded-l-md text-sm font-medium text-white',
                 )}
             >
-                {Icon ? <Icon className="h-4 w-4 pointer-events-none" /> : label.charAt(0).toUpperCase()}
+                {path.icon ? <path.icon className="h-4 w-4 pointer-events-none" /> : path.label.charAt(0).toUpperCase()}
             </div>
             <div className={cn(
                 "flex-1 px-2 py-2 truncate rounded-r-md border-b border-r border-t border-gray-200 bg-white dark:border-white/10 dark:bg-gray-800/50",
                 "group-hover:bg-accent group-hover:text-accent-foreground"
             )}>
-               {label}
+               {path.label}
             </div>
         </Link>
-       
-            
     </li>
 }

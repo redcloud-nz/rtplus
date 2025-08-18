@@ -11,8 +11,7 @@ import { auth } from '@clerk/nextjs/server'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
-import { BasicDashboardCard, BasicDashboardCardList } from '@/components/ui/dashboard-card'
-import { ExternalLink } from '@/components/ui/link'
+import { CardLink, CardLinkList, ExternalLink } from '@/components/ui/link'
 import { Heading, Paragraph } from '@/components/ui/typography'
 
 import * as Paths from '@/paths'
@@ -42,12 +41,12 @@ export default async function D4HIndex_Page() {
                 <D4HAccessTokenCheck_Card personId={personId} />
             </Boundary>
 
-            <BasicDashboardCardList>
-                <BasicDashboardCard {...Paths.d4h.activities}/>
-                <BasicDashboardCard {...Paths.d4h.calendar}/>
-                <BasicDashboardCard {...Paths.d4h.equipment}/>
-                <BasicDashboardCard {...Paths.d4h.personnel}/>
-            </BasicDashboardCardList>
+            <CardLinkList>
+                <CardLink to={Paths.d4h.activities}/>
+                <CardLink to={Paths.d4h.calendar}/>
+                <CardLink to={Paths.d4h.equipment}/>
+                <CardLink to={Paths.d4h.personnel}/>
+            </CardLinkList>
                 
 
             <Heading level={2} className="mt-4">Security</Heading>

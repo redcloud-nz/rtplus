@@ -45,7 +45,7 @@ export function System_SkillPackage_GroupsList_Card({ skillPackageId }: { skillP
         }),
         columnHelper.accessor('name', {
             header: 'Group',
-            cell: ctx => <TextLink href={Paths.system.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId).href}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.system.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId)}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('description', {
@@ -105,7 +105,7 @@ export function System_SkillPackage_GroupsList_Card({ skillPackageId }: { skillP
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button variant="ghost" size="icon" asChild>
-                                <Link href={Paths.system.skillPackage(skillPackageId).groups.create}>
+                                <Link to={Paths.system.skillPackage(skillPackageId).groups.create}>
                                     <PlusIcon/>
                                 </Link>
                             </Button>

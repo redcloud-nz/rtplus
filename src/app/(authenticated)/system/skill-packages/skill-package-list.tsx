@@ -44,7 +44,7 @@ export function System_SkillPackagesList_Card() {
         }),
         columnHelper.accessor('name', {
             header: 'Name',
-            cell: ctx => <TextLink href={Paths.system.skillPackage(ctx.row.original.skillPackageId).href}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.system.skillPackage(ctx.row.original.skillPackageId)}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('_count.skillGroups', {
@@ -104,7 +104,7 @@ export function System_SkillPackagesList_Card() {
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button variant="ghost" size="icon" asChild>
-                                <Link href={Paths.system.skillPackages.create}>
+                                <Link to={Paths.system.skillPackages.create}>
                                     <PlusIcon />
                                 </Link>
                             </Button>

@@ -39,7 +39,7 @@ export default async function System_SkillPackagesList_Page() {
                     <PageTitle>Skill Packages</PageTitle>
                     <PageControls>
                         <Button variant="ghost" size="icon" asChild>
-                            <Link href={Paths.system.skillPackages.import.href}>
+                            <Link to={Paths.system.skillPackages.import}>
                                 <ImportIcon/>
                             </Link>
                         </Button>

@@ -57,18 +57,18 @@ export default async function CompetencyRecorder_Session_Layout(props: { params:
                 <SidebarContent>
                     <NavSection title="Session Configuration">
                     
-                        <NavItem href={sessionPath.href} label="Details"/>
-                        <NavItem {...sessionPath.skills} />
-                        <NavItem {...sessionPath.assessees} />
-                        <NavItem {...sessionPath.assessors} />
+                        <NavItem path={sessionPath} label="Details"/>
+                        <NavItem path={sessionPath.skills} />
+                        <NavItem path={sessionPath.assessees} />
+                        <NavItem path={sessionPath.assessors} />
 
                     </NavSection>
                     <NavSection title="Record">
-                        <NavItem {...sessionPath.recordIndividual} />
-                        <NavItem {...sessionPath.recordBySkill} />
+                        <NavItem path={sessionPath.recordIndividual} />
+                        <NavItem path={sessionPath.recordBySkill} />
                     </NavSection>
                     <NavSection title="Result">
-                        <NavItem {...sessionPath.transcript} />
+                        <NavItem path={sessionPath.transcript} />
                     </NavSection>
                 </SidebarContent>
                 

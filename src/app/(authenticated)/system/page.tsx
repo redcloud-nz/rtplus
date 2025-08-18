@@ -22,19 +22,19 @@ export default function System_Index_Page() {
             </PageHeader>
             <DashboardCardList>
                 <DashboardCard
-                    {...Paths.system.teams}
+                    linksTo={Paths.system.teams}
                     iconBackground='bg-pink-600'
                     iconForeground='text-pink-50'
                     description="Create and manage teams."
                 />
                 <DashboardCard
-                    {...Paths.system.personnel}
+                    linksTo={Paths.system.personnel}
                     iconBackground='bg-purple-600'
                     iconForeground='text-purple-50'
                     description="Create and manage personnel."
                 />
                 <DashboardCard
-                    {...Paths.system.skillPackages}
+                    linksTo={Paths.system.skillPackages}
                     iconBackground='bg-yellow-500'
                     iconForeground='text-yellow-50'
                     description='Manage skills packages.'

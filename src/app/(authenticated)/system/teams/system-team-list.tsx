@@ -46,7 +46,7 @@ export function System_TeamsList_Card() {
     }),
     columnHelper.accessor('name', {
         header: 'Name',
-        cell: ctx => <TextLink href={Paths.system.team(ctx.row.original.teamId).href}>{ctx.getValue()}</TextLink>,
+        cell: ctx => <TextLink to={Paths.system.team(ctx.row.original.teamId)}>{ctx.getValue()}</TextLink>,
         enableHiding: false
     }),
     columnHelper.accessor('shortName', {
@@ -110,7 +110,7 @@ export function System_TeamsList_Card() {
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button variant="ghost" size="icon" asChild>
-                                <Link href={Paths.system.teams.create}>
+                                <Link to={Paths.system.teams.create}>
                                     <PlusIcon />
                                 </Link>
                             </Button>

@@ -4,7 +4,7 @@
  */
 
 import { AppPageContent, AppPageContentProps } from '@/components/app-page'
-import { GitHubIssueLink, Link } from '@/components/ui/link'
+import { ExternalLink, GitHubIssueLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 import { Paragraph } from '@/components/ui/typography'
 
@@ -41,7 +41,7 @@ export function NotImplemented({ docUrl, ghIssueNumber, ...props }: NotImplement
             <Paragraph>
                 This page is part of a planned or proposed feature that has not yet been implemented.
             </Paragraph>
-            {docUrl ? <Paragraph>Learn more about the concept of this feature in the <Link href={docUrl}>documentation</Link>.</Paragraph> : null}
+            {docUrl ? <Paragraph>Learn more about the concept of this feature in the <ExternalLink href={docUrl}>documentation</ExternalLink>.</Paragraph> : null}
 
             {ghIssueNumber ? <Paragraph>Learn more about this proposal: <GitHubIssueLink issueNumber={ghIssueNumber}></GitHubIssueLink>.</Paragraph> : null}
         </div>
