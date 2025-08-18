@@ -9,6 +9,7 @@ import { ArrowRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 import { useOrganizationList, useUser } from '@clerk/nextjs'
+import { useQueryClient } from '@tanstack/react-query'
 
 import { Show } from '@/components/show'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -17,7 +18,9 @@ import { isSandboxTeam, isSpecialTeam, isSystemTeam} from '@/lib/id'
 import * as Paths from '@/paths'
 
 
+
 export function TeamSwitcher() {
+    const queryClient = useQueryClient()
     const router = useRouter()
 
     const { user } = useUser()
@@ -35,6 +38,8 @@ export function TeamSwitcher() {
 
     async function handleSwitchTeam(organizationId: string | null, orgSlug?: string) {
         setActive?.({ organization: organizationId })
+
+        queryClient.clear()
         
         if(orgSlug == 'system') {
             router.push(Paths.system.href)
