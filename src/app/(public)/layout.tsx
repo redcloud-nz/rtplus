@@ -44,11 +44,11 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <div className="ml-6 flex items-center gap-2">
                 <SignedIn>
                     <Button asChild>
-                        <Link to={Paths.dashboard}>RT+ Dashboard <ArrowRightIcon/></Link>
+                        <Link to={Paths.selectTeam}>RT+ Dashboard <ArrowRightIcon/></Link>
                     </Button>
                 </SignedIn>
                 <SignedOut>
-                    <SignInButton forceRedirectUrl={Paths.dashboard.href}>
+                    <SignInButton forceRedirectUrl={Paths.selectTeam.href}>
                         <Button> Sign In</Button>
                     </SignInButton>
                 </SignedOut>
@@ -66,7 +66,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
                     priority
                 />
             </div>
-            <p className="text-xs text-muted-foreground sm:ml-4">© 2025 Redcloud Development, Ltd.</p>
+            <p className="text-xs text-muted-foreground sm:ml-4">© {new Date().getFullYear()} Redcloud Development, Ltd.</p>
             <nav className="sm:ml-auto flex gap-4 sm:gap-6">
             <Link className="text-xs hover:underline underline-offset-4" to={Paths.marketing.termsOfService}>
                 Terms of Service

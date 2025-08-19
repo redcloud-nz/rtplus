@@ -77,3 +77,20 @@ export function Forbidden({ ...props }: AppPageContentProps) {
         
     </AppPageContent>
 }
+
+export function UnknownError({ error, ...props }: AppPageContentProps & { error: Error & { digest?: string } }) {
+    return <AppPageContent variant="centered" {...props}>
+        <div className="flex flex-col gap-2 items-center">
+            <div className="font-semibold text-2xl text-zinc-800">500</div>
+            <div className="font-semibold text-zinc-800">Error</div>
+            <Separator orientation="horizontal" className="w-40"/>
+            <Paragraph>
+                Something went wrong on our end. Please try again later.
+            </Paragraph>
+            <Paragraph>{error.message}</Paragraph>
+            {error.digest && <Paragraph>{error.digest}</Paragraph>}
+
+        </div>
+
+    </AppPageContent>
+}
