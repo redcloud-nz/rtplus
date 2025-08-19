@@ -7,7 +7,7 @@
 
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
-import { Link, TextLink } from '@/components/ui/link'
+import { TextLink } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
 import * as Paths from '@/paths'

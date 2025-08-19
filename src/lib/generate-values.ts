@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import { entries, fromEntries, keys, sumBy } from 'remeda'
+import { sumBy } from 'remeda'
 
 export function createRandomValueGenerator<K extends string>(weights: Record<K, number>): (() => K) {
     const keys = Object.keys(weights) as K[]

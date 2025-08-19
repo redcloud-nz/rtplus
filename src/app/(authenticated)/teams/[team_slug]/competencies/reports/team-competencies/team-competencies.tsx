@@ -7,7 +7,7 @@
 import { addYears, formatDate, isBefore, subMonths, subYears } from 'date-fns'
 import { CheckIcon, ClockAlertIcon, SettingsIcon, XIcon } from 'lucide-react'
 import { Fragment, useMemo, useState } from 'react'
-import { isEmpty, randomInteger, sumBy } from 'remeda'
+import { randomInteger, sumBy } from 'remeda'
 import { match } from 'ts-pattern'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
@@ -17,12 +17,14 @@ import { ATable, ATableCell, ATableSectionContent, ATableSection, ATableRow, ATa
 import { Alert } from '@/components/ui/alert'
 import { Button, RefreshButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
+import { GitHubIssueLink } from '@/components/ui/link'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 
 import { createRandomDateGenerator, createRandomValueGenerator } from '@/lib/generate-values'
 import { CompetenceLevel } from '@/lib/competencies'
 import { useTRPC } from '@/trpc/client'
+
 
 
 export function Team_Competencies_Card() {
@@ -54,8 +56,6 @@ export function Team_Competencies_Card() {
     })
 
     const skillChecks = useMemo(() => {
-        if(isEmpty(skillPackagesQuery.data) || isEmpty(teamMembersQuery.data)) return []
-
         const now = new Date()
 
         const statusGenerator = createRandomValueGenerator<CompetenceLevel>(generatorConfig.statusWeights)
@@ -73,7 +73,7 @@ export function Team_Competencies_Card() {
                     const date = dateGenerator()
 
                     const competent = result === 'Competent' || result === 'HighlyConfident'
-                    const expired = isBefore(date, subYears(new Date(), 1))
+                    const expired = isBefore(date, subYears(now, 1))
 
                     if(result == 'NotAssessed') return undefined
 
@@ -155,6 +155,7 @@ export function Team_Competencies_Card() {
             action={<Button variant="ghost" size="icon" onClick={() => setGeneratorConfigOpen(!generatorConfigOpen)}><SettingsIcon /></Button>}
         >
             This page is a design mockup that is implemented with randomly generated skill checks.
+            <p>See <GitHubIssueLink issueNumber={15}/> for feedback or suggestions.</p>
         </Alert>
         { generatorConfigOpen && <SkillCheckGeneratorConfig_Card 
             defaultValue={generatorConfig}
@@ -186,6 +187,7 @@ export function Team_Competencies_Card() {
                         </ATableHeadRow>
                     </ATableHead>
                     <ATableBody type="multiple">
+
                         {skillPackages.map(skillPackage => <Fragment key={skillPackage.skillPackageId}>
                             <ATableRow>
                                 <ATableCell className="font-bold">{skillPackage.name}</ATableCell>
@@ -196,8 +198,10 @@ export function Team_Competencies_Card() {
                                 )}
                                 <ATableCell className="text-center">{toPercentage(skillPackage.aggregates.okCount, skillPackage.aggregates.cellCount)}%</ATableCell>
                             </ATableRow>
+
                             {skillPackage.skillGroups.map(skillGroup => {
                                 return <ATableSection key={skillGroup.skillGroupId} value={skillGroup.skillGroupId}>
+
                                     <ATableSectionHeader>
                                         <ATableCell className="pl-4 font-semibold">{skillGroup.name}</ATableCell>
                                         {teamMembersQuery.data.map((teamMember, index) => 
@@ -210,6 +214,7 @@ export function Team_Competencies_Card() {
                                             <ATableTrigger />
                                         </ATableCell>
                                     </ATableSectionHeader>
+
                                     <ATableSectionContent>
                                         {skillGroup.skills.map(skill => <ATableRow key={skill.skillId}>
                                             <ATableCell className="pl-8">{skill.name}</ATableCell>
@@ -256,6 +261,8 @@ export function Team_Competencies_Card() {
                                                     }
                                                 </ATableCell>
                                             )}
+
+                                            {/* Row Total */}
                                             <ATableCell className="text-center">{toPercentage(skill.aggregates.okCount, skill.aggregates.cellCount)}%</ATableCell>
                                             
                                         </ATableRow>)}
@@ -265,12 +272,12 @@ export function Team_Competencies_Card() {
                             })}
                         </Fragment>)}
                         <ATableRow>
-                                <ATableCell className="font-bold text-right">Total</ATableCell>
-                                <ATableCell className="text-center">{toPercentage(aggregates.okCount, aggregates.cellCount)}%</ATableCell>
-                                {teamMembersQuery.data.map((_, index) => 
-                                    <ATableCell key={index} className="text-center">{toPercentage(aggregates.okCountByTeamMember[index], aggregates.skillsCount)}%</ATableCell>
-                                )}
-                            </ATableRow>
+                            <ATableCell className="font-bold text-right">Total</ATableCell>
+                            <ATableCell className="text-center">{toPercentage(aggregates.okCount, aggregates.cellCount)}%</ATableCell>
+                            {teamMembersQuery.data.map((_, index) => 
+                                <ATableCell key={index} className="text-center">{toPercentage(aggregates.okCountByTeamMember[index], aggregates.skillsCount)}%</ATableCell>
+                            )}
+                        </ATableRow>
                     </ATableBody>
                 </ATable>
             </CardContent>

@@ -4,56 +4,79 @@
  */
 'use client'
 
-import { formatDistance, isBefore, subDays } from 'date-fns'
-import { CheckIcon, XIcon } from 'lucide-react'
-import { Fragment, useMemo } from 'react'
+import { addYears, formatDate, isBefore, subMonths, subYears } from 'date-fns'
+import { CheckIcon, ClockAlertIcon, SettingsIcon, XIcon } from 'lucide-react'
+import { Fragment, useMemo, useState } from 'react'
+import { randomInteger, sumBy } from 'remeda'
 import { match } from 'ts-pattern'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 
 import { ATable, ATableCell, ATableSectionContent, ATableSection, ATableRow, ATableTrigger, ATableSectionHeader, ATableBody } from '@/components/ui/accordion-table'
 import { Alert } from '@/components/ui/alert'
-import { RefreshButton } from '@/components/ui/button'
+import { Button, RefreshButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
+import { GitHubIssueLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 
-import { createRandomValueGenerator, randomDate } from '@/lib/generate-values'
-import { CompetenceLevel, CompetenceLevelTerms } from '@/lib/competencies'
+import { createRandomDateGenerator, createRandomValueGenerator} from '@/lib/generate-values'
+import { CompetenceLevel } from '@/lib/competencies'
 import { useTRPC } from '@/trpc/client'
 
+import { SkillCheckGeneratorConfig_Card, SkillCheckGeneratorConfigData } from './skill-check-generator-config'
 
 
 
-const statusGenerator = createRandomValueGenerator<CompetenceLevel>({
-    'NotAssessed': 10,
-    'NotTaught': 10,
-    'NotCompetent': 20,
-    'Competent': 50,
-    'HighlyConfident': 10
-})
-
-
-
-export function Team_Member_Competencies_Card({}: { personId: string }) {
+export function Team_Member_Competencies_Card({ personId }: { personId: string }) {
     const trpc = useTRPC()
 
     const skillPackagesQuery = useSuspenseQuery(trpc.skills.getTree.queryOptions())
+    const teamMembersQuery = useSuspenseQuery(trpc.activeTeam.members.getTeamMembers.queryOptions({}))
 
     async function handleRefresh() {
         await skillPackagesQuery.refetch()
     }
 
+    const [generatorConfigOpen, setGeneratorConfigOpen] = useState(false)
+    const [generatorConfig, setGeneratorConfig] = useState<SkillCheckGeneratorConfigData>({
+        statusWeights: {
+            'NotAssessed': 10,
+            'NotTaught': 10,
+            'NotCompetent': 20,
+            'Competent': 50,
+            'HighlyConfident': 10
+        },
+        dateWeights: {
+            'Expired': 20,
+            'RecentlyExpired': 10,
+            'NearlyExpired': 10,
+            'OK': 60
+        }
+    })
+
     const skillChecks = useMemo(() => {
+        const now = new Date()
+
+        const statusGenerator = createRandomValueGenerator<CompetenceLevel>(generatorConfig.statusWeights)
+        const dateGenerator = createRandomDateGenerator([
+            { start: subMonths(now, 24), end: subMonths(now, 15), weight: generatorConfig.dateWeights.Expired },
+            { start: subMonths(now, 15), end: subMonths(now, 12), weight: generatorConfig.dateWeights.RecentlyExpired },
+            { start: subMonths(now, 12), end: subMonths(now, 9), weight: generatorConfig.dateWeights.NearlyExpired },
+            { start: subMonths(now, 9), end: now, weight: generatorConfig.dateWeights.OK }
+        ])
+
         return skillPackagesQuery.data.flatMap(skillPackage =>
             skillPackage.skills.map(skill => {
                 const result = statusGenerator()
-                const date = randomDate(subDays(new Date(), 730), new Date())
+                const date = dateGenerator()
 
                 const competent = result === 'Competent' || result === 'HighlyConfident'
-                const expired = isBefore(date, subDays(new Date(), 365))
+                const expired = isBefore(date, subYears(now, 1))
 
                 return {
                     skillId: skill.skillId,
+                    assesseeId: personId,
+                    assessorId: teamMembersQuery.data[randomInteger(0, teamMembersQuery.data.length - 1)].personId,
                     result,
                     date,
                     ok: competent && !expired,
@@ -62,56 +85,66 @@ export function Team_Member_Competencies_Card({}: { personId: string }) {
                 }
             })
         )
-    }, [skillPackagesQuery.data])
+    }, [skillPackagesQuery.data, teamMembersQuery.data, generatorConfig, personId])
 
     const skillPackages = useMemo(() => {
-        const merged = skillPackagesQuery.data.flatMap(({ skills, skillGroups, ...skillPackage }) => ({
-            ...skillPackage,
-            skillGroups: skillGroups.map(skillGroup => ({
-                ...skillGroup,
-                skills: skills
+        return skillPackagesQuery.data.flatMap(({ skills, skillGroups, ...skillPackage }) => {
+            const processedSkillGroups = skillGroups.map(skillGroup => {
+                const processedSkills = skills
                     .filter(skill => skill.skillGroupId === skillGroup.skillGroupId)
-                    .map(skill => ({
-                        ...skill,
-                        check: skillChecks.find(check => check.skillId === skill.skillId)
-                    }))
-            }))
-        }))
+                    .map(skill => {
+                        const check = skillChecks.find(check => check.skillId == skill.skillId && check.assesseeId == personId)
 
-        return merged.map(skillPackage => {
-            
-            const groups = skillPackage.skillGroups.map(skillGroup => ({
-                ...skillGroup,
-                skills: skillGroup.skills.map(skill => ({
-                    ...skill,
-                })),
-                okCount: skillGroup.skills.filter( skill => skill.check != null && skill.check.ok).length,
-                totalCount: skillGroup.skills.length
-            }))
+                        return {
+                            ...skill,
+                            check,
+                        }
+                    })
+
+                return {
+                    ...skillGroup,
+                    skills: processedSkills,
+                    aggregates: {
+                        okCount: sumBy(processedSkills, skill => skill.check?.ok ? 1 : 0),
+                        skillsCount: processedSkills.length
+                    }
+                }
+            })
 
             return {
                 ...skillPackage,
-                skillGroups: groups,
-                okCount: groups.reduce((acc, group) => acc + group.okCount, 0),
-                totalCount: groups.reduce((acc, group) => acc + group.totalCount, 0)
+                skillGroups: processedSkillGroups,
+                aggregates: {
+                    okCount: sumBy(processedSkillGroups, group => group.aggregates.okCount),
+                    skillsCount: sumBy(processedSkillGroups, group => group.aggregates.skillsCount)
+                }
             }
         })
 
 
-    }, [skillPackagesQuery.data, skillChecks])
+    }, [skillPackagesQuery.data, skillChecks, personId])
 
+    const teamMembersMap = useMemo(() => {
+        return new Map(teamMembersQuery.data.map(member => [member.personId, member]))
+    }, [teamMembersQuery.data])
 
-    const totals = skillPackages.reduce((acc, skillPackage) => {
-        acc.okCount += skillPackage.okCount
-        acc.totalCount += skillPackage.totalCount
-        return acc
-    }, { okCount: 0, totalCount: 0 })
-
-
+    const aggregates = {
+        okCount: sumBy(skillPackages, group => group.aggregates.okCount),
+        skillsCount: sumBy(skillPackages, group => group.aggregates.skillsCount)
+    }
+    
     return <>
-        <Alert severity="mockup" title="Design Mockup">
+        <Alert severity="mockup" title="Design Mockup" 
+            action={<Button variant="ghost" size="icon" onClick={() => setGeneratorConfigOpen(!generatorConfigOpen)}><SettingsIcon /></Button>}
+        >
             This page is a design mockup that is implemented with randomly generated skill checks.
+            <p>See <GitHubIssueLink issueNumber={17}/> for feedback or suggestions.</p>
         </Alert>
+        { generatorConfigOpen && <SkillCheckGeneratorConfig_Card 
+            defaultValue={generatorConfig}
+            onApply={setGeneratorConfig}
+            onClose={() => setGeneratorConfigOpen(false)}
+        /> }
         <Card>
             <CardHeader>
                 <CardTitle>Competencies</CardTitle>
@@ -124,7 +157,7 @@ export function Team_Member_Competencies_Card({}: { personId: string }) {
                 </CardActions>
             </CardHeader>
             <CardContent>
-                <ATable className="grid-cols-[1fr_60px_1fr_40px]">
+                <ATable className="grid-cols-[2fr_60px_1fr_1fr_40px]">
                     {/* <ATableHead>
                         <ATableHeadRow>
                             <ATableHeadCell>Package / Group</ATableHeadCell>
@@ -136,14 +169,15 @@ export function Team_Member_Competencies_Card({}: { personId: string }) {
                         {skillPackages.map(skillPackage => <Fragment key={skillPackage.skillPackageId}>
                             <ATableRow>
                                 <ATableCell className="font-bold">{skillPackage.name}</ATableCell>
-                                <ATableCell className="text-center">{toPercentage(skillPackage.okCount, skillPackage.totalCount)}%</ATableCell>
+                                <ATableCell className="text-center">{toPercentage(skillPackage.aggregates.okCount, skillPackage.aggregates.skillsCount)}%</ATableCell>
                             </ATableRow>
                             {skillPackage.skillGroups.map(skillGroup => {
                                 return <ATableSection key={skillGroup.skillGroupId} value={skillGroup.skillGroupId}>
                                     <ATableSectionHeader>
                                         <ATableCell className="pl-4 font-semibold">{skillGroup.name}</ATableCell>
-                                        <ATableCell className="text-center">{toPercentage(skillGroup.okCount, skillGroup.totalCount)}%</ATableCell>
-                                        <ATableCell className="text-muted-foreground">{skillGroup.okCount} / {skillGroup.totalCount}</ATableCell>
+                                        <ATableCell className="text-center">{toPercentage(skillGroup.aggregates.okCount, skillGroup.aggregates.skillsCount)}%</ATableCell>
+                                        <ATableCell className="text-muted-foreground">{skillGroup.aggregates.okCount} of {skillGroup.aggregates.skillsCount}</ATableCell>
+                                        <ATableCell></ATableCell>
                                         <ATableCell className="p-0">
                                             <ATableTrigger />
                                         </ATableCell>
@@ -151,7 +185,40 @@ export function Team_Member_Competencies_Card({}: { personId: string }) {
                                     <ATableSectionContent>
                                         {skillGroup.skills.map(skill => <ATableRow key={skill.skillId}>
                                             <ATableCell className="pl-8">{skill.name}</ATableCell>
-                                            <ATableCell className="flex justify-center">
+                                            {match(skill.check)
+                                                .with({ competent: true, expired: false }, (check) => <>
+                                                    <ATableCell className="flex justify-center items-center">
+                                                        <CheckIcon className="h-4 w-4 text-green-500" />
+                                                    </ATableCell>
+                                                    <ATableCell className="text-muted-foreground">
+                                                        by {teamMembersMap.get(check.assessorId)?.person.name}
+                                                    </ATableCell>
+                                                    <ATableCell className="text-muted-foreground">
+                                                        expires {formatDate(addYears(check.date, 1), 'd MMM yyyy')}
+                                                    </ATableCell>
+                                                </>)
+                                                .with({ competent: true, expired: true }, (check) => <>
+                                                    <ATableCell className="flex justify-center items-center">
+                                                        <ClockAlertIcon className="h-4 w-4 text-orange-300" />
+                                                    </ATableCell>
+                                                    <ATableCell className="text-muted-foreground">
+                                                        by {teamMembersMap.get(check.assessorId)?.person.name}
+                                                    </ATableCell>
+                                                    <ATableCell className="text-muted-foreground">
+                                                        expired {formatDate(addYears(check.date, 1), 'd MMM yyyy')}
+                                                    </ATableCell>
+                                                </>)
+                                                .with({ result: 'NotCompetent'}, (check) => <>
+                                                    <ATableCell className="flex justify-center items-center">
+                                                        <XIcon className="h-4 w-4 text-red-500" />
+                                                    </ATableCell>
+                                                    <ATableCell className="text-muted-foreground">
+                                                        by {teamMembersMap.get(check.assessorId)?.person.name}
+                                                    </ATableCell>
+                                                </>)
+                                                .otherwise(() => null)
+                                            }
+                                            {/* <ATableCell className="flex justify-center">
                                                 <div>{skill.check?.ok ? <CheckIcon className="h-4 w-4 text-green-500" /> : <XIcon className="h-4 w-4 text-red-500" />}</div>
                                             </ATableCell>
                                             <ATableCell>
@@ -162,13 +229,18 @@ export function Team_Member_Competencies_Card({}: { personId: string }) {
                                                     .with({ competent: true, expired: false }, () => <></>)
                                                     .exhaustive()
                                                 }
-                                            </ATableCell>
+                                            </ATableCell> */}
                                         </ATableRow>)}
                                     </ATableSectionContent>
                                     
                                 </ATableSection>
                             })}
                         </Fragment>)}
+                        <ATableRow>
+                            <ATableCell className="font-bold text-right">Total</ATableCell>
+                            <ATableCell className="text-center">{toPercentage(aggregates.okCount, aggregates.skillsCount)}%</ATableCell>
+                            <ATableCell className="text-muted-foreground">{aggregates.okCount} of {aggregates.skillsCount}</ATableCell>
+                        </ATableRow>
                     </ATableBody>
                 </ATable>
             </CardContent>
