@@ -11,6 +11,8 @@ import { SkillPackageData } from './schemas/skill-package'
 
 export type CompetenceLevel = 'NotAssessed' | 'NotTaught' | 'NotCompetent' | 'Competent' | 'HighlyConfident'
 
+export const CompetenceLevels = ['NotAssessed', 'NotTaught', 'NotCompetent', 'Competent', 'HighlyConfident'] as const
+
 export const CompetenceLevelTerms: Record<CompetenceLevel, string> = {
     'NotAssessed': 'Not Assessed',
     'NotTaught': 'Not Taught',

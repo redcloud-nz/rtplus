@@ -9,15 +9,11 @@ import { Metadata } from 'next'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
-import { Alert } from '@/components/ui/alert'
+import { Team_Member_Competencies_Card } from '@/components/cards/team-member-competencies'
 
 import * as Paths from '@/paths'
 import { fetchTeamMember } from '@/server/fetch'
 import { HydrateClient } from '@/trpc/server'
-
-
-import { Team_Member_Competencies_Card } from './team-member-competencies'
-
 
 
 export async function generateMetadata(props: { params: Promise<{ team_slug: string, person_id: string }> }): Promise<Metadata> {
@@ -35,7 +31,7 @@ export default async function Team_Member_Competencies_Page(props: { params: Pro
             breadcrumbs={[
                 Paths.team(team),
                 Paths.team(team).members,
-                { label: person.name, href: Paths.team(team).member(person.personId).href },
+                Paths.team(team).member(person),
                 Paths.team(team).member(person.personId).competencies
             ]}
         />
@@ -44,9 +40,6 @@ export default async function Team_Member_Competencies_Page(props: { params: Pro
                 <PageHeader>
                     <PageTitle objectType="Team Member">{person.name}</PageTitle>
                 </PageHeader>
-                <Alert severity="mockup" title="Design Mockup">
-                   This page is a design mockup that is implemented with randomly generated skill checks.
-                </Alert>
                 <Boundary>
                     <Team_Member_Competencies_Card personId={person.personId}/>
                 </Boundary>

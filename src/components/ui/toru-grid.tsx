@@ -35,19 +35,30 @@ const toruGridRowVariants = tv({
         description: "sm:col-start-1 lg:col-start-3 sm:col-span-2 lg:col-span-1 pl-2 align-middle",
         message: "sm:col-start-1 lg:col-start-2 sm:col-span-2 pt-1 pl-2",
     },
-
+    variants: {
+        compact: {
+            true: {
+                label: 'py-1',
+                
+            },
+            false: {
+                label: "pt-3",
+            }
+        }
+    }
 })
 
 interface ToruGridRowProps extends Omit<ComponentProps<'div'>, 'children'> {
     label: ReactNode
+    compact?: boolean
     control: ReactNode
     description?: ReactNode
 }
 
-export function ToruGridRow({ className, control, description, label, ...props }: ToruGridRowProps) {
+export function ToruGridRow({ className, compact = false, control, description, label, ...props }: ToruGridRowProps) {
     const { mode } = useContext(ToruGridContext)
 
-    const slots = toruGridRowVariants({ className })
+    const slots = toruGridRowVariants({ className, compact })
 
     if(mode == 'form') {
         return <FormItem className={slots.base()}>

@@ -6,6 +6,7 @@
 import { BookOpenIcon, CableIcon, CheckCheckIcon, CheckIcon, PocketKnifeIcon, ShieldHalfIcon, UsersIcon } from 'lucide-react'
 
 import { TeamData } from '@/lib/schemas/team'
+import { PersonData } from './lib/schemas/person'
 
 const CompetenciesIcon = PocketKnifeIcon
 
@@ -234,9 +235,9 @@ export const team = (teamOrSlug: TeamData | string) => {
                     href: `${competenciesBase}/reports/individual`,
                     label: 'Individual',
                 },
-                teamSkills: {
-                    href: `${competenciesBase}/reports/team-skills`,
-                    label: 'Team Skills',
+                teamCompetencies: {
+                    href: `${competenciesBase}/reports/team-competencies`,
+                    label: 'Team Competencies',
                 },
                 teamMembers: {
                     href: `${competenciesBase}/reports/team-members`,
@@ -252,15 +253,20 @@ export const team = (teamOrSlug: TeamData | string) => {
             label: 'Invitations',
             href: `${base}/invitations`
         },
-        member: (personId: string) => ({
+        member: (personOrPersonId: PersonData | string) => {
+            const personId = typeof personOrPersonId === 'string' ? personOrPersonId : personOrPersonId.personId
+
+            return {
             href: `${base}/members/${personId}`,
+            label: typeof personOrPersonId === 'string' ? undefined as never: personOrPersonId.name,
             competencies: {
                 label: 'Competencies',
                 href: `${base}/members/${personId}/competencies`,
                 icon: CompetenciesIcon,
                 bgColor: 'bg-blue-500'
             },
-        } as const),
+        } as const
+        },
         members: {
             label: 'Members',
             icon: UsersIcon,
