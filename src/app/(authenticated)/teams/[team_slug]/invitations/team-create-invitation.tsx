@@ -90,7 +90,7 @@ export function Team_CreateInvitation_Dialog({ trigger }: { trigger: React.React
                             render={({ field }) => <FormItem>
                                 <FormLabel>Role</FormLabel>
                                 <FormControl>
-                                    <Select {...field}>
+                                    <Select {...field} onValueChange={field.onChange}>
                                         <SelectTrigger className="w-1/2">
                                             <SelectValue/>
                                         </SelectTrigger>

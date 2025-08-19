@@ -263,7 +263,7 @@ export const team = (teamOrSlug: TeamData | string) => {
                 label: 'Competencies',
                 href: `${base}/members/${personId}/competencies`,
                 icon: CompetenciesIcon,
-                bgColor: 'bg-blue-500'
+                bgColor: 'bg-sky-500'
             },
         } as const
         },

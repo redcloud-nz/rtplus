@@ -11,20 +11,22 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-pa
 import { DashboardCard, DashboardCardList } from '@/components/ui/dashboard-card'
 
 import * as Paths from '@/paths'
-import { fetchTeamBySlug } from '@/server/fetch'
+import { fetchTeam } from '@/server/fetch'
 
 
 export const metadata = { title: `Team Dashboard` }
 
 export default async function Team_Dashboard_Page(props: { params: Promise<{ team_slug: string }> }) {
 
-    const team = await fetchTeamBySlug(props.params)
+    const team = await fetchTeam(props.params)
 
-    const teamPath = Paths.team(team.slug)
 
     return <AppPage>
         <AppPageBreadcrumbs
-            breadcrumbs={[Paths.team(team).dashboard]}
+            breadcrumbs={[
+                Paths.team(team),
+                Paths.team(team).dashboard
+            ]}
         />
         <AppPageContent variant="container">
            
@@ -50,13 +52,13 @@ export default async function Team_Dashboard_Page(props: { params: Promise<{ tea
                     />
                      */}
                     <DashboardCard
-                        linksTo={teamPath.competencies}
+                        linksTo={Paths.team(team).competencies}
                         iconForeground="text-sky-700"
                         iconBackground="bg-sky-50"
                         description="Manage, assess, and report competencies for your team."
                     />
                      <DashboardCard
-                        linksTo={teamPath.members}
+                        linksTo={Paths.team(team).members}
                         iconForeground="text-purple-700"
                         iconBackground="bg-purple-50"
                         description="Manage the members of your team."

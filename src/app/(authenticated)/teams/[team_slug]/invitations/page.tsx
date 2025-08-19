@@ -14,7 +14,7 @@ import * as Paths from '@/paths'
 import { fetchTeamBySlug } from '@/server/fetch'
 import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
-import { ActiveTeam_Invitations_ListCard } from './team-invitations-list'
+import { ActiveTeam_InvitationsList_Card } from './team-invitations-list'
 import { auth } from '@clerk/nextjs/server'
 
 
@@ -41,7 +41,7 @@ export default async function Team_InvitationsList_Page(props: { params: Promise
                     <PageTitle>Team Invitations</PageTitle>
                 </PageHeader>
                 <Boundary>
-                    <ActiveTeam_Invitations_ListCard/>
+                    <ActiveTeam_InvitationsList_Card/>
                 </Boundary>
             </AppPageContent>
         </HydrateClient>

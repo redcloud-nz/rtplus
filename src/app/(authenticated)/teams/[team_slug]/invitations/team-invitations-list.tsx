@@ -33,7 +33,7 @@ import { Team_CreateInvitation_Dialog } from './team-create-invitation'
  * A card that displays a list of pending team invitations.
  * This card allows users to manage invitations by resending or revoking them.
  */
-export function ActiveTeam_Invitations_ListCard() {
+export function ActiveTeam_InvitationsList_Card() {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
