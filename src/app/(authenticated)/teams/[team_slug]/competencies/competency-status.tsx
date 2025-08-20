@@ -1,0 +1,68 @@
+/*
+ *  Copyright (c) 2025 Redcloud Development, Ltd.
+ *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
+ */
+'use client'
+
+import { useSuspenseQuery } from '@tanstack/react-query'
+
+import { Button } from '@/components/ui/button'
+import { Link } from '@/components/ui/link'
+
+import * as Paths from '@/paths'
+import { useTRPC } from '@/trpc/client'
+import { TeamData } from '@/lib/schemas/team'
+
+
+
+
+interface StatProps {
+    objectType: string
+    value: number
+    description: string
+    linksTo: { href: string }
+}
+
+function Stat({ objectType: title, value, description, linksTo }: StatProps) {
+    return <Button className="h-30 flex flex-col items-center justify-center gap-1 py-2" variant="outline" asChild>
+        <Link to={linksTo}>
+            <div className="text-4xl font-bold">{value}</div>
+            <div className="">{title}</div>
+            <div className="text-sm text-muted-foreground">{description}</div>
+        </Link>
+    </Button>
+}
+
+export function SkillsCount_Card({ team }: {team: TeamData }) {
+    const trpc = useTRPC()
+
+    const { data: skillPackages } = useSuspenseQuery(trpc.skills.getTree.queryOptions())
+    const skills = skillPackages.flatMap(pkg => pkg.skills)
+
+    return <Stat objectType="Skills" value={skills.length} description="Skills that can be checked" linksTo={Paths.team(team).competencies.skills}/>
+}
+
+export function TeamMembersCount_Card({ team }: { team: TeamData }) {
+    const trpc = useTRPC()
+
+    const { data: teamMembers } = useSuspenseQuery(trpc.activeTeam.members.getTeamMembers.queryOptions({}))
+
+    return <Stat objectType="Team Members" value={teamMembers.length} description="that can be assessed"  linksTo={Paths.team(team).members}/>
+}
+
+export function SessionsCount_Card({ team }: { team: TeamData }) {
+    const trpc = useTRPC()
+
+    const { data: sessions } = useSuspenseQuery(trpc.activeTeam.skillCheckSessions.getTeamSessions.queryOptions())
+
+    return <Stat objectType="Sessions" value={sessions.length} description="have been created"  linksTo={Paths.team(team).competencies.sessions}/>
+}
+
+
+export function SkillChecksCount_Card({ team }: { team: TeamData }) {
+    const trpc = useTRPC()
+
+    const { data: skillChecks } = useSuspenseQuery(trpc.activeTeam.skillChecks.getSkillChecks.queryOptions({}))
+
+    return <Stat objectType="Skill Checks" value={skillChecks.length} description="have been completed" linksTo={Paths.team(team).competencies.skillChecks} />
+}

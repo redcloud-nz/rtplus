@@ -28,7 +28,7 @@ export default async function Team_SkillChecks_Page(props: { params: Promise<{ t
             breadcrumbs={[
                 Paths.team(team),
                 Paths.team(team).competencies,
-                Paths.team(team).competencies.checks
+                Paths.team(team).competencies.skillChecks
             ]}
         />
         <HydrateClient>

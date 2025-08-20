@@ -22,7 +22,7 @@ RT+ is build using a number of cutting edge web technologies:
 - [Tailwind CSS](https://tailwindcss.com/) - Utility first CSS framework.
 - [TanStack Query](https://tanstack.com/query/latest) - Client side data synchronisation library.
 - [TanStack Table](https://tanstack.com/table/latest) - Headless UI for building tables and datagrids.
-- [tRPC][https://trpc.io/] -Statically typed API endpoints.
+- [tRPC](https://trpc.io/) -Statically typed API endpoints.
 - [TypeScript](https://www.typescriptlang.org/) - Strongly typed programming language that builds on JavaScript.
 - [Vercel](https://vercel.com/) - Cloud hosting for Next.js
 - [Zod](zod.dev) - TypeScript-first schema validation with status type inference.

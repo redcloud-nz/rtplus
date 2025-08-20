@@ -6,62 +6,52 @@
  */
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
 import { fetchTeam } from '@/server/fetch'
-import prisma from '@/server/prisma'
+import { SessionsCount_Card, SkillChecksCount_Card, SkillsCount_Card, TeamMembersCount_Card } from './competency-status'
+import { HydrateClient } from '@/trpc/server'
+import { Paragraph } from '@/components/ui/typography'
+import { TextLink } from '@/components/ui/link'
+
 
 export default async function Team_Competencies_Index_Page(props: { params: Promise<{ team_slug: string }> }) {
     const team = await fetchTeam(props.params)
-
-    const skillCount = await prisma.skill.count()
-    const personnelCount = await prisma.person.count()
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
             Paths.team(team), 
             Paths.team(team).competencies
         ]}/>
-        <AppPageContent>
-            <PageHeader>
-                <PageTitle>Competencies Dashboard</PageTitle>
-            </PageHeader>
-            <Stats 
-                personnelCount={personnelCount}
-                skillCount={skillCount}/>
-        </AppPageContent>
+        <HydrateClient>
+            <AppPageContent variant="container">
+                <PageHeader>
+                    <PageTitle>Competencies Dashboard</PageTitle>
+                </PageHeader>
+                <div className="grid grid-cols-2 md:grid-col-3 lg:grid-cols-4 gap-4">
+                    <Boundary>
+                         <SkillsCount_Card team={team}/>
+                    </Boundary>
+                    <Boundary>
+                        <TeamMembersCount_Card team={team}  />
+                    </Boundary>
+                    <Boundary>
+                        <SessionsCount_Card team={team} />
+                    </Boundary>
+                    <Boundary>
+                        <SkillChecksCount_Card team={team} />
+                    </Boundary>
+                </div>
+                <Paragraph>
+                    Welcome to the RT+ competencies module. If you are a team admin, you can <TextLink to={Paths.team(team).competencies.sessions.create}/> a session or start recording skill checks.
+                    Everyone (that has access to RT+) can use the <TextLink to={Paths.tools.competencyRecorder}/> to see their assigned sessions and record skill checks for the assigned assessees.
+                </Paragraph>
+            </AppPageContent>
+        </HydrateClient>
+        
         
     </AppPage>
 }
 
 
-interface StatProps {
-    title: string
-    value: string
-    description: string
-}
-
-function Stat({ title, value, description }: StatProps) {
-    return <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <div className="text-2xl font-bold">{value}</div>
-            <div className="text-sm text-muted-foreground">{description}</div>
-        </CardContent>
-    </Card>
-}
-
-interface StatsProps {
-    personnelCount: number
-    skillCount: number
-}
-
-function Stats({ personnelCount, skillCount }: StatsProps) {
-    return <div className="grid gap-4 md:grid-cols2 lg:grid-cols-4">
-        <Stat title="Skills" value={''+skillCount} description="Total skills that can be checked" />
-        <Stat title="Personnel" value={''+personnelCount} description="Total personnel that can be assessed." />
-    </div>
-}

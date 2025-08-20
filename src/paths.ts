@@ -204,7 +204,7 @@ export const team = (teamOrSlug: TeamData | string) => {
             label: 'Competencies',
             href: competenciesBase,
             icon: CompetenciesIcon,
-            checks: {
+            skillChecks: {
                 label: 'Checks',
                 href: `${competenciesBase}/skill-checks`,
                 create: {
