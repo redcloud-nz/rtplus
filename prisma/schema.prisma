@@ -103,6 +103,7 @@ model SkillCheck {
     skillId         String                    @map("skill_id") @db.VarChar(16)
     assesseeId      String                    @map("assessee_id") @db.VarChar(16)
     assessorId      String                    @map("assessor_id") @db.VarChar(16)
+    teamId          String                    @map("team_id") @db.VarChar(16)
     result          String                    @default("")    
     notes           String                    @default("")    
     date            String
@@ -113,6 +114,7 @@ model SkillCheck {
     assessee        Person                    @relation("skill_check_to_assessee", fields: [assesseeId], references: [id], onDelete: Cascade)
     assessor        Person                    @relation("skill_check_to_assessor", fields: [assessorId], references: [id], onDelete: Restrict)
     skill           Skill                     @relation("skill_check_to_skill", fields: [skillId], references: [id], onDelete: Cascade)
+    team            Team                      @relation("skill_check_to_team", fields: [teamId], references: [id], onDelete: Cascade)
 
     @@map("skill_checks")
 }
@@ -121,6 +123,7 @@ model SkillCheckSession {
     id            String                       @id @db.VarChar(16)
     teamId        String                       @map("team_id") @db.VarChar(16)
     name          String                       @db.VarChar(100)
+    notes         String                       @default("")
     date          String
     sessionStatus SkillCheckSessionStatus      @default(Draft)
     createdAt     DateTime                     @default(now()) @map("created_at")
@@ -263,6 +266,7 @@ model Team {
     d4hInfo            TeamD4hInfo?        @relation("team_d4h_info_to_team")
     changeLogs         TeamChangeLog[]     @relation("team_change_log_to_team")
     ownedPersonnel     Person[]            @relation("person_to_owning_team")
+    skillChecks        SkillCheck[]        @relation("skill_check_to_team")
     skillCheckSessions SkillCheckSession[] @relation("skill_check_session_to_team")       
     teamMemberships    TeamMembership[]    @relation("team_membership_to_team")
 

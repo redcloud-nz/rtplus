@@ -15,6 +15,7 @@ export const skillCheckSessionSchema = z.object({
     sessionId: zodNanoId8,
     teamId: zodNanoId8,
     name: z.string().nonempty().max(100),
+    notes: z.string().max(1000),
     date: z.string().date(),
     sessionStatus: z.enum(['Draft', 'Complete', 'Discard']),
     
@@ -35,6 +36,7 @@ export function toSkillCheckSessionData(record: SkillCheckSessionRecord & { _cou
         sessionId: record.id,
         teamId: record.teamId,
         name: record.name,
+        notes: record.notes,
         date: formatISO(record.date, { representation: 'date' }),
         sessionStatus: record.sessionStatus,
         _count: record._count,

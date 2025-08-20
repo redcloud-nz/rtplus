@@ -610,7 +610,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
      * @throws TRPCError(FORBIDDEN) if the user is not a team admin and no session is provided.
      */
     saveCheck: authenticatedProcedure
-        .input(skillCheckSchema.omit({ assessorId: true, date: true }).extend({ sessionId: zodNanoId8 }))
+        .input(skillCheckSchema.omit({ assessorId: true, teamId: true, date: true, timestamp: true }).extend({ sessionId: zodNanoId8 }))
         .output(z.object({
             session: skillCheckSessionSchema,
             check: skillCheckSchema,
@@ -649,6 +649,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                             notes: input.notes,
                             date: session.date,
                             skill: { connect: { id: input.skillId } },
+                            team: { connect: { id: session.teamId } },
                             assessee: { connect: { id: input.assesseeId } },
                             assessor: { connect: { id: assessorId } },
                         }

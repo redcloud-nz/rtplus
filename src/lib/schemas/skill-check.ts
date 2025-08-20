@@ -14,10 +14,11 @@ export const skillCheckSchema = z.object({
     skillCheckId: zodNanoId16,
     sessionId: zodNanoId8.nullable(),
     skillId: zodNanoId8,
+    teamId: zodNanoId8,
     assesseeId: zodNanoId8,
     assessorId: zodNanoId8,
     result: z.string().nonempty(),
-    notes: z.string().max(500),
+    notes: z.string().max(1000),
     date: z.string().date(),
     timestamp: z.string().datetime()
 })
@@ -29,6 +30,7 @@ export function toSkillCheckData(record: SkillCheckRecord): SkillCheckData {
         skillCheckId: record.id,
         sessionId: record.sessionId,
         skillId: record.skillId,
+        teamId: record.teamId,
         assesseeId: record.assesseeId,
         assessorId: record.assessorId,
         result: record.result,

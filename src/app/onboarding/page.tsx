@@ -26,7 +26,7 @@ export default async function Onboarding_Page(props: { searchParams: Promise<{ r
         const clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY })
         const user = await clerkClient.users.getUser(userId)
 
-        const userEmail = user.primaryEmailAddress?.emailAddress!
+        const userEmail = user.primaryEmailAddress?.emailAddress
         if(userEmail == null) {
             throw new Error("No email address found for user. Please contact support.")
         }

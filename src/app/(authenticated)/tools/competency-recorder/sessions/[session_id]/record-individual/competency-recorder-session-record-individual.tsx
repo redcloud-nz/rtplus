@@ -72,7 +72,7 @@ export function CompetencyRecorder_Session_RecordIndividual_Card({ sessionId }: 
             if (previousChecks) {
                 queryClient.setQueryData(trpc.skillCheckSessions.getChecks.queryKey({ sessionId }), (prev = []) => 
                     // Update or add the skill check
-                    [...prev.filter(c => c.skillCheckId != data.skillCheckId), { ...data, assessorId: assessor.personId, sessionId, date: session.date }]
+                    [...prev.filter(c => c.skillCheckId != data.skillCheckId), { ...data, assessorId: assessor.personId, sessionId, date: session.date, timestamp: new Date().toISOString(), teamId: session.teamId }]
                 )
             }
 
@@ -213,7 +213,7 @@ export function CompetencyRecorder_Session_RecordIndividual_Card({ sessionId }: 
                         <Show when={checkDefined}>
                             <AsyncButton
                                 size="sm"
-                                onClick={() => mutation.mutateAsync({ sessionId, timestamp: new Date().toISOString(), ...formData })}
+                                onClick={() => mutation.mutateAsync({ sessionId, ...formData })}
                                 label={prevData ? "Update" : "Save"}
                                 pending={prevData ? "Updating..." : "Saving..."}
                                 disabled={formData.result == ''}

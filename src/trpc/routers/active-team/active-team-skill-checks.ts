@@ -11,6 +11,8 @@ import { skillSchema, toSkillData } from '@/lib/schemas/skill'
 import { createTRPCRouter, teamAdminProcedure, teamProcedure } from '@/trpc/init'
 import { zodNanoId8 } from '@/lib/validation'
 
+import { getActiveTeam } from '../teams'
+
 
 export const activeTeamSkillChecksRouter = createTRPCRouter({
 
@@ -23,10 +25,11 @@ export const activeTeamSkillChecksRouter = createTRPCRouter({
      * @throws TRPCError(FORBIDDEN) if the user is not a team admin and no session is provided.
      */
     createIndependentSkillCheck: teamAdminProcedure
-        .input(skillCheckSchema.omit({ assessorId: true, sessionId: true }))
+        .input(skillCheckSchema.omit({ assessorId: true, sessionId: true, timestamp: true }))
         .output(skillCheckSchema)
         .mutation(async ({ ctx, input }) => {
 
+            const team = await getActiveTeam(ctx)
             const assessorId = ctx.personId
 
             const created = await ctx.prisma.skillCheck.create({
@@ -35,7 +38,8 @@ export const activeTeamSkillChecksRouter = createTRPCRouter({
                     result: input.result,
                     notes: input.notes,
                     date: input.date,
-                    
+                    team: { connect: { id: team.id } },
+
                     skill: { connect: { id: input.skillId } },
                     assessee: { connect: { id: input.assesseeId } },
                     assessor: { connect: { id: assessorId } },
