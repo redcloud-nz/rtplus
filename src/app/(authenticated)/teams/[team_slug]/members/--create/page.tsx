@@ -11,17 +11,22 @@ import React from 'react'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
+
+import { teamMemberTagsEnabledFlag } from '@/lib/flags'
 import * as Paths from '@/paths'
-import { fetchTeamBySlug } from '@/server/fetch'
+import { fetchTeam } from '@/server/fetch'
 import { HydrateClient } from '@/trpc/server'
 
 import { Team_NewMember_Details_Card } from './new-member-details'
 
 
+
 export const metadata = { title: `New Team Member` }
 
 export default async function Team_NewMember_Page(props: { params: Promise<{ team_slug: string }> }) {
-    const team = await fetchTeamBySlug(props.params)
+    const team = await fetchTeam(props.params)
+
+    const teamMemberTagsEnabled = await teamMemberTagsEnabledFlag()
 
     return <AppPage>
         <AppPageBreadcrumbs
@@ -38,7 +43,7 @@ export default async function Team_NewMember_Page(props: { params: Promise<{ tea
                 </PageHeader>
 
                 <Boundary>
-                    <Team_NewMember_Details_Card/>
+                    <Team_NewMember_Details_Card showTags={teamMemberTagsEnabled} />
                 </Boundary>
             </AppPageContent>
         </HydrateClient>

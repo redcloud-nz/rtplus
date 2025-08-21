@@ -16,6 +16,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
 import { DeleteTeamMembershipDialog } from '@/components/dialogs/delete-team-membership'
+import { Show } from '@/components/show'
 import { Button } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { DisplayValue } from '@/components/ui/display-value'
@@ -37,7 +38,7 @@ import { useTRPC } from '@/trpc/client'
 
 
 
-export function Team_Member_Details_Card({ personId }: { personId: string }) {
+export function Team_Member_Details_Card({ personId, showTags }: { personId: string, showTags: boolean }) {
     const router = useRouter()
     const trpc = useTRPC()
 
@@ -89,10 +90,12 @@ export function Team_Member_Details_Card({ personId }: { personId: string }) {
                             label="Email"
                             control={<DisplayValue>{person.email}</DisplayValue>}
                         />
-                        <ToruGridRow
-                            label="Tags"
-                            control={<DisplayValue>{membership.tags.join(" ")}</DisplayValue>}
-                        />
+                        <Show when={showTags}>
+                             <ToruGridRow
+                                label="Tags"
+                                control={<DisplayValue>{membership.tags.join(" ")}</DisplayValue>}
+                            />
+                        </Show>
                         <ToruGridRow
                             label="Status"
                             control={<DisplayValue>{membership.status}</DisplayValue>}
@@ -106,6 +109,7 @@ export function Team_Member_Details_Card({ personId }: { personId: string }) {
                         onClose={() => setMode('View')}
                         person={person}
                         team={team}
+                        showTags={showTags}
                     />
                 )
                 .exhaustive()
@@ -114,7 +118,7 @@ export function Team_Member_Details_Card({ personId }: { personId: string }) {
     </Card>
 }
 
-function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membership: TeamMembershipData, onClose: () => void, person: PersonData, team: TeamData }) {
+function UpdateTeamMembershipForm({ membership, onClose, person, team, showTags }: { membership: TeamMembershipData, onClose: () => void, person: PersonData, team: TeamData, showTags: boolean }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
@@ -202,6 +206,17 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membe
                         description="The email address of the person (must be unique)."
                     />}
                 />
+                <Show when={showTags}>
+                    <FormField
+                        control={form.control}
+                        name="tags"
+                        render={({ field }) => <ToruGridRow
+                            label="Tags"
+                            control={<DisplayValue>{field.value.join(", ")}</DisplayValue>}
+                            description="Tags can be used to categorize or label the membership for easier searching and filtering."
+                        />}
+                    />
+                </Show>
                 <FormField
                     control={form.control}
                     name="tags"

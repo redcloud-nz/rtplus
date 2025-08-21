@@ -73,6 +73,11 @@ export const system = {
     label: 'System',
     href: '/system',
 
+    flags: {
+        label: 'Flags',
+        href: '/system/flags',
+    },
+
     team: (teamId: string) => {
         const teamBase = `/system/teams/${teamId}` as const
 

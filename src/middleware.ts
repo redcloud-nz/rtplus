@@ -27,7 +27,9 @@ export default clerkMiddleware(
 
             // Redirect non system users from system routes
             if(isSystemRoute(req) && sessionClaims?.org_slug != 'system') {
-                return NextResponse.redirect('/dashboard')
+                const url = req.nextUrl.clone()
+                url.pathname = '/dashboard'
+                return NextResponse.rewrite(url)
             }
             
             // Allow access

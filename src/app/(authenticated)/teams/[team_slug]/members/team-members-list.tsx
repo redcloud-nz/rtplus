@@ -29,7 +29,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 /**
  * Card that displays the list of all team members and allows the user to add a new member.
  */
-export function Team_MembersList_Card() {
+export function Team_MembersList_Card({ showTags }: { showTags: boolean }) {
     const trpc = useTRPC()
 
     const { data: team } = useSuspenseQuery(trpc.activeTeam.getTeam.queryOptions())
@@ -64,13 +64,13 @@ export function Team_MembersList_Card() {
             enableHiding: true,
             enableSorting: true,
         }),
-        columnHelper.accessor('tags', {
+        showTags ? columnHelper.accessor('tags', {
             header: "Tags",
             cell: ctx => ctx.getValue().join(', '),
             enableGrouping: false,
             enableHiding: true,
             enableSorting: false,
-        }),
+        }) : null,
         columnHelper.accessor('status', {
             header: "Status",
             cell: ctx => ctx.getValue(),

@@ -9,6 +9,7 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { DashboardCard, DashboardCardList } from '@/components/ui/dashboard-card'
 
 import * as Paths from '@/paths'
+import { FeatureFlagsCard } from './feature-flags'
 
 
 export default function System_Index_Page() {
@@ -40,6 +41,7 @@ export default function System_Index_Page() {
                     description='Manage skills packages.'
                 />
             </DashboardCardList>
+            <FeatureFlagsCard/>
         </AppPageContent>
     </AppPage>
 }

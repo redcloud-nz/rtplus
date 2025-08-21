@@ -11,12 +11,14 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 import { CardLink, CardLinkList } from '@/components/ui/card-button'
 
+import { teamMemberTagsEnabledFlag } from '@/lib/flags'
 import * as Paths from '@/paths'
 import { fetchTeamMember } from '@/server/fetch'
 import { HydrateClient } from '@/trpc/server'
 
 
 import { Team_Member_Details_Card } from './team-member-details'
+
 
 
 export async function generateMetadata(props: { params: Promise<{ team_slug: string, person_id: string }> }): Promise<Metadata> {
@@ -28,6 +30,8 @@ export async function generateMetadata(props: { params: Promise<{ team_slug: str
 
 export default async function Team_Member_Page(props: { params: Promise<{ team_slug: string, person_id: string }>}) {
     const { person, team } = await fetchTeamMember(props.params)
+
+    const teamMemberTagsEnabled = await teamMemberTagsEnabledFlag()
 
     return <AppPage>
         <AppPageBreadcrumbs
@@ -43,7 +47,7 @@ export default async function Team_Member_Page(props: { params: Promise<{ team_s
                     <PageTitle objectType="Team Member">{person.name}</PageTitle>
                 </PageHeader>
                 <Boundary>
-                    <Team_Member_Details_Card personId={person.personId}/>
+                    <Team_Member_Details_Card personId={person.personId} showTags={teamMemberTagsEnabled}/>
                 </Boundary>
                 <CardLinkList>
                     <CardLink path={Paths.team(team).member(person.personId).competencies}/>
