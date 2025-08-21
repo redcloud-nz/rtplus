@@ -294,18 +294,3 @@ export function DebugFormState() {
     
     </div>
 }
-
-export interface CreateFormProps<T> {
-    onCreate?: (data: T) => void
-    onClose: () => void
-}
-
-export interface DeleteFormProps<T> {
-    onDelete?: (data: T) => void
-    onClose: () => void
-}
-
-export interface UpdateFormProps<T> {
-    onUpdate?: (data: T) => void
-    onClose: () => void
-}

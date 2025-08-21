@@ -9,15 +9,16 @@ import { match } from 'ts-pattern'
 
 import { CellContext, Column, ColumnDef, ColumnHelper, createColumnHelper, flexRender, Row, RowData, Table as TanstackTable } from '@tanstack/react-table'
 
-import { Button, ButtonProps } from './button'
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuGroupLabel, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './dropdown-menu'
-import { Table, TableBody, TableCell, TableHead, TableRow } from './table'
-
+import { Show } from '@/components/show'
 import { cn } from '@/lib/utils'
+
+import { Button} from './button'
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuGroupLabel, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './dropdown-menu'
 import { Input } from './input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
+import { Table, TableBody, TableCell, TableHead, TableRow } from './table'
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
-import { Show } from '../show'
+
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const DataTableContext = React.createContext<TanstackTable<any> | null>(null)
@@ -29,17 +30,8 @@ const useDataTable = () => {
     return table
 }
 
-interface DataTableProps extends Omit<ComponentProps<typeof Table>, 'children'> {
-    enableRowSelection?: boolean
-}
+export const DataTable = Table
 
-export function DataTable({ ...props }: DataTableProps) {
-    
-    return <Table {...props}>
-        <DataTableHead/>
-        <DataTableBody/>
-    </Table>
-}
 
 export function DataTableHead(props: Omit<ComponentProps<typeof TableHead>, 'children'>) {
     const table = useDataTable()
@@ -273,17 +265,6 @@ export function DataTableBody(props: Omit<ComponentProps<typeof TableBody>, 'chi
 }
 
 
-export function DataTableControls({ className, ...props }: ComponentProps<'div'>) {
-    return <div 
-        className={cn(
-            'mb-2', 
-            'flex gap-2',
-            className
-        )} 
-        {...props}
-    />
-}
-
 export function DataTableSearch({ placeholder, ...props }: Omit<ComponentProps<typeof Input>, 'onChange' | 'value'>) {
     const table = useDataTable()
 
@@ -295,74 +276,6 @@ export function DataTableSearch({ placeholder, ...props }: Omit<ComponentProps<t
     />
 }
 
-type DataTableColumnsDropdownProps = {
-    slotProps?: {
-        Button?: Omit<ButtonProps, 'onClick'>
-    }
-}
-
-export function DataTableColumnsDropdown({ slotProps = {} }: DataTableColumnsDropdownProps) {
-    const table = useDataTable()
-
-    return <DropdownMenu >
-        <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="border-input" {...(slotProps.Button ?? {})}>
-                Columns
-                <ChevronDownIcon />
-            </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Column visibility</DropdownMenuLabel>
-            <DropdownMenuSeparator/>
-            {table.getAllColumns()
-                .filter(column => column.getCanHide())
-                .map(column => <DropdownMenuCheckboxItem 
-                    key={column.id} 
-                    checked={column.getIsVisible()}
-                    onCheckedChange={() => column.toggleVisibility()}
-                >
-                    {column.columnDef.header as string}
-                </DropdownMenuCheckboxItem>)}
-        </DropdownMenuContent>
-    </DropdownMenu>
-}
-
-type DataTableGroupingDropdownProps = {
-    slotProps?: {
-        Button?: Omit<ButtonProps, 'onClick'>
-    }
-}
-
-export function DataTableGroupingDropdown({ slotProps = {}}: DataTableGroupingDropdownProps) {
-    const table = useDataTable()
-
-    return <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="border-input" {...(slotProps.Button ?? {})}>
-                Group By
-                <ChevronDownIcon />
-            </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Group rows by</DropdownMenuLabel>
-            {table.getAllColumns()
-                .filter(column => column.getCanGroup())
-                .map(column => <DropdownMenuCheckboxItem
-                    key={column.id} 
-                    checked={column.getIsGrouped()}
-                    onCheckedChange={() => table.setGrouping(column.getIsGrouped() ? [] : [column.id])}
-                >
-                    {column.columnDef.header as string}
-                </DropdownMenuCheckboxItem>)}
-        </DropdownMenuContent>
-    </DropdownMenu>
-}
-
-export function DataTableResetButton(props: Omit<ButtonProps, 'children' | 'onClick'>) {
-    const table = useDataTable()
-
-    return <Button variant="outline" className="border-input" {...props} onClick={() => table.reset()}><ListRestartIcon/></Button>
-}
 
 export function TableOptionsDropdown() {
     const table = useDataTable()
