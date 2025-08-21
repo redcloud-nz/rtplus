@@ -521,9 +521,10 @@ function RowCount({ start, end, total }: { start: number, end: number, total: nu
     </div>
 }
 
-// eslint-disable-next-line
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function defineColumns<TData extends RowData>(factory: (columnHelper: ColumnHelper<TData>) => (ColumnDef<TData, any> | null)[]): ColumnDef<TData>[] {
     const columnHelper = createColumnHelper<TData>()
     const columns = factory(columnHelper)
-    return columns.filter((column): column is ColumnDef<TData, any> => column !== null)
+
+    return columns.filter((column): column is ColumnDef<TData> => column !== null)
 }

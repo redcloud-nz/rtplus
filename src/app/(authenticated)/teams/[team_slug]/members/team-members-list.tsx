@@ -89,7 +89,7 @@ export function Team_MembersList_Card({ showTags }: { showTags: boolean }) {
             }
 
         }),
-    ]), [team])
+    ]), [team, showTags])
 
     const table = useReactTable<TeamMembershipData & { person: PersonData }>({
         columns,
