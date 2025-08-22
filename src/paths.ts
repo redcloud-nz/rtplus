@@ -312,6 +312,10 @@ export const tools = {
                     label: 'Assessors',
                     href: `${sessionBase}/assessors`,
                 },
+                recordByAssessee: {
+                    label: 'By Assessee',
+                    href: `${sessionBase}/record-by-assessee`,
+                },
                 recordBySkill: {
                     label: 'By Skill',
                     href: `${sessionBase}/record-by-skill`,
