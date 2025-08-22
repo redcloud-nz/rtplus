@@ -318,21 +318,25 @@ export const skillCheckSessionsRouter = createTRPCRouter({
         }),
         
     /**
-     * Fetch all skill checks for a specific skill check session.
+     * Fetch the skill checks for a specific skill check session.
      * @param ctx The authenticated context.
-     * @param input The input containing the session ID.
+     * @param input The input containing the session ID and optionally an assessor ID.
      * @returns An array of skill checks for the session.
      * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
      */
     getChecks: authenticatedProcedure
         .input(z.object({
-            sessionId: zodNanoId8
+            sessionId: zodNanoId8,
+            assessorId: z.union([zodNanoId8, z.literal('me')]).optional()
         }))
         .output(z.array(skillCheckSchema))
         .query(async ({ ctx, input }) => {
             await checkAccessToSession(ctx, input.sessionId)
             const session = await ctx.prisma.skillCheckSession.findUnique({
-                where: { id: input.sessionId },
+                where: { 
+                    id: input.sessionId, 
+                    assessors: input.assessorId ? { some: { id: input.assessorId == 'me' ? ctx.personId : input.assessorId } } : undefined
+                },
                 include: {
                     checks: true,
                 }
@@ -605,14 +609,13 @@ export const skillCheckSessionsRouter = createTRPCRouter({
     /**
      * Save a skill check within a skill check session.
      * @param ctx The authenticated context.
-     * @param input The skill check data to create.
+     * @param input The skill check data to save.
      * @returns The created skill check data.
      * @throws TRPCError(FORBIDDEN) if the user is not a team admin and no session is provided.
      */
     saveCheck: authenticatedProcedure
-        .input(skillCheckSchema.omit({ assessorId: true, teamId: true, date: true, timestamp: true }).extend({ sessionId: zodNanoId8 }))
+        .input(skillCheckSchema.pick({ skillCheckId: true, skillId: true, assesseeId: true, result: true, notes: true }).extend({ sessionId: zodNanoId8 }))
         .output(z.object({
-            session: skillCheckSessionSchema,
             check: skillCheckSchema,
         }))
         .mutation(async ({ ctx, input }) => {
@@ -622,59 +625,34 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             // Ensure the user has access to the session
             const session = await checkAccessToSession(ctx, input.sessionId)
 
-            const existingCheck = await ctx.prisma.skillCheck.findFirst({
-                where: { id: input.skillCheckId, sessionId: input.sessionId },
-            })
-
-            const checkId = existingCheck ? input.skillCheckId : nanoId16()
-
             const updated = await ctx.prisma.skillCheckSession.update({
                 where: { id: input.sessionId },
                 data: {
-                    checks: existingCheck 
-                    ? {
-                        update: {
-                            where: { id: existingCheck.id },
-                            data: {
+                    checks: {
+                        upsert: {
+                            where: { id: input.skillCheckId },
+                            create: {
+                                id: input.skillCheckId,
+                                result: input.result,
+                                notes: input.notes,
+                                date: session.date,
+                                skill: { connect: { id: input.skillId } },
+                                team: { connect: { id: session.teamId } },
+                                assessee: { connect: { id: input.assesseeId } },
+                                assessor: { connect: { id: assessorId } },
+                                
+                            },
+                            update: {
                                 result: input.result,
                                 notes: input.notes,
                                 date: session.date,
                             }
                         }
-                    }
-                    : {
-                        create: {
-                            id: checkId,
-                            result: input.result,
-                            notes: input.notes,
-                            date: session.date,
-                            skill: { connect: { id: input.skillId } },
-                            team: { connect: { id: session.teamId } },
-                            assessee: { connect: { id: input.assesseeId } },
-                            assessor: { connect: { id: assessorId } },
-                        }
                     },
-                    changeLogs: {
-                        create: {
-                            id: nanoId16(),
-                            event: existingCheck ? 'UpdateCheck' : 'CreateCheck',
-                            actorId: ctx.personId,
-                            meta: {
-                                skillCheckId: checkId,
-                                skillId: input.skillId,
-                                assesseeId: input.assesseeId,
-                                assessorId: assessorId,
-                            },
-                            fields: {
-                                result: input.result,
-                                notes: input.notes,
-                            }
-                        }
-                    }
                 },
                 include: {
                     checks: {
-                        where: { id: checkId },
+                        where: { id: input.skillCheckId },
                     },
                     _count: {
                         select: {
@@ -690,6 +668,67 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             return {
                 session: toSkillCheckSessionData(updated),
                 check: toSkillCheckData(updated.checks[0])
+            }
+        }),
+
+    /** 
+     * Save one or more skills checks within a session.
+     * @param ctx The authenticated context.
+     * @param input The skill check data
+     * 
+     */
+    saveChecks: authenticatedProcedure
+        .input(z.object({
+            sessionId: z.string().uuid(),
+            checks: z.array(skillCheckSchema.pick({ skillCheckId: true, skillId: true, assesseeId: true, result: true, notes: true }))
+        }))
+        .output(z.object({
+            session: skillCheckSessionSchema,
+            checks: z.array(skillCheckSchema)
+        }))
+        .mutation(async ({ ctx, input }) => {
+            const assessorId = ctx.personId
+
+            // Ensure the user has access to the session
+            const session = await checkAccessToSession(ctx, input.sessionId)
+
+            const upsertedChecks = await Promise.all(input.checks.map(async inputCheck => ctx.prisma.skillCheck.upsert({
+                    where: { id: inputCheck.skillCheckId },
+                    create: {
+                        id: inputCheck.skillCheckId,
+                        result: inputCheck.result,
+                        notes: inputCheck.notes,
+                        date: session.date,
+                        skill: { connect: { id: inputCheck.skillId } },
+                        team: { connect: { id: session.teamId } },
+                        assessee: { connect: { id: inputCheck.assesseeId } },
+                        assessor: { connect: { id: assessorId } },
+                    },
+                    update: {
+                        result: inputCheck.result,
+                        notes: inputCheck.notes,
+                    }
+                })
+            ))
+
+            const updatedSession = await ctx.prisma.skillCheckSession.findUnique({
+                where: { id: input.sessionId },
+                include: {
+                     _count: {
+                        select: {
+                            skills: true,
+                            assessees: true,
+                            assessors: true,
+                            checks: true
+                        }
+                    },
+                    team: true
+                }
+            })
+
+            return {
+                session: toSkillCheckSessionData(updatedSession!),
+                checks: upsertedChecks.map(toSkillCheckData)
             }
         }),
 
