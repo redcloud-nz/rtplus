@@ -48,3 +48,7 @@ export class CurrentCompetencyCalculator {
             .filter(check => check.assesseeId === args.assesseeId && check.skillId === args.skillId)
     }
 }
+
+export function isPass(level: CompetenceLevel): boolean {
+    return level === 'Competent' || level === 'HighlyConfident'
+}

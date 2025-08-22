@@ -7,6 +7,7 @@
 
 import { AppPageContent } from '@/components/app-page'
 import { CompetencyRecorder_Session_RecordIndividual_Card } from './competency-recorder-session-record-individual'
+import { CompetencyRecorder_Session_Recent } from './competency-recorder-session-recent'
 
 
 export default async function CompetencyRecorder_Session_RecordIndividual_Page(props: { params: Promise<{ session_id: string }> }) {
@@ -14,5 +15,6 @@ export default async function CompetencyRecorder_Session_RecordIndividual_Page(p
 
     return <AppPageContent variant="container">
         <CompetencyRecorder_Session_RecordIndividual_Card sessionId={sessionId} />
+        <CompetencyRecorder_Session_Recent sessionId={sessionId} />
     </AppPageContent>
 }

@@ -19,6 +19,7 @@ import { teamSchema, toTeamData } from '@/lib/schemas/team'
 import { zodNanoId16, zodNanoId8 } from '@/lib/validation'
 
 import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter } from '../init'
+import { CompetenceLevel, isPass } from '@/lib/competencies'
 
 
 export const skillCheckSessionsRouter = createTRPCRouter({
@@ -633,9 +634,11 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                             where: { id: input.skillCheckId },
                             create: {
                                 id: input.skillCheckId,
+                                passed: isPass(input.result as CompetenceLevel),
                                 result: input.result,
                                 notes: input.notes,
                                 date: session.date,
+                                checkStatus: 'Draft',
                                 skill: { connect: { id: input.skillId } },
                                 team: { connect: { id: session.teamId } },
                                 assessee: { connect: { id: input.assesseeId } },
@@ -696,9 +699,11 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                     where: { id: inputCheck.skillCheckId },
                     create: {
                         id: inputCheck.skillCheckId,
+                        passed: isPass(inputCheck.result as CompetenceLevel),
                         result: inputCheck.result,
                         notes: inputCheck.notes,
                         date: session.date,
+                        checkStatus: 'Draft',
                         skill: { connect: { id: inputCheck.skillId } },
                         team: { connect: { id: session.teamId } },
                         assessee: { connect: { id: inputCheck.assesseeId } },

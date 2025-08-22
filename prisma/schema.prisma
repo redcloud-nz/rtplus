@@ -104,10 +104,12 @@ model SkillCheck {
     assesseeId      String                    @map("assessee_id") @db.VarChar(16)
     assessorId      String                    @map("assessor_id") @db.VarChar(16)
     teamId          String                    @map("team_id") @db.VarChar(16)
+    passed          Boolean                
     result          String                    @default("")    
     notes           String                    @default("")    
     date            String
-    timestamp       DateTime                   @default(now())
+    checkStatus     SkillCheckStatus          @default(Draft)
+    timestamp       DateTime                  @default(now())
 
     // Relations
     session         SkillCheckSession?        @relation("skill_check_to_skill_check_session", fields: [sessionId], references: [id], onDelete: SetNull)
@@ -126,8 +128,6 @@ model SkillCheckSession {
     notes         String                       @default("")
     date          String
     sessionStatus SkillCheckSessionStatus      @default(Draft)
-    createdAt     DateTime                     @default(now()) @map("created_at")
-    updatedAt     DateTime                     @updatedAt @map("updated_at")
 
     // Relations
     assessors     Person[]                     @relation("skill_check_session_to_assessor")

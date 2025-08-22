@@ -12,6 +12,7 @@ import { createTRPCRouter, teamAdminProcedure, teamProcedure } from '@/trpc/init
 import { zodNanoId8 } from '@/lib/validation'
 
 import { getActiveTeam } from '../teams'
+import { CompetenceLevel, isPass } from '@/lib/competencies'
 
 
 export const activeTeamSkillChecksRouter = createTRPCRouter({
@@ -35,9 +36,11 @@ export const activeTeamSkillChecksRouter = createTRPCRouter({
             const created = await ctx.prisma.skillCheck.create({
                 data: {
                     id: input.skillCheckId,
+                    passed: isPass(input.result as CompetenceLevel),
                     result: input.result,
                     notes: input.notes,
                     date: input.date,
+                    checkStatus: 'Complete',
                     team: { connect: { id: team.id } },
 
                     skill: { connect: { id: input.skillId } },
@@ -49,6 +52,14 @@ export const activeTeamSkillChecksRouter = createTRPCRouter({
             return toSkillCheckData(created)
         }),
 
+    /**
+     * Get checks for one or more members of the active team.
+     * @param ctx The authenticated context.
+     * @param input The input data containing the IDs of the members to retrieve checks for.
+     * @param input.assesseeIds Optional array of assessee IDs to filter checks by. If not specified, checks for all active members of the team will be returned.
+     * @returns An array of skill check data with the specified filters applied.
+     */
+
     getSkillChecks: teamProcedure
         .input(z.object({
             assesseeIds: z.array(zodNanoId8).optional(),
@@ -59,15 +70,16 @@ export const activeTeamSkillChecksRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             
             const teamMemberIds = (await ctx.prisma.team.findUnique({
-                    where: { clerkOrgId: ctx.orgId },
-                    select: {
-                        teamMemberships: {
-                            select: {
-                                personId: true
-                            }
+                where: { clerkOrgId: ctx.orgId },
+                select: {
+                    teamMemberships: {
+                        where: { status: 'Active' },
+                        select: {
+                            personId: true
                         }
                     }
-                }))?.teamMemberships.map(m => m.personId) ?? []
+                }
+            }))?.teamMemberships.map(m => m.personId) ?? []
 
             const assesseeIds = input.assesseeIds ? input.assesseeIds.filter(id => teamMemberIds.includes(id)) : teamMemberIds
 

@@ -22,7 +22,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 
 import { useToast } from '@/hooks/use-toast'
-import { CompetenceLevelTerms } from '@/lib/competencies'
+import { CompetenceLevel, CompetenceLevelTerms, isPass } from '@/lib/competencies'
 import { nanoId16,  } from '@/lib/id'
 import { SkillCheckData } from '@/lib/schemas/skill-check'
 import { useTRPC } from '@/trpc/client'
@@ -31,7 +31,8 @@ import { useTRPC } from '@/trpc/client'
 type RecordingState = {
     prevData: SkillCheckData | null
     target: { assesseeId: string, skillId: string }
-    data: Pick<SkillCheckData, 'result' | 'notes' | 'skillCheckId'> | null
+    data: Pick<SkillCheckData,  'skillCheckId' | 'result' | 'notes'> | null
+    dirty: boolean
 }
 
 export function CompetencyRecorder_Session_RecordIndividual_Card({ sessionId }: { sessionId: string }) {
@@ -45,11 +46,11 @@ export function CompetencyRecorder_Session_RecordIndividual_Card({ sessionId }: 
     const { data: skills } = useSuspenseQuery(trpc.skillCheckSessions.getSkills.queryOptions({ sessionId }))
     const { data: existingChecks } = useSuspenseQuery(trpc.skillCheckSessions.getChecks.queryOptions({ sessionId, assessorId: 'me' }))
 
-
     const [state, setState] = useState<RecordingState>({
         prevData: null,
         target: { assesseeId: '', skillId: '' },
-        data: null
+        data: null,
+        dirty: false
     })
 
     function handleChangeTarget({ assesseeId, skillId }: RecordingState['target']) {
@@ -62,30 +63,35 @@ export function CompetencyRecorder_Session_RecordIndividual_Card({ sessionId }: 
                 setState(({ 
                     prevData: existingCheck, 
                     target: { assesseeId, skillId }, 
-                    data: pick(existingCheck, ['skillCheckId', 'result', 'notes'])
+                    data: pick(existingCheck, ['skillCheckId', 'result', 'notes']),
+                    dirty: false
                 }))
             } else {
                 // We don't have an existing check, reset the form
                 setState(({ 
                     prevData: null, 
                     target: { assesseeId, skillId }, 
-                    data: { skillCheckId: nanoId16(), result: '', notes: '' } 
+                    data: { skillCheckId: nanoId16(), result: '', notes: '' },
+                    dirty: false
                 }))
             }
         } else {
-            setState(({ prevData: null, target: { assesseeId, skillId }, data: null }))
+            setState(({ prevData: null, target: { assesseeId, skillId }, data: null, dirty: false }))
         }
     }
 
     function handleUpdateFormData({ result, notes }: { result: string, notes: string}) {
         setState(prev => ({
             ...prev,
-            data: { skillCheckId: prev.data!.skillCheckId, result, notes }
+            data: { skillCheckId: prev.data!.skillCheckId, result, notes },
+            dirty: prev.prevData 
+                ? prev.prevData.result != result || prev.prevData.notes != notes 
+                : result != '' || notes != ''
         }))
     }
 
     function handleReset() {
-        setState(({ prevData: null, target: { assesseeId: '', skillId: '' }, data: null }))
+        setState(({ prevData: null, target: { assesseeId: '', skillId: '' }, data: null, dirty: false }))
     }
 
 
@@ -98,7 +104,7 @@ export function CompetencyRecorder_Session_RecordIndividual_Card({ sessionId }: 
             if (previousChecks) {
                 queryClient.setQueryData(trpc.skillCheckSessions.getChecks.queryKey({ sessionId }), (prev = []) => 
                     // Update or add the skill check
-                    [...prev.filter(c => c.skillCheckId != data.skillCheckId), { ...data, assessorId: assessor.personId, sessionId, date: session.date, timestamp: new Date().toISOString(), teamId: session.teamId }]
+                    [...prev.filter(c => c.skillCheckId != data.skillCheckId), { ...data, assessorId: assessor.personId, passed: isPass(data.result as CompetenceLevel), sessionId, date: session.date, timestamp: new Date().toISOString(), teamId: session.teamId }]
                 )
             }
 
@@ -116,7 +122,7 @@ export function CompetencyRecorder_Session_RecordIndividual_Card({ sessionId }: 
                 variant: 'destructive',
             })
         },
-        onSuccess(result) {
+        onSuccess() {
             toast({
                 title: 'Skill check saved',
                 description: "Your skill check has been successfully saved.",
@@ -126,11 +132,6 @@ export function CompetencyRecorder_Session_RecordIndividual_Card({ sessionId }: 
         },
         
     }))
-
-    const dirty = state.data != null && (state.prevData 
-        ? state.prevData.result != state.data.result || state.prevData.notes != state.data.notes
-        : state.data.result != '' || state.data.notes != ''
-    )
 
     return <Card>
         <CardHeader>
@@ -163,7 +164,7 @@ export function CompetencyRecorder_Session_RecordIndividual_Card({ sessionId }: 
                             ? <Select 
                             value={state.target.assesseeId} 
                             onValueChange={newValue => handleChangeTarget({ assesseeId: newValue, skillId: state.target.skillId })}
-                            disabled={dirty}
+                            disabled={state.dirty}
                         >
                             <SelectTrigger>
                                 <SelectValue placeholder="Select a person..." />
@@ -187,7 +188,7 @@ export function CompetencyRecorder_Session_RecordIndividual_Card({ sessionId }: 
                             ? <Select 
                                 value={state.target.skillId} 
                                 onValueChange={newValue => handleChangeTarget({ assesseeId: state.target.assesseeId, skillId: newValue })}
-                                disabled={dirty}
+                                disabled={state.dirty}
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select a skill..." />
@@ -238,7 +239,7 @@ export function CompetencyRecorder_Session_RecordIndividual_Card({ sessionId }: 
                                 onClick={() => mutation.mutateAsync({ sessionId, ...state.target, ...state.data! })}
                                 label={state.prevData ? "Update" : "Save"}
                                 pending={state.prevData ? "Updating..." : "Saving..."}
-                                disabled={!dirty}
+                                disabled={!state.dirty}
                             />
                             <Button variant="ghost" size="sm" onClick={handleReset}>Clear</Button>
                         </Show>
