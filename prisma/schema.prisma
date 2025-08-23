@@ -19,9 +19,44 @@ enum InviteStatus {
     Complete
 }
 
+model Note {
+    id         String          @id @db.VarChar(16)
+    personId   String?         @map("person_id") @db.VarChar(16)
+    teamId     String?         @map("team_id") @db.VarChar(16)
+    content    String          @db.Text
+
+    changeLogs NoteChangeLog[] @relation("note_change_log_to_note")
+    person     Person?         @relation("note_to_person", fields: [personId], references: [id], onDelete: Cascade)
+    team       Team?           @relation("note_to_team", fields: [teamId], references: [id], onDelete: Cascade)
+
+    @@map("notes")
+}
+
+model NoteChangeLog {
+    id          String            @id @db.VarChar(16)
+    noteId      String            @map("note_id") @db.VarChar(16)
+    actorId     String?           @map("actor_id") @db.VarChar(16)
+    event       NoteChangeEvent
+    meta        Json              @default("{}")
+    diff        String[]          @default([])
+    timestamp   DateTime          @default(now())
+  
+    // Relations
+    note        Note              @relation("note_change_log_to_note", fields: [noteId], references: [id], onDelete: Cascade)
+    actor       Person?           @relation("note_change_log_to_actor", fields: [actorId], references: [id], onDelete: SetNull)
+
+    @@map("notes_change_log")
+}
+
+enum NoteChangeEvent {
+    Create
+    Update
+    Delete
+}
+
 /// defines an individual person.
 model Person {
-    id                           String                  @id @db.VarChar(16)
+    id                           String                       @id @db.VarChar(16)
     name                         String                       @db.VarChar(100)
     email                        String                       @db.VarChar(100) @unique
     clerkUserId                  String?                      @map("clerk_user_id") @db.VarChar(50) @unique
@@ -32,6 +67,8 @@ model Person {
   
     // Relations
     changeLogs                   PersonChangeLog[]            @relation("person_change_log_to_person")
+    noteChangeLogs               NoteChangeLog[]              @relation("note_change_log_to_actor")
+    notes                        Note[]                       @relation("note_to_person")
     owningTeam                   Team?                        @relation("person_to_owning_team", fields: [owningTeamId], references: [id], onDelete: SetNull)
     personChangeLogs             PersonChangeLog[]            @relation("person_change_log_to_actor")
     skillChecksAsAssessee        SkillCheck[]                 @relation("skill_check_to_assessee")
@@ -44,6 +81,7 @@ model Person {
     teamMemberships              TeamMembership[]             @relation("team_membership_to_person")
 
     @@map("personnel")
+   
 }
 
 enum PersonChangeEvent {
@@ -265,6 +303,7 @@ model Team {
     // Relations
     d4hInfo            TeamD4hInfo?        @relation("team_d4h_info_to_team")
     changeLogs         TeamChangeLog[]     @relation("team_change_log_to_team")
+    notes              Note[]              @relation("note_to_team")
     ownedPersonnel     Person[]            @relation("person_to_owning_team")
     skillChecks        SkillCheck[]        @relation("skill_check_to_team")
     skillCheckSessions SkillCheckSession[] @relation("skill_check_session_to_team")       
