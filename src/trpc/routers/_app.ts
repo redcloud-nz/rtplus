@@ -7,13 +7,14 @@ import { createTRPCRouter } from '../init'
 
 import { activeTeamRouter } from './active-team'
 import { currentUserRouter } from './current-user'
+import { invitationsRouter } from './invitations'
+import { notesRouter } from './notes'
 import { personnelRouter } from './personnel'
 import { skillsRouter } from './skills'
 import { skillCheckSessionsRouter } from './skill-check-sessions'
 import { teamsRouter } from './teams'
 import { teamMembershipsRouter } from './team-memberships'
 import { usersRouter } from './users'
-import { invitationsRouter } from './invitations'
 
 
 
@@ -22,6 +23,7 @@ export const appRouter = createTRPCRouter({
 
     currentUser: currentUserRouter,
     invitations: invitationsRouter,
+    notes: notesRouter,
     personnel: personnelRouter,
     skills: skillsRouter,
     skillCheckSessions: skillCheckSessionsRouter,

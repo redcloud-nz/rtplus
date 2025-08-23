@@ -67,7 +67,7 @@ export function CardContent({ className, ...props }: ComponentProps<'div'>) {
 
 export function CardFooter({ className, ...props }: ComponentProps<'div'>) {
     return <div
-        className={cn("h-10 flex items-center border-t", className)}
+        className={cn("h-10 p-1 flex items-center gap-2 border-t", className)}
         {...props}
     />
 }

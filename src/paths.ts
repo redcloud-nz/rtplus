@@ -378,6 +378,15 @@ export const personal = {
     index: '/personal',
     href: '/personal',
 
+    notes: {
+        label: 'Notes',
+        href: '/personal/notes',
+
+        create: {
+            label: 'Create',
+            href: '/personal/notes/--create',
+        }
+    },
     organizationList: {
         label: 'Organizations',
         href: '/personal/organizations',

@@ -11,3 +11,9 @@ export const teamMemberTagsEnabledFlag = flag({
     defaultValue: false,
     adapter: edgeConfigAdapter()
 })
+
+export const notesEnabledFlag = flag({
+    key: 'notes-enabled',
+    defaultValue: false,
+    adapter: edgeConfigAdapter()
+})
