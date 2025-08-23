@@ -5,7 +5,6 @@
 
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
@@ -26,7 +25,6 @@ import { useTRPC } from '@/trpc/client'
 
 export function Personal_NewNote_Card() {
     const queryClient = useQueryClient()
-    const router = useRouter()
     const { toast } = useToast()
     const trpc = useTRPC()
 

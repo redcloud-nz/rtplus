@@ -5,7 +5,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useToast } from '@/hooks/use-toast'
 import { useTRPC } from '@/trpc/client'
 import { NotesList } from '@/components/notes'
@@ -14,7 +14,6 @@ import { nanoId8 } from '@/lib/id'
 export function Personal_NotesList() {
     const { toast } = useToast()
     const trpc = useTRPC()
-    const queryClient = useQueryClient()
     const [creatingNote, setCreatingNote] = useState(false)
     const [updatingNoteIds, setUpdatingNoteIds] = useState<Set<string>>(new Set())
     const [deletingNoteIds, setDeletingNoteIds] = useState<Set<string>>(new Set())
@@ -31,7 +30,7 @@ export function Personal_NotesList() {
                 description: 'Note created successfully',
             })
         },
-        onError: (error: any) => {
+        onError: (error) => {
             toast({
                 title: 'Error',
                 description: error.message,
@@ -51,14 +50,14 @@ export function Personal_NotesList() {
                 description: 'Note updated successfully',
             })
         },
-        onError: (error: any) => {
+        onError: (error) => {
             toast({
                 title: 'Error',
                 description: error.message,
                 variant: 'destructive',
             })
         },
-        onSettled: (_data: any, _error: any, variables: any) => {
+        onSettled: (_data, _error, variables) => {
             setUpdatingNoteIds(prev => {
                 const newSet = new Set(prev)
                 newSet.delete(variables.noteId)
@@ -75,14 +74,14 @@ export function Personal_NotesList() {
                 description: 'Note deleted successfully',
             })
         },
-        onError: (error: any) => {
+        onError: (error) => {
             toast({
                 title: 'Error',
                 description: error.message,
                 variant: 'destructive',
             })
         },
-        onSettled: (_data: any, _error: any, variables: any) => {
+        onSettled: (_data, _error, variables) => {
             setDeletingNoteIds(prev => {
                 const newSet = new Set(prev)
                 newSet.delete(variables.noteId)
