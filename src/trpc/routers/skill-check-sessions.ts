@@ -682,7 +682,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
      */
     saveChecks: authenticatedProcedure
         .input(z.object({
-            sessionId: z.string().uuid(),
+            sessionId: zodNanoId8,
             checks: z.array(skillCheckSchema.pick({ skillCheckId: true, skillId: true, assesseeId: true, result: true, notes: true }))
         }))
         .output(z.object({
@@ -705,6 +705,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                         date: session.date,
                         checkStatus: 'Draft',
                         skill: { connect: { id: inputCheck.skillId } },
+                        session: { connect: { id: input.sessionId } },
                         team: { connect: { id: session.teamId } },
                         assessee: { connect: { id: inputCheck.assesseeId } },
                         assessor: { connect: { id: assessorId } },

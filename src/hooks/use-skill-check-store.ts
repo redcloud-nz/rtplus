@@ -40,11 +40,13 @@ interface SkillCheckStore {
 
     getCheck(params: { assesseeId: string, skillId: string }): Pick<SkillCheckData, 'assesseeId' | 'skillId' | 'result' | 'notes'> & { isDirty: boolean }
 
-    updateCheck(params: { assesseeId: string, skillId: string }, update: { result?: string, notes?: string}): void
+    updateCheck(params: { assesseeId: string, skillId: string }): (update: { result?: string, notes?: string }) => void
 
     loadChecks(checkFilter: { assesseeId?: string, skillId?: string }): void
 
     saveChecks(): Promise<void>
+
+    reset(): void
 }
 
 
@@ -119,16 +121,18 @@ export function useSkillCheckStore_experimental(sessionId: string): SkillCheckSt
                 isDirty: false,
             }
         },
-        updateCheck({ assesseeId, skillId }, update) {
-            setChecks(prevChecks => {
-                const found = prevChecks[`${assesseeId}${skillId}`]
-                return {
-                    ...prevChecks,
-                    [`${assesseeId}${skillId}`]: found
-                        ? { ...found, current: { ...found.current, ...update }, isDirty: true }
-                        : { assesseeId, skillId, skillCheckId: nanoId16(), current: { result: DEFAULT_RESULT_VALUE, notes: DEFAULT_NOTES_VALUES, ...update }, prev: null, isDirty: true }
-                }
-            })
+        updateCheck({ assesseeId, skillId }) {
+            return (update) => {
+                setChecks(prevChecks => {
+                    const found = prevChecks[`${assesseeId}${skillId}`]
+                    return {
+                        ...prevChecks,
+                        [`${assesseeId}${skillId}`]: found
+                            ? { ...found, current: { ...found.current, ...update }, isDirty: true }
+                            : { assesseeId, skillId, skillCheckId: nanoId16(), current: { result: DEFAULT_RESULT_VALUE, notes: DEFAULT_NOTES_VALUES, ...update }, prev: null, isDirty: true }
+                    }
+                })
+            }
         },
 
         loadChecks(checkFilter) {
@@ -167,6 +171,10 @@ export function useSkillCheckStore_experimental(sessionId: string): SkillCheckSt
                         notes: check.current.notes,
                     })) 
             })
+            setChecks({})
+        },
+        reset() {
+            setChecks({})
         }
     }), [assessor, checks, existingChecks, mutation, session])
 }

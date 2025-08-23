@@ -20,6 +20,7 @@ import { SkillData } from '@/lib/schemas/skill'
 import { SkillCheckData } from '@/lib/schemas/skill-check'
 import { useTRPC } from '@/trpc/client'
 import { formatDateTime } from '@/lib/utils'
+import { CompetenceLevel, CompetenceLevelTerms } from '@/lib/competencies'
 
 
 type RowData = SkillCheckData & { assessee: PersonData, assessor: PersonData, skill: SkillData }
@@ -29,8 +30,8 @@ export function SkillCheckSession_Transcript_Card({ sessionId }: { sessionId: st
 
     const assesseesQuery = useSuspenseQuery(trpc.skillCheckSessions.getAssessees.queryOptions({ sessionId }))
     const assessorsQuery = useSuspenseQuery(trpc.skillCheckSessions.getAssessors.queryOptions({ sessionId }))
-    const checksQuery = useSuspenseQuery(trpc.skillCheckSessions.getChecks.queryOptions({ sessionId }))
-    const skillsQuery = useSuspenseQuery(trpc.skillCheckSessions.getSkills.queryOptions({ sessionId }))
+    const checksQuery = useSuspenseQuery(trpc.skillCheckSessions.getChecks.queryOptions({ sessionId, assessorId: 'me'  }))
+    const skillsQuery = useSuspenseQuery(trpc.skillCheckSessions.getSkills.queryOptions({ sessionId}))
 
     async function handleRefresh() {
         await Promise.all([
@@ -60,23 +61,33 @@ export function SkillCheckSession_Transcript_Card({ sessionId }: { sessionId: st
         columnHelper.accessor("assessee.name", {
             header: "Assessee",
             cell: info => info.getValue(),
+            enableGrouping: true,
+            enableSorting: true,
         }),
         columnHelper.accessor("skill.name", {
             header: "Skill",
             cell: info => info.getValue(),
+            enableGrouping: true,
+            enableSorting: true,
         }),
         columnHelper.accessor("result", {
             header: "Result",
-            cell: info => info.getValue(),
+            cell: info => CompetenceLevelTerms[info.getValue() as CompetenceLevel],
+            enableGrouping: true,
+            enableSorting: true,
         }),
         columnHelper.accessor("notes", {
             header: "Notes",
             cell: info => info.getValue(),
+            enableSorting: false,
+            enableGrouping: false
         }),
         columnHelper.accessor("timestamp", {
             header: "Timestamp",
             cell: info => formatDateTime(info.getValue()),
+            enableGrouping: false,
             enableSorting: true,
+            
         }),
     ]), [])
 
