@@ -25,7 +25,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 import { useToast } from '@/hooks/use-toast'
 import { EditableFeature } from '@/lib/editable-feature'
-import { PersonData } from '@/lib/schemas/person'
+import { EmptyPersonId, PersonData } from '@/lib/schemas/person'
 import { TeamMembershipData } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
@@ -237,12 +237,12 @@ export function System_Team_Members_Card({ teamId }: { teamId: string }) {
         getExpandedRowModel: getExpandedRowModel(),
         getRowId: (row) => row.personId,
         createEmptyRow: () => ({
-            personId: '',
+            personId: EmptyPersonId,
             teamId,
             status: 'Active' as const,
             tags: [],
             person: {
-                personId: '',
+                personId: EmptyPersonId,
                 name: '',
                 email: '',
                 status: 'Active' as const,

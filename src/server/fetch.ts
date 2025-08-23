@@ -6,13 +6,13 @@ import 'server-only'
 
 import { notFound } from 'next/navigation'
 
-import { PersonData } from '@/lib/schemas/person'
+import { PersonData, toPersonData } from '@/lib/schemas/person'
 import { SkillData } from '@/lib/schemas/skill'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { SkillGroupData } from '@/lib/schemas/skill-group'
 import { SkillPackageData } from '@/lib/schemas/skill-package'
 import { TeamData, toTeamData } from '@/lib/schemas/team'
-import { TeamMembershipData } from '@/lib/schemas/team-membership'
+import { TeamMembershipData, toTeamMembershipData } from '@/lib/schemas/team-membership'
 import { getQueryClient, trpc } from '@/trpc/server'
 import { TRPCError } from '@trpc/server'
 import prisma from './prisma'
@@ -207,9 +207,9 @@ export async function fetchTeamMember(params: Promise<{ team_slug: string, perso
     const membership = teamRecord.teamMemberships[0]
 
     const result = { 
-        ...membership, 
-        person: { personId: membership.person.id, ...membership.person }, 
-        team: { teamId: membership.team.id, ...membership.team }
+        ...toTeamMembershipData(membership), 
+        person: toPersonData(membership.person), 
+        team: toTeamData(membership.team)
     }
 
     queryClient.setQueryData(key, result)

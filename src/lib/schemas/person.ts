@@ -9,6 +9,10 @@ import { Person as PersonRecord } from '@prisma/client'
 
 import { zodNanoId8 } from '../validation'
 
+export type PersonId = string
+
+export const EmptyPersonId = '' as string & z.BRAND<"PersonId">
+
 export const personSchema = z.object({
     personId: zodNanoId8,
     name: z.string().min(5).max(100),

@@ -23,7 +23,7 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 
 import { useToast } from '@/hooks/use-toast'
 import { CompetenceLevel, CompetenceLevelTerms, isPass } from '@/lib/competencies'
-import { nanoId16,  } from '@/lib/id'
+import { nanoId16  } from '@/lib/id'
 import { SkillCheckData } from '@/lib/schemas/skill-check'
 import { useTRPC } from '@/trpc/client'
 

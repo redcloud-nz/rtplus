@@ -9,6 +9,8 @@ import { Skill as SkillRecord } from '@prisma/client'
 
 import { zodNanoId8 } from '../validation'
 
+export type SkillId = string
+
 export const skillSchema = z.object({
     skillId: zodNanoId8,
     skillGroupId: zodNanoId8,
