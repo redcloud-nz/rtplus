@@ -9,7 +9,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/hooks/use-toast'
 import { useTRPC } from '@/trpc/client'
 import { NotesList } from '@/components/notes'
-import { nanoId16, nanoId8 } from '@/lib/id'
+import { nanoId8 } from '@/lib/id'
 
 export function Personal_NotesList() {
     const { toast } = useToast()
@@ -95,6 +95,8 @@ export function Personal_NotesList() {
         setCreatingNote(true)
         await createNoteMutation.mutateAsync({
             noteId: nanoId8(), // Generate a new unique ID for the note
+            title: "New Note", // Default title, can be set later
+            date: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD format
             content,
             teamId: null, // Personal notes don't have a teamId
             personId: null, // This will be set automatically by the backend based on the authenticated user
@@ -103,7 +105,7 @@ export function Personal_NotesList() {
 
     const handleUpdateNote = async (noteId: string, content: string) => {
         setUpdatingNoteIds(prev => new Set(prev).add(noteId))
-        await updateNoteMutation.mutateAsync({ noteId, content })
+        await updateNoteMutation.mutateAsync({ noteId, title: "", content, date: new Date().toISOString().split('T')[0] })
     }
 
     const handleDeleteNote = async (noteId: string) => {

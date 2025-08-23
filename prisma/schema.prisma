@@ -23,7 +23,9 @@ model Note {
     id         String          @id @db.VarChar(16)
     personId   String?         @map("person_id") @db.VarChar(16)
     teamId     String?         @map("team_id") @db.VarChar(16)
+    title      String          @db.VarChar(100)
     content    String          @db.Text
+    date       String          @db.Char(10)
 
     changeLogs NoteChangeLog[] @relation("note_change_log_to_note")
     person     Person?         @relation("note_to_person", fields: [personId], references: [id], onDelete: Cascade)
@@ -38,7 +40,7 @@ model NoteChangeLog {
     actorId     String?           @map("actor_id") @db.VarChar(16)
     event       NoteChangeEvent
     meta        Json              @default("{}")
-    diff        String[]          @default([])
+    fields      Json              @default("{}")
     timestamp   DateTime          @default(now())
   
     // Relations

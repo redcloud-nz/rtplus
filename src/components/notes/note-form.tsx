@@ -1,9 +1,15 @@
+/*
+ *  Copyright (c) 2025 Redcloud Development, Ltd.
+ *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
+*/
 'use client'
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { NoteEditor } from './note-editor'
+
+import { NoteContentEditor } from './note-content-editor'
+
 
 interface NoteFormProps {
     initialContent?: string
@@ -32,7 +38,7 @@ export function NoteForm({
                 <CardTitle>{title}</CardTitle>
             </CardHeader>
             <CardContent>
-                <NoteEditor
+                <NoteContentEditor
                     content={content}
                     onChange={setContent}
                     className="min-h-[300px]"

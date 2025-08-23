@@ -1,4 +1,4 @@
-export { NoteEditor } from './note-editor'
+export { NoteContentEditor } from './note-content-editor'
 export { NoteViewer } from './note-viewer'
 export { NoteForm } from './note-form'
 export { NoteItem } from './note-item'
