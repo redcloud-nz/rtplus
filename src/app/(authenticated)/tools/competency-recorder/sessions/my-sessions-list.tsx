@@ -24,7 +24,7 @@ import { useTRPC } from '@/trpc/client'
 
 
 
-export function Assessor_SessionsList_Card() {
+export function CompetencyRecorder_SessionsList_Card() {
     const trpc = useTRPC()
 
     const sessionsQuery = useSuspenseQuery(trpc.skillCheckSessions.getMySessions.queryOptions({ status: ['Discard'] }))

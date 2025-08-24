@@ -13,10 +13,10 @@ import { RequireActiveTeam } from '@/components/nav/require-active-team'
 
 import * as Paths from '@/paths'
 
-import { HydrateClient } from '@/trpc/server'
-
 import { CompetencyRecorder_Single_Card } from './record-skill-check'
 
+
+export const metadata = { title: 'Single' }
 
 export default async function CompetencyRecorder_Single_Page() {
    
@@ -27,19 +27,14 @@ export default async function CompetencyRecorder_Single_Page() {
                 Paths.tools.competencyRecorder.single
             ]}
         />
-        
-        <HydrateClient>
-            <AppPageContent variant="container">
-                <Boundary>
-                    <RequireActiveTeam>
-                        <CompetencyRecorder_Single_Card/> 
-                    </RequireActiveTeam>
-                </Boundary>
-                
-            </AppPageContent>
-        </HydrateClient>
-        
-        
+        <AppPageContent variant="container">
+            <Boundary>
+                <RequireActiveTeam>
+                    <CompetencyRecorder_Single_Card/> 
+                </RequireActiveTeam>
+            </Boundary>
+            
+        </AppPageContent>
     </AppPage>
 }
 

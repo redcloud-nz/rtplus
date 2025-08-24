@@ -17,9 +17,7 @@ import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 export async function generateMetadata(props: { params: Promise<{ session_id: string }> }) {
     const session = await fetchSkillCheckSession(props.params)
 
-    return {
-        title: `${session.name} - Competency Assessor`,
-    }
+    return { title: `${session.name}` }
 }
 
 export default async function CompetencyRecorder_Session_Layout(props: { params: Promise<{ session_id: string }>, children: React.ReactNode }) {
@@ -36,43 +34,43 @@ export default async function CompetencyRecorder_Session_Layout(props: { params:
     prefetch(trpc.skillCheckSessions.getSkills.queryOptions({ sessionId }))
 
     return <>
-            <AppPage showRightSidebarTrigger>
-                <AppPageBreadcrumbs
-                    breadcrumbs={[
-                        Paths.tools.competencyRecorder,
-                        Paths.tools.competencyRecorder.sessions,
-                        session.name
-                    ]}
-                />
-                <HydrateClient>
-                    {props.children}
-                </HydrateClient>
-                
-            </AppPage>
-            <Sidebar side="right">
-                <SidebarRail side="right" />
-                <SidebarHeader>
-                    <h2 className="text-lg text-center font-medium">Competency Assessor</h2>
-                </SidebarHeader>
-                <SidebarContent>
-                    <NavSection title="Session Configuration">
-                    
-                        <NavItem path={sessionPath} label="Details"/>
-                        <NavItem path={sessionPath.skills} />
-                        <NavItem path={sessionPath.assessees} />
-                        <NavItem path={sessionPath.assessors} />
+        <AppPage showRightSidebarTrigger>
+            <AppPageBreadcrumbs
+                breadcrumbs={[
+                    Paths.tools.competencyRecorder,
+                    Paths.tools.competencyRecorder.sessions,
+                    session.name
+                ]}
+            />
+            <HydrateClient>
+                {props.children}
+            </HydrateClient>
+            
+        </AppPage>
+        <Sidebar side="right">
+            <SidebarRail side="right" />
+            <SidebarHeader>
+                <h2 className="text-lg text-center font-medium">Competency Assessor</h2>
+            </SidebarHeader>
+            <SidebarContent>
+                <NavSection title="Session Configuration">
 
-                    </NavSection>
-                    <NavSection title="Record">
-                        <NavItem path={sessionPath.recordIndividual} />
-                        <NavItem path={sessionPath.recordByAssessee} />
-                        <NavItem path={sessionPath.recordBySkill} />
-                    </NavSection>
-                    <NavSection title="Result">
-                        <NavItem path={sessionPath.transcript} />
-                    </NavSection>
-                </SidebarContent>
-                
-            </Sidebar>
+                    <NavItem path={sessionPath} label="Details"/>
+                    <NavItem path={sessionPath.skills}/>
+                    <NavItem path={sessionPath.assessees} />
+                    <NavItem path={sessionPath.assessors} />
+
+                </NavSection>
+                <NavSection title="Record">
+                    <NavItem path={sessionPath.recordIndividual} />
+                    <NavItem path={sessionPath.recordByAssessee} />
+                    <NavItem path={sessionPath.recordBySkill} />
+                </NavSection>
+                <NavSection title="Result">
+                    <NavItem path={sessionPath.transcript} />
+                </NavSection>
+            </SidebarContent>
+            
+        </Sidebar>
         </>
 }

@@ -10,18 +10,13 @@ import { Metadata } from 'next'
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
-import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
-import { Assessor_SessionsList_Card } from './my-sessions-list'
+import { CompetencyRecorder_SessionsList_Card } from './my-sessions-list'
 
 
-export const dynamic = 'force-dynamic'
+export const metadata: Metadata = { title: 'Sessions' }
 
-export const metadata: Metadata = { title: 'Sessions - Assessor' }
-
-export default async function Assessor_SessionsList_Page() {
-
-    prefetch(trpc.skillCheckSessions.getMySessions.queryOptions({ status: ['Discard'] }))
+export default async function CompetencyRecorder_SessionsList_Page() {
 
     return <AppPage>
         <AppPageBreadcrumbs
@@ -30,15 +25,13 @@ export default async function Assessor_SessionsList_Page() {
                 Paths.tools.competencyRecorder.sessions
             ]}
         />
-        <HydrateClient>
-            <AppPageContent variant="container">
-                <PageHeader>
-                    <PageTitle>Sessions</PageTitle>
-                </PageHeader>
-                <Boundary>
-                    <Assessor_SessionsList_Card />
-                </Boundary>
-            </AppPageContent>
-        </HydrateClient>
+        <AppPageContent variant="container">
+            <PageHeader>
+                <PageTitle>Sessions</PageTitle>
+            </PageHeader>
+            <Boundary>
+                <CompetencyRecorder_SessionsList_Card />
+            </Boundary>
+        </AppPageContent>
     </AppPage>
 }

@@ -51,7 +51,7 @@ export function NavSection({ title, children }: NavSectionProps) {
 }
 
 type NavItemExternalProps = { external: true, label: string, href: string, icon?: ReactNode }
-type NavItemInternalProps = { external?: never, href?: never, path: { label: string, href: string, icon?: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> }, label?: string, icon?: ReactNode }
+type NavItemInternalProps = { external?: never, href?: never, path: { label: string, href: string, icon?: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> }, label?: string, icon?: ReactNode, prefetch?: boolean | null }
 type NavItemProps = NavItemExternalProps | NavItemInternalProps
 
 export function NavItem({ external, ...props }: NavItemProps) {
@@ -70,7 +70,7 @@ export function NavItem({ external, ...props }: NavItemProps) {
         props = props as NavItemInternalProps
         return <SidebarMenuItem>
             <SidebarMenuButton tooltip={props.label ?? props.path.label} asChild>
-                <Link to={props.path}>
+                <Link to={props.path} prefetch={props.prefetch}>
                     {props.icon ?? (props.path.icon ? <props.path.icon /> : null)}
                     <span>{props.label ?? props.path.label}</span>
                 </Link>
