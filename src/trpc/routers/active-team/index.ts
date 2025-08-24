@@ -6,8 +6,8 @@
 
 import { teamSchema, toTeamData } from '@/lib/schemas/team'
 
-import { createTRPCRouter, teamAdminProcedure, teamProcedure } from '@/trpc/init'
-import { getActiveTeam, updateTeam } from '../teams'
+import { createTRPCRouter, teamProcedure } from '@/trpc/init'
+import { getActiveTeam} from '../teams'
 
 import { activeTeamMembersRouter } from './active-team-members'
 import { activeTeamSkillChecksRouter } from './active-team-skill-checks'
@@ -37,20 +37,4 @@ export const activeTeamRouter = createTRPCRouter({
 
             return toTeamData(team)
         }),
-
-    /**
-     * Update the active team details.
-     * @param ctx The authenticated context.
-     * @param input The team data to update.
-     * @returns The updated team data.
-     */
-    updateTeam: teamAdminProcedure
-        .input(teamSchema)
-        .output(teamSchema) 
-        .mutation(async ({ ctx, input }) => {
-            const team = await getActiveTeam(ctx)
-
-            const updated = await updateTeam(ctx, team, input)
-            return toTeamData(updated)
-        })
 })

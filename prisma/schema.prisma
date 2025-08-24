@@ -66,6 +66,7 @@ model Person {
     inviteStatus                 InviteStatus                 @map("invite_status") @default(None)
     owningTeamId                 String?                      @map("owning_team_id") @db.VarChar(16)
     status                       RecordStatus                 @default(Active)
+    sandbox                      Boolean                      @default(false)
   
     // Relations
     changeLogs                   PersonChangeLog[]            @relation("person_change_log_to_person")
@@ -301,6 +302,7 @@ model Team {
     shortName          String              @db.VarChar(50)
     color              String              @db.VarChar(10)
     status             RecordStatus        @default(Active)
+    sandbox            Boolean             @default(false)
 
     // Relations
     d4hInfo            TeamD4hInfo?        @relation("team_d4h_info_to_team")

@@ -24,6 +24,7 @@ declare global {
 
     interface OrganizationPublicMetadata {
         teamId: string
+        sandbox: boolean
     }
     interface UserPublicMetadata {
         person_id: string

@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DisplayValue } from '@/components/ui/display-value'
 import { Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input, SlugInput } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 import { ObjectName } from '@/components/ui/typography'
 
@@ -24,6 +25,7 @@ import { TeamData, teamSchema } from '@/lib/schemas/team'
 import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
+
 
 
 
@@ -43,7 +45,8 @@ export function System_NewTeam_Details_Card() {
             shortName: '',
             slug: teamId,
             color: '',
-            status: 'Active'
+            status: 'Active',
+            sandbox: false
         }
     })
 
@@ -114,7 +117,24 @@ export function System_NewTeam_Details_Card() {
                                 description="URL-friendly identifier for the team."
                             />}
                         />
-                         <ToruGridRow
+                        <FormField
+                            control={form.control}
+                            name="sandbox"
+                            render={({ field }) => <ToruGridRow
+                                label="Type"
+                                control={<Select value={field.value ? 'Sandbox' : 'Normal'} onValueChange={(newValue) => field.onChange(newValue == 'Sandbox')}>
+                                    <SelectTrigger>
+                                        <SelectValue/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Normal">Normal</SelectItem>
+                                        <SelectItem value="Sandbox">Sandbox</SelectItem>
+                                    </SelectContent>
+                                </Select>}
+                                description="Whether the team is a sandbox team."
+                            />}
+                        />
+                        <ToruGridRow
                             label="Status"
                             control={<DisplayValue>Active</DisplayValue>}
                         />

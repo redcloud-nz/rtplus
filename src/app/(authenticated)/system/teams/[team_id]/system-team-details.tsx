@@ -87,6 +87,10 @@ export function System_Team_Details_Card({ teamId }: { teamId: string }) {
                             control={<DisplayValue>{team.slug}</DisplayValue>}
                         />
                         <ToruGridRow
+                            label="Type"
+                            control={<DisplayValue>{team.sandbox ? 'Sandbox' : 'Normal'}</DisplayValue>}
+                        />
+                        <ToruGridRow
                             label="Status"
                             control={<DisplayValue>{team.status}</DisplayValue>}
                         />
@@ -179,6 +183,23 @@ function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamData
                         label="Slug"
                         control={<SlugInput {...field} onValueChange={field.onChange}/>}
                         description="URL-friendly identifier for the team."
+                    />}
+                />
+                <FormField
+                    control={form.control}
+                    name="sandbox"
+                    render={({ field }) => <ToruGridRow
+                        label="Type"
+                        control={<Select value={field.value ? 'Sandbox' : 'Normal'} onValueChange={(newValue) => field.onChange(newValue == 'Sandbox')}>
+                            <SelectTrigger>
+                                <SelectValue/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Normal">Normal</SelectItem>
+                                <SelectItem value="Sandbox">Sandbox</SelectItem>
+                            </SelectContent>
+                        </Select>}
+                        description="Whether the team is a sandbox team."
                     />}
                 />
                 <FormField

@@ -18,7 +18,8 @@ export const personSchema = z.object({
     name: z.string().min(5).max(100),
     email: z.string().email(),
     owningTeamId: zodNanoId8.nullable(),
-    status: z.enum(['Active', 'Inactive'])
+    status: z.enum(['Active', 'Inactive']),
+    sandbox: z.boolean().optional()
 })
 
 export type PersonData = z.infer<typeof personSchema>
@@ -29,6 +30,7 @@ export function toPersonData(record: PersonRecord): PersonData {
         name: record.name,
         email: record.email,
         owningTeamId: record.owningTeamId,
-        status: record.status
+        status: record.status,
+        sandbox: record.sandbox ? true : undefined
     }
 }

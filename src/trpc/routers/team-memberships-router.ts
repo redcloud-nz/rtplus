@@ -61,6 +61,7 @@ export const teamMembershipsRouter = createTRPCRouter({
                     name: input.name,
                     status: input.status,
                     owningTeam: { connect: { id: input.teamId } },
+                    sandbox: team.sandbox,
 
                     changeLogs: {
                         create: {
@@ -129,6 +130,7 @@ export const teamMembershipsRouter = createTRPCRouter({
             const person = await fetchPersonByIdCached(personId)
 
             if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(personId) })
+            if(person.sandbox && !team.sandbox) throw new TRPCError({ code: 'BAD_REQUEST', message: "Sandbox personnel cannot be added to non-sandbox teams." })
 
             const existing = await ctx.prisma.teamMembership.findUnique({
                 where: { personId_teamId: { personId, teamId } }

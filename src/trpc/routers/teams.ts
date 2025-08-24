@@ -27,7 +27,7 @@ export const teamsRouter = createTRPCRouter({
     createTeam: systemAdminProcedure
         .input(teamSchema)
         .output(teamSchema)
-        .mutation(async ({ ctx, input }) => {
+        .mutation(async ({ ctx, input: { teamId, ...input } }) => {
             
             const nameConflict = await ctx.prisma.team.findFirst({ where: { name: input.name } })
             if(nameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('name') })
@@ -39,7 +39,7 @@ export const teamsRouter = createTRPCRouter({
                 name: input.name,
                 createdBy: ctx.session.userId,
                 slug: input.slug,
-                publicMetadata: { teamId: input.teamId }
+                publicMetadata: {teamId, sandbox: input.sandbox ?? false }
             } as const
 
             let clerkOrgId: string
@@ -47,13 +47,13 @@ export const teamsRouter = createTRPCRouter({
                 const organization = await ctx.clerkClient.organizations.createOrganization(clerkOrgCreateParams)
                 clerkOrgId = organization.id
             } catch (error) {
-                logger.error(`Failed to create Clerk organization for team ${input.teamId}:`, clerkOrgCreateParams, error)
-                throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: `Failed to create Clerk organization for team ${input.teamId}.` })
+                logger.error(`Failed to create Clerk organization for team ${teamId}:`, clerkOrgCreateParams, error)
+                throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: `Failed to create Clerk organization for Team(${teamId}).` })
             }
 
             const createdTeam = await ctx.prisma.team.create({ 
                 data: { 
-                    id: input.teamId, 
+                    id: teamId, 
                     ...input, 
                     clerkOrgId,
                     changeLogs: { 
@@ -67,7 +67,7 @@ export const teamsRouter = createTRPCRouter({
                 }
             })
 
-            logger.info(`Team ${input.teamId} created successfully with Clerk organization ID ${clerkOrgId}.`)
+            logger.info(`Team(${teamId}) created successfully with Clerk organization ID ${clerkOrgId}.`)
 
             // Invalidate the cache for the team
             revalidateTeamsCache()
@@ -88,7 +88,7 @@ export const teamsRouter = createTRPCRouter({
 
             await ctx.clerkClient.organizations.deleteOrganization(deleted.clerkOrgId)
 
-            logger.info(`Team ${team.id} deleted successfully.`)
+            logger.info(`Team(${team.id}) deleted successfully.`)
             revalidateTeamsCache()
 
             return toTeamData(deleted)
@@ -129,7 +129,10 @@ export const teamsRouter = createTRPCRouter({
         })))
         .query(async ({ ctx, input }) => {
             const teams = await ctx.prisma.team.findMany({ 
-                where: { status: { in: input.status} },
+                where: { 
+                    status: { in: input.status, },
+                    id: { not: 'RTSYSTEM' }
+                },
                 include: {
                     _count: {
                         select: { teamMemberships: true }
@@ -168,7 +171,7 @@ export const teamsRouter = createTRPCRouter({
                 await ctx.clerkClient.organizations.updateOrganization(team.clerkOrgId, {
                     name: update.name,
                     slug: update.slug,
-                    publicMetadata: { teamId: team.id }
+                    publicMetadata: { teamId: team.id, sandbox: update.sandbox ?? false }
                 })
                 logger.info(`Updated Clerk organization for team ${team.id} with new name '${update.name}' and slug '${update.slug}'.`)
             }

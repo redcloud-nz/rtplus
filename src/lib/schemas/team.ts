@@ -16,6 +16,7 @@ export const teamSchema = z.object({
     slug: zodSlug,
     color: z.union([zodColor, z.literal('')]),
     status: z.enum(['Active', 'Inactive']),
+    sandbox: z.boolean().optional()
 })
 
 export type TeamData = z.infer<typeof teamSchema>
@@ -27,6 +28,7 @@ export function toTeamData(record: TeamRecord): TeamData {
         shortName: record.shortName,
         slug: record.slug,
         color: record.color,
-        status: record.status
+        status: record.status,
+        sandbox: record.sandbox ? true : undefined
     }
 }

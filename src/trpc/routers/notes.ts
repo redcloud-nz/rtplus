@@ -214,7 +214,7 @@ async function getNoteById(ctx: AuthenticatedContext, noteId: string, filters: {
         }
     } else if (note.teamId && note.team) {
         // Team note - accessible by team members
-        ctx.hasTeamAccess(note.team.clerkOrgId)
+        ctx.hasTeamAccess(note.team)
     } else {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Note must be associated with either a person or a team.' })
     }

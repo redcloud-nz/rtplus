@@ -35,7 +35,6 @@ import { useTRPC } from '@/trpc/client'
 
 
 
-
 /**
  * Card that displays the details of a person and allows the user to edit them.
  * @param personId The ID of the person to display.
@@ -82,6 +81,10 @@ export function System_Person_Details_Card({ personId }: { personId: string }) {
                         <ToruGridRow
                             label="Email"
                             control={<DisplayValue>{person.email}</DisplayValue>}
+                        />
+                        <ToruGridRow
+                            label="Type"
+                            control={<DisplayValue>{person.sandbox ? 'Sandbox' : 'Normal'}</DisplayValue>}
                         />
                         <ToruGridRow
                             label="Status"
@@ -167,6 +170,23 @@ function UpdatePersonForm({ onClose, person }: { onClose: () => void, person: Pe
                         label="Email"
                         control={<Input type="email" maxLength={100} {...field}/>}
                         description="The email address of the person (must be unique)."
+                    />}
+                />
+                <FormField
+                    control={form.control}
+                    name="sandbox"
+                    render={({ field }) => <ToruGridRow
+                        label="Type"
+                        control={<Select value={field.value ? 'Sandbox' : 'Normal'} onValueChange={(newValue) => field.onChange(newValue == 'Sandbox')}>
+                            <SelectTrigger>
+                                <SelectValue/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Normal">Normal</SelectItem>
+                                <SelectItem value="Sandbox">Sandbox</SelectItem>
+                            </SelectContent>
+                        </Select>}
+                        description="Whether the team is a sandbox team."
                     />}
                 />
                 <FormField
