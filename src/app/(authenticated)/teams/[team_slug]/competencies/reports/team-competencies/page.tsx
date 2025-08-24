@@ -5,11 +5,12 @@
  *  Path: /teams/[team_slug]/competencies/reports/team-skills
  */
 
+
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
-import { fetchTeamCached } from '@/server/fetch'
+import { getTeamFromParams } from '@/server/data/team'
 
 import { Team_Competencies_Card } from './team-competencies'
 
@@ -17,7 +18,7 @@ export const metadata = { title: 'Competencies' }
 
 
 export default async function Team_Skills_Report_Page(props: { params: Promise<{ team_slug: string }> }) {
-    const team = await fetchTeamCached((await props.params).team_slug)
+    const team = await getTeamFromParams(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs

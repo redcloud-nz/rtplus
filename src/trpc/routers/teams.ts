@@ -16,6 +16,7 @@ import { zodNanoId8, zodRecordStatus } from '@/lib/validation'
 
 import { AuthenticatedContext, authenticatedProcedure, AuthenticatedTeamContext, createTRPCRouter, systemAdminProcedure, teamAdminProcedure } from '../init'
 import { FieldConflictError } from '../types'
+import { revalidateTag } from 'next/cache'
 
 
 const logger = new RTPlusLogger('trpc/teams')
@@ -219,6 +220,9 @@ export async function createTeam(ctx: AuthenticatedContext, { teamId, ...input }
 
     logger.info(`Team ${teamId} created successfully with Clerk organization ID ${clerkOrgId}.`)
 
+    // Invalidate the cache for the team
+    revalidateTag('team')
+
     return createdTeam
 }
     
@@ -276,6 +280,10 @@ export async function updateTeam(ctx: AuthenticatedContext, team: TeamRecord, up
             }
         })
         logger.info(`Team ${team.id} updated successfully.`, changedFields)
+
+        // Invalidate the cache for the team
+        revalidateTag('team')
+
         return updated
     } else {
         return team // No changes, return the original team

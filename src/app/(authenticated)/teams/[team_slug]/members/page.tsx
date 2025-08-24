@@ -9,8 +9,7 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 import { teamMemberTagsEnabledFlag } from '@/lib/flags'
 import * as Paths from '@/paths'
-import { fetchTeamCached } from '@/server/fetch'
-
+import { getTeamFromParams } from '@/server/data/team'
 
 import { Team_MembersList_Card } from './team-members-list'
 
@@ -19,7 +18,7 @@ export const metadata = { title: `Team Members` }
 
 
 export default async function Team_MembersList_Page(props: { params: Promise<{ team_slug: string }> }) {
-    const team = await fetchTeamCached((await props.params).team_slug)
+    const team = await getTeamFromParams(props.params)
 
     const teamMemberTagsEnabled = await teamMemberTagsEnabledFlag()
 

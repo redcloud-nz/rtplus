@@ -4,7 +4,6 @@
  */
 import 'server-only'
 
-import { unstable_cache } from 'next/cache'
 import { notFound } from 'next/navigation'
 
 import { TRPCError } from '@trpc/server'
@@ -112,81 +111,6 @@ export async function fetchSkillPackage(params: Promise<{ skill_package_id: stri
         })
 }
 
-type TeamRef = { team_id: string, team_slug?: never } | { team_id?: never, team_slug: string }
-
-/**
- * Fetch a team by its ID through the TRPC query client to ensure the data is available for both server and client components.
- * 
- * Note: If the team is not found, this function will throw a 404 error.
- * @param params The parameters containing the team ID.
- * @returns A promise that resolves to a TeamData object.
- */
-export async function fetchTeam(params: Promise<TeamRef>): Promise<TeamData>  {
-    const { team_id: teamId, team_slug: teamSlug } = await params
-
-
-    // If the team is not cached, fetch it directly from the database
-    const teamRecord = await prisma.team.findUnique({ 
-        where: { id: teamId, slug: teamSlug } 
-    })
-    if(!teamRecord) notFound()
-
-    // Ensure the team data is in the expected format
-    const team = toTeamData(teamRecord)
-
-    return team
-}
-
-export const fetchTeamCached = unstable_cache(
-        async (teamSlug: string) => {
-        // If the team is not cached, fetch it directly from the database
-        const teamRecord = await prisma.team.findUnique({ 
-            where: { slug: teamSlug } 
-        })
-        if(!teamRecord) notFound()
-
-        // Ensure the team data is in the expected format
-        const team = toTeamData(teamRecord)
-
-        return team
-    },
-    ['team'],
-    {
-        tags: ['team'],
-        revalidate: 3600 // 1 hour
-    }
-)
-
-
-/**
- * Fetch a team by its slug through the TRPC query client to ensure the data is available for both server and client components.
- * 
- * Performs the lookup directly in the database (if it is not cached) to bypass the TRPC layer. This is useful for pre-rendering pages without authentication.
- * 
- * Note: If the team is not found, this function will throw a 404 error.
- * 
- * @param params The parameters containing the team slug.
- * @returns A promise that resolves to a TeamData object.
- */
-export async function fetchTeamBySlug(params: Promise<{ team_slug: string }>): Promise<TeamData> {
-    const { team_slug: teamSlug } = await params
-    
-    const queryClient = getQueryClient()
-
-    const cachedTeam = queryClient.getQueryData(trpc.teams.getTeam.queryKey({ teamSlug }))
-    if (cachedTeam) return cachedTeam
-
-    const teamRecord = await prisma.team.findUnique({ where: { slug: teamSlug } })
-    if(!teamRecord) notFound()
-
-    // Ensure the team data is in the expected format
-    const team = toTeamData(teamRecord)
-
-    queryClient.setQueryData(trpc.teams.getTeam.queryKey({ teamSlug }), team)
-    queryClient.setQueryData(trpc.teams.getTeam.queryKey({ teamId: team.teamId }), team)
-
-    return team
-}
 
 export async function fetchTeamMember(params: Promise<{ team_slug: string, person_id: string }>): Promise<TeamMembershipData & { person: PersonData, team: TeamData }> {
     const { team_slug: teamSlug, person_id: personId } = await params

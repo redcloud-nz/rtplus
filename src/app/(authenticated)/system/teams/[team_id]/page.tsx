@@ -5,13 +5,13 @@
  *  Path: /system/teams/[team_id]
  */
 
-
+import { notFound } from 'next/navigation'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
-import { fetchTeam } from '@/server/fetch'
+import { fetchTeamByIdCached } from '@/server/data/team'
 import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
 import { System_Team_Details_Card } from './system-team-details'
@@ -20,15 +20,16 @@ import { TeamUsersCard } from './system-team-users'
 
 
 
+
 export async function generateMetadata(props: { params: Promise<{ team_id: string }> }) {
-    const team = await fetchTeam(props.params)
+    const team = await fetchTeamByIdCached((await props.params).team_id) ?? notFound()
     
     return { title: `${team.shortName || team.name} - Teams` }
 }
 
 
 export default async function System_Team_Page(props: { params: Promise<{ team_id: string }> }) { 
-    const team = await fetchTeam(props.params)
+    const team =  await fetchTeamByIdCached((await props.params).team_id) ?? notFound()
 
     prefetch(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId: team.teamId }))
     

@@ -5,12 +5,13 @@
  *  Path: /teams/[team_slug]/competencies/reports/individual
  */
 
+
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageControls, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 import { Team_Member_Competencies_Card } from '@/components/cards/team-member-competencies'
 
 import * as Paths from '@/paths'
-import { fetchTeamCached } from '@/server/fetch'
+import {  getTeamFromParams } from '@/server/data/team'
 
 import { IndividualReport_TeamMemberSelector } from './team-member-selector'
 
@@ -19,7 +20,7 @@ export const metadata = { title: 'Individual Competencies' }
 
 
 export default async function Team_Member_Skills_Report_Page(props: { params: Promise<{ team_slug: string }>, searchParams: Promise<{ pid?: string }> }) {
-    const team = await fetchTeamCached((await props.params).team_slug)
+    const team = await getTeamFromParams(props.params)
     const { pid } = await props.searchParams
 
     return <AppPage>

@@ -11,13 +11,16 @@ import { TextLink } from '@/components/ui/link'
 import { Paragraph } from '@/components/ui/typography'
 
 import * as Paths from '@/paths'
-import { fetchTeamCached } from '@/server/fetch'
+import { getTeamFromParams } from '@/server/data/team'
 
 import { SessionsCount_Card, SkillChecksCount_Card, SkillsCount_Card, TeamMembersCount_Card } from './competency-status'
 
 
+export const metadata = { title: 'Competencies Dashboard' }
+
+
 export default async function Team_Competencies_Index_Page(props: { params: Promise<{ team_slug: string }> }) {
-    const team = await fetchTeamCached((await props.params).team_slug)
+    const team = await getTeamFromParams(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
@@ -31,7 +34,7 @@ export default async function Team_Competencies_Index_Page(props: { params: Prom
             </PageHeader>
             <div className="grid grid-cols-2 md:grid-col-3 lg:grid-cols-4 gap-4">
                 <Boundary>
-                        <SkillsCount_Card team={team}/>
+                    <SkillsCount_Card team={team}/>
                 </Boundary>
                 <Boundary>
                     <TeamMembersCount_Card team={team}  />

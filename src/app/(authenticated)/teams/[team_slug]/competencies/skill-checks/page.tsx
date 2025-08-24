@@ -9,7 +9,7 @@
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
-import { fetchTeamCached } from '@/server/fetch'
+import { getTeamFromParams } from '@/server/data/team'
 
 import { Team_SkillChecksList_Card } from './team-skill-checks-list'
 
@@ -18,7 +18,7 @@ export const metadata = {
 }
 
 export default async function Team_SkillChecks_Page(props: { params: Promise<{ team_slug: string }> }) {
-    const team = await fetchTeamCached((await props.params).team_slug)
+    const team = await getTeamFromParams(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs

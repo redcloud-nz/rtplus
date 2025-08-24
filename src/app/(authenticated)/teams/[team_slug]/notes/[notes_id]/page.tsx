@@ -7,13 +7,13 @@ import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
 
 import * as Paths from '@/paths'
 import { NotImplemented } from '@/components/nav/errors'
-import { fetchTeamCached } from '@/server/fetch'
+import { getTeamFromParams } from '@/server/data/team'
 
 export const metadata = { title: 'Team Note' }
 
 export default async function Team_Notes_Page(props: { params: Promise<{ team_slug: string, note_id: string }> }) {
-    const { note_id: noteId, team_slug: teamSlug } = await props.params
-    const team = await fetchTeamCached(teamSlug)
+    const { note_id: noteId } = await props.params
+    const team = await getTeamFromParams(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[

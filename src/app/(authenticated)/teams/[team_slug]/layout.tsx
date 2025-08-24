@@ -8,11 +8,12 @@
 import { Metadata } from 'next'
 import { ReactNode } from 'react'
 
-import { fetchTeamCached } from '@/server/fetch'
+import { getTeamFromParams } from '@/server/data/team'
+
 
 
 export async function generateMetadata(props: { params: Promise<{ team_slug: string }> }): Promise<Metadata> {
-    const team = await fetchTeamCached((await props.params).team_slug)
+    const team = await getTeamFromParams(props.params)
 
     return {
         applicationName: "RT+",

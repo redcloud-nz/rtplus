@@ -13,14 +13,14 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
-import { fetchTeamCached } from '@/server/fetch'
+import { getTeamFromParams } from '@/server/data/team'
 
 import { Team_UsersList_Card } from './team-users-list'
 
 export const metadata: Metadata = { title: `Team Users` }
 
 export default async function Team_Users_Page(props: { params: Promise<{  team_slug: string }> }) {
-    const team = await fetchTeamCached((await props.params).team_slug)
+    const team = await getTeamFromParams(props.params)
     
     await auth.protect({ role: 'org:admin' })
 

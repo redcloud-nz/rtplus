@@ -13,7 +13,7 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
-import { fetchTeamCached } from '@/server/fetch'
+import { getTeamFromParams } from '@/server/data/team'
 
 import { ActiveTeam_InvitationsList_Card } from './team-invitations-list'
 
@@ -21,7 +21,7 @@ import { ActiveTeam_InvitationsList_Card } from './team-invitations-list'
 export const metadata: Metadata = { title: `Team Invitations` }
 
 export default async function Team_InvitationsList_Page(props: { params: Promise<{ team_slug: string }> }) {
-    const team = await fetchTeamCached((await props.params).team_slug)
+    const team = await getTeamFromParams(props.params)
 
     await auth.protect({ role: 'org:admin' })
 
