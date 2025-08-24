@@ -19,6 +19,24 @@ interface Meta {
     activeTeamRequired?: boolean
 }
 
+interface RTPlusSession {
+    userId: string
+    personId: string
+    activeTeam: {
+        orgId: string,
+        slug: string,
+        role: 'org:admin' | 'org:member'
+    } | null
+}
+
+type RTPlusSessionWithActiveTeam = RTPlusSession & {
+    activeTeam: {
+        orgId: string,
+        slug: string,
+        role: 'org:admin' | 'org:member'
+    }
+}
+
 export const createTRPCContext = cache(async ({ headers }: { headers?: Headers  }) => {
 
     let fetchedAuth: Awaited<ReturnType<typeof auth>>
@@ -31,9 +49,21 @@ export const createTRPCContext = cache(async ({ headers }: { headers?: Headers  
 
     return { 
         prisma,
-        auth: fetchedAuth,
+        session: fetchedAuth.userId 
+            ? { 
+                userId: fetchedAuth.userId, 
+                personId: fetchedAuth.sessionClaims.rt_person_id, 
+                activeTeam: fetchedAuth.orgId 
+                    ? {
+                        orgId: fetchedAuth.orgId!,
+                        slug: fetchedAuth.orgSlug!,
+                        role: fetchedAuth.orgRole as 'org:admin' | 'org:member',
+                    } 
+                    : null
+            } satisfies RTPlusSession 
+            : null,
         headers,
-        get clerkClient() { return createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY}) },
+        get clerkClient() { return createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY}) }
     }
 })
 
@@ -61,7 +91,7 @@ export type PublicContext = Context
 export const publicProcedure = t.procedure
 
 export type AuthenticatedContext = Context & { 
-    personId: string,
+    session: RTPlusSession,
     isSystemAdmin: boolean,
     isCurrentTeamAdmin: boolean,
     isTeamAdmin(orgId: string): boolean,
@@ -72,85 +102,86 @@ export type AuthenticatedContext = Context & {
 
 function createAuthenticatedContext(ctx: Context): AuthenticatedContext {
 
-    const sessionClaims = ctx.auth.sessionClaims
-    if (sessionClaims == null) throw new TRPCError({ code: 'UNAUTHORIZED', message: "No person ID in session claims" })
+    if (ctx.session == null) throw new TRPCError({ code: 'UNAUTHORIZED', message: "No person ID in session claims" })
 
-    const isSystemAdmin = ctx.auth.orgSlug == 'system' && ctx.auth.orgRole === 'org:admin'
+    const isSystemAdmin = ctx.session.activeTeam?.slug == 'system' && ctx.session.activeTeam?.role === 'org:admin'
 
     return {
         ...ctx,
-        personId: sessionClaims.rt_person_id,
+        session: ctx.session!,
         isSystemAdmin,
-        isCurrentTeamAdmin: ctx.auth.orgRole === 'org:admin',
+        isCurrentTeamAdmin: ctx.session.activeTeam?.role === 'org:admin',
         isTeamAdmin(orgId: string) {
-            return ctx.auth.orgId === orgId && ctx.auth.orgRole === 'org:admin'
+            return ctx.session?.activeTeam?.orgId === orgId && ctx.session?.activeTeam?.role === 'org:admin'
         },
         requireSystemAdmin() {
             if (isSystemAdmin) return true
             throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin" })
         },
         requireTeamAccess(orgId: string) {
-            if (ctx.auth.orgId === orgId) return true
-            throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team member" })
+            if (ctx.session?.activeTeam?.orgId === orgId) return true
+            throw new TRPCError({ code: 'FORBIDDEN', message: "You do not have access to this team." })
         },
         requireTeamAdmin(orgId: string) {
-            if ((ctx.auth.orgId === orgId && ctx.auth.orgRole === 'org:admin')) return true
+            if ((ctx.session?.activeTeam?.orgId === orgId && ctx.session?.activeTeam?.role === 'org:admin')) return true
             throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team or system admin" })
         },
     }
 }
 
 export const authenticatedProcedure = t.procedure.meta({ authRequired: true }).use((opts) => {
-    const auth = opts.ctx.auth
+    const { session } = opts.ctx
 
-    if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })
+    if(session == null) throw new TRPCError({ code: 'UNAUTHORIZED', message: "No active session." })
 
     return opts.next({
         ctx: createAuthenticatedContext(opts.ctx)
     })
 })
 
-export type AuthenticatedTeamContext = AuthenticatedContext & { teamSlug: string, orgId: string }
+export type AuthenticatedTeamContext = AuthenticatedContext & { session: RTPlusSessionWithActiveTeam }
 
 export const teamProcedure = t.procedure.meta({ authRequired: true, activeTeamRequired: true }).use((opts) => {
-    const auth = opts.ctx.auth
+    const { session } = opts.ctx
 
-    if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })
-    if(auth.orgId == null) throw new TRPCError({ code: 'FORBIDDEN', message: "No active team." })
+    if(session == null) throw new TRPCError({ code: 'UNAUTHORIZED', message: "No active session." })
+    if(session.activeTeam == null) throw new TRPCError({ code: 'FORBIDDEN', message: "No active team." })
 
     return opts.next({
         ctx: {
             ...createAuthenticatedContext(opts.ctx),
-            teamSlug: auth.orgSlug!,
-            orgId: auth.orgId,
+            session: { ...session, activeTeam: session.activeTeam! } satisfies RTPlusSessionWithActiveTeam,
         } satisfies AuthenticatedTeamContext,
     })
 })
 
 export const teamAdminProcedure = t.procedure.meta({ authRequired: true, activeTeamRequired: true, teamAdminRequired: true }).use((opts) => {
-    const auth = opts.ctx.auth
+    const { session } = opts.ctx
 
-    if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })
-    if(auth.orgId == null) throw new TRPCError({ code: 'FORBIDDEN', message: "No active team." })
-    if(auth.orgRole !== 'org:admin') throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team admin" })
+    if(session == null) throw new TRPCError({ code: 'UNAUTHORIZED', message: "No active session." })
+    if(session.activeTeam == null) throw new TRPCError({ code: 'FORBIDDEN', message: "No active team." })
+    if(session.activeTeam.role !== 'org:admin') throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team admin" })
 
     return opts.next({
         ctx: {
             ...createAuthenticatedContext(opts.ctx),
-            teamSlug: auth.orgSlug!,
-            orgId: auth.orgId,
+            session: { ...session, activeTeam: session.activeTeam! } satisfies RTPlusSessionWithActiveTeam,
         } satisfies AuthenticatedTeamContext,
     })
 })
 
 
 export const systemAdminProcedure = t.procedure.meta({ authRequired: true, systemAdminRequired: true }).use((opts) => {
-     const auth = opts.ctx.auth
+    const { session } = opts.ctx
 
-    if(auth.userId == null) throw new TRPCError({ code: 'UNAUTHORIZED' })
-    if(auth.sessionClaims.org_slug != 'system') throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin" })
+    if(session == null) throw new TRPCError({ code: 'UNAUTHORIZED', message: "No active session." })
+    if(session.activeTeam == null) throw new TRPCError({ code: 'FORBIDDEN', message: "No active team." })
+    if(session.activeTeam.slug != 'system') throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin." })
 
     return opts.next({
-        ctx: createAuthenticatedContext(opts.ctx)
+        ctx: {
+            ...createAuthenticatedContext(opts.ctx),
+            session: { ...session, activeTeam: session.activeTeam! } satisfies RTPlusSessionWithActiveTeam,
+        }
     })
 })

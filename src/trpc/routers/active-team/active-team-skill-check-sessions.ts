@@ -41,13 +41,13 @@ export const activeTeamSkillCheckSessionsRouter = createTRPCRouter({
                 data: {
                     id: sessionId,
                     ...data,
-                    team: { connect: { clerkOrgId: ctx.orgId } },
+                    team: { connect: { clerkOrgId: ctx.session.activeTeam.orgId } },
 
                     changeLogs: {
                         create: {
                             id: nanoId16(),
                             event: 'Create',
-                            actorId: ctx.personId,
+                            actorId: ctx.session.personId,
                             fields: data
 
                         },
@@ -100,8 +100,8 @@ export const activeTeamSkillCheckSessionsRouter = createTRPCRouter({
         .query(async ({ ctx }) => {
 
             const team = await ctx.prisma.team.findUnique({
-                where: { slug: ctx.teamSlug },
-                include: { 
+                where: { clerkOrgId: ctx.session.activeTeam.orgId },
+                include: {
                     skillCheckSessions: {
                         include: {
                             _count: {
@@ -113,7 +113,7 @@ export const activeTeamSkillCheckSessionsRouter = createTRPCRouter({
                 }
             })
             if(!team) {
-                throw new TRPCError({ code: 'NOT_FOUND', message: `Team with slug ${ctx.teamSlug} not found.` })
+                throw new TRPCError({ code: 'NOT_FOUND', message: `Team with slug ${ctx.session.activeTeam.slug} not found.` })
             }
             return team.skillCheckSessions.map(toSkillCheckSessionData)
         }),
@@ -159,7 +159,7 @@ export const activeTeamSkillCheckSessionsRouter = createTRPCRouter({
                         create: {
                             id: nanoId16(),
                             event: 'Update',
-                            actorId: ctx.personId,
+                            actorId: ctx.session.personId,
                             fields: changedFields
                         },
                     },
@@ -195,7 +195,7 @@ export const activeTeamSkillCheckSessionsRouter = createTRPCRouter({
                         create: {
                             id: nanoId16(),
                             event: input.sessionStatus,
-                            actorId: ctx.personId,
+                            actorId: ctx.session.personId,
                             fields: { sessionStatus: input.sessionStatus }
                         },
                     },
@@ -221,7 +221,7 @@ export const activeTeamSkillCheckSessionsRouter = createTRPCRouter({
  */
 async function getSessionById(ctx: AuthenticatedTeamContext, sessionId: string): Promise<SkillCheckSessionRecord & { _count: { skills: number, assessees: number, assessors: number, checks: number }, team: TeamRecord }> {
     const team = await ctx.prisma.team.findUnique({
-        where: { slug: ctx.teamSlug },
+        where: { slug: ctx.session.activeTeam?.slug},
         include: {
             skillCheckSessions: {
                 where: { id: sessionId },

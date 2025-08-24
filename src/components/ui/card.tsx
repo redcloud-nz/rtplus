@@ -10,7 +10,9 @@ import { cn } from '@/lib/utils'
 
 import { Button } from './button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './dropdown-menu'
+import { LoadingSpinner } from './loading'
 import { Popover, PopoverContent, PopoverTriggerButton } from './popover'
+
 
 
 export function Card({ className, raised, ...props }: ComponentProps<'div'> & { raised?: boolean }) {
@@ -57,12 +59,14 @@ export function CardDescription({ className, ...props }: ComponentProps<'div'>) 
     />
 }
 
-export function CardContent({ className, ...props }: ComponentProps<'div'>) {
+export function CardContent({ children, className, loading, ...props }: ComponentProps<'div'> & { loading ?: boolean}) {
 
     return <div
             className={cn("p-1", className)}
             {...props}
-        />
+        >
+            {loading ? <div className="flex justify-center items-center py-2"><LoadingSpinner className="w-12 h-12"/></div> : children}
+        </div>
 }
 
 export function CardFooter({ className, ...props }: ComponentProps<'div'>) {

@@ -25,8 +25,6 @@ import { getActiveTeam } from '../teams'
  */
 export const activeTeamMembersRouter = createTRPCRouter({
 
-    
-
     /**
      * Create a new team membership for the active team using an existing person.
      * @param ctx The authenticated context.
@@ -67,7 +65,7 @@ export const activeTeamMembersRouter = createTRPCRouter({
                     data: {
                         id: nanoId16(),
                         teamId: team.id,
-                        actorId: ctx.personId,
+                        actorId: ctx.session.personId,
                         event: 'AddMember',
                         fields: { personId, status }
                     }
@@ -135,7 +133,7 @@ export const activeTeamMembersRouter = createTRPCRouter({
                     data: {
                         id: nanoId16(),
                         teamId: team.id,
-                        actorId: ctx.personId,
+                        actorId: ctx.session.personId,
                         event: 'AddMember',
                         fields: { personId: person.id, status: input.status }
                     }
@@ -176,7 +174,7 @@ export const activeTeamMembersRouter = createTRPCRouter({
                     data: {
                         id: nanoId16(),
                         teamId: team.id,
-                        actorId: ctx.personId,
+                        actorId: ctx.session.personId,
                         event: 'RemoveMember',
                         fields: { personId: input.personId, status: membership.status }
                     }
@@ -204,7 +202,7 @@ export const activeTeamMembersRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             
             const team = await ctx.prisma.team.findUnique({
-                where: { clerkOrgId: ctx.orgId },
+                where: { clerkOrgId: ctx.session.activeTeam.orgId },
                 include: {
                     teamMemberships: {
                         where: { personId: input.personId },
@@ -212,7 +210,7 @@ export const activeTeamMembersRouter = createTRPCRouter({
                     }
                 }
             })
-            if(!team) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: `No team found for active Organization(${ctx.orgId})` })
+            if(!team) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: `No team found for active Organization(${ctx.session.activeTeam.orgId})` })
             if(team.teamMemberships.length === 0) throw new TRPCError({ code: 'NOT_FOUND', message: `No membership found for Person(${input.personId}) in Team(${team.id})` })
 
             const membership = team.teamMemberships[0]
@@ -239,7 +237,7 @@ export const activeTeamMembersRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             
             const team = await ctx.prisma.team.findUnique({
-                where: { clerkOrgId: ctx.orgId },
+                where: { clerkOrgId: ctx.session.activeTeam.orgId },
                 include: {
                     teamMemberships: {
                         where: { status: { in: input.status } },
@@ -247,7 +245,7 @@ export const activeTeamMembersRouter = createTRPCRouter({
                     }
                 }
             })
-            if(!team) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: `No team found for active Organization(${ctx.orgId})` })
+            if(!team) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: `No team found for active Organization(${ctx.session.activeTeam.orgId})` })
 
             return team.teamMemberships.map(m => ({
                 ...m,
@@ -307,7 +305,7 @@ export const activeTeamMembersRouter = createTRPCRouter({
                         data: {
                             id: nanoId16(),
                             teamId: team.id,
-                            actorId: ctx.personId,
+                            actorId: ctx.session.personId,
                             event: 'UpdateMember',
                             fields: { personId, status }
                         }

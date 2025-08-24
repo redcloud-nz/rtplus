@@ -36,14 +36,14 @@ export const activeTeamUsersRouter = createTRPCRouter({
             // See if there is a person with this email
             const person = await ctx.prisma.person.findUnique({ where: { email: input.email }})
 
-            const { data: existingInvitations } = await ctx.clerkClient.organizations.getOrganizationInvitationList({ organizationId: ctx.orgId, status: ['pending'] })
+            const { data: existingInvitations } = await ctx.clerkClient.organizations.getOrganizationInvitationList({ organizationId: ctx.session.activeTeam.orgId, status: ['pending'] })
             if (existingInvitations.some(inv => inv.emailAddress === input.email)) {
                 throw new TRPCError({ code: 'BAD_REQUEST', message: `An invitation for ${input.email} already exists.` })
             }
 
             const orgInvitation = await ctx.clerkClient.organizations.createOrganizationInvitation({
-                organizationId: ctx.orgId,
-                inviterUserId: ctx.auth.userId!,
+                organizationId: ctx.session.activeTeam.orgId,
+                inviterUserId: ctx.session.userId,
                 emailAddress: input.email,
                 role: input.role,
                 publicMetadata: {
@@ -134,7 +134,7 @@ export const activeTeamUsersRouter = createTRPCRouter({
         .output(z.array(teamInvitationSchema))
         .query(async ({ ctx, input }) => {
 
-            const { data: orgInvitations } = await ctx.clerkClient.organizations.getOrganizationInvitationList({ organizationId: ctx.orgId, limit: 100, status: input?.status })
+            const { data: orgInvitations } = await ctx.clerkClient.organizations.getOrganizationInvitationList({ organizationId: ctx.session.activeTeam.orgId, limit: 100, status: input?.status })
 
             return orgInvitations.map(toTeamInvitationData)
         }),
@@ -157,7 +157,7 @@ export const activeTeamUsersRouter = createTRPCRouter({
             
 
             const [{ data: [membership] }, user] = await Promise.all([
-                ctx.clerkClient.organizations.getOrganizationMembershipList({ userId: [person.clerkUserId], organizationId: ctx.orgId, limit: 1 }),
+                ctx.clerkClient.organizations.getOrganizationMembershipList({ userId: [person.clerkUserId], organizationId: ctx.session.activeTeam.orgId, limit: 1 }),
                 ctx.clerkClient.users.getUser(person.clerkUserId)
             ])
 
@@ -173,7 +173,7 @@ export const activeTeamUsersRouter = createTRPCRouter({
         .output(z.array(userSchema2))
         .query(async ({ ctx }) => {
 
-            const { data: orgMemberships } = await ctx.clerkClient.organizations.getOrganizationMembershipList({ organizationId: ctx.orgId, limit: 100 })
+            const { data: orgMemberships } = await ctx.clerkClient.organizations.getOrganizationMembershipList({ organizationId: ctx.session.activeTeam.orgId, limit: 100 })
             const userIds = orgMemberships.map(m => m.publicUserData!.userId)
 
             const { data: users } = await ctx.clerkClient.users.getUserList({ userId: userIds, limit: 100 })
@@ -201,7 +201,7 @@ export const activeTeamUsersRouter = createTRPCRouter({
         }))
         .output(teamInvitationSchema)
         .mutation(async ({ ctx, input }) => {
-            const orgInvitation = await ctx.clerkClient.organizations.getOrganizationInvitation({ organizationId: ctx.orgId, invitationId: input.invitationId })
+            const orgInvitation = await ctx.clerkClient.organizations.getOrganizationInvitation({ organizationId: ctx.session.activeTeam.orgId, invitationId: input.invitationId })
             if (!orgInvitation) {
                 throw new TRPCError({ code: 'NOT_FOUND', message: `Invitation with ID ${input.invitationId} not found.` })
             }
@@ -210,13 +210,13 @@ export const activeTeamUsersRouter = createTRPCRouter({
             }
             
             // Revoke the existing invitation
-            await ctx.clerkClient.organizations.revokeOrganizationInvitation({ organizationId: ctx.orgId, invitationId: input.invitationId })
+            await ctx.clerkClient.organizations.revokeOrganizationInvitation({ organizationId: ctx.session.activeTeam.orgId, invitationId: input.invitationId })
 
             // Create a new invitation with the same email and role
             // This will send a new email to the user
             const newInvitation = await ctx.clerkClient.organizations.createOrganizationInvitation({
-                organizationId: ctx.orgId,
-                inviterUserId: ctx.auth.userId!,
+                organizationId: ctx.session.activeTeam.orgId,
+                inviterUserId: ctx.session.userId,
                 emailAddress: orgInvitation.emailAddress,
                 role: orgInvitation.role,
                 publicMetadata: orgInvitation.publicMetadata,
@@ -239,13 +239,13 @@ export const activeTeamUsersRouter = createTRPCRouter({
         }))
         .output(teamInvitationSchema)
         .mutation(async ({ ctx, input }) => {
-            const orgInvitation = await ctx.clerkClient.organizations.getOrganizationInvitation({ organizationId: ctx.orgId, invitationId: input.invitationId })
+            const orgInvitation = await ctx.clerkClient.organizations.getOrganizationInvitation({ organizationId: ctx.session.activeTeam.orgId, invitationId: input.invitationId })
             if (!orgInvitation) {
                 throw new TRPCError({ code: 'NOT_FOUND', message: `Invitation with ID ${input.invitationId} not found.` })
             }
 
 
-            const revokedInvitation = await ctx.clerkClient.organizations.revokeOrganizationInvitation({ organizationId: ctx.orgId, invitationId: input.invitationId })
+            const revokedInvitation = await ctx.clerkClient.organizations.revokeOrganizationInvitation({ organizationId: ctx.session.activeTeam.orgId, invitationId: input.invitationId })
 
             return toTeamInvitationData(revokedInvitation)
         }),

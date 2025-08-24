@@ -143,7 +143,7 @@ export async function createPerson(ctx: AuthenticatedContext, {personId, ...inpu
             changeLogs: {
                 create: {
                     id: nanoId16(),
-                    actorId: ctx.personId,
+                    actorId: ctx.session.personId,
                     event: 'Create',
                     fields: { ...input }
                 }
@@ -178,7 +178,7 @@ export async function updatePerson(ctx: AuthenticatedContext, person: PersonReco
             changeLogs: {
                 create: {
                     id: nanoId16(),
-                    actorId: ctx.personId,
+                    actorId: ctx.session.personId,
                     event: 'Update',
                     fields: changedFields
                 }

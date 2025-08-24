@@ -53,7 +53,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                         create: {
                             id: nanoId16(),
                             event: 'AddAssessee',
-                            actorId: ctx.personId,
+                            actorId: ctx.session.personId,
                             meta: { assesseeId }
                         }
                     }
@@ -109,7 +109,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                         create: {
                             id: nanoId16(),
                             event: 'AddAssessor',
-                            actorId: ctx.personId,
+                            actorId: ctx.session.personId,
                             meta: { assessorId }
                         }
                     }
@@ -165,7 +165,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                         create: {
                             id: nanoId16(),
                             event: 'AddSkill',
-                            actorId: ctx.personId,
+                            actorId: ctx.session.personId,
                             meta: { skillId }
                         }
                     }
@@ -235,7 +235,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                         create: {
                             id: nanoId16(),
                             event: 'DeleteCheck',
-                            actorId: ctx.personId,
+                            actorId: ctx.session.personId,
                             timestamp,
                             meta: {
                                 skillCheckId: input.skillCheckId,
@@ -334,9 +334,9 @@ export const skillCheckSessionsRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             await checkAccessToSession(ctx, input.sessionId)
             const session = await ctx.prisma.skillCheckSession.findUnique({
-                where: { 
-                    id: input.sessionId, 
-                    assessors: input.assessorId ? { some: { id: input.assessorId == 'me' ? ctx.personId : input.assessorId } } : undefined
+                where: {
+                    id: input.sessionId,
+                    assessors: input.assessorId ? { some: { id: input.assessorId == 'me' ? ctx.session.personId : input.assessorId } } : undefined
                 },
                 include: {
                     checks: true,
@@ -360,7 +360,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             const sessions = await ctx.prisma.skillCheckSession.findMany({
                 where: {
                     assessors: {
-                        some: { id: ctx.personId }
+                        some: { id: ctx.session.personId }
                     }
                 },
                 include: {
@@ -468,7 +468,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                         create: {
                             id: nanoId16(),
                             event: 'RemoveAssessee',
-                            actorId: ctx.personId,
+                            actorId: ctx.session.personId,
                             meta: { assesseeId }
                         }
                     }
@@ -524,7 +524,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                         create: {
                             id: nanoId16(),
                             event: 'RemoveAssessor',
-                            actorId: ctx.personId,
+                            actorId: ctx.session.personId,
                             meta: { assessorId }
                         }
                     }
@@ -580,7 +580,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                         create: {
                             id: nanoId16(),
                             event: 'RemoveSkill',
-                            actorId: ctx.personId,
+                            actorId: ctx.session.personId,
                             meta: { skillId }
                         }
                     }
@@ -621,7 +621,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
         }))
         .mutation(async ({ ctx, input }) => {
 
-            const assessorId = ctx.personId
+            const assessorId = ctx.session.personId
 
             // Ensure the user has access to the session
             const session = await checkAccessToSession(ctx, input.sessionId)
@@ -690,7 +690,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             checks: z.array(skillCheckSchema)
         }))
         .mutation(async ({ ctx, input }) => {
-            const assessorId = ctx.personId
+            const assessorId = ctx.session.personId
 
             // Ensure the user has access to the session
             const session = await checkAccessToSession(ctx, input.sessionId)
@@ -750,13 +750,13 @@ export const skillCheckSessionsRouter = createTRPCRouter({
  * @throws TRPCError(NOT_FOUND) if the session is not found or the user does not have access.
  */
 export async function checkAccessToSession(ctx: AuthenticatedContext, sessionId: string): Promise<SkillCheckSessionRecord> {
-    const orgIdIfAdmin = (ctx.isCurrentTeamAdmin ? ctx.auth.orgId : "NEVER") ?? "NEVER"
+    const orgIdIfAdmin = (ctx.isCurrentTeamAdmin ? ctx.session.activeTeam!.orgId : "NEVER") ?? "NEVER"
 
     const session = await ctx.prisma.skillCheckSession.findUnique({
         where: { 
             id: sessionId,
             OR: [
-                { assessors: { some: { id: ctx.personId } } }, // Assessor of the session
+                { assessors: { some: { id: ctx.session.personId } } }, // Assessor of the session
                 { team: { clerkOrgId: orgIdIfAdmin } } // Team of the session if user is a team admin
             ]
         },

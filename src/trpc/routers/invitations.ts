@@ -40,7 +40,7 @@ export const invitationsRouter = createTRPCRouter({
 
             const response = await ctx.clerkClient.organizations.createOrganizationInvitation({
                 organizationId: team.clerkOrgId,
-                inviterUserId: ctx.auth.userId!,
+                inviterUserId: ctx.session.userId,
                 emailAddress: input.email,
                 role: input.role,
             })
@@ -88,7 +88,7 @@ export const invitationsRouter = createTRPCRouter({
             const response = await ctx.clerkClient.organizations.revokeOrganizationInvitation({
                 organizationId: team.clerkOrgId,
                 invitationId: input.invitationId,
-                requestingUserId: ctx.auth.userId!,
+                requestingUserId: ctx.session.userId,
             })
 
             return toTeamInvitationData(response)

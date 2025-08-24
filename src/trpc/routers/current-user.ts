@@ -20,10 +20,10 @@ import { authenticatedProcedure, createTRPCRouter } from '../init'
 
 export const currentUserRouter = createTRPCRouter({
 
-    getMyOrgMembers: authenticatedProcedure
+    getMyOrgMemberships: authenticatedProcedure
         .output(z.array(orgMembershipSchema.extend({ organization: organizationSchema })))
         .query(async ({ ctx }) => {
-            const response = await ctx.clerkClient.users.getOrganizationMembershipList({ userId: ctx.auth.userId!, limit: 501 })
+            const response = await ctx.clerkClient.users.getOrganizationMembershipList({ userId: ctx.session.userId, limit: 501 })
 
             return response.data.map(toOrgMembershipDataExtended)
         }),
@@ -35,10 +35,10 @@ export const currentUserRouter = createTRPCRouter({
         .output(personSchema)
         .query(async ({ ctx }): Promise<PersonData> => {
             const person = await ctx.prisma.person.findUnique({ 
-                where: { id: ctx.personId },
+                where: { id: ctx.session.personId },
                 
             })
-            if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person with ID ${ctx.personId} not found.` })
+            if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person with ID ${ctx.session.personId} not found.` })
 
             return toPersonData(person)
         }),

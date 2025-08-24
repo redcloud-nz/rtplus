@@ -150,7 +150,7 @@ export async function createTeamMembership(ctx: AuthenticatedContext, { personId
             data: {
                 id: nanoId16(),
                 teamId,
-                actorId: ctx.personId,
+                actorId: ctx.session.personId,
                 event: 'AddMember',
                 fields: { personId, status }
             }
@@ -173,7 +173,7 @@ export async function deleteTeamMembership(ctx: AuthenticatedContext, { personId
             data: {
                 id: nanoId16(),
                 teamId,
-                actorId: ctx.personId,
+                actorId: ctx.session.personId,
                 event: 'RemoveMember',
                 fields: { personId }
             }
@@ -204,7 +204,7 @@ export async function updateTeamMembership(ctx: AuthenticatedContext, membership
             data: {
                 id: nanoId16(),
                 teamId: membership.teamId,
-                actorId: ctx.personId,
+                actorId: ctx.session.personId,
                 event: 'UpdateMember',
                 fields: { personId: membership.personId, ...changedFields }
             }

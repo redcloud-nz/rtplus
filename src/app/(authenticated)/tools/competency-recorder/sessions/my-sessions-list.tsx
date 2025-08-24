@@ -8,7 +8,7 @@
 import { formatISO } from 'date-fns'
 import { useMemo } from 'react'
 
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
 import { RefreshButton } from '@/components/ui/button'
@@ -27,7 +27,7 @@ import { useTRPC } from '@/trpc/client'
 export function CompetencyRecorder_SessionsList_Card() {
     const trpc = useTRPC()
 
-    const sessionsQuery = useSuspenseQuery(trpc.skillCheckSessions.getMySessions.queryOptions({ status: ['Discard'] }))
+    const sessionsQuery = useQuery(trpc.skillCheckSessions.getMySessions.queryOptions({ status: ['Draft'] }))
 
     async function handleRefresh() {
         await sessionsQuery.refetch()
@@ -91,7 +91,7 @@ export function CompetencyRecorder_SessionsList_Card() {
     ]), [])
 
     const table = useReactTable({
-        data: sessionsQuery.data,
+        data: sessionsQuery.data ?? [],
         columns,
         getCoreRowModel: getCoreRowModel(),
         getExpandedRowModel: getExpandedRowModel(),
@@ -121,7 +121,7 @@ export function CompetencyRecorder_SessionsList_Card() {
                     </CardExplanation>
                 </CardActions>
             </CardHeader>
-            <CardContent>
+            <CardContent loading={sessionsQuery.isLoading}>
                 <Table className="table-fixed">
                     <DataTableHead/>
                     <DataTableBody/>

@@ -11,7 +11,7 @@ import { NavItem, NavSection } from '@/components/nav/nav-section'
 import { Sidebar, SidebarContent, SidebarHeader, SidebarRail } from '@/components/ui/sidebar'
 import * as Paths from '@/paths'
 import { fetchSkillCheckSession } from '@/server/fetch'
-import { HydrateClient, prefetch, trpc } from '@/trpc/server'
+import { HydrateClient } from '@/trpc/server'
 
 
 export async function generateMetadata(props: { params: Promise<{ session_id: string }> }) {
@@ -22,16 +22,16 @@ export async function generateMetadata(props: { params: Promise<{ session_id: st
 
 export default async function CompetencyRecorder_Session_Layout(props: { params: Promise<{ session_id: string }>, children: React.ReactNode }) {
     const session = await fetchSkillCheckSession(props.params)
-    const sessionId = session.sessionId
+    //const sessionId = session.sessionId
 
     const sessionPath = Paths.tools.competencyRecorder.session(session.sessionId)
 
-    prefetch(trpc.currentUser.getPerson.queryOptions())
-    prefetch(trpc.skills.getTree.queryOptions())
-    prefetch(trpc.skillCheckSessions.getAssessees.queryOptions({ sessionId }))
-    prefetch(trpc.skillCheckSessions.getAssessors.queryOptions({ sessionId }))
-    prefetch(trpc.skillCheckSessions.getChecks.queryOptions({ sessionId }))
-    prefetch(trpc.skillCheckSessions.getSkills.queryOptions({ sessionId }))
+    // prefetch(trpc.currentUser.getPerson.queryOptions())
+    // prefetch(trpc.skills.getTree.queryOptions())
+    // prefetch(trpc.skillCheckSessions.getAssessees.queryOptions({ sessionId }))
+    // prefetch(trpc.skillCheckSessions.getAssessors.queryOptions({ sessionId }))
+    // prefetch(trpc.skillCheckSessions.getChecks.queryOptions({ sessionId }))
+    // prefetch(trpc.skillCheckSessions.getSkills.queryOptions({ sessionId }))
 
     return <>
         <AppPage showRightSidebarTrigger>
