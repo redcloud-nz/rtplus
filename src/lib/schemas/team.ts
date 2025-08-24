@@ -15,7 +15,7 @@ export const teamSchema = z.object({
     shortName: z.string().max(20),
     slug: zodSlug,
     color: z.union([zodColor, z.literal('')]),
-    status: z.enum(['Active', 'Inactive'])
+    status: z.enum(['Active', 'Inactive']),
 })
 
 export type TeamData = z.infer<typeof teamSchema>

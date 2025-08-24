@@ -13,7 +13,7 @@ import { personnelRouter } from './personnel'
 import { skillsRouter } from './skills'
 import { skillCheckSessionsRouter } from './skill-check-sessions'
 import { teamsRouter } from './teams'
-import { teamMembershipsRouter } from './team-memberships'
+import { teamMembershipsRouter } from './team-memberships-router'
 import { usersRouter } from './users'
 
 

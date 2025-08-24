@@ -48,7 +48,7 @@ export function System_Person_TeamMemberships_Card({ personId }: { personId: str
     }
 
     // Mutations for CRUD operations
-    const createMutation = useMutation(trpc.teamMemberships.create.mutationOptions({
+    const createMutation = useMutation(trpc.teamMemberships.createTeamMembership.mutationOptions({
         onSuccess: () => {
             queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ personId }))
             toast({

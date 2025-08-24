@@ -7,6 +7,7 @@ import { cache } from 'react'
 import superjson from 'superjson'
 
 import { auth, createClerkClient } from '@clerk/nextjs/server'
+import { type Team as TeamRecord } from '@prisma/client'
 import {  initTRPC, TRPCError } from '@trpc/server'
 
 import prisma from '@/server/prisma'
@@ -94,9 +95,9 @@ export type AuthenticatedContext = Context & {
     session: RTPlusSession,
     isSystemAdmin: boolean,
     isCurrentTeamAdmin: boolean,
-    isTeamAdmin(orgId: string): boolean,
+    hasTeamAccess(teamRecord: TeamRecord): boolean,
+    hasTeamAdmin(teamRecord: TeamRecord): boolean,
     requireSystemAdmin(): boolean,
-    requireTeamAccess(orgId: string): boolean,
     requireTeamAdmin(orgId: string): boolean,
 }
 
@@ -111,17 +112,17 @@ function createAuthenticatedContext(ctx: Context): AuthenticatedContext {
         session: ctx.session!,
         isSystemAdmin,
         isCurrentTeamAdmin: ctx.session.activeTeam?.role === 'org:admin',
-        isTeamAdmin(orgId: string) {
-            return ctx.session?.activeTeam?.orgId === orgId && ctx.session?.activeTeam?.role === 'org:admin'
+         hasTeamAccess(team: TeamRecord) {
+            return isSystemAdmin || ctx.session?.activeTeam?.orgId === team.clerkOrgId
+        },
+        hasTeamAdmin(team: TeamRecord) {
+            return isSystemAdmin || (ctx.session?.activeTeam?.orgId === team.clerkOrgId && ctx.session?.activeTeam?.role === 'org:admin')
         },
         requireSystemAdmin() {
             if (isSystemAdmin) return true
             throw new TRPCError({ code: 'FORBIDDEN', message: "Not a system admin" })
         },
-        requireTeamAccess(orgId: string) {
-            if (ctx.session?.activeTeam?.orgId === orgId) return true
-            throw new TRPCError({ code: 'FORBIDDEN', message: "You do not have access to this team." })
-        },
+       
         requireTeamAdmin(orgId: string) {
             if ((ctx.session?.activeTeam?.orgId === orgId && ctx.session?.activeTeam?.role === 'org:admin')) return true
             throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team or system admin" })

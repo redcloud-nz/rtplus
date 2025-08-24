@@ -4,8 +4,10 @@
  */
 import 'server-only'
 
-import { unstable_cache } from 'next/cache'
+import { revalidateTag, unstable_cache } from 'next/cache'
 import { notFound } from 'next/navigation'
+
+import { Team as TeamRecord } from '@prisma/client'
 
 import { TeamData, toTeamData } from '@/lib/schemas/team'
 
@@ -18,16 +20,11 @@ import prisma from '../prisma'
  * @returns A promise that resolves to the team data or null if not found.
  */
 export const fetchTeamByIdCached = unstable_cache(
-    async (teamId: string): Promise<TeamData | null> => {
+    async (teamId: string): Promise<TeamRecord | null> => {
         
-        const teamRecord = await prisma.team.findUnique({
+        return await prisma.team.findUnique({
             where: { id: teamId }
         })
-
-        if(!teamRecord) return null
-
-        // Ensure the team data is in the expected format
-        return toTeamData(teamRecord)
     },
     ['team'],
     {
@@ -42,15 +39,11 @@ export const fetchTeamByIdCached = unstable_cache(
  * @returns A promise that resolves to the team data or null if not found.
  */
 export const fetchTeamBySlugCached = unstable_cache(
-        async (teamSlug: string): Promise<TeamData | null> => {
+        async (teamSlug: string): Promise<TeamRecord | null> => {
         // If the team is not cached, fetch it directly from the database
-        const teamRecord = await prisma.team.findUnique({ 
+        return await prisma.team.findUnique({ 
             where: { slug: teamSlug } 
         })
-        if(!teamRecord) return null
-
-        // Ensure the team data is in the expected format
-        return toTeamData(teamRecord)
     },
     ['team'],
     {
@@ -69,7 +62,7 @@ export async function getTeamFromParams(params: Promise<{ team_slug: string}>): 
     const { team_slug: teamSlug } = await params
 
     const team = await fetchTeamBySlugCached(teamSlug)
-    return team ?? notFound()
+    return team ? toTeamData(team) : notFound()
 }
 
 
@@ -84,3 +77,7 @@ export const fetchAllTeamSlugsCached = unstable_cache(
         revalidate: 3600 // 1 hour
     }
 )
+
+export function revalidateTeamsCache() {
+    revalidateTag('team')
+}
