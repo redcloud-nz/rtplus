@@ -13,19 +13,16 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
-import { fetchTeamBySlug } from '@/server/fetch'
-import { HydrateClient, prefetch, trpc } from '@/trpc/server'
+import { fetchTeamCached } from '@/server/fetch'
 
 import { Team_UsersList_Card } from './team-users-list'
 
 export const metadata: Metadata = { title: `Team Users` }
 
 export default async function Team_Users_Page(props: { params: Promise<{  team_slug: string }> }) {
-    const team = await fetchTeamBySlug(props.params)
+    const team = await fetchTeamCached((await props.params).team_slug)
     
     await auth.protect({ role: 'org:admin' })
-
-    prefetch(trpc.activeTeam.users.getUsers.queryOptions())
 
     return <AppPage>
         <AppPageBreadcrumbs
@@ -34,16 +31,14 @@ export default async function Team_Users_Page(props: { params: Promise<{  team_s
                 Paths.team(team).users
             ]}
         />
-        <HydrateClient>
-            <AppPageContent variant="container">
-                <PageHeader>
-                    <PageTitle>Team Users</PageTitle>
-                </PageHeader>
-                <Boundary>
-                    <Team_UsersList_Card/>
-                </Boundary>
-            </AppPageContent>
-        </HydrateClient>
+        <AppPageContent variant="container">
+            <PageHeader>
+                <PageTitle>Team Users</PageTitle>
+            </PageHeader>
+            <Boundary>
+                <Team_UsersList_Card team={team} />
+            </Boundary>
+        </AppPageContent>
         
     </AppPage>
 }

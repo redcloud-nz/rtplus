@@ -9,8 +9,7 @@
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
-import { fetchTeamBySlug } from '@/server/fetch'
-import { HydrateClient, prefetch, trpc } from '@/trpc/server'
+import { fetchTeamCached } from '@/server/fetch'
 
 import { Team_SkillChecksList_Card } from './team-skill-checks-list'
 
@@ -19,9 +18,7 @@ export const metadata = {
 }
 
 export default async function Team_SkillChecks_Page(props: { params: Promise<{ team_slug: string }> }) {
-    const team = await fetchTeamBySlug(props.params)
-
-    prefetch(trpc.activeTeam.skillChecks.getSkillChecks.queryOptions({ }))
+    const team = await fetchTeamCached((await props.params).team_slug)
 
     return <AppPage>
         <AppPageBreadcrumbs
@@ -31,17 +28,15 @@ export default async function Team_SkillChecks_Page(props: { params: Promise<{ t
                 Paths.team(team).competencies.skillChecks
             ]}
         />
-        <HydrateClient>
-            <AppPageContent variant="container">
-                <PageHeader>
-                    <PageTitle>Skill Checks</PageTitle>
-                </PageHeader>
-
-                <Boundary>
-                    <Team_SkillChecksList_Card />
-                </Boundary>
-            </AppPageContent>
-        </HydrateClient>
         
+        <AppPageContent variant="container">
+            <PageHeader>
+                <PageTitle>Skill Checks</PageTitle>
+            </PageHeader>
+
+            <Boundary>
+                <Team_SkillChecksList_Card team={team}/>
+            </Boundary>
+        </AppPageContent>
     </AppPage>
 }

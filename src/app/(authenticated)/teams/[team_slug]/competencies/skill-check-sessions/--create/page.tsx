@@ -11,7 +11,6 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 import { fetchTeamBySlug } from '@/server/fetch'
-import { HydrateClient } from '@/trpc/server'
 
 import { Team_NewSkillCheckSession_Details_Card } from './team-new-session-details'
 
@@ -29,17 +28,14 @@ export default async function Team_NewSkillCheckSession_Page(props: { params: Pr
                 Paths.team(team.slug).competencies.sessions.create,
             ]}
         />
-        <HydrateClient>
-            <AppPageContent variant="container">
-                <PageHeader>
-                    <PageTitle>New Skill Check Session</PageTitle>
-                </PageHeader>
+        <AppPageContent variant="container">
+            <PageHeader>
+                <PageTitle>New Skill Check Session</PageTitle>
+            </PageHeader>
 
-                <Boundary>
-                    <Team_NewSkillCheckSession_Details_Card/>
-                </Boundary>
-            </AppPageContent>
-        </HydrateClient>
-        
+            <Boundary>
+                <Team_NewSkillCheckSession_Details_Card/>
+            </Boundary>
+        </AppPageContent>
     </AppPage>
 }

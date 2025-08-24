@@ -18,21 +18,23 @@ import { DataTableBody, DataTableFooter, DataTableHead, DataTableProvider, DataT
 import { Link, TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 import { Table} from '@/components/ui/table'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { PersonData } from '@/lib/schemas/person'
+import { TeamData } from '@/lib/schemas/team'
 import { TeamMembershipData } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+
+
 
 
 /**
  * Card that displays the list of all team members and allows the user to add a new member.
  */
-export function Team_MembersList_Card({ showTags }: { showTags: boolean }) {
+export function Team_MembersList_Card({ team, showTags }: { team: TeamData, showTags: boolean }) {
     const trpc = useTRPC()
 
-    const { data: team } = useSuspenseQuery(trpc.activeTeam.getTeam.queryOptions())
     const membersQuery = useSuspenseQuery(trpc.activeTeam.members.getTeamMembers.queryOptions({}))
 
     async function handleRefresh() {

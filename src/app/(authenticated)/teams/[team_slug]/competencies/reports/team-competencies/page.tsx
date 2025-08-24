@@ -9,8 +9,7 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
-import { fetchTeam } from '@/server/fetch'
-import { HydrateClient } from '@/trpc/server'
+import { fetchTeamCached } from '@/server/fetch'
 
 import { Team_Competencies_Card } from './team-competencies'
 
@@ -18,7 +17,7 @@ export const metadata = { title: 'Competencies' }
 
 
 export default async function Team_Skills_Report_Page(props: { params: Promise<{ team_slug: string }> }) {
-    const team = await fetchTeam(props.params)
+    const team = await fetchTeamCached((await props.params).team_slug)
 
     return <AppPage>
         <AppPageBreadcrumbs
@@ -29,15 +28,13 @@ export default async function Team_Skills_Report_Page(props: { params: Promise<{
                 Paths.team(team).competencies.reports.teamCompetencies
             ]}
         />
-        <HydrateClient>
-            <AppPageContent>
-                <PageHeader>
-                    <PageTitle objectType="Report">Team Skills</PageTitle>
-                </PageHeader>
-                <Boundary>
-                    <Team_Competencies_Card />
-                </Boundary>
-            </AppPageContent>
-        </HydrateClient>
+        <AppPageContent>
+            <PageHeader>
+                <PageTitle objectType="Report">Team Skills</PageTitle>
+            </PageHeader>
+            <Boundary>
+                <Team_Competencies_Card />
+            </Boundary>
+        </AppPageContent>
     </AppPage>
 }

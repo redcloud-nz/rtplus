@@ -4,7 +4,10 @@
  */
 import 'server-only'
 
+import { unstable_cache } from 'next/cache'
 import { notFound } from 'next/navigation'
+
+import { TRPCError } from '@trpc/server'
 
 import { PersonData, toPersonData } from '@/lib/schemas/person'
 import { SkillData } from '@/lib/schemas/skill'
@@ -14,21 +17,8 @@ import { SkillPackageData } from '@/lib/schemas/skill-package'
 import { TeamData, toTeamData } from '@/lib/schemas/team'
 import { TeamMembershipData, toTeamMembershipData } from '@/lib/schemas/team-membership'
 import { getQueryClient, trpc } from '@/trpc/server'
-import { TRPCError } from '@trpc/server'
+
 import prisma from './prisma'
-
-
-
-export async function fetchActiveTeam(): Promise<TeamData> {
-    return getQueryClient()
-        .fetchQuery(trpc.activeTeam.getTeam.queryOptions())
-        .catch(error => {
-            if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
-                notFound()
-            }
-            return error
-        })
-}
 
 /**
  * Fetch a person by its ID through the TRPC query client to ensure the data is available for both server and client components.
@@ -122,6 +112,8 @@ export async function fetchSkillPackage(params: Promise<{ skill_package_id: stri
         })
 }
 
+type TeamRef = { team_id: string, team_slug?: never } | { team_id?: never, team_slug: string }
+
 /**
  * Fetch a team by its ID through the TRPC query client to ensure the data is available for both server and client components.
  * 
@@ -129,13 +121,9 @@ export async function fetchSkillPackage(params: Promise<{ skill_package_id: stri
  * @param params The parameters containing the team ID.
  * @returns A promise that resolves to a TeamData object.
  */
-export async function fetchTeam(params: Promise<{ team_id: string, team_slug?: never } | { team_id?: never, team_slug: string }>): Promise<TeamData>  {
+export async function fetchTeam(params: Promise<TeamRef>): Promise<TeamData>  {
     const { team_id: teamId, team_slug: teamSlug } = await params
 
-    const queryClient = getQueryClient()
-
-    const cachedTeam = queryClient.getQueryData(trpc.teams.getTeam.queryKey({ teamId, teamSlug }))
-    if (cachedTeam) return cachedTeam
 
     // If the team is not cached, fetch it directly from the database
     const teamRecord = await prisma.team.findUnique({ 
@@ -146,11 +134,28 @@ export async function fetchTeam(params: Promise<{ team_id: string, team_slug?: n
     // Ensure the team data is in the expected format
     const team = toTeamData(teamRecord)
 
-    queryClient.setQueryData(trpc.teams.getTeam.queryKey({ teamSlug: team.slug }), team)
-    queryClient.setQueryData(trpc.teams.getTeam.queryKey({ teamId: team.teamId }), team)
-
     return team
 }
+
+export const fetchTeamCached = unstable_cache(
+        async (teamSlug: string) => {
+        // If the team is not cached, fetch it directly from the database
+        const teamRecord = await prisma.team.findUnique({ 
+            where: { slug: teamSlug } 
+        })
+        if(!teamRecord) notFound()
+
+        // Ensure the team data is in the expected format
+        const team = toTeamData(teamRecord)
+
+        return team
+    },
+    ['team'],
+    {
+        tags: ['team'],
+        revalidate: 3600 // 1 hour
+    }
+)
 
 
 /**

@@ -11,15 +11,13 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-pa
 import { DashboardCard, DashboardCardList } from '@/components/ui/dashboard-card'
 
 import * as Paths from '@/paths'
-import { fetchTeam } from '@/server/fetch'
+import { fetchTeamCached } from '@/server/fetch'
 
 
 export const metadata = { title: `Team Dashboard` }
 
 export default async function Team_Dashboard_Page(props: { params: Promise<{ team_slug: string }> }) {
-
-    const team = await fetchTeam(props.params)
-
+    const team = await fetchTeamCached((await props.params).team_slug)
 
     return <AppPage>
         <AppPageBreadcrumbs

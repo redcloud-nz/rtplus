@@ -21,16 +21,17 @@ import { CompetenceLevel, CompetenceLevelTerms } from '@/lib/competencies'
 import { PersonData } from '@/lib/schemas/person'
 import { SkillCheckData } from '@/lib/schemas/skill-check'
 import { SkillData } from '@/lib/schemas/skill'
+import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
 
+
 type RowData = SkillCheckData & { assessee: PersonData, assessor: PersonData, skill: SkillData }
 
-export function Team_SkillChecksList_Card() {
+export function Team_SkillChecksList_Card({ team }: { team: TeamData }) {
     const trpc = useTRPC()
 
-    const { data: team } = useSuspenseQuery(trpc.activeTeam.getTeam.queryOptions())
     const checksQuery = useSuspenseQuery(trpc.activeTeam.skillChecks.getSkillChecks.queryOptions({}))
 
     async function handleRefresh() {

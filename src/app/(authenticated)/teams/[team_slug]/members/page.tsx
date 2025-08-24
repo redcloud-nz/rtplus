@@ -9,8 +9,8 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 import { teamMemberTagsEnabledFlag } from '@/lib/flags'
 import * as Paths from '@/paths'
-import { fetchTeam } from '@/server/fetch'
-import { HydrateClient, prefetch, trpc } from '@/trpc/server'
+import { fetchTeamCached } from '@/server/fetch'
+
 
 import { Team_MembersList_Card } from './team-members-list'
 
@@ -19,11 +19,9 @@ export const metadata = { title: `Team Members` }
 
 
 export default async function Team_MembersList_Page(props: { params: Promise<{ team_slug: string }> }) {
-    const team = await fetchTeam(props.params)
+    const team = await fetchTeamCached((await props.params).team_slug)
 
     const teamMemberTagsEnabled = await teamMemberTagsEnabledFlag()
-
-    prefetch(trpc.activeTeam.members.getTeamMembers.queryOptions({}))
 
     return <AppPage>
         <AppPageBreadcrumbs
@@ -32,17 +30,14 @@ export default async function Team_MembersList_Page(props: { params: Promise<{ t
                 Paths.team(team).members
             ]}
         />
-        <HydrateClient>
-            <AppPageContent variant="container">
-                <PageHeader>
-                    <PageTitle>Team Members</PageTitle>
-                </PageHeader>
+        <AppPageContent variant="container">
+            <PageHeader>
+                <PageTitle>Team Members</PageTitle>
+            </PageHeader>
 
-                <Boundary>
-                    <Team_MembersList_Card showTags={teamMemberTagsEnabled}/>
-                </Boundary>
-            </AppPageContent>
-        </HydrateClient>
-            
+            <Boundary>
+                <Team_MembersList_Card team={team} showTags={teamMemberTagsEnabled}/>
+            </Boundary>
+        </AppPageContent>
     </AppPage>
 }

@@ -22,21 +22,22 @@ import { Table } from '@/components/ui/table'
 
 import { useToast } from '@/hooks/use-toast'
 import { EditableFeature } from '@/lib/editable-feature'
+import { TeamData } from '@/lib/schemas/team'
 import { UserData2, UserRole, UserRoleNameMap } from '@/lib/schemas/user'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
+
 
 
 /**
  * A card that displays the list of all users in the active team.
  * This card is used to manage users and their roles within the team.
  */
-export function Team_UsersList_Card() {
+export function Team_UsersList_Card({ team }: { team: TeamData }) {
     const queryClient = useQueryClient()
     const { toast} = useToast()
     const trpc = useTRPC()
 
-    const { data: team } = useSuspenseQuery(trpc.activeTeam.getTeam.queryOptions())
     const { data: users } = useSuspenseQuery(trpc.activeTeam.users.getUsers.queryOptions())
 
     async function handleRefresh() {

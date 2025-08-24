@@ -22,16 +22,13 @@ import { Table } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
+import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
-
-
-
-export function Team_SkillCheckSessionsList_Card() {
+export function Team_SkillCheckSessionsList_Card({ team }: { team: TeamData }) {
     const trpc = useTRPC()
 
-    const { data: team } = useSuspenseQuery(trpc.activeTeam.getTeam.queryOptions())
     const sessionsQuery = useSuspenseQuery(trpc.activeTeam.skillCheckSessions.getTeamSessions.queryOptions())
 
     async function handleRefresh() {

@@ -11,7 +11,7 @@ import { NotImplemented } from '@/components/nav/errors'
 import { notesEnabledFlag } from '@/lib/flags'
 import * as Paths from '@/paths'
 
-import { fetchTeam } from '@/server/fetch'
+import { fetchTeamCached } from '@/server/fetch'
 
 import { Team_NewNote_Card } from './team-new-note'
 
@@ -22,7 +22,7 @@ export const metadata = {
 }
 
 export default async function Team_NewNote_Page(props: { params: Promise<{ team_slug: string }> }) {
-    const team = await fetchTeam(props.params)
+    const team = await fetchTeamCached((await props.params).team_slug)
 
     const notesEnabled = await notesEnabledFlag()
 

@@ -11,12 +11,12 @@ import { TextLink } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
 import * as Paths from '@/paths'
-import { fetchTeam } from '@/server/fetch'
+import { fetchTeamCached } from '@/server/fetch'
 
 
 
 export default async function Team_Competencies_Reports_Index_Page(props: { params: Promise<{ team_slug: string }> }) {
-    const team = await fetchTeam(props.params)
+    const team = await fetchTeamCached((await props.params).team_slug)
 
     return <AppPage>
         <AppPageBreadcrumbs
