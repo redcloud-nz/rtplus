@@ -8,13 +8,17 @@ import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
 import * as Paths from '@/paths'
 import { NotImplemented } from '@/components/nav/errors'
 
-export const metadata = { title: 'Personal Notes' }
+export const metadata = { title: 'Personal Note' }
 
-export default function Personal_NotesList_Page() {
+export default async function Personal_Notes_Page({ params }: { params: Promise<{ note_id: string }> }) {
+
+    const { note_id: noteId } = await params
+
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
             Paths.personal, 
-            Paths.personal.notes
+            Paths.personal.notes,
+            Paths.personal.note(noteId)
         ]}/>
         <NotImplemented ghIssueNumber={24}/>
     </AppPage>

@@ -280,6 +280,18 @@ export const team = (teamOrSlug: TeamData | string) => {
                 href: `${base}/members/--create`,
             },
         },
+        note: (noteId: string) => ({
+            href: `${base}/notes/${noteId}`,
+            label: `Note ${noteId}`,
+        }),
+        notes: {
+            label: 'Notes',
+            href: `${base}/notes`,
+            create: {
+                label: 'Create',
+                href: `${base}/notes/--create`,
+            },
+        },
         users: {
             label: 'Users',
             href: `${base}/users`
@@ -378,6 +390,10 @@ export const personal = {
     index: '/personal',
     href: '/personal',
 
+    note: (noteId: string) => ({
+        label: `Note ${noteId}`,
+        href: `/personal/notes/${noteId}`,
+    } as const),
     notes: {
         label: 'Notes',
         href: '/personal/notes',
@@ -385,7 +401,7 @@ export const personal = {
         create: {
             label: 'Create',
             href: '/personal/notes/--create',
-        }
+        },
     },
     organizationList: {
         label: 'Organizations',

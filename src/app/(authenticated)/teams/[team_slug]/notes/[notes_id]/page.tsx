@@ -9,15 +9,17 @@ import * as Paths from '@/paths'
 import { NotImplemented } from '@/components/nav/errors'
 import { fetchTeam } from '@/server/fetch'
 
-export const metadata = { title: 'Team Notes' }
+export const metadata = { title: 'Team Note' }
 
-export default async function Team_NotesList_Page(props: { params: Promise<{ team_slug: string }> }) {
-    const team = await fetchTeam(props.params)
+export default async function Team_Notes_Page({ params }: { params: Promise<{ team_slug: string, note_id: string }> }) {
+    const team = await fetchTeam(params)
+    const { note_id: noteId } = await params
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
             Paths.team(team), 
-            Paths.team(team).notes
+            Paths.team(team).notes,
+            Paths.team(team).note(noteId)
         ]}/>
         <NotImplemented ghIssueNumber={25}/>
     </AppPage>

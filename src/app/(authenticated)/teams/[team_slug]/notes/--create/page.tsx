@@ -11,37 +11,40 @@ import { NotImplemented } from '@/components/nav/errors'
 import { notesEnabledFlag } from '@/lib/flags'
 import * as Paths from '@/paths'
 
-import { Personal_NewNote_Card } from './personal-new-note'
+import { fetchTeam } from '@/server/fetch'
+
+import { Team_NewNote_Card } from './team-new-note'
+
 
 
 export const metadata = {
-    title: 'Create - Personal Notes',
+    title: 'Create - Team Notes',
 }
 
-export default async function Personal_NewNote_Page() {
+export default async function Team_NewNote_Page(props: { params: Promise<{ team_slug: string }> }) {
+    const team = await fetchTeam(props.params)
 
     const notesEnabled = await notesEnabledFlag()
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
-            Paths.personal, 
-            Paths.personal.notes, 
-            Paths.personal.notes.create
+            Paths.team(team),
+            Paths.team(team).notes,
+            Paths.team(team).notes.create
         ]}/>
-        <Show
+        <Show 
             when={notesEnabled}
-            fallback={<NotImplemented ghIssueNumber={24} />}    
+            fallback={<NotImplemented ghIssueNumber={25} />}
         >
             <AppPageContent variant="container">
                 <PageHeader>
-                    <PageTitle>Create Personal Note</PageTitle>
+                    <PageTitle>Create Team Note</PageTitle>
                 </PageHeader>
                 <Boundary>
-                    <Personal_NewNote_Card />
+                    <Team_NewNote_Card teamId={team.teamId} />
                 </Boundary>
             </AppPageContent>
-        </Show>
-        
+        </Show>        
     </AppPage>
 }
 
