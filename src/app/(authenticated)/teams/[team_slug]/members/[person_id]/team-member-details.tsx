@@ -38,11 +38,11 @@ import { useTRPC } from '@/trpc/client'
 
 
 
-export function Team_Member_Details_Card({ personId, showTags }: { personId: string, showTags: boolean }) {
+export function Team_Member_Details_Card({ personId, teamId, showTags }: { personId: string, teamId: string, showTags: boolean }) {
     const router = useRouter()
     const trpc = useTRPC()
 
-    const { data: { person, team, ...membership } } = useSuspenseQuery(trpc.activeTeam.members.getTeamMember.queryOptions({ personId }))
+    const { data: { person, team, ...membership } } = useSuspenseQuery(trpc.teamMemberships.getTeamMembership.queryOptions({ personId, teamId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
 
@@ -124,7 +124,7 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team, showTags 
     const trpc = useTRPC()
 
     const isOwner = person.owningTeamId === team.teamId
-    const queryKey = trpc.activeTeam.members.getTeamMember.queryKey({ personId: person.personId })
+    const queryKey = trpc.teamMemberships.getTeamMembership.queryKey({ personId: person.personId, teamId: team.teamId })
 
     const form = useForm<TeamMembershipData & Pick<PersonData, 'name' | 'email'>>({
         resolver: zodResolver(teamMembershipSchema.merge(personSchema.pick({ name: true, email: true }))),
@@ -138,10 +138,10 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team, showTags 
         }
     })
 
-    const mutation = useMutation(trpc.activeTeam.members.updateTeamMembership.mutationOptions({
-        async onMutate({ personId,...update }) {
+    const mutation = useMutation(trpc.teamMemberships.updateTeamMembership.mutationOptions({
+        async onMutate({ personId, teamId, ...update }) {
 
-            await queryClient.cancelQueries(trpc.activeTeam.members.getTeamMember.queryFilter({ personId }))
+            await queryClient.cancelQueries(trpc.teamMemberships.getTeamMembership.queryFilter({ personId, teamId }))
             
             // Snapshot the previous value
             const previousData = queryClient.getQueryData(queryKey)
@@ -163,17 +163,16 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team, showTags 
                 variant: 'destructive'
             })
         },
-        async onSuccess(result) {
+        async onSuccess() {
             toast({
                 title: 'Team membership updated',
                 description: `${person.name}'s membership in '${team.name}' has been updated.`,
             })
-
-            await queryClient.invalidateQueries(trpc.activeTeam.members.getTeamMember.queryFilter({ personId: result.personId }))
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.activeTeam.members.getTeamMembers.queryFilter({}))
-            queryClient.invalidateQueries(trpc.activeTeam.members.getTeamMember.queryFilter({ personId: membership.personId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ personId: membership.personId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ teamId: membership.teamId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMembership.queryFilter({ personId: membership.personId, teamId: membership.teamId }))
         }
     }))
 

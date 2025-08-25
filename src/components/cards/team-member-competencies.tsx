@@ -27,11 +27,11 @@ import { SkillCheckGeneratorConfig_Card, SkillCheckGeneratorConfigData } from '.
 
 
 
-export function Team_Member_Competencies_Card({ personId }: { personId: string }) {
+export function Team_Member_Competencies_Card({ personId, teamId }: { personId: string, teamId: string }) {
     const trpc = useTRPC()
 
     const skillPackagesQuery = useSuspenseQuery(trpc.skills.getTree.queryOptions())
-    const teamMembersQuery = useSuspenseQuery(trpc.activeTeam.members.getTeamMembers.queryOptions({}))
+    const teamMembersQuery = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId }))
 
     async function handleRefresh() {
         await skillPackagesQuery.refetch()

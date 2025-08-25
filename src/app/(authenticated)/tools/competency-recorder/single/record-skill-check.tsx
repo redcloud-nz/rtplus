@@ -25,12 +25,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 
+import { useActiveTeam } from '@/hooks/use-active-team'
 import { useToast } from '@/hooks/use-toast'
 import { CompetenceLevelTerms } from '@/lib/competencies'
 import { nanoId16 } from '@/lib/id'
 import { skillCheckSchema } from '@/lib/schemas/skill-check'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
+
 
 
 const singleSkillCheckSchema = skillCheckSchema.omit({ assessorId: true, sessionId: true })
@@ -40,6 +42,8 @@ export function CompetencyRecorder_Single_Card() {
     const router = useRouter()
     const { toast } = useToast()
     const trpc = useTRPC()
+
+    const activeTeam = useActiveTeam()!
 
     const skillCheckId = useMemo(() => nanoId16(), [])
 
@@ -92,6 +96,7 @@ export function CompetencyRecorder_Single_Card() {
                                 label="Assessee"
                                 control={<TeamMemberPicker 
                                     {...field} 
+                                    teamId={activeTeam.teamId}
                                     onValueChange={field.onChange}
                                     placeholder="Select a person to assess..."
                                    size="default" 

@@ -94,15 +94,28 @@ export const teamsRouter = createTRPCRouter({
             return toTeamData(deleted)
         }),
 
+    getActiveTeam: authenticatedProcedure
+        .output(z.union([teamSchema, z.null()]))
+        .query(async ({ ctx }) => {
+            if(ctx.session.activeTeam == null) return null
+
+            const team = await ctx.prisma.team.findUnique({ 
+                where: { clerkOrgId: ctx.session.activeTeam.orgId },
+            })
+            if(team == null) throw new TRPCError({ code: 'NOT_FOUND', message: `Team with orgId ${ctx.session.activeTeam.orgId} not found.` })
+            return toTeamData(team)
+        }),
+
     getTeam: authenticatedProcedure
         .input(z.object({ 
             teamId: zodNanoId8.optional(),
             teamSlug: z.string().optional(),
-        }).refine(data => data.teamId || data.teamSlug, {
-            message: 'Either teamId or teamSlug must be provided.'
+            orgId: z.string().optional(),
+        }).refine(data => data.teamId || data.teamSlug || data.orgId, {
+            message: 'One of teamId, teamSlug, or orgId must be provided.'
         }))
         .output(teamSchema)
-        .query(async ({ ctx, input: { teamId, teamSlug } }) => {
+        .query(async ({ ctx, input: { teamId, teamSlug, orgId } }) => {
 
             if(teamId) {
                 const team = await getTeamById(ctx, teamId)
@@ -111,6 +124,12 @@ export const teamsRouter = createTRPCRouter({
                 const team = await ctx.prisma.team.findUnique({ where: { slug: teamSlug } })
 
                 if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: `Team with slug ${teamSlug} not found.` })
+                return toTeamData(team)
+
+            } else if(orgId) {
+                const team = await ctx.prisma.team.findUnique({ where: { clerkOrgId: orgId } })
+
+                if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: `Team with orgId ${orgId} not found.` })
                 return toTeamData(team)
 
             } else {

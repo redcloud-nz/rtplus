@@ -41,7 +41,7 @@ export default async function Team_Member_Competencies_Page(props: { params: Pro
                     <PageTitle objectType="Team Member">{person.name}</PageTitle>
                 </PageHeader>
                 <Boundary>
-                    <Team_Member_Competencies_Card personId={person.personId}/>
+                    <Team_Member_Competencies_Card personId={person.personId} teamId={team.teamId} />
                 </Boundary>
             </AppPageContent>
         </HydrateClient>

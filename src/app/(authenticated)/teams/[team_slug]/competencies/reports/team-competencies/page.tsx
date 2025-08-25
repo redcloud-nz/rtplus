@@ -34,7 +34,7 @@ export default async function Team_Skills_Report_Page(props: { params: Promise<{
                 <PageTitle objectType="Report">Team Skills</PageTitle>
             </PageHeader>
             <Boundary>
-                <Team_Competencies_Card />
+                <Team_Competencies_Card teamId={team.teamId}/>
             </Boundary>
         </AppPageContent>
     </AppPage>

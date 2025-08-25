@@ -16,6 +16,8 @@ import { PersonData } from '@/lib/schemas/person'
 
 interface TeamMemberPickerProps {
 
+    teamId: string
+
     className?: string
 
     defaultValue?: string
@@ -34,10 +36,10 @@ interface TeamMemberPickerProps {
 
 }
 
-export function TeamMemberPicker({ className, defaultValue = "", exclude = [], onValueChange, placeholder, size, status = ['Active'], value }: TeamMemberPickerProps) {
+export function TeamMemberPicker({ teamId, className, defaultValue = "", exclude = [], onValueChange, placeholder, size, status = ['Active'], value }: TeamMemberPickerProps) {
     const trpc = useTRPC()
-    
-    const teamMembersQuery = useQuery(trpc.activeTeam.members.getTeamMembers.queryOptions({ status }))
+
+    const teamMembersQuery = useQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId, status }))
 
     const teamMembers = teamMembersQuery.data || []
 

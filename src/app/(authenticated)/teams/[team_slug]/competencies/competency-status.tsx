@@ -9,10 +9,9 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Link } from '@/components/ui/link'
 
+import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
-import { TeamData } from '@/lib/schemas/team'
-
 
 
 
@@ -45,7 +44,7 @@ export function SkillsCount_Card({ team }: {team: TeamData }) {
 export function TeamMembersCount_Card({ team }: { team: TeamData }) {
     const trpc = useTRPC()
 
-    const { data: teamMembers } = useSuspenseQuery(trpc.activeTeam.members.getTeamMembers.queryOptions({}))
+    const { data: teamMembers } = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId: team.teamId }))
 
     return <Stat objectType="Team Members" value={teamMembers.length} description="that can be assessed"  linksTo={Paths.team(team).members}/>
 }

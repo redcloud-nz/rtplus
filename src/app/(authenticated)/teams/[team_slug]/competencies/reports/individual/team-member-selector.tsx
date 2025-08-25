@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation'
 import { TeamMemberPicker } from '@/components/controls/team-member-picker'
 
 
-export function IndividualReport_TeamMemberSelector({ personId }: { personId?: string }) {
+export function IndividualReport_TeamMemberSelector({ personId, teamId }: { personId?: string, teamId: string }) {
     const router = useRouter()
 
 
@@ -20,7 +20,8 @@ export function IndividualReport_TeamMemberSelector({ personId }: { personId?: s
     }
 
     return <>
-        <TeamMemberPicker 
+        <TeamMemberPicker
+            teamId={teamId}
             value={personId ?? ''}
             onValueChange={(newMember) => handleChange(newMember.personId)}
             placeholder="Select a team member..."

@@ -36,11 +36,11 @@ export default async function Team_Member_Skills_Report_Page(props: { params: Pr
             <PageHeader>
                 <PageTitle objectType="Report">Individual Skills</PageTitle>
                 <PageControls>
-                    <IndividualReport_TeamMemberSelector personId={pid} />
+                    <IndividualReport_TeamMemberSelector personId={pid} teamId={team.teamId}/>
                 </PageControls>
             </PageHeader>
             <Boundary>
-                { pid ? <Team_Member_Competencies_Card personId={pid}/> : <p>No team member selected</p>}
+                { pid ? <Team_Member_Competencies_Card personId={pid} teamId={team.teamId} /> : <p>No team member selected</p>}
             </Boundary>
         </AppPageContent>
     </AppPage>

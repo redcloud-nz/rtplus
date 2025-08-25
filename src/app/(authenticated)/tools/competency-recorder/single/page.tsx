@@ -5,7 +5,6 @@
  *  Path: /tools/competency-recorder/single
  */
 
-import * as React from 'react'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'

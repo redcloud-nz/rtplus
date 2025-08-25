@@ -6,28 +6,19 @@
 
 import { ReactNode } from 'react'
 
-import { useOrganization } from '@clerk/nextjs'
 
 import { Alert } from '@/components/ui/alert'
-import { LoadingSpinner } from '@/components/ui/loading'
-import { Show } from '../show'
+import { useActiveTeam } from '@/hooks/use-active-team'
 
-const DefaultMessage = "You must be part of an active team to access this feature."
+
+const DefaultMessage = "You need to be signed in to a team to access this feature."
 
 export function RequireActiveTeam({ children, message = DefaultMessage }: { children: ReactNode, message?: ReactNode }) {
-    const { isLoaded, organization } = useOrganization()
+    const activeTeam = useActiveTeam()
 
-    return <Show 
-        when={isLoaded}
-        fallback={<div className="w-full h-16 flex items-center justify-center rounded-md bg-muted animate-pulse">
-            <LoadingSpinner className="w-12 h-12"/>
-        </div>}
-    >
-        {organization 
-            ? children 
-            : <Alert severity="error" title="Active Team Required">
-                {message}
-            </Alert>
-        }
-    </Show>
+    return activeTeam
+        ? children 
+        : <Alert severity="error" title="Active Team Required">
+            {message}
+        </Alert>
 }

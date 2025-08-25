@@ -35,7 +35,7 @@ import { useTRPC } from '@/trpc/client'
 export function Team_MembersList_Card({ team, showTags }: { team: TeamData, showTags: boolean }) {
     const trpc = useTRPC()
 
-    const membersQuery = useSuspenseQuery(trpc.activeTeam.members.getTeamMembers.queryOptions({}))
+    const membersQuery = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId: team.teamId }))
 
     async function handleRefresh() {
         await membersQuery.refetch()
@@ -123,7 +123,7 @@ export function Team_MembersList_Card({ team, showTags }: { team: TeamData, show
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button variant="ghost" size="icon" asChild>
-                                    <Link to={Paths.team(team.slug).members.create}>
+                                    <Link to={Paths.team(team).members.create}>
                                         <PlusIcon/>
                                     </Link>
                                 </Button>

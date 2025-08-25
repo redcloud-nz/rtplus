@@ -9,7 +9,6 @@ import { teamSchema, toTeamData } from '@/lib/schemas/team'
 import { createTRPCRouter, teamProcedure } from '@/trpc/init'
 import { getActiveTeam} from '../teams'
 
-import { activeTeamMembersRouter } from './active-team-members'
 import { activeTeamSkillChecksRouter } from './active-team-skill-checks'
 import { activeTeamSkillCheckSessionsRouter } from './active-team-skill-check-sessions'
 import { activeTeamUsersRouter } from './active-team-users'
@@ -19,7 +18,6 @@ export const activeTeamRouter = createTRPCRouter({
 
     // Submodules for active team
 
-    members: activeTeamMembersRouter,
     skillChecks: activeTeamSkillChecksRouter,
     skillCheckSessions: activeTeamSkillCheckSessionsRouter,
     users: activeTeamUsersRouter,

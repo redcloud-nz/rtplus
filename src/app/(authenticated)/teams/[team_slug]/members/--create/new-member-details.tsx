@@ -26,13 +26,11 @@ import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
 
-
-
-const formSchema = personSchema.pick({ name: true, email: true }).merge(teamMembershipSchema.pick({ tags: true, status: true }))
+const formSchema = personSchema.pick({ name: true, email: true }).merge(teamMembershipSchema.pick({ teamId: true, tags: true, status: true }))
 
 type FormData = z.infer<typeof formSchema>
 
-export function Team_NewMember_Details_Card({ showTags }: { showTags: boolean }) {
+export function Team_NewMember_Details_Card({ teamId, showTags }: { teamId: string, showTags: boolean }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -45,11 +43,12 @@ export function Team_NewMember_Details_Card({ showTags }: { showTags: boolean })
             name: '',
             email: '',
             tags: [],
-            status: 'Active'
+            status: 'Active',
+            teamId,
         }
     })
 
-    const mutation = useMutation(trpc.activeTeam.members.createTeamMembershipWithPerson.mutationOptions({
+    const mutation = useMutation(trpc.teamMemberships.createLinkedTeamMembership.mutationOptions({
         onError(error) {
             if (error.shape?.cause?.name === 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof FormData, { message: error.shape.message })
@@ -62,11 +61,11 @@ export function Team_NewMember_Details_Card({ showTags }: { showTags: boolean })
             }
         },
         onSuccess(result) {
-            queryClient.invalidateQueries(trpc.activeTeam.members.getTeamMembers.queryFilter({}))
             toast({
                 title: "Membership Created",
                 description: `${result.person.name} has been added to the team.`,
             })
+            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ teamId: result.teamId }))
             router.push(Paths.team(result.team.slug).members.href)
         }
     }))

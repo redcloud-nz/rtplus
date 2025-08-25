@@ -41,7 +41,7 @@ export default async function Team_NewMember_Page(props: { params: Promise<{ tea
             </PageHeader>
 
             <Boundary>
-                <Team_NewMember_Details_Card showTags={teamMemberTagsEnabled} />
+                <Team_NewMember_Details_Card teamId={team.teamId} showTags={teamMemberTagsEnabled} />
             </Boundary>
         </AppPageContent>
     </AppPage>
