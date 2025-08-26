@@ -26,9 +26,11 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useToast } from '@/hooks/use-toast'
 import { EditableFeature } from '@/lib/editable-feature'
 import { EmptyPersonId, PersonData } from '@/lib/schemas/person'
+import { TeamData } from '@/lib/schemas/team'
 import { TeamMembershipData } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
+
 
 
 /**
@@ -36,12 +38,12 @@ import { useTRPC } from '@/trpc/client'
  * It allows adding, editing, and deleting team members.
  * @param teamId The ID of the team for which to display members.
  */
-export function System_Team_Members_Card({ teamId }: { teamId: string }) {
+export function System_Team_Members_Card({ team }: { team: TeamData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const teamMembersQuery = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId }))
+    const teamMembersQuery = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId: team.teamId }))
 
     async function handleRefresh() {
         await teamMembersQuery.refetch()
@@ -50,7 +52,7 @@ export function System_Team_Members_Card({ teamId }: { teamId: string }) {
     // Mutations for CRUD operations
     const createMutation = useMutation(trpc.teamMemberships.createTeamMembership.mutationOptions({
         onSuccess: () => {
-            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ teamId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ teamId: team.teamId }))
             toast({
                 title: 'Team member added successfully',
                 variant: 'default'
@@ -67,7 +69,7 @@ export function System_Team_Members_Card({ teamId }: { teamId: string }) {
 
     const updateMutation = useMutation(trpc.teamMemberships.updateTeamMembership.mutationOptions({
         onSuccess: () => {
-            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ teamId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ teamId: team.teamId }))
             toast({
                 title: 'Team member updated successfully',
                 variant: 'default'
@@ -84,7 +86,7 @@ export function System_Team_Members_Card({ teamId }: { teamId: string }) {
 
     const deleteMutation = useMutation(trpc.teamMemberships.deleteTeamMembership.mutationOptions({
         onSuccess: () => {
-            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ teamId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ teamId: team.teamId }))
             toast({
                 title: 'Team member removed successfully',
                 variant: 'default'
@@ -122,11 +124,12 @@ export function System_Team_Members_Card({ teamId }: { teamId: string }) {
                             onValueChange={(person) => ctx.row.setModifiedRowData({ person })}
                             placeholder="Select a person"
                             exclude={existingMemberIds}
+                            filter={{ type: [team.type as 'Normal' | 'Sandbox'] }}
                         />
                     )
                 })
                 .otherwise(() => 
-                    <TextLink to={Paths.system.team(teamId).member(ctx.row.original.person.personId)}>{ctx.getValue()}</TextLink>
+                    <TextLink to={Paths.system.team(team.teamId).member(ctx.row.original.person.personId)}>{ctx.getValue()}</TextLink>
                 )
             ),
             enableGrouping: false,
@@ -223,7 +226,7 @@ export function System_Team_Members_Card({ teamId }: { teamId: string }) {
                 }
             }
         })
-    ]), [teamMembersQuery.data, teamId])
+    ]), [teamMembersQuery.data, team.teamId, team.type])
 
 
     const table = useReactTable<TeamMembershipData & { person: PersonData }>({
@@ -238,7 +241,7 @@ export function System_Team_Members_Card({ teamId }: { teamId: string }) {
         getRowId: (row) => row.personId,
         createEmptyRow: () => ({
             personId: EmptyPersonId,
-            teamId,
+            teamId: team.teamId,
             status: 'Active' as const,
             tags: [],
             person: {
@@ -246,7 +249,8 @@ export function System_Team_Members_Card({ teamId }: { teamId: string }) {
                 name: '',
                 email: '',
                 status: 'Active' as const,
-                owningTeamId: null
+                owningTeamId: null,
+                type: team.type as 'Normal' | 'Sandbox',
             }
         }),
         onUpdate: (rowData) => {
@@ -256,7 +260,7 @@ export function System_Team_Members_Card({ teamId }: { teamId: string }) {
             createMutation.mutate({ ...rowData, personId: rowData.person.personId }) // Ensure personId is set correctly
         },
         onDelete: (rowData) => {
-            deleteMutation.mutate({ teamId, personId: rowData.personId })
+            deleteMutation.mutate({ teamId: team.teamId, personId: rowData.personId })
         },
         initialState: {
             columnVisibility: {

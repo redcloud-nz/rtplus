@@ -7,30 +7,40 @@
 
 import { useRouter } from 'next/navigation'
 import { FormProvider, useForm } from 'react-hook-form'
+import { match } from 'ts-pattern'
 import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { Show } from '@/components/show'
+import { Alert } from '@/components/ui/alert'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { DisplayValue } from '@/components/ui/display-value'
 import { Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input, TagsInput } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 
 import { useToast } from '@/hooks/use-toast'
+import { sandboxEmailOf } from '@/lib/sandbox'
 import {personSchema } from '@/lib/schemas/person'
+import { TeamData } from '@/lib/schemas/team'
 import { teamMembershipSchema } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
+
+
+
+
+
 
 
 const formSchema = personSchema.pick({ name: true, email: true }).merge(teamMembershipSchema.pick({ teamId: true, tags: true, status: true }))
 
 type FormData = z.infer<typeof formSchema>
 
-export function Team_NewMember_Details_Card({ teamId, showTags }: { teamId: string, showTags: boolean }) {
+export function Team_NewMember_Details_Card({ team, showTags }: { team: TeamData, showTags: boolean }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -44,7 +54,7 @@ export function Team_NewMember_Details_Card({ teamId, showTags }: { teamId: stri
             email: '',
             tags: [],
             status: 'Active',
-            teamId,
+            teamId: team.teamId,
         }
     })
 
@@ -78,24 +88,46 @@ export function Team_NewMember_Details_Card({ teamId, showTags }: { teamId: stri
             <FormProvider {...form}>
                 <Form onSubmit={form.handleSubmit((formData) => mutation.mutate(formData))}>
                     <ToruGrid mode="form">
-                        <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => <ToruGridRow
-                                label="Name"
-                                control={<Input maxLength={100} {...field}/>}
-                                description="The full name of the person."
-                            />}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => <ToruGridRow
-                                label="Email"
-                                control={<Input type="email" maxLength={100} {...field}/>}
-                                description="The email address of the person (must be unique)."
-                            />}
-                        />
+                        {match(team.type)
+                            .with('Normal', () => <>
+                                <FormField
+                                    control={form.control}
+                                    name="name"
+                                    render={({ field }) => <ToruGridRow
+                                        label="Name"
+                                        control={<Input maxLength={100} {...field}/>}
+                                        description="The full name of the person."
+                                    />}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="email"
+                                    render={({ field }) => <ToruGridRow
+                                        label="Email"
+                                        control={<Input type="email" maxLength={100} {...field}/>}
+                                        description="The email address of the person (must be unique)."
+                                    />}
+                                />
+                            </>)
+                            .with('Sandbox', () => <FormField
+                                control={form.control}
+                                name="name"
+                                render={({ field }) => <>
+                                    <ToruGridRow
+                                        label="Name"
+                                        control={<Input maxLength={100} {...field}/>}
+                                        description="The full name of the person."
+                                    />
+                                    <ToruGridRow
+                                        label="Email"
+                                        control={<DisplayValue>{sandboxEmailOf(field.value)}</DisplayValue>}
+                                        description="The email address of the person."
+                                    />
+                                </>}
+                            />)
+                            .with('System', () => <Alert title="NOT PERMITTED"/>)
+                            .exhaustive()
+                        }
                         <Show when={showTags}>
                             <FormField
                                 control={form.control}

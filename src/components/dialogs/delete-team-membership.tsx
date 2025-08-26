@@ -57,7 +57,6 @@ export function DeleteTeamMembershipDialog({ onDelete, personId, teamId }: { onD
 
             await queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ personId: result.personId }))
             await queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ teamId: result.teamId }))
-            await queryClient.invalidateQueries(trpc.activeTeam.members.getTeamMembers.queryFilter({}))
         },
     }))
 

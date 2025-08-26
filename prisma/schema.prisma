@@ -65,9 +65,9 @@ model Person {
     clerkInvitationId            String?                      @map("clerk_invitation_id") @db.VarChar(50) @unique
     inviteStatus                 InviteStatus                 @map("invite_status") @default(None)
     owningTeamId                 String?                      @map("owning_team_id") @db.VarChar(16)
+    type                         PersonType                   @default(Normal)
     status                       RecordStatus                 @default(Active)
-    sandbox                      Boolean                      @default(false)
-  
+
     // Relations
     changeLogs                   PersonChangeLog[]            @relation("person_change_log_to_person")
     noteChangeLogs               NoteChangeLog[]              @relation("note_change_log_to_actor")
@@ -109,7 +109,10 @@ model PersonChangeLog {
     @@map("personnel_change_log")
 }
 
-
+enum PersonType {
+    Normal
+    Sandbox
+}
 
 /// defines the current status of a record.
 enum RecordStatus {
@@ -302,7 +305,7 @@ model Team {
     shortName          String              @db.VarChar(50)
     color              String              @db.VarChar(10)
     status             RecordStatus        @default(Active)
-    sandbox            Boolean             @default(false)
+    type               TeamType            @default(Normal)
 
     // Relations
     d4hInfo            TeamD4hInfo?        @relation("team_d4h_info_to_team")
@@ -373,8 +376,8 @@ model TeamMembership {
 }
 
 model TeamMembershipD4hInfo {
-    personId           String                 @map("person_id") @db.VarChar(16)
-    teamId             String                 @map("team_id") @db.VarChar(16)
+    personId         String                  @map("person_id") @db.VarChar(16)
+    teamId           String                  @map("team_id") @db.VarChar(16)
     position         String
     d4hStatus        TeamMembershipD4hStatus @map("d4h_status")
     d4hMemberId      Int                     @map("d4h_member_id")
@@ -392,4 +395,10 @@ enum TeamMembershipD4hStatus {
     NonOperational
     Observer
     Retired
+}
+
+enum TeamType {
+    Normal
+    Sandbox
+    System
 }

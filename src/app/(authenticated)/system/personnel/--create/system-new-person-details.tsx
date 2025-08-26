@@ -8,6 +8,7 @@
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+import { match } from 'ts-pattern'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -21,11 +22,11 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
+import { sandboxEmailOf } from '@/lib/sandbox'
 import { PersonData, personSchema } from '@/lib/schemas/person'
 import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
-
 
 
 
@@ -44,7 +45,7 @@ export function System_NewPerson_Details_Card() {
             name: '',
             email: '',
             status: 'Active',
-            sandbox: false
+            type: 'Normal'
         }
     })
 
@@ -89,28 +90,10 @@ export function System_NewPerson_Details_Card() {
                         />
                         <FormField
                             control={form.control}
-                            name="name"
-                            render={({ field }) => <ToruGridRow
-                                label="Name"
-                                control={<Input maxLength={100} {...field}/>}
-                                description="The full name of the person."
-                            />}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => <ToruGridRow
-                                label="Email"
-                                control={<Input type="email" maxLength={100} {...field}/>}
-                                description="The email address of the person (must be unique)."
-                            />}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="sandbox"
+                            name="type"
                             render={({ field }) => <ToruGridRow
                                 label="Type"
-                                control={<Select value={field.value ? 'Sandbox' : 'Normal'} onValueChange={(newValue) => field.onChange(newValue == 'Sandbox')}>
+                                control={<Select value={field.value} onValueChange={field.onChange}>
                                     <SelectTrigger>
                                         <SelectValue/>
                                     </SelectTrigger>
@@ -119,9 +102,49 @@ export function System_NewPerson_Details_Card() {
                                         <SelectItem value="Sandbox">Sandbox</SelectItem>
                                     </SelectContent>
                                 </Select>}
-                                description="Whether the team is a sandbox team."
+                                description="The type of person. Can't be changed later."
                             />}
                         />
+                        {match(form.getValues('type'))
+                            .with('Normal', () => <>
+                                <FormField
+                                    control={form.control}
+                                    name="name"
+                                    render={({ field }) => <ToruGridRow
+                                        label="Name"
+                                        control={<Input maxLength={100} {...field}/>}
+                                        description="The full name of the person."
+                                    />}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="email"
+                                    render={({ field }) => <ToruGridRow
+                                        label="Email"
+                                        control={<Input type="email" maxLength={100} {...field}/>}
+                                        description="The email address of the person (must be unique)."
+                                    />}
+                                />
+                            </>)
+                            .with('Sandbox', () => <FormField
+                                control={form.control}
+                                name="name"
+                                render={({ field }) => <>
+                                    <ToruGridRow
+                                        label="Name"
+                                        control={<Input maxLength={100} {...field}/>}
+                                        description="The full name of the person."
+                                    />
+                                    <ToruGridRow
+                                        label="Email"
+                                        control={<DisplayValue>{sandboxEmailOf(field.value)}</DisplayValue>}
+                                        description="The sandbox (fake) email address of the person."
+                                    />
+                                </>}
+                            />)
+                            .exhaustive()
+                        }
+                        
                         <ToruGridRow
                             label="Status"
                             control={<DisplayValue>Active</DisplayValue>}

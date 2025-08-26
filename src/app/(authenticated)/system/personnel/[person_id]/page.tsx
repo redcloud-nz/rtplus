@@ -48,7 +48,7 @@ export default async function System_Person_Page(props: { params: Promise<{ pers
                     <System_Person_Details_Card personId={person.personId}/>
                 </Boundary>
                 <Boundary>
-                    <System_Person_TeamMemberships_Card personId={person.personId}/>
+                    <System_Person_TeamMemberships_Card person={person}/>
                 </Boundary>
             </AppPageContent>
         </HydrateClient>

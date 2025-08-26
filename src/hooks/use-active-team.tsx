@@ -4,7 +4,7 @@
  */
 'use client'
 
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 
 import { TeamData } from '@/lib/schemas/team'
 import { useTRPC } from '@/trpc/client'
@@ -13,7 +13,7 @@ import { useTRPC } from '@/trpc/client'
 export function useActiveTeam(): TeamData | null {
     const trpc = useTRPC()
     
-    const { data: team } = useSuspenseQuery(trpc.teams.getActiveTeam.queryOptions())
+    const { data: team } = useQuery(trpc.teams.getActiveTeam.queryOptions())
 
     return team ?? null
 }

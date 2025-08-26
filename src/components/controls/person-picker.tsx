@@ -39,6 +39,7 @@ interface PersonPickerProps {
     filter?: {
         status?: ('Active' | 'Inactive')[]
         isUser?: boolean
+        type?: ('Normal' | 'Sandbox')[]
     }
 
     /**
@@ -69,7 +70,7 @@ interface PersonPickerProps {
  * It uses a popover to display the list of persons and allows filtering by name.
  */
 export function PersonPicker({ className, defaultValue = "", exclude = [], filter = {}, onValueChange, placeholder, size, value }: PersonPickerProps) {
-    filter = { status: ['Active'], ...filter }
+    filter = { status: ['Active'], type: ['Normal'], ...filter }
 
     const trpc = useTRPC()
     const query = useQuery(trpc.personnel.getPersonnel.queryOptions(filter))

@@ -46,7 +46,7 @@ export function System_NewTeam_Details_Card() {
             slug: teamId,
             color: '',
             status: 'Active',
-            sandbox: false
+            type: 'Normal',
         }
     })
 
@@ -119,19 +119,20 @@ export function System_NewTeam_Details_Card() {
                         />
                         <FormField
                             control={form.control}
-                            name="sandbox"
+                            name="type"
                             render={({ field }) => <ToruGridRow
                                 label="Type"
-                                control={<Select value={field.value ? 'Sandbox' : 'Normal'} onValueChange={(newValue) => field.onChange(newValue == 'Sandbox')}>
+                                control={<Select value={field.value} onValueChange={field.onChange}>
                                     <SelectTrigger>
                                         <SelectValue/>
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="Normal">Normal</SelectItem>
                                         <SelectItem value="Sandbox">Sandbox</SelectItem>
+                                        <SelectItem value="System" disabled>System</SelectItem>
                                     </SelectContent>
                                 </Select>}
-                                description="Whether the team is a sandbox team."
+                                description="The type of team. Can't be changed later."
                             />}
                         />
                         <ToruGridRow

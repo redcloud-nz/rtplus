@@ -9,12 +9,16 @@ import { z } from 'zod'
 import { Person as PersonRecord, Team as TeamRecord } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
-import { PersonData, personSchema, toPersonData } from '@/lib/schemas/person'
+import { personSchema, toPersonData } from '@/lib/schemas/person'
 import { nanoId16 } from '@/lib/id'
+import { sandboxEmailOf } from '@/lib/sandbox'
 import { zodRecordStatus, zodNanoId8 } from '@/lib/validation'
 
-import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
+import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, teamAdminProcedure } from '../init'
+import { Messages } from '../messages'
 import { FieldConflictError } from '../types'
+import { getActiveTeam } from './teams'
+
 
 
 /**
@@ -22,32 +26,92 @@ import { FieldConflictError } from '../types'
  */
 export const personnelRouter = createTRPCRouter({
 
-    createPerson: systemAdminProcedure
+    /**
+     * Creates a new person in the system.
+     * If the user is not a system admin, the owning team ID is set to the active team.
+     * @param ctx The authenticated context.
+     * @param input The input object containing the person data.
+     * @returns The created person object.
+     * @throws TRPCError(CONFLICT) if a person with the same email already exists.
+     */
+    createPerson: teamAdminProcedure
         .input(personSchema)
         .output(personSchema)
-        .mutation(async ({ input, ctx }) => {
+        .mutation(async ({ ctx, input: { personId, ...input } }) => {
 
-            const person = await createPerson(ctx, input)
+            // Set the owning team (if applicable)
+            if(!ctx.isSystemAdmin) {
+                const team = await getActiveTeam(ctx)
+                input.owningTeamId = team.id
+            }
+
+            if(input.type == 'Sandbox') {
+                input.email = `${input.name.replace(/\s+/g, '.').toLowerCase()}@example.com`
+            }
+
+            // Check if a person with the same email already exists
+            const emailConflict = await ctx.prisma.person.findFirst({ where: { email: input.email } })
+            if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists.', cause: new FieldConflictError('email') })
+
+            const created = await ctx.prisma.person.create({
+                data: {
+                    id: personId,
+                    ...input,
+                    changeLogs: {
+                        create: {
+                            id: nanoId16(),
+                            actorId: ctx.session.personId,
+                            event: 'Create',
+                            fields: { ...input }
+                        }
+                    }
+                }
+            })
             
-            return toPersonData(person)
+            return toPersonData(created)
         }),
 
-    deletePerson: systemAdminProcedure
+    /**
+     * Delete a person from the system.
+     * @param ctx The authenticated context.
+     * @param input The input object containing the personId.
+     * @returns The deleted person object.
+     * @throws TRPCError(NOT_FOUND) if the person is not found.
+     * @throws TRPCError(FORBIDDEN) if the user does not have permission to delete the person.
+     */
+    deletePerson: teamAdminProcedure
         .input(z.object({
             personId: zodNanoId8,
         }))
         .output(personSchema)
-        .mutation(async ({ input, ctx }) => {
+        .mutation(async ({ ctx, input: { personId }  }) => {
             
-            const person = await getPersonById(ctx, input.personId)
-            if(person?.owningTeam) {
-                ctx.requireTeamAdmin(person.owningTeam.clerkOrgId)
-            } else ctx.requireSystemAdmin()
+            const person = await getPersonById(ctx, personId)
+            if(person == null) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(personId) })
+
+            if(person.owningTeam) {
+                if(!ctx.hasTeamAdmin(person.owningTeam)) throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have permission to delete this person.' })
+            } else {
+                if(!ctx.isSystemAdmin) throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have permission to delete this person.' })
+            }
             
-            const deleted = await deletePerson(ctx, person)
+            const deleted = await ctx.prisma.person.delete({ where: { id: person.id } })
+
+            if(deleted.clerkUserId) {
+                // Delete the associated Clerk user
+                await ctx.clerkClient.users.deleteUser(deleted.clerkUserId)
+            }
+            
             return toPersonData(deleted)
         }),
 
+    /**
+     * Retrieves a person by their ID or email.
+     * @param ctx The authenticated context.
+     * @param input The input object containing either personId or email.
+     * @returns The person object if found.
+     * @throws TRPCError(NOT_FOUND) if the person is not found.
+     */
     getPerson: authenticatedProcedure
         .input(z.object({ 
             personId: zodNanoId8.optional(),
@@ -60,7 +124,8 @@ export const personnelRouter = createTRPCRouter({
 
             if(personId) {
                 const person = await getPersonById(ctx, personId)
-                return { personId: person.id, ...person }
+                if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(personId) })
+                return toPersonData(person)
 
             } else if(email) {
                 const person = await ctx.prisma.person.findUnique({ 
@@ -69,7 +134,7 @@ export const personnelRouter = createTRPCRouter({
                 })
 
                 if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person with email ${email} not found.` })
-                return { personId: person.id, ...person }
+                return toPersonData(person)
 
             } else {
                 throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid input' })
@@ -79,28 +144,73 @@ export const personnelRouter = createTRPCRouter({
     getPersonnel: authenticatedProcedure
         .input(z.object({
             status: zodRecordStatus,
-            isUser: z.boolean().optional()
+            isUser: z.boolean().optional(),
+            type: z.array(z.enum(['Normal', 'Sandbox'])).optional().default(['Normal']),
         }))
         .output(z.array(personSchema))
         .query(async ({ ctx, input }) => {
             const found = await ctx.prisma.person.findMany({
                 where: { 
                     status: { in: input.status },
-                    clerkUserId: input.isUser ? { not: null } : undefined
+                    clerkUserId: input.isUser ? { not: null } : undefined,
+                    type: input.type.length > 0 ? { in: input.type } : undefined
                 },
                 orderBy: { name: 'asc' }
             })
             return found.map(toPersonData)
         }),
 
-    updatePerson: systemAdminProcedure
-        .input(personSchema)
+    /**
+     * Updates an existing person.
+     * @param ctx The authenticated context.
+     * @param input The data to update the person with.
+     * @returns The updated person object.
+     * @throws TRPCError(CONFLICT) If a person with the new email already exists.
+     * @throws TRPCError(NOT_FOUND) If the person to update is not found.
+     */
+    updatePerson: teamAdminProcedure
+        .input(personSchema.omit({ type: true }))
         .output(personSchema)
-        .mutation(async ({ input, ctx }) => {
+        .mutation(async ({ ctx, input: { personId, ...update } }) => {
 
-            const person = await getPersonById(ctx, input.personId)
+            const person = await getPersonById(ctx, personId)
+            if(person == null) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(personId) })
 
-            const updated = await updatePerson(ctx, person, input)
+            if(person.owningTeam) {
+                if(!ctx.hasTeamAdmin(person.owningTeam)) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to update Person(${personId}).` })
+            } else {
+                if(!ctx.isSystemAdmin) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to update Person(${personId}).` })
+            }
+
+            if(person.type == 'Sandbox') {
+                // Sandbox personnel have fake email addresses derived from their name
+                update.email = sandboxEmailOf(update.name)
+            }
+
+            if(update.email != person.email) {
+                // Check if a person with the new email already exists
+                const emailConflict = await ctx.prisma.person.findFirst({ where: { email: update.email } })
+                if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists.', cause: new FieldConflictError('email') })
+            }
+            
+            // Pick only the fields that have changed
+            const changedFields = pickBy(update, (value, key) => value != person[key])
+
+            const updated = await ctx.prisma.person.update({
+                where: { id: personId },
+                data: {
+                    ...update,
+                    changeLogs: {
+                        create: {
+                            id: nanoId16(),
+                            actorId: ctx.session.personId,
+                            event: 'Update',
+                            fields: changedFields
+                        }
+                    }
+                }
+            })
+
             return toPersonData(updated)
         }),
         
@@ -114,94 +224,10 @@ export const personnelRouter = createTRPCRouter({
  * @returns The person object if found.
  * @throws TRPCError if the person is not found.
  */
-export async function getPersonById(ctx: AuthenticatedContext, personId: string): Promise<PersonRecord & { owningTeam: TeamRecord | null }> {
+export async function getPersonById(ctx: AuthenticatedContext, personId: string): Promise<PersonRecord & { owningTeam: TeamRecord | null } | null> {
     const person = await ctx.prisma.person.findUnique({ 
         where: { id: personId },
         include: { owningTeam: true }
     })
-    if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person with ID ${personId} not found.` })
     return person
-}
-
-/**
- * Creates a new person in the system.
- * @param ctx The authenticated context.
- * @param input The input data for the new person.
- * @returns The created person object.
- * @throws TRPCError if a person with the same email already exists.
- */
-export async function createPerson(ctx: AuthenticatedContext, {personId, ...input }: PersonData): Promise<PersonRecord> {
-    
-    // Check if a person with the same email already exists
-    const emailConflict = await ctx.prisma.person.findFirst({ where: { email: input.email } })
-    if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists.', cause: new FieldConflictError('email') })
-
-    return ctx.prisma.person.create({
-        data: {
-            id: personId,
-            ...input,
-            changeLogs: {
-                create: {
-                    id: nanoId16(),
-                    actorId: ctx.session.personId,
-                    event: 'Create',
-                    fields: { ...input }
-                }
-            }
-        }
-    })
-}
-
-/**
- * Updates an existing person in the system.
- * @param ctx The authenticated context.
- * @param person The person object to update.
- * @param update The data to update the person with.
- * @returns The updated person object.
- * @throws TRPCError If a person with the new email already exists.
- */
-export async function updatePerson(ctx: AuthenticatedContext, person: PersonRecord, { personId, ...update }: PersonData): Promise<PersonRecord> {
-
-    if(update.email != person.email) {
-        // Check if a person with the new email already exists
-        const emailConflict = await ctx.prisma.person.findFirst({ where: { email: update.email } })
-        if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists.', cause: new FieldConflictError('email') })
-    }
-
-    // Pick only the fields that have changed
-    const changedFields = pickBy(update, (value, key) => value != person[key])
-
-    return ctx.prisma.person.update({
-        where: { id: personId },
-        data: {
-            ...update,
-            changeLogs: {
-                create: {
-                    id: nanoId16(),
-                    actorId: ctx.session.personId,
-                    event: 'Update',
-                    fields: changedFields
-                }
-            }
-        }
-    })
-}
-
-/**
- * Deletes a person from the system.
- * @param ctx The authenticated context.
- * @param person The person object to delete.
- * @returns The deleted person object.
- * @throws TRPCError if the person is not found.
- */
-export async function deletePerson(ctx: AuthenticatedContext, person: PersonRecord): Promise<PersonRecord> {
-
-    const deleted = await ctx.prisma.person.delete({ where: { id: person.id } })
-
-    if(deleted.clerkUserId) {
-        // Delete the associated Clerk user
-        await ctx.clerkClient.users.deleteUser(deleted.clerkUserId)
-    }
-
-    return deleted
 }

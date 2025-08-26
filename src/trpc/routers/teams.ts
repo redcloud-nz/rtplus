@@ -39,7 +39,7 @@ export const teamsRouter = createTRPCRouter({
                 name: input.name,
                 createdBy: ctx.session.userId,
                 slug: input.slug,
-                publicMetadata: {teamId, sandbox: input.sandbox ?? false }
+                publicMetadata: {teamId, type: input.type }
             } as const
 
             let clerkOrgId: string
@@ -164,7 +164,7 @@ export const teamsRouter = createTRPCRouter({
             
 
     updateTeam: teamAdminProcedure
-        .input(teamSchema)
+        .input(teamSchema.omit({ type: true }))
         .output(teamSchema)
         .mutation(async ({ ctx, input: { teamId, ...update } }) => {
 
@@ -190,7 +190,7 @@ export const teamsRouter = createTRPCRouter({
                 await ctx.clerkClient.organizations.updateOrganization(team.clerkOrgId, {
                     name: update.name,
                     slug: update.slug,
-                    publicMetadata: { teamId: team.id, sandbox: update.sandbox ?? false }
+                    publicMetadata: { teamId: team.id, type: team.type }
                 })
                 logger.info(`Updated Clerk organization for team ${team.id} with new name '${update.name}' and slug '${update.slug}'.`)
             }

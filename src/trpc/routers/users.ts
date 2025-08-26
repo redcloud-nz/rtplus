@@ -39,6 +39,8 @@ export const usersRouter = createTRPCRouter({
         })))
         .query(async ({ ctx, input }) => {
             const person = await getPersonById(ctx, input.personId)
+            if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person(${input.personId}) not found`})
+
             if(!person.clerkUserId) throw new TRPCError({ code: 'BAD_REQUEST', message: `No linked user found for Person(${input.personId})`})
 
             const response = await ctx.clerkClient.users.getOrganizationMembershipList({ userId: person.clerkUserId, limit: 501 })

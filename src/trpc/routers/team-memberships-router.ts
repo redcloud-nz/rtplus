@@ -8,6 +8,7 @@ import { z } from 'zod'
 
 import { TRPCError } from '@trpc/server'
 
+import { sandboxEmailOf } from '@/lib/sandbox'
 import { personSchema, toPersonData } from '@/lib/schemas/person'
 import { teamSchema, toTeamData } from '@/lib/schemas/team'
 import { teamMembershipSchema, toTeamMembershipData } from '@/lib/schemas/team-membership'
@@ -18,6 +19,7 @@ import { fetchTeamByIdCached } from '@/server/data/team'
 
 import { authenticatedProcedure, createTRPCRouter, teamAdminProcedure } from '../init'
 import { Messages} from '../messages'
+
 
 
 export const teamMembershipsRouter = createTRPCRouter({
@@ -40,6 +42,11 @@ export const teamMembershipsRouter = createTRPCRouter({
             const team = await fetchTeamByIdCached(input.teamId)
             if(!team || !ctx.hasTeamAccess(team)) throw new TRPCError({ code: 'FORBIDDEN', message: Messages.teamForbidden(input.teamId) })
 
+            if(team.type == 'Sandbox') {
+                // If the team is a sandbox team, the email address is derived from the name
+                input.email = sandboxEmailOf(input.name)
+            }
+
             // First check if the person already exists by email
             // If they do, we will use that person instead of creating a new one
             const existingPerson = await ctx.prisma.person.findUnique({
@@ -52,7 +59,12 @@ export const teamMembershipsRouter = createTRPCRouter({
                     where: { personId_teamId: { personId: existingPerson.id, teamId: input.teamId } }
                 })
                 if(existingMembership) throw new TRPCError({ code: 'CONFLICT', message: `Team membership for Person(${existingPerson.id}) and Team(${input.teamId}) already exists.` })
+
+                if(existingPerson.type == 'Sandbox' && team.type != 'Sandbox') throw new TRPCError({ code: 'BAD_REQUEST', message: "Sandbox personnel cannot be added to non-sandbox teams." })
+                if(existingPerson.type == 'Normal' && team.type == 'Sandbox') throw new TRPCError({ code: 'BAD_REQUEST', message: "Normal personnel cannot be added to sandbox teams." })
             }
+
+            if(team.type == 'System') throw new TRPCError({ code: 'BAD_REQUEST', message: "Members cannot be added to a system team." })
 
             const person = existingPerson || await ctx.prisma.person.create({
                 data: {
@@ -61,7 +73,7 @@ export const teamMembershipsRouter = createTRPCRouter({
                     name: input.name,
                     status: input.status,
                     owningTeam: { connect: { id: input.teamId } },
-                    sandbox: team.sandbox,
+                    type: team.type,
 
                     changeLogs: {
                         create: {
@@ -130,7 +142,9 @@ export const teamMembershipsRouter = createTRPCRouter({
             const person = await fetchPersonByIdCached(personId)
 
             if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(personId) })
-            if(person.sandbox && !team.sandbox) throw new TRPCError({ code: 'BAD_REQUEST', message: "Sandbox personnel cannot be added to non-sandbox teams." })
+            if(person.type == 'Sandbox' && team.type != 'Sandbox') throw new TRPCError({ code: 'BAD_REQUEST', message: "Sandbox personnel cannot be added to non-sandbox teams." })
+            if(person.type == 'Normal' && team.type == 'Sandbox') throw new TRPCError({ code: 'BAD_REQUEST', message: "Normal personnel cannot be added to sandbox teams." })
+            if(team.type == 'System') throw new TRPCError({ code: 'BAD_REQUEST', message: "Members cannot be added to a system team." })
 
             const existing = await ctx.prisma.teamMembership.findUnique({
                 where: { personId_teamId: { personId, teamId } }
@@ -283,6 +297,8 @@ export const teamMembershipsRouter = createTRPCRouter({
             const team = await fetchTeamByIdCached(teamId)
             if(!team || !ctx.hasTeamAccess(team)) throw new TRPCError({ code: 'FORBIDDEN', message: Messages.teamForbidden(teamId) })
 
+            if(team.type == 'Sandbox') update.email = sandboxEmailOf(update.name)
+
             const existingMembership = await ctx.prisma.teamMembership.findUnique({
                 where: { personId_teamId: { personId, teamId } },
                 include: { person: true }
@@ -358,8 +374,8 @@ export const teamMembershipsRouter = createTRPCRouter({
         .output(teamMembershipSchema)
         .mutation(async ({ ctx, input: { personId, teamId, ...update } }) => {
 
-            const teamRecord = await fetchTeamByIdCached(teamId)
-            if(!teamRecord || !ctx.hasTeamAccess(teamRecord)) throw new TRPCError({ code: 'FORBIDDEN', message: Messages.teamForbidden(teamId) })
+            const team = await fetchTeamByIdCached(teamId)
+            if(!team || !ctx.hasTeamAccess(team)) throw new TRPCError({ code: 'FORBIDDEN', message: Messages.teamForbidden(teamId) })
 
             const existing = await ctx.prisma.teamMembership.findUnique({
                 where: { personId_teamId: { personId, teamId } }

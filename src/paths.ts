@@ -277,6 +277,7 @@ export const team = (teamOrSlug: TeamData | string) => {
             icon: UsersIcon,
             href: `${base}/members`,
             create: {
+                label: 'Create',
                 href: `${base}/members/--create`,
             },
         },

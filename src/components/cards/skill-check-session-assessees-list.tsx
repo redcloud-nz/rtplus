@@ -42,6 +42,7 @@ export function SkillCheckSession_AssesseesList_Card({ sessionId }: { sessionId:
     const { toast } = useToast()
     const trpc = useTRPC()
 
+    const { data: session } = useSuspenseQuery(trpc.skillCheckSessions.getSession.queryOptions({ sessionId }))
     const personnelQuery = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({}))
     const assignedAssesseesQuery = useSuspenseQuery(trpc.skillCheckSessions.getAssessees.queryOptions({ sessionId }))
 
@@ -138,6 +139,7 @@ export function SkillCheckSession_AssesseesList_Card({ sessionId }: { sessionId:
                 .with('Create', () => {
                     const existingAssesseeIds = assignedAssesseesQuery.data.map(a => a.personId)
                     return <TeamMemberPicker
+                        teamId={session.teamId}
                         size='sm'
                         className="-m-2"
                         value={ctx.row.getModifiedRowData().assessee.personId}
@@ -194,7 +196,7 @@ export function SkillCheckSession_AssesseesList_Card({ sessionId }: { sessionId:
               
         })
 
-    ]), [assignedAssesseesQuery.data])
+    ]), [assignedAssesseesQuery.data, session])
 
     const table = useReactTable<RowData>({
         _features: [EditableFeature()],

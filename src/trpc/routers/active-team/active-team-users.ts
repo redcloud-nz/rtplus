@@ -12,7 +12,7 @@ import { orgMembershipSchema, toOrgMembershipData } from '@/lib/schemas/org-memb
 import { toUserData, userSchema, userSchema2 } from '@/lib/schemas/user'
 import { zodNanoId8 } from '@/lib/validation'
 import { createTRPCRouter, teamAdminProcedure } from '@/trpc/init'
-
+import { Messages } from '@/trpc/messages'
 import { getActiveTeam } from '../teams'
 import { getPersonById } from '../personnel'
 
@@ -69,6 +69,8 @@ export const activeTeamUsersRouter = createTRPCRouter({
         .output(userSchema2)
         .mutation(async ({ ctx, input }) => {
             const person = await getPersonById(ctx, input.personId)
+            if(person == null) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(input.personId) })
+
             if (!person.clerkUserId) {
                 throw new TRPCError({ code: 'BAD_REQUEST', message: `Person(${input.personId}) is not linked to a user.` })
             }
@@ -104,6 +106,7 @@ export const activeTeamUsersRouter = createTRPCRouter({
                 getActiveTeam(ctx),
                 getPersonById(ctx, input.personId)
             ])
+            if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(input.personId) })
 
             if(!person.clerkUserId ) {
                 throw new TRPCError({ code: 'NOT_FOUND', message: `Person(${input.personId}) is not linked to a user.` })
@@ -153,6 +156,8 @@ export const activeTeamUsersRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
 
             const person = await getPersonById(ctx, input.personId)
+            if(person == null) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(input.personId) })
+
             if (!person.clerkUserId) return null
             
 
@@ -271,6 +276,7 @@ export const activeTeamUsersRouter = createTRPCRouter({
                 getActiveTeam(ctx),
                 getPersonById(ctx, input.personId)
             ])
+            if(person == null) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(input.personId) })
             if(!person.clerkUserId ) {
                 throw new TRPCError({ code: 'NOT_FOUND', message: `Person(${input.personId}) is not linked to a user.` })
             }

@@ -30,9 +30,9 @@ export default async function Team_NewMember_Page(props: { params: Promise<{ tea
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                { label: team.shortName || team.name, href: Paths.team(team.slug).href },
-                Paths.team(team.slug).members,
-                "Create"
+                Paths.team(team),
+                Paths.team(team).members,
+                Paths.team(team).members.create
             ]}
         />
         <AppPageContent variant="container">
@@ -41,7 +41,7 @@ export default async function Team_NewMember_Page(props: { params: Promise<{ tea
             </PageHeader>
 
             <Boundary>
-                <Team_NewMember_Details_Card teamId={team.teamId} showTags={teamMemberTagsEnabled} />
+                <Team_NewMember_Details_Card team={team} showTags={teamMemberTagsEnabled} />
             </Boundary>
         </AppPageContent>
     </AppPage>
