@@ -21,6 +21,7 @@ import { Table } from '@/components/ui/table'
 
 import { useToast } from '@/hooks/use-toast'
 import { InvitationStatus, InvitationStatusNameMap, TeamInvitationData } from '@/lib/schemas/invitation'
+import { TeamData } from '@/lib/schemas/team'
 import { UserRole, UserRoleNameMap } from '@/lib/schemas/user'
 import { useTRPC } from '@/trpc/client'
 
@@ -29,22 +30,23 @@ import { Team_CreateInvitation_Dialog } from './team-create-invitation'
 
 
 
+
 /**
  * A card that displays a list of pending team invitations.
  * This card allows users to manage invitations by resending or revoking them.
  */
-export function ActiveTeam_InvitationsList_Card() {
+export function ActiveTeam_InvitationsList_Card({ team }: { team: TeamData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const invitationsQuery = useSuspenseQuery(trpc.activeTeam.users.getInvitations.queryOptions({}))
+    const invitationsQuery = useSuspenseQuery(trpc.users.getTeamInvitations.queryOptions({ teamId: team.teamId }))
 
     async function handleRefresh() {
         await invitationsQuery.refetch()
     }
 
-    const resendMutation = useMutation(trpc.activeTeam.users.resendInvitation.mutationOptions({
+    const resendMutation = useMutation(trpc.users.resendTeamInvitation.mutationOptions({
         onError(error) {
             toast({
                 title: "Error resending invitation",
@@ -59,11 +61,11 @@ export function ActiveTeam_InvitationsList_Card() {
             })
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.activeTeam.users.getInvitations.queryFilter())
+            queryClient.invalidateQueries(trpc.users.getTeamInvitations.queryFilter({ teamId: team.teamId }))
         }
     }))
 
-    const revokeMutation = useMutation(trpc.activeTeam.users.revokeInvitation.mutationOptions({
+    const revokeMutation = useMutation(trpc.users.revokeInvitation.mutationOptions({
         onError(error) {
             toast({
                 title: "Error revoking invitation",
@@ -78,7 +80,7 @@ export function ActiveTeam_InvitationsList_Card() {
             })
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.activeTeam.users.getInvitations.queryFilter())
+            queryClient.invalidateQueries(trpc.users.getTeamInvitations.queryFilter({ teamId: team.teamId }))
         }
     }))
 
@@ -145,7 +147,7 @@ export function ActiveTeam_InvitationsList_Card() {
                     <ConfirmPopupButton 
                         slotProps={{
                             confirmButton: {
-                                onClick: () => resendMutation.mutate({ invitationId: ctx.row.original.invitationId }),
+                                onClick: () => resendMutation.mutate({ teamId: team.teamId, invitationId: ctx.row.original.invitationId }),
                                 children: 'Resend',
                             },
                         }}
@@ -158,7 +160,7 @@ export function ActiveTeam_InvitationsList_Card() {
                     <ConfirmPopupButton 
                         slotProps={{
                             confirmButton: {
-                                onClick: () => revokeMutation.mutate({ invitationId: ctx.row.original.invitationId }),
+                                onClick: () => revokeMutation.mutate({ teamId: team.teamId, invitationId: ctx.row.original.invitationId }),
                                 children: 'Revoke',
                             },
                         }}
@@ -180,7 +182,7 @@ export function ActiveTeam_InvitationsList_Card() {
                 }
             }
         })
-    ]), [resendMutation, revokeMutation])
+    ]), [team, resendMutation, revokeMutation])
 
     const table = useReactTable<TeamInvitationData>({
         data: invitationsQuery.data,
@@ -208,11 +210,14 @@ export function ActiveTeam_InvitationsList_Card() {
                 <DataTableSearch size="sm" variant="ghost"/>
                 <CardActions>
                     <Protect role="org:admin">
-                        <Team_CreateInvitation_Dialog trigger={
-                            <DialogTriggerButton variant="ghost" size="icon" tooltip="Create a new invitation">
-                                <PlusIcon/>
-                            </DialogTriggerButton>
-                        }/>
+                        <Team_CreateInvitation_Dialog
+                            team={team}
+                            trigger={
+                                <DialogTriggerButton variant="ghost" size="icon" tooltip="Create a new invitation">
+                                    <PlusIcon/>
+                                </DialogTriggerButton>
+                            }
+                        />
                     </Protect>
                     <RefreshButton onClick={handleRefresh}/>
                     <TableOptionsDropdown/>

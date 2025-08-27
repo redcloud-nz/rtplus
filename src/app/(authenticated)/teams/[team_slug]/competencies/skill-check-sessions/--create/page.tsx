@@ -34,7 +34,7 @@ export default async function Team_NewSkillCheckSession_Page(props: { params: Pr
             </PageHeader>
 
             <Boundary>
-                <Team_NewSkillCheckSession_Details_Card/>
+                <Team_NewSkillCheckSession_Details_Card team={team}/>
             </Boundary>
         </AppPageContent>
     </AppPage>

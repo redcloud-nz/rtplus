@@ -31,13 +31,14 @@ import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
 import { SkillCheckSessionData, skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
+import { TeamData } from '@/lib/schemas/team'
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
 
 
-export function Team_SkillCheckSession_Details_Card({ sessionId }: { sessionId: string }) {
+export function Team_SkillCheckSession_Details_Card({ sessionId, team }: { sessionId: string, team: TeamData }) {
     const trpc = useTRPC()
 
     const { data: session } = useSuspenseQuery(trpc.activeTeam.skillCheckSessions.getSession.queryOptions({ sessionId }))
@@ -57,7 +58,7 @@ export function Team_SkillCheckSession_Details_Card({ sessionId }: { sessionId: 
                         </TooltipTrigger>
                         <TooltipContent>Edit session details</TooltipContent>
                     </Tooltip>
-                    <DeleteSessionDialog session={session} />
+                    <DeleteSessionDialog session={session} team={team} />
                     <Separator orientation="vertical" />
                     <CardExplanation>
                         This card displays the details of the skill check session. You can edit the session details or delete the session entirely.
@@ -195,15 +196,13 @@ function UpdateSession_Form({ onClose, session }: { onClose: () => void, session
     </FormProvider>
 }
 
-function DeleteSessionDialog({ session }: { session: SkillCheckSessionData }) {
+function DeleteSessionDialog({ session, team }: { session: SkillCheckSessionData, team: TeamData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
     const trpc = useTRPC()
 
     const [open, setOpen] = useState(false)
-    
-    const { data: team } = useSuspenseQuery(trpc.activeTeam.getTeam.queryOptions())
 
     const form = useForm({
         resolver: zodResolver(z.object({
@@ -229,7 +228,7 @@ function DeleteSessionDialog({ session }: { session: SkillCheckSessionData }) {
                 description: <>The session <ObjectName>{result.name}</ObjectName> has been deleted.</>,
             })
             setOpen(false)
-            router.push(Paths.team(team).competencies.sessions.href)
+            router.push(Paths.team(team!).competencies.sessions.href)
 
             queryClient.invalidateQueries(trpc.activeTeam.skillCheckSessions.getTeamSessions.queryFilter())
             queryClient.setQueryData(trpc.activeTeam.skillCheckSessions.getSession.queryKey({ sessionId: session.sessionId }), undefined)

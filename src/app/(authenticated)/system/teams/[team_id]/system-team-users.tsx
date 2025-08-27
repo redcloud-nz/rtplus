@@ -17,12 +17,8 @@ import { DataTableBody, DataTableFooter, DataTableHead, DataTableProvider, defin
 import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
 
-import { OrganizationData } from '@/lib/schemas/organization'
-import { OrgMembershipData } from '@/lib/schemas/org-membership'
 import { UserData } from '@/lib/schemas/user'
 import { useTRPC } from '@/trpc/client'
-
-type RowData = OrgMembershipData & { user: UserData, organization: OrganizationData }
 
 /**
  * Card that displays the users associated with a team.
@@ -33,14 +29,14 @@ type RowData = OrgMembershipData & { user: UserData, organization: OrganizationD
 export function TeamUsersCard({ teamId }: { teamId: string }) {
     const trpc = useTRPC()
 
-    const usersQuery = useSuspenseQuery(trpc.users.byTeam.queryOptions({ teamId }))
+    const usersQuery = useSuspenseQuery(trpc.users.getUsers.queryOptions({ teamId }))
 
     async function handleRefresh() {
         await usersQuery.refetch()
     }
 
-    const columns = useMemo(() => defineColumns<RowData>(columnHelper => [
-        columnHelper.accessor('user.name', {
+    const columns = useMemo(() => defineColumns<UserData>(columnHelper => [
+        columnHelper.accessor('name', {
             id: "name",
             header: "Name",
             cell: ctx => ctx.getValue(),
@@ -49,9 +45,9 @@ export function TeamUsersCard({ teamId }: { teamId: string }) {
             enableSorting: true,
 
         }),
-        columnHelper.accessor('user.identifier', {
-            id: "identifier",
-            header: "Identifier",
+        columnHelper.accessor('email', {
+            id: "email",
+            header: "Email",
             cell: ctx => ctx.getValue(),
             enableGrouping: false,
             enableHiding: true,
@@ -77,7 +73,7 @@ export function TeamUsersCard({ teamId }: { teamId: string }) {
         }),
     ]), [])
 
-    const table = useReactTable<RowData>({
+    const table = useReactTable<UserData>({
         columns: columns,
         data: usersQuery.data,
         getCoreRowModel: getCoreRowModel(),

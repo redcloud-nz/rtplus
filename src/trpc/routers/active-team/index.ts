@@ -11,7 +11,6 @@ import { getActiveTeam} from '../teams'
 
 import { activeTeamSkillChecksRouter } from './active-team-skill-checks'
 import { activeTeamSkillCheckSessionsRouter } from './active-team-skill-check-sessions'
-import { activeTeamUsersRouter } from './active-team-users'
 
 
 export const activeTeamRouter = createTRPCRouter({
@@ -20,7 +19,6 @@ export const activeTeamRouter = createTRPCRouter({
 
     skillChecks: activeTeamSkillChecksRouter,
     skillCheckSessions: activeTeamSkillCheckSessionsRouter,
-    users: activeTeamUsersRouter,
 
     /**
      * Fetch the active team details.

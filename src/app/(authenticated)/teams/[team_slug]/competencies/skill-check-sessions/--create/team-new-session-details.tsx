@@ -11,7 +11,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { DatePicker } from '@/components/controls/date-picker'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -23,22 +23,22 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { useNanoId8 } from '@/hooks/use-id'
 import { useToast } from '@/hooks/use-toast'
 import { skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
+import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
+
 
 
 const formSchema = skillCheckSessionSchema.pick({ sessionId: true, name: true, date: true })
 type FormData = z.infer<typeof formSchema>
 
-export function Team_NewSkillCheckSession_Details_Card() {
+export function Team_NewSkillCheckSession_Details_Card({ team }: { team: TeamData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
     const trpc = useTRPC()
 
     const sessionId = useNanoId8()
-
-    const { data: team } = useSuspenseQuery(trpc.activeTeam.getTeam.queryOptions())
 
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
@@ -68,7 +68,7 @@ export function Team_NewSkillCheckSession_Details_Card() {
                 title: "Session created",
                 description: `The session ${result.name} has been created successfully.`,
             })
-            router.push(Paths.team(team.slug).competencies.session(sessionId).href)
+            router.push(Paths.team(team).competencies.session(sessionId).href)
         }
     }))
 

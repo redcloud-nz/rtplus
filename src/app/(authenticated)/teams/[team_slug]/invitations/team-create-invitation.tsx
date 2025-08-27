@@ -18,10 +18,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 import { useToast } from '@/hooks/use-toast'
 import { TeamInvitationData, teamInvitationSchema } from '@/lib/schemas/invitation'
+import { TeamData } from '@/lib/schemas/team'
 import { useTRPC } from '@/trpc/client'
 
 
-export function Team_CreateInvitation_Dialog({ trigger }: { trigger: React.ReactNode }) {
+
+export function Team_CreateInvitation_Dialog({ team, trigger }: { team: TeamData, trigger: React.ReactNode }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
@@ -41,9 +43,9 @@ export function Team_CreateInvitation_Dialog({ trigger }: { trigger: React.React
         form.reset()
     }
 
-    const mutation = useMutation(trpc.activeTeam.users.createInvitation.mutationOptions({
+    const mutation = useMutation(trpc.users.createTeamInvitation.mutationOptions({
         async onSuccess(data) {
-            await queryClient.invalidateQueries(trpc.activeTeam.users.getInvitations.queryFilter())
+            await queryClient.invalidateQueries(trpc.users.getTeamInvitations.queryFilter({ teamId: team.teamId }))
             toast({
                 title: 'Invitation sent',
                 description: `The invitation to ${data.email} has been sent successfully.`,
@@ -71,7 +73,7 @@ export function Team_CreateInvitation_Dialog({ trigger }: { trigger: React.React
             </DialogHeader>
             <DialogBody>
                 <FormProvider {...form}>
-                    <Form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))}>
+                    <Form onSubmit={form.handleSubmit(formData => mutation.mutateAsync({ ...formData, teamId: team.teamId }))}>
                         <FormField 
                             control={form.control}
                             name="email"

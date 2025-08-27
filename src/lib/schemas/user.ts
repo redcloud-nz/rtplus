@@ -7,16 +7,8 @@ import { z } from 'zod'
 
 import { User as ClerkUser, OrganizationMembership as ClerkOrganizationMembership } from '@clerk/nextjs/server'
 
+
 export const userSchema = z.object({
-    userId: z.string(),
-    identifier: z.string(),
-    name: z.string()
-})
-
-export type UserData = z.infer<typeof userSchema>
-
-
-export const userSchema2 = z.object({
     personId: z.string(),
     name: z.string(),
     email: z.string().email(),
@@ -26,12 +18,12 @@ export const userSchema2 = z.object({
     createdAt: z.string().datetime(),
 })
 
-export type UserData2 = z.infer<typeof userSchema2>
+export type UserData = z.infer<typeof userSchema>
 
 export type UserRole = 'org:admin' | 'org:member'
 
 
-export function toUserData(user: ClerkUser, membership: ClerkOrganizationMembership): UserData2 {
+export function toUserData(user: ClerkUser, membership: ClerkOrganizationMembership): UserData {
     return {
         personId: user.publicMetadata.person_id,
         name: user.fullName || "",
@@ -46,5 +38,5 @@ export function toUserData(user: ClerkUser, membership: ClerkOrganizationMembers
 
 export const UserRoleNameMap: Record<UserRole, string> = {
     'org:admin': 'Admin',
-    'org:member': 'Member',
+    'org:member': 'User',
 }

@@ -60,7 +60,7 @@ export default async function Team_SkillCheckSession_Page(props: { params: Promi
                     </PageControls>
                 </PageHeader>
                 <Boundary>
-                    <Team_SkillCheckSession_Details_Card sessionId={session.sessionId} />
+                    <Team_SkillCheckSession_Details_Card sessionId={session.sessionId} team={team} />
                 </Boundary>
                 <Boundary>
                     <SkillCheckSession_SkillsList_Card sessionId={session.sessionId} />

@@ -222,7 +222,6 @@ export const personnelRouter = createTRPCRouter({
  * @param ctx The authenticated context.
  * @param personId The ID of the person to retrieve.
  * @returns The person object if found.
- * @throws TRPCError if the person is not found.
  */
 export async function getPersonById(ctx: AuthenticatedContext, personId: string): Promise<PersonRecord & { owningTeam: TeamRecord | null } | null> {
     const person = await ctx.prisma.person.findUnique({ 

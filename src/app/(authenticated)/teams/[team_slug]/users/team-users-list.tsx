@@ -23,7 +23,7 @@ import { Table } from '@/components/ui/table'
 import { useToast } from '@/hooks/use-toast'
 import { EditableFeature } from '@/lib/editable-feature'
 import { TeamData } from '@/lib/schemas/team'
-import { UserData2, UserRole, UserRoleNameMap } from '@/lib/schemas/user'
+import { UserData, UserRole, UserRoleNameMap } from '@/lib/schemas/user'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
@@ -38,13 +38,13 @@ export function Team_UsersList_Card({ team }: { team: TeamData }) {
     const { toast} = useToast()
     const trpc = useTRPC()
 
-    const { data: users } = useSuspenseQuery(trpc.activeTeam.users.getUsers.queryOptions())
+    const usersQuery = useSuspenseQuery(trpc.users.getUsers.queryOptions({ teamId: team.teamId }))
 
     async function handleRefresh() {
-        await queryClient.invalidateQueries(trpc.activeTeam.users.getUsers.queryFilter())
+        await usersQuery.refetch()
     }
 
-    const updateMutation = useMutation(trpc.activeTeam.users.updateUser.mutationOptions({
+    const updateMutation = useMutation(trpc.users.updateTeamUser.mutationOptions({
         onError(error) {
             toast({
                 title: "Error updating user",
@@ -59,11 +59,11 @@ export function Team_UsersList_Card({ team }: { team: TeamData }) {
             })
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.activeTeam.users.getUsers.queryFilter())
+            queryClient.invalidateQueries(trpc.users.getUsers.queryFilter({ teamId: team.teamId }))
         }
     }))
 
-    const deleteMutation = useMutation(trpc.activeTeam.users.deleteUser.mutationOptions({
+    const deleteMutation = useMutation(trpc.users.removeTeamUser.mutationOptions({
         onError(error) {
             toast({
                 title: "Error deleting user",
@@ -78,11 +78,11 @@ export function Team_UsersList_Card({ team }: { team: TeamData }) {
             })
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.activeTeam.users.getUsers.queryFilter())
+            queryClient.invalidateQueries(trpc.users.getUsers.queryFilter({ teamId: team.teamId }))
         }
     }))
 
-    const columns = useMemo(() => defineColumns<UserData2>(columnHelper => [
+    const columns = useMemo(() => defineColumns<UserData>(columnHelper => [
         columnHelper.accessor('personId', {
             header: "Person ID",
             cell: ctx => ctx.getValue(),
@@ -193,21 +193,21 @@ export function Team_UsersList_Card({ team }: { team: TeamData }) {
         })
     ]), [])
 
-    const table = useReactTable<UserData2>({
+    const table = useReactTable<UserData>({
         _features: [EditableFeature()],
-        data: users,
+        data: usersQuery.data,
         columns,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getGroupedRowModel: getGroupedRowModel(),
         getExpandedRowModel: getExpandedRowModel(),
-        getRowId: (row) => row.personId,
-        onUpdate: (row) => {
-            updateMutation.mutate(row)
+        getRowId: (rowData) => rowData.personId,
+        onUpdate: (rowData) => {
+            updateMutation.mutate({ ...rowData, teamId: team.teamId })
         },
         onDelete: (rowData) => {
-            deleteMutation.mutate(rowData)
+            deleteMutation.mutate({ ...rowData, teamId: team.teamId })
         },
         initialState: {
             columnVisibility: {

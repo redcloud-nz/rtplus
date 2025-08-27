@@ -38,7 +38,7 @@ export default async function Team_InvitationsList_Page(props: { params: Promise
                 <PageTitle>Team Invitations</PageTitle>
             </PageHeader>
             <Boundary>
-                <ActiveTeam_InvitationsList_Card/>
+                <ActiveTeam_InvitationsList_Card team={team}/>
             </Boundary>
         </AppPageContent>
     
