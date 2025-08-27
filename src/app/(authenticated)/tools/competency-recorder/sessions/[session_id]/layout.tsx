@@ -5,13 +5,13 @@
  *  Path: /tools/competency-recorder/sessions/[session_id]
  */
 
-import { AppPage, AppPageBreadcrumbs} from '@/components/app-page'
 
 import { NavItem, NavSection } from '@/components/nav/nav-section'
 import { Sidebar, SidebarContent, SidebarHeader, SidebarRail } from '@/components/ui/sidebar'
 import * as Paths from '@/paths'
 import { fetchSkillCheckSession } from '@/server/fetch'
 import { HydrateClient } from '@/trpc/server'
+import { SessionProvider } from './use-session'
 
 
 export async function generateMetadata(props: { params: Promise<{ session_id: string }> }) {
@@ -22,31 +22,13 @@ export async function generateMetadata(props: { params: Promise<{ session_id: st
 
 export default async function CompetencyRecorder_Session_Layout(props: { params: Promise<{ session_id: string }>, children: React.ReactNode }) {
     const session = await fetchSkillCheckSession(props.params)
-    //const sessionId = session.sessionId
 
     const sessionPath = Paths.tools.competencyRecorder.session(session.sessionId)
 
-    // prefetch(trpc.currentUser.getPerson.queryOptions())
-    // prefetch(trpc.skills.getTree.queryOptions())
-    // prefetch(trpc.skillCheckSessions.getAssessees.queryOptions({ sessionId }))
-    // prefetch(trpc.skillCheckSessions.getAssessors.queryOptions({ sessionId }))
-    // prefetch(trpc.skillCheckSessions.getChecks.queryOptions({ sessionId }))
-    // prefetch(trpc.skillCheckSessions.getSkills.queryOptions({ sessionId }))
-
     return <>
-        <AppPage showRightSidebarTrigger>
-            <AppPageBreadcrumbs
-                breadcrumbs={[
-                    Paths.tools.competencyRecorder,
-                    Paths.tools.competencyRecorder.sessions,
-                    session.name
-                ]}
-            />
-            <HydrateClient>
-                {props.children}
-            </HydrateClient>
-            
-        </AppPage>
+        <SessionProvider value={session}>
+            {props.children}
+        </SessionProvider>
         <Sidebar side="right">
             <SidebarRail side="right" />
             <SidebarHeader>

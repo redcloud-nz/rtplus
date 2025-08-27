@@ -21,6 +21,7 @@ import { Table } from '@/components/ui/table'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 
 
@@ -28,6 +29,8 @@ export function CompetencyRecorder_SessionsList_Card() {
     const trpc = useTRPC()
 
     const sessionsQuery = useQuery(trpc.skillCheckSessions.getMySessions.queryOptions({ status: ['Draft'] }))
+
+    const isMobile = useIsMobile()
 
     async function handleRefresh() {
         await sessionsQuery.refetch()
@@ -100,7 +103,8 @@ export function CompetencyRecorder_SessionsList_Card() {
         getSortedRowModel: getSortedRowModel(),
         initialState: {
             columnVisibility: {
-                name: true, date: true, skills: true, assessees: true, checks: true, assessors: true, status: true
+                name: true, date: true, status: true,
+                assessees: false, assessors: false, checks: false, skills: false,
             },
             columnFilters: [],
             grouping: [],

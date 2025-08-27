@@ -4,8 +4,10 @@
  */
 
 import Link from 'next/link'
-import React, { ComponentProps } from 'react'
+import { ComponentProps, Fragment, ReactNode } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
+
+import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area'
 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { Separator } from '@/components/ui/separator'
@@ -15,7 +17,7 @@ import { cn } from '@/lib/utils'
 
 
 interface AppPageProps {
-    children?: React.ReactNode
+    children?: ReactNode
     showLeftSidebarTrigger?: boolean
     showRightSidebarTrigger?: boolean
 }
@@ -37,7 +39,7 @@ export function AppPage({ children, showLeftSidebarTrigger = true, showRightSide
 }
 
 const appPageContentVariants = tv({
-    base: 'col-span-full overflow-y-auto',
+    base: 'col-span-full',
     variants: {
         variant: {
             default: 'flex flex-1 flex-col gap-4 p-4 ',
@@ -55,12 +57,21 @@ const appPageContentVariants = tv({
     }
 })
 
-export type AppPageContentProps = ComponentProps<"main"> & VariantProps<typeof appPageContentVariants>
+export type AppPageContentProps = ComponentProps<typeof ScrollAreaPrimitive.Root> & VariantProps<typeof appPageContentVariants>
 
-export function AppPageContent({ children, className, variant = 'default', ...props }: AppPageContentProps) {
-    return <main className={cn(appPageContentVariants({ variant, className }))} {...props}>
+export function AppPageContent({ children, className, hasFooter = false, variant = 'default', ...props }: AppPageContentProps) {
+    return <main className={cn(appPageContentVariants({ variant, className, hasFooter }))} {...props}>
         {children}
     </main>
+}
+
+export function AppPageFooter({ children, className }: { children: ReactNode, className?: string }) {
+    return <>
+        <Separator orientation="horizontal" className="row-start-4 col-span-full"/>
+        <footer className={cn("row-start-5 col-span-full flex items-center gap-2 px-2", className)}>
+            {children}
+        </footer>
+    </>
 }
 
 export type PageBreadcrumb = { label: string, href?: string }
@@ -84,7 +95,7 @@ export function AppPageBreadcrumbs({ breadcrumbs = [] }: AppPageBreadcrumbsProps
         <Breadcrumb className="px-2">
             <BreadcrumbList>
                 {normalizedBreadcrumbs.slice(0, -1).map((breadcrumb, idx) => 
-                    <React.Fragment key={idx}>
+                    <Fragment key={idx}>
                         <BreadcrumbItem className="hidden md:block">
                             {breadcrumb.href
                                 ? <BreadcrumbLink asChild>
@@ -94,7 +105,7 @@ export function AppPageBreadcrumbs({ breadcrumbs = [] }: AppPageBreadcrumbsProps
                             }
                         </BreadcrumbItem>
                         <BreadcrumbSeparator className="hidden md:block"/>
-                    </React.Fragment>
+                    </Fragment>
                 )}
                 <BreadcrumbItem>
                     <BreadcrumbPage>{normalizedBreadcrumbs[normalizedBreadcrumbs.length - 1].label}</BreadcrumbPage>

@@ -7,6 +7,7 @@ import { BookOpenIcon, CableIcon, CheckCheckIcon, CheckIcon, PocketKnifeIcon, Sh
 
 import { TeamData } from '@/lib/schemas/team'
 import { PersonData } from './lib/schemas/person'
+import { SkillCheckSessionData } from './lib/schemas/skill-check-session'
 
 const CompetenciesIcon = PocketKnifeIcon
 
@@ -312,10 +313,11 @@ export const tools = {
             href: `/tools/competency-recorder/single`,
             icon: CheckIcon
         },
-        session: (sessionId: string) => {
+        session: (sessionOrSessionId: string | SkillCheckSessionData) => {
+            const sessionId = typeof sessionOrSessionId === 'string' ? sessionOrSessionId : sessionOrSessionId.sessionId
             const sessionBase = `/tools/competency-recorder/sessions/${sessionId}`
             return {
-                label: 'Session',
+                label: typeof sessionOrSessionId === 'string' ? 'Session' : sessionOrSessionId.name,
                 href: sessionBase,
                 assessees: {
                     label: 'Assessees',

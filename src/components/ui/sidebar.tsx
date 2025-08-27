@@ -221,7 +221,7 @@ export function Sidebar({ side = "left", variant = "sidebar", collapsible = "off
                 side={side}
             >
                 <VisuallyHidden>
-                    <SheetTitle id="sidebar-title">RT+ Sidebar</SheetTitle>
+                    <SheetTitle>RT+ Sidebar</SheetTitle>
                 </VisuallyHidden>
                 
                 <div className="flex h-full w-full flex-col">{children}</div>
