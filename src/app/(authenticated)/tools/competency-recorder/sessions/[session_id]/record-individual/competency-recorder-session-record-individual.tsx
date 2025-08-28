@@ -27,6 +27,8 @@ import { nanoId16  } from '@/lib/id'
 import { SkillCheckData } from '@/lib/schemas/skill-check'
 import { useTRPC } from '@/trpc/client'
 
+import { useAssignedSkills } from '../use-assigned-skills'
+
 
 type RecordingState = {
     prevData: SkillCheckData | null
@@ -42,8 +44,8 @@ export function CompetencyRecorder_Session_RecordIndividual_Card({ sessionId }: 
 
     const { data: session } = useSuspenseQuery(trpc.skillCheckSessions.getSession.queryOptions({ sessionId }))
     const { data: assessor } = useSuspenseQuery(trpc.currentUser.getPerson.queryOptions())
-    const { data: assessees } = useSuspenseQuery(trpc.skillCheckSessions.getAssessees.queryOptions({ sessionId }))
-    const { data: skills } = useSuspenseQuery(trpc.skillCheckSessions.getSkills.queryOptions({ sessionId }))
+    const { data: assessees } = useSuspenseQuery(trpc.skillCheckSessions.getAssignedAssessees.queryOptions({ sessionId }))
+    const { data: skills } = useAssignedSkills({ sessionId })
     const { data: existingChecks } = useSuspenseQuery(trpc.skillCheckSessions.getChecks.queryOptions({ sessionId, assessorId: 'me' }))
 
     const [state, setState] = useState<RecordingState>({

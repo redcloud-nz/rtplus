@@ -35,9 +35,8 @@ export default function CompetencyRecorder_Session_Skills_Page() {
     const trpc = useTRPC()
     const session = useSession()
 
-    const packagesQuery = useSuspenseQuery(trpc.skills.getTree.queryOptions())
-    const assignedSkillsQuery = useSuspenseQuery(trpc.skillCheckSessions.getSkills.queryOptions({ sessionId: session.sessionId }))
-    const assignedSkills = assignedSkillsQuery.data.map(s => s.skillId)
+    const { data: availablePackages } = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions())
+    const { data: assignedSkills } = useSuspenseQuery(trpc.skillCheckSessions.getAssignedSkillIds.queryOptions({ sessionId: session.sessionId }))
 
     const [selectedSkills, setSelectedSkills] = useState<string[]>(assignedSkills)
     const [changes, setChanges] = useState<{ added: string[], removed: string[] }>({ added: [], removed: [] })
@@ -48,8 +47,17 @@ export default function CompetencyRecorder_Session_Skills_Page() {
     }
 
     const mutation = useMutation(trpc.skillCheckSessions.updateSkills.mutationOptions({
-        
-        onError(error) {
+        async onMutate({ additions, removals }) {
+            await queryClient.cancelQueries(trpc.skillCheckSessions.getAssignedSkillIds.queryFilter({ sessionId: session.sessionId }))
+
+            const previousData = queryClient.getQueryData(trpc.skillCheckSessions.getAssignedSkillIds.queryKey({ sessionId: session.sessionId }))
+            queryClient.setQueryData(trpc.skillCheckSessions.getAssignedSkillIds.queryKey({ sessionId: session.sessionId }), (old = []) => 
+                [...old.filter(skillId => !removals.includes(skillId)), ...additions ]
+            )
+            return { previousData }
+        },
+        onError(error, _data, context) {
+            queryClient.setQueryData(trpc.skillCheckSessions.getAssignedSkillIds.queryKey({ sessionId: session.sessionId }), context?.previousData)
             toast({
                 title: 'Error updating skills',
                 description: error.message,
@@ -59,15 +67,18 @@ export default function CompetencyRecorder_Session_Skills_Page() {
         onSuccess(result) {
             toast({
                 title: 'Skills updated',
-                description: `The session skills were updated: ${result.addCount} skills added, ${result.removeCount} skills removed.`,
+                description: `The skills assigned to the session have been updated: ${result.addCount} skills added, ${result.removeCount} skills removed.`,
             })
+        },
+        onSettled() {
+            queryClient.invalidateQueries(trpc.skillCheckSessions.getAssignedSkillIds.queryFilter({ sessionId: session.sessionId }))
         }
     }))
 
     function handleCheckedChange(skillId: string): (checked: boolean) => void {
         return (checked) => {
             if (checked) {
-                setSelectedSkills([...selectedSkills, skillId])
+                setSelectedSkills(prev => [...prev, skillId])
                 setChanges(prev => {
                     if(prev.removed.includes(skillId)) {
                         // If the skill was previously removed, clear the removal
@@ -77,7 +88,7 @@ export default function CompetencyRecorder_Session_Skills_Page() {
                     }
                 })
             } else {
-                setSelectedSkills(selectedSkills.filter(id => id !== skillId))
+                setSelectedSkills(prev => prev.filter(id => id !== skillId))
                 setChanges(prev => {
                     if(prev.added.includes(skillId)) {
                         // If the skill was previously added, clear the addition
@@ -113,14 +124,14 @@ export default function CompetencyRecorder_Session_Skills_Page() {
                     </ul>
                 </div>
                 
-                {packagesQuery.data
+                {availablePackages
                     .filter(pkg => pkg.skills.length > 0)
                     .map(pkg => <SkillPackageSection
                         key={pkg.skillPackageId}
                         pkg={pkg}
                         assignedSkills={assignedSkills}
                         selectedSkills={selectedSkills}
-                        handleSelectedChange={handleCheckedChange}
+                        onSelectedChange={handleCheckedChange}
                     />
                     )
                 }
@@ -155,10 +166,10 @@ interface SkillPackageSectionProps {
     pkg: SkillPackageData & { skills: SkillData[], skillGroups: SkillGroupData[] }
     assignedSkills: string[]
     selectedSkills: string[]
-    handleSelectedChange: (skillId: string) => (checked: boolean) => void
+    onSelectedChange: (skillId: string) => (checked: boolean) => void
 }
 
-function SkillPackageSection({ pkg, assignedSkills, selectedSkills, handleSelectedChange }: SkillPackageSectionProps) {
+function SkillPackageSection({ pkg, assignedSkills, selectedSkills, onSelectedChange }: SkillPackageSectionProps) {
 
     return <div className="border-t py-4">
         <div className="font-semibold text-xl">{pkg.name}</div>
@@ -168,25 +179,38 @@ function SkillPackageSection({ pkg, assignedSkills, selectedSkills, handleSelect
                 <ul className="pl-4">
                     {pkg.skills
                         .filter(skill => skill.skillGroupId === group.skillGroupId)
-                        .map(skill => {
-                            const assigned = assignedSkills.includes(skill.skillId)
-                            const selected = selectedSkills.includes(skill.skillId)
-                            return <li key={skill.skillId} className="flex items-center gap-2">
-                                <Label htmlFor={`skill-${skill.skillId}`} className="py-2 truncate grow">{skill.name}</Label>
-                                <Checkbox 
-                                    id={`skill-${skill.skillId}`}
-                                    checked={selected}
-                                    onCheckedChange={handleSelectedChange(skill.skillId)}
-                                />
-                                <div className="w-4">
-                                    {selected && !assigned && <span className="text-green-600 font-mono text-md">+</span>}
-                                    {!selected && assigned && <span className="text-red-600 font-mono text-md">-</span>}
-                                </div>
-                            </li>
-                        })
+                        .map(skill => <SkillRow
+                            key={skill.skillId}
+                            skill={skill}
+                            assigned={assignedSkills.includes(skill.skillId)}
+                            selected={ selectedSkills.includes(skill.skillId)}
+                            onSelectedChange={onSelectedChange(skill.skillId)}
+                        />)
                     }
                 </ul>
             </li>)}
         </ul>
     </div>
+}
+
+interface SkillRowProps {
+    skill: SkillData
+    assigned: boolean
+    selected: boolean
+    onSelectedChange: (checked: boolean) => void
+}
+
+function SkillRow({ skill, assigned, selected, onSelectedChange }: SkillRowProps) {
+    return <li className="flex items-center gap-2">
+        <Label htmlFor={`skill-${skill.skillId}`} className="py-2 truncate grow">{skill.name}</Label>
+        <Checkbox
+            id={`skill-${skill.skillId}`}
+            checked={selected}
+            onCheckedChange={onSelectedChange}
+        />
+        <div className="w-4">
+            {selected && !assigned && <span className="text-green-600 font-mono text-md">+</span>}
+            {!selected && assigned && <span className="text-red-600 font-mono text-md">-</span>}
+        </div>
+    </li>
 }

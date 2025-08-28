@@ -35,7 +35,7 @@ function Stat({ objectType: title, value, description, linksTo }: StatProps) {
 export function SkillsCount_Card({ team }: {team: TeamData }) {
     const trpc = useTRPC()
 
-    const { data: skillPackages } = useSuspenseQuery(trpc.skills.getTree.queryOptions())
+    const { data: skillPackages } = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions())
     const skills = skillPackages.flatMap(pkg => pkg.skills)
 
     return <Stat objectType="Skills" value={skills.length} description="Skills that can be checked" linksTo={Paths.team(team).competencies.skills}/>

@@ -18,7 +18,7 @@ import { useTRPC } from '@/trpc/client'
 export function Team_Competencies_SkillsList_Card() {
     const trpc = useTRPC()
 
-    const { data: skillPackages } = useSuspenseQuery(trpc.skills.getTree.queryOptions())
+    const { data: skillPackages } = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions())
 
     
 

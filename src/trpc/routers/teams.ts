@@ -37,7 +37,7 @@ export const teamsRouter = createTRPCRouter({
 
             const clerkOrgCreateParams = {
                 name: input.name,
-                createdBy: ctx.session.userId,
+                createdBy: ctx.auth.userId,
                 slug: input.slug,
                 publicMetadata: {teamId, type: input.type }
             } as const
@@ -59,7 +59,7 @@ export const teamsRouter = createTRPCRouter({
                     changeLogs: { 
                         create: { 
                             id: nanoId16(),
-                            actorId: ctx.session.personId,
+                            actorId: ctx.auth.personId,
                             event: 'Create',
                             fields: input
                         }
@@ -97,12 +97,12 @@ export const teamsRouter = createTRPCRouter({
     getActiveTeam: authenticatedProcedure
         .output(z.union([teamSchema, z.null()]))
         .query(async ({ ctx }) => {
-            if(ctx.session.activeTeam == null) return null
+            if(ctx.auth.activeTeam == null) return null
 
             const team = await ctx.prisma.team.findUnique({ 
-                where: { clerkOrgId: ctx.session.activeTeam.orgId },
+                where: { clerkOrgId: ctx.auth.activeTeam.orgId },
             })
-            if(team == null) throw new TRPCError({ code: 'NOT_FOUND', message: `Team with orgId ${ctx.session.activeTeam.orgId} not found.` })
+            if(team == null) throw new TRPCError({ code: 'NOT_FOUND', message: `Team with orgId ${ctx.auth.activeTeam.orgId} not found.` })
             return toTeamData(team)
         }),
 
@@ -206,7 +206,7 @@ export const teamsRouter = createTRPCRouter({
                         changeLogs: { 
                             create: { 
                                 id: nanoId16(),
-                                actorId: ctx.session.personId,
+                                actorId: ctx.auth.personId,
                                 event: 'Update',
                                 fields: changedFields
                             }
@@ -261,7 +261,7 @@ export const teamsRouter = createTRPCRouter({
  */
 export async function getActiveTeam(ctx: AuthenticatedTeamContext): Promise<TeamRecord> {
     const team = await ctx.prisma.team.findUnique({ 
-        where: { clerkOrgId: ctx.session.activeTeam.orgId },
+        where: { clerkOrgId: ctx.auth.activeTeam.orgId },
     })
     if(team == null) throw new TRPCError({ code: 'NOT_FOUND' , message: `Active team not found.` })
     return team

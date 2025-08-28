@@ -28,10 +28,10 @@ type RowData = SkillCheckData & { assessee: PersonData, assessor: PersonData, sk
 export function SkillCheckSession_Transcript_Card({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
 
-    const assesseesQuery = useSuspenseQuery(trpc.skillCheckSessions.getAssessees.queryOptions({ sessionId }))
-    const assessorsQuery = useSuspenseQuery(trpc.skillCheckSessions.getAssessors.queryOptions({ sessionId }))
+    const assesseesQuery = useSuspenseQuery(trpc.skillCheckSessions.getAssignedAssessees.queryOptions({ sessionId }))
+    const assessorsQuery = useSuspenseQuery(trpc.skillCheckSessions.getAssignedAssessors.queryOptions({ sessionId }))
     const checksQuery = useSuspenseQuery(trpc.skillCheckSessions.getChecks.queryOptions({ sessionId, assessorId: 'me'  }))
-    const skillsQuery = useSuspenseQuery(trpc.skillCheckSessions.getSkills.queryOptions({ sessionId}))
+    const skillsQuery = useSuspenseQuery(trpc.skillCheckSessions.getAssignedSkillIds.queryOptions({ sessionId}))
 
     async function handleRefresh() {
         await Promise.all([

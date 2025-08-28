@@ -22,13 +22,15 @@ import { CompetenceLevelTerms } from '@/lib/competencies'
 import { SkillData } from '@/lib/schemas/skill'
 import { useTRPC } from '@/trpc/client'
 
+import { useAssignedSkills } from '../use-assigned-skills'
+
 
 
 export function CompetencyRecorder_Session_RecordByAssessee_Card({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
 
-    const { data: assessees } = useSuspenseQuery(trpc.skillCheckSessions.getAssessees.queryOptions({ sessionId }))
-    const { data: skills } = useSuspenseQuery(trpc.skillCheckSessions.getSkills.queryOptions({ sessionId }))
+    const { data: assessees } = useSuspenseQuery(trpc.skillCheckSessions.getAssignedAssessees.queryOptions({ sessionId }))
+    const { data: skills } = useAssignedSkills({ sessionId })
 
     const [targetAssesseeId, setTargetAssesseeId] = useState<string>('')
     const skillCheckStore = useSkillCheckStore_experimental(sessionId)

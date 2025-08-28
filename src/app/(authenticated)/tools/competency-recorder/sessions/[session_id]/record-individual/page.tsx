@@ -4,17 +4,32 @@
  * 
  *  Path: /tools/competency-recorder/sessions/[session_id]/record-individual
  */
+'use client'
 
-import { AppPageContent } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 import { CompetencyRecorder_Session_RecordIndividual_Card } from './competency-recorder-session-record-individual'
 import { CompetencyRecorder_Session_Recent } from './competency-recorder-session-recent'
 
+import * as Paths from '@/paths'
 
-export default async function CompetencyRecorder_Session_RecordIndividual_Page(props: { params: Promise<{ session_id: string }> }) {
-    const { session_id: sessionId } = await props.params
+import { useSession } from '../use-session'
 
-    return <AppPageContent variant="container">
-        <CompetencyRecorder_Session_RecordIndividual_Card sessionId={sessionId} />
-        <CompetencyRecorder_Session_Recent sessionId={sessionId} />
-    </AppPageContent>
+
+export default function CompetencyRecorder_Session_RecordIndividual_Page() {
+    const session = useSession()
+
+    return <AppPage showRightSidebarTrigger>
+        <AppPageBreadcrumbs
+            breadcrumbs={[
+                Paths.tools.competencyRecorder,
+                Paths.tools.competencyRecorder.sessions,
+                Paths.tools.competencyRecorder.session(session),
+                Paths.tools.competencyRecorder.session(session).recordByAssessee,
+            ]}
+        />
+        <AppPageContent variant="container">
+            <CompetencyRecorder_Session_RecordIndividual_Card sessionId={session.sessionId} />
+            <CompetencyRecorder_Session_Recent sessionId={session.sessionId} />
+        </AppPageContent>
+    </AppPage>
 }

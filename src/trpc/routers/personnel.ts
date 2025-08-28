@@ -60,7 +60,7 @@ export const personnelRouter = createTRPCRouter({
                     changeLogs: {
                         create: {
                             id: nanoId16(),
-                            actorId: ctx.session.personId,
+                            actorId: ctx.auth.personId,
                             event: 'Create',
                             fields: { ...input }
                         }
@@ -203,7 +203,7 @@ export const personnelRouter = createTRPCRouter({
                     changeLogs: {
                         create: {
                             id: nanoId16(),
-                            actorId: ctx.session.personId,
+                            actorId: ctx.auth.personId,
                             event: 'Update',
                             fields: changedFields
                         }

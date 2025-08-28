@@ -23,10 +23,10 @@ export const currentUserRouter = createTRPCRouter({
         .output(personSchema)
         .query(async ({ ctx }): Promise<PersonData> => {
             const person = await ctx.prisma.person.findUnique({ 
-                where: { id: ctx.session.personId },
+                where: { id: ctx.auth.personId },
                 
             })
-            if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person with ID ${ctx.session.personId} not found.` })
+            if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person with ID ${ctx.auth.personId} not found.` })
 
             return toPersonData(person)
         }),

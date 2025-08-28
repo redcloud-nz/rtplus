@@ -4,21 +4,38 @@
  * 
  *  Path: /tools/competency-recorder/sessions/[session_id]/record-by-skill
  */
+'use client'
 
-import { AppPageContent } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 
 import { CompetencyRecorder_Session_RecordBySkill_Card } from './competency-recorder-session-record-by-skill'
 import { Alert } from '@/components/ui/alert'
 import { GitHubIssueLink } from '@/components/ui/link'
 
+import * as Paths from '@/paths'
 
-export default async function CompetencyRecorder_Session_RecordBySkill_Page(props: { params: Promise<{ session_id: string }> }) {
-    const { session_id: sessionId } = await props.params
+import { useSession } from '../use-session'
 
-    return <AppPageContent variant="container">
-        <Alert severity="mockup" title="Experimental">
-            <p>This page is an experimental feature. See <GitHubIssueLink issueNumber={13}/> for feedback or suggestions.</p>
-        </Alert>
-        <CompetencyRecorder_Session_RecordBySkill_Card sessionId={sessionId} />
+
+export default function CompetencyRecorder_Session_RecordBySkill_Page() {
+    const session = useSession()
+
+    return <AppPage showRightSidebarTrigger>
+        <AppPageBreadcrumbs
+            breadcrumbs={[
+                Paths.tools.competencyRecorder,
+                Paths.tools.competencyRecorder.sessions,
+                Paths.tools.competencyRecorder.session(session),
+                Paths.tools.competencyRecorder.session(session).recordBySkill,
+            ]}
+        />
+        <AppPageContent variant="container">
+            <Alert severity="mockup" title="Experimental">
+                <p>This page is an experimental feature. See <GitHubIssueLink issueNumber={13}/> for feedback or suggestions.</p>
+            </Alert>
+            <CompetencyRecorder_Session_RecordBySkill_Card sessionId={session.sessionId} />
     </AppPageContent>
+    </AppPage>
+
+    return 
 }

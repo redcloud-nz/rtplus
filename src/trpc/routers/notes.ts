@@ -34,7 +34,7 @@ export const notesRouter = createTRPCRouter({
                 throw new TRPCError({ code: 'BAD_REQUEST', message: 'Note cannot be associated with both a person and a team.' })
             } else if (input.personId) {
                 // Personal note - only allow creating for oneself
-                if (input.personId !== ctx.session.personId) {
+                if (input.personId !== ctx.auth.personId) {
                     throw new TRPCError({ code: 'FORBIDDEN', message: 'You can only create notes for yourself.' })
                 }
             } else if (input.teamId) {
@@ -50,13 +50,13 @@ export const notesRouter = createTRPCRouter({
                 ctx.requireTeamAdmin(team.clerkOrgId)
             } else {
                 // If neither personId nor teamId is provided, this is a personal note for the current user
-                input = { ...input, personId: ctx.session.personId }
+                input = { ...input, personId: ctx.auth.personId }
             }
 
             const note = await ctx.prisma.note.create({
                 data: {
                     id: input.noteId,
-                    personId: input.personId || ctx.session.personId,
+                    personId: input.personId || ctx.auth.personId,
                     teamId: input.teamId,
                     title: input.title,
                     content: input.content,
@@ -85,7 +85,7 @@ export const notesRouter = createTRPCRouter({
             // Check delete permissions
             if (existingNote.personId) {
                 // Person note - only owner can delete
-                if (existingNote.personId !== ctx.session.personId) {
+                if (existingNote.personId !== ctx.auth.personId) {
                     throw new TRPCError({ code: 'FORBIDDEN', message: 'You can only delete your own personal notes.' })
                 }
             } else if (existingNote.teamId && existingNote.team) {
@@ -129,7 +129,7 @@ export const notesRouter = createTRPCRouter({
         .output(z.array(noteSchema))
         .query(async ({ ctx }) => {
             const notes = await ctx.prisma.note.findMany({
-                where: { personId: ctx.session.personId },
+                where: { personId: ctx.auth.personId },
                 orderBy: { date: 'desc' } // Most recent first
             })
 
@@ -172,7 +172,7 @@ export const notesRouter = createTRPCRouter({
             // Check update permissions
             if (existingNote.personId) {
                 // Person note - only owner can update
-                if (existingNote.personId !== ctx.session.personId) {
+                if (existingNote.personId !== ctx.auth.personId) {
                     throw new TRPCError({ code: 'FORBIDDEN', message: 'You can only update your own personal notes.' })
                 }
             } else if (existingNote.teamId && existingNote.team) {
@@ -209,7 +209,7 @@ async function getNoteById(ctx: AuthenticatedContext, noteId: string, filters: {
     // Check access permissions
     if (note.personId) {
         // Person note - only accessible by the owner
-        if (note.personId !== ctx.session.personId) {
+        if (note.personId !== ctx.auth.personId) {
             throw new TRPCError({ code: 'FORBIDDEN', message: 'You can only access your own personal notes.' })
         }
     } else if (note.teamId && note.team) {

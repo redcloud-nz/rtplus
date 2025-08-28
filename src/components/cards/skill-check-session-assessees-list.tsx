@@ -44,7 +44,7 @@ export function SkillCheckSession_AssesseesList_Card({ sessionId }: { sessionId:
 
     const { data: session } = useSuspenseQuery(trpc.skillCheckSessions.getSession.queryOptions({ sessionId }))
     const personnelQuery = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({}))
-    const assignedAssesseesQuery = useSuspenseQuery(trpc.skillCheckSessions.getAssessees.queryOptions({ sessionId }))
+    const assignedAssesseesQuery = useSuspenseQuery(trpc.skillCheckSessions.getAssignedAssessees.queryOptions({ sessionId }))
 
     async function handleRefresh() {
         assignedAssesseesQuery.refetch()
@@ -61,18 +61,18 @@ export function SkillCheckSession_AssesseesList_Card({ sessionId }: { sessionId:
 
     const addAssesseeMutation = useMutation(trpc.skillCheckSessions.addAssessee.mutationOptions({
         async onMutate(data) {
-            await queryClient.cancelQueries(trpc.skillCheckSessions.getAssessees.queryFilter({ sessionId }))
+            await queryClient.cancelQueries(trpc.skillCheckSessions.getAssignedAssessees.queryFilter({ sessionId }))
 
             const assessee = availablePersonnel.find(p => p.personId === data.assesseeId)
             if (!assessee) throw new Error(`Assessee with ID ${data.assesseeId} not found in available personnel`)
 
-            const previousData = queryClient.getQueryData<PersonData[]>(trpc.skillCheckSessions.getAssessees.queryKey({ sessionId }))
-            queryClient.setQueryData(trpc.skillCheckSessions.getAssessees.queryKey({ sessionId }), (prev = []) => [...prev, assessee])
+            const previousData = queryClient.getQueryData<PersonData[]>(trpc.skillCheckSessions.getAssignedAssessees.queryKey({ sessionId }))
+            queryClient.setQueryData(trpc.skillCheckSessions.getAssignedAssessees.queryKey({ sessionId }), (prev = []) => [...prev, assessee])
 
             return { previousData }
         },
         onError(error, data, context) {
-            queryClient.setQueryData(trpc.skillCheckSessions.getAssessees.queryKey({ sessionId }), context?.previousData)
+            queryClient.setQueryData(trpc.skillCheckSessions.getAssignedAssessees.queryKey({ sessionId }), context?.previousData)
 
             toast({
                 title: "Error adding assessee to session",
@@ -88,22 +88,22 @@ export function SkillCheckSession_AssesseesList_Card({ sessionId }: { sessionId:
             sessionUpdater.updateSession(result.session)
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.skillCheckSessions.getAssessees.queryFilter({ sessionId }))
+            queryClient.invalidateQueries(trpc.skillCheckSessions.getAssignedAssessees.queryFilter({ sessionId }))
         }
     }))
 
     const removeAssesseeMutation = useMutation(trpc.skillCheckSessions.removeAssessee.mutationOptions({
         async onMutate(data) {
-            await queryClient.cancelQueries(trpc.skillCheckSessions.getAssessees.queryFilter({ sessionId }))
+            await queryClient.cancelQueries(trpc.skillCheckSessions.getAssignedAssessees.queryFilter({ sessionId }))
 
-            const previousData = queryClient.getQueryData<PersonData[]>(trpc.skillCheckSessions.getAssessees.queryKey({ sessionId }))
+            const previousData = queryClient.getQueryData<PersonData[]>(trpc.skillCheckSessions.getAssignedAssessees.queryKey({ sessionId }))
 
-            queryClient.setQueryData(trpc.skillCheckSessions.getAssessees.queryKey({ sessionId }), (prev = []) => prev.filter(a => a.personId !== data.assesseeId))
+            queryClient.setQueryData(trpc.skillCheckSessions.getAssignedAssessees.queryKey({ sessionId }), (prev = []) => prev.filter(a => a.personId !== data.assesseeId))
 
             return { previousData }
         },
         onError(error, data, context) {
-            queryClient.setQueryData(trpc.skillCheckSessions.getAssessees.queryKey({ sessionId }), context?.previousData)
+            queryClient.setQueryData(trpc.skillCheckSessions.getAssignedAssessees.queryKey({ sessionId }), context?.previousData)
 
             toast({
                 title: "Error removing assessee from session",
@@ -119,7 +119,7 @@ export function SkillCheckSession_AssesseesList_Card({ sessionId }: { sessionId:
             queryClient.invalidateQueries(trpc.skillCheckSessions.getSession.queryFilter({ sessionId }))
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.skillCheckSessions.getAssessees.queryFilter({ sessionId }))
+            queryClient.invalidateQueries(trpc.skillCheckSessions.getAssignedAssessees.queryFilter({ sessionId }))
         }
     }))
 

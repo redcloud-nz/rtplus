@@ -31,7 +31,7 @@ export const activeTeamSkillChecksRouter = createTRPCRouter({
         .mutation(async ({ ctx, input }) => {
 
             const team = await getActiveTeam(ctx)
-            const assessorId = ctx.session.personId
+            const assessorId = ctx.auth.personId
 
             const created = await ctx.prisma.skillCheck.create({
                 data: {
@@ -70,7 +70,7 @@ export const activeTeamSkillChecksRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             
             const teamMemberIds = (await ctx.prisma.team.findUnique({
-                where: { clerkOrgId: ctx.session.activeTeam.orgId },
+                where: { clerkOrgId: ctx.auth.activeTeam.orgId },
                 select: {
                     teamMemberships: {
                         where: { status: 'Active' },

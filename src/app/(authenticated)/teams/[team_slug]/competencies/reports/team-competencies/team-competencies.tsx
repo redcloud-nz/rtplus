@@ -30,7 +30,7 @@ import { useTRPC } from '@/trpc/client'
 export function Team_Competencies_Card({ teamId }: { teamId: string }) {
     const trpc = useTRPC()
 
-    const skillPackagesQuery = useSuspenseQuery(trpc.skills.getTree.queryOptions())
+    const skillPackagesQuery = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions())
     const teamMembersQuery = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId }))
 
     async function handleRefresh() {

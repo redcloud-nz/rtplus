@@ -34,3 +34,14 @@ export function toPersonData(record: PersonRecord): PersonData {
         status: record.status,
     }
 }
+
+export const personRefSchema = personSchema.pick({ personId: true, name: true })
+
+export type PersonRefData = z.infer<typeof personRefSchema>
+
+export function toPersonRefData(record: Pick<PersonRecord, 'id' | 'name'>): PersonRefData {
+    return {
+        personId: record.id,
+        name: record.name,
+    }
+}

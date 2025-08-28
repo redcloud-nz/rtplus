@@ -48,7 +48,7 @@ export const skillsRouter = createTRPCRouter({
                         id: nanoId16(),
                         skillPackageId,
                         event: 'CreateGroup',
-                        actorId: ctx.session.personId,
+                        actorId: ctx.auth.personId,
                         timestamp: new Date(),
                         meta: { skillGroupId },
                         fields: { ...fields },
@@ -81,7 +81,7 @@ export const skillsRouter = createTRPCRouter({
                         create: {
                             id: nanoId16(),
                             event: 'Create',
-                            actorId: ctx.session.personId,
+                            actorId: ctx.auth.personId,
                             timestamp: new Date(),
                             fields: { ...fields },
                         }
@@ -124,7 +124,7 @@ export const skillsRouter = createTRPCRouter({
                         id: nanoId16(),
                         skillPackageId: skillPackageId,
                         event: 'CreateSkill',
-                        actorId: ctx.session.personId,
+                        actorId: ctx.auth.personId,
                         timestamp: new Date(),
                         meta: { skillId },
                         fields: { ...fields },
@@ -158,7 +158,7 @@ export const skillsRouter = createTRPCRouter({
                         id: nanoId16(),
                         skillPackageId: skillGroup.skillPackageId,
                         event: 'DeleteGroup',
-                        actorId: ctx.session.personId,
+                        actorId: ctx.auth.personId,
                         timestamp: new Date(),
                         meta: { skillGroupId },
                     }
@@ -210,7 +210,7 @@ export const skillsRouter = createTRPCRouter({
                         id: nanoId16(),
                         skillPackageId: skill.skillPackageId,
                         event: 'DeleteSkill',
-                        actorId: ctx.session.personId,
+                        actorId: ctx.auth.personId,
                         timestamp: new Date(),
                         meta: { skillId },
                     }
@@ -218,6 +218,34 @@ export const skillsRouter = createTRPCRouter({
             ])
 
             return { skillId, ...deletedSkill, skillGroup: { skillGroupId: deletedSkill.skillGroup.id, ...deletedSkill.skillGroup }, skillPackage: { skillPackageId: deletedSkill.skillPackage.id, ...deletedSkill.skillPackage } }
+        }),
+
+    getAvailablePackages: authenticatedProcedure
+        .output(z.array(skillPackageSchema.extend({
+            skillGroups: z.array(skillGroupSchema),
+            skills: z.array(skillSchema)
+        })))
+        .query(async ({ ctx }) => {
+            const skillPackages = await ctx.prisma.skillPackage.findMany({ 
+                where: { status: 'Active' },
+                orderBy: { sequence: 'asc' },
+                include: {
+                    skillGroups: {
+                        where: { status: 'Active' },
+                        orderBy: { sequence: 'asc' },
+                    },
+                    skills: {
+                        where: { status: 'Active' },
+                        orderBy: { sequence: 'asc' },
+                    }
+                }
+            })
+
+            return skillPackages.map(pkg => ({
+                ...toSkillPackageData(pkg),
+                skillGroups: pkg.skillGroups.map(toSkillGroupData),
+                skills: pkg.skills.map(toSkillData),
+            }))
         }),
 
     getGroup: authenticatedProcedure
@@ -323,33 +351,7 @@ export const skillsRouter = createTRPCRouter({
             return skills.map(skill => ({ skillId: skill.id, ...skill }))
         }),
 
-    getTree: authenticatedProcedure
-        .output(z.array(skillPackageSchema.extend({
-            skillGroups: z.array(skillGroupSchema),
-            skills: z.array(skillSchema)
-        })))
-        .query(async ({ ctx }) => {
-            const skillPackages = await ctx.prisma.skillPackage.findMany({ 
-                where: { status: 'Active' },
-                orderBy: { sequence: 'asc' },
-                include: {
-                    skillGroups: {
-                        where: { status: 'Active' },
-                        orderBy: { sequence: 'asc' },
-                    },
-                    skills: {
-                        where: { status: 'Active' },
-                        orderBy: { sequence: 'asc' },
-                    }
-                }
-            })
-
-            return skillPackages.map(pkg => ({
-                ...toSkillPackageData(pkg),
-                skillGroups: pkg.skillGroups.map(toSkillGroupData),
-                skills: pkg.skills.map(toSkillData),
-            }))
-        }),
+    
 
 
     importPackage: systemAdminProcedure
@@ -394,7 +396,7 @@ export const skillsRouter = createTRPCRouter({
                         id: nanoId16(),
                         skillPackageId: existing.skillPackageId,
                         event: 'UpdateGroup',
-                        actorId: ctx.session.personId,
+                        actorId: ctx.auth.personId,
                         timestamp: new Date(),
                         meta: { skillGroupId },
                         fields: changedFields, 
@@ -423,7 +425,7 @@ export const skillsRouter = createTRPCRouter({
                         create: {
                             id: nanoId16(),
                             event: 'Update',
-                            actorId: ctx.session.personId,
+                            actorId: ctx.auth.personId,
                             timestamp: new Date(),
                             fields: changedFields,
                         }
@@ -460,7 +462,7 @@ export const skillsRouter = createTRPCRouter({
                         id: nanoId16(),
                         skillPackageId,
                         event: 'UpdateSkill',
-                        actorId: ctx.session.personId,
+                        actorId: ctx.auth.personId,
                         timestamp: new Date(),
                         meta: { skillId },
                         fields: changedFields,
@@ -542,7 +544,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
                         create: {
                             id: nanoId16(),
                             event: 'Update',
-                            actorId: ctx.session.personId,
+                            actorId: ctx.auth.personId,
                             timestamp: new Date(),
                             fields: changes,
                             description: "Imported skill package"
@@ -563,7 +565,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
                     create: {
                         id: nanoId16(),
                         event: 'Create',
-                        actorId: ctx.session.personId,
+                        actorId: ctx.auth.personId,
                         timestamp: new Date(),
                         fields: fields,
                         description: "Import skill package"
@@ -600,7 +602,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
                 data: groupsToAdd.map(group => ({
                     id: nanoId16(),
                     event: 'CreateGroup',
-                    actorId: ctx.session.personId,
+                    actorId: ctx.auth.personId,
                     skillPackageId: group.skillPackageId,
                     timestamp,
                     fields: group,
@@ -634,7 +636,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
                     data: {
                         id: nanoId16(),
                         event: 'UpdateGroup',
-                        actorId: ctx.session.personId,
+                        actorId: ctx.auth.personId,
                         skillPackageId: group.skillPackageId,
                         timestamp: new Date(),
                         fields: changes,
@@ -671,7 +673,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
                 data: skillsToAdd.map(skill => ({
                     id: nanoId16(),
                     event: 'CreateSkill',
-                    actorId: ctx.session.personId,
+                    actorId: ctx.auth.personId,
                     skillPackageId: skillPackage.id,
                     timestamp,
                     fields: { ...skill },
@@ -706,7 +708,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
                     data: {
                         id: nanoId16(),
                         event: 'UpdateSkill',
-                        actorId: ctx.session.personId,
+                        actorId: ctx.auth.personId,
                         skillPackageId: skillPackage.id,
                         timestamp: new Date(),
                         fields: changes,

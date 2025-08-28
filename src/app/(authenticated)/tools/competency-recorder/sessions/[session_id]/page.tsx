@@ -4,17 +4,30 @@
  * 
  *  Path: /tools/competency-recorder/sessions/[session_id]
  */
+'use client'
 
+import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 
-import { AppPageContent } from '@/components/app-page'
+import * as Paths from '@/paths'
 
 import { SkillCheckSession_Details_Card } from './skill-check-session-details'
 
+import { useSession } from './use-session'
 
-export default async function CompetencyRecorder_Session_Details_Page(props: { params: Promise<{ session_id: string }> }) {
-    const { session_id: sessionId } = await props.params
 
-    return <AppPageContent variant="container">
-        <SkillCheckSession_Details_Card sessionId={sessionId} />
-    </AppPageContent>
+export default function CompetencyRecorder_Session_Details_Page() {
+    const session = useSession()
+
+    return <AppPage showRightSidebarTrigger>
+        <AppPageBreadcrumbs
+            breadcrumbs={[
+                Paths.tools.competencyRecorder,
+                Paths.tools.competencyRecorder.sessions,
+                Paths.tools.competencyRecorder.session(session),
+            ]}
+        />
+        <AppPageContent variant="full">
+            <SkillCheckSession_Details_Card sessionId={session.sessionId} />
+        </AppPageContent>
+    </AppPage>
 }

@@ -18,16 +18,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 import { useSkillCheckStore_experimental } from '@/hooks/use-skill-check-store'
 import { CompetenceLevelTerms } from '@/lib/competencies'
-import { PersonData } from '@/lib/schemas/person'
+import { PersonData, PersonRefData } from '@/lib/schemas/person'
 import { useTRPC } from '@/trpc/client'
+
+import { useAssignedSkills } from '../use-assigned-skills'
 
 
 export function CompetencyRecorder_Session_RecordBySkill_Card({ sessionId }: { sessionId: string }) {
 
     const trpc = useTRPC()
 
-    const { data: assessees } = useSuspenseQuery(trpc.skillCheckSessions.getAssessees.queryOptions({ sessionId }))
-    const { data: skills } = useSuspenseQuery(trpc.skillCheckSessions.getSkills.queryOptions({ sessionId }))
+    const { data: assessees } = useSuspenseQuery(trpc.skillCheckSessions.getAssignedAssessees.queryOptions({ sessionId }))
+    const { data: skills } = useAssignedSkills({ sessionId })
 
     const [targetSkillId, setTargetSkillId] = useState<string>('')
     const skillCheckStore = useSkillCheckStore_experimental(sessionId)
@@ -103,7 +105,7 @@ export function CompetencyRecorder_Session_RecordBySkill_Card({ sessionId }: { s
 
 
 interface AssesseeRowProps {
-    assessee: PersonData;
+    assessee: PersonRefData
     disabled: boolean;
     value: { result: string, notes: string }
     onValueChange: (value: { result: string, notes: string }) => void;

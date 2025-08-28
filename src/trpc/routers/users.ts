@@ -89,7 +89,7 @@ export const usersRouter = createTRPCRouter({
 
             const orgInvitation = await ctx.clerkClient.organizations.createOrganizationInvitation({
                 organizationId: team.clerkOrgId,
-                inviterUserId: ctx.session.userId,
+                inviterUserId: ctx.auth.userId,
                 emailAddress: input.email,
                 role: input.role,
                 publicMetadata: {
@@ -146,7 +146,7 @@ export const usersRouter = createTRPCRouter({
 
             if(!ctx.hasTeamAdmin(team)) throw new TRPCError({ code: 'FORBIDDEN', message: Messages.teamForbidden(input.teamId) })
 
-            const { data: orgMemberships } = await ctx.clerkClient.organizations.getOrganizationMembershipList({ organizationId: ctx.session.activeTeam.orgId, limit: 100 })
+            const { data: orgMemberships } = await ctx.clerkClient.organizations.getOrganizationMembershipList({ organizationId: ctx.auth.activeTeam.orgId, limit: 100 })
             const userIds = orgMemberships.map(m => m.publicUserData!.userId)
 
             const { data: users } = await ctx.clerkClient.users.getUserList({ userId: userIds, limit: 100 })
@@ -229,13 +229,13 @@ export const usersRouter = createTRPCRouter({
             }
             
             // Revoke the existing invitation
-            await ctx.clerkClient.organizations.revokeOrganizationInvitation({ organizationId: ctx.session.activeTeam.orgId, invitationId: input.invitationId })
+            await ctx.clerkClient.organizations.revokeOrganizationInvitation({ organizationId: ctx.auth.activeTeam.orgId, invitationId: input.invitationId })
 
             // Create a new invitation with the same email and role
             // This will send a new email to the user
             const newInvitation = await ctx.clerkClient.organizations.createOrganizationInvitation({
-                organizationId: ctx.session.activeTeam.orgId,
-                inviterUserId: ctx.session.userId,
+                organizationId: ctx.auth.activeTeam.orgId,
+                inviterUserId: ctx.auth.userId,
                 emailAddress: orgInvitation.emailAddress,
                 role: orgInvitation.role,
                 publicMetadata: orgInvitation.publicMetadata,
@@ -263,13 +263,13 @@ export const usersRouter = createTRPCRouter({
             const team = await fetchTeamByIdCached(input.teamId)
             if(!team || !ctx.hasTeamAdmin(team)) throw new TRPCError({ code: 'FORBIDDEN', message: Messages.teamForbidden(input.teamId) })
 
-            const orgInvitation = await ctx.clerkClient.organizations.getOrganizationInvitation({ organizationId: ctx.session.activeTeam.orgId, invitationId: input.invitationId })
+            const orgInvitation = await ctx.clerkClient.organizations.getOrganizationInvitation({ organizationId: ctx.auth.activeTeam.orgId, invitationId: input.invitationId })
             if (!orgInvitation) {
                 throw new TRPCError({ code: 'NOT_FOUND', message: `Invitation with ID ${input.invitationId} not found.` })
             }
 
 
-            const revokedInvitation = await ctx.clerkClient.organizations.revokeOrganizationInvitation({ organizationId: ctx.session.activeTeam.orgId, invitationId: input.invitationId })
+            const revokedInvitation = await ctx.clerkClient.organizations.revokeOrganizationInvitation({ organizationId: ctx.auth.activeTeam.orgId, invitationId: input.invitationId })
 
             return toTeamInvitationData(revokedInvitation)
         }),

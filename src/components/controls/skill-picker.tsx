@@ -38,7 +38,7 @@ interface SkillPickerProps {
 export function SkillPicker({ className, defaultValue = "", exclude = [], onValueChange, placeholder, size, value }: SkillPickerProps) {
     const trpc = useTRPC()
 
-    const query = useQuery(trpc.skills.getTree.queryOptions())
+    const query = useQuery(trpc.skills.getAvailablePackages.queryOptions())
 
     const [internalValue, setInternalValue] = useState<string>(value ?? defaultValue)
 

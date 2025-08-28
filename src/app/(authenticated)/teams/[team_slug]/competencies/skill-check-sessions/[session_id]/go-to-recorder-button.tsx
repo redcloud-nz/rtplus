@@ -21,7 +21,7 @@ export function GoToRecorder({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
 
     const { data: currentPerson } = useSuspenseQuery(trpc.currentUser.getPerson.queryOptions())
-    const { data: assessors } = useSuspenseQuery(trpc.skillCheckSessions.getAssessors.queryOptions({ sessionId }))
+    const { data: assessors } = useSuspenseQuery(trpc.skillCheckSessions.getAssignedAssessors.queryOptions({ sessionId }))
 
     const isAssessor = assessors.some(a => a.personId === currentPerson.personId)
 

@@ -78,7 +78,7 @@ export const teamMembershipsRouter = createTRPCRouter({
                     changeLogs: {
                         create: {
                             id: nanoId16(),
-                            actorId: ctx.session.personId,
+                            actorId: ctx.auth.personId,
                             event: 'Create',
                             fields: {
                                 email: input.email,
@@ -104,7 +104,7 @@ export const teamMembershipsRouter = createTRPCRouter({
                     data: {
                         id: nanoId16(),
                         teamId: input.teamId,
-                        actorId: ctx.session.personId,
+                        actorId: ctx.auth.personId,
                         event: 'AddMember',
                         meta: { personId: person.id },
                         fields: { tags: input.tags, status: input.status }
@@ -163,7 +163,7 @@ export const teamMembershipsRouter = createTRPCRouter({
                     data: {
                         id: nanoId16(),
                         teamId,
-                        actorId: ctx.session.personId,
+                        actorId: ctx.auth.personId,
                         event: 'AddMember',
                         meta: { personId },
                         fields: fields
@@ -209,7 +209,7 @@ export const teamMembershipsRouter = createTRPCRouter({
                     data: {
                         id: nanoId16(),
                         teamId,
-                        actorId: ctx.session.personId,
+                        actorId: ctx.auth.personId,
                         event: 'RemoveMember',
                         meta: { personId },
                     }
@@ -319,7 +319,7 @@ export const teamMembershipsRouter = createTRPCRouter({
                             changeLogs: {
                                 create: {
                                     id: nanoId16(),
-                                    actorId: ctx.session.personId,
+                                    actorId: ctx.auth.personId,
                                     event: 'Update',
                                     fields: pickBy({ name: update.name, email: update.email }, (value, key) => value != existingMembership.person[key])
                                 }
@@ -340,7 +340,7 @@ export const teamMembershipsRouter = createTRPCRouter({
                         data: {
                             id: nanoId16(),
                             teamId,
-                            actorId: ctx.session.personId,
+                            actorId: ctx.auth.personId,
                             event: 'UpdateMember',
                             meta: { personId },
                             fields: pickBy({ tags: update.tags, status: update.status }, (value, key) => value != existingMembership[key])
@@ -394,7 +394,7 @@ export const teamMembershipsRouter = createTRPCRouter({
                     data: {
                         id: nanoId16(),
                         teamId,
-                        actorId: ctx.session.personId,
+                        actorId: ctx.auth.personId,
                         event: 'UpdateMember',
                         meta: { personId },
                         fields: changedFields

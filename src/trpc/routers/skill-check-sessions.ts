@@ -8,10 +8,10 @@ import { z } from 'zod'
 import { UTCDate } from '@date-fns/utc'
 import { TRPCError } from '@trpc/server'
 
-import { Person as PersonRecord, Skill as SkillRecord, SkillCheck as SkillCheckRecord, SkillCheckSession as SkillCheckSessionRecord, Team as TeamRecord, Prisma } from '@prisma/client'
+import { Skill as SkillRecord } from '@prisma/client'
 
 import { nanoId16 } from '@/lib/id'
-import { toPersonData, personSchema } from '@/lib/schemas/person'
+import { toPersonData, personSchema, personRefSchema, toPersonRefData } from '@/lib/schemas/person'
 import { toSkillData, skillSchema } from '@/lib/schemas/skill'
 import { toSkillCheckData, skillCheckSchema } from '@/lib/schemas/skill-check'
 import { toSkillCheckSessionData, skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
@@ -21,6 +21,30 @@ import { zodNanoId16, zodNanoId8 } from '@/lib/validation'
 import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter } from '../init'
 import { CompetenceLevel, isPass } from '@/lib/competencies'
 
+const sessionProcedure = authenticatedProcedure
+    .input(z.object({ sessionId: zodNanoId8 }))
+    .use(async ({ ctx, input, next }) => {
+        const session = await ctx.prisma.skillCheckSession.findUnique({
+            where: { id: input.sessionId },
+            include: {
+                assessors: true,
+                team: true,
+            }
+        })
+
+        if(!session) throw new TRPCError({ code: 'NOT_FOUND', message: `Session with ID ${input.sessionId} not found.` })
+
+        if(session.assessors.some(a => a.id === ctx.auth.personId) || ctx.hasTeamAccess(session.team)) {
+            // The user has access to this session because they are an assessor or have team access
+            return next({
+                ctx: {
+                    ...ctx,
+                    skillCheckSession: session
+                }
+            })
+        }
+        else throw new TRPCError({ code: 'FORBIDDEN', message: `User does not have access to session with ID ${input.sessionId}` })
+    })
 
 export const skillCheckSessionsRouter = createTRPCRouter({
 
@@ -31,7 +55,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
      * @returns The updated skill check session with counts.
      * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
      */
-    addAssessee: authenticatedProcedure
+    addAssessee: sessionProcedure
         .input(z.object({
             sessionId: zodNanoId8,
             assesseeId: zodNanoId8
@@ -41,7 +65,6 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             assessee: personSchema
         }))
         .mutation(async ({ ctx, input: { sessionId, assesseeId } }) => {
-            await getSessionById(ctx, sessionId)
 
             const updated = await ctx.prisma.skillCheckSession.update({
                 where: { id: sessionId },
@@ -53,7 +76,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                         create: {
                             id: nanoId16(),
                             event: 'AddAssessee',
-                            actorId: ctx.session.personId,
+                            actorId: ctx.auth.personId,
                             meta: { assesseeId }
                         }
                     }
@@ -87,9 +110,8 @@ export const skillCheckSessionsRouter = createTRPCRouter({
      * @returns The updated skill check session with counts.
      * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
      */
-    addAssessor: authenticatedProcedure
+    addAssessor: sessionProcedure
         .input(z.object({
-            sessionId: zodNanoId8,
             assessorId: zodNanoId8
         }))
         .output(z.object({
@@ -97,7 +119,6 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             assessor: personSchema
         }))
         .mutation(async ({ ctx, input: { sessionId, assessorId } }) => {
-            await getSessionById(ctx, sessionId)
 
             const updated = await ctx.prisma.skillCheckSession.update({
                 where: { id: sessionId },
@@ -109,7 +130,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                         create: {
                             id: nanoId16(),
                             event: 'AddAssessor',
-                            actorId: ctx.session.personId,
+                            actorId: ctx.auth.personId,
                             meta: { assessorId }
                         }
                     }
@@ -143,7 +164,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
      * @returns The updated skill check session with counts.
      * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
      */
-    addSkill: authenticatedProcedure
+    addSkill: sessionProcedure
         .input(z.object({
             sessionId: zodNanoId8,
             skillId: zodNanoId8
@@ -153,7 +174,6 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             skill: skillSchema
         }))
         .mutation(async ({ ctx, input: { sessionId, skillId } }) => {
-            await getSessionById(ctx, sessionId)
 
             const updated = await ctx.prisma.skillCheckSession.update({
                 where: { id: sessionId },
@@ -165,7 +185,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                         create: {
                             id: nanoId16(),
                             event: 'AddSkill',
-                            actorId: ctx.session.personId,
+                            actorId: ctx.auth.personId,
                             meta: { skillId }
                         }
                     }
@@ -199,7 +219,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
      * @returns The deleted skill check data.
      * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
      */
-    deleteCheck: authenticatedProcedure
+    deleteCheck: sessionProcedure
         .input(z.object({
             sessionId: zodNanoId8,
             skillCheckId: zodNanoId16
@@ -209,7 +229,6 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             check: skillCheckSchema
         }))
         .mutation(async ({ ctx, input }) => {
-            await getSessionById(ctx, input.sessionId)
 
             const timestamp = new UTCDate()
 
@@ -235,7 +254,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                         create: {
                             id: nanoId16(),
                             event: 'DeleteCheck',
-                            actorId: ctx.session.personId,
+                            actorId: ctx.auth.personId,
                             timestamp,
                             meta: {
                                 skillCheckId: input.skillCheckId,
@@ -271,26 +290,20 @@ export const skillCheckSessionsRouter = createTRPCRouter({
      * @returns An array of assessees for the session.
      * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
      */
-    getAssessees: authenticatedProcedure
-        .input(z.object({
-            sessionId: zodNanoId8
-        }))
-        .output(z.array(personSchema))
+    getAssignedAssessees: sessionProcedure
+        .output(z.array(personRefSchema))
         .query(async ({ ctx, input }) => {
-            await getSessionById(ctx, input.sessionId)
-
             const session = await ctx.prisma.skillCheckSession.findUnique({
                 where: { id: input.sessionId },
                 include: {
-                    assessees: {
-                        orderBy: {
-                            name: 'asc'
-                        }
+                    assessees: { 
+                        select: { id: true, name: true },
+                        orderBy: { name: 'asc' }
                     }
-                },
+                }
             })
 
-            return (session?.assessees ?? []).map(toPersonData)
+            return (session?.assessees ?? []).map(toPersonRefData)
         }),
 
     /**
@@ -300,22 +313,45 @@ export const skillCheckSessionsRouter = createTRPCRouter({
      * @returns An array of assessors for the session.
      * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
      */
-    getAssessors: authenticatedProcedure
-        .input(z.object({
-            sessionId: zodNanoId8
-        }))
-        .output(z.array(personSchema))
+    getAssignedAssessors: sessionProcedure
+        .output(z.array(personRefSchema))
         .query(async ({ ctx, input }) => {
-            await getSessionById(ctx, input.sessionId)
-
+        
             const session = await ctx.prisma.skillCheckSession.findUnique({
                 where: { id: input.sessionId },
                 include: {
-                    assessors: true,
+                    assessors: { 
+                        select: { id: true, name: true },
+                        orderBy: { name: 'asc' }
+                    }
                 }
             })
 
-            return (session?.assessors ?? []).map(toPersonData)
+            return (session?.assessors ?? []).map(toPersonRefData)
+        }),
+
+    /**
+     * Fetch the skill ids associated with a skill check session.
+     * @param ctx The authenticated context.
+     * @param input The input containing the session ID.
+     * @returns An array of assigned skill ids for the session.
+     * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
+     */
+    getAssignedSkillIds: sessionProcedure
+        .output(z.array(zodNanoId8))
+        .query(async ({ ctx, input }) => {
+            
+            const session = await ctx.prisma.skillCheckSession.findUnique({
+                where: { id: input.sessionId },
+                include: {
+                    skills: {
+                        select: { id: true }
+                    }
+                }
+            })
+            
+
+            return (session?.skills ?? []).map(s => s.id)
         }),
         
     /**
@@ -325,18 +361,16 @@ export const skillCheckSessionsRouter = createTRPCRouter({
      * @returns An array of skill checks for the session.
      * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
      */
-    getChecks: authenticatedProcedure
+    getChecks: sessionProcedure
         .input(z.object({
-            sessionId: zodNanoId8,
             assessorId: z.union([zodNanoId8, z.literal('me')]).optional()
         }))
         .output(z.array(skillCheckSchema))
         .query(async ({ ctx, input }) => {
-            await getSessionById(ctx, input.sessionId)
             const session = await ctx.prisma.skillCheckSession.findUnique({
                 where: {
                     id: input.sessionId,
-                    assessors: input.assessorId ? { some: { id: input.assessorId == 'me' ? ctx.session.personId : input.assessorId } } : undefined
+                    assessors: input.assessorId ? { some: { id: input.assessorId == 'me' ? ctx.auth.personId : input.assessorId } } : undefined
                 },
                 include: {
                     checks: true,
@@ -360,7 +394,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             const sessions = await ctx.prisma.skillCheckSession.findMany({
                 where: {
                     assessors: {
-                        some: { id: ctx.session.personId }
+                        some: { id: ctx.auth.personId }
                     }
                 },
                 include: {
@@ -382,13 +416,9 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             }))
         }),
 
-    getSession: authenticatedProcedure
-        .input(z.object({
-            sessionId: zodNanoId8
-        }))
+    getSession: sessionProcedure
         .output(skillCheckSessionSchema.extend({ team: teamSchema }))
         .query(async ({ ctx, input }) => {
-            await getSessionById(ctx, input.sessionId)
 
             const session = await ctx.prisma.skillCheckSession.findUnique({
                 where: { id: input.sessionId },
@@ -414,41 +444,14 @@ export const skillCheckSessionsRouter = createTRPCRouter({
         }),
 
     /**
-     * Fetch the skills associated with a skill check session.
-     * @param ctx The authenticated context.
-     * @param input The input containing the session ID.
-     * @returns An array of skills for the session.
-     * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
-     */
-    getSkills: authenticatedProcedure
-        .input(z.object({
-            sessionId: zodNanoId8
-        }))
-        .output(z.array(skillSchema))
-        .query(async ({ ctx, input }) => {
-            await getSessionById(ctx, input.sessionId)
-            
-            const session = await ctx.prisma.skillCheckSession.findUnique({
-                where: { id: input.sessionId },
-                include: {
-                    skills: true,
-                }
-            })
-
-            return (session?.skills ?? []).map(toSkillData)
-        }),
-
-
-    /**
      * Remove an assessee from a skill check session.
      * @param ctx The authenticated context.
      * @param input The input containing the session ID and assessee ID.
      * @returns The updated skill check session with counts.
      * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
      */
-    removeAssessee: authenticatedProcedure
+    removeAssessee: sessionProcedure
         .input(z.object({
-            sessionId: zodNanoId8,
             assesseeId: zodNanoId8
         }))
         .output(z.object({
@@ -456,7 +459,6 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             assessee: personSchema
         }))
         .mutation(async ({ ctx, input: { sessionId, assesseeId } }) => {
-            await getSessionById(ctx, sessionId)
 
             const updated = await ctx.prisma.skillCheckSession.update({
                 where: { id: sessionId },
@@ -468,7 +470,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                         create: {
                             id: nanoId16(),
                             event: 'RemoveAssessee',
-                            actorId: ctx.session.personId,
+                            actorId: ctx.auth.personId,
                             meta: { assesseeId }
                         }
                     }
@@ -502,9 +504,8 @@ export const skillCheckSessionsRouter = createTRPCRouter({
      * @returns The updated skill check session with counts.
      * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
      */
-    removeAssessor: authenticatedProcedure
+    removeAssessor: sessionProcedure
         .input(z.object({
-            sessionId: zodNanoId8,
             assessorId: zodNanoId8
         }))
         .output(z.object({
@@ -512,7 +513,6 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             assessor: personSchema
         }))
         .mutation(async ({ ctx, input: { sessionId, assessorId } }) => {
-            await getSessionById(ctx, sessionId)
 
             const updated = await ctx.prisma.skillCheckSession.update({
                 where: { id: sessionId },
@@ -524,7 +524,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                         create: {
                             id: nanoId16(),
                             event: 'RemoveAssessor',
-                            actorId: ctx.session.personId,
+                            actorId: ctx.auth.personId,
                             meta: { assessorId }
                         }
                     }
@@ -558,9 +558,8 @@ export const skillCheckSessionsRouter = createTRPCRouter({
      * @returns The updated skill check session with counts.
      * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist or the user does not have access.
      */
-    removeSkill: authenticatedProcedure
+    removeSkill: sessionProcedure
         .input(z.object({
-            sessionId: zodNanoId8,
             skillId: zodNanoId8
         }))
         .output(z.object({
@@ -568,7 +567,6 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             skill: skillSchema
         }))
         .mutation(async ({ ctx, input: { sessionId, skillId } }) => {
-            await getSessionById(ctx, sessionId)
 
             const updated = await ctx.prisma.skillCheckSession.update({
                 where: { id: sessionId },
@@ -580,7 +578,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                         create: {
                             id: nanoId16(),
                             event: 'RemoveSkill',
-                            actorId: ctx.session.personId,
+                            actorId: ctx.auth.personId,
                             meta: { skillId }
                         }
                     }
@@ -614,17 +612,15 @@ export const skillCheckSessionsRouter = createTRPCRouter({
      * @returns The created skill check data.
      * @throws TRPCError(FORBIDDEN) if the user is not a team admin and no session is provided.
      */
-    saveCheck: authenticatedProcedure
+    saveCheck: sessionProcedure
         .input(skillCheckSchema.pick({ skillCheckId: true, skillId: true, assesseeId: true, result: true, notes: true }).extend({ sessionId: zodNanoId8 }))
         .output(z.object({
             check: skillCheckSchema,
         }))
         .mutation(async ({ ctx, input }) => {
 
-            const assessorId = ctx.session.personId
-
-            // Ensure the user has access to the session
-            const session = await getSessionById(ctx, input.sessionId)
+            const assessorId = ctx.auth.personId
+            const session = ctx.skillCheckSession
 
             const updated = await ctx.prisma.skillCheckSession.update({
                 where: { id: input.sessionId },
@@ -680,7 +676,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
      * @param input The skill check data
      * 
      */
-    saveChecks: authenticatedProcedure
+    saveChecks: sessionProcedure
         .input(z.object({
             sessionId: zodNanoId8,
             checks: z.array(skillCheckSchema.pick({ skillCheckId: true, skillId: true, assesseeId: true, result: true, notes: true }))
@@ -690,10 +686,8 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             checks: z.array(skillCheckSchema)
         }))
         .mutation(async ({ ctx, input }) => {
-            const assessorId = ctx.session.personId
-
-            // Ensure the user has access to the session
-            const session = await getSessionById(ctx, input.sessionId)
+            const assessorId = ctx.auth.personId
+            const session = ctx.skillCheckSession
 
             const upsertedChecks = await Promise.all(input.checks.map(async inputCheck => ctx.prisma.skillCheck.upsert({
                     where: { id: inputCheck.skillCheckId },
@@ -748,9 +742,8 @@ export const skillCheckSessionsRouter = createTRPCRouter({
      * @throws TRPCError(NOT_FOUND) if the session is not found.
      * @throws TRPCError(FORBIDDEN) If the user does not have access to the session
      */
-    updateAssessees: authenticatedProcedure
+    updateAssessees: sessionProcedure
         .input(z.object({
-            sessionId: zodNanoId8,
             additions: z.array(zodNanoId8),
             removals: z.array(zodNanoId8)
         }))
@@ -759,14 +752,17 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             removeCount: z.number(),
         }))
         .mutation(async ({ ctx, input: { sessionId, additions, removals } }) => {
+            const session = await ctx.prisma.skillCheckSession.findUnique({
+                where: { id: sessionId },
+                include: { assessees: { select: { id: true }} }
+            })
+            const assignedAssesseeIds = (session?.assessees ?? []).map(s => s.id)
             
-             const session = await getSessionById(ctx, sessionId, { skills: true })
-
             // Filter out any additions that are already set in the database
-            additions = additions.filter(id => !session.skills.some(s => s.id === id))
+            additions = additions.filter(idToAdd => !assignedAssesseeIds.includes(idToAdd))
 
             // Filter out any removals that are not currently set in the database
-            removals = removals.filter(id => session.skills.some(s => s.id === id))
+            removals = removals.filter(idToRemove => assignedAssesseeIds.includes(idToRemove))
 
             const updated = await ctx.prisma.skillCheckSession.update({
                 where: { id: sessionId },
@@ -780,13 +776,13 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                             ...additions.map(assesseeId => ({
                                 id: nanoId16(),
                                 event: 'AddAssessee',
-                                actorId: ctx.session.personId,
+                                actorId: ctx.auth.personId,
                                 meta: { assesseeId }
                             } as const)),
                             ...removals.map(assesseeId => ({
                                 id: nanoId16(),
                                 event: 'RemoveAssessee',
-                                actorId: ctx.session.personId,
+                                actorId: ctx.auth.personId,
                                 meta: { assesseeId }
                             } as const))
                         ]
@@ -810,9 +806,8 @@ export const skillCheckSessionsRouter = createTRPCRouter({
      * @throws TRPCError(NOT_FOUND) if the session is not found.
      * @throws TRPCError(FORBIDDEN) If the user does not have access to the session.
      */
-    updateAssessors: authenticatedProcedure
+    updateAssessors: sessionProcedure
         .input(z.object({
-            sessionId: zodNanoId8,
             additions: z.array(zodNanoId8),
             removals: z.array(zodNanoId8)
         }))
@@ -821,14 +816,18 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             removeCount: z.number(),
         }))
         .mutation(async ({ ctx, input: { sessionId, additions, removals } }) => {
-            
-             const session = await getSessionById(ctx, sessionId, { assessors: true })
+            const session = await ctx.prisma.skillCheckSession.findUnique({
+                where: { id: sessionId },
+                include: { assessors: { select: { id: true }} }
+            })
+
+             const assignedAssessorIds = (session?.assessors ?? []).map(s => s.id)
 
             // Filter out any additions that are already set in the database
-            additions = additions.filter(id => !session.assessors.some(s => s.id === id))
+            additions = additions.filter(idToAdd => !assignedAssessorIds.includes(idToAdd))
 
             // Filter out any removals that are not currently set in the database
-            removals = removals.filter(id => session.assessors.some(s => s.id === id))
+            removals = removals.filter(idToRemove => assignedAssessorIds.includes(idToRemove))
 
             const updated = await ctx.prisma.skillCheckSession.update({
                 where: { id: sessionId },
@@ -842,13 +841,13 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                             ...additions.map(assessorId => ({
                                 id: nanoId16(),
                                 event: 'AddAssessor',
-                                actorId: ctx.session.personId,
+                                actorId: ctx.auth.personId,
                                 meta: { assessorId }
                             } as const)),
                             ...removals.map(assessorId => ({
                                 id: nanoId16(),
                                 event: 'RemoveAssessor',
-                                actorId: ctx.session.personId,
+                                actorId: ctx.auth.personId,
                                 meta: { assesseeId: assessorId }
                             } as const))
                         ]
@@ -872,9 +871,8 @@ export const skillCheckSessionsRouter = createTRPCRouter({
      * @throws TRPCError(NOT_FOUND) if the session is not found.
      * @throws TRPCError(FORBIDDEN) If the user does not have access to the session
      */
-    updateSkills: authenticatedProcedure
+    updateSkills: sessionProcedure
         .input(z.object({
-            sessionId: zodNanoId8,
             additions: z.array(zodNanoId8),
             removals: z.array(zodNanoId8)
         }))
@@ -883,15 +881,21 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             removeCount: z.number(),
         }))
         .mutation(async ({ ctx, input: { sessionId, additions, removals } }) => {
-            const session = await getSessionById(ctx, sessionId, { assessees: true })
+            const session = await ctx.prisma.skillCheckSession.findUnique({
+                where: { id: sessionId },
+                include: { skills: { select: { id: true }} }
+            })
+
+            const assignedSkillIds = (session?.skills ?? []).map(s => s.id)
+           
 
             // Filter out any additions that are already set in the database
-            additions = additions.filter(id => !session.assessees.some(s => s.id === id))
+            additions = additions.filter(idToAdd => !assignedSkillIds.includes(idToAdd))
 
             // Filter out any removals that are not currently set in the database
-            removals = removals.filter(id => session.assessees.some(s => s.id === id))
+            removals = removals.filter(idToRemove => assignedSkillIds.includes(idToRemove))
 
-            const updated = await ctx.prisma.skillCheckSession.update({
+            await ctx.prisma.skillCheckSession.update({
                 where: { id: sessionId },
                 data: {
                     skills: {
@@ -903,13 +907,13 @@ export const skillCheckSessionsRouter = createTRPCRouter({
                             ...additions.map(skillId => ({
                                 id: nanoId16(),
                                 event: 'AddSkill',
-                                actorId: ctx.session.personId,
+                                actorId: ctx.auth.personId,
                                 meta: { skillId }
                             } as const)),
                             ...removals.map(skillId => ({
                                 id: nanoId16(),
                                 event: 'RemoveSkill',
-                                actorId: ctx.session.personId,
+                                actorId: ctx.auth.personId,
                                 meta: { skillId }
                             } as const))
                         ]
@@ -925,34 +929,6 @@ export const skillCheckSessionsRouter = createTRPCRouter({
 
 })
 
-
-/**
- * Check if the authenticated user has access to a skill check session.
- * 
- * The user must either be an assessor of the session or an admin of the team that owns the session.
- * @param ctx The authenticated context.
- * @param sessionId The ID of the session to check.
- * @param include Optional include parameter matching Prisma's findUnique include type.
- * @throws TRPCError(NOT_FOUND) if the session is not found or the user does not have access.
- */
-
-export async function getSessionById<T extends Prisma.SkillCheckSessionInclude>(ctx: AuthenticatedContext, sessionId: string, include?: T): Promise<SkillCheckSessionRecord & { team: TeamRecord } & (T extends { assessees: true} ? { assessees: PersonRecord[] } : {}) & (T extends { assessors: true} ? { assessors: PersonRecord[] } : {}) & (T extends { checks: true } ? { checks: SkillCheckRecord[] } : {}) & (T extends { skills: true } ? { skills: SkillRecord[] } : {}) > {
-    const session = await ctx.prisma.skillCheckSession.findUnique({
-        where: { id: sessionId },
-        include: {
-            ...include,
-            assessors: true,
-            team: true,
-        }
-    })
-
-    if(!session) throw new TRPCError({ code: 'NOT_FOUND', message: `Session with ID ${sessionId} not found.` })
-
-    if(session.assessors.some(a => a.id === ctx.session.personId)) return session // User is an assessor of the session
-    else if(ctx.hasTeamAdmin(session.team)) return session // User is an admin of the team
-
-    throw new TRPCError({ code: 'FORBIDDEN', message: `User does not have access to session with ID ${sessionId}` })
-}
 
 
 export async function getSkillById(ctx: AuthenticatedContext, skillId: string): Promise<SkillRecord> {
