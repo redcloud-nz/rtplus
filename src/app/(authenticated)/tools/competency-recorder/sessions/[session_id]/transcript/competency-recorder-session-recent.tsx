@@ -14,7 +14,6 @@ import { useAssignedSkills } from '../use-assigned-skills'
 
 
 
-
 export function CompetencyRecorder_Session_Recent({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
 
@@ -27,7 +26,7 @@ export function CompetencyRecorder_Session_Recent({ sessionId }: { sessionId: st
     const recentChecks = checks.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).slice(0, 10)
 
     return <div>
-        <div className="font-semibold mb-2">You recorded:</div>
+        <div className="font-semibold p-2">You recorded:</div>
         <ul className="pl-4 text-sm">{recentChecks.map(check => {
             const assessee = assessees.find(a => a.personId === check.assesseeId)
             const skill = skills.find(s => s.skillId === check.skillId)

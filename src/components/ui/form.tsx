@@ -42,7 +42,6 @@ export const useFormField = () => {
     const itemContext = useContext(FormItemContext)
     const { getFieldState } = useFormContext()
     const formState = useFormState()
-
     const fieldState = getFieldState(fieldContext.name, formState)
 
     if (!fieldContext) {

@@ -38,7 +38,7 @@ interface CheckState {
 interface SkillCheckStore {
     isDirty: boolean
 
-    getCheck(params: { assesseeId: string, skillId: string }): Pick<SkillCheckData, 'assesseeId' | 'skillId' | 'result' | 'notes'> & { isDirty: boolean }
+    getCheck(params: { assesseeId: string, skillId: string }): Pick<SkillCheckData, 'assesseeId' | 'skillId' | 'result' | 'notes'> & { isDirty: boolean, prev: Pick<SkillCheckData, 'result' | 'notes'> | null }
 
     updateCheck(params: { assesseeId: string, skillId: string }): (update: { result?: string, notes?: string }) => void
 
@@ -112,6 +112,7 @@ export function useSkillCheckStore_experimental(sessionId: string): SkillCheckSt
                 result: check.current.result,
                 notes: check.current.notes,
                 isDirty: check.isDirty,
+                prev: check.prev ? { result: check.prev.result, notes: check.prev.notes } : null
             }
 
             return {
@@ -119,6 +120,7 @@ export function useSkillCheckStore_experimental(sessionId: string): SkillCheckSt
                 result: DEFAULT_RESULT_VALUE,
                 notes: DEFAULT_NOTES_VALUES,
                 isDirty: false,
+                prev: null
             }
         },
         updateCheck({ assesseeId, skillId }) {

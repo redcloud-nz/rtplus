@@ -10,7 +10,7 @@ import { tv, VariantProps } from 'tailwind-variants'
 
 
 const displayValueVariants = tv({
-    base: "flex w-full border border-background text-sm align-middle ",
+    base: "flex w-full border border-border/50 text-sm align-middle ",
     variants: {
         loading: {
             true : "bg-slate-200 text-slate-500 flex items-center justify-center",

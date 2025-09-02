@@ -6,16 +6,19 @@
  */
 'use client'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
-import { CompetencyRecorder_Session_RecordIndividual_Card } from './competency-recorder-session-record-individual'
-import { CompetencyRecorder_Session_Recent } from './competency-recorder-session-recent'
+import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
 
 import * as Paths from '@/paths'
+import { useTRPC } from '@/trpc/client'
 
 import { useSession } from '../use-session'
 
+import { CompetencyRecorder_Session_RecordIndividual_Form } from './competency-recorder-session-record-individual'
+
 
 export default function CompetencyRecorder_Session_RecordIndividual_Page() {
+    const trpc = useTRPC()
+
     const session = useSession()
 
     return <AppPage showRightSidebarTrigger>
@@ -24,12 +27,9 @@ export default function CompetencyRecorder_Session_RecordIndividual_Page() {
                 Paths.tools.competencyRecorder,
                 Paths.tools.competencyRecorder.sessions,
                 Paths.tools.competencyRecorder.session(session),
-                Paths.tools.competencyRecorder.session(session).recordByAssessee,
+                Paths.tools.competencyRecorder.session(session).recordIndividual,
             ]}
         />
-        <AppPageContent variant="container">
-            <CompetencyRecorder_Session_RecordIndividual_Card sessionId={session.sessionId} />
-            <CompetencyRecorder_Session_Recent sessionId={session.sessionId} />
-        </AppPageContent>
+        <CompetencyRecorder_Session_RecordIndividual_Form session={session}/>
     </AppPage>
 }

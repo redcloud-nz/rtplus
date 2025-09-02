@@ -10,6 +10,11 @@ import { useTRPC } from '@/trpc/client'
 import { useMemo } from 'react'
 
 
+/**
+ * Hook to get the skills assigned to a competency recorder session.
+ * @param sessionId The ID of the competency recorder session.
+ * @returns The assigned skills.
+ */
 export function useAssignedSkills({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
 

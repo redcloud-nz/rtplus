@@ -116,7 +116,7 @@ export default function CompetencyRecorder_Session_Skills_Page() {
             <ScrollArea style={{ height: `calc(100vh - 98px)` }} className="flex flex-col gap-4 pl-4 pr-3">
                 <div className="text-sm text-muted-foreground py-4">
                     <Paragraph >
-                        Select the skills that should be included in this assessment session.
+                        Select the skills that should be included in this competency recorder session.
                     </Paragraph>
                     <ul className="text-sm text-muted-foreground">
                         <li><span className="text-green-600 font-mono text-md pr-1">+</span> indicates an unsaved addition</li>

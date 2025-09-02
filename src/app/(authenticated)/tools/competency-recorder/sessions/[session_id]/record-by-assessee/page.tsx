@@ -6,20 +6,28 @@
  */
 'use client'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
-
-import { CompetencyRecorder_Session_RecordByAssessee_Card } from './competency-recorder-session-record-by-assessee'
-import { Alert } from '@/components/ui/alert'
+import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
+import { ExperimentalFeaturePopup } from '@/components/ui/experimental-feature-popup'
 import { GitHubIssueLink } from '@/components/ui/link'
+
 import * as Paths from '@/paths'
 
 import { useSession } from '../use-session'
+import { CompetencyRecorder_Session_RecordByAssessee_Form } from './competency-recorder-session-record-by-assessee'
+
+
+
 
 
 export default function CompetencyRecorder_Session_RecordByAssessee_Page() {
     const session = useSession()
 
-    return <AppPage showRightSidebarTrigger>
+    return <AppPage 
+        showRightSidebarTrigger
+        rightControls={<ExperimentalFeaturePopup>
+            <p>This page is an experimental feature. See <GitHubIssueLink issueNumber={14}/> for feedback or suggestions.</p>
+        </ExperimentalFeaturePopup>}
+    >
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.tools.competencyRecorder,
@@ -28,11 +36,6 @@ export default function CompetencyRecorder_Session_RecordByAssessee_Page() {
                 Paths.tools.competencyRecorder.session(session).recordByAssessee,
             ]}
         />
-        <AppPageContent variant="container">
-            <Alert severity="mockup" title="Experimental">
-                <p>This page is an experimental feature. See <GitHubIssueLink issueNumber={14}/> for feedback or suggestions.</p>
-            </Alert>
-            <CompetencyRecorder_Session_RecordByAssessee_Card sessionId={session.sessionId} />
-        </AppPageContent>
+        <CompetencyRecorder_Session_RecordByAssessee_Form sessionId={session.sessionId} />
     </AppPage>
 }

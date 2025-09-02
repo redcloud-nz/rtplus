@@ -20,18 +20,21 @@ interface AppPageProps {
     children?: ReactNode
     showLeftSidebarTrigger?: boolean
     showRightSidebarTrigger?: boolean
+    rightControls?: ReactNode
 }
 
-export function AppPage({ children, showLeftSidebarTrigger = true, showRightSidebarTrigger = false }: AppPageProps) {
+export function AppPage({ children, rightControls, showLeftSidebarTrigger = true, showRightSidebarTrigger = false }: AppPageProps) {
     return <div className="h-screen flex-1 grid grid-rows-[48px_1px_1fr_1px_48px] grid-cols-[auto_1fr_auto]">
         { showLeftSidebarTrigger && <div className="row-1 col-1 flex justify-center items-center pl-1 gap-1">
             <SidebarTrigger side="left"/>
              <Separator orientation="vertical"/>
         </div>}
 
-       { showRightSidebarTrigger && <div className="row-1 col-3 flex justify-center items-center pr-1 gap-1">
-        <Separator orientation="vertical"/>
-           <SidebarTrigger side="right"/>
+        
+        { showRightSidebarTrigger && <div className="row-1 col-3 flex justify-center items-center pr-1 gap-1">
+            {rightControls ? <div>{rightControls}</div> : null}
+            <Separator orientation="vertical"/>
+            <SidebarTrigger side="right"/>
        </div>}
         <Separator className="row-start-2 col-span-full" orientation="horizontal"/>
         {children}

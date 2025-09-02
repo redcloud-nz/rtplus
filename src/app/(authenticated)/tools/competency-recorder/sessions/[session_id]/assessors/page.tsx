@@ -4,6 +4,7 @@
  * 
  *  Path: /tools/competency-recorder/sessions/[session_id]/assessors
  */
+'use client'
 
 import { useState } from 'react'
 
@@ -15,7 +16,6 @@ import { AsyncButton, Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Paragraph } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
 import * as Paths from '@/paths'
@@ -25,7 +25,7 @@ import { useTRPC } from '@/trpc/client'
 import { useSession } from '../use-session'
 
 
-export default async function CompetencyRecorder_Session_Assessors_Page() {
+export default function CompetencyRecorder_Session_Assessors_Page() {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
@@ -113,7 +113,7 @@ export default async function CompetencyRecorder_Session_Assessors_Page() {
             <ScrollArea style={{ height: `calc(100vh - 98px)` }} className="flex flex-col gap-4 pl-4 pr-3">
                 <div className="text-sm text-muted-foreground py-4 space-y-2">
                     <p>
-                        Select the users that should be included as assessors in this skill check session.
+                        Select the users that should be included as assessors in this competency recorder session.
                     </p>
                     <ul className="text-sm text-muted-foreground">
                         <li><span className="text-green-600 font-mono text-md pr-1">+</span> indicates an unsaved addition</li>
