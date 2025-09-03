@@ -18,16 +18,22 @@ import { useMemo } from 'react'
 export function useAssignedSkills({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
 
-    const { data: availablePackages } = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions())
-    const { data: assignedSkillIds } = useSuspenseQuery(trpc.skillCheckSessions.getAssignedSkillIds.queryOptions({ sessionId  }))
+    const availablePackagesQuery = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions())
+    const assignedSkillIdsQuery = useSuspenseQuery(trpc.skillCheckSessions.getAssignedSkillIds.queryOptions({ sessionId  }))
 
    const assignedSkills = useMemo(() => {
-       return availablePackages.flatMap(pkg => 
+       return availablePackagesQuery.data.flatMap(pkg => 
             pkg.skillGroups.flatMap(skillGroup => 
-                pkg.skills.filter(skill => skill.skillGroupId == skillGroup.skillGroupId && assignedSkillIds.includes(skill.skillId))
+                pkg.skills.filter(skill => skill.skillGroupId == skillGroup.skillGroupId && assignedSkillIdsQuery.data.includes(skill.skillId))
             )
        )
-    }, [availablePackages, assignedSkillIds])
+    }, [availablePackagesQuery.data, assignedSkillIdsQuery.data])
 
-   return { data: assignedSkills }
+   return { 
+        data: assignedSkills,
+        refetch: () => Promise.all([
+            availablePackagesQuery.refetch(),
+            assignedSkillIdsQuery.refetch()
+        ])
+    }
 }

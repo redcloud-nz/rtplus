@@ -13,10 +13,7 @@ import { GitHubIssueLink } from '@/components/ui/link'
 import * as Paths from '@/paths'
 
 import { useSession } from '../use-session'
-import { CompetencyRecorder_Session_RecordByAssessee_Form } from './competency-recorder-session-record-by-assessee'
-
-
-
+import { CompetencyRecorder_Session_RecordByAssessee_PageContent } from './competency-recorder-session-record-by-assessee'
 
 
 export default function CompetencyRecorder_Session_RecordByAssessee_Page() {
@@ -36,6 +33,6 @@ export default function CompetencyRecorder_Session_RecordByAssessee_Page() {
                 Paths.tools.competencyRecorder.session(session).recordByAssessee,
             ]}
         />
-        <CompetencyRecorder_Session_RecordByAssessee_Form sessionId={session.sessionId} />
+        <CompetencyRecorder_Session_RecordByAssessee_PageContent sessionId={session.sessionId} />
     </AppPage>
 }

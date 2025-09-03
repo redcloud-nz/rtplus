@@ -19,17 +19,13 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 
+import { useAssignedSkills } from '@/hooks/use-assigned-skills'
 import { useToast } from '@/hooks/use-toast'
 import { CompetenceLevel, CompetenceLevelTerms, isPass } from '@/lib/competencies'
 import { nanoId16  } from '@/lib/id'
 import { SkillCheckData } from '@/lib/schemas/skill-check'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { useTRPC } from '@/trpc/client'
-
-import { useAssignedSkills } from '../use-assigned-skills'
-
-
-
 
 
 type RecordingState = {
@@ -39,7 +35,7 @@ type RecordingState = {
     dirty: boolean
 }
 
-export function CompetencyRecorder_Session_RecordIndividual_Form({ session }: { session: SkillCheckSessionData}) {
+export function CompetencyRecorder_Session_RecordIndividual_PageContent({ session }: { session: SkillCheckSessionData}) {
     const { sessionId } = session
 
     const queryClient = useQueryClient()
@@ -117,7 +113,7 @@ export function CompetencyRecorder_Session_RecordIndividual_Form({ session }: { 
 
             return { previousChecks }
         },
-        onError(error, data, context) {
+        onError(error, _data, context) {
             // Rollback to previous state
             queryClient.setQueryData(trpc.skillCheckSessions.getChecks.queryKey({ sessionId }), context?.previousChecks)
 
@@ -127,7 +123,7 @@ export function CompetencyRecorder_Session_RecordIndividual_Form({ session }: { 
                 variant: 'destructive',
             })
         },
-        onSuccess(result, data) {
+        onSuccess() {
             toast({
                 title: 'Skill check saved',
                 description: "Your skill check has been successfully saved.",

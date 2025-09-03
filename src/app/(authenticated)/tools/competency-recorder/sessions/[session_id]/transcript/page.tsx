@@ -13,7 +13,7 @@ import { CompetencyRecorder_Session_Recent } from './competency-recorder-session
 import * as Paths from '@/paths'
 import { useSession } from '../use-session'
 
-export default function CompetencyRecorder_Session_Transcript_Page(props: { params: Promise<{ session_id: string }> }) {
+export default function CompetencyRecorder_Session_Transcript_Page() {
     const session = useSession()
 
     return <AppPage showRightSidebarTrigger>

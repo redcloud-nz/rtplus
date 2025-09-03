@@ -10,7 +10,6 @@ import { NavItem, NavSection } from '@/components/nav/nav-section'
 import { Sidebar, SidebarContent, SidebarHeader, SidebarRail } from '@/components/ui/sidebar'
 import * as Paths from '@/paths'
 import { fetchSkillCheckSession } from '@/server/fetch'
-import { HydrateClient } from '@/trpc/server'
 import { SessionProvider } from './use-session'
 
 

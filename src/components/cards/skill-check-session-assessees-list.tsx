@@ -23,7 +23,7 @@ import { ObjectName } from '@/components/ui/typography'
 import { useSkillCheckSessionUpdater } from '@/hooks/use-skill-check-session-updater'
 import { useToast } from '@/hooks/use-toast'
 import { EditableFeature } from '@/lib/editable-feature'
-import { PersonData } from '@/lib/schemas/person'
+import { PersonData, PersonRefData } from '@/lib/schemas/person'
 import { useTRPC } from '@/trpc/client'
 
 
@@ -31,7 +31,7 @@ import { useTRPC } from '@/trpc/client'
 
 
 
-type RowData = { assesseeId: string, assessee: PersonData }
+type RowData = { assesseeId: string, assessee: PersonRefData }
 
 /**
  * Card component to display and manage assessees in a skill check session.
@@ -154,14 +154,14 @@ export function SkillCheckSession_AssesseesList_Card({ sessionId }: { sessionId:
             enableHiding: false,
             enableSorting: true,
         }),
-        columnHelper.accessor('assessee.email', {
-            id: 'email',
-            header: 'Email',
-            cell: ctx => ctx.getValue(),
-            enableGrouping: false,
-            enableHiding: true,
-            enableSorting: false,
-        }),
+        // columnHelper.accessor('assessee.email', {
+        //     id: 'email',
+        //     header: 'Email',
+        //     cell: ctx => ctx.getValue(),
+        //     enableGrouping: false,
+        //     enableHiding: true,
+        //     enableSorting: false,
+        // }),
         columnHelper.display({
             id: 'actions',
             header: 'Actions',
@@ -210,9 +210,7 @@ export function SkillCheckSession_AssesseesList_Card({ sessionId }: { sessionId:
             assessee: {
                 personId: '',
                 name: '',
-                email: '',
-                status: 'Active',
-            } as PersonData
+            } satisfies PersonRefData
         }),
         onUpdate() {
             // Not supported

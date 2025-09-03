@@ -13,7 +13,26 @@ import { cn } from '@/lib/utils'
 import { Button } from './button'
 
 
-
+/**
+ * A table-like component with accordion (expand/collapse) functionality.
+ * 
+ * Uses CSS grid for layout. The number of columns needs to be defined by specifying the `grid-template-columns` on the this component.
+ * 
+ * @example
+ * <ATable className="grid-cols-[40px_1fr_1fr_100px]">
+ *   <ATableHead>
+ *    <ATableHeadRow>
+ *      <ATableHeadCell></ATableHeadCell>
+ *      <ATableHeadCell>Column 1</ATableHeadCell>
+ *      <ATableHeadCell>Column 2</ATableHeadCell>
+ *      <ATableHeadCell>Actions</ATableHeadCell>
+ *   </ATableHead>
+ *   <ATableBody>
+ *     ...rows and sections here...
+ *   </ATableBody>
+ * </ATable>
+ *    
+ */
 export function ATable({ className, ...props }: ComponentProps<'div'>) {
     return <div 
         className={cn("grid text-sm p-1 divide-y divide-gray-300", className)}
@@ -37,7 +56,6 @@ export function ATableBody({ children, className, type = 'single' }: Pick<Compon
         className={cn("grid col-span-full grid-cols-subgrid divide-y divide-gray-200", className)}
         data-component="ATableBody"
         type={type}
-        collapsible
     >{children}</AccordionPrimitive.Root>
 }
 

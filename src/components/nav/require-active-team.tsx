@@ -13,6 +13,9 @@ import { useActiveTeam } from '@/hooks/use-active-team'
 
 const DefaultMessage = "You need to be signed in to a team to access this feature."
 
+/**
+ * A container the requires an active team. If there is no active team, an error message is shown instead.
+ */
 export function RequireActiveTeam({ children, message = DefaultMessage }: { children: ReactNode, message?: ReactNode }) {
     const activeTeam = useActiveTeam()
 

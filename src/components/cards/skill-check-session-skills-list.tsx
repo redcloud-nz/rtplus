@@ -49,7 +49,7 @@ export function SkillCheckSession_SkillsList_Card({ sessionId }: { sessionId: st
     const rowData = useMemo(() => assignedSkills.map(skillId => ({
         skillId,
         skill: availableSkills.find(s => s.skillId === skillId)!
-    })), [assignedSkills])
+    })), [assignedSkills, availableSkills])
 
     const addSkillMutation = useMutation(trpc.skillCheckSessions.addSkill.mutationOptions({
         async onMutate({ skillId: skillIdToAdd }) {

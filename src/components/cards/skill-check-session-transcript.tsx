@@ -15,15 +15,16 @@ import { DataTableBody, DataTableFooter, DataTableHead, DataTableProvider, defin
 import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
 
-import { PersonData } from '@/lib/schemas/person'
+import { useAssignedSkills } from '@/hooks/use-assigned-skills'
+import { CompetenceLevel, CompetenceLevelTerms } from '@/lib/competencies'
+import { PersonRefData } from '@/lib/schemas/person'
 import { SkillData } from '@/lib/schemas/skill'
 import { SkillCheckData } from '@/lib/schemas/skill-check'
-import { useTRPC } from '@/trpc/client'
 import { formatDateTime } from '@/lib/utils'
-import { CompetenceLevel, CompetenceLevelTerms } from '@/lib/competencies'
+import { useTRPC } from '@/trpc/client'
 
 
-type RowData = SkillCheckData & { assessee: PersonData, assessor: PersonData, skill: SkillData }
+type RowData = SkillCheckData & { assessee: PersonRefData, assessor: PersonRefData, skill: SkillData }
 
 export function SkillCheckSession_Transcript_Card({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
@@ -31,14 +32,14 @@ export function SkillCheckSession_Transcript_Card({ sessionId }: { sessionId: st
     const assesseesQuery = useSuspenseQuery(trpc.skillCheckSessions.getAssignedAssessees.queryOptions({ sessionId }))
     const assessorsQuery = useSuspenseQuery(trpc.skillCheckSessions.getAssignedAssessors.queryOptions({ sessionId }))
     const checksQuery = useSuspenseQuery(trpc.skillCheckSessions.getChecks.queryOptions({ sessionId, assessorId: 'me'  }))
-    const skillsQuery = useSuspenseQuery(trpc.skillCheckSessions.getAssignedSkillIds.queryOptions({ sessionId}))
+    const assignedSkillsQuery = useAssignedSkills({ sessionId })
 
     async function handleRefresh() {
         await Promise.all([
             assesseesQuery.refetch(),
             assessorsQuery.refetch(),
             checksQuery.refetch(),
-            skillsQuery.refetch()
+            assignedSkillsQuery.refetch(),
         ])
     }
 
@@ -46,7 +47,7 @@ export function SkillCheckSession_Transcript_Card({ sessionId }: { sessionId: st
         return checksQuery.data.map(check => {
             const assessee = assesseesQuery.data.find(a => a.personId === check.assesseeId)!
             const assessor = assessorsQuery.data.find(a => a.personId === check.assessorId)!
-            const skill = skillsQuery.data.find(s => s.skillId === check.skillId)!
+            const skill = assignedSkillsQuery.data.find(s => s.skillId === check.skillId)!
 
             return {
                 ...check,
@@ -55,7 +56,7 @@ export function SkillCheckSession_Transcript_Card({ sessionId }: { sessionId: st
                 skill
             }
         })
-    }, [assesseesQuery.data, assessorsQuery.data, checksQuery.data, skillsQuery.data])
+    }, [assesseesQuery.data, assessorsQuery.data, checksQuery.data, assignedSkillsQuery.data])
 
     const columns = useMemo(() => defineColumns<RowData>(columnHelper => [
         columnHelper.accessor("assessee.name", {

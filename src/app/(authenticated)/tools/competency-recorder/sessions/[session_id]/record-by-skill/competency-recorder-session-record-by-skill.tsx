@@ -19,18 +19,18 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
+import { useAssignedSkills } from '@/hooks/use-assigned-skills'
 import { useSkillCheckStore_experimental } from '@/hooks/use-skill-check-store'
 import { PersonRefData } from '@/lib/schemas/person'
 import { cn } from '@/lib/utils'
 import { useTRPC } from '@/trpc/client'
 
-import { useAssignedSkills } from '../use-assigned-skills'
 
 
-export function CompetencyRecorder_Session_RecordBySkill_Form({ sessionId }: { sessionId: string }) {
+
+export function CompetencyRecorder_Session_RecordBySkill_PageContent({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
 
-    //const { data: assessor } = useSuspenseQuery(trpc.currentUser.getPerson.queryOptions())
     const { data: assessees } = useSuspenseQuery(trpc.skillCheckSessions.getAssignedAssessees.queryOptions({ sessionId }))
     const { data: skills } = useAssignedSkills({ sessionId })
 

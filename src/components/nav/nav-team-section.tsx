@@ -2,7 +2,6 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
-
 'use client'
 
 import { BookOpenIcon, CableIcon, HammerIcon, PocketKnifeIcon, SettingsIcon, UsersIcon } from 'lucide-react'
@@ -19,8 +18,10 @@ import * as Paths from '@/paths'
 import { NavCollapsible, NavItem, NavSection, NavSubItem } from './nav-section'
 import { Show } from '../show'
 
+/**
+ * A nav section for team-related navigation items.
+ */
 export function NavTeamSection() {
-
     const { isLoaded, organization } = useOrganization()
 
     const slug = organization?.slug ?? ''

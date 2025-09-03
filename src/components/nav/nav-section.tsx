@@ -2,10 +2,14 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
+'use client'
 
 import { ChevronRight, LucideProps } from 'lucide-react'
+import { usePathname } from 'next/navigation'
+import { ForwardRefExoticComponent, ReactNode, RefAttributes } from 'react'
 
 import { Collapsible, CollapsibleContent, CollapsibleProps, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { ExternalLink, Link } from '@/components/ui/link'
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -16,8 +20,6 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar'
-import { ExternalLink, Link } from '../ui/link'
-import { ForwardRefExoticComponent, ReactNode, RefAttributes } from 'react'
 
 
 export interface INavItem {
@@ -55,6 +57,7 @@ type NavItemInternalProps = { external?: never, href?: never, path: { label: str
 type NavItemProps = NavItemExternalProps | NavItemInternalProps
 
 export function NavItem({ external, ...props }: NavItemProps) {
+    const pathname = usePathname()
 
     if(external) {
         props = props as NavItemExternalProps
@@ -69,7 +72,7 @@ export function NavItem({ external, ...props }: NavItemProps) {
     } else {
         props = props as NavItemInternalProps
         return <SidebarMenuItem>
-            <SidebarMenuButton tooltip={props.label ?? props.path.label} asChild>
+            <SidebarMenuButton tooltip={props.label ?? props.path.label} asChild isActive={pathname == props.path.href}>
                 <Link to={props.path} prefetch={props.prefetch}>
                     {props.icon ?? (props.path.icon ? <props.path.icon /> : null)}
                     <span>{props.label ?? props.path.label}</span>
@@ -113,6 +116,7 @@ type NavSubItemInternalProps = { external?: never, href?: never, path: { label: 
 type NavSubItemProps = NavSubItemExternalProps | NavSubItemInternalProps
 
 export function NavSubItem({ external, ...props }: NavSubItemProps) {
+    const pathname = usePathname()
 
     if(external) {
         props = props as NavItemExternalProps
@@ -126,7 +130,7 @@ export function NavSubItem({ external, ...props }: NavSubItemProps) {
     } else {
         props = props as NavItemInternalProps
         return <SidebarMenuSubItem>
-            <SidebarMenuSubButton asChild>
+            <SidebarMenuSubButton asChild isActive={pathname == props.path.href}>
                 <Link to={props.path}>
                     <span>{props.label ?? props.path.label}</span>
                 </Link>

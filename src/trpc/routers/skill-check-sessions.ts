@@ -764,7 +764,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             // Filter out any removals that are not currently set in the database
             removals = removals.filter(idToRemove => assignedAssesseeIds.includes(idToRemove))
 
-            const updated = await ctx.prisma.skillCheckSession.update({
+            await ctx.prisma.skillCheckSession.update({
                 where: { id: sessionId },
                 data: {
                     skills: {
@@ -829,7 +829,7 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             // Filter out any removals that are not currently set in the database
             removals = removals.filter(idToRemove => assignedAssessorIds.includes(idToRemove))
 
-            const updated = await ctx.prisma.skillCheckSession.update({
+            await ctx.prisma.skillCheckSession.update({
                 where: { id: sessionId },
                 data: {
                     assessors: {

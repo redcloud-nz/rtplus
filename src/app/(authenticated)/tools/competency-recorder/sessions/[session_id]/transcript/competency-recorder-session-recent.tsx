@@ -9,8 +9,9 @@ import { CheckIcon, XIcon } from 'lucide-react'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 
+import { useAssignedSkills } from '@/hooks/use-assigned-skills'
 import { useTRPC } from '@/trpc/client'
-import { useAssignedSkills } from '../use-assigned-skills'
+
 
 
 

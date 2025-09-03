@@ -8,7 +8,7 @@
 
 import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
 
-import { CompetencyRecorder_Session_RecordBySkill_Form } from './competency-recorder-session-record-by-skill'
+import { CompetencyRecorder_Session_RecordBySkill_PageContent } from './competency-recorder-session-record-by-skill'
 
 
 import * as Paths from '@/paths'
@@ -35,6 +35,6 @@ export default function CompetencyRecorder_Session_RecordBySkill_Page() {
                 Paths.tools.competencyRecorder.session(session).recordBySkill,
             ]}
         />
-        <CompetencyRecorder_Session_RecordBySkill_Form sessionId={session.sessionId} />
+        <CompetencyRecorder_Session_RecordBySkill_PageContent sessionId={session.sessionId} />
     </AppPage>
 }

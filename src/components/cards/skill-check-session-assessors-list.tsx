@@ -22,15 +22,12 @@ import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
 import { EditableFeature } from '@/lib/editable-feature'
-import { PersonData } from '@/lib/schemas/person'
+import { PersonData, PersonRefData } from '@/lib/schemas/person'
 import { useTRPC } from '@/trpc/client'
 
 
 
-
-
-
-type RowData = { assessorId: string, assessor: PersonData }
+type RowData = { assessorId: string, assessor: PersonRefData }
 
 /**
  * Card component to display and manage assessors in a skill check session.
@@ -150,14 +147,14 @@ export function SkillCheckSession_AssessorsList_Card({ sessionId }: { sessionId:
             enableHiding: false,
             enableSorting: true,
         }),
-        columnHelper.accessor('assessor.email', {
-            id: 'email',
-            header: 'Email',
-            cell: ctx => ctx.getValue(),
-            enableGrouping: false,
-            enableHiding: true,
-            enableSorting: false,
-        }),
+        // columnHelper.accessor('assessor.email', {
+        //     id: 'email',
+        //     header: 'Email',
+        //     cell: ctx => ctx.getValue(),
+        //     enableGrouping: false,
+        //     enableHiding: true,
+        //     enableSorting: false,
+        // }),
         columnHelper.display({
             id: 'actions',
             header: 'Actions',
@@ -206,9 +203,7 @@ export function SkillCheckSession_AssessorsList_Card({ sessionId }: { sessionId:
             assessor: {
                 personId: '',
                 name: '',
-                email: '',
-                status: 'Active',
-            } as PersonData
+            } satisfies PersonRefData
         }),
         onUpdate() {
             // Not supported
@@ -221,7 +216,7 @@ export function SkillCheckSession_AssessorsList_Card({ sessionId }: { sessionId:
         },
         initialState: {
             columnVisibility: {
-                assessorId: false, name: true, email: true, actions: true
+                assessorId: false, name: true, actions: true
             },
             columnFilters: [],
             grouping: [],

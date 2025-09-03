@@ -20,15 +20,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
+import { useAssignedSkills } from '@/hooks/use-assigned-skills'
 import { useSkillCheckStore_experimental } from '@/hooks/use-skill-check-store'
 import { SkillData } from '@/lib/schemas/skill'
 import { cn } from '@/lib/utils'
 import { useTRPC } from '@/trpc/client'
 
-import { useAssignedSkills } from '../use-assigned-skills'
 
 
-export function CompetencyRecorder_Session_RecordByAssessee_Form({ sessionId }: { sessionId: string }) {
+
+export function CompetencyRecorder_Session_RecordByAssessee_PageContent({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
 
     const { data: assessor } = useSuspenseQuery(trpc.currentUser.getPerson.queryOptions())

@@ -9,15 +9,13 @@
 import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
 
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
 
 import { useSession } from '../use-session'
 
-import { CompetencyRecorder_Session_RecordIndividual_Form } from './competency-recorder-session-record-individual'
+import { CompetencyRecorder_Session_RecordIndividual_PageContent } from './competency-recorder-session-record-individual'
 
 
 export default function CompetencyRecorder_Session_RecordIndividual_Page() {
-    const trpc = useTRPC()
 
     const session = useSession()
 
@@ -30,6 +28,6 @@ export default function CompetencyRecorder_Session_RecordIndividual_Page() {
                 Paths.tools.competencyRecorder.session(session).recordIndividual,
             ]}
         />
-        <CompetencyRecorder_Session_RecordIndividual_Form session={session}/>
+        <CompetencyRecorder_Session_RecordIndividual_PageContent session={session}/>
     </AppPage>
 }
