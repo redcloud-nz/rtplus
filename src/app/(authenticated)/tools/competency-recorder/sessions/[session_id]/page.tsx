@@ -26,7 +26,7 @@ export default function CompetencyRecorder_Session_Details_Page() {
                 Paths.tools.competencyRecorder.session(session),
             ]}
         />
-        <AppPageContent variant="full">
+        <AppPageContent variant="container">
             <SkillCheckSession_Details_Card sessionId={session.sessionId} />
         </AppPageContent>
     </AppPage>

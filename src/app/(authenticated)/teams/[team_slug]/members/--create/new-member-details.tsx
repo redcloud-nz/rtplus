@@ -7,16 +7,13 @@
 
 import { useRouter } from 'next/navigation'
 import { FormProvider, useForm } from 'react-hook-form'
-import { match } from 'ts-pattern'
 import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { Show } from '@/components/show'
-import { Alert } from '@/components/ui/alert'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { DisplayValue } from '@/components/ui/display-value'
 import { Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input, TagsInput } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -88,46 +85,29 @@ export function Team_NewMember_Details_Card({ team, showTags }: { team: TeamData
             <FormProvider {...form}>
                 <Form onSubmit={form.handleSubmit((formData) => mutation.mutate(formData))}>
                     <ToruGrid mode="form">
-                        {match(team.type)
-                            .with('Normal', () => <>
-                                <FormField
-                                    control={form.control}
-                                    name="name"
-                                    render={({ field }) => <ToruGridRow
-                                        label="Name"
-                                        control={<Input maxLength={100} {...field}/>}
-                                        description="The full name of the person."
-                                    />}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="email"
-                                    render={({ field }) => <ToruGridRow
-                                        label="Email"
-                                        control={<Input type="email" maxLength={100} {...field}/>}
-                                        description="The email address of the person (must be unique)."
-                                    />}
-                                />
-                            </>)
-                            .with('Sandbox', () => <FormField
-                                control={form.control}
-                                name="name"
-                                render={({ field }) => <>
-                                    <ToruGridRow
-                                        label="Name"
-                                        control={<Input maxLength={100} {...field}/>}
-                                        description="The full name of the person."
-                                    />
-                                    <ToruGridRow
-                                        label="Email"
-                                        control={<DisplayValue>{sandboxEmailOf(field.value)}</DisplayValue>}
-                                        description="The email address of the person."
-                                    />
-                                </>}
-                            />)
-                            .with('System', () => <Alert title="NOT PERMITTED"/>)
-                            .exhaustive()
-                        }
+                        <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => <ToruGridRow
+                                label="Name"
+                                control={<Input maxLength={100} {...field} onChange={ev => {
+                                    field.onChange(ev)
+                                    if(team.type == 'Sandbox') {
+                                        form.setValue('email', sandboxEmailOf(ev.target.value))
+                                    }
+                                }}/>}
+                                description="The full name of the person."
+                            />}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => <ToruGridRow
+                                label="Email"
+                                control={<Input type="email" maxLength={100} {...field} disabled={team.type == 'Sandbox'}/>}
+                                description={"The email address of the person." + (team.type == 'Sandbox' ? " As this is a sandbox team, the email is an auto-generated fake email and cannot be changed." : '')}
+                            />}
+                        />
                         <Show when={showTags}>
                             <FormField
                                 control={form.control}
@@ -164,7 +144,6 @@ export function Team_NewMember_Details_Card({ team, showTags }: { team: TeamData
                             <FormCancelButton onClick={() => router.back()} size="sm"/>
                         </ToruGridFooter>
                     </ToruGrid>
-
                 </Form>
             </FormProvider>
         </CardContent>
