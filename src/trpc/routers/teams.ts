@@ -275,7 +275,13 @@ export async function getActiveTeam(ctx: AuthenticatedTeamContext): Promise<Team
  * @throws TRPCError if the team is not found.
  */
 export async function getTeamById(ctx: AuthenticatedContext, teamId: string): Promise<TeamRecord> {
-    const team = await ctx.prisma.team.findUnique({ where: { id: teamId } })
+    const team = await ctx.prisma.team.findUnique({ 
+        where: { id: teamId },
+        include: { teamMemberships: { 
+            where: { status: 'Active'},
+            include: {person: true }
+        }}
+    })
     if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: `Team with ID '${teamId}' not found.` })
     return team
 }

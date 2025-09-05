@@ -5,21 +5,17 @@
 'use client'
 
 import { addYears, formatDate, isBefore, subMonths, subYears } from 'date-fns'
-import { CheckIcon, ClockAlertIcon, SettingsIcon, XIcon } from 'lucide-react'
+import { CheckIcon, ChevronDownIcon, ClockAlertIcon, XIcon } from 'lucide-react'
 import { Fragment, useMemo, useState } from 'react'
 import { randomInteger, sumBy } from 'remeda'
 import { match } from 'ts-pattern'
 
+import * as AccordionPrimitive from '@radix-ui/react-accordion'
 import { useSuspenseQuery } from '@tanstack/react-query'
 
-import { SkillCheckGeneratorConfig_Card, SkillCheckGeneratorConfigData } from '@/components/cards/skill-check-generator-config'
-import { ATable, ATableCell, ATableSectionContent, ATableSection, ATableRow, ATableTrigger, ATableSectionHeader, ATableBody, ATableHead, ATableHeadRow, ATableHeadCell } from '@/components/ui/accordion-table'
-import { Alert } from '@/components/ui/alert'
-import { Button, RefreshButton } from '@/components/ui/button'
-import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
-import { GitHubIssueLink } from '@/components/ui/link'
+import { SkillCheckGeneratorConfigData } from '@/components/cards/skill-check-generator-config'
+import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Separator } from '@/components/ui/separator'
 
 import { createRandomDateGenerator, createRandomValueGenerator } from '@/lib/generate-values'
 import { CompetenceLevel } from '@/lib/competencies'
@@ -149,140 +145,138 @@ export function Team_Competencies_Card({ teamId }: { teamId: string }) {
         skillsCount: sumBy(skillPackages, group => group.aggregates.skillsCount)
     }
 
+    const membersCount = teamMembersQuery.data.length
+    const skillPackagesCount = skillPackages.length
 
-    return <>
-        <Alert severity="mockup" title="Design Mockup" 
-            action={<Button variant="ghost" size="icon" onClick={() => setGeneratorConfigOpen(!generatorConfigOpen)}><SettingsIcon /></Button>}
-        >
-            This page is a design mockup that is implemented with randomly generated skill checks.
-            <p>See <GitHubIssueLink issueNumber={15}/> for feedback or suggestions.</p>
-        </Alert>
-        { generatorConfigOpen && <SkillCheckGeneratorConfig_Card 
-            defaultValue={generatorConfig}
-            onApply={setGeneratorConfig}
-            onClose={() => setGeneratorConfigOpen(false)}
-        /> }
-        <Card>
-            <CardHeader>
-                <CardTitle>Team Competencies</CardTitle>
-                <CardActions>
-                    <RefreshButton onClick={handleRefresh} />
-                    <Separator orientation="vertical" />
-                    <CardExplanation>
-                        This card displays the competencies for all active team members.
-                    </CardExplanation>
-                </CardActions>
-            </CardHeader>
-            <CardContent className="overflow-y-scroll">
-                <ATable style={{ gridTemplateColumns: `min(25%, 320px) 75px ${teamMembersQuery.data.map(() => '60px').join(' ')} 40px` }}>
-                    <ATableHead>
-                        <ATableHeadRow className="h-30 hover:bg-inherit">
-                            <ATableHeadCell></ATableHeadCell>
-                            {teamMembersQuery.data.map(teamMember => 
-                                <ATableHeadCell key={teamMember.personId}>
-                                    <div className="w-30 overflow-hidden overflow-ellipsis whitespace-nowrap rotate-[-60deg] -translate-2 p-1">{teamMember.person.name}</div>
-                                </ATableHeadCell>
-                            )}
-                            <ATableHeadCell className="self-end font-bold text-center">Overall</ATableHeadCell>
-                        </ATableHeadRow>
-                    </ATableHead>
-                    <ATableBody type="multiple">
+    return <div className="relative width-full h=[calc(100vh-49px)] overflow-auto text-sm">
+        <div className="grid" style={{ gridTemplateColumns: `[left] minmax(240px, 20%) [body] repeat(${membersCount}, minmax(60px, 20%)) [total] 75px [control] 40px [right]`, gridTemplateRows: `[top] 120px [body] repeat(${skillPackagesCount}, auto) [total] 40px [bottom]` }}>
+            <div className="grid row-[top] col-span-full grid-cols-subgrid sticky top-0 z-2 bg-white border-b-2 border-table-frame">
+                <div className="col-[left] sticky left-0 top-0 z-3 bg-white"></div>
+                {teamMembersQuery.data.map((member, colIndex) => <div key={colIndex} className="align-middle self-center">
+                    <div className="w-[120px] overflow-hidden overflow-ellipsis whitespace-nowrap rotate-[-60deg] -translate-2 p-1 font-semibold">{member.person.name}</div>
+                </div>)}
+                <div className="grid col-start-[total] col-end-[right] grid-cols-subgrid sticky right-0 top-0 z-3 bg-white">
+                    <div className="col-[total] text-center self-end font-bold p-1">Overall</div>
+                    <div className="col-[control]"></div>
+                </div>
+                
+            </div>
+            <AccordionPrimitive.Root type="multiple" className="grid row-start-[body] row-end-[total] grid-cols-subgrid col-span-full">
+                {skillPackages.map(skillPackage => <Fragment key={skillPackage.skillPackageId}>
+                    <div className="grid grid-cols-subgrid col-span-full items-center h-10 group">
+                        <div className="h-10 col-[left] sticky left-0 z-1 flex items-center not-group-hover:bg-white group-hover:bg-muted border-r border-table-frame">
+                            <div className="w-full overflow-hidden overflow-ellipsis text-nowrap font-bold p-1 pl-2">{skillPackage.name}</div>
+                        </div>
+                        {teamMembersQuery.data.map((teamMember, index) => <div key={teamMember.personId} className="h-10 flex items-center justify-center group-hover:bg-muted">
+                            <div className="p-1">{toPercentage(skillPackage.aggregates.okCountByTeamMember[index], skillPackage.aggregates.skillsCount)}%</div>
+                        </div>)}
+                        <div className="h-10 grid col-start-[total] col-end-[right] grid-cols-subgrid items-center sticky right-0 z-1 not-group-hover:bg-white group-hover:bg-muted border-l border-table-frame">
+                            <div className="col-[total] text-center p-1 not-group-hover:bg-white">
+                                {toPercentage(skillPackage.aggregates.okCount, skillPackage.aggregates.cellCount)}%
+                            </div>
+                            <div className="col-[control] group-hover:bg-muted"></div>
+                        </div>
+                    </div>
+                    {skillPackage.skillGroups.map(skillGroup => <AccordionPrimitive.Item key={skillGroup.skillGroupId} value={skillGroup.skillGroupId} className="grid grid-cols-subgrid col-span-full">
+                       <AccordionPrimitive.Header className="grid col-span-full grid-cols-subgrid items-center last:border-0 transition-colors group">
+                            <div className="h-10 col-[left] sticky left-0 z-1 p-1 flex items-center not-group-hover:bg-white group-hover:bg-muted border-r border-table-frame">
+                                <div className="w-full overflow-hidden overflow-ellipsis text-nowrap font-semibold p-1 pl-4">{skillGroup.name}</div>
+                            </div>
+                            {teamMembersQuery.data.map((teamMember, index) => <div key={teamMember.personId} className="h-10 flex items-center justify-center group-hover:bg-muted">
+                                <div className="p-1">{toPercentage(skillGroup.aggregates.okCountByTeamMember[index], skillGroup.aggregates.skillsCount)}%</div>
+                            </div>)}
+                            <div className="h-10 grid col-start-[total] col-end-[right] grid-cols-subgrid items-center sticky right-0 z-1 not-group-hover:bg-white group-hover:bg-muted border-l border-table-frame">
+                                <div className="col-[total] text-center p-1">{toPercentage(skillGroup.aggregates.okCount, skillGroup.aggregates.cellCount)}%</div>
+                                <div className="col-[control]">
+                                    <AccordionPrimitive.Trigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="transition-all [&[data-state=open]>svg]:rotate-180"
+                                        >
+                                            <ChevronDownIcon className="h-4 w-4 shrink-0 transition-transform duration-200" />
+                                        </Button>
+                                    </AccordionPrimitive.Trigger>
+                                </div>
+                            </div>
+                       </AccordionPrimitive.Header>
+                       <AccordionPrimitive.Content className="grid col-span-full grid-cols-subgrid">
+                            {skillGroup.skills.map(skill => <div key={skill.skillId} className="grid col-span-full grid-cols-subgrid group">
+                                <div className="h-10 col-[left] sticky left-0 z-1 p-1 flex items-center not-group-hover:bg-white group-hover:bg-muted border-r border-table-frame">
+                                    <div className="w-full overflow-hidden overflow-ellipsis text-nowrap p-1 pl-8">{skill.name}</div>
+                                </div>
+                                    {teamMembersQuery.data.map((teamMember, index) => 
+                                        <div key={teamMember.personId} className="flex justify-center items-center group-hover:bg-muted">
+                                            {match(skill.checks[index])
+                                                .with({ competent: true, expired: false }, (check) => <Popover>
+                                                    <PopoverTrigger className="p-1 data-[state=open]:border rounded-full">
+                                                        <CheckIcon className="h-4 w-4 text-green-500" />
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="text-sm grid grid-cols-2 space-x-2">
+                                                        <div className="col-span-2 text-center font-semibold">Competent</div>
+                                                        <div className="text-right text-gray-500">Assessor:</div>
+                                                        <div>{teamMembersMap.get(check.assessorId)?.person.name}</div>
+                                                        <div className="text-right text-gray-500">Expires:</div>
+                                                        <div>{formatDate(addYears(check.date, 1), 'd MMM yyyy')} </div>
+                                                    </PopoverContent>
+                                                </Popover>)
+                                                .with({ competent: true, expired: true }, (check) => <Popover>
+                                                    <PopoverTrigger className="p-1 data-[state=open]:border rounded-full">
+                                                        <ClockAlertIcon className="h-4 w-4 text-orange-300" />
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="text-sm grid grid-cols-2 space-x-2">
+                                                        <div className="col-span-2 text-center font-semibold">Expired</div>
+                                                        <div className="text-right text-gray-500">Assessor:</div>
+                                                        <div>{teamMembersMap.get(check.assessorId)?.person.name}</div>
+                                                        <div className="text-right text-gray-500">Expired:</div>
+                                                        <div>{formatDate(addYears(check.date, 1), 'd MMM yyyy')} </div>
+                                                    </PopoverContent>
+                                                </Popover>)
+                                                .with({ result: 'NotCompetent' }, (check) => <Popover>
+                                                    <PopoverTrigger className="p-1 data-[state=open]:border rounded-full">
+                                                        <XIcon className="h-4 w-4 text-red-500" />
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="text-sm grid grid-cols-2 space-x-2">
+                                                        <div className="col-span-2 text-center font-semibold">Not Competent</div>
+                                                        <div className="text-right text-gray-500">Assessor:</div>
+                                                        <div>{teamMembersMap.get(check.assessorId)?.person.name}</div>
+                                                        <div className="text-right text-gray-500">Date:</div>
+                                                        <div>{formatDate(check.date, 'd MMM yyyy')} </div>
+                                                    </PopoverContent>
+                                                </Popover>)
+                                                .otherwise(() => null)
+                                            }
+                                        </div>
+                                    )}
 
-                        {skillPackages.map(skillPackage => <Fragment key={skillPackage.skillPackageId}>
-                            <ATableRow>
-                                <ATableCell className="font-bold">{skillPackage.name}</ATableCell>
-                                {teamMembersQuery.data.map((teamMember, index) => 
-                                    <ATableCell key={teamMember.personId} className="text-center">
-                                        {toPercentage(skillPackage.aggregates.okCountByTeamMember[index], skillPackage.aggregates.skillsCount)}%
-                                    </ATableCell>
-                                )}
-                                <ATableCell className="text-center">{toPercentage(skillPackage.aggregates.okCount, skillPackage.aggregates.cellCount)}%</ATableCell>
-                            </ATableRow>
-
-                            {skillPackage.skillGroups.map(skillGroup => {
-                                return <ATableSection key={skillGroup.skillGroupId} value={skillGroup.skillGroupId}>
-
-                                    <ATableSectionHeader>
-                                        <ATableCell className="pl-4 font-semibold">{skillGroup.name}</ATableCell>
-                                        {teamMembersQuery.data.map((teamMember, index) => 
-                                            <ATableCell key={teamMember.personId} className="text-center">
-                                                {toPercentage(skillGroup.aggregates.okCountByTeamMember[index], skillGroup.aggregates.skillsCount)}%
-                                            </ATableCell>
-                                        )}
-                                        <ATableCell className="text-center">{toPercentage(skillGroup.aggregates.okCount, skillGroup.aggregates.cellCount)}%</ATableCell>
-                                        <ATableCell className="p-0">
-                                            <ATableTrigger />
-                                        </ATableCell>
-                                    </ATableSectionHeader>
-
-                                    <ATableSectionContent>
-                                        {skillGroup.skills.map(skill => <ATableRow key={skill.skillId}>
-                                            <ATableCell className="pl-8">{skill.name}</ATableCell>
-                                            {teamMembersQuery.data.map((teamMember, index) => 
-                                                <ATableCell key={teamMember.personId} className="flex justify-center items-center">
-                                                    {match(skill.checks[index])
-                                                        .with({ competent: true, expired: false }, (check) => <Popover>
-                                                            <PopoverTrigger className="p-2 data-[state=open]:border rounded-full">
-                                                                <CheckIcon className="h-4 w-4 text-green-500" />
-                                                            </PopoverTrigger>
-                                                            <PopoverContent className="text-sm grid grid-cols-2 space-x-2">
-                                                                <div className="col-span-2 text-center font-semibold">Competent</div>
-                                                                <div className="text-right text-gray-500">Assessor:</div>
-                                                                <div>{teamMembersMap.get(check.assessorId)?.person.name}</div>
-                                                                <div className="text-right text-gray-500">Expires:</div>
-                                                                <div>{formatDate(addYears(check.date, 1), 'd MMM yyyy')} </div>
-                                                            </PopoverContent>
-                                                        </Popover>)
-                                                        .with({ competent: true, expired: true }, (check) => <Popover>
-                                                            <PopoverTrigger className="p-2 data-[state=open]:border rounded-full">
-                                                                <ClockAlertIcon className="h-4 w-4 text-orange-300" />
-                                                            </PopoverTrigger>
-                                                            <PopoverContent className="text-sm grid grid-cols-2 space-x-2">
-                                                                <div className="col-span-2 text-center font-semibold">Expired</div>
-                                                                <div className="text-right text-gray-500">Assessor:</div>
-                                                                <div>{teamMembersMap.get(check.assessorId)?.person.name}</div>
-                                                                <div className="text-right text-gray-500">Expired:</div>
-                                                                <div>{formatDate(addYears(check.date, 1), 'd MMM yyyy')} </div>
-                                                            </PopoverContent>
-                                                        </Popover>)
-                                                        .with({ result: 'NotCompetent' }, (check) => <Popover>
-                                                            <PopoverTrigger className="p-2 data-[state=open]:border rounded-full">
-                                                                <XIcon className="h-4 w-4 text-red-500" />
-                                                            </PopoverTrigger>
-                                                            <PopoverContent className="text-sm grid grid-cols-2 space-x-2">
-                                                                <div className="col-span-2 text-center font-semibold">Not Competent</div>
-                                                                <div className="text-right text-gray-500">Assessor:</div>
-                                                                <div>{teamMembersMap.get(check.assessorId)?.person.name}</div>
-                                                                <div className="text-right text-gray-500">Date:</div>
-                                                                <div>{formatDate(check.date, 'd MMM yyyy')} </div>
-                                                            </PopoverContent>
-                                                        </Popover>)
-                                                        .otherwise(() => null)
-                                                    }
-                                                </ATableCell>
-                                            )}
-
-                                            {/* Row Total */}
-                                            <ATableCell className="text-center">{toPercentage(skill.aggregates.okCount, skill.aggregates.cellCount)}%</ATableCell>
-                                            
-                                        </ATableRow>)}
-                                    </ATableSectionContent>
+                                    {/* Row Total */}
+                                    <div className="h-10 grid col-start-[total] col-end-[right] grid-cols-subgrid items-center sticky right-0 z-1 not-group-hover:bg-white group-hover:bg-muted border-l border-table-frame">
+                                        <div className="col-[total] text-center p-1">{toPercentage(skill.aggregates.okCount, skill.aggregates.cellCount)}%</div>
+                                        <div className="col-[control]"></div>
+                                    </div>
                                     
-                                </ATableSection>
-                            })}
-                        </Fragment>)}
-                        <ATableRow>
-                            <ATableCell className="font-bold text-right">Total</ATableCell>
-                            <ATableCell className="text-center">{toPercentage(aggregates.okCount, aggregates.cellCount)}%</ATableCell>
-                            {teamMembersQuery.data.map((_, index) => 
-                                <ATableCell key={index} className="text-center">{toPercentage(aggregates.okCountByTeamMember[index], aggregates.skillsCount)}%</ATableCell>
-                            )}
-                        </ATableRow>
-                    </ATableBody>
-                </ATable>
-            </CardContent>
-        </Card>
-    </>
+                                    
+                                </div>)}
+                       </AccordionPrimitive.Content>
+                    </AccordionPrimitive.Item>)}
+                </Fragment>)}
+            </AccordionPrimitive.Root>
+            <div className="grid row-[total] col-span-full grid-cols-subgrid sticky bottom-0 z-2 bg-white border-t-2 border-table-frame">
+                <div className="h-9.5 col-[left] sticky left-0 bottom-0 z-1 flex items-center not-group-hover:bg-white group-hover:bg-muted border-r border-table-frame ">
+                    <div className="w-full text-right font-bold p-1">Total</div>
+                </div>
+                {teamMembersQuery.data.map((_, index) => 
+                    <div key={index} className="text-center self-center">{toPercentage(aggregates.okCountByTeamMember[index], aggregates.skillsCount)}%</div>
+                )}
+                <div className="h-9.5 grid col-start-[total] col-end-[right] grid-cols-subgrid items-center sticky right-0 z-1 not-group-hover:bg-white group-hover:bg-muted border-l border-table-frame">
+                    <div className="col-[total] text-center p-1">{toPercentage(aggregates.okCount, aggregates.cellCount)}%</div>
+                    <div className="col-[control]"></div>
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
 }
 
 

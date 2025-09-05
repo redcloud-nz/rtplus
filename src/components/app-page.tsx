@@ -29,13 +29,15 @@ export function AppPage({ children, rightControls, showLeftSidebarTrigger = true
             <SidebarTrigger side="left"/>
              <Separator orientation="vertical"/>
         </div>}
-
         
-        { showRightSidebarTrigger && <div className="row-1 col-3 flex justify-center items-center pr-1 gap-1">
+         <div className="row-1 col-3 flex justify-center items-center pr-1 gap-1">
             {rightControls ? <div>{rightControls}</div> : null}
-            <Separator orientation="vertical"/>
-            <SidebarTrigger side="right"/>
-       </div>}
+            { showRightSidebarTrigger ? <>
+                <Separator orientation="vertical"/>
+                <SidebarTrigger side="right"/>
+            </> : null }
+            
+       </div>
         <Separator className="row-start-2 col-span-full" orientation="horizontal"/>
         {children}
     </div>

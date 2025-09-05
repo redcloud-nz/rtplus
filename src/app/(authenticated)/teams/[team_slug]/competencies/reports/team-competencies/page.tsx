@@ -6,11 +6,15 @@
  */
 
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 
+import { ExperimentalFeaturePopup } from '@/components/ui/experimental-feature-popup'
+import { GitHubIssueLink } from '@/components/ui/link'
 import * as Paths from '@/paths'
 import { getTeamFromParams } from '@/server/data/team'
+
+
 
 import { Team_Competencies_Card } from './team-competencies'
 
@@ -20,7 +24,11 @@ export const metadata = { title: 'Competencies' }
 export default async function Team_Skills_Report_Page(props: { params: Promise<{ team_slug: string }> }) {
     const team = await getTeamFromParams(props.params)
 
-    return <AppPage>
+    return <AppPage
+        rightControls={<ExperimentalFeaturePopup>
+            <p>This page is an experimental feature. See <GitHubIssueLink issueNumber={15}/> for feedback or suggestions.</p>
+        </ExperimentalFeaturePopup>}
+    >
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.team(team),
@@ -29,10 +37,7 @@ export default async function Team_Skills_Report_Page(props: { params: Promise<{
                 Paths.team(team).competencies.reports.teamCompetencies
             ]}
         />
-        <AppPageContent>
-            <PageHeader>
-                <PageTitle objectType="Report">Team Skills</PageTitle>
-            </PageHeader>
+        <AppPageContent variant="full">
             <Boundary>
                 <Team_Competencies_Card teamId={team.teamId}/>
             </Boundary>
