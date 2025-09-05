@@ -20,6 +20,7 @@ import { zodNanoId16, zodNanoId8 } from '@/lib/validation'
 
 import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter } from '../init'
 import { CompetenceLevel, isPass } from '@/lib/competencies'
+import { match } from 'ts-pattern'
 
 const sessionProcedure = authenticatedProcedure
     .input(z.object({ sessionId: zodNanoId8 }))
@@ -57,7 +58,6 @@ export const skillCheckSessionsRouter = createTRPCRouter({
      */
     addAssessee: sessionProcedure
         .input(z.object({
-            sessionId: zodNanoId8,
             assesseeId: zodNanoId8
         }))
         .output(z.object({
@@ -767,8 +767,9 @@ export const skillCheckSessionsRouter = createTRPCRouter({
             await ctx.prisma.skillCheckSession.update({
                 where: { id: sessionId },
                 data: {
-                    skills: {
-                        connect: additions.map(id => ({ id })),
+                    assessees: {
+                        connect:  additions.map(id => ({ id })),
+                       
                         disconnect: removals.map(id => ({ id }))
                     },
                     changeLogs: {

@@ -28,9 +28,6 @@ import { useTRPC } from '@/trpc/client'
 
 
 
-
-
-
 type RowData = { assesseeId: string, assessee: PersonRefData }
 
 /**
@@ -43,14 +40,14 @@ export function SkillCheckSession_AssesseesList_Card({ sessionId }: { sessionId:
     const trpc = useTRPC()
 
     const { data: session } = useSuspenseQuery(trpc.skillCheckSessions.getSession.queryOptions({ sessionId }))
-    const personnelQuery = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({}))
+    const teamMembersQuery = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId: session.teamId }))
     const assignedAssesseesQuery = useSuspenseQuery(trpc.skillCheckSessions.getAssignedAssessees.queryOptions({ sessionId }))
 
     async function handleRefresh() {
         assignedAssesseesQuery.refetch()
     }
 
-    const availablePersonnel = useMemo(() => personnelQuery.data.filter(person => person.status === 'Active'), [personnelQuery.data])
+    const availablePersonnel = useMemo(() => teamMembersQuery.data.filter(person => person.status === 'Active').map(membership => membership.person), [teamMembersQuery.data])
 
     const rowData = useMemo(() => assignedAssesseesQuery.data.map(assessee => ({
         assesseeId: assessee.personId,
