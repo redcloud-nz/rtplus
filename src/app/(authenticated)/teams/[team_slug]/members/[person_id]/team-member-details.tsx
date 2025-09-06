@@ -30,7 +30,7 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 
 import { useToast } from '@/hooks/use-toast'
 import { PersonData, personSchema } from '@/lib/schemas/person'
-import { TeamData } from '@/lib/schemas/team'
+import { TeamRef } from '@/lib/schemas/team'
 import { TeamMembershipData, teamMembershipSchema } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
@@ -107,7 +107,6 @@ export function Team_Member_Details_Card({ personId, teamId, showTags }: { perso
                     <UpdateTeamMembershipForm 
                         membership={membership}
                         onClose={() => setMode('View')}
-                        person={person}
                         team={team}
                         showTags={showTags}
                     />
@@ -118,13 +117,16 @@ export function Team_Member_Details_Card({ personId, teamId, showTags }: { perso
     </Card>
 }
 
-function UpdateTeamMembershipForm({ membership, onClose, person, team, showTags }: { membership: TeamMembershipData, onClose: () => void, person: PersonData, team: TeamData, showTags: boolean }) {
+function UpdateTeamMembershipForm({ membership, onClose, team, showTags }: { membership: TeamMembershipData, onClose: () => void, team: TeamRef, showTags: boolean }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()
 
+    const { data: person } = useSuspenseQuery(trpc.personnel.getPerson.queryOptions({ personId: membership.personId }))
+
     const isOwner = person.owningTeamId === team.teamId
     const queryKey = trpc.teamMemberships.getTeamMembership.queryKey({ personId: person.personId, teamId: team.teamId })
+    
 
     const form = useForm<TeamMembershipData & Pick<PersonData, 'name' | 'email'>>({
         resolver: zodResolver(teamMembershipSchema.merge(personSchema.pick({ name: true, email: true }))),

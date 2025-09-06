@@ -8,9 +8,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTRPC } from '@/trpc/client'
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {PersonRef } from '@/lib/schemas/person'
 import { TeamMembershipData } from '@/lib/schemas/team-membership'
-import { PersonData } from '@/lib/schemas/person'
+
 
 
 
@@ -24,7 +25,7 @@ interface TeamMemberPickerProps {
 
     exclude?: string[]
 
-    onValueChange?: (membership: TeamMembershipData & { person: PersonData }) => void
+    onValueChange?: (membership: TeamMembershipData & { person: PersonRef }) => void
 
     placeholder?: string
 

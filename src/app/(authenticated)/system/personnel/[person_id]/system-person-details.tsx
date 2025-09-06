@@ -30,10 +30,11 @@ import { ObjectName } from '@/components/ui/typography'
 import { useToast } from '@/hooks/use-toast'
 import { sandboxEmailOf } from '@/lib/sandbox'
 import { PersonData, personSchema } from '@/lib/schemas/person'
+import { TeamId } from '@/lib/schemas/team'
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
-import { SYSTEM_TEAM_ID } from '@/lib/schemas/team'
+
 
 
 
@@ -279,7 +280,7 @@ function DeletePersonDialog({ person }: { person: PersonData }) {
             </DialogHeader>
             <DialogBody>
                 <FormProvider {...form}>
-                    <Form onSubmit={form.handleSubmit(formData => mutation.mutate({ teamId: SYSTEM_TEAM_ID, ...formData }))}>
+                    <Form onSubmit={form.handleSubmit(formData => mutation.mutate({ teamId: TeamId.SYSTEM, ...formData }))}>
                         <FormItem>
                             <FormLabel>Person</FormLabel>
                             <FormControl>

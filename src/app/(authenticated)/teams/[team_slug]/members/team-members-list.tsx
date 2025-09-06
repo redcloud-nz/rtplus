@@ -20,7 +20,7 @@ import { Separator } from '@/components/ui/separator'
 import { Table} from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
-import { PersonData } from '@/lib/schemas/person'
+import { PersonRef } from '@/lib/schemas/person'
 import { TeamData } from '@/lib/schemas/team'
 import { TeamMembershipData } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
@@ -41,7 +41,7 @@ export function Team_MembersList_Card({ team, showTags }: { team: TeamData, show
         await membersQuery.refetch()
     }
 
-    const columns = useMemo(() => defineColumns<TeamMembershipData & { person: PersonData }>(columnHelper => [
+    const columns = useMemo(() => defineColumns<TeamMembershipData & { person: PersonRef }>(columnHelper => [
         columnHelper.accessor('personId', {
             header: "Person ID",
             cell: ctx => ctx.getValue(),
@@ -93,7 +93,7 @@ export function Team_MembersList_Card({ team, showTags }: { team: TeamData, show
         }),
     ]), [team, showTags])
 
-    const table = useReactTable<TeamMembershipData & { person: PersonData }>({
+    const table = useReactTable<TeamMembershipData & { person: PersonRef }>({
         columns,
         data: membersQuery.data,
         getCoreRowModel: getCoreRowModel(),

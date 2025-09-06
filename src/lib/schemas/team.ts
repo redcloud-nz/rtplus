@@ -7,15 +7,25 @@ import { z } from 'zod'
 
 import { Team as TeamRecord } from '@prisma/client'
 
-import { zodColor, zodNanoId8, zodSlug } from '../validation'
+import { nanoId8 } from '../id'
+import { zodColor, zodSlug } from '../validation'
 
-export const zodTeamId = z.string().length(8).regex(/^[a-zA-Z0-9]+$/, "8 character Team ID expected.").brand<'TeamId'>()
-export type TeamId = z.infer<typeof zodTeamId>
 
-export const SYSTEM_TEAM_ID = zodTeamId.parse('RTSYSTEM')
+export type TeamId = string & z.BRAND<'TeamId'>
+
+export const TeamId = {
+    schema: z.string().length(8).regex(/^[a-zA-Z0-9]+$/, "8 character Team ID expected.").brand<'TeamId'>(),
+
+    create: () => nanoId8() as TeamId,
+
+    EMPTY: '' as TeamId,
+
+    SYSTEM: 'RTSYSTEM' as TeamId,
+} as const
+
 
 export function isSystemTeam(teamId: string) {
-    return teamId === SYSTEM_TEAM_ID
+    return teamId === TeamId.SYSTEM
 }
 
 export function isSandboxTeam(teamId: string) {
@@ -27,7 +37,7 @@ export function isSpecialTeam(teamId: string) {
 }
 
 export const teamSchema = z.object({
-    teamId: zodNanoId8,
+    teamId: TeamId.schema,
     name: z.string().min(5).max(100),
     shortName: z.string().max(20),
     slug: zodSlug,
@@ -39,7 +49,7 @@ export const teamSchema = z.object({
 export type TeamData = z.infer<typeof teamSchema>
 
 export function toTeamData(record: TeamRecord): TeamData {
-    return {
+    return teamSchema.parse({
         teamId: record.id,
         name: record.name,
         shortName: record.shortName,
@@ -47,5 +57,17 @@ export function toTeamData(record: TeamRecord): TeamData {
         color: record.color,
         type: record.type,
         status: record.status,
-    }
+    })
+}
+
+export const teamRefSchema = teamSchema.pick({ teamId: true, name: true, slug: true })
+
+export type TeamRef = z.infer<typeof teamRefSchema>
+
+export function toTeamRef(record: Pick<TeamRecord, 'id' | 'name' | 'slug'>): TeamRef {
+    return teamRefSchema.parse({
+        teamId: record.id,
+        name: record.name,
+        slug: record.slug,
+    })
 }

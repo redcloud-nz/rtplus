@@ -17,8 +17,10 @@ import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 import { useToast } from '@/hooks/use-toast'
+import { PersonRef } from '@/lib/schemas/person'
 import { TeamData } from '@/lib/schemas/team'
 import { useTRPC } from '@/trpc/client'
+
 
 
 export default function CompetencyRecorder_Session_Assessors_PageContents({ sessionId, team }: { sessionId: string , team: TeamData }) {
@@ -44,7 +46,7 @@ export default function CompetencyRecorder_Session_Assessors_PageContents({ sess
 
             const previousData = queryClient.getQueryData(queryKey)
             queryClient.setQueryData(queryKey, (old = []) => 
-                [...old.filter(a => !removals.includes(a.personId)), ...additions.map(personId => ({ personId, name: 'Loading...' } as { personId: string, name: string })) ]
+                [...old.filter(a => !removals.includes(a.personId)), ...additions.map(personId => ({ personId, name: 'Loading...' } as { personId: string, name: string, email: string } as PersonRef)) ]
             )
             return { previousData }
         },

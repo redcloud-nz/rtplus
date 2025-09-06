@@ -7,13 +7,13 @@ import { z } from 'zod'
 
 import { TeamMembership as TeamMembershipRecord } from '@prisma/client'
 
-import { zodNanoId8 } from '../validation'
-
+import { PersonId } from './person'
+import { TeamId } from './team'
 
 
 export const teamMembershipSchema = z.object({
-    teamId: zodNanoId8,
-    personId: zodNanoId8,
+    teamId: TeamId.schema,
+    personId: PersonId.schema,
     tags: z.array(z.string()),
     status: z.enum(['Active', 'Inactive']),
 })
@@ -23,18 +23,10 @@ export type TeamMembershipData = z.infer<typeof teamMembershipSchema>
 
 
 export function toTeamMembershipData(data: TeamMembershipRecord): TeamMembershipData {
-    return {
+    return teamMembershipSchema.parse({
         teamId: data.teamId,
         personId: data.personId,
         tags: data.tags,
         status: data.status
-    }
+    })
 }
-
-// export const addTeamMemberFormSchema = z.object({
-//     personId: zodNanoId8.nullable(),
-//     name: z.string().min(1, 'Name is required'),
-//     email: z.string().email('Invalid email address'),
-//     tags: z.array(z.string()),
-// })
-// export type AddTeamMemberFormData = z.infer<typeof addTeamMemberFormSchema>

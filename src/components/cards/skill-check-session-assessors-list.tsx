@@ -22,7 +22,7 @@ import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
 import { EditableFeature } from '@/lib/editable-feature'
-import { PersonData, PersonRef } from '@/lib/schemas/person'
+import { PersonData, PersonId, PersonRef } from '@/lib/schemas/person'
 import { useTRPC } from '@/trpc/client'
 
 
@@ -199,10 +199,11 @@ export function SkillCheckSession_AssessorsList_Card({ sessionId }: { sessionId:
         getSortedRowModel: getSortedRowModel(),
         getRowId: (row) => row.assessorId,
         createEmptyRow: () => ({
-            assessorId: '',
+            assessorId: PersonId.EMPTY,
             assessor: {
-                personId: '',
+                personId: PersonId.EMPTY,
                 name: '',
+                email: ''
             } satisfies PersonRef
         }),
         onUpdate() {

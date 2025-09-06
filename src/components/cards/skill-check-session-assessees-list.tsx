@@ -22,7 +22,7 @@ import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
 import { EditableFeature } from '@/lib/editable-feature'
-import { PersonData, PersonRef } from '@/lib/schemas/person'
+import { PersonData, PersonId, PersonRef } from '@/lib/schemas/person'
 import { useTRPC } from '@/trpc/client'
 
 
@@ -202,8 +202,9 @@ export function SkillCheckSession_AssesseesList_Card({ sessionId }: { sessionId:
         createEmptyRow: () => ({
             assesseeId: '',
             assessee: {
-                personId: '',
+                personId: PersonId.EMPTY,
                 name: '',
+                email: ''
             } satisfies PersonRef
         }),
         onUpdate() {

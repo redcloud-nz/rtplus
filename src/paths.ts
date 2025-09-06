@@ -6,7 +6,7 @@
 import { BookOpenIcon, CableIcon, CheckCheckIcon, CheckIcon, PocketKnifeIcon, ShieldHalfIcon, UsersIcon } from 'lucide-react'
 
 import { TeamData } from '@/lib/schemas/team'
-import { PersonData } from './lib/schemas/person'
+import { PersonRef } from './lib/schemas/person'
 import { SkillCheckSessionData } from './lib/schemas/skill-check-session'
 
 const CompetenciesIcon = PocketKnifeIcon
@@ -259,7 +259,7 @@ export const team = (teamOrSlug: TeamData | string) => {
             label: 'Invitations',
             href: `${base}/invitations`
         },
-        member: (personOrPersonId: PersonData | string) => {
+        member: (personOrPersonId: PersonRef | string) => {
             const personId = typeof personOrPersonId === 'string' ? personOrPersonId : personOrPersonId.personId
 
             return {

@@ -14,8 +14,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/hooks/use-toast'
 import { CompetenceLevel, isPass } from '@/lib/competencies'
 import { nanoId16 } from '@/lib/id'
-import { PersonId } from '@/lib/schemas/person'
-import { SkillId } from '@/lib/schemas/skill'
 import { SkillCheckData } from '@/lib/schemas/skill-check'
 
 import { useTRPC } from '@/trpc/client'
@@ -59,7 +57,7 @@ export function useSkillCheckStore_experimental(sessionId: string): SkillCheckSt
     const { data: session } = useQuery(trpc.skillChecks.getSession.queryOptions({ sessionId }))
     const { data: existingChecks = EMPTY_SKILL_CHECKS_ARRAY } = useQuery(trpc.skillChecks.getSessionChecks.queryOptions({ sessionId, assessorId: 'me' }))
 
-    const [checks, setChecks] = useState<Record<`${PersonId}${SkillId}`, CheckState>>({})
+    const [checks, setChecks] = useState<Record<`${string}|${string}`, CheckState>>({})
 
     const mutation = useMutation(trpc.skillChecks.saveSessionChecks.mutationOptions({
         async onMutate(data) {
@@ -106,7 +104,7 @@ export function useSkillCheckStore_experimental(sessionId: string): SkillCheckSt
         isDirty: entries(checks).some(([, check]) => check.isDirty),
 
         getCheck({ assesseeId, skillId }) {
-            const check = checks[`${assesseeId}${skillId}`]
+            const check = checks[`${assesseeId}|${skillId}`]
             if (check) return {
                 assesseeId, skillId,
                 result: check.current.result,
@@ -126,7 +124,7 @@ export function useSkillCheckStore_experimental(sessionId: string): SkillCheckSt
         updateCheck({ assesseeId, skillId }) {
             return (update) => {
                 setChecks(prevChecks => {
-                    const found = prevChecks[`${assesseeId}${skillId}`]
+                    const found = prevChecks[`${assesseeId}|${skillId}`]
                     return {
                         ...prevChecks,
                         [`${assesseeId}${skillId}`]: found

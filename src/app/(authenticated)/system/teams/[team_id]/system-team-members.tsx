@@ -25,7 +25,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 import { useToast } from '@/hooks/use-toast'
 import { EditableFeature } from '@/lib/editable-feature'
-import { EmptyPersonId, PersonData } from '@/lib/schemas/person'
+import { PersonId, PersonRef } from '@/lib/schemas/person'
 import { TeamData } from '@/lib/schemas/team'
 import { TeamMembershipData } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
@@ -101,7 +101,7 @@ export function System_Team_Members_Card({ team }: { team: TeamData }) {
         }
     }))
 
-    const columns = useMemo(() => defineColumns<TeamMembershipData & { person: PersonData }>(columnHelper => [
+    const columns = useMemo(() => defineColumns<TeamMembershipData & { person: PersonRef }>(columnHelper => [
         columnHelper.accessor('personId', {
             header: 'ID',
             cell: ctx => ctx.getValue(),
@@ -229,7 +229,7 @@ export function System_Team_Members_Card({ team }: { team: TeamData }) {
     ]), [teamMembersQuery.data, team.teamId, team.type])
 
 
-    const table = useReactTable<TeamMembershipData & { person: PersonData }>({
+    const table = useReactTable<TeamMembershipData & { person: PersonRef }>({
         _features: [EditableFeature()],
         columns,
         data: teamMembersQuery.data,
@@ -240,17 +240,14 @@ export function System_Team_Members_Card({ team }: { team: TeamData }) {
         getExpandedRowModel: getExpandedRowModel(),
         getRowId: (row) => row.personId,
         createEmptyRow: () => ({
-            personId: EmptyPersonId,
+            personId: PersonId.EMPTY,
             teamId: team.teamId,
             status: 'Active' as const,
             tags: [],
             person: {
-                personId: EmptyPersonId,
+                personId: PersonId.EMPTY,
                 name: '',
                 email: '',
-                status: 'Active' as const,
-                owningTeamId: null,
-                type: team.type as 'Normal' | 'Sandbox',
             }
         }),
         onUpdate: (rowData) => {

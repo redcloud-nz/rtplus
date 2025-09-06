@@ -11,7 +11,7 @@ import { TRPCError } from '@trpc/server'
 
 import { CompetenceLevel, isPass } from '@/lib/competencies'
 import { nanoId16 } from '@/lib/id'
-import { toPersonData, personSchema, personRefSchema, toPersonRef } from '@/lib/schemas/person'
+import { toPersonData, personSchema, personRefSchema, toPersonRef, PersonId } from '@/lib/schemas/person'
 import { toSkillData, skillSchema } from '@/lib/schemas/skill'
 import { toSkillCheckData, skillCheckSchema } from '@/lib/schemas/skill-check'
 import { toSkillCheckSessionData, skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
@@ -448,7 +448,7 @@ export const skillChecksRouter = createTRPCRouter({
                 where: { id: input.sessionId },
                 include: {
                     assessees: { 
-                        select: { id: true, name: true },
+                        select: { id: true, name: true, email: true },
                         orderBy: { name: 'asc' }
                     }
                 }
@@ -473,7 +473,7 @@ export const skillChecksRouter = createTRPCRouter({
                 where: { id: input.sessionId },
                 include: {
                     assessors: { 
-                        select: { id: true, name: true },
+                        select: { id: true, name: true, email: true },
                         orderBy: { name: 'asc' }
                     }
                 }
@@ -663,11 +663,11 @@ export const skillChecksRouter = createTRPCRouter({
      */
     removeSessionAssessee: sessionProcedure
         .input(z.object({
-            assesseeId: zodNanoId8
+            assesseeId: PersonId.schema
         }))
         .output(z.object({
             session: skillCheckSessionSchema,
-            assessee: personSchema
+            assessee: personRefSchema
         }))
         .mutation(async ({ ctx, input: { sessionId, assesseeId } }) => {
 
@@ -704,7 +704,7 @@ export const skillChecksRouter = createTRPCRouter({
 
             return {
                 session: toSkillCheckSessionData(updated),
-                assessee: toPersonData(updated.assessees[0])
+                assessee: toPersonRef(updated.assessees[0])
             }
         }),
 
@@ -718,11 +718,11 @@ export const skillChecksRouter = createTRPCRouter({
      */
     removeSessionAssessor: sessionProcedure
         .input(z.object({
-            assessorId: zodNanoId8
+            assessorId: PersonId.schema
         }))
         .output(z.object({
             session: skillCheckSessionSchema,
-            assessor: personSchema
+            assessor: personRefSchema
         }))
         .mutation(async ({ ctx, input: { sessionId, assessorId } }) => {
 
@@ -759,7 +759,7 @@ export const skillChecksRouter = createTRPCRouter({
 
             return {
                 session: toSkillCheckSessionData(updated),
-                assessor: toPersonData(updated.assessors[0])
+                assessor: toPersonRef(updated.assessors[0])
             }
         }),
 
@@ -1000,8 +1000,8 @@ export const skillChecksRouter = createTRPCRouter({
      */
     updateSessionAssessees: sessionProcedure
         .input(z.object({
-            additions: z.array(zodNanoId8),
-            removals: z.array(zodNanoId8)
+            additions: z.array(PersonId.schema),
+            removals: z.array(PersonId.schema)
         }))
         .output(z.object({
             addCount: z.number(),
@@ -1065,8 +1065,8 @@ export const skillChecksRouter = createTRPCRouter({
      */
     updateSessionAssessors: sessionProcedure
         .input(z.object({
-            additions: z.array(zodNanoId8),
-            removals: z.array(zodNanoId8)
+            additions: z.array(PersonId.schema),
+            removals: z.array(PersonId.schema)
         }))
         .output(z.object({
             addCount: z.number(),

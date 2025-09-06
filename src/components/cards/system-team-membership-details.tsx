@@ -27,8 +27,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 
 import { useToast } from '@/hooks/use-toast'
-import { PersonData } from '@/lib/schemas/person'
-import { TeamData } from '@/lib/schemas/team'
+import { PersonRef } from '@/lib/schemas/person'
+import { TeamRef } from '@/lib/schemas/team'
 import { TeamMembershipData, teamMembershipSchema } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
@@ -108,7 +108,7 @@ export function System_TeamMembership_Details_Card({ context, personId, teamId }
     </Card>
 }
 
-function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membership: TeamMembershipData, onClose: () => void, person: PersonData, team: TeamData }) {
+function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membership: TeamMembershipData, onClose: () => void, person: PersonRef, team: TeamRef }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     const trpc = useTRPC()

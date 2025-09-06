@@ -27,7 +27,7 @@ import { useToast } from '@/hooks/use-toast'
 import { EditableFeature } from '@/lib/editable-feature'
 import { PersonData } from '@/lib/schemas/person'
 import { TeamMembershipData } from '@/lib/schemas/team-membership'
-import { TeamData } from '@/lib/schemas/team'
+import { TeamId, TeamRef } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
 
@@ -101,7 +101,7 @@ export function System_Person_TeamMemberships_Card({ person }: { person: PersonD
         }
     }))
 
-    const columns = useMemo(() => defineColumns<TeamMembershipData & { team: TeamData }>(columnHelper => [
+    const columns = useMemo(() => defineColumns<TeamMembershipData & { team: TeamRef }>(columnHelper => [
         columnHelper.accessor('teamId', {
             header: 'Team ID',
             cell: ctx => ctx.getValue(),
@@ -225,7 +225,7 @@ export function System_Person_TeamMemberships_Card({ person }: { person: PersonD
         })
     ]), [teamMembershipsQuery.data, person.personId])
 
-    const table = useReactTable<TeamMembershipData & { team: TeamData }>({
+    const table = useReactTable<TeamMembershipData & { team: TeamRef }>({
         _features: [EditableFeature()],
         columns: columns,
         data: teamMembershipsQuery.data,
@@ -236,18 +236,14 @@ export function System_Person_TeamMemberships_Card({ person }: { person: PersonD
         getExpandedRowModel: getExpandedRowModel(),
         getRowId: (row) => row.teamId,
         createEmptyRow: () => ({
-            teamId: '',
+            teamId: TeamId.EMPTY,
             personId: person.personId,
             status: 'Active' as const,
             tags: [],
             team: {
-                teamId: '',
+                teamId: TeamId.EMPTY,
                 name: '',
-                shortName: '',
                 slug: '',
-                color: '',
-                status: 'Active' as const,
-                type: person.type
             }
         }),
         onUpdate: (rowData) => {

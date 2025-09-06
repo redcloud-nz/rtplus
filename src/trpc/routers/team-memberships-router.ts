@@ -9,10 +9,10 @@ import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
 
 import { sandboxEmailOf } from '@/lib/sandbox'
-import { personSchema, toPersonData } from '@/lib/schemas/person'
-import { teamSchema, toTeamData } from '@/lib/schemas/team'
+import { PersonId, personRefSchema, personSchema, toPersonData, toPersonRef } from '@/lib/schemas/person'
+import { teamRefSchema, toTeamRef } from '@/lib/schemas/team'
 import { teamMembershipSchema, toTeamMembershipData } from '@/lib/schemas/team-membership'
-import { nanoId16, nanoId8 } from '@/lib/id'
+import { nanoId16} from '@/lib/id'
 import { zodRecordStatus, zodNanoId8 } from '@/lib/validation'
 import { fetchPersonByIdCached } from '@/server/data/person'
 
@@ -34,8 +34,8 @@ export const teamMembershipsRouter = createTRPCRouter({
     createLinkedTeamMembership: teamAdminProcedure
         .input(teamMembershipSchema.omit({ personId: true }).merge(personSchema.pick({ name: true, email: true })))
         .output(teamMembershipSchema.extend({
-            person: personSchema,
-            team: teamSchema
+            person: personRefSchema,
+            team: teamRefSchema
         }))
         .mutation(async ({ ctx, input }) => {
 
@@ -65,7 +65,7 @@ export const teamMembershipsRouter = createTRPCRouter({
 
             const person = existingPerson || await ctx.prisma.person.create({
                 data: {
-                    id: nanoId8(),
+                    id: PersonId.create(),
                     email: input.email,
                     name: input.name,
                     status: input.status,
@@ -111,8 +111,8 @@ export const teamMembershipsRouter = createTRPCRouter({
 
             return {
                 ...toTeamMembershipData(createdMembership),
-                person: toPersonData(person),
-                team: toTeamData(ctx.team)
+                person: toPersonRef(person),
+                team: toTeamRef(ctx.team)
             }
         }),
 
@@ -128,8 +128,8 @@ export const teamMembershipsRouter = createTRPCRouter({
     createTeamMembership: teamAdminProcedure
         .input(teamMembershipSchema)
         .output(teamMembershipSchema.extend({
-            person: personSchema,
-            team: teamSchema
+            person: personRefSchema,
+            team: teamRefSchema
         }))
         .mutation(async ({ ctx, input: { personId, teamId, ...fields } }) => {
 
@@ -168,8 +168,8 @@ export const teamMembershipsRouter = createTRPCRouter({
 
             return { 
                 ...toTeamMembershipData(createdMembership), 
-                person: toPersonData(person), 
-                team: toTeamData(ctx.team)
+                person: toPersonRef(person), 
+                team: toTeamRef(ctx.team)
             }
         }),
 
@@ -223,8 +223,8 @@ export const teamMembershipsRouter = createTRPCRouter({
             teamId: zodNanoId8,
         }))
         .output(teamMembershipSchema.extend({
-            person: personSchema,
-            team: teamSchema
+            person: personRefSchema,
+            team: teamRefSchema
         }))
         .query(async ({ ctx, input: { personId, teamId } }) => {
 
@@ -238,8 +238,8 @@ export const teamMembershipsRouter = createTRPCRouter({
 
             return { 
                 ...toTeamMembershipData(membership), 
-                person: toPersonData(membership.person), 
-                team: toTeamData(membership.team)
+                person: toPersonRef(membership.person), 
+                team: toTeamRef(membership.team)
             }
         }),
 
@@ -255,8 +255,8 @@ export const teamMembershipsRouter = createTRPCRouter({
             status: zodRecordStatus
         }))
         .output(z.array(teamMembershipSchema.extend({
-            person: personSchema,
-            team: teamSchema
+            person: personRefSchema,
+            team: teamRefSchema
         })))
         .query(async ({ ctx, input }) => {
             const memberships = await ctx.prisma.teamMembership.findMany({
@@ -265,11 +265,19 @@ export const teamMembershipsRouter = createTRPCRouter({
                     teamId: input.teamId,
                     status: { in: input.status }
                 },
-                include: { person: true, team: true, d4hInfo: true },
-                orderBy: { team: { name: 'asc' }}
+                include: { 
+                    person: {
+                        select: { id: true, name: true, email: true },
+                    }, 
+                    team: {
+                        select: { id: true, name: true, slug: true },
+                    }, 
+                    d4hInfo: true
+                },
+                orderBy: { team: { name: 'asc' }, person: { name: 'asc' } }
             })
 
-            return memberships.map(membership => ({ ...toTeamMembershipData(membership), person: toPersonData(membership.person), team: toTeamData(membership.team) }))
+            return memberships.map(membership => ({ ...toTeamMembershipData(membership), person: toPersonRef(membership.person), team: toTeamRef(membership.team) }))
         }),
 
     /**
@@ -283,7 +291,7 @@ export const teamMembershipsRouter = createTRPCRouter({
         .input(teamMembershipSchema.merge(personSchema.pick({ name: true, email: true })))
         .output(teamMembershipSchema.extend({
             person: personSchema,
-            team: teamSchema
+            team: teamRefSchema
         }))
         .mutation(async ({ ctx, input: { personId, teamId, ...update } }) => {
 
@@ -341,14 +349,14 @@ export const teamMembershipsRouter = createTRPCRouter({
                 return { 
                     ...toTeamMembershipData(updatedMembership), 
                     person: toPersonData(person), 
-                    team: toTeamData(ctx.team)
+                    team: toTeamRef(ctx.team)
                 }
             }
 
             return {
                 ...toTeamMembershipData(existingMembership),
                 person: toPersonData(person),
-                team: toTeamData(ctx.team)
+                team: toTeamRef(ctx.team)
             }
         }),
 

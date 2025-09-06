@@ -8,12 +8,12 @@ import { notFound } from 'next/navigation'
 
 import { TRPCError } from '@trpc/server'
 
-import { PersonData, toPersonData } from '@/lib/schemas/person'
+import { PersonData, PersonRef, toPersonData } from '@/lib/schemas/person'
 import { SkillData } from '@/lib/schemas/skill'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { SkillGroupData } from '@/lib/schemas/skill-group'
 import { SkillPackageData } from '@/lib/schemas/skill-package'
-import { TeamData, toTeamData } from '@/lib/schemas/team'
+import { TeamData } from '@/lib/schemas/team'
 import { TeamMembershipData, toTeamMembershipData } from '@/lib/schemas/team-membership'
 import { getQueryClient, trpc } from '@/trpc/server'
 
@@ -113,38 +113,25 @@ export async function fetchSkillPackage(params: Promise<{ skill_package_id: stri
 }
 
 
-export async function fetchTeamMember(params: Promise<{ team_slug: string, person_id: string }>): Promise<TeamMembershipData & { person: PersonData, team: TeamData }> {
-    const { team_slug: teamSlug, person_id: personId } = await params
+export async function fetchTeamMember(params: Promise<{ team_slug: string, person_id: string }>): Promise<TeamMembershipData & { person: PersonRef, team: TeamData }> {
+    const { person_id: personId } = await params
 
     const team = await getTeamFromParams(params)
 
-    const queryClient = getQueryClient()
-    const key = trpc.teamMemberships.getTeamMembership.queryKey({ personId, teamId: team.teamId })
-
-    const cachedMembership = queryClient.getQueryData(key)
-    if (cachedMembership) return cachedMembership
-
-    const teamRecord = await prisma.team.findUnique({
-        where: { slug: teamSlug },
-        select: {
-            id: true,
-            teamMemberships: {
-                where: { personId },
-                include: { person: true, team: true }
-            }
-        }
-     })
-    if(!teamRecord || teamRecord.teamMemberships.length === 0) notFound()
-
-    const membership = teamRecord.teamMemberships[0]
+    const membership = await prisma.teamMembership.findFirst({
+        where: {
+            teamId: team.teamId,
+            personId
+        },
+        include: { person: true }
+    })
+    if(!membership) notFound()
 
     const result = { 
         ...toTeamMembershipData(membership), 
         person: toPersonData(membership.person), 
-        team: toTeamData(membership.team)
+        team: team
     }
-
-    queryClient.setQueryData(key, result)
 
     return result
 }

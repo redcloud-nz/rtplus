@@ -17,8 +17,10 @@ import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 import { useToast } from '@/hooks/use-toast'
+import { PersonId, PersonRef } from '@/lib/schemas/person'
 import { TeamData } from '@/lib/schemas/team'
 import { useTRPC } from '@/trpc/client'
+
 
 
 export default function CompetencyRecorder_Session_Assessees_PageContents({ sessionId, team }: { sessionId: string, team: TeamData }) {
@@ -28,8 +30,8 @@ export default function CompetencyRecorder_Session_Assessees_PageContents({ sess
 
     const { data: assignedAssessees } = useSuspenseQuery(trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId}))
 
-    const [selectedAssessees, setSelectedAssessees] = useState<string[]>(assignedAssessees.map(a => a.personId))
-    const [changes, setChanges] = useState<{ added: string[], removed: string[] }>({ added: [], removed: [] })
+    const [selectedAssessees, setSelectedAssessees] = useState<PersonId[]>(assignedAssessees.map(a => a.personId))
+    const [changes, setChanges] = useState<{ added: PersonId[], removed: PersonId[] }>({ added: [], removed: [] })
 
     function handleReset() {
         setSelectedAssessees(assignedAssessees.map(a => a.personId))
@@ -46,7 +48,7 @@ export default function CompetencyRecorder_Session_Assessees_PageContents({ sess
 
             // Optimistically update to the new value
             queryClient.setQueryData(trpc.skillChecks.getSessionAssessees.queryKey({ sessionId }), (old = []) => 
-                [...old.filter(a => !removals.includes(a.personId)), ...additions.map(personId => ({ personId, name: 'Loading...' } as { personId: string, name: string })) ]
+                [...old.filter(a => !removals.includes(a.personId)), ...additions.map(personId => ({ personId, name: 'Loading...', email: "" } as PersonRef)) ]
             )
             return { previousData }
         },
@@ -70,7 +72,7 @@ export default function CompetencyRecorder_Session_Assessees_PageContents({ sess
         }
     }))
 
-    function handleCheckedChange(assesseeId: string): (checked: boolean) => void {
+    function handleCheckedChange(assesseeId: PersonId): (checked: boolean) => void {
         return (checked) => {
             if (checked) {
                 // Add the assessee to the selected list
@@ -149,7 +151,7 @@ interface TeamSectionProps {
     team: TeamData
     assignedAssessees: string[]
     selectedAssessees: string[]
-    onSelectedChange: (assesseeId: string) => (checked: boolean) => void
+    onSelectedChange: (assesseeId: PersonId) => (checked: boolean) => void
 }
 
 function TeamSection({ team, assignedAssessees, selectedAssessees, onSelectedChange }: TeamSectionProps) {
