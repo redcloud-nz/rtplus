@@ -43,9 +43,9 @@ export function CompetencyRecorder_Session_RecordIndividual_PageContent({ sessio
     const trpc = useTRPC()
 
     const { data: assessor } = useSuspenseQuery(trpc.currentUser.getPerson.queryOptions())
-    const { data: assessees } = useSuspenseQuery(trpc.skillCheckSessions.getAssignedAssessees.queryOptions({ sessionId }))
+    const { data: assessees } = useSuspenseQuery(trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId }))
     const { data: skills } = useAssignedSkills({ sessionId })
-    const { data: existingChecks } = useSuspenseQuery(trpc.skillCheckSessions.getChecks.queryOptions({ sessionId, assessorId: 'me' }))
+    const { data: existingChecks } = useSuspenseQuery(trpc.skillChecks.getSessionChecks.queryOptions({ sessionId, assessorId: 'me' }))
 
     const [state, setState] = useState<RecordingState>({
         prevData: null,
@@ -96,14 +96,14 @@ export function CompetencyRecorder_Session_RecordIndividual_PageContent({ sessio
     }
 
 
-    const mutation = useMutation(trpc.skillCheckSessions.saveCheck.mutationOptions({
+    const mutation = useMutation(trpc.skillChecks.saveSessionCheck.mutationOptions({
         async onMutate(data) {
-            await queryClient.cancelQueries(trpc.skillCheckSessions.getChecks.queryFilter({ sessionId, assessorId: 'me' }))
+            await queryClient.cancelQueries(trpc.skillChecks.getSessionChecks.queryFilter({ sessionId, assessorId: 'me' }))
 
-            const previousChecks = queryClient.getQueryData(trpc.skillCheckSessions.getChecks.queryKey({ sessionId, assessorId: 'me' }))
+            const previousChecks = queryClient.getQueryData(trpc.skillChecks.getSessionChecks.queryKey({ sessionId, assessorId: 'me' }))
 
             if (previousChecks) {
-                queryClient.setQueryData(trpc.skillCheckSessions.getChecks.queryKey({ sessionId }), (prev = []) => 
+                queryClient.setQueryData(trpc.skillChecks.getSessionChecks.queryKey({ sessionId }), (prev = []) => 
                     // Update or add the skill check
                     [...prev.filter(c => c.skillCheckId != data.skillCheckId), { ...data, assessorId: assessor.personId, passed: isPass(data.result as CompetenceLevel), sessionId, date: session.date, timestamp: new Date().toISOString(), teamId: session.teamId }]
                 )
@@ -115,7 +115,7 @@ export function CompetencyRecorder_Session_RecordIndividual_PageContent({ sessio
         },
         onError(error, _data, context) {
             // Rollback to previous state
-            queryClient.setQueryData(trpc.skillCheckSessions.getChecks.queryKey({ sessionId }), context?.previousChecks)
+            queryClient.setQueryData(trpc.skillChecks.getSessionChecks.queryKey({ sessionId }), context?.previousChecks)
 
             toast({
                 title: 'Error saving skill check',
@@ -129,7 +129,7 @@ export function CompetencyRecorder_Session_RecordIndividual_PageContent({ sessio
                 description: "Your skill check has been successfully saved.",
             })
             
-            queryClient.invalidateQueries(trpc.skillCheckSessions.getChecks.queryFilter({ sessionId, assessorId: 'me' }))
+            queryClient.invalidateQueries(trpc.skillChecks.getSessionChecks.queryFilter({ sessionId, assessorId: 'me' }))
         },
         
     }))

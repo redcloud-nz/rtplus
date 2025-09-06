@@ -19,7 +19,7 @@ export function useAssignedSkills({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
 
     const availablePackagesQuery = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions())
-    const assignedSkillIdsQuery = useSuspenseQuery(trpc.skillCheckSessions.getAssignedSkillIds.queryOptions({ sessionId  }))
+    const assignedSkillIdsQuery = useSuspenseQuery(trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId  }))
 
    const assignedSkills = useMemo(() => {
        return availablePackagesQuery.data.flatMap(pkg => 

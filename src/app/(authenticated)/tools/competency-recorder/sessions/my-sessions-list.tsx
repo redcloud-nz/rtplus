@@ -27,7 +27,7 @@ import { useTRPC } from '@/trpc/client'
 export function CompetencyRecorder_SessionsList_Card() {
     const trpc = useTRPC()
 
-    const sessionsQuery = useQuery(trpc.skillCheckSessions.getMySessions.queryOptions({ status: ['Draft'] }))
+    const sessionsQuery = useQuery(trpc.skillChecks.getMySessions.queryOptions({ status: ['Draft'] }))
 
     async function handleRefresh() {
         await sessionsQuery.refetch()

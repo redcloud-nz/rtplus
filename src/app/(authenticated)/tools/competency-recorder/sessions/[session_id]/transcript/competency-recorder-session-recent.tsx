@@ -18,9 +18,9 @@ import { useTRPC } from '@/trpc/client'
 export function CompetencyRecorder_Session_Recent({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
 
-    const { data: assessees } = useSuspenseQuery(trpc.skillCheckSessions.getAssignedAssessees.queryOptions({ sessionId }))
+    const { data: assessees } = useSuspenseQuery(trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId }))
     const { data: skills } = useAssignedSkills({ sessionId })
-    const { data: checks } = useSuspenseQuery(trpc.skillCheckSessions.getChecks.queryOptions({ sessionId, assessorId: 'me' }))
+    const { data: checks } = useSuspenseQuery(trpc.skillChecks.getSessionChecks.queryOptions({ sessionId, assessorId: 'me' }))
 
     if (checks.length === 0) return null
 

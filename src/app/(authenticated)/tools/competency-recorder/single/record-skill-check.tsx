@@ -59,7 +59,7 @@ export function CompetencyRecorder_Single_Card() {
         }
     })
 
-    const mutation = useMutation(trpc.activeTeam.skillChecks.createIndependentSkillCheck.mutationOptions({
+    const mutation = useMutation(trpc.skillChecks.createIndependentSkillCheck.mutationOptions({
         onError(error) {
             toast({
                 title: "Error saving skill check",

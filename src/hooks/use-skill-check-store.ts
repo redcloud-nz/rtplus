@@ -56,18 +56,18 @@ export function useSkillCheckStore_experimental(sessionId: string): SkillCheckSt
     const trpc = useTRPC()
 
     const { data: assessor } = useQuery(trpc.currentUser.getPerson.queryOptions())
-    const { data: session } = useQuery(trpc.skillCheckSessions.getSession.queryOptions({ sessionId }))
-    const { data: existingChecks = EMPTY_SKILL_CHECKS_ARRAY } = useQuery(trpc.skillCheckSessions.getChecks.queryOptions({ sessionId, assessorId: 'me' }))
+    const { data: session } = useQuery(trpc.skillChecks.getSession.queryOptions({ sessionId }))
+    const { data: existingChecks = EMPTY_SKILL_CHECKS_ARRAY } = useQuery(trpc.skillChecks.getSessionChecks.queryOptions({ sessionId, assessorId: 'me' }))
 
     const [checks, setChecks] = useState<Record<`${PersonId}${SkillId}`, CheckState>>({})
 
-    const mutation = useMutation(trpc.skillCheckSessions.saveChecks.mutationOptions({
+    const mutation = useMutation(trpc.skillChecks.saveSessionChecks.mutationOptions({
         async onMutate(data) {
-            await queryClient.cancelQueries(trpc.skillCheckSessions.getChecks.queryFilter({ sessionId, assessorId: 'me' }))
+            await queryClient.cancelQueries(trpc.skillChecks.getSessionChecks.queryFilter({ sessionId, assessorId: 'me' }))
 
-            const prevData = queryClient.getQueryData(trpc.skillCheckSessions.getChecks.queryKey({ sessionId, assessorId: 'me' }))
+            const prevData = queryClient.getQueryData(trpc.skillChecks.getSessionChecks.queryKey({ sessionId, assessorId: 'me' }))
 
-            queryClient.setQueryData(trpc.skillCheckSessions.getChecks.queryKey({ sessionId, assessorId: 'me' }), (oldData: SkillCheckData[] = []) => {
+            queryClient.setQueryData(trpc.skillChecks.getSessionChecks.queryKey({ sessionId, assessorId: 'me' }), (oldData: SkillCheckData[] = []) => {
 
                 const updatedSkillChecks = oldData.map(check => {
                     const update = data.checks.find(c => c.skillCheckId === check.skillCheckId)
@@ -84,7 +84,7 @@ export function useSkillCheckStore_experimental(sessionId: string): SkillCheckSt
             return { prevData }
         },
         onError(error, _data, context) {
-            queryClient.setQueryData(trpc.skillCheckSessions.getChecks.queryKey({ sessionId, assessorId: 'me' }), context?.prevData)
+            queryClient.setQueryData(trpc.skillChecks.getSessionChecks.queryKey({ sessionId, assessorId: 'me' }), context?.prevData)
 
             toast({
                 title: 'Error saving skill checks',
@@ -98,7 +98,7 @@ export function useSkillCheckStore_experimental(sessionId: string): SkillCheckSt
                 description: `Your ${result.checks.length} skill checks have been saved successfully`,
             })
 
-            queryClient.invalidateQueries(trpc.skillCheckSessions.getChecks.queryFilter({ sessionId, assessorId: 'me' }))
+            queryClient.invalidateQueries(trpc.skillChecks.getSessionChecks.queryFilter({ sessionId, assessorId: 'me' }))
         }
     }))
 

@@ -21,7 +21,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 import { useAssignedSkills } from '@/hooks/use-assigned-skills'
 import { useSkillCheckStore_experimental } from '@/hooks/use-skill-check-store'
-import { PersonRefData } from '@/lib/schemas/person'
+import { PersonRef } from '@/lib/schemas/person'
 import { cn } from '@/lib/utils'
 import { useTRPC } from '@/trpc/client'
 
@@ -31,7 +31,7 @@ import { useTRPC } from '@/trpc/client'
 export function CompetencyRecorder_Session_RecordBySkill_PageContent({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
 
-    const { data: assessees } = useSuspenseQuery(trpc.skillCheckSessions.getAssignedAssessees.queryOptions({ sessionId }))
+    const { data: assessees } = useSuspenseQuery(trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId }))
     const { data: skills } = useAssignedSkills({ sessionId })
 
     const [targetSkillId, setTargetSkillId] = useState<string>('')
@@ -111,7 +111,7 @@ export function CompetencyRecorder_Session_RecordBySkill_PageContent({ sessionId
 
 
 interface AssesseeRowProps {
-    assessee: PersonRefData
+    assessee: PersonRef
     disabled: boolean
     value: { result: string, notes: string, isDirty: boolean, prev: { result: string, notes: string } | null }
     onValueChange: (value: { result: string, notes: string }) => void

@@ -64,7 +64,7 @@ export async function fetchSkillCheckSession(params: Promise<{ session_id: strin
     const { session_id: sessionId } = await params
     
     return getQueryClient()
-        .fetchQuery(trpc.skillCheckSessions.getSession.queryOptions({ sessionId }))
+        .fetchQuery(trpc.skillChecks.getSession.queryOptions({ sessionId }))
         .catch(error => {
             if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
                 notFound()

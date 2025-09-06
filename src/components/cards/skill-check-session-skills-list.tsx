@@ -38,7 +38,7 @@ export function SkillCheckSession_SkillsList_Card({ sessionId }: { sessionId: st
     const trpc = useTRPC()
 
     const availablePackagesQuery = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions())
-    const { data: assignedSkills, refetch: refetchAssignedSkills } = useSuspenseQuery(trpc.skillCheckSessions.getAssignedSkillIds.queryOptions({ sessionId }))
+    const { data: assignedSkills, refetch: refetchAssignedSkills } = useSuspenseQuery(trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId }))
 
     async function handleRefresh() {
         refetchAssignedSkills()
@@ -51,17 +51,17 @@ export function SkillCheckSession_SkillsList_Card({ sessionId }: { sessionId: st
         skill: availableSkills.find(s => s.skillId === skillId)!
     })), [assignedSkills, availableSkills])
 
-    const addSkillMutation = useMutation(trpc.skillCheckSessions.addSkill.mutationOptions({
+    const addSkillMutation = useMutation(trpc.skillChecks.addSessionSkill.mutationOptions({
         async onMutate({ skillId: skillIdToAdd }) {
-            await queryClient.cancelQueries(trpc.skillCheckSessions.getAssignedSkillIds.queryFilter({ sessionId }))
+            await queryClient.cancelQueries(trpc.skillChecks.getSessionSkillIds.queryFilter({ sessionId }))
 
-            const previousData = queryClient.getQueryData(trpc.skillCheckSessions.getAssignedSkillIds.queryKey({ sessionId }))
-            queryClient.setQueryData(trpc.skillCheckSessions.getAssignedSkillIds.queryKey({ sessionId }), (prev = []) => [...prev, skillIdToAdd])
+            const previousData = queryClient.getQueryData(trpc.skillChecks.getSessionSkillIds.queryKey({ sessionId }))
+            queryClient.setQueryData(trpc.skillChecks.getSessionSkillIds.queryKey({ sessionId }), (prev = []) => [...prev, skillIdToAdd])
 
             return { previousData }
         },
         onError(error, _data, context) {
-            queryClient.setQueryData(trpc.skillCheckSessions.getAssignedSkillIds.queryKey({ sessionId }), context?.previousData)
+            queryClient.setQueryData(trpc.skillChecks.getSessionSkillIds.queryKey({ sessionId }), context?.previousData)
 
             toast({
                 title: "Error adding skill to session",
@@ -74,25 +74,25 @@ export function SkillCheckSession_SkillsList_Card({ sessionId }: { sessionId: st
                 title: "Skill added to session",
                 description: `Skill '${result.skill.name}' has been successfully added to the session.`,
             })
-            queryClient.invalidateQueries(trpc.skillCheckSessions.getSession.queryFilter({ sessionId }))
+            queryClient.invalidateQueries(trpc.skillChecks.getSession.queryFilter({ sessionId }))
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.skillCheckSessions.getAssignedSkillIds.queryFilter({ sessionId }))
+            queryClient.invalidateQueries(trpc.skillChecks.getSessionSkillIds.queryFilter({ sessionId }))
         }
     }))
 
-    const removeSkillMutation = useMutation(trpc.skillCheckSessions.removeSkill.mutationOptions({
+    const removeSkillMutation = useMutation(trpc.skillChecks.removeSessionSkill.mutationOptions({
         async onMutate({ skillId: skillIdToRemove }) {
-            await queryClient.cancelQueries(trpc.skillCheckSessions.getAssignedSkillIds.queryFilter({ sessionId }))
+            await queryClient.cancelQueries(trpc.skillChecks.getSessionSkillIds.queryFilter({ sessionId }))
 
-            const previousData = queryClient.getQueryData(trpc.skillCheckSessions.getAssignedSkillIds.queryKey({ sessionId }))
+            const previousData = queryClient.getQueryData(trpc.skillChecks.getSessionSkillIds.queryKey({ sessionId }))
 
-            queryClient.setQueryData(trpc.skillCheckSessions.getAssignedSkillIds.queryKey({ sessionId }), (prev = []) => prev.filter(skillId => skillId != skillIdToRemove))
+            queryClient.setQueryData(trpc.skillChecks.getSessionSkillIds.queryKey({ sessionId }), (prev = []) => prev.filter(skillId => skillId != skillIdToRemove))
 
             return { previousData }
         },
         onError(error, _data, context) {
-            queryClient.setQueryData(trpc.skillCheckSessions.getAssignedSkillIds.queryKey({ sessionId }), context?.previousData)
+            queryClient.setQueryData(trpc.skillChecks.getSessionSkillIds.queryKey({ sessionId }), context?.previousData)
 
             toast({
                 title: "Error removing skill from session",
@@ -105,10 +105,10 @@ export function SkillCheckSession_SkillsList_Card({ sessionId }: { sessionId: st
                 title: "Skill removed from session",
                 description: `Skill '${result.skill.name}' has been successfully removed from the session.`,
             })
-            queryClient.invalidateQueries(trpc.skillCheckSessions.getSession.queryFilter({ sessionId }))
+            queryClient.invalidateQueries(trpc.skillChecks.getSession.queryFilter({ sessionId }))
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.skillCheckSessions.getAssignedSkillIds.queryFilter({ sessionId }))
+            queryClient.invalidateQueries(trpc.skillChecks.getSessionSkillIds.queryFilter({ sessionId }))
         }
     }))
 

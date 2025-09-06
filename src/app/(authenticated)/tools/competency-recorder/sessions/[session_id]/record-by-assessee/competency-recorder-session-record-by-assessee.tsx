@@ -33,7 +33,7 @@ export function CompetencyRecorder_Session_RecordByAssessee_PageContent({ sessio
     const trpc = useTRPC()
 
     const { data: assessor } = useSuspenseQuery(trpc.currentUser.getPerson.queryOptions())
-    const { data: assessees } = useSuspenseQuery(trpc.skillCheckSessions.getAssignedAssessees.queryOptions({ sessionId }))
+    const { data: assessees } = useSuspenseQuery(trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId }))
     const { data: skills } = useAssignedSkills({ sessionId })
 
     const [targetAssesseeId, setTargetAssesseeId] = useState<string>('')

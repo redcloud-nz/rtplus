@@ -29,7 +29,7 @@ import { useTRPC } from '@/trpc/client'
 
 
 
-const formSchema = skillCheckSessionSchema.pick({ sessionId: true, name: true, date: true })
+const formSchema = skillCheckSessionSchema.pick({ sessionId: true, teamId: true, name: true, date: true })
 type FormData = z.infer<typeof formSchema>
 
 export function Team_NewSkillCheckSession_Details_Card({ team }: { team: TeamData }) {
@@ -44,12 +44,13 @@ export function Team_NewSkillCheckSession_Details_Card({ team }: { team: TeamDat
         resolver: zodResolver(formSchema),
         defaultValues: {
             sessionId,
+            teamId: team.teamId,
             name: '',
             date: formatISO(new Date(), { representation: 'date' }),
         }
     })
 
-    const mutation = useMutation(trpc.activeTeam.skillCheckSessions.createSession.mutationOptions({
+    const mutation = useMutation(trpc.skillChecks.createSession.mutationOptions({
         onError(error) {
             if (error.shape?.cause?.name === 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof FormData, { message: error.shape.message })
@@ -62,7 +63,7 @@ export function Team_NewSkillCheckSession_Details_Card({ team }: { team: TeamDat
             }
         },
         onSuccess(result) {
-            queryClient.invalidateQueries(trpc.activeTeam.skillCheckSessions.getTeamSessions.queryFilter())
+            queryClient.invalidateQueries(trpc.skillChecks.getTeamSessions.queryFilter())
             
             toast({
                 title: "Session created",

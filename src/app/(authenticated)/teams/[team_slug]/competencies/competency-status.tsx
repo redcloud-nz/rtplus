@@ -52,7 +52,7 @@ export function TeamMembersCount_Card({ team }: { team: TeamData }) {
 export function SessionsCount_Card({ team }: { team: TeamData }) {
     const trpc = useTRPC()
 
-    const { data: sessions } = useSuspenseQuery(trpc.activeTeam.skillCheckSessions.getTeamSessions.queryOptions())
+    const { data: sessions } = useSuspenseQuery(trpc.skillChecks.getTeamSessions.queryOptions({ teamId: team.teamId }))
 
     return <Stat objectType="Sessions" value={sessions.length} description="have been created"  linksTo={Paths.team(team).competencies.sessions}/>
 }
@@ -61,7 +61,7 @@ export function SessionsCount_Card({ team }: { team: TeamData }) {
 export function SkillChecksCount_Card({ team }: { team: TeamData }) {
     const trpc = useTRPC()
 
-    const { data: skillChecks } = useSuspenseQuery(trpc.activeTeam.skillChecks.getSkillChecks.queryOptions({}))
+    const { data: skillChecks } = useSuspenseQuery(trpc.skillChecks.getSkillChecks.queryOptions({ teamId: team.teamId }))
 
     return <Stat objectType="Skill Checks" value={skillChecks.length} description="have been completed" linksTo={Paths.team(team).competencies.skillChecks} />
 }

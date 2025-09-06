@@ -32,7 +32,7 @@ type RowData = SkillCheckData & { assessee: PersonData, assessor: PersonData, sk
 export function Team_SkillChecksList_Card({ team }: { team: TeamData }) {
     const trpc = useTRPC()
 
-    const checksQuery = useSuspenseQuery(trpc.activeTeam.skillChecks.getSkillChecks.queryOptions({}))
+    const checksQuery = useSuspenseQuery(trpc.skillChecks.getSkillChecks.queryOptions({ teamId: team.teamId }))
 
     async function handleRefresh() {
         await checksQuery.refetch()

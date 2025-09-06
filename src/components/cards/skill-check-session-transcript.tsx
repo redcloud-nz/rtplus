@@ -17,21 +17,21 @@ import { Table } from '@/components/ui/table'
 
 import { useAssignedSkills } from '@/hooks/use-assigned-skills'
 import { CompetenceLevel, CompetenceLevelTerms } from '@/lib/competencies'
-import { PersonRefData } from '@/lib/schemas/person'
+import { PersonRef } from '@/lib/schemas/person'
 import { SkillData } from '@/lib/schemas/skill'
 import { SkillCheckData } from '@/lib/schemas/skill-check'
 import { formatDateTime } from '@/lib/utils'
 import { useTRPC } from '@/trpc/client'
 
 
-type RowData = SkillCheckData & { assessee: PersonRefData, assessor: PersonRefData, skill: SkillData }
+type RowData = SkillCheckData & { assessee: PersonRef, assessor: PersonRef, skill: SkillData }
 
 export function SkillCheckSession_Transcript_Card({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
 
-    const assesseesQuery = useSuspenseQuery(trpc.skillCheckSessions.getAssignedAssessees.queryOptions({ sessionId }))
-    const assessorsQuery = useSuspenseQuery(trpc.skillCheckSessions.getAssignedAssessors.queryOptions({ sessionId }))
-    const checksQuery = useSuspenseQuery(trpc.skillCheckSessions.getChecks.queryOptions({ sessionId, assessorId: 'me'  }))
+    const assesseesQuery = useSuspenseQuery(trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId }))
+    const assessorsQuery = useSuspenseQuery(trpc.skillChecks.getSessionAssessors.queryOptions({ sessionId }))
+    const checksQuery = useSuspenseQuery(trpc.skillChecks.getSessionChecks.queryOptions({ sessionId, assessorId: 'me'  }))
     const assignedSkillsQuery = useAssignedSkills({ sessionId })
 
     async function handleRefresh() {

@@ -30,7 +30,7 @@ export default function CompetencyRecorder_Session_Skills_PageContent({ sessionI
     const trpc = useTRPC()
 
     const { data: availablePackages } = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions())
-    const { data: assignedSkills } = useSuspenseQuery(trpc.skillCheckSessions.getAssignedSkillIds.queryOptions({ sessionId }))
+    const { data: assignedSkills } = useSuspenseQuery(trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId }))
 
     const [selectedSkills, setSelectedSkills] = useState<string[]>(assignedSkills)
     const [changes, setChanges] = useState<{ added: string[], removed: string[] }>({ added: [], removed: [] })
@@ -40,18 +40,18 @@ export default function CompetencyRecorder_Session_Skills_PageContent({ sessionI
         setChanges({ added: [], removed: [] })
     }
 
-    const mutation = useMutation(trpc.skillCheckSessions.updateSkills.mutationOptions({
+    const mutation = useMutation(trpc.skillChecks.updateSessionSkills.mutationOptions({
         async onMutate({ additions, removals }) {
-            await queryClient.cancelQueries(trpc.skillCheckSessions.getAssignedSkillIds.queryFilter({ sessionId }))
+            await queryClient.cancelQueries(trpc.skillChecks.getSessionSkillIds.queryFilter({ sessionId }))
 
-            const previousData = queryClient.getQueryData(trpc.skillCheckSessions.getAssignedSkillIds.queryKey({ sessionId }))
-            queryClient.setQueryData(trpc.skillCheckSessions.getAssignedSkillIds.queryKey({ sessionId }), (old = []) => 
+            const previousData = queryClient.getQueryData(trpc.skillChecks.getSessionSkillIds.queryKey({ sessionId }))
+            queryClient.setQueryData(trpc.skillChecks.getSessionSkillIds.queryKey({ sessionId }), (old = []) => 
                 [...old.filter(skillId => !removals.includes(skillId)), ...additions ]
             )
             return { previousData }
         },
         onError(error, _data, context) {
-            queryClient.setQueryData(trpc.skillCheckSessions.getAssignedSkillIds.queryKey({ sessionId }), context?.previousData)
+            queryClient.setQueryData(trpc.skillChecks.getSessionSkillIds.queryKey({ sessionId }), context?.previousData)
             toast({
                 title: 'Error updating skills',
                 description: error.message,
@@ -65,7 +65,7 @@ export default function CompetencyRecorder_Session_Skills_PageContent({ sessionI
             })
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.skillCheckSessions.getAssignedSkillIds.queryFilter({ sessionId }))
+            queryClient.invalidateQueries(trpc.skillChecks.getSessionSkillIds.queryFilter({ sessionId }))
         }
     }))
 

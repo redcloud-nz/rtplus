@@ -7,15 +7,17 @@
 import { createContext, useContext } from 'react'
 
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
+import { TeamData } from '@/lib/schemas/team'
 
+type UseSessionReturn = SkillCheckSessionData & { team: TeamData }
 
-const SessionContext = createContext<SkillCheckSessionData | null>(null)
+const SessionContext = createContext<UseSessionReturn | null>(null)
 
-export function SessionProvider({ children, value }: { children: React.ReactNode, value: SkillCheckSessionData }) {
+export function SessionProvider({ children, value }: { children: React.ReactNode, value: UseSessionReturn }) {
     return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>
 }
 
-export function useSession(): SkillCheckSessionData {
+export function useSession(): UseSessionReturn {
     const session = useContext(SessionContext)
     if (!session) {
         throw new Error('useSession must be used within a SessionProvider')

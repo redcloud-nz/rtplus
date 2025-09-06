@@ -20,7 +20,7 @@ import { useTRPC } from '@/trpc/client'
 export function SkillCheckSession_Details_Card({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
 
-    const { data: session } = useSuspenseQuery(trpc.skillCheckSessions.getSession.queryOptions({ sessionId }))
+    const { data: session } = useSuspenseQuery(trpc.skillChecks.getSession.queryOptions({ sessionId }))
     
     return <Card>
         <CardHeader>

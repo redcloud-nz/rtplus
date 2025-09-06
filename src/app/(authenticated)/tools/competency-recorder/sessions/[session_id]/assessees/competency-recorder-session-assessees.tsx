@@ -26,7 +26,7 @@ export default function CompetencyRecorder_Session_Assessees_PageContents({ sess
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const { data: assignedAssessees } = useSuspenseQuery(trpc.skillCheckSessions.getAssignedAssessees.queryOptions({ sessionId}))
+    const { data: assignedAssessees } = useSuspenseQuery(trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId}))
 
     const [selectedAssessees, setSelectedAssessees] = useState<string[]>(assignedAssessees.map(a => a.personId))
     const [changes, setChanges] = useState<{ added: string[], removed: string[] }>({ added: [], removed: [] })
@@ -36,23 +36,23 @@ export default function CompetencyRecorder_Session_Assessees_PageContents({ sess
         setChanges({ added: [], removed: [] })
     }
 
-    const mutation = useMutation(trpc.skillCheckSessions.updateAssessees.mutationOptions({
+    const mutation = useMutation(trpc.skillChecks.updateSessionAssessees.mutationOptions({
         async onMutate({ additions, removals }) {
             // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-            await queryClient.cancelQueries(trpc.skillCheckSessions.getAssignedAssessees.queryFilter({ sessionId }))
+            await queryClient.cancelQueries(trpc.skillChecks.getSessionAssessees.queryFilter({ sessionId }))
 
             // Snapshot the previous value
-            const previousData = queryClient.getQueryData(trpc.skillCheckSessions.getAssignedAssessees.queryKey({ sessionId }))
+            const previousData = queryClient.getQueryData(trpc.skillChecks.getSessionAssessees.queryKey({ sessionId }))
 
             // Optimistically update to the new value
-            queryClient.setQueryData(trpc.skillCheckSessions.getAssignedAssessees.queryKey({ sessionId }), (old = []) => 
+            queryClient.setQueryData(trpc.skillChecks.getSessionAssessees.queryKey({ sessionId }), (old = []) => 
                 [...old.filter(a => !removals.includes(a.personId)), ...additions.map(personId => ({ personId, name: 'Loading...' } as { personId: string, name: string })) ]
             )
             return { previousData }
         },
         onError(error, _data, context) {
             // Revert to the previous value
-            queryClient.setQueryData(trpc.skillCheckSessions.getAssignedAssessees.queryKey({ sessionId }), context?.previousData)
+            queryClient.setQueryData(trpc.skillChecks.getSessionAssessees.queryKey({ sessionId }), context?.previousData)
             toast({
                 title: "Error updating assessees",
                 description: error.message,
@@ -66,7 +66,7 @@ export default function CompetencyRecorder_Session_Assessees_PageContents({ sess
             })
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.skillCheckSessions.getAssignedAssessees.queryFilter({ sessionId }))
+            queryClient.invalidateQueries(trpc.skillChecks.getSessionAssessees.queryFilter({ sessionId }))
         }
     }))
 

@@ -41,7 +41,7 @@ import { useTRPC } from '@/trpc/client'
 export function Team_SkillCheckSession_Details_Card({ sessionId, team }: { sessionId: string, team: TeamData }) {
     const trpc = useTRPC()
 
-    const { data: session } = useSuspenseQuery(trpc.activeTeam.skillCheckSessions.getSession.queryOptions({ sessionId }))
+    const { data: session } = useSuspenseQuery(trpc.skillChecks.getSession.queryOptions({ sessionId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
     
@@ -99,7 +99,7 @@ export function Team_SkillCheckSession_Details_Card({ sessionId, team }: { sessi
     
 }
 
-const formSchema = skillCheckSessionSchema.pick({ sessionId: true, name: true, date: true })
+const formSchema = skillCheckSessionSchema.pick({ sessionId: true, teamId: true, name: true, date: true })
 type FormData = z.infer<typeof formSchema>
 
 function UpdateSession_Form({ onClose, session }: { onClose: () => void, session: SkillCheckSessionData }) {
@@ -107,21 +107,22 @@ function UpdateSession_Form({ onClose, session }: { onClose: () => void, session
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const queryKey = trpc.activeTeam.skillCheckSessions.getSession.queryKey({ sessionId: session.sessionId })
+    const queryKey = trpc.skillChecks.getSession.queryKey({ sessionId: session.sessionId })
 
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             sessionId: session.sessionId,
+            teamId: session.teamId,
             name: session.name,
             date: session.date,
         }
     })
 
-    const mutation = useMutation(trpc.activeTeam.skillCheckSessions.updateSession.mutationOptions({
+    const mutation = useMutation(trpc.skillChecks.updateSession.mutationOptions({
         async onMutate({ sessionId, ...formData }) {
 
-            await queryClient.cancelQueries(trpc.activeTeam.skillCheckSessions.getSession.queryFilter({ sessionId }))
+            await queryClient.cancelQueries(trpc.skillChecks.getSession.queryFilter({ sessionId }))
 
             const previousData = queryClient.getQueryData(queryKey)
 
@@ -147,10 +148,10 @@ function UpdateSession_Form({ onClose, session }: { onClose: () => void, session
                 description: `The session ${session.name} has been updated successfully.`,
             })
 
-            queryClient.invalidateQueries(trpc.activeTeam.skillCheckSessions.getTeamSessions.queryFilter())
+            queryClient.invalidateQueries(trpc.skillChecks.getTeamSessions.queryFilter({ teamId: session.teamId }))
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.activeTeam.skillCheckSessions.getSession.queryFilter({ sessionId: session.sessionId }))
+            queryClient.invalidateQueries(trpc.skillChecks.getSession.queryFilter({ sessionId: session.sessionId }))
         }
     }))
 
@@ -207,13 +208,14 @@ function DeleteSessionDialog({ session, team }: { session: SkillCheckSessionData
     const form = useForm({
         resolver: zodResolver(z.object({
             sessionId: zodNanoId8,
+            teamId: zodNanoId8,
             sessionName: z.literal(session.name)
         })),
         mode: 'onSubmit',
-        defaultValues: { sessionId: session.sessionId, sessionName: "" }
+        defaultValues: { sessionId: session.sessionId, teamId: team.teamId, sessionName: "" }
     })
 
-    const mutation = useMutation(trpc.activeTeam.skillCheckSessions.deleteSession.mutationOptions({
+    const mutation = useMutation(trpc.skillChecks.deleteSession.mutationOptions({
         onError(error) {
             toast({
                 title: 'Error deleting session',
@@ -228,10 +230,10 @@ function DeleteSessionDialog({ session, team }: { session: SkillCheckSessionData
                 description: <>The session <ObjectName>{result.name}</ObjectName> has been deleted.</>,
             })
             setOpen(false)
-            router.push(Paths.team(team!).competencies.sessions.href)
+            router.push(Paths.team(team).competencies.sessions.href)
 
-            queryClient.invalidateQueries(trpc.activeTeam.skillCheckSessions.getTeamSessions.queryFilter())
-            queryClient.setQueryData(trpc.activeTeam.skillCheckSessions.getSession.queryKey({ sessionId: session.sessionId }), undefined)
+            queryClient.invalidateQueries(trpc.skillChecks.getTeamSessions.queryFilter({ teamId: team.teamId }))
+            queryClient.setQueryData(trpc.skillChecks.getSession.queryKey({ sessionId: session.sessionId }), undefined)
         },
     }))
 
