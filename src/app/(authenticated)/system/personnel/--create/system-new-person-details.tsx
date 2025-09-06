@@ -78,7 +78,7 @@ export function System_NewPerson_Details_Card() {
         </CardHeader>
         <CardContent>
             <FormProvider {...form}>
-                <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
+                <Form onSubmit={form.handleSubmit(formData => mutation.mutate({ teamId: 'RTSYSTEM', ...formData }))}>
                     <ToruGrid mode="form">
                         <FormField
                             control={form.control}

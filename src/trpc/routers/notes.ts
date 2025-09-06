@@ -142,9 +142,6 @@ export const notesRouter = createTRPCRouter({
      * @returns An array of team notes.
      */
     getTeamNotes: teamProcedure
-        .input(z.object({
-            teamId: zodNanoId8,
-        }))
         .output(z.array(noteSchema))
         .query(async ({ input, ctx }) => {
             

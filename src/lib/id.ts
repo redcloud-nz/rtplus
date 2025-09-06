@@ -59,16 +59,3 @@ export function validateNanoid16(id: string) {
 }
 
 
-export const SYSTEM_TEAM_ID = 'RTSYSTEM'
-
-export function isSystemTeam(teamId: string) {
-    return teamId === SYSTEM_TEAM_ID
-}
-
-export function isSandboxTeam(teamId: string) {
-    return teamId.startsWith('SANDBOX')
-}
-
-export function isSpecialTeam(teamId: string) {
-    return isSystemTeam(teamId) || isSandboxTeam(teamId)
-}

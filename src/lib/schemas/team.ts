@@ -9,6 +9,23 @@ import { Team as TeamRecord } from '@prisma/client'
 
 import { zodColor, zodNanoId8, zodSlug } from '../validation'
 
+export const zodTeamId = z.string().length(8).regex(/^[a-zA-Z0-9]+$/, "8 character Team ID expected.").brand<'TeamId'>()
+export type TeamId = z.infer<typeof zodTeamId>
+
+export const SYSTEM_TEAM_ID = zodTeamId.parse('RTSYSTEM')
+
+export function isSystemTeam(teamId: string) {
+    return teamId === SYSTEM_TEAM_ID
+}
+
+export function isSandboxTeam(teamId: string) {
+    return teamId.startsWith('SANDBOX')
+}
+
+export function isSpecialTeam(teamId: string) {
+    return isSystemTeam(teamId) || isSandboxTeam(teamId)
+}
+
 export const teamSchema = z.object({
     teamId: zodNanoId8,
     name: z.string().min(5).max(100),

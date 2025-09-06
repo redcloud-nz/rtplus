@@ -225,12 +225,9 @@ export const skillChecksRouter = createTRPCRouter({
      * @throws TRPCError(FORBIDDEN) if the user is not a team admin.
      */
     createIndependentSkillCheck: teamAdminProcedure
-        .input(skillCheckSchema.omit({ assessorId: true, sessionId: true, timestamp: true }).extend({ teamId: zodNanoId8 }))
+        .input(skillCheckSchema.omit({ assessorId: true, sessionId: true, timestamp: true }))
         .output(skillCheckSchema)
         .mutation(async ({ ctx, input }) => {
-
-            const team = await fetchTeamByIdCached(input.teamId)
-            if(!team || !ctx.hasTeamAdmin(team)) throw new TRPCError({ code: 'FORBIDDEN', message: Messages.teamForbidden(input.teamId) })
 
             const assessorId = ctx.auth.personId
 
@@ -242,7 +239,7 @@ export const skillChecksRouter = createTRPCRouter({
                     notes: input.notes,
                     date: input.date,
                     checkStatus: 'Complete',
-                    team: { connect: { id: team.id } },
+                    team: { connect: { id: input.teamId } },
 
                     skill: { connect: { id: input.skillId } },
                     assessee: { connect: { id: input.assesseeId } },
@@ -261,7 +258,7 @@ export const skillChecksRouter = createTRPCRouter({
      * @throws TRPCError(BAD_REQUEST) if the session ID is not provided or if the session already exists.
      */
     createSession: teamAdminProcedure
-        .input(skillCheckSessionSchema.pick({ sessionId: true, name: true, date: true }).extend({ teamId: zodNanoId8 }))
+        .input(skillCheckSessionSchema.pick({ sessionId: true, name: true, date: true }))
         .output(skillCheckSessionSchema)
         .mutation(async ({ ctx, input: { sessionId, teamId, ...data } }) => {
             const team = await fetchTeamByIdCached(teamId)
@@ -308,10 +305,7 @@ export const skillChecksRouter = createTRPCRouter({
      * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist in the active team.
      */
     deleteSession: teamAdminProcedure
-        .input(z.object({
-            sessionId: zodNanoId8,
-            teamId: zodNanoId8
-        }))
+        .input(z.object({ sessionId: zodNanoId8 }))
         .output(skillCheckSessionSchema)
         .mutation(async ({ ctx, input }) => {
             const session = await ctx.prisma.skillCheckSession.findUnique({
@@ -320,7 +314,7 @@ export const skillChecksRouter = createTRPCRouter({
             if(!session) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.sessionNotFound(input.sessionId) })
 
             const deleted = await ctx.prisma.skillCheckSession.delete({
-                where: { id: input.sessionId },
+                where: { id: input.sessionId, teamId: input.teamId },
                 include: {
                     _count: {
                         select: { skills: true, assessees: true, assessors: true, checks: true }
@@ -580,13 +574,11 @@ export const skillChecksRouter = createTRPCRouter({
      * @param input.assesseeIds Optional array of assessee IDs to filter checks by. If not specified, checks for all active members of the team will be returned.
      * @returns An array of skill check data with the specified filters applied.
      */
-
     getSkillChecks: teamProcedure
         .input(z.object({
             assesseeIds: z.array(zodNanoId8).optional(),
             assessorIds: z.array(zodNanoId8).optional(),
             skillIds: z.array(zodNanoId8).optional(),
-            teamId: zodNanoId8,
         }))
         .output(z.array(skillCheckSchema.extend({ assessee: personSchema, assessor: personSchema, skill: skillSchema })))
         .query(async ({ ctx, input }) => {
@@ -637,13 +629,8 @@ export const skillChecksRouter = createTRPCRouter({
      * @throws TRPCError(FORBIDDEN) if the user does not have access to the team.
      */
     getTeamSessions: teamProcedure
-        .input(z.object({
-            teamId: zodNanoId8
-        }))
         .output(z.array(skillCheckSessionSchema))
         .query(async ({ ctx, input }) => {
-            const team = await fetchTeamByIdCached(input.teamId)
-            if(!team || !ctx.hasTeamAccess(team)) throw new TRPCError({ code: 'FORBIDDEN', message: Messages.teamForbidden(input.teamId) })
 
             const sessions = await ctx.prisma.skillCheckSession.findMany({
                 where: {
@@ -967,7 +954,7 @@ export const skillChecksRouter = createTRPCRouter({
      * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist in the active team.
      */
     updateSession: teamAdminProcedure
-        .input(skillCheckSessionSchema.pick({ sessionId: true, name: true, date: true }).extend({ teamId: zodNanoId8 }))
+        .input(skillCheckSessionSchema.pick({ sessionId: true, name: true, date: true }))
         .output(skillCheckSessionSchema)
         .mutation(async ({ ctx, input: { sessionId, teamId, ...update } }) => {
             const session = await ctx.prisma.skillCheckSession.findUnique({

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import { pickBy } from 'remeda'
+import { pick, pickBy, pipe } from 'remeda'
 import { z } from 'zod'
 
 import { Person as PersonRecord, Team as TeamRecord } from '@prisma/client'
@@ -17,7 +17,6 @@ import { zodRecordStatus, zodNanoId8 } from '@/lib/validation'
 import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, teamAdminProcedure } from '../init'
 import { Messages } from '../messages'
 import { FieldConflictError } from '../types'
-import { getActiveTeam } from './teams'
 
 
 
@@ -41,8 +40,7 @@ export const personnelRouter = createTRPCRouter({
 
             // Set the owning team (if applicable)
             if(!ctx.isSystemAdmin) {
-                const team = await getActiveTeam(ctx)
-                input.owningTeamId = team.id
+                input.owningTeamId = ctx.team.id
             }
 
             if(input.type == 'Sandbox') {
@@ -171,35 +169,35 @@ export const personnelRouter = createTRPCRouter({
     updatePerson: teamAdminProcedure
         .input(personSchema.omit({ type: true }))
         .output(personSchema)
-        .mutation(async ({ ctx, input: { personId, ...update } }) => {
+        .mutation(async ({ ctx, input }) => {
 
-            const person = await getPersonById(ctx, personId)
-            if(person == null) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(personId) })
+            const person = await getPersonById(ctx, input.personId)
+            if(person == null) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(input.personId) })
 
             if(person.owningTeam) {
-                if(!ctx.hasTeamAdmin(person.owningTeam)) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to update Person(${personId}).` })
+                if(!ctx.hasTeamAdmin(person.owningTeam)) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to update Person(${input.personId}).` })
             } else {
-                if(!ctx.isSystemAdmin) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to update Person(${personId}).` })
+                if(!ctx.isSystemAdmin) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to update Person(${input.personId}).` })
             }
 
             if(person.type == 'Sandbox') {
                 // Sandbox personnel have fake email addresses derived from their name
-                update.email = sandboxEmailOf(update.name)
+                input.email = sandboxEmailOf(input.name)
             }
 
-            if(update.email != person.email) {
+            if(input.email != person.email) {
                 // Check if a person with the new email already exists
-                const emailConflict = await ctx.prisma.person.findFirst({ where: { email: update.email } })
+                const emailConflict = await ctx.prisma.person.findFirst({ where: { email: input.email } })
                 if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists.', cause: new FieldConflictError('email') })
             }
             
             // Pick only the fields that have changed
-            const changedFields = pickBy(update, (value, key) => value != person[key])
+            const changedFields = pipe(input, pick(['name', 'email', 'owningTeamId', 'status']), pickBy((value, key) => value != person[key]))
 
             const updated = await ctx.prisma.person.update({
-                where: { id: personId },
+                where: { id: input.personId },
                 data: {
-                    ...update,
+                    ...input,
                     changeLogs: {
                         create: {
                             id: nanoId16(),

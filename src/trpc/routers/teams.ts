@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import { pickBy } from 'remeda'
+import { pick, pickBy, pipe } from 'remeda'
 import { z } from 'zod'
 
 import { Team as TeamRecord } from '@prisma/client'
@@ -166,37 +166,36 @@ export const teamsRouter = createTRPCRouter({
     updateTeam: teamAdminProcedure
         .input(teamSchema.omit({ type: true }))
         .output(teamSchema)
-        .mutation(async ({ ctx, input: { teamId, ...update } }) => {
-
-            const team = await getTeamById(ctx, teamId)
+        .mutation(async ({ ctx, input }) => {
+            const { team } = ctx
             
-            if(update.name != team.name) {
-                const nameConflict = await ctx.prisma.team.findFirst({ where: { name: update.name } })
+            if(input.name != team.name) {
+                const nameConflict = await ctx.prisma.team.findFirst({ where: { name: input.name } })
                 if(nameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('name') })
             }
 
-            if(update.shortName != team.shortName) {
-                const shortNameConflict = await ctx.prisma.team.findFirst({ where: { shortName: update.shortName } })
+            if(input.shortName != team.shortName) {
+                const shortNameConflict = await ctx.prisma.team.findFirst({ where: { shortName: input.shortName } })
                 if(shortNameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('shortName') })
             }
 
-            if(update.slug != team.slug) {
-                const slugConflict = await ctx.prisma.team.findFirst({ where: { slug: update.slug } })
+            if(input.slug != team.slug) {
+                const slugConflict = await ctx.prisma.team.findFirst({ where: { slug: input.slug } })
                 if(slugConflict) throw new TRPCError({ code: 'CONFLICT', cause:new FieldConflictError('slug') })
             }
 
-            if(update.name != team.name || update.slug != team.slug) {
+            if(input.name != team.name || input.slug != team.slug) {
                 // Update the Clerk organization name and slug if they have changed
                 await ctx.clerkClient.organizations.updateOrganization(team.clerkOrgId, {
-                    name: update.name,
-                    slug: update.slug,
+                    name: input.name,
+                    slug: input.slug,
                     publicMetadata: { teamId: team.id, type: team.type }
                 })
-                logger.info(`Updated Clerk organization for team ${team.id} with new name '${update.name}' and slug '${update.slug}'.`)
+                logger.info(`Updated Clerk organization for team ${team.id} with new name '${input.name}' and slug '${input.slug}'.`)
             }
 
             // Pick only the fields that have changed
-            const changedFields = pickBy(update, (value, key) => value != team[key])
+            const changedFields = pipe(input, pick(['color', 'name', 'status', 'slug', 'shortName']), pickBy((value, key) => value != team[key]))
 
             if(Object.keys(changedFields).length > 0) {
                 const updated = await ctx.prisma.team.update({

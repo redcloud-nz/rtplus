@@ -33,6 +33,7 @@ import { PersonData, personSchema } from '@/lib/schemas/person'
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
+import { SYSTEM_TEAM_ID } from '@/lib/schemas/team'
 
 
 
@@ -145,7 +146,7 @@ function UpdatePersonForm({ onClose, person }: { onClose: () => void, person: Pe
     }))
 
     return <FormProvider {...form}>
-        <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
+        <Form onSubmit={form.handleSubmit(formData => mutation.mutate({ teamId: 'RTSYSTEM', ...formData }))}>
             <ToruGrid mode="form">
                 <FormField
                     control={form.control}
@@ -278,7 +279,7 @@ function DeletePersonDialog({ person }: { person: PersonData }) {
             </DialogHeader>
             <DialogBody>
                 <FormProvider {...form}>
-                    <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
+                    <Form onSubmit={form.handleSubmit(formData => mutation.mutate({ teamId: SYSTEM_TEAM_ID, ...formData }))}>
                         <FormItem>
                             <FormLabel>Person</FormLabel>
                             <FormControl>

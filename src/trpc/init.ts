@@ -5,12 +5,18 @@
 
 import { cache } from 'react'
 import superjson from 'superjson'
+import z from 'zod'
 
 import { auth, createClerkClient } from '@clerk/nextjs/server'
 import { type Team as TeamRecord } from '@prisma/client'
 import {  initTRPC, TRPCError } from '@trpc/server'
 
+import { zodNanoId8 } from '@/lib/validation'
+import { fetchTeamByIdCached } from '@/server/data/team'
 import prisma from '@/server/prisma'
+
+import { Messages } from './messages'
+
 
 interface Meta {
     authRequired?: boolean
@@ -140,36 +146,54 @@ export const authenticatedProcedure = t.procedure.meta({ authRequired: true }).u
     })
 })
 
-export type AuthenticatedTeamContext = AuthenticatedContext & { auth: RTPlusAuthWithActiveTeam }
+export type AuthenticatedTeamContext = AuthenticatedContext & { auth: RTPlusAuthWithActiveTeam, team: TeamRecord }
 
-export const teamProcedure = t.procedure.meta({ authRequired: true, activeTeamRequired: true }).use((opts) => {
-    const { auth } = opts.ctx
+export const teamProcedure = t.procedure
+    .meta({ authRequired: true, activeTeamRequired: true })
+    .input(z.object({ teamId: zodNanoId8 }))
+    .use(async (opts) => {
+        const { auth } = opts.ctx
 
-    if(auth == null) throw new TRPCError({ code: 'UNAUTHORIZED', message: "No active session." })
-    if(auth.activeTeam == null) throw new TRPCError({ code: 'FORBIDDEN', message: "No active team." })
+        if(auth == null) throw new TRPCError({ code: 'UNAUTHORIZED', message: "No active session." })
+        if(auth.activeTeam == null) throw new TRPCError({ code: 'FORBIDDEN', message: "No active team." })
 
-    return opts.next({
-        ctx: {
-            ...createAuthenticatedContext(opts.ctx),
-            auth: { ...auth, activeTeam: auth.activeTeam! } satisfies RTPlusAuthWithActiveTeam,
-        } satisfies AuthenticatedTeamContext,
+        const authenticatedContext = createAuthenticatedContext(opts.ctx)
+
+        const team = await fetchTeamByIdCached(opts.input.teamId)
+        if(!team || !authenticatedContext.hasTeamAccess(team)) throw new TRPCError({ code: 'FORBIDDEN', message: Messages.teamForbidden(opts.input.teamId) })
+
+        return opts.next({
+            ctx: {
+                ...authenticatedContext,
+                auth: { ...auth, activeTeam: auth.activeTeam! } satisfies RTPlusAuthWithActiveTeam,
+                team,
+            } satisfies AuthenticatedTeamContext,
+        })
     })
-})
 
-export const teamAdminProcedure = t.procedure.meta({ authRequired: true, activeTeamRequired: true, teamAdminRequired: true }).use((opts) => {
-    const { auth } = opts.ctx
+export const teamAdminProcedure = t.procedure
+    .meta({ authRequired: true, activeTeamRequired: true, teamAdminRequired: true })
+    .input(z.object({ teamId: zodNanoId8 }))
+    .use(async (opts) => {
+        const { auth } = opts.ctx
 
-    if(auth == null) throw new TRPCError({ code: 'UNAUTHORIZED', message: "No active session." })
-    if(auth.activeTeam == null) throw new TRPCError({ code: 'FORBIDDEN', message: "No active team." })
-    if(auth.activeTeam.role !== 'org:admin') throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team admin" })
+        if(auth == null) throw new TRPCError({ code: 'UNAUTHORIZED', message: "No active session." })
+        if(auth.activeTeam == null) throw new TRPCError({ code: 'FORBIDDEN', message: "No active team." })
+        if(auth.activeTeam.role !== 'org:admin') throw new TRPCError({ code: 'FORBIDDEN', message: "Not a team admin" })
 
-    return opts.next({
-        ctx: {
-            ...createAuthenticatedContext(opts.ctx),
-            auth: { ...auth, activeTeam: auth.activeTeam! } satisfies RTPlusAuthWithActiveTeam,
-        } satisfies AuthenticatedTeamContext,
+        const authenticatedContext = createAuthenticatedContext(opts.ctx)
+
+        const team = await fetchTeamByIdCached(opts.input.teamId)
+        if(!team || !authenticatedContext.hasTeamAdmin(team)) throw new TRPCError({ code: 'FORBIDDEN', message: Messages.teamForbidden(opts.input.teamId) })
+
+        return opts.next({
+            ctx: {
+                ...authenticatedContext,
+                auth: { ...auth, activeTeam: auth.activeTeam! } satisfies RTPlusAuthWithActiveTeam,
+                team,
+            } satisfies AuthenticatedTeamContext,
+        })
     })
-})
 
 
 export const systemAdminProcedure = t.procedure.meta({ authRequired: true, systemAdminRequired: true }).use((opts) => {

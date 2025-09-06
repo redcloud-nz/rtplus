@@ -10,7 +10,6 @@ import { TRPCError } from '@trpc/server'
 import { teamInvitationSchema, toTeamInvitationData } from '@/lib/schemas/invitation'
 import { toUserData, userSchema } from '@/lib/schemas/user'
 import { zodNanoId8 } from '@/lib/validation'
-import { fetchTeamByIdCached } from '@/server/data/team'
 
 import { createTRPCRouter, teamAdminProcedure } from '@/trpc/init'
 import { Messages } from '@/trpc/messages'
@@ -37,13 +36,10 @@ export const usersRouter = createTRPCRouter({
     addTeamUser: teamAdminProcedure
         .input(z.object({
             personId: zodNanoId8,
-            teamId: zodNanoId8,
             role: z.enum(['org:admin', 'org:member']),
         }))
         .output(userSchema)
         .mutation(async ({ ctx, input }) => {
-            const team = await fetchTeamByIdCached(input.teamId)
-            if(!team || !ctx.hasTeamAdmin(team)) throw new TRPCError({ code: 'FORBIDDEN', message: Messages.teamForbidden(input.teamId) })
 
             const person = await getPersonById(ctx, input.personId)
             if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(input.personId) })
@@ -53,7 +49,7 @@ export const usersRouter = createTRPCRouter({
 
             // Create the membership
             const membership = await ctx.clerkClient.organizations.createOrganizationMembership({
-                organizationId: team.clerkOrgId,
+                organizationId: ctx.team.clerkOrgId,
                 userId: person.clerkUserId,
                 role: input.role,
             })
@@ -73,22 +69,20 @@ export const usersRouter = createTRPCRouter({
      * @throws TRPCError(FORBIDDEN) If the user is not an admin of the team.
      */
     createTeamInvitation: teamAdminProcedure
-        .input(teamInvitationSchema.pick({ email: true, role: true }).extend({ teamId: zodNanoId8 }))
+        .input(teamInvitationSchema.pick({ email: true, role: true }))
         .output(teamInvitationSchema)
         .mutation(async ({ ctx, input }) => {
-            const team = await fetchTeamByIdCached(input.teamId)
-            if(!team || !ctx.hasTeamAdmin(team)) throw new TRPCError({ code: 'FORBIDDEN', message: Messages.teamForbidden(input.teamId) })
 
             // See if there is a person with this email
             const person = await ctx.prisma.person.findUnique({ where: { email: input.email }})
 
-            const { data: existingInvitations } = await ctx.clerkClient.organizations.getOrganizationInvitationList({ organizationId: team.clerkOrgId, status: ['pending'] })
+            const { data: existingInvitations } = await ctx.clerkClient.organizations.getOrganizationInvitationList({ organizationId: ctx.team.clerkOrgId, status: ['pending'] })
             if (existingInvitations.some(inv => inv.emailAddress === input.email)) {
                 throw new TRPCError({ code: 'BAD_REQUEST', message: `An invitation for ${input.email} already exists.` })
             }
 
             const orgInvitation = await ctx.clerkClient.organizations.createOrganizationInvitation({
-                organizationId: team.clerkOrgId,
+                organizationId: ctx.team.clerkOrgId,
                 inviterUserId: ctx.auth.userId,
                 emailAddress: input.email,
                 role: input.role,
@@ -109,16 +103,13 @@ export const usersRouter = createTRPCRouter({
      */
     getTeamInvitations: teamAdminProcedure
         .input(z.object({
-            teamId: zodNanoId8,
             status: z.array(z.enum(['pending', 'accepted', 'revoked', 'expired'])).min(1).max(4).optional().default(['pending'])
         }))
         .output(z.array(teamInvitationSchema))
         .query(async ({ ctx, input }) => {
-            const team = await fetchTeamByIdCached(input.teamId)
-            if(!team || !ctx.hasTeamAdmin(team)) throw new TRPCError({ code: 'FORBIDDEN', message: Messages.teamForbidden(input.teamId) })
 
             const { data: orgInvitations } = await ctx.clerkClient.organizations.getOrganizationInvitationList({ 
-                organizationId: team.clerkOrgId, limit: 100, status: input.status 
+                organizationId: ctx.team.clerkOrgId, limit: 100, status: input.status 
             })
 
             return orgInvitations.map(toTeamInvitationData)
@@ -136,15 +127,8 @@ export const usersRouter = createTRPCRouter({
      * @throws TRPCError(FORBIDDEN) If the user is not an admin of the team.
      */
     getUsers: teamAdminProcedure
-        .input(z.object({
-            teamId: zodNanoId8
-        }))
         .output(z.array(userSchema))
-        .query(async ({ ctx, input }) => {
-            const team = await fetchTeamByIdCached(input.teamId)
-            if (!team) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.teamNotFound(input.teamId) })
-
-            if(!ctx.hasTeamAdmin(team)) throw new TRPCError({ code: 'FORBIDDEN', message: Messages.teamForbidden(input.teamId) })
+        .query(async ({ ctx }) => {
 
             const { data: orgMemberships } = await ctx.clerkClient.organizations.getOrganizationMembershipList({ organizationId: ctx.auth.activeTeam.orgId, limit: 100 })
             const userIds = orgMemberships.map(m => m.publicUserData!.userId)
@@ -173,16 +157,9 @@ export const usersRouter = createTRPCRouter({
      */
     removeTeamUser: teamAdminProcedure
         .meta({ teamAdminRequired: true })
-        .input(z.object({
-            teamId: zodNanoId8,
-            personId: zodNanoId8,
-        }))
+        .input(z.object({ personId: zodNanoId8 }))
         .output(userSchema)
         .mutation(async ({ ctx, input }) => {
-            const team = await fetchTeamByIdCached(input.teamId)
-            if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.teamNotFound(input.teamId) })
-
-            if(!ctx.hasTeamAdmin(team)) throw new TRPCError({ code: 'FORBIDDEN', message: Messages.teamForbidden(input.teamId) })
 
             const person = await getPersonById(ctx, input.personId)
             if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(input.personId) })
@@ -192,7 +169,7 @@ export const usersRouter = createTRPCRouter({
 
             // Revoke the membership
             const membership = await ctx.clerkClient.organizations.deleteOrganizationMembership({
-                organizationId: team.clerkOrgId,
+                organizationId: ctx.team.clerkOrgId,
                 userId: person.clerkUserId,
             })
 
@@ -211,16 +188,11 @@ export const usersRouter = createTRPCRouter({
      * @throws TRPCError(NOT_FOUND) If the invitation is not found.
      */
     resendTeamInvitation: teamAdminProcedure
-        .input(z.object({
-            teamId: zodNanoId8,
-            invitationId: z.string()
-        }))
+        .input(z.object({ invitationId: z.string() }))
         .output(teamInvitationSchema)
         .mutation(async ({ ctx, input }) => {
-            const team = await fetchTeamByIdCached(input.teamId)
-            if(!team || !ctx.hasTeamAdmin(team)) throw new TRPCError({ code: 'FORBIDDEN', message: Messages.teamForbidden(input.teamId) })
 
-            const orgInvitation = await ctx.clerkClient.organizations.getOrganizationInvitation({ organizationId: team.clerkOrgId, invitationId: input.invitationId })
+            const orgInvitation = await ctx.clerkClient.organizations.getOrganizationInvitation({ organizationId: ctx.team.clerkOrgId, invitationId: input.invitationId })
             if (!orgInvitation) {
                 throw new TRPCError({ code: 'NOT_FOUND', message: `Invitation with ID ${input.invitationId} not found.` })
             }
@@ -254,14 +226,9 @@ export const usersRouter = createTRPCRouter({
      * @throws TRPCError(NOT_FOUND) If the invitation is not found.
      */
     revokeInvitation: teamAdminProcedure
-        .input(z.object({
-            teamId: zodNanoId8,
-            invitationId: z.string()
-        }))
+        .input(z.object({ invitationId: z.string() }))
         .output(teamInvitationSchema)
         .mutation(async ({ ctx, input }) => {
-            const team = await fetchTeamByIdCached(input.teamId)
-            if(!team || !ctx.hasTeamAdmin(team)) throw new TRPCError({ code: 'FORBIDDEN', message: Messages.teamForbidden(input.teamId) })
 
             const orgInvitation = await ctx.clerkClient.organizations.getOrganizationInvitation({ organizationId: ctx.auth.activeTeam.orgId, invitationId: input.invitationId })
             if (!orgInvitation) {
@@ -289,14 +256,11 @@ export const usersRouter = createTRPCRouter({
     updateTeamUser: teamAdminProcedure
         .meta({ teamAdminRequired: true })
         .input(z.object({
-            teamId: zodNanoId8,
             personId: zodNanoId8,
             role: z.enum(['org:admin', 'org:member']),
         }))
         .output(userSchema)
         .mutation(async ({ ctx, input }) => {
-            const team = await fetchTeamByIdCached(input.teamId)
-            if(!team || !ctx.hasTeamAdmin(team)) throw new TRPCError({ code: 'FORBIDDEN', message: Messages.teamForbidden(input.teamId) })
 
             const person = await getPersonById(ctx, input.personId)
             if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(input.personId) })
@@ -305,7 +269,7 @@ export const usersRouter = createTRPCRouter({
             const user = await ctx.clerkClient.users.getUser(person.clerkUserId)
 
             const orgMembership = await ctx.clerkClient.organizations.updateOrganizationMembership({
-                organizationId: team.clerkOrgId,
+                organizationId: ctx.team.clerkOrgId,
                 userId: person.clerkUserId,
                 role: input.role,
             })

@@ -15,7 +15,7 @@ import { Show } from '@/components/show'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 
-import { isSandboxTeam, isSpecialTeam, isSystemTeam} from '@/lib/id'
+import { isSandboxTeam, isSpecialTeam, isSystemTeam} from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 
 export function TeamSwitcher() {

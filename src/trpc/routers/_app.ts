@@ -6,7 +6,6 @@
 import { createTRPCRouter } from '../init'
 
 import { currentUserRouter } from './current-user'
-import { invitationsRouter } from './invitations'
 import { notesRouter } from './notes'
 import { personnelRouter } from './personnel'
 import { skillsRouter } from './skills'
@@ -20,7 +19,6 @@ import { usersRouter } from './users'
 export const appRouter = createTRPCRouter({
 
     currentUser: currentUserRouter,
-    invitations: invitationsRouter,
     notes: notesRouter,
     personnel: personnelRouter,
     skills: skillsRouter,
