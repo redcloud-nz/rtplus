@@ -86,6 +86,7 @@ export const usersRouter = createTRPCRouter({
                 inviterUserId: ctx.auth.userId,
                 emailAddress: input.email,
                 role: input.role,
+                redirectUrl: person?.clerkUserId ? process.env.CLERK_SIGN_IN_URL : process.env.CLERK_SIGN_UP_URL,
                 publicMetadata: {
                     personId: person?.id || null,
                 },

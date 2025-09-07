@@ -47,7 +47,12 @@ export const marketing = {
 export const about = {
     label: 'About',
     href: '/about',
-}
+} as const
+
+export const createTeam = {
+    label: 'Create Team',
+    href: '/create-team',
+} as const
 
 export const dashboard = {
     label: 'Dashboard',

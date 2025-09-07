@@ -5,18 +5,26 @@
  */
 'use client'
 
-import { ArrowRight, InfoIcon } from 'lucide-react'
+import { PlusIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { match } from 'ts-pattern'
 
-import { useOrganizationList, useUser } from '@clerk/nextjs'
+import { useAuth, useOrganizationList, useUser } from '@clerk/nextjs'
 import { useQueryClient } from '@tanstack/react-query'
 
+import { PageDescription } from '@/components/app-page'
 import { Show } from '@/components/show'
+import { Alert } from '@/components/ui/alert'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
+import { Link } from '@/components/ui/link'
+import { LoadingSpinner } from '@/components/ui/loading'
+import { Table, TableBody, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
+import { Separator } from '@/components/ui/separator'
 
 import * as Paths from '@/paths'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 
 /**
@@ -30,8 +38,9 @@ export default function SelectTeam_PageContent() {
     const queryClient = useQueryClient()
     const router = useRouter()
 
+    const auth = useAuth()
     const { user } = useUser()
-    const { isLoaded, setActive, userInvitations, userMemberships } = useOrganizationList({
+    const organizationList = useOrganizationList({
         userMemberships: {
             keepPreviousData: true,
             infinite: true
@@ -42,15 +51,12 @@ export default function SelectTeam_PageContent() {
         }
     })
 
-    const memberships = userMemberships.data || []
-    const regularTeams = memberships.filter(membership => membership.organization.publicMetadata.type == 'Normal')
-    const systemTeam = memberships.find(membership => membership.organization.publicMetadata.type == 'System')
-    const sandboxTeams = memberships.filter(membership => membership.organization.publicMetadata.type == 'Sandbox')
+    const memberships = organizationList.userMemberships.data || []
 
-    const invitations = userInvitations.data || []
+    const invitations = organizationList.userInvitations.data || []
 
     async function handleSwitchTeam(organization: typeof memberships[0]['organization']) {
-        setActive?.({ organization: organization.id })
+        organizationList.setActive?.({ organization: organization.id })
 
         queryClient.clear()
 
@@ -62,7 +68,7 @@ export default function SelectTeam_PageContent() {
     }
 
     async function handleSwitchToPersonalAccount() {
-        setActive?.({ organization: null })
+        organizationList.setActive?.({ organization: null })
 
         queryClient.clear()
 
@@ -76,188 +82,172 @@ export default function SelectTeam_PageContent() {
         router.push(Paths.team(invitation.publicOrganizationData.slug!).href)
     }
 
-    return <div className="w-full max-w-md flex flex-col items-center">
-        <h2 className="text-2xl font-bold mb-2">Select Team</h2>
-        <p className="mb-4">Select a team to use:</p>
-        <Show when={isLoaded}>
-            <ul className="w-full space-y-2 mb-8">
-                <AccountItem
-                    imageUrl={user?.imageUrl ?? ""}
-                    name={user?.fullName ?? ""}
-                    onSwitchTeam={handleSwitchToPersonalAccount}
-                />
-                {systemTeam && (
-                    <AccountItem
-                        imageUrl={systemTeam.organization.imageUrl || ""}
-                        name={systemTeam.organization.name}
-                        onSwitchTeam={() => handleSwitchTeam(systemTeam.organization)}
-                    />
-                )}
-            </ul>
-
-            <Show when={regularTeams.length > 0}>
-                <div className="w-full mb-8">
-                    <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-lg font-semibold">Regular Teams</h3>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                    <span className="sr-only">Regular Teams Info</span>
-                                    <InfoIcon/>
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent align="end" className="w-96">
-                                <div className="text-sm text-muted-foreground space-y-2">
-                                     These are the teams that you have been given RT+ access to. You can switch between these to access team specific data.
-                                </div>
-                            </PopoverContent>
-                        </Popover>
-                    </div>
-                    
-                    <ul className="space-y-2">
-                        {regularTeams
-                            ?.sort((a, b) => a.organization.name.localeCompare(b.organization.name))
-                            ?.map((membership) => <AccountItem
-                                key={membership.id}
-                                imageUrl={membership.organization.imageUrl || ""}
-                                name={membership.organization.name}
-                                role={membership.role == 'org:admin' ? 'Admin' : 'Member'}
-                                onSwitchTeam={() => handleSwitchTeam(membership.organization)}
-                            />)
-                        }
-                    </ul>
-                </div>
-            </Show>
-            <Show when={invitations.length > 0}>
-                <div className="w-full mb-8">
-                    <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-lg font-semibold">Invitations</h3>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                    <span className="sr-only">Invitations</span>
-                                    <InfoIcon/>
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent align="end" className="w-96">
-                                <div className="text-sm text-muted-foreground space-y-2">
-                                     There are the teams that you have been invited to join. Accepting an invitation will give you access to RT+ for that team.
-                                </div>
-                            </PopoverContent>
-                        </Popover>
-                    </div>
-                    <ul className="space-y-2">
-                        {invitations
-                            ?.sort((a, b) => a.publicOrganizationData.name.localeCompare(b.publicOrganizationData.name))
-                            ?.map((invitation) => <InvitationItem
-                                key={invitation.id}
-                                imageUrl={invitation.publicOrganizationData.imageUrl || ""}
-                                name={invitation.publicOrganizationData.name}
-                                role={invitation.role == 'org:admin' ? 'Admin' : 'Member'}
-                                onAccept={() => handleAcceptInvitation(invitation)}
-                            />)
-                        }
-                    </ul>
-                </div>
-            </Show>
-            <Show when={sandboxTeams.length > 0}>
-                <div className="w-full mb-8">
-                    <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-lg font-semibold">Sandbox Teams</h3>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                    <span className="sr-only">Sandbox Team Info</span>
-                                    <InfoIcon/>
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent align="end" className="w-96">
-                                <div className="text-sm text-muted-foreground space-y-2">
-                                     These are sandbox teams that are used for testing and experimentation. Data in these teams may be periodically deleted.
-                                </div>
-                            </PopoverContent>
-                        </Popover>
-                    </div>
-                    <ul className="space-y-2">
-                        {sandboxTeams
-                            ?.sort((a, b) => a.organization.name.localeCompare(b.organization.name))
-                            ?.map((membership) => <AccountItem
-                            key={membership.id}
-                            imageUrl={membership.organization.imageUrl || ""}
-                            name={membership.organization.name}
-                            role={membership.role == 'org:admin' ? 'Admin' : 'Member'}
-                            onSwitchTeam={() => handleSwitchTeam(membership.organization)}
-                        />)
-                    }
-                    </ul>
-                </div>
-            
-            </Show>
-        </Show>
-    </div>
-}
-
-interface AccountItemProps {
-    imageUrl: string
-    name: string
-    role?: string
-    onSwitchTeam: () => void
-}
-
-function AccountItem({ imageUrl, name, role, onSwitchTeam }: AccountItemProps) {
-
-    return <li 
-        className="w-fullbg-white rounded-sm shadow-md border"
+    return <Show 
+        when={auth.isLoaded && organizationList.isLoaded}
+        fallback={<div className="flex items-center justify-center h-64">
+            <LoadingSpinner className="h-32 w-32"/>
+        </div>}
     >
-        <div className="group relative px-4 py-2 flex items-center gap-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-50">
-            <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={imageUrl} alt={name} />
-                <AvatarFallback className="rounded-lg">
-                    {"T"}
-                </AvatarFallback>
-            </Avatar>
-            <div className="grow-1">
-                <h3 className="text-base font-semibold text-gray-900">
-                    <button onClick={onSwitchTeam} className="focus:outline-hidden">
-                        <span aria-hidden="true" className="absolute inset-0"/>
-                        {name}
-                    </button>
-                    
-                </h3>
-                <div className="text-base text-gray-500">{role}</div>
-            </div>
-            <ArrowRight className="pointer-events-none text-gray-300 group-hover:text-gray-400"/>
-        </div>
-    </li>
+        
+        <PageDescription>Select a team to use:</PageDescription>
 
-}
+        <Card>
+            <CardHeader>
+                <CardTitle>Your Teams</CardTitle>
+                <CardActions>
+                    <Show when={user?.createOrganizationEnabled!!}>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button size="sm" variant="ghost" asChild>
+                                    <Link to={Paths.createTeam}>
+                                        <PlusIcon/>
+                                    </Link>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                Create New Team
+                            </TooltipContent>
+                        </Tooltip>
+                        
+                    </Show>
+                    <Separator orientation="vertical"/>
+                    <CardExplanation>
+                        These are the teams that you have been given RT+ access to. You can switch between these to access team specific data.
+                    </CardExplanation>
+                </CardActions>
+            </CardHeader>
+            <CardContent>
+                <Show 
+                    when={memberships.length > 0}
+                    fallback={<Alert severity="info" title="No available teams"/>}
+                >
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableHeadCell className="w-[40px] hidden md:table-cell"></TableHeadCell>
+                                <TableHeadCell>Team Name</TableHeadCell>
+                                <TableHeadCell className="text-center">Type</TableHeadCell>
+                                <TableHeadCell className="text-center">Role</TableHeadCell>
+                                <TableHeadCell className="w-[40px]"></TableHeadCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {memberships
+                                ?.sort((a, b) => a.organization.name.localeCompare(b.organization.name))
+                                ?.map((membership) => <TableRow key={membership.id}>
+                                    <TableHeadCell className="hidden md:table-cell">
+                                        <Avatar className="h-6 w-6 rounded-lg">
+                                            <AvatarImage src={membership.organization.imageUrl || ""} alt={membership.organization.name} />
+                                            <AvatarFallback className="rounded-lg">
+                                                T
+                                            </AvatarFallback>
+                                        </Avatar>
+                                    </TableHeadCell>
+                                    <TableHeadCell>{membership.organization.name}</TableHeadCell>
+                                    <TableHeadCell className="text-center">
+                                        {match(membership.organization.publicMetadata.type)
+                                            .with('Normal', () => <><span className="hidden md:inline">Normal</span><span className="inline md:hidden">Nrm</span></>)
+                                            .with('System', () => <><span className="hidden md:inline">System</span><span className="inline md:hidden">Sys</span></>)
+                                            .with('Sandbox', () => <><span className="hidden md:inline">Sandbox</span><span className="inline md:hidden">Sbx</span></>)
+                                            .exhaustive()
+                                        }
+                                    </TableHeadCell>
+                                    <TableHeadCell className="text-center">{membership.role == 'org:admin' ? 'Admin' : 'User'}</TableHeadCell>
+                                    <TableHeadCell className="pt-0.5">
+                                        {membership.organization.id == auth.orgId 
+                                            ? <span className="text-sm italic text-muted-foreground">Active</span>
+                                            : <Button size="sm" onClick={() => handleSwitchTeam(membership.organization)}>Use</Button>
+                                        }
+                                    </TableHeadCell>
+                                </TableRow>)
+                            }
+                        </TableBody>
+                    </Table>
+                </Show>
+            </CardContent>
+        </Card>
 
-interface InvitationItemProps {
-    imageUrl: string
-    name: string
-    role?: string
-    onAccept: () => void
-}
+        <Card>
+            <CardHeader>
+                <CardTitle>Personal Account</CardTitle>
+                <CardActions>
+                    <Separator orientation="vertical"/>
+                    <CardExplanation>
+                        Use RT+ with personal account not associated with any team.
+                    </CardExplanation>
+                </CardActions>
+            </CardHeader>
+            <CardContent>
+                <div className="flex items-center px-2">
+                    <div className="hidden md:inline-block w-[40px]">
+                        <Avatar className="h-6 w-6 rounded-lg">
+                            <AvatarImage src={user?.imageUrl} alt={user?.fullName ?? ""} />
+                            <AvatarFallback className="rounded-lg">P</AvatarFallback>
+                        </Avatar>
+                    </div>
+                    <div className="font-medium grow">
+                        {user?.fullName}
+                    </div>
+                    <div>
+                        {auth.orgId == null 
+                            ? <span className="text-sm italic text-muted-foreground">Active</span>
+                            : <Button size="sm" onClick={handleSwitchToPersonalAccount}>Use</Button>
+                        }
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
 
+        <Card>
+            <CardHeader>
+                <CardTitle>Invitations</CardTitle>
+                <CardActions>
+                    <Separator orientation="vertical"/>
+                    <CardExplanation>
+                        These are the teams that you have been invited to join. Accepting an invitation will give you access to RT+ for that team.
+                    </CardExplanation>
+                </CardActions>
+            </CardHeader>
+            <CardContent>
+                <Show 
+                    when={invitations.length > 0}
+                    fallback={<Alert severity="info" title="No pending invitations"/>}
+                >
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableHeadCell className="w-[40px] hidden md:table-cell"></TableHeadCell>
+                                <TableHeadCell>Team Name</TableHeadCell>
+                                <TableHeadCell className="text-center">Role</TableHeadCell>
+                                <TableHeadCell className="w-[40px]"></TableHeadCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {invitations
+                                ?.sort((a, b) => a.publicOrganizationData.name.localeCompare(b.publicOrganizationData.name))
+                                ?.map((invitation) => <TableRow key={invitation.id}>
+                                    <TableHeadCell className="hidden md:table-cell">
+                                        <Avatar className="h-6 w-6 rounded-lg">
+                                            <AvatarImage src={invitation.publicOrganizationData.imageUrl || ""} alt={invitation.publicOrganizationData.name} />
+                                            <AvatarFallback className="rounded-lg">
+                                                T
+                                            </AvatarFallback>
+                                        </Avatar>
+                                    </TableHeadCell>
+                                    <TableHeadCell>{invitation.publicOrganizationData.name}</TableHeadCell>
+                                    <TableHeadCell className="text-center">{invitation.role == 'org:admin' ? 'Admin' : 'User'}</TableHeadCell>
+                                    <TableHeadCell className="pt-0.5">
+                                        <Button size="sm" onClick={() => handleAcceptInvitation(invitation)}>
+                                            Accept
+                                        </Button>
+                                    </TableHeadCell>
+                                </TableRow>)
+                            }
+                        </TableBody>
+                    </Table>
+                </Show>
+            </CardContent>
+        </Card>
+    </Show>
 
-function InvitationItem({ imageUrl, name, role, onAccept }: InvitationItemProps) {
-    return <li 
-        className="w-fullbg-white rounded-sm shadow-md border"
-    >
-        <div className="group relative px-4 py-2 flex items-center gap-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-50">
-            <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={imageUrl} alt={name} />
-                <AvatarFallback className="rounded-lg">
-                    {"T"}
-                </AvatarFallback>
-            </Avatar>
-            <div className="grow-1">
-                <h3 className="text-base font-semibold text-gray-900">
-                    {name}
-                </h3>
-                <div className="text-base text-gray-500">{role}</div>
-            </div>
-            <Button onClick={onAccept}>Join</Button>
-        </div>
-    </li>
 }

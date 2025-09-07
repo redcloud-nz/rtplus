@@ -24,10 +24,16 @@ const logger = new RTPlusLogger('trpc/teams')
 
 export const teamsRouter = createTRPCRouter({
 
-    createTeam: systemAdminProcedure
+    createTeam: authenticatedProcedure
         .input(teamSchema)
         .output(teamSchema)
         .mutation(async ({ ctx, input: { teamId, ...input } }) => {
+
+            // Ensure that the user has permission to create a team
+            const user = await ctx.clerkClient.users.getUser(ctx.auth.userId)
+            if(!user.createOrganizationEnabled) {
+                throw new TRPCError({ code: 'FORBIDDEN', message: "You do not have permission to create a new team." })
+            }
             
             const nameConflict = await ctx.prisma.team.findFirst({ where: { name: input.name } })
             if(nameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('name') })
