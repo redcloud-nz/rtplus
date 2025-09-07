@@ -5,7 +5,7 @@
  */
 'use client'
 
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, InfoIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 import { useOrganizationList, useUser } from '@clerk/nextjs'
@@ -14,11 +14,18 @@ import { useQueryClient } from '@tanstack/react-query'
 import { Show } from '@/components/show'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
-import { isSandboxTeam, isSpecialTeam, isSystemTeam} from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 
-export function TeamSwitcher() {
+
+/**
+ * A page to select which team to use.
+ * Also includes:
+ * - Switch to personal account
+ * - Accept invitations
+ */
+export default function SelectTeam_PageContent() {
 
     const queryClient = useQueryClient()
     const router = useRouter()
@@ -36,9 +43,9 @@ export function TeamSwitcher() {
     })
 
     const memberships = userMemberships.data || []
-    const regularTeams = memberships.filter(membership => !isSpecialTeam(membership.organization.publicMetadata.teamId))
-    const systemTeam = memberships.find(membership => isSystemTeam(membership.organization.publicMetadata.teamId))
-    const sandboxTeams = memberships.filter(membership => isSandboxTeam(membership.organization.publicMetadata.teamId))
+    const regularTeams = memberships.filter(membership => membership.organization.publicMetadata.type == 'Normal')
+    const systemTeam = memberships.find(membership => membership.organization.publicMetadata.type == 'System')
+    const sandboxTeams = memberships.filter(membership => membership.organization.publicMetadata.type == 'Sandbox')
 
     const invitations = userInvitations.data || []
 
@@ -90,7 +97,23 @@ export function TeamSwitcher() {
 
             <Show when={regularTeams.length > 0}>
                 <div className="w-full mb-8">
-                    <h3 className="text-lg font-semibold mb-2">Regular Teams</h3>
+                    <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-lg font-semibold">Regular Teams</h3>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                    <span className="sr-only">Regular Teams Info</span>
+                                    <InfoIcon/>
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent align="end" className="w-96">
+                                <div className="text-sm text-muted-foreground space-y-2">
+                                     These are the teams that you have been given RT+ access to. You can switch between these to access team specific data.
+                                </div>
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+                    
                     <ul className="space-y-2">
                         {regularTeams
                             ?.sort((a, b) => a.organization.name.localeCompare(b.organization.name))
@@ -107,7 +130,22 @@ export function TeamSwitcher() {
             </Show>
             <Show when={invitations.length > 0}>
                 <div className="w-full mb-8">
-                    <h3 className="text-lg font-semibold mb-2">Invitations</h3>
+                    <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-lg font-semibold">Invitations</h3>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                    <span className="sr-only">Invitations</span>
+                                    <InfoIcon/>
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent align="end" className="w-96">
+                                <div className="text-sm text-muted-foreground space-y-2">
+                                     There are the teams that you have been invited to join. Accepting an invitation will give you access to RT+ for that team.
+                                </div>
+                            </PopoverContent>
+                        </Popover>
+                    </div>
                     <ul className="space-y-2">
                         {invitations
                             ?.sort((a, b) => a.publicOrganizationData.name.localeCompare(b.publicOrganizationData.name))
@@ -124,7 +162,22 @@ export function TeamSwitcher() {
             </Show>
             <Show when={sandboxTeams.length > 0}>
                 <div className="w-full mb-8">
-                    <h3 className="text-lg font-semibold mb-2">Sandbox Teams</h3>
+                    <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-lg font-semibold">Sandbox Teams</h3>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                    <span className="sr-only">Sandbox Team Info</span>
+                                    <InfoIcon/>
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent align="end" className="w-96">
+                                <div className="text-sm text-muted-foreground space-y-2">
+                                     These are sandbox teams that are used for testing and experimentation. Data in these teams may be periodically deleted.
+                                </div>
+                            </PopoverContent>
+                        </Popover>
+                    </div>
                     <ul className="space-y-2">
                         {sandboxTeams
                             ?.sort((a, b) => a.organization.name.localeCompare(b.organization.name))
@@ -138,12 +191,11 @@ export function TeamSwitcher() {
                     }
                     </ul>
                 </div>
-               
+            
             </Show>
         </Show>
     </div>
 }
-
 
 interface AccountItemProps {
     imageUrl: string

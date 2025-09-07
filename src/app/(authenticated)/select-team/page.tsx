@@ -5,19 +5,30 @@
  * Path: /select-team
  */
 
+
 import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
-import { TeamSwitcher } from '@/components/nav/team-switcher'
 
 import * as Paths from '@/paths'
 
-export const metadata = { title: "Select Team" }
+import SelectTeam_PageContent from './select-team'
 
+export const metadata = {
+    title: "Select Team",
+    description: "Select which team to use.",
+}
+
+/**
+ * A page to select which team to use.
+ * Also includes:
+ * - Switch to personal account
+ * - Accept invitations
+ */
 export default function SelectTeam_Page() {
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[Paths.selectTeam]}/>
         <AppPageContent variant="container">
-            <TeamSwitcher/>
+            <SelectTeam_PageContent/>
         </AppPageContent>
     </AppPage>
 }

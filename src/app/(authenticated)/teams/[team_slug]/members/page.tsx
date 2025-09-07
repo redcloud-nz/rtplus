@@ -9,13 +9,19 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 import { teamMemberTagsEnabledFlag } from '@/lib/flags'
 import * as Paths from '@/paths'
-import { getTeamFromParams } from '@/server/data/team'
+import { fetchAllTeamSlugsCached, getTeamFromParams } from '@/server/data/team'
 
 import { Team_MembersList_Card } from './team-members-list'
 
 
 export const metadata = { title: `Team Members` }
 
+export const revalidate = 600 // 10 minutes
+
+export async function generateStaticParams() {
+    const teamSlugs = await fetchAllTeamSlugsCached()
+    return teamSlugs.map(team_slug => ({ team_slug }))
+}
 
 export default async function Team_MembersList_Page(props: { params: Promise<{ team_slug: string }> }) {
     const team = await getTeamFromParams(props.params)

@@ -274,7 +274,7 @@ export const teamMembershipsRouter = createTRPCRouter({
                     }, 
                     d4hInfo: true
                 },
-                orderBy: { team: { name: 'asc' }, person: { name: 'asc' } }
+                orderBy: [{ team: { name: 'asc' } }, { person: { name: 'asc' } }]
             })
 
             return memberships.map(membership => ({ ...toTeamMembershipData(membership), person: toPersonRef(membership.person), team: toTeamRef(membership.team) }))

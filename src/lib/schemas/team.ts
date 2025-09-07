@@ -24,18 +24,6 @@ export const TeamId = {
 } as const
 
 
-export function isSystemTeam(teamId: string) {
-    return teamId === TeamId.SYSTEM
-}
-
-export function isSandboxTeam(teamId: string) {
-    return teamId.startsWith('SANDBOX')
-}
-
-export function isSpecialTeam(teamId: string) {
-    return isSystemTeam(teamId) || isSandboxTeam(teamId)
-}
-
 export const teamSchema = z.object({
     teamId: TeamId.schema,
     name: z.string().min(5).max(100),

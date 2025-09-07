@@ -26,9 +26,9 @@ export const fetchTeamByIdCached = unstable_cache(
             where: { id: teamId }
         })
     },
-    ['team'],
+    ['teams'],
     {
-        tags: ["team"],
+        tags: ["teams"],
         revalidate: 3600 // 1 hour
     }
 )
@@ -45,9 +45,9 @@ export const fetchTeamBySlugCached = unstable_cache(
             where: { slug: teamSlug } 
         })
     },
-    ['team'],
+    ['teams'],
     {
-        tags: ['team'],
+        tags: ['teams'],
         revalidate: 3600 // 1 hour
     }
 )
@@ -73,11 +73,11 @@ export const fetchAllTeamSlugsCached = unstable_cache(
     },
     ['team-slugs'],
     {
-        tags: ['team'],
+        tags: ['teams'],
         revalidate: 3600 // 1 hour
     }
 )
 
 export function revalidateTeamsCache() {
-    revalidateTag('team')
+    revalidateTag('teams')
 }

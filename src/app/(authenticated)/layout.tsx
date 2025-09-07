@@ -16,9 +16,9 @@ export const metadata: Metadata = {
     applicationName: "RT+",
     title: {
         template: "%s | RT+",
-        default: "Application",
+        default: "App",
     },
-    description: "RT+ App",
+    description: "RT+ Web Application.",
 }
 
 export default async function SignedIn_Layout({ children }: Readonly<{ children: ReactNode }>) {
