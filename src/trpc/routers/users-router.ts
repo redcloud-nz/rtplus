@@ -11,6 +11,7 @@ import { teamInvitationSchema, toTeamInvitationData } from '@/lib/schemas/invita
 import { toUserData, userSchema } from '@/lib/schemas/user'
 import { zodNanoId8 } from '@/lib/validation'
 
+import { getServerUrl } from '@/server/url'
 import { createTRPCRouter, teamAdminProcedure } from '@/trpc/init'
 import { Messages } from '@/trpc/messages'
 
@@ -85,18 +86,30 @@ export const usersRouter = createTRPCRouter({
                 throw new TRPCError({ code: 'BAD_REQUEST', message: `An invitation for ${input.email} already exists.` })
             }
 
-            const orgInvitation = await clerkClient.organizations.createOrganizationInvitation({
+            console.log("process.env", process.env)
+
+            const redirectUrl = getServerUrl() + (person?.clerkUserId ? process.env.NEXT_PUBLIC_CLECK_SIGN_IN_URL : process.env.NEXT_PUBLIC_CLECK_SIGN_UP_URL)
+
+            const createOrganizationInvitationParams = {
                 organizationId: ctx.team.clerkOrgId,
                 inviterUserId: ctx.auth.userId,
                 emailAddress: input.email,
                 role: input.role,
-                redirectUrl: person?.clerkUserId ? process.env.CLERK_SIGN_IN_URL : process.env.CLERK_SIGN_UP_URL,
+                redirectUrl: redirectUrl,
                 publicMetadata: {
                     personId: person?.id || null,
                 },
-            })
+            } satisfies Parameters<typeof clerkClient.organizations.createOrganizationInvitation>[0]
 
-            return toTeamInvitationData(orgInvitation)
+            try {
+                const orgInvitation = await clerkClient.organizations.createOrganizationInvitation(createOrganizationInvitationParams)
+
+                return toTeamInvitationData(orgInvitation)
+            } catch (error) {
+                console.error("Error creating organization invitation:", error, createOrganizationInvitationParams)
+                throw new TRPCError({ code: 'BAD_REQUEST', message: `Error creating invitation: ${(error as Error).message}` })
+            }
+            
         }),
 
     /**
