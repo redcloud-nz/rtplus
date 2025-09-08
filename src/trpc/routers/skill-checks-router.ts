@@ -398,6 +398,29 @@ export const skillChecksRouter = createTRPCRouter({
         }),
 
     /**
+     * Get the users that can be assigned as assessors for a skill check session.
+     */
+    getAvailableAssessors: sessionProcedure
+        .output(z.array(personRefSchema))
+        .query(async ({ ctx }) => {
+
+            const clerkClient = ctx.getClerkClient()
+
+            const { data: orgMemberships } = await clerkClient.organizations.getOrganizationMembershipList({ organizationId: ctx.skillCheckSession.team.clerkOrgId, limit: 100 })
+            const userIds = orgMemberships.map(m => m.publicUserData!.userId)
+
+            const { data: users } = await clerkClient.users.getUserList({ userId: userIds, limit: 100 })
+
+            const result = orgMemberships.map(membership => {
+                const user = users.find(u => u.id === membership.publicUserData!.userId)!
+                
+                return toPersonRef({ id: user.publicMetadata.person_id, name: user.fullName!, email: user.primaryEmailAddress!.emailAddress })
+            })
+
+            return result
+        }),
+
+    /**
      * Fetch the skill check sessions that the authenticated user is an assessor for.
      * @param ctx The authenticated context.
      * @returns An array of skill check sessions with counts.

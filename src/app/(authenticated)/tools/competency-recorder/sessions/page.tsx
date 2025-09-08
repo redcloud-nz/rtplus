@@ -2,7 +2,7 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /app/assessor/sessions
+ *  Path: /tools/competency-recorder/sessions
  */
 
 import { Metadata } from 'next'
@@ -11,7 +11,7 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 
-import { CompetencyRecorder_SessionsList_Card } from './my-sessions-list'
+import { CompetencyRecorder_SessionsList_Card } from './competency-recorder-sessions-list'
 
 
 export const metadata: Metadata = { title: 'Sessions' }

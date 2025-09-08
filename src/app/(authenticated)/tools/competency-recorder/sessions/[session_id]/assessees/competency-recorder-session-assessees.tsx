@@ -159,8 +159,13 @@ function TeamSection({ team, assignedAssessees, selectedAssessees, onSelectedCha
 
     const { data: members } = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId: team.teamId }))
 
+    const teamAssessees = members.filter(m => selectedAssessees.includes(m.personId))
+
     return <div className="border-t py-4">
-        <div className="font-semibold text-xl">{team.name}</div>
+        <div className="flex items-center justify-between">
+            <div className="font-semibold text-xl">{team.name}</div>
+            <div className="text-sm text-muted-foreground">{teamAssessees.length} selected</div>
+        </div>
         <ul className="pl-4">
             {members
                 .map(member => <PersonRow

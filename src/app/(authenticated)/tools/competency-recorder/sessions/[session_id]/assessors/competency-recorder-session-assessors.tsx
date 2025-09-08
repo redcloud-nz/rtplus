@@ -112,6 +112,7 @@ export default function CompetencyRecorder_Session_Assessors_PageContents({ sess
                 
                 <TeamSection
                     team={team}
+                    sessionId={sessionId}
                     assignedAssessors={assignedAssessors.map(a => a.personId)}
                     selectedAssessors={selectedAssessors}
                     onSelectedChange={handleCheckedChange}
@@ -144,18 +145,24 @@ export default function CompetencyRecorder_Session_Assessors_PageContents({ sess
 
 interface TeamSectionProps {
     team: TeamData
+    sessionId: string
     assignedAssessors: string[]
     selectedAssessors: string[]
     onSelectedChange: (assesseeId: string) => (checked: boolean) => void
 }
 
-function TeamSection({ team, assignedAssessors, selectedAssessors, onSelectedChange }: TeamSectionProps) {
+function TeamSection({ team, sessionId, assignedAssessors, selectedAssessors, onSelectedChange }: TeamSectionProps) {
     const trpc = useTRPC()
 
-    const { data: users } = useSuspenseQuery(trpc.users.getUsers.queryOptions({ teamId: team.teamId }))
+    const { data: users } = useSuspenseQuery(trpc.skillChecks.getAvailableAssessors.queryOptions({ sessionId }))
+
+    const teamAssessors = assignedAssessors.filter(a => users.find(u => u.personId === a))
 
     return <div className="border-t py-4">
-        <div className="font-semibold text-xl">{team.name}</div>
+        <div className="flex items-center justify-between">
+            <div className="font-semibold text-xl">{team.name}</div>
+            <div className="text-sm text-muted-foreground">{teamAssessors.length} selected</div>
+        </div>
         <ul className="pl-4">
             {users
                 .map(user => <PersonRow
@@ -178,7 +185,7 @@ interface PersonRowProps {
 }
 
 function PersonRow({ person, assigned, selected, onSelectedChange }: PersonRowProps) {
-    return <li className="flex items-center py-1">
+    return <li className="flex items-center gap-2">
         <Label htmlFor={`person-${person.personId}`} className="py-2 truncate grow">{person.name}</Label>
         <Checkbox
             id={`person-${person.personId}`}

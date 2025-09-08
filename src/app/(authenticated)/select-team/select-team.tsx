@@ -20,11 +20,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { Link } from '@/components/ui/link'
 import { LoadingSpinner } from '@/components/ui/loading'
-import { Table, TableBody, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 import { Separator } from '@/components/ui/separator'
+import { Table, TableBody, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+
 
 import * as Paths from '@/paths'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+
 
 
 /**
@@ -95,7 +97,7 @@ export default function SelectTeam_PageContent() {
             <CardHeader>
                 <CardTitle>Your Teams</CardTitle>
                 <CardActions>
-                    <Show when={user?.createOrganizationEnabled!!}>
+                    <Show when={user?.createOrganizationEnabled ?? false}>
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button size="sm" variant="ghost" asChild>
