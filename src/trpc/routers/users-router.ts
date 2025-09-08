@@ -86,8 +86,6 @@ export const usersRouter = createTRPCRouter({
                 throw new TRPCError({ code: 'BAD_REQUEST', message: `An invitation for ${input.email} already exists.` })
             }
 
-            console.log("process.env", process.env)
-
             const redirectUrl = getServerUrl() + (person?.clerkUserId ? process.env.NEXT_PUBLIC_CLECK_SIGN_IN_URL : process.env.NEXT_PUBLIC_CLECK_SIGN_UP_URL)
 
             const createOrganizationInvitationParams = {
