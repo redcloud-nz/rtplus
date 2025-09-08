@@ -14,7 +14,7 @@ import { zodNanoId8 } from '@/lib/validation'
 import { createTRPCRouter, teamAdminProcedure } from '@/trpc/init'
 import { Messages } from '@/trpc/messages'
 
-import { getPersonById } from './personnel'
+import { getPersonById } from './personnel-router'
 
 
 /**

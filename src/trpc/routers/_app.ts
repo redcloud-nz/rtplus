@@ -5,14 +5,14 @@
 
 import { createTRPCRouter } from '../init'
 
-import { currentUserRouter } from './current-user'
-import { notesRouter } from './notes'
-import { personnelRouter } from './personnel'
-import { skillsRouter } from './skills'
+import { currentUserRouter } from './current-user-router'
+import { notesRouter } from './notes-router'
+import { personnelRouter } from './personnel-router'
+import { skillsRouter } from './skills-router'
 import { skillChecksRouter } from './skill-checks-router'
-import { teamsRouter } from './teams'
+import { teamsRouter } from './teams-router'
 import { teamMembershipsRouter } from './team-memberships-router'
-import { usersRouter } from './users'
+import { usersRouter } from './users-router'
 
 
 
