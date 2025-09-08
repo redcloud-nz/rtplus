@@ -97,7 +97,7 @@ export const personnelRouter = createTRPCRouter({
 
             if(deleted.clerkUserId) {
                 // Delete the associated Clerk user
-                await ctx.clerkClient.users.deleteUser(deleted.clerkUserId)
+                await ctx.getClerkClient().users.deleteUser(deleted.clerkUserId)
             }
             
             return toPersonData(deleted)

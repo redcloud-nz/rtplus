@@ -45,10 +45,12 @@ export const usersRouter = createTRPCRouter({
             if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(input.personId) })
             if(!person.clerkUserId) throw new TRPCError({ code: 'BAD_REQUEST', message: Messages.personNotAUser(input.personId) })
 
-            const user = await ctx.clerkClient.users.getUser(person.clerkUserId)
+            const clerkClient = ctx.getClerkClient()
+
+            const user = await clerkClient.users.getUser(person.clerkUserId)
 
             // Create the membership
-            const membership = await ctx.clerkClient.organizations.createOrganizationMembership({
+            const membership = await clerkClient.organizations.createOrganizationMembership({
                 organizationId: ctx.team.clerkOrgId,
                 userId: person.clerkUserId,
                 role: input.role,
@@ -76,12 +78,14 @@ export const usersRouter = createTRPCRouter({
             // See if there is a person with this email
             const person = await ctx.prisma.person.findUnique({ where: { email: input.email }})
 
-            const { data: existingInvitations } = await ctx.clerkClient.organizations.getOrganizationInvitationList({ organizationId: ctx.team.clerkOrgId, status: ['pending'] })
+            const clerkClient = ctx.getClerkClient()
+
+            const { data: existingInvitations } = await clerkClient.organizations.getOrganizationInvitationList({ organizationId: ctx.team.clerkOrgId, status: ['pending'] })
             if (existingInvitations.some(inv => inv.emailAddress === input.email)) {
                 throw new TRPCError({ code: 'BAD_REQUEST', message: `An invitation for ${input.email} already exists.` })
             }
 
-            const orgInvitation = await ctx.clerkClient.organizations.createOrganizationInvitation({
+            const orgInvitation = await clerkClient.organizations.createOrganizationInvitation({
                 organizationId: ctx.team.clerkOrgId,
                 inviterUserId: ctx.auth.userId,
                 emailAddress: input.email,
@@ -109,7 +113,7 @@ export const usersRouter = createTRPCRouter({
         .output(z.array(teamInvitationSchema))
         .query(async ({ ctx, input }) => {
 
-            const { data: orgInvitations } = await ctx.clerkClient.organizations.getOrganizationInvitationList({ 
+            const { data: orgInvitations } = await ctx.getClerkClient().organizations.getOrganizationInvitationList({ 
                 organizationId: ctx.team.clerkOrgId, limit: 100, status: input.status 
             })
 
@@ -131,10 +135,12 @@ export const usersRouter = createTRPCRouter({
         .output(z.array(userSchema))
         .query(async ({ ctx }) => {
 
-            const { data: orgMemberships } = await ctx.clerkClient.organizations.getOrganizationMembershipList({ organizationId: ctx.auth.activeTeam.orgId, limit: 100 })
+            const clerkClient = ctx.getClerkClient()
+
+            const { data: orgMemberships } = await clerkClient.organizations.getOrganizationMembershipList({ organizationId: ctx.auth.activeTeam.orgId, limit: 100 })
             const userIds = orgMemberships.map(m => m.publicUserData!.userId)
 
-            const { data: users } = await ctx.clerkClient.users.getUserList({ userId: userIds, limit: 100 })
+            const { data: users } = await clerkClient.users.getUserList({ userId: userIds, limit: 100 })
 
             const result = orgMemberships.map(membership => {
                 const user = users.find(u => u.id === membership.publicUserData!.userId)!
@@ -166,10 +172,12 @@ export const usersRouter = createTRPCRouter({
             if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(input.personId) })
             if(!person.clerkUserId) throw new TRPCError({ code: 'BAD_REQUEST', message: Messages.personNotAUser(input.personId) })
 
-            const user = await ctx.clerkClient.users.getUser(person.clerkUserId)
+            const clerkClient = ctx.getClerkClient()
+
+            const user = await clerkClient.users.getUser(person.clerkUserId)
 
             // Revoke the membership
-            const membership = await ctx.clerkClient.organizations.deleteOrganizationMembership({
+            const membership = await clerkClient.organizations.deleteOrganizationMembership({
                 organizationId: ctx.team.clerkOrgId,
                 userId: person.clerkUserId,
             })
@@ -193,7 +201,9 @@ export const usersRouter = createTRPCRouter({
         .output(teamInvitationSchema)
         .mutation(async ({ ctx, input }) => {
 
-            const orgInvitation = await ctx.clerkClient.organizations.getOrganizationInvitation({ organizationId: ctx.team.clerkOrgId, invitationId: input.invitationId })
+            const clerkClient = ctx.getClerkClient()
+
+            const orgInvitation = await clerkClient.organizations.getOrganizationInvitation({ organizationId: ctx.team.clerkOrgId, invitationId: input.invitationId })
             if (!orgInvitation) {
                 throw new TRPCError({ code: 'NOT_FOUND', message: `Invitation with ID ${input.invitationId} not found.` })
             }
@@ -202,11 +212,11 @@ export const usersRouter = createTRPCRouter({
             }
             
             // Revoke the existing invitation
-            await ctx.clerkClient.organizations.revokeOrganizationInvitation({ organizationId: ctx.auth.activeTeam.orgId, invitationId: input.invitationId })
+            await clerkClient.organizations.revokeOrganizationInvitation({ organizationId: ctx.auth.activeTeam.orgId, invitationId: input.invitationId })
 
             // Create a new invitation with the same email and role
             // This will send a new email to the user
-            const newInvitation = await ctx.clerkClient.organizations.createOrganizationInvitation({
+            const newInvitation = await clerkClient.organizations.createOrganizationInvitation({
                 organizationId: ctx.auth.activeTeam.orgId,
                 inviterUserId: ctx.auth.userId,
                 emailAddress: orgInvitation.emailAddress,
@@ -231,13 +241,15 @@ export const usersRouter = createTRPCRouter({
         .output(teamInvitationSchema)
         .mutation(async ({ ctx, input }) => {
 
-            const orgInvitation = await ctx.clerkClient.organizations.getOrganizationInvitation({ organizationId: ctx.auth.activeTeam.orgId, invitationId: input.invitationId })
+            const clerkClient = ctx.getClerkClient()
+
+            const orgInvitation = await clerkClient.organizations.getOrganizationInvitation({ organizationId: ctx.auth.activeTeam.orgId, invitationId: input.invitationId })
             if (!orgInvitation) {
                 throw new TRPCError({ code: 'NOT_FOUND', message: `Invitation with ID ${input.invitationId} not found.` })
             }
 
 
-            const revokedInvitation = await ctx.clerkClient.organizations.revokeOrganizationInvitation({ organizationId: ctx.auth.activeTeam.orgId, invitationId: input.invitationId })
+            const revokedInvitation = await clerkClient.organizations.revokeOrganizationInvitation({ organizationId: ctx.auth.activeTeam.orgId, invitationId: input.invitationId })
 
             return toTeamInvitationData(revokedInvitation)
         }),
@@ -263,13 +275,15 @@ export const usersRouter = createTRPCRouter({
         .output(userSchema)
         .mutation(async ({ ctx, input }) => {
 
+            const clerkClient = ctx.getClerkClient()
+
             const person = await getPersonById(ctx, input.personId)
             if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(input.personId) })
             if(!person.clerkUserId) throw new TRPCError({ code: 'BAD_REQUEST', message: Messages.personNotAUser(input.personId) })
 
-            const user = await ctx.clerkClient.users.getUser(person.clerkUserId)
+            const user = await clerkClient.users.getUser(person.clerkUserId)
 
-            const orgMembership = await ctx.clerkClient.organizations.updateOrganizationMembership({
+            const orgMembership = await clerkClient.organizations.updateOrganizationMembership({
                 organizationId: ctx.team.clerkOrgId,
                 userId: person.clerkUserId,
                 role: input.role,

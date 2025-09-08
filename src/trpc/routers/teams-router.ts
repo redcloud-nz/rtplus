@@ -29,8 +29,10 @@ export const teamsRouter = createTRPCRouter({
         .output(teamSchema)
         .mutation(async ({ ctx, input: { teamId, ...input } }) => {
 
+            const clerkClient = ctx.getClerkClient()
+
             // Ensure that the user has permission to create a team
-            const user = await ctx.clerkClient.users.getUser(ctx.auth.userId)
+            const user = await clerkClient.users.getUser(ctx.auth.userId)
             if(!user.createOrganizationEnabled) {
                 throw new TRPCError({ code: 'FORBIDDEN', message: "You do not have permission to create a new team." })
             }
@@ -50,7 +52,7 @@ export const teamsRouter = createTRPCRouter({
 
             let clerkOrgId: string
             try {
-                const organization = await ctx.clerkClient.organizations.createOrganization(clerkOrgCreateParams)
+                const organization = await clerkClient.organizations.createOrganization(clerkOrgCreateParams)
                 clerkOrgId = organization.id
             } catch (error) {
                 logger.error(`Failed to create Clerk organization for team ${teamId}:`, clerkOrgCreateParams, error)
@@ -92,7 +94,7 @@ export const teamsRouter = createTRPCRouter({
 
             const deleted = await ctx.prisma.team.delete({ where: { id: team.id } })
 
-            await ctx.clerkClient.organizations.deleteOrganization(deleted.clerkOrgId)
+            await ctx.getClerkClient().organizations.deleteOrganization(deleted.clerkOrgId)
 
             logger.info(`Team(${team.id}) deleted successfully.`)
             revalidateTeamsCache()
@@ -192,7 +194,7 @@ export const teamsRouter = createTRPCRouter({
 
             if(input.name != team.name || input.slug != team.slug) {
                 // Update the Clerk organization name and slug if they have changed
-                await ctx.clerkClient.organizations.updateOrganization(team.clerkOrgId, {
+                await ctx.getClerkClient().organizations.updateOrganization(team.clerkOrgId, {
                     name: input.name,
                     slug: input.slug,
                     publicMetadata: { teamId: team.id, type: team.type }

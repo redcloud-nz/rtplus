@@ -44,6 +44,31 @@ type RTPlusAuthWithActiveTeam = RTPlusAuth & {
     }
 }
 
+interface CreateInnerTRPCContextOptions {
+    auth: RTPlusAuth | null
+    headers?: Headers
+    getClerkClient: () => ReturnType<typeof createClerkClient>
+    getTeamById: (teamId: string) => Promise<TeamRecord | null>
+}
+
+/**
+ * Creates the inner TRPC context.
+ * Useful for testing and tRPC calls that don't have to go through the full auth flow.
+ */
+export function createInnerTRPCContext({ auth, headers, getClerkClient, getTeamById }: CreateInnerTRPCContextOptions) {
+    return { 
+        prisma,
+        auth,
+        headers,
+        getClerkClient,
+        getTeamById
+    }
+}
+
+/**
+ * Creates the TRPC context for each request.
+ * Fetches the auth state from Clerk and adds it to the context.
+ */
 export const createTRPCContext = cache(async ({ headers }: { headers?: Headers  }) => {
 
     let clerkAuth: Awaited<ReturnType<typeof auth>>
@@ -54,8 +79,7 @@ export const createTRPCContext = cache(async ({ headers }: { headers?: Headers  
         throw new TRPCError({ code: 'UNAUTHORIZED', message: "Failed to fetch auth context" })
     }
 
-    return { 
-        prisma,
+    return createInnerTRPCContext({ 
         auth: clerkAuth.userId 
             ? { 
                 userId: clerkAuth.userId, 
@@ -70,8 +94,9 @@ export const createTRPCContext = cache(async ({ headers }: { headers?: Headers  
             } satisfies RTPlusAuth 
             : null,
         headers,
-        get clerkClient() { return createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY}) }
-    }
+        getClerkClient() { return createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY}) },
+        getTeamById: fetchTeamByIdCached,
+    })
 })
 
 type Context = Awaited<ReturnType<typeof createTRPCContext>>
@@ -136,6 +161,10 @@ function createAuthenticatedContext(ctx: Context): AuthenticatedContext {
     }
 }
 
+/**
+ * Procedure that requires the user to be authenticated.
+ * @throws TRPCError(UNAUTHORIZED) if there is no active session.
+ */
 export const authenticatedProcedure = t.procedure.meta({ authRequired: true }).use((opts) => {
     const { auth } = opts.ctx
 
@@ -148,6 +177,12 @@ export const authenticatedProcedure = t.procedure.meta({ authRequired: true }).u
 
 export type AuthenticatedTeamContext = AuthenticatedContext & { auth: RTPlusAuthWithActiveTeam, team: TeamRecord }
 
+/**
+ * Procedure that requires the user to have access to the specified team and the team to be active.
+ * @param teamId The ID of the team to check access for.
+ * @throws TRPCError(UNAUTHORIZED) if there is no active team.
+ * @throws TRPCError(FORBIDDEN) if the user does not have access to the team or the team is not active.
+ */
 export const teamProcedure = t.procedure
     .meta({ authRequired: true, activeTeamRequired: true })
     .input(z.object({ teamId: zodNanoId8 }))
@@ -159,7 +194,7 @@ export const teamProcedure = t.procedure
 
         const authenticatedContext = createAuthenticatedContext(opts.ctx)
 
-        const team = await fetchTeamByIdCached(opts.input.teamId)
+        const team = await opts.ctx.getTeamById(opts.input.teamId)
         if(!team || !authenticatedContext.hasTeamAccess(team)) throw new TRPCError({ code: 'FORBIDDEN', message: Messages.teamForbidden(opts.input.teamId) })
 
         return opts.next({
@@ -171,6 +206,12 @@ export const teamProcedure = t.procedure
         })
     })
 
+/**
+ * Procedure that requires the user to be an admin of the active team.
+ * @param teamId The ID of the team to check admin access for.
+ * @throws TRPCError(UNAUTHORIZED) if there is no active team.
+ * @throws TRPCError(FORBIDDEN) if the user is not an admin of the team.
+ */
 export const teamAdminProcedure = t.procedure
     .meta({ authRequired: true, activeTeamRequired: true, teamAdminRequired: true })
     .input(z.object({ teamId: zodNanoId8 }))
@@ -183,7 +224,7 @@ export const teamAdminProcedure = t.procedure
 
         const authenticatedContext = createAuthenticatedContext(opts.ctx)
 
-        const team = await fetchTeamByIdCached(opts.input.teamId)
+        const team = await opts.ctx.getTeamById(opts.input.teamId)
         if(!team || !authenticatedContext.hasTeamAdmin(team)) throw new TRPCError({ code: 'FORBIDDEN', message: Messages.teamForbidden(opts.input.teamId) })
 
         return opts.next({
