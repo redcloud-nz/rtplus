@@ -4,13 +4,13 @@
  */
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { pick } from 'remeda'
 
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useSuspenseQueries } from '@tanstack/react-query'
 
-import { AppPageContent, AppPageFooter } from '@/components/app-page'
 import { CurrentPersonValue } from '@/components/controls/person-value'
+import { InjectFooter } from '@/components/footer'
 import { Show } from '@/components/show'
 
 import { Alert } from '@/components/ui/alert'
@@ -19,13 +19,14 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 
-import { useAssignedSkills } from '@/hooks/use-assigned-skills'
+import { getAssignedSkills } from '@/hooks/use-assigned-skills'
 import { useToast } from '@/hooks/use-toast'
 import { CompetenceLevel, CompetenceLevelTerms, isPass } from '@/lib/competencies'
 import { nanoId16  } from '@/lib/id'
 import { SkillCheckData } from '@/lib/schemas/skill-check'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { useTRPC } from '@/trpc/client'
+
 
 
 type RecordingState = {
@@ -42,10 +43,17 @@ export function CompetencyRecorder_Session_RecordIndividual_PageContent({ sessio
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const { data: assessor } = useSuspenseQuery(trpc.currentUser.getPerson.queryOptions())
-    const { data: assessees } = useSuspenseQuery(trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId }))
-    const { data: skills } = useAssignedSkills({ sessionId })
-    const { data: existingChecks } = useSuspenseQuery(trpc.skillChecks.getSessionChecks.queryOptions({ sessionId, assessorId: 'me' }))
+    const [{ data: assessor }, { data: availablePackages }, { data: assessees }, { data: existingChecks }, { data: assignedSkillIds }] = useSuspenseQueries({
+        queries: [
+            trpc.currentUser.getPerson.queryOptions(),
+            trpc.skills.getAvailablePackages.queryOptions(),
+            trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId }),
+            trpc.skillChecks.getSessionChecks.queryOptions({ sessionId, assessorId: 'me' }),
+            trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId })
+        ]
+    })
+
+    const skills = useMemo(() => getAssignedSkills(availablePackages, assignedSkillIds), [availablePackages, assignedSkillIds])
 
     const [state, setState] = useState<RecordingState>({
         prevData: null,
@@ -135,116 +143,116 @@ export function CompetencyRecorder_Session_RecordIndividual_PageContent({ sessio
     }))
 
     return <>
-        <AppPageContent variant="full" hasFooter>
             {/* <CompetencyRecorder_Session_RecordIndividual_Card sessionId={session.sessionId} /> */}
             {/* <CompetencyRecorder_Session_Recent sessionId={session.sessionId} /> */}
 
-            <form className="space-y-4 pl-4 pr-3 pt-2">
+        <form className="space-y-4 pl-4 pr-3 pt-2">
+            <div>
+                <Label>Assessor</Label>
                 <div>
-                    <Label>Assessor</Label>
-                    <div>
-                        <CurrentPersonValue />
-                    </div>
+                    <CurrentPersonValue />
                 </div>
+            </div>
+            <div>
+                <Label>Assessee</Label>
                 <div>
-                    <Label>Assessee</Label>
-                    <div>
-                        <Show 
-                            when={assessees.length > 0}
-                            fallback={<Alert title="No assessees defined" severity="warning" className="p-2.5"/>}
-                        >
-                            <Select
-                                value={state.target.assesseeId} 
-                                onValueChange={newValue => handleChangeTarget({ assesseeId: newValue, skillId: state.target.skillId })}
-                                disabled={state.dirty}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select a person..."/>
-                                </SelectTrigger>
-                                <SelectContent>
-                                                                
-                                    {assessees.map(assessee => (
-                                        <SelectItem key={assessee.personId} value={assessee.personId} disabled={assessee.personId === assessor.personId}>
-                                            {assessee.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </Show>
-                    </div>
-                    
-                </div>
-                <div className="space-y-1">
-                    <Label>Skill</Label>
-                    <div>
-                        <Show 
-                            when={skills.length > 0}
-                            fallback={<Alert title="No skills defined" severity="warning" className="p-2.5"/>}
-                        >
-                            <Select
-                                value={state.target.skillId} 
-                                onValueChange={newValue => handleChangeTarget({ assesseeId: state.target.assesseeId, skillId: newValue })}
-                                disabled={state.dirty}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select a skill..."/>
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {skills.map(skill => (
-                                        <SelectItem key={skill.skillId} value={skill.skillId}>
-                                            {skill.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </Show>
-                        
-                    </div>
-                </div>
-                <div>
-                    <Label>Competency Level</Label>
-                    <div>
+                    <Show 
+                        when={assessees.length > 0}
+                        fallback={<Alert title="No assessees defined" severity="warning" className="p-2.5"/>}
+                    >
                         <Select
-                            value={state.data?.result || ''} 
-                            onValueChange={result => handleUpdateFormData({ result, notes: state.data?.notes || '' })}
-                            disabled={state.data == null}
+                            value={state.target.assesseeId} 
+                            onValueChange={newValue => handleChangeTarget({ assesseeId: newValue, skillId: state.target.skillId })}
+                            disabled={state.dirty}
                         >
                             <SelectTrigger>
-                                <SelectValue placeholder="Select a competency level..."/>
+                                <SelectValue placeholder="Select a person..."/>
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectContent>
-                                    {Object.entries(CompetenceLevelTerms).map(([key, label]) =>
-                                    <SelectItem key={key} value={key}>{label}</SelectItem>
-                                )}
-                            </SelectContent>
+                                                            
+                                {assessees.map(assessee => (
+                                    <SelectItem key={assessee.personId} value={assessee.personId} disabled={assessee.personId === assessor.personId}>
+                                        {assessee.name}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
-                    </div>
+                    </Show>
                 </div>
+                
+            </div>
+            <div className="space-y-1">
+                <Label>Skill</Label>
                 <div>
-                    <Label>Notes</Label>
-                    <div>
-                        <Textarea 
-                            value={state.data?.notes || ''} 
-                            onChange={e => handleUpdateFormData({ result: state.data?.result || '', notes: e.target.value })} 
-                            maxLength={500}
-                            disabled={state.data == null}
-                        />
-                    </div>
+                    <Show 
+                        when={skills.length > 0}
+                        fallback={<Alert title="No skills defined" severity="warning" className="p-2.5"/>}
+                    >
+                        <Select
+                            value={state.target.skillId} 
+                            onValueChange={newValue => handleChangeTarget({ assesseeId: state.target.assesseeId, skillId: newValue })}
+                            disabled={state.dirty}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a skill..."/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                {skills.map(skill => (
+                                    <SelectItem key={skill.skillId} value={skill.skillId}>
+                                        {skill.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </Show>
+                    
                 </div>
+            </div>
+            <div>
+                <Label>Competency Level</Label>
+                <div>
+                    <Select
+                        value={state.data?.result || ''} 
+                        onValueChange={result => handleUpdateFormData({ result, notes: state.data?.notes || '' })}
+                        disabled={state.data == null}
+                    >
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select a competency level..."/>
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectContent>
+                                {Object.entries(CompetenceLevelTerms).map(([key, label]) =>
+                                <SelectItem key={key} value={key}>{label}</SelectItem>
+                            )}
+                        </SelectContent>
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
+            <div>
+                <Label>Notes</Label>
+                <div>
+                    <Textarea 
+                        value={state.data?.notes || ''} 
+                        onChange={e => handleUpdateFormData({ result: state.data?.result || '', notes: e.target.value })} 
+                        maxLength={500}
+                        disabled={state.data == null}
+                    />
+                </div>
+            </div>
 
-            </form>
-        </AppPageContent>
-        <AppPageFooter>
-            <AsyncButton
-                size="sm" reset
-                onClick={() => mutation.mutateAsync({ sessionId, ...state.target, ...state.data! })}
-                label={state.prevData ? "Update" : "Save"}
-                pending={state.prevData ? "Updating..." : "Saving..."}
-                disabled={!state.dirty}
-            />
-            <Button variant="ghost" size="sm" onClick={handleReset}>Clear</Button>
-        </AppPageFooter>
+        </form>
+        <InjectFooter>
+            <div className="flex gap-2">
+                <AsyncButton
+                    size="sm" reset
+                    onClick={() => mutation.mutateAsync({ sessionId, ...state.target, ...state.data! })}
+                    label={state.prevData ? "Update" : "Save"}
+                    pending={state.prevData ? "Updating..." : "Saving..."}
+                    disabled={!state.dirty}
+                />
+                <Button variant="ghost" size="sm" onClick={handleReset}>Clear</Button>
+            </div>
+        </InjectFooter>
     </>
 }

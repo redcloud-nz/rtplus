@@ -5,11 +5,12 @@
  *  Path: /tools/competency-recorder/sessions/[session_id]
  */
 
-
 import { NavItem, NavSection } from '@/components/nav/nav-section'
 import { Sidebar, SidebarContent, SidebarHeader, SidebarRail } from '@/components/ui/sidebar'
 import * as Paths from '@/paths'
 import { fetchSkillCheckSession } from '@/server/fetch'
+import { HydrateClient, prefetch, trpc } from '@/trpc/server'
+
 import { SessionProvider } from './use-session'
 
 
@@ -24,10 +25,18 @@ export default async function CompetencyRecorder_Session_Layout(props: { params:
 
     const sessionPath = Paths.tools.competencyRecorder.session(session.sessionId)
 
+    prefetch(trpc.currentUser.getPerson.queryOptions())
+    prefetch(trpc.skills.getAvailablePackages.queryOptions())
+    prefetch(trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId: session.sessionId }))
+    prefetch(trpc.skillChecks.getSessionAssessors.queryOptions({ sessionId: session.sessionId }))
+    prefetch(trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId: session.sessionId }))
+
     return <>
-        <SessionProvider value={session}>
-            {props.children}
-        </SessionProvider>
+        <HydrateClient>
+            <SessionProvider value={session}>
+                {props.children}
+            </SessionProvider>
+        </HydrateClient>
         <Sidebar side="right">
             <SidebarRail side="right" />
             <SidebarHeader>

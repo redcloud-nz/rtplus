@@ -6,7 +6,9 @@
  */
 'use client'
 
-import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
+
+import { AppPage, AppPageBreadcrumbs, AppPageContent, AppPageFooter } from '@/components/app-page'
+import { Boundary } from '@/components/boundary'
 import { ExperimentalFeaturePopup } from '@/components/ui/experimental-feature-popup'
 import { GitHubIssueLink } from '@/components/ui/link'
 
@@ -18,6 +20,7 @@ import { CompetencyRecorder_Session_RecordByAssessee_PageContent } from './compe
 
 export default function CompetencyRecorder_Session_RecordByAssessee_Page() {
     const session = useSession()
+
 
     return <AppPage 
         showRightSidebarTrigger
@@ -33,6 +36,11 @@ export default function CompetencyRecorder_Session_RecordByAssessee_Page() {
                 Paths.tools.competencyRecorder.session(session).recordByAssessee,
             ]}
         />
-        <CompetencyRecorder_Session_RecordByAssessee_PageContent sessionId={session.sessionId} />
+        <AppPageContent variant="full" hasFooter>
+            <Boundary>
+                <CompetencyRecorder_Session_RecordByAssessee_PageContent sessionId={session.sessionId}/>
+            </Boundary>
+        </AppPageContent>
+        <AppPageFooter/>
     </AppPage>
 }

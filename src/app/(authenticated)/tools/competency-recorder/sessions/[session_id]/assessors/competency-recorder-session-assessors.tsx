@@ -9,8 +9,8 @@ import { useState } from 'react'
 
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { AppPageContent, AppPageFooter } from '@/components/app-page'
-
+import { Boundary } from '@/components/boundary'
+import { InjectFooter } from '@/components/footer'
 import { AsyncButton, Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
@@ -20,6 +20,7 @@ import { useToast } from '@/hooks/use-toast'
 import { PersonRef } from '@/lib/schemas/person'
 import { TeamData } from '@/lib/schemas/team'
 import { useTRPC } from '@/trpc/client'
+
 
 
 
@@ -98,7 +99,6 @@ export default function CompetencyRecorder_Session_Assessors_PageContents({ sess
     const isDirty = changes.added.length > 0 || changes.removed.length > 0
 
     return <>
-        <AppPageContent variant="full" hasFooter>
             <ScrollArea style={{ height: `calc(100vh - 98px)` }} className="flex flex-col gap-4 pl-4 pr-3">
                 <div className="text-sm text-muted-foreground py-4 space-y-2">
                     <p>
@@ -109,37 +109,39 @@ export default function CompetencyRecorder_Session_Assessors_PageContents({ sess
                         <li><span className="text-red-600 font-mono text-md pr-1">-</span> indicates an unsaved removal</li>
                     </ul>
                 </div>
-                
-                <TeamSection
-                    team={team}
-                    sessionId={sessionId}
-                    assignedAssessors={assignedAssessors.map(a => a.personId)}
-                    selectedAssessors={selectedAssessors}
-                    onSelectedChange={handleCheckedChange}
-                />
+
+                <Boundary>
+                    <TeamSection
+                        team={team}
+                        sessionId={sessionId}
+                        assignedAssessors={assignedAssessors.map(a => a.personId)}
+                        selectedAssessors={selectedAssessors}
+                        onSelectedChange={handleCheckedChange}
+                    />
+                    
+                </Boundary>
                 {/* We could support multiple teams here in future. */}
             </ScrollArea>
-        </AppPageContent>
-        <AppPageFooter className="justify-between">
-            <div className="flex gap-2">
-                <AsyncButton 
-                    onClick={() => mutation.mutateAsync({ sessionId: sessionId, additions: changes.added, removals: changes.removed })}
-                    disabled={!isDirty}
-                    reset
-                    label="Save"
-                    pending="Saving..."
-                />
-                <Button 
-                    variant="ghost" 
-                    disabled={!isDirty}
-                    onClick={handleReset}
-                >Reset</Button>
-            </div>
-            <div className="w-16 flex items-center justify-center gap-2">
-                {changes.added.length > 0 && <div className="text-green-600">+{changes.added.length}</div>}
-                {changes.removed.length > 0 && <div className="text-red-600">-{changes.removed.length}</div>}
-            </div>
-        </AppPageFooter>
+            <InjectFooter>
+                <div className="flex gap-2">
+                    <AsyncButton 
+                        onClick={() => mutation.mutateAsync({ sessionId: sessionId, additions: changes.added, removals: changes.removed })}
+                        disabled={!isDirty}
+                        reset
+                        label="Save"
+                        pending="Saving..."
+                    />
+                    <Button 
+                        variant="ghost" 
+                        disabled={!isDirty}
+                        onClick={handleReset}
+                    >Reset</Button>
+                </div>
+                <div className="w-16 flex items-center justify-center gap-2">
+                    {changes.added.length > 0 && <div className="text-green-600">+{changes.added.length}</div>}
+                    {changes.removed.length > 0 && <div className="text-red-600">-{changes.removed.length}</div>}
+                </div>
+        </InjectFooter>
     </>
 }
 

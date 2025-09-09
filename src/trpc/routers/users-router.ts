@@ -11,7 +11,6 @@ import { teamInvitationSchema, toTeamInvitationData } from '@/lib/schemas/invita
 import { toUserData, userSchema } from '@/lib/schemas/user'
 import { zodNanoId8 } from '@/lib/validation'
 
-import { getServerUrl } from '@/server/url'
 import { createTRPCRouter, teamAdminProcedure } from '@/trpc/init'
 import { Messages } from '@/trpc/messages'
 

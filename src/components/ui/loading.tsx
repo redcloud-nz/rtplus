@@ -30,3 +30,9 @@ export function LoadingOverlay({ className, ...props }: Omit<ComponentProps<'div
         </div>
     </div>
 }
+
+export function LoadingFallback({ className, ...props }: Omit<ComponentProps<'div'>, 'children'>) {
+    return <div className={cn("w-full h-16 flex items-center justify-center rounded-md bg-muted animate-pulse", className)} {...props}>
+        <LoadingSpinner className="w-12 h-12"/>
+    </div>
+}

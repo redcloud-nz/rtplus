@@ -15,7 +15,7 @@ import { DataTableBody, DataTableFooter, DataTableHead, DataTableProvider, defin
 import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
 
-import { useAssignedSkills } from '@/hooks/use-assigned-skills'
+import { useAssignedSkillsQuery } from '@/hooks/use-assigned-skills'
 import { CompetenceLevel, CompetenceLevelTerms } from '@/lib/competencies'
 import { PersonRef } from '@/lib/schemas/person'
 import { SkillData } from '@/lib/schemas/skill'
@@ -32,7 +32,7 @@ export function SkillCheckSession_Transcript_Card({ sessionId }: { sessionId: st
     const assesseesQuery = useSuspenseQuery(trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId }))
     const assessorsQuery = useSuspenseQuery(trpc.skillChecks.getSessionAssessors.queryOptions({ sessionId }))
     const checksQuery = useSuspenseQuery(trpc.skillChecks.getSessionChecks.queryOptions({ sessionId, assessorId: 'me'  }))
-    const assignedSkillsQuery = useAssignedSkills({ sessionId })
+    const assignedSkillsQuery = useAssignedSkillsQuery({ sessionId })
 
     async function handleRefresh() {
         await Promise.all([

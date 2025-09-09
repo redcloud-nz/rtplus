@@ -8,15 +8,13 @@ import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 
 import { Alert } from './ui/alert'
-import { LoadingSpinner } from './ui/loading'
+import { LoadingFallback } from './ui/loading'
 
 
 export function Boundary({ children }: { children: React.ReactNode }) {
     return <ErrorBoundary fallbackRender={({ error}) => <Alert severity="error" title="An error occured">{error.message}</Alert>}>
         <Suspense 
-            fallback={<div className="w-full h-16 flex items-center justify-center rounded-md bg-muted animate-pulse">
-                <LoadingSpinner className="w-12 h-12"/>
-            </div>}
+            fallback={<LoadingFallback/>}
         >
             {children}
         </Suspense>

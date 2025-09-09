@@ -6,16 +6,15 @@
  */
 'use client'
 
-import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
-
-import { CompetencyRecorder_Session_RecordBySkill_PageContent } from './competency-recorder-session-record-by-skill'
-
+import { AppPage, AppPageBreadcrumbs, AppPageContent, AppPageFooter } from '@/components/app-page'
+import { Boundary } from '@/components/boundary'
+import { ExperimentalFeaturePopup } from '@/components/ui/experimental-feature-popup'
+import { GitHubIssueLink } from '@/components/ui/link'
 
 import * as Paths from '@/paths'
 
 import { useSession } from '../use-session'
-import { ExperimentalFeaturePopup } from '@/components/ui/experimental-feature-popup'
-import { GitHubIssueLink } from '@/components/ui/link'
+import { CompetencyRecorder_Session_RecordBySkill_PageContent } from './competency-recorder-session-record-by-skill'
 
 
 export default function CompetencyRecorder_Session_RecordBySkill_Page() {
@@ -35,6 +34,11 @@ export default function CompetencyRecorder_Session_RecordBySkill_Page() {
                 Paths.tools.competencyRecorder.session(session).recordBySkill,
             ]}
         />
-        <CompetencyRecorder_Session_RecordBySkill_PageContent sessionId={session.sessionId} />
+        <AppPageContent variant="full" hasFooter>
+            <Boundary>
+                <CompetencyRecorder_Session_RecordBySkill_PageContent sessionId={session.sessionId} />
+            </Boundary>
+        </AppPageContent>
+        <AppPageFooter/>
     </AppPage>
 }

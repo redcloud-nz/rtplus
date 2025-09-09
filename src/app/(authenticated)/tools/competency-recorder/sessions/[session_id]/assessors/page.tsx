@@ -6,13 +6,14 @@
  */
 'use client'
 
-
-import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
-
+import { AppPage, AppPageBreadcrumbs, AppPageContent, AppPageFooter } from '@/components/app-page'
+import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 
 import { useSession } from '../use-session'
 import CompetencyRecorder_Session_Assessors_PageContents from './competency-recorder-session-assessors'
+
+
 
 /**
  * Page for managing the assessors assigned to a competency recording session.
@@ -20,7 +21,8 @@ import CompetencyRecorder_Session_Assessors_PageContents from './competency-reco
 export default function CompetencyRecorder_Session_Assessors_Page() {
     const session = useSession()
 
-    return <AppPage>
+
+    return <AppPage showRightSidebarTrigger>
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.tools.competencyRecorder,
@@ -29,6 +31,11 @@ export default function CompetencyRecorder_Session_Assessors_Page() {
                 Paths.tools.competencyRecorder.session(session).assessors
             ]}
         />
-        <CompetencyRecorder_Session_Assessors_PageContents sessionId={session.sessionId} team={session.team} />
+        <AppPageContent variant="full" hasFooter>
+            <Boundary>
+                <CompetencyRecorder_Session_Assessors_PageContents sessionId={session.sessionId} team={session.team} />
+            </Boundary>
+        </AppPageContent>
+        <AppPageFooter/>
     </AppPage>
 }

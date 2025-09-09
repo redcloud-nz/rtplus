@@ -7,7 +7,8 @@
 'use client'
 
 
-import { AppPage, AppPageBreadcrumbs} from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, AppPageFooter} from '@/components/app-page'
+import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
 
@@ -21,6 +22,7 @@ export default function CompetencyRecorder_Session_Assessees_Page() {
 
     const session = useSession()
 
+
     return <AppPage showRightSidebarTrigger>
         <AppPageBreadcrumbs
             breadcrumbs={[
@@ -30,6 +32,11 @@ export default function CompetencyRecorder_Session_Assessees_Page() {
                 Paths.tools.competencyRecorder.session(session).assessees
             ]}
         />
-        <CompetencyRecorder_Session_Assessees_PageContents sessionId={session.sessionId} team={session.team}/>
+        <AppPageContent variant="full" hasFooter>
+            <Boundary>
+                <CompetencyRecorder_Session_Assessees_PageContents sessionId={session.sessionId} team={session.team}/>
+            </Boundary>
+        </AppPageContent>
+        <AppPageFooter/>
     </AppPage>
 }

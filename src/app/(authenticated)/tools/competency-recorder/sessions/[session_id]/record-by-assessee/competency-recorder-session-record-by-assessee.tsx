@@ -6,11 +6,11 @@
 'use client'
 
 import { NotebookPenIcon } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useSuspenseQueries } from '@tanstack/react-query'
 
-import { AppPageContent, AppPageFooter } from '@/components/app-page'
+import { InjectFooter } from '@/components/footer'
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
 import { AsyncButton, Button } from '@/components/ui/button'
@@ -20,7 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
-import { useAssignedSkills } from '@/hooks/use-assigned-skills'
+import { getAssignedSkills } from '@/hooks/use-assigned-skills'
 import { useSkillCheckStore_experimental } from '@/hooks/use-skill-check-store'
 import { SkillData } from '@/lib/schemas/skill'
 import { cn } from '@/lib/utils'
@@ -28,89 +28,93 @@ import { useTRPC } from '@/trpc/client'
 
 
 
-
 export function CompetencyRecorder_Session_RecordByAssessee_PageContent({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
 
-    const { data: assessor } = useSuspenseQuery(trpc.currentUser.getPerson.queryOptions())
-    const { data: assessees } = useSuspenseQuery(trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId }))
-    const { data: skills } = useAssignedSkills({ sessionId })
+    const [{ data: assessor }, { data: availablePackages }, { data: assignedAssessees }, { data: assignedSkillIds }] = useSuspenseQueries({
+        queries: [
+            trpc.currentUser.getPerson.queryOptions(),
+            trpc.skills.getAvailablePackages.queryOptions(),
+            trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId }),
+            trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId })
+        ]
+    })
+
+    const assignedSkills = useMemo(() => getAssignedSkills(availablePackages, assignedSkillIds), [availablePackages, assignedSkillIds])
 
     const [targetAssesseeId, setTargetAssesseeId] = useState<string>('')
     const skillCheckStore = useSkillCheckStore_experimental(sessionId)
 
     return <>
-         <AppPageContent variant="full" hasFooter>
-            <ScrollArea style={{ height: `calc(100vh - 98px)` }} className="flex flex-col gap-4 pl-4 pr-3">
-                <div className="space-y-4 pt-2">
-                     <div>
-                        <Label>Assessee</Label>
-                        <div>
-                            <Show 
-                                when={assessees.length > 0}
-                                fallback={<Alert title="No assessees defined" severity="warning" className="p-2.5"/>}
+        <ScrollArea style={{ height: `calc(100vh - 98px)` }} className="flex flex-col gap-4 pl-4 pr-3">
+            <div className="space-y-4 pt-2">
+                <div>
+                    <Label>Assessee</Label>
+                    <div>
+                        <Show 
+                            when={assignedAssessees.length > 0}
+                            fallback={<Alert title="No assessees defined" severity="warning" className="p-2.5"/>}
+                        >
+                            <Select
+                                value={targetAssesseeId} 
+                                onValueChange={(newAssesseeId) => {
+                                    setTargetAssesseeId(newAssesseeId)
+                                    if(newAssesseeId) skillCheckStore.loadChecks({ assesseeId: newAssesseeId })
+                                }}
+                                disabled={skillCheckStore.isDirty}
                             >
-                                <Select
-                                    value={targetAssesseeId} 
-                                    onValueChange={(newAssesseeId) => {
-                                        setTargetAssesseeId(newAssesseeId)
-                                        if(newAssesseeId) skillCheckStore.loadChecks({ assesseeId: newAssesseeId })
-                                    }}
-                                    disabled={skillCheckStore.isDirty}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select a person..."/>
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                                                    
-                                        {assessees.map(assessee => (
-                                            <SelectItem key={assessee.personId} value={assessee.personId} disabled={assessee.personId === assessor.personId}>
-                                                {assessee.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </Show>
-                        </div>
-                        
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a person..."/>
+                                </SelectTrigger>
+                                <SelectContent>
+                                                                
+                                    {assignedAssessees.map(assessee => (
+                                        <SelectItem key={assessee.personId} value={assessee.personId} disabled={assessee.personId === assessor.personId}>
+                                            {assessee.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </Show>
                     </div>
-                    <div className="grid grid-cols-[min(20%,--spacing(80))_1fr_1fr">
-                        {skills.map(skill => 
-                            <SkillRow
-                                key={skill.skillId}
-                                skill={skill}
-                                disabled={!targetAssesseeId}
-                                value={skillCheckStore.getCheck({ skillId: skill.skillId, assesseeId: targetAssesseeId })}
-                                onValueChange={skillCheckStore.updateCheck({ skillId: skill.skillId, assesseeId: targetAssesseeId })}
-                            />
-                        )}
-                    </div>
+                    
                 </div>
-               
-            </ScrollArea>
-           
-        </AppPageContent>
-        <AppPageFooter>
-            <AsyncButton
-                size="sm"
-                label="Save"
-                pending="Saving"
-                disabled={!skillCheckStore.isDirty}
-                onClick={async () => {
-                    await skillCheckStore.saveChecks()
-                    setTargetAssesseeId('')
-                }}
-                reset
-            />
-            <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => {
-                    skillCheckStore.reset()
-                    setTargetAssesseeId('')
-                }}
-            >Clear</Button>
-        </AppPageFooter>
+                <div className="grid grid-cols-[min(20%,--spacing(80))_1fr_1fr">
+                    {assignedSkills.map(skill => 
+                        <SkillRow
+                            key={skill.skillId}
+                            skill={skill}
+                            disabled={!targetAssesseeId}
+                            value={skillCheckStore.getCheck({ skillId: skill.skillId, assesseeId: targetAssesseeId })}
+                            onValueChange={skillCheckStore.updateCheck({ skillId: skill.skillId, assesseeId: targetAssesseeId })}
+                        />
+                    )}
+                </div>
+            </div>
+        </ScrollArea>
+        <InjectFooter>
+            <div className="flex gap-2">
+                <AsyncButton
+                    size="sm"
+                    label="Save"
+                    pending="Saving"
+                    disabled={!skillCheckStore.isDirty}
+                    onClick={async () => {
+                        await skillCheckStore.saveChecks()
+                        setTargetAssesseeId('')
+                    }}
+                    reset
+                />
+                <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => {
+                        skillCheckStore.reset()
+                        setTargetAssesseeId('')
+                    }}
+                >Clear</Button>
+            </div>
+        </InjectFooter>
     </>
 }
 

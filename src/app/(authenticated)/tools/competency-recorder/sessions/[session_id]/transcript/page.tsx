@@ -8,10 +8,13 @@
 
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
-import { CompetencyRecorder_Session_Recent } from './competency-recorder-session-recent'
+import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
 import { useSession } from '../use-session'
+
+import { CompetencyRecorder_Session_Recent } from './competency-recorder-session-recent'
+
 
 export default function CompetencyRecorder_Session_Transcript_Page() {
     const session = useSession()
@@ -25,8 +28,10 @@ export default function CompetencyRecorder_Session_Transcript_Page() {
                 Paths.tools.competencyRecorder.session(session).transcript,
             ]}
         />
-        <AppPageContent variant="full">
-            <CompetencyRecorder_Session_Recent sessionId={session.sessionId} />
+        <AppPageContent variant="container">
+            <Boundary>
+                <CompetencyRecorder_Session_Recent sessionId={session.sessionId} />
+            </Boundary>
         </AppPageContent>
     </AppPage>
 }

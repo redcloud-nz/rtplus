@@ -6,12 +6,13 @@
  */
 'use client'
 
-import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
-
+import { AppPage, AppPageBreadcrumbs, AppPageContent, AppPageFooter } from '@/components/app-page'
+import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 
 import { useSession } from '../use-session'
 import CompetencyRecorder_Session_Skills_PageContent from './competency-recorder-session-skills'
+
 
 
 
@@ -30,7 +31,11 @@ export default function CompetencyRecorder_Session_Skills_Page() {
                 Paths.tools.competencyRecorder.session(session).skills
             ]}
         />
-        <CompetencyRecorder_Session_Skills_PageContent sessionId={session.sessionId}/>
-        
+        <AppPageContent variant="full" hasFooter>
+             <Boundary>
+                <CompetencyRecorder_Session_Skills_PageContent sessionId={session.sessionId}/>
+            </Boundary>
+        </AppPageContent>
+       <AppPageFooter/>
     </AppPage>
 }

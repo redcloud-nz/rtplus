@@ -48,7 +48,7 @@ const appPageContentVariants = tv({
     variants: {
         variant: {
             default: 'flex flex-1 flex-col gap-4 p-4 ',
-            full: 'w-full flex items-stretch *:flex-1',
+            full: 'w-full flex flex-col items-stretch',
             centered: 'w-full flex flex-col items-center justify-center',
             container: 'flex flex-col items-center gap-4 p-4 *:w-full xl:*:w-4xl overflow-y-auto',
         },
@@ -70,12 +70,14 @@ export function AppPageContent({ children, className, hasFooter = false, variant
     </main>
 }
 
-export function AppPageFooter({ children, className }: { children: ReactNode, className?: string }) {
+export function AppPageFooter({ className, id = "app-page-footer", ...props }: ComponentProps<'footer'>) {
     return <>
         <Separator orientation="horizontal" className="row-start-4 col-span-full"/>
-        <footer className={cn("row-start-5 col-span-full flex items-center gap-2 px-2", className)}>
-            {children}
-        </footer>
+        <footer
+            className={cn("row-start-5 col-span-full flex items-center justify-between gap-2 px-2", className)}
+            id={id}
+            {...props}
+        />
     </>
 }
 

@@ -118,7 +118,8 @@ export function CompetencyRecorder_SessionsList_Card() {
                     <TableOptionsDropdown/>
                     <Separator orientation='vertical'/>
                     <CardExplanation>
-                        This is a list of all of the draft skill check sessions that you have been assigned to (as a assessor).
+                        <p>This is a list of all of the draft skill check sessions that you have been assigned to (as a assessor).</p>
+                        <p>Team admins can create new sessions from the Competencies &gt; Team Sessions page.</p>
                     </CardExplanation>
                 </CardActions>
             </CardHeader>
