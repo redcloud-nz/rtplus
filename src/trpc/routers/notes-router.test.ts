@@ -4,37 +4,42 @@
 */
 
 import { describe, test, expect, beforeEach } from 'vitest'
+
+import prisma from '@/server/prisma'
+import { SamplePersonnel } from '@/test/sample-personnel'
+import { createAuthenticatedMockContext } from '@/test/trpc-helpers'
+
 import { createInnerTRPCContext } from '../init'
 import { appRouter } from './_app'
-import { createAuthenticatedMockContext } from '@/test/trpc-helpers'
-import prisma from '@/server/prisma'
-import { TRPCError } from '@trpc/server'
+
+
 
 describe('Notes Router', () => {
     let mockContext: ReturnType<typeof createAuthenticatedMockContext>
 
+    const actor = SamplePersonnel.AyazIovita // The person who is interacting with the system
+
     beforeEach(async () => {
+        // Seed some test data in the database
+        await prisma.person.create({
+            data: actor
+        })
+        await prisma.person.create({
+            data: SamplePersonnel.BeatrixLavinia
+        })
+
         // Create a custom auth context that matches the person we want to create a note for
         mockContext = createAuthenticatedMockContext({
-        personId: 'PID00001'
+            personId: actor.id,
         })
     })
 
     test('create note', async () => {
-        // Seed some test data in the database
-        await prisma.person.create({
-        data: {
-            id: 'PID00001',
-            name: 'Test Person',
-            email: 'test@example.com',
-        }
-        })
 
-        const ctx = createInnerTRPCContext(mockContext)
-        const caller = appRouter.createCaller(ctx)
+        const caller = appRouter.createCaller(mockContext)
 
         const result = await caller.notes.createNote({ 
-            personId: "PID00001", 
+            personId: actor.id, 
             teamId: null,  
             noteId: 'NID00001', 
             date: '2025-10-10', 
@@ -43,7 +48,7 @@ describe('Notes Router', () => {
         })
 
         expect(result).toBeDefined()
-        expect(result.personId).toBe('PID00001')
+        expect(result.personId).toBe(actor.id)
         expect(result.title).toBe('Title')
         expect(result.content).toBe('Test note')
         expect(result.date).toBe('2025-10-10')
@@ -56,7 +61,23 @@ describe('Notes Router', () => {
         expect(createdNote?.title).toBe('Title')
     })
 
-    test('create note requires valid person', async () => {
+    test('cant specify both personId and teamId', async () => {
+        const ctx = createInnerTRPCContext(mockContext)
+        const caller = appRouter.createCaller(ctx)
+
+        await expect(
+            caller.notes.createNote({ 
+                personId: actor.id, 
+                teamId: 'TID00001',  
+                noteId: 'NID00002', 
+                date: '2025-10-10', 
+                title: "Title", 
+                content: "Test note" 
+            })
+        ).rejects.toThrow(expect.objectContaining({ code: 'BAD_REQUEST' }))
+    })
+
+    test('personal notes are limited to the calling user', async () => {
         const ctx = createInnerTRPCContext(mockContext)
         const caller = appRouter.createCaller(ctx)
 
@@ -65,11 +86,23 @@ describe('Notes Router', () => {
             caller.notes.createNote({ 
                 personId: "PID99999", 
                 teamId: null,  
-                noteId: 'NID99999', 
+                noteId: 'NID00002', 
                 date: '2025-10-10', 
                 title: "Title", 
                 content: "Test note" 
             })
-        ).rejects.toThrow(TRPCError)
+        ).rejects.toThrow(expect.objectContaining({ code: 'FORBIDDEN' }))
+
+        // This should also fail because the person is different from the authenticated user
+        await expect(
+            caller.notes.createNote({ 
+                personId: SamplePersonnel.BeatrixLavinia.id, 
+                teamId: null,  
+                noteId: 'NID00003', 
+                date: '2025-10-10', 
+                title: "Title", 
+                content: "Test note"
+            })
+        ).rejects.toThrow(expect.objectContaining({ code: 'FORBIDDEN' }))
     })
 })
