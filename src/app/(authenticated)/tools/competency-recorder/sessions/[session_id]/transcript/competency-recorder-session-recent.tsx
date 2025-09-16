@@ -22,7 +22,12 @@ import { useTRPC } from '@/trpc/client'
 export function CompetencyRecorder_Session_Recent({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
 
-    const [{ data: availablePackages }, { data: assignedAssessees }, { data: checks }, { data: assignedSkillIds }] = useSuspenseQueries({
+    const [
+        { data: availablePackages }, 
+        { data: assignedAssessees }, 
+        { data: checks },
+        { data: assignedSkillIds }
+    ] = useSuspenseQueries({
         queries: [
             trpc.skills.getAvailablePackages.queryOptions(),
             trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId }),

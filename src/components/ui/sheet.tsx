@@ -37,8 +37,8 @@ export function SheetOverlay({ className, ...props }: ComponentPropsWithRef<type
   />
 }
 
-const sheetVariants = tv({
-    base: "fixed z-50 gap-4 space-y-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
+const sheetContentVariants = tv({
+    base: "fixed z-50 space-y-4 bg-background px-4 pt-3 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-300",
     variants: {
         side: {
             top: "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
@@ -52,13 +52,13 @@ const sheetVariants = tv({
     },
 })
 
-export interface SheetContentProps extends ComponentPropsWithRef<typeof SheetPrimitive.Content>, VariantProps<typeof sheetVariants> {}
+export interface SheetContentProps extends ComponentPropsWithRef<typeof SheetPrimitive.Content>, VariantProps<typeof sheetContentVariants> {}
 
 export function SheetContent({ side = "right", className, children, ...props }: SheetContentProps) {
     return <SheetPortal>
         <SheetOverlay />
         <SheetPrimitive.Content
-            className={cn(sheetVariants({ side }), className)}
+            className={sheetContentVariants({ side, className })}
             {...props}
         >
             {children}

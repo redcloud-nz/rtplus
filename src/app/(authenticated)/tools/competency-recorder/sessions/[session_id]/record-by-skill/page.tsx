@@ -6,26 +6,26 @@
  */
 'use client'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, AppPageFooter } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, AppPageControls, PageExplanation } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
-import { ExperimentalFeaturePopup } from '@/components/ui/experimental-feature-popup'
 import { GitHubIssueLink } from '@/components/ui/link'
+import { Separator } from '@/components/ui/separator'
+import { Paragraph } from '@/components/ui/typography'
 
 import * as Paths from '@/paths'
 
+import { CompetencyRecorder_Session_Menu } from '../session-menu'
 import { useSession } from '../use-session'
 import { CompetencyRecorder_Session_RecordBySkill_PageContent } from './competency-recorder-session-record-by-skill'
+
+
+
 
 
 export default function CompetencyRecorder_Session_RecordBySkill_Page() {
     const session = useSession()
 
-    return <AppPage 
-        showRightSidebarTrigger
-        rightControls={<ExperimentalFeaturePopup>
-                <p>This page is an experimental feature. See <GitHubIssueLink issueNumber={13}/> for feedback or suggestions.</p>
-            </ExperimentalFeaturePopup>}
-    >
+    return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.tools.competencyRecorder,
@@ -34,11 +34,27 @@ export default function CompetencyRecorder_Session_RecordBySkill_Page() {
                 Paths.tools.competencyRecorder.session(session).recordBySkill,
             ]}
         />
-        <AppPageContent variant="full" hasFooter>
+
+        <AppPageControls>
+            <PageExplanation>
+                <Paragraph>
+                    This page allows recording multiple skill-checks for a particular skill.
+                </Paragraph>
+                <Paragraph>
+                    Select a skill and then record skill-checks against that skill for the assessees in this session.
+                </Paragraph>
+                <Paragraph>
+                    This page is an experimental feature. See <GitHubIssueLink issueNumber={13}/> for feedback or suggestions.
+                </Paragraph>
+            </PageExplanation>
+            <Separator orientation="vertical"/>
+            <CompetencyRecorder_Session_Menu sessionId={session.sessionId} />
+        </AppPageControls>
+
+        <AppPageContent variant="full">
             <Boundary>
                 <CompetencyRecorder_Session_RecordBySkill_PageContent sessionId={session.sessionId} />
             </Boundary>
         </AppPageContent>
-        <AppPageFooter/>
     </AppPage>
 }

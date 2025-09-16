@@ -50,11 +50,7 @@ export const createAuthenticatedMockContext = ({ personId, activeTeam, teams = [
         getClerkClient: () => { 
             throw new Error("Not implemented in test") 
         },
-        getTeamById: vi.fn().mockResolvedValue({
-            id: 'team_test123',
-            name: 'Test Team',
-            slug: 'test-team',
-        }),
+        getTeamById: (teamId) => Promise.resolve(teams.find(t => t.id === teamId) || null),
         ...overrides
     })
 }

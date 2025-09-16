@@ -38,6 +38,8 @@
   --sidebar-ring: oklch(0.705 0.015 286.067);
 
   --table-frame: oklch(0.645 0.246 16.439);
+
+  --header-height: 49px;
 }
  
 .dark {

@@ -9,12 +9,11 @@ import { useState } from 'react'
 
 import { useMutation, useQueryClient, useSuspenseQueries} from '@tanstack/react-query'
 
-import { InjectFooter } from '@/components/footer'
-import { AsyncButton, Button } from '@/components/ui/button'
+import { FloatingFooter } from '@/components/footer'
+import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Paragraph } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
 import { SkillData } from '@/lib/schemas/skill'
@@ -52,6 +51,7 @@ export default function CompetencyRecorder_Session_Skills_PageContent({ sessionI
             queryClient.setQueryData(trpc.skillChecks.getSessionSkillIds.queryKey({ sessionId }), (old = []) => 
                 [...old.filter(skillId => !removals.includes(skillId)), ...additions ]
             )
+            setChanges({ added: [], removed: [] })
             return { previousData }
         },
         onError(error, _data, context) {
@@ -60,12 +60,6 @@ export default function CompetencyRecorder_Session_Skills_PageContent({ sessionI
                 title: 'Error updating skills',
                 description: error.message,
                 variant: 'destructive'
-            })
-        },
-        onSuccess(result) {
-            toast({
-                title: 'Skills updated',
-                description: `The skills assigned to the session have been updated: ${result.addCount} skills added, ${result.removeCount} skills removed.`,
             })
         },
         onSettled() {
@@ -99,20 +93,10 @@ export default function CompetencyRecorder_Session_Skills_PageContent({ sessionI
         }
     }
 
-    const dirty = changes.added.length > 0 || changes.removed.length > 0
+    const isDirty = changes.added.length > 0 || changes.removed.length > 0
 
-    return <>
-        <ScrollArea style={{ height: `calc(100vh - 98px)` }} className="flex flex-col gap-4 pl-4 pr-3">
-            <div className="text-sm text-muted-foreground py-4">
-                <Paragraph >
-                    Select the skills that should be included in this competency recorder session.
-                </Paragraph>
-                <ul className="text-sm text-muted-foreground">
-                    <li><span className="text-green-600 font-mono text-md pr-1">+</span> indicates an unsaved addition</li>
-                    <li><span className="text-red-600 font-mono text-md pr-1">-</span> indicates an unsaved removal</li>
-                </ul>
-            </div>
-            
+    return <ScrollArea style={{ height: `calc(100vh - var(--header-height))` }} className="pl-4 pr-3 [&>[data-slot=scroll-area-viewport]]:pb-8">
+        <div className="flex flex-col divide-y divide-border ">
             {availablePackages
                 .filter(pkg => pkg.skills.length > 0)
                 .map(pkg => <SkillPackageSection
@@ -124,30 +108,33 @@ export default function CompetencyRecorder_Session_Skills_PageContent({ sessionI
                 />
                 )
             }
+        </div>
 
-        </ScrollArea>
-        <InjectFooter>
-            <div className="flex gap-2">
-                <AsyncButton 
-                    onClick={() => mutation.mutateAsync({ sessionId, additions: changes.added, removals: changes.removed })}
-                    disabled={!dirty}
-                    reset
-                    label="Save"
-                    pending="Saving..."
-                />
-                <Button 
-                    variant="ghost" 
-                    disabled={!dirty}
-                    onClick={handleReset}
-                >Reset</Button>
-            </div>
-            <div className="w-16 flex items-center justify-center gap-2">
-                {changes.added.length > 0 && <div className="text-green-600">+{changes.added.length}</div>}
-                {changes.removed.length > 0 && <div className="text-red-600">-{changes.removed.length}</div>}
-            </div>
-        </InjectFooter>
-        
-    </>
+        <FloatingFooter open={isDirty || mutation.isPending}>
+            {mutation.isPending ?
+                <div className="animate-pulse text-sm text-muted-foreground p-2">Saving changes...</div>
+                : <>
+                    <Button 
+                        size="sm"
+                        color="blue"
+                        onClick={() => mutation.mutate({ sessionId, additions: changes.added, removals: changes.removed })}
+                        disabled={!isDirty}
+                    >Save</Button>
+                        
+                    <Button
+                        size="sm"
+                        color="red"
+                        disabled={!isDirty}
+                        onClick={handleReset}
+                    >Reset</Button>
+                    <div className="w-16 flex items-center justify-center gap-2">
+                        {changes.added.length > 0 && <div className="text-green-600">+{changes.added.length}</div>}
+                        {changes.removed.length > 0 && <div className="text-red-600">-{changes.removed.length}</div>}
+                    </div>
+                </>
+            }
+        </FloatingFooter>
+    </ScrollArea>
 }
 
 interface SkillPackageSectionProps {
@@ -159,7 +146,7 @@ interface SkillPackageSectionProps {
 
 function SkillPackageSection({ pkg, assignedSkills, selectedSkills, onSelectedChange }: SkillPackageSectionProps) {
 
-    return <div className="border-t py-4">
+    return <div className="py-4">
         <div className="font-semibold text-xl">{pkg.name}</div>
         <ul className="pl-2">
             {pkg.skillGroups.map(group => <li key={group.skillGroupId} className="py-1">

@@ -21,10 +21,12 @@ import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
+import { useIsMobile } from '@/hooks/use-mobile'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 import { useTRPC } from '@/trpc/client'
+
 
 export function Team_SkillCheckSessionsList_Card({ team }: { team: TeamData }) {
     const trpc = useTRPC()
@@ -34,6 +36,8 @@ export function Team_SkillCheckSessionsList_Card({ team }: { team: TeamData }) {
     async function handleRefresh() {
         await sessionsQuery.refetch()
     }
+
+    const isMobile = useIsMobile()
 
     const columns = useMemo(() => defineColumns<SkillCheckSessionData>(columnHelper => [
         columnHelper.accessor('name', {
@@ -103,7 +107,7 @@ export function Team_SkillCheckSessionsList_Card({ team }: { team: TeamData }) {
         getSortedRowModel: getSortedRowModel(),
         initialState: {
             columnVisibility: {
-                name: true, date: true, skills: true, assessees: true, checks: true, assessors: true, status: true
+                name: true, date: true, skills: isMobile, assessees: isMobile, checks: isMobile, assessors: isMobile, status: true
             },
             columnFilters: [],
             grouping: [],

@@ -4,17 +4,28 @@
  */
 'use client'
 
-import { Suspense } from 'react'
+import { ComponentProps, ReactNode, Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 
 import { Alert } from './ui/alert'
 import { LoadingFallback } from './ui/loading'
 
+export interface BoundaryProps {
+    children: ReactNode
+    slotProps?: {
+        errorAlert?: ComponentProps<typeof Alert>
+        loadingFallback?: ComponentProps<typeof LoadingFallback>
+    }
+}
 
-export function Boundary({ children }: { children: React.ReactNode }) {
-    return <ErrorBoundary fallbackRender={({ error}) => <Alert severity="error" title="An error occured">{error.message}</Alert>}>
+
+export function Boundary({ children, slotProps = {} }: BoundaryProps) {
+    return <ErrorBoundary fallbackRender={({ error }) => {
+        const alertProps = { severity: 'error' as const, title: 'An error occured', ...(slotProps.errorAlert ?? {}) }
+        return <Alert {...alertProps}>{error.message}</Alert>
+    }}>
         <Suspense 
-            fallback={<LoadingFallback/>}
+            fallback={<LoadingFallback {...(slotProps.loadingFallback ?? {})} />}
         >
             {children}
         </Suspense>

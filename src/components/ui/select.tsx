@@ -21,7 +21,7 @@ export const SelectValue = SelectPrimitive.Value
 export const selectTriggerVariants = tv({
     base: cn(
         "flex w-full justify-between border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground",
-            "focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2",
+            "focus:outline-hidden focus:ring-2 focus:ring-ring",
             "disabled:cursor-not-allowed disabled:opacity-50", 
             "[&>span]:line-clamp-1",
     ),

@@ -340,9 +340,9 @@ export const tools = {
                     label: 'By Skill',
                     href: `${sessionBase}/record-by-skill`,
                 },
-                recordIndividual: {
-                    label: 'Individual',
-                    href: `${sessionBase}/record-individual`,
+                recordSingle: {
+                    label: 'Single',
+                    href: `${sessionBase}/record-single`,
                 },
                 skills: {
                     label: 'Skills',

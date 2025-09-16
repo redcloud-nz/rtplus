@@ -9,8 +9,8 @@ import { useState } from 'react'
 
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { InjectFooter } from '@/components/footer'
-import { AsyncButton, Button } from '@/components/ui/button'
+import { FloatingFooter } from '@/components/footer'
+import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -61,12 +61,6 @@ export default function CompetencyRecorder_Session_Assessees_PageContents({ sess
                 variant: 'destructive'
             })
         },
-        onSuccess(result) {
-            toast({
-                title: "Assessees updated",
-                description: `The assessees for this session have been updated: ${result.addCount} added, ${result.removeCount} removed.`,
-            })
-        },
         onSettled() {
             queryClient.invalidateQueries(trpc.skillChecks.getSessionAssessees.queryFilter({ sessionId }))
         }
@@ -102,49 +96,46 @@ export default function CompetencyRecorder_Session_Assessees_PageContents({ sess
 
     const isDirty = changes.added.length > 0 || changes.removed.length > 0
 
-    return <>
-        <ScrollArea style={{ height: `calc(100vh - 98px)` }} className="flex flex-col gap-4 pl-4 pr-3">
-            <div className="text-sm text-muted-foreground py-4 space-y-2">
-                <p>
-                    Select the team members that should be included as assessees in this competency recorder session.
-                </p>
-                <ul className="text-sm text-muted-foreground">
-                    <li><span className="text-green-600 font-mono text-md pr-1">+</span> indicates an unsaved addition</li>
-                    <li><span className="text-red-600 font-mono text-md pr-1">-</span> indicates an unsaved removal</li>
-                </ul>
-            </div>
-            
+    return  <ScrollArea style={{ height: `calc(100vh - var(--header-height))` }} className="pl-4 pr-3 [&>[data-slot=scroll-area-viewport]]:pb-8">
+        <div className="flex flex-col divide-y divide-border">
             <TeamSection
                 team={team}
                 assignedAssessees={assignedAssessees.map(a => a.personId)}
                 selectedAssessees={selectedAssessees}
                 onSelectedChange={handleCheckedChange}
             />
-            {/* We could support multiple teams here in future. */}
-        </ScrollArea>
+                {/* We could support multiple teams here in future. */}
+        </div>
         
-        <InjectFooter>
-            <div className="flex gap-2">
-                <AsyncButton 
-                    onClick={() => mutation.mutateAsync({ sessionId, additions: changes.added, removals: changes.removed })}
-                    disabled={!isDirty}
-                    reset
-                    label="Save"
-                    pending="Saving..."
-                />
-                <Button 
-                    variant="ghost" 
-                    disabled={!isDirty}
-                    onClick={handleReset}
-                >Reset</Button>
-            </div>
-            <div className="w-16 flex items-center justify-center gap-2">
-                {changes.added.length > 0 && <div className="text-green-600">+{changes.added.length}</div>}
-                {changes.removed.length > 0 && <div className="text-red-600">-{changes.removed.length}</div>}
-            </div>
-        </InjectFooter>
-    </>
+        <FloatingFooter open={isDirty || mutation.isPending}>
+            {mutation.isPending ?
+                <div className="animate-pulse text-sm text-muted-foreground p-2">Saving changes...</div>
+                : <>
+                    <Button 
+                        size="sm"
+                        color="blue"
+                        onClick={() => mutation.mutate({ sessionId, additions: changes.added, removals: changes.removed })}
+                        disabled={!isDirty}
+                    >Save</Button>
+                        
+                    <Button
+                        size="sm"
+                        color="red"
+                        disabled={!isDirty}
+                        onClick={handleReset}
+                    >Reset</Button>
+                    <div className="w-16 flex items-center justify-center gap-2">
+                        {changes.added.length > 0 && <div className="text-green-600">+{changes.added.length}</div>}
+                        {changes.removed.length > 0 && <div className="text-red-600">-{changes.removed.length}</div>}
+                    </div>
+                </>
+            }
+        </FloatingFooter>
+        
+        
+    </ScrollArea>
 }
+
 
 interface TeamSectionProps {
     team: TeamData
@@ -160,7 +151,7 @@ function TeamSection({ team, assignedAssessees, selectedAssessees, onSelectedCha
 
     const teamAssessees = members.filter(m => selectedAssessees.includes(m.personId))
 
-    return <div className="border-t py-4">
+    return <div className="py-4">
         <div className="flex items-center justify-between">
             <div className="font-semibold text-xl">{team.name}</div>
             <div className="text-sm text-muted-foreground">{teamAssessees.length} selected</div>

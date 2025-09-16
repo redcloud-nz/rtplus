@@ -25,12 +25,13 @@ export const buttonVariants = tv({
             outline: "border bg-background hover:bg-accent",
             ghost: "hover:bg-accent active:bg-accent/50 active:text-accent-foreground/50",
             link: "text-primary underline-offset-4 hover:underline",
-            hanger: "border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-t-0 rounded-b-md",
         },
         color: {
             primary: "",
             secondary: "",
             destructive: "",
+            blue: "",
+            red: "",
         },
         size: {
             default: "h-10 rounded-md px-4 py-2",
@@ -44,12 +45,21 @@ export const buttonVariants = tv({
         { variant: "default", color: "primary", class: "bg-primary text-primary-foreground hover:bg-primary/90" },
         { variant: "default", color: "secondary", class: "bg-secondary text-secondary-foreground hover:bg-secondary/80" },
         { variant: "default", color: "destructive", class: "bg-destructive text-background hover:bg-destructive/90" },
+        { variant: "default", color: "blue", class: "bg-blue-600 text-background hover:bg-blue-500/90 active:bg-blue-500/75" },
+        { variant: "default", color: "red", class: "bg-red-600 text-background hover:bg-red-500/90 active:bg-red-500/75" },
+
         { variant: "outline", color: "primary", class: "border-primary hover:text-primary/90" },
         { variant: "outline", color: "secondary", class: "border-secondary hover:text-secondary/90" },
         { variant: "outline", color: "destructive", class: "border-destructive text-destructive hover:text-destructive/90" },
+        { variant: "outline", color: "blue", class: "border-blue-600 text-blue-600 hover:bg-blue-600/10" },
+        { variant: "outline", color: "red", class: "border-red-600 text-red-600 hover:bg-red-600/10" },
+
         { variant: "ghost", color: "primary", class: "text-primary hover:text-primary/90" },
         { variant: "ghost", color: "secondary", class: "text-secondary hover:text-secondary/80" },
         { variant: "ghost", color: "destructive", class: "text-destructive hover:text-destructive/90" },
+        { variant: "ghost", color: "blue", class: "text-blue-600 hover:text-blue-600/90" },
+        { variant: "ghost", color: "red", class: "text-red-600 hover:text-red-600/90" },
+
         { variant: "ghost", size: "icon", class: "rounded-full" },
     ],
     defaultVariants: {
@@ -75,7 +85,7 @@ export type ButtonProps = ComponentProps<'button'> & VariantProps<typeof buttonV
 export function Button({ className, variant, color, size, asChild = false, ...props }: ButtonProps) {
     const Comp = asChild ? Slot : 'button'
     return <Comp
-        className={cn(buttonVariants({ variant, color, size, className }))}
+        className={cn(buttonVariants({ className, color, size, variant }))}
         {...props}
     />
 }
@@ -91,7 +101,7 @@ export type AsyncButtonProps = ButtonProps & {
     reset?: boolean
 }
 
-export function AsyncButton({ children, className, disabled, variant, size, onClick, label, pending, done, reset, ...props}: AsyncButtonProps) {
+export function AsyncButton({ children, className, color, disabled, variant, size, onClick, label, pending, done, reset, ...props}: AsyncButtonProps) {
 
     const [state, setState] = React.useState<'ready' | 'pending' | 'done'>('ready')
 
@@ -104,7 +114,7 @@ export function AsyncButton({ children, className, disabled, variant, size, onCl
     }
 
     return <button
-        className={cn('group', buttonVariants({ variant, size, className }))}
+        className={cn('group', buttonVariants({ className, color, size, variant }))}
         disabled={state != 'ready' || disabled}
         onClick={handleClick}
         data-state={state}

@@ -6,55 +6,41 @@
 
 import { formatISO } from 'date-fns'
 
-import { useSuspenseQuery } from '@tanstack/react-query'
-
-import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { DisplayValue } from '@/components/ui/display-value'
-import { Separator } from '@/components/ui/separator'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { ToruGrid, ToruGridRow } from '@/components/ui/toru-grid'
 
-import { useTRPC } from '@/trpc/client'
+import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
+import { TeamRef } from '@/lib/schemas/team'
 
 
 
-export function SkillCheckSession_Details_Card({ sessionId }: { sessionId: string }) {
-    const trpc = useTRPC()
 
-    const { data: session } = useSuspenseQuery(trpc.skillChecks.getSession.queryOptions({ sessionId }))
+
+export function SkillCheckSession_Details_Card({ session }: { session: SkillCheckSessionData & { team: TeamRef } }) {
     
-    return <Card>
-        <CardHeader>
-            <CardTitle>Details</CardTitle>
-            <CardActions>
-                <Separator orientation="vertical" />
-                <CardExplanation>
-                    This card displays the details of the skill check session.
-                </CardExplanation>
-            </CardActions>
-        </CardHeader>
-        <CardContent>
-            <ToruGrid>
-                <ToruGridRow 
-                    label="Session ID" 
-                    control={<DisplayValue>{session.sessionId}</DisplayValue>}
-                />
-                <ToruGridRow 
-                    label="Name" 
-                    control={<DisplayValue>{session.name}</DisplayValue>}
-                />
-                <ToruGridRow 
-                    label="Team" 
-                    control={<DisplayValue>{session.team.name}</DisplayValue>}
-                />
-                <ToruGridRow 
-                    label="Date" 
-                    control={<DisplayValue>{formatISO(new Date(session.date), { representation: 'date' })}</DisplayValue>}
-                />
-                <ToruGridRow 
-                    label="Status" 
-                    control={<DisplayValue>{session.sessionStatus}</DisplayValue>}
-                />
-            </ToruGrid>
-        </CardContent>
-    </Card>    
+    return <ScrollArea style={{ height: `calc(100vh - var(--header-height))` }} className="flex flex-col gap-4 px-2">
+        <ToruGrid>
+            <ToruGridRow
+                label="Session ID"
+                control={<DisplayValue>{session.sessionId}</DisplayValue>}
+            />
+            <ToruGridRow
+                label="Name"
+                control={<DisplayValue>{session.name}</DisplayValue>}
+            />
+            <ToruGridRow
+                label="Team"
+                control={<DisplayValue>{session.team.name}</DisplayValue>}
+            />
+            <ToruGridRow
+                label="Date"
+                control={<DisplayValue>{formatISO(new Date(session.date), { representation: 'date' })}</DisplayValue>}
+            />
+            <ToruGridRow
+                label="Status"
+                control={<DisplayValue>{session.sessionStatus}</DisplayValue>}
+            />
+        </ToruGrid>
+    </ScrollArea>
 }

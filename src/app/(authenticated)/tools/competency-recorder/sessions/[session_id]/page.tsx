@@ -6,19 +6,21 @@
  */
 'use client'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, AppPageControls, PageExplanation } from '@/components/app-page'
+import { Separator } from '@/components/ui/separator'
 
 import * as Paths from '@/paths'
 
+import { CompetencyRecorder_Session_Menu } from './session-menu'
 import { SkillCheckSession_Details_Card } from './skill-check-session-details'
-
 import { useSession } from './use-session'
+
 
 
 export default function CompetencyRecorder_Session_Details_Page() {
     const session = useSession()
 
-    return <AppPage showRightSidebarTrigger>
+    return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.tools.competencyRecorder,
@@ -26,8 +28,17 @@ export default function CompetencyRecorder_Session_Details_Page() {
                 Paths.tools.competencyRecorder.session(session),
             ]}
         />
-        <AppPageContent variant="container">
-            <SkillCheckSession_Details_Card sessionId={session.sessionId} />
+        <AppPageControls>
+            <PageExplanation>
+                This page provides the details of the skill check session.
+            </PageExplanation>
+            <Separator orientation="vertical"/>
+            <CompetencyRecorder_Session_Menu sessionId={session.sessionId} />
+        </AppPageControls>
+        
+        <AppPageContent variant="full">
+            <SkillCheckSession_Details_Card session={session} />
         </AppPageContent>
     </AppPage>
 }
+

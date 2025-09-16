@@ -9,7 +9,7 @@ const prismaClientSingleton = () => {
     // Use Prismock in test environment, regular PrismaClient otherwise
     if (process.env.NODE_ENV === 'test') {
         // Dynamic import only in test environment to avoid bundling Prismock in production
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { PrismockClient } = require('prismock')
         return new PrismockClient() as unknown as PrismaClient
     }

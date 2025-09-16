@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
+import { InfoIcon } from 'lucide-react'
 import Link from 'next/link'
 import { ComponentProps, Fragment, ReactNode } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
@@ -10,10 +11,14 @@ import { tv, type VariantProps } from 'tailwind-variants'
 import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area'
 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
+import { Button } from '@/components/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Heading } from '@/components/ui/typography'
 import { cn } from '@/lib/utils'
+
 
 
 interface AppPageProps {
@@ -31,7 +36,7 @@ export function AppPage({ children, rightControls, showLeftSidebarTrigger = true
         </div>}
         
          <div className="row-1 col-3 flex justify-center items-center pr-1 gap-1">
-            {rightControls ? <div>{rightControls}</div> : null}
+            {rightControls ? rightControls : null}
             { showRightSidebarTrigger ? <>
                 <Separator orientation="vertical"/>
                 <SidebarTrigger side="right"/>
@@ -123,7 +128,7 @@ export function AppPageBreadcrumbs({ breadcrumbs = [] }: AppPageBreadcrumbsProps
 }
 
 export function AppPageControls({ children, className }: ComponentProps<'div'>) {
-    return <div className={cn("row-start-1 col-start-3 flex items-center pr-1", className)}>{children}</div>
+    return <div className={cn("row-start-1 col-start-3 flex items-center gap-1 pr-1", className)}>{children}</div>
 }
 
 
@@ -178,4 +183,22 @@ export function PageControls({ className, ...props }: ComponentProps<'div'>) {
         )}
         {...props}
     />
+}
+
+export function PageExplanation({ className, ...props }: ComponentProps<'div'>) {
+    return <Popover>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <PopoverTrigger asChild>
+                     <Button variant="ghost" size="icon">
+                        <InfoIcon />
+                    </Button>
+                </PopoverTrigger>
+            </TooltipTrigger>
+            <TooltipContent>Page Explanation</TooltipContent>
+        </Tooltip>
+        <PopoverContent align="end" className="w-96">
+            <div className={cn("text-sm text-muted-foreground space-y-2", className)} {...props}/>
+        </PopoverContent>
+    </Popover>
 }

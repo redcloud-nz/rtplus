@@ -19,7 +19,7 @@ import { CompetencyRecorder_Session_Recent } from './competency-recorder-session
 export default function CompetencyRecorder_Session_Transcript_Page() {
     const session = useSession()
 
-    return <AppPage showRightSidebarTrigger>
+    return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.tools.competencyRecorder,

@@ -8,16 +8,27 @@ import * as React from 'react'
 import * as TabsPrimitive from '@radix-ui/react-tabs'
 
 import { cn } from '@/lib/utils'
+import { tv } from 'tailwind-variants'
 
 export const Tabs = TabsPrimitive.Root
 
+const tabsListVariants = tv({
+    base: "inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
+    variants: {
+        variant: {
+            default: "",
+            stretch: "w-full [&>[data-slot=trigger]]:flex-1",
+        },
+    },
+    defaultVariants: {
+        variant: "default"
+    },
+})
 
-export function TabsList({ className, ...props }: React.ComponentPropsWithRef<typeof TabsPrimitive.List>) {
+
+export function TabsList({ className, variant, ...props }: React.ComponentPropsWithRef<typeof TabsPrimitive.List> & { variant?: 'default' | 'stretch' }) {
     return <TabsPrimitive.List
-        className={cn(
-            "inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
-            className
-        )}
+        className={tabsListVariants({ className, variant })}
         {...props}
     />
 }
@@ -31,6 +42,7 @@ export function TabsTrigger({ className, ...props }: React.ComponentPropsWithRef
             "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs",
             className
         )}
+        data-slot="trigger"
         {...props}
     />
 }
@@ -38,7 +50,7 @@ export function TabsTrigger({ className, ...props }: React.ComponentPropsWithRef
 export function TabsContent({ className, ...props }: React.ComponentPropsWithRef<typeof TabsPrimitive.Content>) {
     return <TabsPrimitive.Content
         className={cn(
-            "mt-2 ring-offset-background focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+            "mt-2 ring-offset-background focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-blue-200",
             className
         )}
         {...props}
