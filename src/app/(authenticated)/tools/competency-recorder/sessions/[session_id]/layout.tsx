@@ -6,7 +6,6 @@
  */
 
 import { fetchSkillCheckSession } from '@/server/fetch'
-import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
 import { SessionProvider } from './use-session'
 
@@ -20,17 +19,9 @@ export async function generateMetadata(props: { params: Promise<{ session_id: st
 export default async function CompetencyRecorder_Session_Layout(props: { params: Promise<{ session_id: string }>, children: React.ReactNode }) {
     const session = await fetchSkillCheckSession(props.params)
 
-    prefetch(trpc.currentUser.getPerson.queryOptions())
-    prefetch(trpc.skills.getAvailablePackages.queryOptions())
-    prefetch(trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId: session.sessionId }))
-    prefetch(trpc.skillChecks.getSessionAssessors.queryOptions({ sessionId: session.sessionId }))
-    prefetch(trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId: session.sessionId }))
-
     return <>
-        <HydrateClient>
-            <SessionProvider value={session}>
-                {props.children}
-            </SessionProvider>
-        </HydrateClient>
-        </>
+        <SessionProvider value={session}>
+            {props.children}
+        </SessionProvider>
+    </>
 }

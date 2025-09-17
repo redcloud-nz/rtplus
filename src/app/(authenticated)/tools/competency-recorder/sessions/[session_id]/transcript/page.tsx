@@ -7,10 +7,13 @@
 'use client'
 
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, AppPageControls, PageExplanation } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
+import { Separator } from '@/components/ui/separator'
+import { Paragraph } from '@/components/ui/typography'
 
 import * as Paths from '@/paths'
+import { CompetencyRecorder_Session_Menu } from '../session-menu'
 import { useSession } from '../use-session'
 
 import { CompetencyRecorder_Session_Recent } from './competency-recorder-session-recent'
@@ -28,6 +31,15 @@ export default function CompetencyRecorder_Session_Transcript_Page() {
                 Paths.tools.competencyRecorder.session(session).transcript,
             ]}
         />
+        <AppPageControls>
+            <PageExplanation>
+                <Paragraph >
+                    This transcript shows the most recent skill checks recorded in this session, with the most recent at the top.
+                </Paragraph>
+            </PageExplanation>
+            <Separator orientation="vertical"/>
+            <CompetencyRecorder_Session_Menu sessionId={session.sessionId} />
+        </AppPageControls>
         <AppPageContent variant="container">
             <Boundary>
                 <CompetencyRecorder_Session_Recent sessionId={session.sessionId} />

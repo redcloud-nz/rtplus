@@ -22,11 +22,10 @@ import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 import { getAssignedSkills } from '@/hooks/use-assigned-skills'
-import { useSkillCheckStore_experimental } from '@/hooks/use-skill-check-store'
+import { GetCheckReturn, useSkillCheckStore_experimental } from '@/hooks/use-skill-check-store'
 import { SkillData } from '@/lib/schemas/skill'
 import { cn } from '@/lib/utils'
 import { useTRPC } from '@/trpc/client'
-
 
 
 export function CompetencyRecorder_Session_RecordByAssessee_PageContent({ sessionId }: { sessionId: string }) {
@@ -56,10 +55,7 @@ export function CompetencyRecorder_Session_RecordByAssessee_PageContent({ sessio
             >
                 <Select
                     value={targetAssesseeId} 
-                    onValueChange={(newAssesseeId) => {
-                        setTargetAssesseeId(newAssesseeId)
-                        if(newAssesseeId) skillCheckStore.loadChecks({ assesseeId: newAssesseeId })
-                    }}
+                    onValueChange={setTargetAssesseeId}
                     disabled={skillCheckStore.isDirty}
                 >
                     <SelectTrigger>
@@ -85,7 +81,7 @@ export function CompetencyRecorder_Session_RecordByAssessee_PageContent({ sessio
                             key={skill.skillId}
                             skill={skill}
                             disabled={!targetAssesseeId}
-                            value={skillCheckStore.getCheck({ skillId: skill.skillId, assesseeId: targetAssesseeId })}
+                            savedValue={skillCheckStore.getCheck({ skillId: skill.skillId, assesseeId: targetAssesseeId })}
                             onValueChange={skillCheckStore.updateCheck({ skillId: skill.skillId, assesseeId: targetAssesseeId })}
                         />
                     )}
@@ -119,12 +115,12 @@ export function CompetencyRecorder_Session_RecordByAssessee_PageContent({ sessio
 interface SkillRowProps {
     skill: SkillData
     disabled: boolean
-    value: { result: string, notes: string, isDirty: boolean, prev: { result: string, notes: string } | null }
+    savedValue: GetCheckReturn
     onValueChange: (value: { result: string, notes: string }) => void
 }
 
-function SkillRow({ skill, disabled, value, onValueChange }: SkillRowProps) {
-    const resultChanged = value.prev ? value.result !== value.prev.result : true
+function SkillRow({ skill, disabled, savedValue: value, onValueChange }: SkillRowProps) {
+    const resultChanged = value.savedValue ? value.result !== value.savedValue.result : true
 
     const [showNotes, setShowNotes] = useState(false)
 

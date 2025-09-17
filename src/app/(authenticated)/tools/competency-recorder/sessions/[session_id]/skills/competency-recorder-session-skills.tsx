@@ -28,18 +28,18 @@ export default function CompetencyRecorder_Session_Skills_PageContent({ sessionI
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const [{ data: availablePackages }, { data: assignedSkills }] = useSuspenseQueries({
+    const [{ data: availablePackages }, { data: assignedSkillIds }] = useSuspenseQueries({
         queries: [
             trpc.skills.getAvailablePackages.queryOptions(),
             trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId })
         ]
     })
 
-    const [selectedSkills, setSelectedSkills] = useState<string[]>(assignedSkills)
+    const [selectedSkills, setSelectedSkills] = useState<string[]>(assignedSkillIds)
     const [changes, setChanges] = useState<{ added: string[], removed: string[] }>({ added: [], removed: [] })
 
     function handleReset() {
-        setSelectedSkills(assignedSkills)
+        setSelectedSkills(assignedSkillIds)
         setChanges({ added: [], removed: [] })
     }
 
@@ -102,7 +102,7 @@ export default function CompetencyRecorder_Session_Skills_PageContent({ sessionI
                 .map(pkg => <SkillPackageSection
                     key={pkg.skillPackageId}
                     pkg={pkg}
-                    assignedSkills={assignedSkills}
+                    assignedSkills={assignedSkillIds}
                     selectedSkills={selectedSkills}
                     onSelectedChange={handleCheckedChange}
                 />

@@ -5,7 +5,7 @@
 'use client'
 
 import { NotebookPenIcon } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 
 import { useSuspenseQueries } from '@tanstack/react-query'
 
@@ -21,7 +21,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 import { getAssignedSkills } from '@/hooks/use-assigned-skills'
-import { useSkillCheckStore_experimental } from '@/hooks/use-skill-check-store'
+import { GetCheckReturn, useSkillCheckStore_experimental } from '@/hooks/use-skill-check-store'
 import { PersonRef } from '@/lib/schemas/person'
 import { cn } from '@/lib/utils'
 import { useTRPC } from '@/trpc/client'
@@ -31,16 +31,16 @@ import { useTRPC } from '@/trpc/client'
 export function CompetencyRecorder_Session_RecordBySkill_PageContent({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
 
-    const [{ data: availablePackages }, { data: assignedAssessees }, { data: assignedSkillIds }] = useSuspenseQueries({
+    const { assignedAssessees, assignedSkills } = useSuspenseQueries({
         queries: [
             trpc.skills.getAvailablePackages.queryOptions(),
             trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId }),
             trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId })
-        ]
+        ],
+        combine: ([{ data: availablePackages }, { data: assignedAssessees }, { data: assignedSkillIds }]) => {
+            return { assignedAssessees, assignedSkills: getAssignedSkills(availablePackages, assignedSkillIds) }
+        }
     })
-
-    const skills = useMemo(() => getAssignedSkills(availablePackages, assignedSkillIds), [availablePackages, assignedSkillIds])
-
 
     const [targetSkillId, setTargetSkillId] = useState<string>('')
     const skillCheckStore = useSkillCheckStore_experimental(sessionId)
@@ -54,18 +54,14 @@ export function CompetencyRecorder_Session_RecordBySkill_PageContent({ sessionId
             >
                 <Select
                     value={targetSkillId} 
-                    onValueChange={(newSkillId) => {
-                        setTargetSkillId(newSkillId)
-                        if(newSkillId) skillCheckStore.loadChecks({ skillId: newSkillId })
-                    }}
+                    onValueChange={setTargetSkillId}
                     disabled={skillCheckStore.isDirty}
                 >
                     <SelectTrigger>
                         <SelectValue placeholder="Select a skill..."/>
                     </SelectTrigger>
-                    <SelectContent>
-                                                    
-                        {skills.map(skill => (
+                    <SelectContent>                  
+                        {assignedSkills.map(skill => (
                             <SelectItem key={skill.skillId} value={skill.skillId}>
                                 {skill.name}
                             </SelectItem>
@@ -83,7 +79,7 @@ export function CompetencyRecorder_Session_RecordBySkill_PageContent({ sessionId
                             key={assessee.personId}
                             assessee={assessee}
                             disabled={!targetSkillId}
-                            value={skillCheckStore.getCheck({ assesseeId: assessee.personId, skillId: targetSkillId })}
+                            check={skillCheckStore.getCheck({ assesseeId: assessee.personId, skillId: targetSkillId })}
                             onValueChange={skillCheckStore.updateCheck({ assesseeId: assessee.personId, skillId: targetSkillId })}
                         />
                     )}
@@ -116,12 +112,12 @@ export function CompetencyRecorder_Session_RecordBySkill_PageContent({ sessionId
 interface AssesseeRowProps {
     assessee: PersonRef
     disabled: boolean
-    value: { result: string, notes: string, isDirty: boolean, prev: { result: string, notes: string } | null }
+    check: GetCheckReturn
     onValueChange: (value: { result: string, notes: string }) => void
 }
 
-function AssesseeRow({ assessee, disabled, value, onValueChange }: AssesseeRowProps) {
-    const resultChanged = value.prev ? value.result !== value.prev.result : true
+function AssesseeRow({ assessee, disabled, check: value, onValueChange }: AssesseeRowProps) {
+    const resultChanged = value.savedValue ? value.result !== value.savedValue.result : true
     
     const [showNotes, setShowNotes] = useState(false)
 

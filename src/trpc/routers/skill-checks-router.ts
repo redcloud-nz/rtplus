@@ -918,10 +918,6 @@ export const skillChecksRouter = createTRPCRouter({
         .input(z.object({
             checks: z.array(skillCheckSchema.pick({ skillCheckId: true, skillId: true, assesseeId: true, result: true, notes: true }))
         }))
-        .output(z.object({
-            session: skillCheckSessionSchema,
-            checks: z.array(skillCheckSchema)
-        }))
         .mutation(async ({ ctx, input }) => {
             const assessorId = ctx.auth.personId
             const session = ctx.skillCheckSession

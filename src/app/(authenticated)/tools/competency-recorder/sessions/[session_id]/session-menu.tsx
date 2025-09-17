@@ -67,6 +67,14 @@ export function CompetencyRecorder_Session_Menu({ sessionId }: { sessionId: stri
                     </Link>
                 </DropdownMenuItem>
             </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+                <DropdownMenuItem asChild>
+                    <Link to={Paths.tools.competencyRecorder.session(sessionId).transcript}>
+                        Transcript
+                    </Link>
+                </DropdownMenuItem>
+            </DropdownMenuGroup>
         </DropdownMenuContent>
     </DropdownMenu>
 }

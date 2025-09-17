@@ -7,9 +7,9 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { entries, fromEntries, values } from 'remeda'
+import { fromEntries, isEmpty, omit, pick, values } from 'remeda'
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useSuspenseQueries } from '@tanstack/react-query'
 
 import { useToast } from '@/hooks/use-toast'
 import { CompetenceLevel, isPass } from '@/lib/competencies'
@@ -18,33 +18,72 @@ import { SkillCheckData } from '@/lib/schemas/skill-check'
 
 import { useTRPC } from '@/trpc/client'
 
-
-
 const DEFAULT_RESULT_VALUE = ''
 const DEFAULT_NOTES_VALUES = ''
-const EMPTY_SKILL_CHECKS_ARRAY: SkillCheckData[] = []
 
-interface CheckState {
-    readonly assesseeId: string
-    readonly skillId: string
-    readonly skillCheckId: string
-    readonly prev: SkillCheckData | null
-    readonly current: Pick<SkillCheckData, 'result' | 'notes'>
-    readonly isDirty: boolean
+type CheckState = Pick<SkillCheckData, 'assesseeId' | 'skillId' | 'skillCheckId' | 'result' | 'notes'>
+
+function createEmptyCheck(assesseeId: string, skillId: string): CheckState {
+    return {
+        assesseeId,
+        skillId,
+        skillCheckId: nanoId16(),
+        result: DEFAULT_RESULT_VALUE,
+        notes: DEFAULT_NOTES_VALUES,
+    }
 }
 
+/**
+ * The return type of getCheck method in SkillCheckStore.
+ */
+export type GetCheckReturn = Omit<CheckState, 'skillCheckId'> & { isDirty: boolean, savedValue: SkillCheckData | null }
+
+/**
+ * A hook to manage the state of skill checks for a given session.
+ * 
+ * This hook provides methods to get, update, save, and reset skill checks.
+ * It uses React Query for data fetching and mutation, and manages local state for modified checks.
+ */
 interface SkillCheckStore {
+
+    /**
+     * Whether there are unsaved changes to any skill checks.
+     */
     isDirty: boolean
 
-    getCheck(params: { assesseeId: string, skillId: string }): Pick<SkillCheckData, 'assesseeId' | 'skillId' | 'result' | 'notes'> & { isDirty: boolean, prev: Pick<SkillCheckData, 'result' | 'notes'> | null }
+    /**
+     * Get the current state of a skill check for a given assessee and skill.
+     * If the check has been modified, the modified state is returned.
+     * If the check has been saved but not modified, the saved state is returned.
+     * If the check does not exist, a new empty check is returned.
+     * 
+     * @param params - The assesseeId and skillId to identify the skill check.
+     * @returns The current state of the skill check, whether it is dirty, and the saved value if it exists.
+     */
+    getCheck(params: { assesseeId: string, skillId: string }): GetCheckReturn
 
+    /**
+     * Update the state of a skill check for a given assessee and skill.
+     * This marks the check as dirty and stores the modified state locally.
+     * @param params - The assesseeId and skillId to identify the skill check.
+     * @return A function that takes the updates to apply to the skill check.
+     */
     updateCheck(params: { assesseeId: string, skillId: string }): (update: { result?: string, notes?: string }) => void
 
-    loadChecks(checkFilter: { assesseeId?: string, skillId?: string }): void
-
+    /**
+     * Save all modified skill checks to the server.
+     * This will send the modified checks to the server and update the local state accordingly.
+     * If there are no changes to save, an error is thrown.
+     */
     saveChecks(): Promise<void>
 
+    /**
+     * Reset all modified skill checks to their saved state.
+     * This will discard any unsaved changes and revert to the last saved state.
+     */
     reset(): void
+
+    mutationStatus?: 'idle' | 'pending' | 'error' | 'success'
 }
 
 
@@ -53,25 +92,32 @@ export function useSkillCheckStore_experimental(sessionId: string): SkillCheckSt
     const { toast } = useToast()
     const trpc = useTRPC()
 
-    const { data: assessor } = useQuery(trpc.currentUser.getPerson.queryOptions())
-    const { data: session } = useQuery(trpc.skillChecks.getSession.queryOptions({ sessionId }))
-    const { data: existingChecks = EMPTY_SKILL_CHECKS_ARRAY } = useQuery(trpc.skillChecks.getSessionChecks.queryOptions({ sessionId, assessorId: 'me' }))
+    const [{ data: assessor }, { data: session }, { data: savedChecksArray }] = useSuspenseQueries({
+        queries: [
+            trpc.currentUser.getPerson.queryOptions(),
+            trpc.skillChecks.getSession.queryOptions({ sessionId }),
+            trpc.skillChecks.getSessionChecks.queryOptions({ sessionId, assessorId: 'me' })
+        ]
+    })
 
-    const [checks, setChecks] = useState<Record<`${string}|${string}`, CheckState>>({})
+    const savedChecks = useMemo(() => fromEntries(savedChecksArray.map(check => [`${check.assesseeId}|${check.skillId}`, check])), [savedChecksArray])
+    const [modifiedChecks, setModifiedChecks] = useState<Record<`${string}|${string}`, CheckState>>({})
 
-    const mutation = useMutation(trpc.skillChecks.saveSessionChecks.mutationOptions({
+    const saveChecksMutation = useMutation(trpc.skillChecks.saveSessionChecks.mutationOptions({
         async onMutate(data) {
+            // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
             await queryClient.cancelQueries(trpc.skillChecks.getSessionChecks.queryFilter({ sessionId, assessorId: 'me' }))
 
             const prevData = queryClient.getQueryData(trpc.skillChecks.getSessionChecks.queryKey({ sessionId, assessorId: 'me' }))
 
             queryClient.setQueryData(trpc.skillChecks.getSessionChecks.queryKey({ sessionId, assessorId: 'me' }), (oldData: SkillCheckData[] = []) => {
-
+                // Checks that were previously saved need to be updated.
                 const updatedSkillChecks = oldData.map(check => {
                     const update = data.checks.find(c => c.skillCheckId === check.skillCheckId)
                     return update ? { ...check, ...update, passed: isPass(update.result as CompetenceLevel) } : check
                 })
 
+                // New checks that need to be added.
                 const newSkillChecks = data.checks
                     .filter(update => !oldData.some(check => check.skillCheckId === update.skillCheckId))
                     .map(update => ({ ...update, sessionId, teamId: session!.teamId, assessorId: assessor!.personId, date: session!.date, passed: isPass(update.result as CompetenceLevel), timestamp: new Date().toISOString() } satisfies SkillCheckData))
@@ -96,85 +142,73 @@ export function useSkillCheckStore_experimental(sessionId: string): SkillCheckSt
                 description: `Your ${result.checks.length} skill checks have been saved successfully`,
             })
 
-            queryClient.invalidateQueries(trpc.skillChecks.getSessionChecks.queryFilter({ sessionId, assessorId: 'me' }))
+            setTimeout(() => { saveChecksMutation.reset() }, 2000) 
         }
     }))
 
     return useMemo(() => ({
-        isDirty: entries(checks).some(([, check]) => check.isDirty),
+        isDirty: !isEmpty(modifiedChecks),
 
-        getCheck({ assesseeId, skillId }) {
-            const check = checks[`${assesseeId}|${skillId}`]
-            if (check) return {
-                assesseeId, skillId,
-                result: check.current.result,
-                notes: check.current.notes,
-                isDirty: check.isDirty,
-                prev: check.prev ? { result: check.prev.result, notes: check.prev.notes } : null
-            }
+        getCheck({ assesseeId, skillId }): GetCheckReturn {
+            // First, find the saved version of this check
+            const savedCheck = savedChecks[`${assesseeId}|${skillId}`]
 
+            // If there is a modified version of this check, return it
+            const modifiedCheck = modifiedChecks[`${assesseeId}|${skillId}`]
+            if (modifiedCheck) return { ...pick(modifiedCheck, ['assesseeId', 'skillId', 'result', 'notes']), isDirty: true, savedValue: savedCheck }
+
+            if(savedCheck) return { ...pick(savedCheck, ['assesseeId', 'skillId', 'result', 'notes']), isDirty: false, savedValue: savedCheck }
+
+            // Otherwise, return a new, empty check
             return {
                 assesseeId, skillId,
                 result: DEFAULT_RESULT_VALUE,
                 notes: DEFAULT_NOTES_VALUES,
                 isDirty: false,
-                prev: null
+                savedValue: null
             }
         },
         updateCheck({ assesseeId, skillId }) {
             return (update) => {
-                setChecks(prevChecks => {
-                    const found = prevChecks[`${assesseeId}|${skillId}`]
-                    return {
-                        ...prevChecks,
-                        [`${assesseeId}${skillId}`]: found
-                            ? { ...found, current: { ...found.current, ...update }, isDirty: true }
-                            : { assesseeId, skillId, skillCheckId: nanoId16(), current: { result: DEFAULT_RESULT_VALUE, notes: DEFAULT_NOTES_VALUES, ...update }, prev: null, isDirty: true }
+                setModifiedChecks(prevChecks => {
+                    const saved = savedChecks[`${assesseeId}|${skillId}`]
+                    const prev = prevChecks[`${assesseeId}|${skillId}`]
+
+                     if(saved && update.result == saved.result && update.notes == saved.notes) {
+                        // Updated values match the saved values
+                        
+                        // If there is a previous modified state, remove it
+                        if(prev) return omit(prevChecks, [`${assesseeId}|${skillId}`])
+                        
+                        // No previous modified state, nothing to do
+                        return prevChecks
                     }
+
+
+                    if(prev) {
+                        // Update the already modified state
+                        return { ...prevChecks, [`${assesseeId}|${skillId}`]: { ...prev, ...update } }
+                    }
+
+                    // Create a new modified state
+                    return { ...prevChecks, [`${assesseeId}|${skillId}`]: { ...createEmptyCheck(assesseeId, skillId), ...update } satisfies CheckState }
                 })
             }
         },
 
-        loadChecks(checkFilter) {
-            const filteredChecks = existingChecks.filter(check => {
-                if (checkFilter.assesseeId && check.assesseeId != checkFilter.assesseeId) return false
-                if (checkFilter.skillId && check.skillId != checkFilter.skillId) return false
-                return true
-            })
-            setChecks(fromEntries(filteredChecks.map(check => [
-                `${check.assesseeId}${check.skillId}`,
-                {
-                    assesseeId: check.assesseeId,
-                    skillId: check.skillId,
-                    skillCheckId: check.skillCheckId,
-                    prev: check,
-                    current: {
-                        result: check.result,
-                        notes: check.notes,
-                    },
-                    isDirty: false,
-                }
-            ])))
-        },
         async saveChecks() {
-            const dirtyChecks = values(checks).filter(check => check.isDirty)
-            if(dirtyChecks.length == 0) throw new Error('No changes to save')
+            
+            if(isEmpty(modifiedChecks)) throw new Error('No changes to save')
 
-            await mutation.mutateAsync({ 
+            await saveChecksMutation.mutateAsync({ 
                 sessionId, 
-                checks: dirtyChecks
-                    .map(check => ({
-                        skillCheckId: check.skillCheckId,
-                        assesseeId: check.assesseeId,
-                        skillId: check.skillId,
-                        result: check.current.result,
-                        notes: check.current.notes,
-                    })) 
+                checks: values(modifiedChecks)
             })
-            setChecks({})
+            setModifiedChecks({})
         },
         reset() {
-            setChecks({})
-        }
-    }), [assessor, checks, existingChecks, mutation, session])
+            setModifiedChecks({})
+        },
+        mutationStatus: saveChecksMutation.status
+    }), [assessor, modifiedChecks, savedChecks, saveChecksMutation, session])
 }

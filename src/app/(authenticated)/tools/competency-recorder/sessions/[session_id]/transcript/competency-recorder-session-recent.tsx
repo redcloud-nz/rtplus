@@ -18,7 +18,6 @@ import { useTRPC } from '@/trpc/client'
 
 
 
-
 export function CompetencyRecorder_Session_Recent({ sessionId }: { sessionId: string }) {
     const trpc = useTRPC()
 
@@ -33,7 +32,7 @@ export function CompetencyRecorder_Session_Recent({ sessionId }: { sessionId: st
             trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId }),
             trpc.skillChecks.getSessionChecks.queryOptions({ sessionId, assessorId: 'me' }),
             trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId }),
-        ]
+        ],
     })
 
     const assignedSkills = useMemo(() => getAssignedSkills(availablePackages, assignedSkillIds), [availablePackages, assignedSkillIds])
