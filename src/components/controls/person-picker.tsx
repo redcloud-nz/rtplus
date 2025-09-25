@@ -17,7 +17,7 @@ import { selectTriggerVariants } from '@/components/ui/select'
 
 import { PersonData } from '@/lib/schemas/person'
 import { cn } from '@/lib/utils'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 interface PersonPickerProps {
@@ -72,7 +72,6 @@ interface PersonPickerProps {
 export function PersonPicker({ className, defaultValue = "", exclude = [], filter = {}, onValueChange, placeholder, size, value }: PersonPickerProps) {
     filter = { status: ['Active'], type: ['Normal'], ...filter }
 
-    const trpc = useTRPC()
     const query = useQuery(trpc.personnel.getPersonnel.queryOptions(filter))
 
     const [open, setOpen] = useState(false)

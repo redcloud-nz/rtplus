@@ -24,7 +24,7 @@ import { CompetenceLevel, CompetenceLevelTerms, isPass } from '@/lib/competencie
 import { nanoId16  } from '@/lib/id'
 import { SkillCheckData } from '@/lib/schemas/skill-check'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
@@ -40,7 +40,6 @@ export function CompetencyRecorder_Session_RecordSingle_PageContent({ session }:
 
     const queryClient = useQueryClient()
     const { toast } = useToast()
-    const trpc = useTRPC()
 
     const [
         { data: assessor }, 

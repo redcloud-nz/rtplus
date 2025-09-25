@@ -25,7 +25,7 @@ import {personSchema } from '@/lib/schemas/person'
 import { TeamData } from '@/lib/schemas/team'
 import { teamMembershipSchema } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
@@ -41,8 +41,6 @@ export function Team_NewMember_Details_Card({ team, showTags }: { team: TeamData
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
-    const trpc = useTRPC()
-
 
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),

@@ -32,7 +32,7 @@ import { SkillGroupData, skillGroupSchema } from '@/lib/schemas/skill-group'
 import { SkillPackageData } from '@/lib/schemas/skill-package'
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
@@ -43,7 +43,7 @@ import { useTRPC } from '@/trpc/client'
  */
 export function SkillGroup_Details_Card({ skillGroupId, skillPackageId }: { skillGroupId: string, skillPackageId: string }) {
 
-    const trpc = useTRPC()
+    
     const { data: skillGroup } = useSuspenseQuery(trpc.skills.getGroup.queryOptions({ skillGroupId, skillPackageId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
@@ -133,7 +133,7 @@ export function SkillGroup_Details_Card({ skillGroupId, skillPackageId }: { skil
 function UpdateSkillGroupForm({ onClose, skillGroup, skillPackage }: { onClose: () => void, skillGroup: SkillGroupData, skillPackage: SkillPackageData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
-    const trpc = useTRPC()
+    
 
     const form = useForm<SkillGroupData>({
         resolver: zodResolver(skillGroupSchema),
@@ -226,7 +226,7 @@ function DeleteSkillGroupDialog({ skillGroup }: { skillGroup: SkillGroupData }) 
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
-    const trpc = useTRPC()
+    
 
     const [open, setOpen] = useState(false)
 

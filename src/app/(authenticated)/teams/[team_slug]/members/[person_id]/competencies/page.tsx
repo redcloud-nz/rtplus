@@ -13,7 +13,6 @@ import { Team_Member_Competencies_Card } from '@/components/cards/team-member-co
 
 import * as Paths from '@/paths'
 import { fetchTeamMember } from '@/server/fetch'
-import { HydrateClient } from '@/trpc/server'
 
 
 export async function generateMetadata(props: { params: Promise<{ team_slug: string, person_id: string }> }): Promise<Metadata> {
@@ -35,16 +34,14 @@ export default async function Team_Member_Competencies_Page(props: { params: Pro
                 Paths.team(team).member(person.personId).competencies
             ]}
         />
-        <HydrateClient>
-            <AppPageContent variant="container">
-                <PageHeader>
-                    <PageTitle objectType="Team Member">{person.name}</PageTitle>
-                </PageHeader>
-                <Boundary>
-                    <Team_Member_Competencies_Card personId={person.personId} teamId={team.teamId} />
-                </Boundary>
-            </AppPageContent>
-        </HydrateClient>
+        <AppPageContent variant="container">
+            <PageHeader>
+                <PageTitle objectType="Team Member">{person.name}</PageTitle>
+            </PageHeader>
+            <Boundary>
+                <Team_Member_Competencies_Card personId={person.personId} teamId={team.teamId} />
+            </Boundary>
+        </AppPageContent>
         
     </AppPage>
 }

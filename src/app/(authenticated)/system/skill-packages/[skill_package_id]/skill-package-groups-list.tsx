@@ -20,13 +20,13 @@ import { Table } from '@/components/ui/table'
 
 import { SkillGroupData } from '@/lib/schemas/skill-group'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
 export function System_SkillPackage_GroupsList_Card({ skillPackageId }: { skillPackageId: string }) {
 
-     const trpc = useTRPC()
+     
 
     const groupsQuery = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ skillPackageId }))
 

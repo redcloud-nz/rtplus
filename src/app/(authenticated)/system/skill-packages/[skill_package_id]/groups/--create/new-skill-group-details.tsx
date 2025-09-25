@@ -25,7 +25,7 @@ import { useToast } from '@/hooks/use-toast'
 import { SkillGroupData, skillGroupSchema } from '@/lib/schemas/skill-group'
 import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
@@ -33,7 +33,7 @@ export function NewSkillGroupDetailsCard({ skillPackageId }: { skillPackageId: s
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
-    const trpc = useTRPC()
+    
 
     const skillGroupId = useMemo(() => nanoId8(), [])
 

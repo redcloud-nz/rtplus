@@ -14,7 +14,6 @@ import { CardLink, CardLinkList } from '@/components/ui/card-button'
 import { teamMemberTagsEnabledFlag } from '@/lib/flags'
 import * as Paths from '@/paths'
 import { fetchTeamMember } from '@/server/fetch'
-import { HydrateClient } from '@/trpc/server'
 
 
 import { Team_Member_Details_Card } from './team-member-details'
@@ -41,19 +40,17 @@ export default async function Team_Member_Page(props: { params: Promise<{ team_s
                 person.name
             ]}
         />
-        <HydrateClient>
-            <AppPageContent variant="container">
-                <PageHeader>
-                    <PageTitle objectType="Team Member">{person.name}</PageTitle>
-                </PageHeader>
-                <Boundary>
-                    <Team_Member_Details_Card personId={person.personId} teamId={team.teamId} showTags={teamMemberTagsEnabled}/>
-                </Boundary>
-                <CardLinkList>
-                    <CardLink path={Paths.team(team).member(person.personId).competencies}/>
-                </CardLinkList>
-            </AppPageContent>
-        </HydrateClient>
+        <AppPageContent variant="container">
+            <PageHeader>
+                <PageTitle objectType="Team Member">{person.name}</PageTitle>
+            </PageHeader>
+            <Boundary>
+                <Team_Member_Details_Card personId={person.personId} teamId={team.teamId} showTags={teamMemberTagsEnabled}/>
+            </Boundary>
+            <CardLinkList>
+                <CardLink path={Paths.team(team).member(person.personId).competencies}/>
+            </CardLinkList>
+        </AppPageContent>
         
     </AppPage>
 }

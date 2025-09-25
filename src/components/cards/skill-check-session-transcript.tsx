@@ -21,13 +21,12 @@ import { PersonRef } from '@/lib/schemas/person'
 import { SkillData } from '@/lib/schemas/skill'
 import { SkillCheckData } from '@/lib/schemas/skill-check'
 import { formatDateTime } from '@/lib/utils'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 type RowData = SkillCheckData & { assessee: PersonRef, assessor: PersonRef, skill: SkillData }
 
 export function SkillCheckSession_Transcript_Card({ sessionId }: { sessionId: string }) {
-    const trpc = useTRPC()
 
     const assesseesQuery = useSuspenseQuery(trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId }))
     const assessorsQuery = useSuspenseQuery(trpc.skillChecks.getSessionAssessors.queryOptions({ sessionId }))

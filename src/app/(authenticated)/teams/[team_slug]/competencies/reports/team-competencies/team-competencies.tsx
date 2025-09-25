@@ -20,12 +20,11 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 
 import { createRandomDateGenerator, createRandomValueGenerator } from '@/lib/generate-values'
 import { CompetenceLevel } from '@/lib/competencies'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
 export function Team_Competencies_Card({ teamId }: { teamId: string }) {
-    const trpc = useTRPC()
 
     const skillPackagesQuery = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions())
     const teamMembersQuery = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId }))

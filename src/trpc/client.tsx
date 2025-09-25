@@ -6,9 +6,9 @@
 
 import superjson from 'superjson'
 
-import { type QueryClient, QueryClientProvider, isServer } from '@tanstack/react-query'
+import { type QueryClient, isServer } from '@tanstack/react-query'
 import { createTRPCClient, httpBatchLink } from '@trpc/client'
-import { createTRPCContext } from '@trpc/tanstack-react-query'
+import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query'
 
 import { makeQueryClient } from './query-client'
 import type { AppRouter } from './routers/_app'
@@ -16,12 +16,10 @@ import type { AppRouter } from './routers/_app'
 
 export * from './types'
 
-export const { TRPCProvider, useTRPC } = createTRPCContext<AppRouter>()
-
 //export const trpc = createTRPCReact<AppRouter>()
 
 let clientQueryClientSingleton: QueryClient
-function getQueryClient() {
+export function getQueryClient() {
     if(isServer) {
         // Server, always make a new query client
         return makeQueryClient()
@@ -50,15 +48,7 @@ const trpcClient = createTRPCClient<AppRouter>({
     ]
 })
 
-
-export function TRPCReactProvider({ children }: { children: React.ReactNode }) {
-    const queryClient = getQueryClient()
-
-    return (
-        <QueryClientProvider client={queryClient}>
-            <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
-                {children}
-            </TRPCProvider>
-        </QueryClientProvider>
-    )
-}
+export const trpc = createTRPCOptionsProxy<AppRouter>({
+    client: trpcClient,
+    queryClient: getQueryClient(),
+})

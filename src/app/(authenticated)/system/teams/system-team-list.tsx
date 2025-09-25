@@ -21,14 +21,12 @@ import { Table } from '@/components/ui/table'
 
 import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 type RowData = TeamData & { _count: { teamMemberships: number } }
 
 export function System_TeamsList_Card() {
-
-    const trpc = useTRPC()
 
     const teamsQuery = useSuspenseQuery(trpc.teams.getTeams.queryOptions({}))
 

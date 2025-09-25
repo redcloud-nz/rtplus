@@ -23,7 +23,7 @@ import { ObjectName } from '@/components/ui/typography'
 import { useToast } from '@/hooks/use-toast'
 import { EditableFeature } from '@/lib/editable-feature'
 import { PersonData, PersonId, PersonRef } from '@/lib/schemas/person'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
@@ -36,7 +36,7 @@ type RowData = { assesseeId: string, assessee: PersonRef }
 export function SkillCheckSession_AssesseesList_Card({ sessionId }: { sessionId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
-    const trpc = useTRPC()
+    
 
     const { data: session } = useSuspenseQuery(trpc.skillChecks.getSession.queryOptions({ sessionId }))
     const teamMembersQuery = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId: session.teamId }))

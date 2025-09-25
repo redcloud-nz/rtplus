@@ -33,14 +33,13 @@ import { PersonData, personSchema } from '@/lib/schemas/person'
 import { TeamRef } from '@/lib/schemas/team'
 import { TeamMembershipData, teamMembershipSchema } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
 
 export function Team_Member_Details_Card({ personId, teamId, showTags }: { personId: string, teamId: string, showTags: boolean }) {
     const router = useRouter()
-    const trpc = useTRPC()
 
     const { data: { person, team, ...membership } } = useSuspenseQuery(trpc.teamMemberships.getTeamMembership.queryOptions({ personId, teamId }))
 
@@ -120,7 +119,6 @@ export function Team_Member_Details_Card({ personId, teamId, showTags }: { perso
 function UpdateTeamMembershipForm({ membership, onClose, team, showTags }: { membership: TeamMembershipData, onClose: () => void, team: TeamRef, showTags: boolean }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
-    const trpc = useTRPC()
 
     const { data: person } = useSuspenseQuery(trpc.personnel.getPerson.queryOptions({ personId: membership.personId }))
 

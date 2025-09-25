@@ -10,7 +10,6 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
-import { HydrateClient } from '@/trpc/server'
 
 import { System_NewTeam_Details_Card } from './system-new-team-details'
 
@@ -25,17 +24,15 @@ export default async function System_NewTeam_Page() {
                 Paths.system.teams.create
             ]}
         />
-        <HydrateClient>
-             <AppPageContent variant="container">
-                <PageHeader>
-                    <PageTitle>Create New Team</PageTitle>
-                </PageHeader>
+        <AppPageContent variant="container">
+            <PageHeader>
+                <PageTitle>Create New Team</PageTitle>
+            </PageHeader>
 
-                <Boundary>
-                    <System_NewTeam_Details_Card/>
-                </Boundary>
-            </AppPageContent>
-        </HydrateClient>
+            <Boundary>
+                <System_NewTeam_Details_Card/>
+            </Boundary>
+        </AppPageContent>
        
     </AppPage>
  }

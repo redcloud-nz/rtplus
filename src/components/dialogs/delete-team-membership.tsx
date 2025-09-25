@@ -19,14 +19,13 @@ import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
 import { TeamMembershipData, teamMembershipSchema } from '@/lib/schemas/team-membership'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
 export function DeleteTeamMembershipDialog({ onDelete, personId, teamId }: { onDelete: (membership: TeamMembershipData) => void , personId: string, teamId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
-    const trpc = useTRPC()
 
     const { data: { person, team } } = useSuspenseQuery(trpc.teamMemberships.getTeamMembership.queryOptions({ personId, teamId }))
 

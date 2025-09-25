@@ -34,12 +34,11 @@ import { SkillCheckSessionData, skillCheckSessionSchema } from '@/lib/schemas/sk
 import { TeamData } from '@/lib/schemas/team'
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
 export function Team_SkillCheckSession_Details_Card({ sessionId, team }: { sessionId: string, team: TeamData }) {
-    const trpc = useTRPC()
 
     const { data: session } = useSuspenseQuery(trpc.skillChecks.getSession.queryOptions({ sessionId }))
 
@@ -105,7 +104,6 @@ type FormData = z.infer<typeof formSchema>
 function UpdateSession_Form({ onClose, session }: { onClose: () => void, session: SkillCheckSessionData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
-    const trpc = useTRPC()
 
     const queryKey = trpc.skillChecks.getSession.queryKey({ sessionId: session.sessionId })
 
@@ -201,7 +199,6 @@ function DeleteSessionDialog({ session, team }: { session: SkillCheckSessionData
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
-    const trpc = useTRPC()
 
     const [open, setOpen] = useState(false)
 

@@ -12,11 +12,10 @@ import { Separator } from '@/components/ui/separator'
 
 import { Paragraph } from '@/components/ui/typography'
 
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 export function Team_Competencies_SkillsList_Card() {
-    const trpc = useTRPC()
 
     const { data: skillPackages } = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions())
 

@@ -11,7 +11,6 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeade
 import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 import { fetchSkillPackage } from '@/server/fetch'
-import { HydrateClient } from '@/trpc/server'
 
 import { NewSkillGroupDetailsCard } from './new-skill-group-details'
 
@@ -35,19 +34,16 @@ export default async function NewSkillGroupPage(props: { params: Promise<{ skill
                 "Create"
             ]}
         />
-        <HydrateClient>
-            <AppPageContent variant='container'>
-                <PageHeader>
-                    <PageTitle>New Skill Group</PageTitle>
-                    <PageDescription>Create a new skill group within this skill package.</PageDescription>
-                </PageHeader>
-                
-                <Boundary>
-                    <NewSkillGroupDetailsCard skillPackageId={skillPackage.skillPackageId} />
-                </Boundary>
-                
-            </AppPageContent>
-        </HydrateClient>
-        
+        <AppPageContent variant='container'>
+            <PageHeader>
+                <PageTitle>New Skill Group</PageTitle>
+                <PageDescription>Create a new skill group within this skill package.</PageDescription>
+            </PageHeader>
+            
+            <Boundary>
+                <NewSkillGroupDetailsCard skillPackageId={skillPackage.skillPackageId} />
+            </Boundary>
+            
+        </AppPageContent>
     </AppPage>
 }

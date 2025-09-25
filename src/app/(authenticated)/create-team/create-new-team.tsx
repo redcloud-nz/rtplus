@@ -24,7 +24,7 @@ import { useToast } from '@/hooks/use-toast'
 import { TeamData, teamSchema } from '@/lib/schemas/team'
 import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
@@ -33,7 +33,6 @@ export function CreateNewTeam_Card() {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
-    const trpc = useTRPC()
 
     const teamId = useMemo(() => nanoId8(), [])
 

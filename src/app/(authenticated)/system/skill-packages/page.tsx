@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button'
 import { Link } from '@/components/ui/link'
 
 import * as Paths from '@/paths'
-import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
 import { System_SkillPackagesList_Card } from './skill-package-list'
 
@@ -24,8 +23,6 @@ export const metadata = { title: "Skill Packages" }
 
 export default async function System_SkillPackagesList_Page() {
 
-    prefetch(trpc.skills.getPackages.queryOptions({}))
-
     return <AppPage>
         <AppPageBreadcrumbs 
             breadcrumbs={[
@@ -33,24 +30,21 @@ export default async function System_SkillPackagesList_Page() {
                 Paths.system.skillPackages,
             ]}
         />
-        <HydrateClient>
-            <AppPageContent variant="container">
-                <PageHeader>
-                    <PageTitle>Skill Packages</PageTitle>
-                    <PageControls>
-                        <Button variant="ghost" size="icon" asChild>
-                            <Link to={Paths.system.skillPackages.import}>
-                                <ImportIcon/>
-                            </Link>
-                        </Button>
-                    </PageControls>
-                </PageHeader>
+        <AppPageContent variant="container">
+            <PageHeader>
+                <PageTitle>Skill Packages</PageTitle>
+                <PageControls>
+                    <Button variant="ghost" size="icon" asChild>
+                        <Link to={Paths.system.skillPackages.import}>
+                            <ImportIcon/>
+                        </Link>
+                    </Button>
+                </PageControls>
+            </PageHeader>
 
-                <Boundary>
-                     <System_SkillPackagesList_Card/>
-                </Boundary>
-            </AppPageContent>
-        </HydrateClient>
-        
+            <Boundary>
+                <System_SkillPackagesList_Card/>
+            </Boundary>
+        </AppPageContent>
     </AppPage>
 }

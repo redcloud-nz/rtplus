@@ -14,11 +14,11 @@ import { Button } from '@/components/ui/button'
 import { Link } from '@/components/ui/link'
 
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 export function GoToRecorder({ sessionId }: { sessionId: string }) {
-    const trpc = useTRPC()
+    
 
     const { data: currentPerson } = useSuspenseQuery(trpc.currentUser.getPerson.queryOptions())
     const { data: assessors } = useSuspenseQuery(trpc.skillChecks.getSessionAssessors.queryOptions({ sessionId }))

@@ -18,7 +18,7 @@ import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
 
 import { UserData } from '@/lib/schemas/user'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 /**
  * Card that displays the users associated with a team.
@@ -27,7 +27,7 @@ import { useTRPC } from '@/trpc/client'
  * @param teamId The ID of the team to fetch users for.
  */
 export function TeamUsersCard({ teamId }: { teamId: string }) {
-    const trpc = useTRPC()
+    
 
     const usersQuery = useSuspenseQuery(trpc.users.getUsers.queryOptions({ teamId }))
 

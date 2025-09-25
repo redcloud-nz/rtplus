@@ -6,7 +6,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {PersonRef } from '@/lib/schemas/person'
@@ -38,7 +38,6 @@ interface TeamMemberPickerProps {
 }
 
 export function TeamMemberPicker({ teamId, className, defaultValue = "", exclude = [], onValueChange, placeholder, size, status = ['Active'], value }: TeamMemberPickerProps) {
-    const trpc = useTRPC()
 
     const teamMembersQuery = useQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId, status }))
 

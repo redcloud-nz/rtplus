@@ -13,12 +13,11 @@ import { useSuspenseQueries } from '@tanstack/react-query'
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
 
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
 export function CompetencyRecorder_Session_Transcript_PageContent({ sessionId }: { sessionId: string }) {
-    const trpc = useTRPC()
 
     const [
         { data: availablePackages }, 

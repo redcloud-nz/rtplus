@@ -12,8 +12,6 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 
-import { HydrateClient, prefetch, trpc } from '@/trpc/server'
-
 import { System_TeamsList_Card } from './system-team-list'
 
 
@@ -24,8 +22,6 @@ export const metadata: Metadata = { title: "Teams" }
 
 export default async function System_TeamsList_Page() {
 
-    prefetch(trpc.teams.getTeams.queryOptions({ }))
-
     return <AppPage>
             <AppPageBreadcrumbs
                 breadcrumbs={[
@@ -33,16 +29,14 @@ export default async function System_TeamsList_Page() {
                     Paths.system.teams
                 ]}
             />
-            <HydrateClient>
-                 <AppPageContent variant="container">
-                    <PageHeader>
-                        <PageTitle>Teams</PageTitle>
-                    </PageHeader>
-                    <Boundary>
-                        <System_TeamsList_Card/>
-                    </Boundary>
-                </AppPageContent>
-            </HydrateClient>
+            <AppPageContent variant="container">
+                <PageHeader>
+                    <PageTitle>Teams</PageTitle>
+                </PageHeader>
+                <Boundary>
+                    <System_TeamsList_Card/>
+                </Boundary>
+            </AppPageContent>
            
         </AppPage>
 }

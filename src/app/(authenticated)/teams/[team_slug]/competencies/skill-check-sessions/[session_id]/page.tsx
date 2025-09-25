@@ -16,7 +16,6 @@ import { SkillCheckSession_Transcript_Card } from '@/components/cards/skill-chec
 
 import * as Paths from '@/paths'
 import { fetchSkillCheckSession } from '@/server/fetch'
-import { HydrateClient } from '@/trpc/server'
 
 import { Team_SkillCheckSession_Details_Card } from './team-session-details'
 
@@ -51,31 +50,29 @@ export default async function Team_SkillCheckSession_Page(props: { params: Promi
             ]}
         />
 
-        <HydrateClient>
-            <AppPageContent variant="container">
-                <PageHeader>
-                    <PageTitle objectType="Skill Check Session">{session.name}</PageTitle>
-                    <PageControls>
-                        <GoToRecorder sessionId={session.sessionId} />
-                    </PageControls>
-                </PageHeader>
-                <Boundary>
-                    <Team_SkillCheckSession_Details_Card sessionId={session.sessionId} team={team} />
-                </Boundary>
-                <Boundary>
-                    <SkillCheckSession_SkillsList_Card sessionId={session.sessionId} />
-                </Boundary>
-                <Boundary>
-                    <SkillCheckSession_AssesseesList_Card sessionId={session.sessionId} />
-                </Boundary>
-                <Boundary>
-                    <SkillCheckSession_AssessorsList_Card sessionId={session.sessionId} />
-                </Boundary>
-                <Boundary>
-                    <SkillCheckSession_Transcript_Card sessionId={session.sessionId}/>
-                </Boundary>
-            </AppPageContent>
-        </HydrateClient>
+        <AppPageContent variant="container">
+            <PageHeader>
+                <PageTitle objectType="Skill Check Session">{session.name}</PageTitle>
+                <PageControls>
+                    <GoToRecorder sessionId={session.sessionId} />
+                </PageControls>
+            </PageHeader>
+            <Boundary>
+                <Team_SkillCheckSession_Details_Card sessionId={session.sessionId} team={team} />
+            </Boundary>
+            <Boundary>
+                <SkillCheckSession_SkillsList_Card sessionId={session.sessionId} />
+            </Boundary>
+            <Boundary>
+                <SkillCheckSession_AssesseesList_Card sessionId={session.sessionId} />
+            </Boundary>
+            <Boundary>
+                <SkillCheckSession_AssessorsList_Card sessionId={session.sessionId} />
+            </Boundary>
+            <Boundary>
+                <SkillCheckSession_Transcript_Card sessionId={session.sessionId}/>
+            </Boundary>
+        </AppPageContent>
         
     </AppPage>
 }

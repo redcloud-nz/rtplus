@@ -19,7 +19,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { useToast } from '@/hooks/use-toast'
 import { PersonRef } from '@/lib/schemas/person'
 import { TeamData } from '@/lib/schemas/team'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
@@ -27,7 +27,6 @@ import { useTRPC } from '@/trpc/client'
 export default function CompetencyRecorder_Session_Assessors_PageContents({ sessionId, team }: { sessionId: string , team: TeamData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
-    const trpc = useTRPC()
 
     const queryKey = trpc.skillChecks.getSessionAssessors.queryKey({ sessionId })
 
@@ -142,7 +141,6 @@ interface TeamSectionProps {
 }
 
 function TeamSection({ team, sessionId, assignedAssessors, selectedAssessors, onSelectedChange }: TeamSectionProps) {
-    const trpc = useTRPC()
 
     const { data: users } = useSuspenseQuery(trpc.skillChecks.getAvailableAssessors.queryOptions({ sessionId }))
 

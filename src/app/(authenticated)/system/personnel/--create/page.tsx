@@ -10,7 +10,6 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
-import { HydrateClient } from '@/trpc/server'
 
 import { System_NewPerson_Details_Card } from './system-new-person-details'
 
@@ -25,17 +24,15 @@ export default async function System_NewPerson_Page() {
                 Paths.system.personnel.create
             ]}
         />
-        <HydrateClient>
-             <AppPageContent variant="container">
-                <PageHeader>
-                    <PageTitle>Create New Person</PageTitle>
-                </PageHeader>
+        <AppPageContent variant="container">
+            <PageHeader>
+                <PageTitle>Create New Person</PageTitle>
+            </PageHeader>
 
-                <Boundary>
-                    <System_NewPerson_Details_Card/>
-                </Boundary>
-            </AppPageContent>
-        </HydrateClient>
-       
+            <Boundary>
+                <System_NewPerson_Details_Card/>
+            </Boundary>
+        </AppPageContent>
+        
     </AppPage>
  }

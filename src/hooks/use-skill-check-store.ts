@@ -16,7 +16,7 @@ import { CompetenceLevel, isPass } from '@/lib/competencies'
 import { nanoId16 } from '@/lib/id'
 import { SkillCheckData } from '@/lib/schemas/skill-check'
 
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 const DEFAULT_RESULT_VALUE = ''
 const DEFAULT_NOTES_VALUES = ''
@@ -90,7 +90,7 @@ interface SkillCheckStore {
 export function useSkillCheckStore_experimental(sessionId: string): SkillCheckStore {
     const queryClient = useQueryClient()
     const { toast } = useToast()
-    const trpc = useTRPC()
+    
 
     const [{ data: assessor }, { data: session }, { data: savedChecksArray }] = useSuspenseQueries({
         queries: [

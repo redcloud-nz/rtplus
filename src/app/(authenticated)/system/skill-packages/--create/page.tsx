@@ -11,10 +11,8 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
-import { HydrateClient } from '@/trpc/server'
 
 import { NewSkillPackageDetailsCard } from './new-skill-package-details'
-
 
 
 export const metadata: Metadata = {
@@ -31,17 +29,14 @@ export default async function CreateSkillPackagePage() {
                 "Create"
             ]}
         />
-        <HydrateClient>
-             <AppPageContent variant="container">
-                <PageHeader>
-                    <PageTitle>Create Skill Package</PageTitle>
-                </PageHeader>
+        <AppPageContent variant="container">
+            <PageHeader>
+                <PageTitle>Create Skill Package</PageTitle>
+            </PageHeader>
 
-                <Boundary>
-                    <NewSkillPackageDetailsCard />
-                </Boundary>
-            </AppPageContent>
-        </HydrateClient>
-       
+            <Boundary>
+                <NewSkillPackageDetailsCard />
+            </Boundary>
+        </AppPageContent>
     </AppPage>
  }

@@ -6,10 +6,10 @@
 
 import { useSuspenseQueries} from '@tanstack/react-query'
 
-import { useTRPC } from '@/trpc/client'
-
-import type { RouterOutput } from '@/trpc/routers/_app'
 import { SkillData } from '@/lib/schemas/skill'
+import { trpc } from '@/trpc/client'
+import type { RouterOutput } from '@/trpc/routers/_app'
+
 
 /**
  * Hook to get the skills assigned to a competency recorder session.
@@ -17,7 +17,6 @@ import { SkillData } from '@/lib/schemas/skill'
  * @returns The assigned skills.
  */
 export function useAssignedSkillsQuery({ sessionId }: { sessionId: string }) {
-    const trpc = useTRPC()
 
     return useSuspenseQueries({
         queries: [

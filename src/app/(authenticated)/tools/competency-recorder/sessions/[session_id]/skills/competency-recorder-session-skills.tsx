@@ -19,14 +19,13 @@ import { useToast } from '@/hooks/use-toast'
 import { SkillData } from '@/lib/schemas/skill'
 import { SkillGroupData } from '@/lib/schemas/skill-group'
 import { SkillPackageData } from '@/lib/schemas/skill-package'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
 export default function CompetencyRecorder_Session_Skills_PageContent({ sessionId }: { sessionId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
-    const trpc = useTRPC()
 
     const [{ data: availablePackages }, { data: assignedSkillIds }] = useSuspenseQueries({
         queries: [

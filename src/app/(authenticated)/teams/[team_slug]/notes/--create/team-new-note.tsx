@@ -20,13 +20,12 @@ import { useToast } from '@/hooks/use-toast'
 import { nanoId8 } from '@/lib/id'
 import { NoteData, noteSchema } from '@/lib/schemas/note'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 export function Team_NewNote_Card({ teamId }: { teamId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
-    const trpc = useTRPC()
 
     const [content, setContent] = useState('')
 

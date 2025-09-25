@@ -23,7 +23,7 @@ import { useToast } from '@/hooks/use-toast'
 import { InvitationStatus, InvitationStatusNameMap, TeamInvitationData } from '@/lib/schemas/invitation'
 import { TeamData } from '@/lib/schemas/team'
 import { UserRole, UserRoleNameMap } from '@/lib/schemas/user'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 import { Team_CreateInvitation_Dialog } from './team-create-invitation'
 
@@ -38,7 +38,6 @@ import { Team_CreateInvitation_Dialog } from './team-create-invitation'
 export function ActiveTeam_InvitationsList_Card({ team }: { team: TeamData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
-    const trpc = useTRPC()
 
     const invitationsQuery = useSuspenseQuery(trpc.users.getTeamInvitations.queryOptions({ teamId: team.teamId }))
 

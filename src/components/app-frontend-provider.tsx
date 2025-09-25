@@ -13,7 +13,8 @@ import { SidebarProvider } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/toaster'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
-import { TRPCReactProvider } from '@/trpc/client'
+import { getQueryClient } from '@/trpc/client'
+import { QueryClientProvider } from '@tanstack/react-query'
 
 
 export type FrontendProviderProps = Readonly<{
@@ -21,19 +22,21 @@ export type FrontendProviderProps = Readonly<{
 }>
 
 export function AppFrontendProvider({ children }: FrontendProviderProps) {
+    const queryClient = getQueryClient()
+
     React.useEffect(() => {
         printConsoleMessage()
 
         Object.assign(window, { init })
     }, [])
 
-    return <TRPCReactProvider>
+    return <QueryClientProvider client={queryClient}>
         <SidebarProvider>
             <TooltipProvider>
             {children}
             </TooltipProvider>
         </SidebarProvider>
         <Toaster/>
-    </TRPCReactProvider>
+    </QueryClientProvider>
 }
 

@@ -25,7 +25,7 @@ import { EditableFeature } from '@/lib/editable-feature'
 import { TeamData } from '@/lib/schemas/team'
 import { UserData, UserRole, UserRoleNameMap } from '@/lib/schemas/user'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
@@ -36,7 +36,6 @@ import { useTRPC } from '@/trpc/client'
 export function Team_UsersList_Card({ team }: { team: TeamData }) {
     const queryClient = useQueryClient()
     const { toast} = useToast()
-    const trpc = useTRPC()
 
     const usersQuery = useSuspenseQuery(trpc.users.getUsers.queryOptions({ teamId: team.teamId }))
 

@@ -11,7 +11,6 @@ import { System_TeamMembership_Details_Card } from '@/components/cards/system-te
 
 import * as Paths from '@/paths'
 import { fetchTeamMembership } from '@/server/fetch'
-import { HydrateClient } from '@/trpc/server'
 
 
 
@@ -38,15 +37,13 @@ export default async function System_Team_Member_Page(props: { params: Promise<{
             <PageHeader>
                 <PageTitle objectType="Team Member">{person.name}</PageTitle>
             </PageHeader>
-            <HydrateClient>
-                <Boundary>
-                    <System_TeamMembership_Details_Card 
-                        context='team'
-                        personId={person.personId}
-                        teamId={team.teamId}
-                    />
-                </Boundary>
-            </HydrateClient>
+            <Boundary>
+                <System_TeamMembership_Details_Card 
+                    context='team'
+                    personId={person.personId}
+                    teamId={team.teamId}
+                />
+            </Boundary>
         </AppPageContent>
     </AppPage>
 }

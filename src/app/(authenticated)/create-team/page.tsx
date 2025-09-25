@@ -10,7 +10,6 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
-import { HydrateClient } from '@/trpc/server'
 
 import { CreateNewTeam_Card } from './create-new-team'
 
@@ -20,18 +19,15 @@ export const metadata = { title: "Create New Team" }
 export default async function CreateNewTeam_Page() { 
     
     return <AppPage>
-        <AppPageBreadcrumbs breadcrumbs={[ Paths.createTeam]} />
-        <HydrateClient>
-             <AppPageContent variant="container">
-                <PageHeader>
-                    <PageTitle>Create New Team</PageTitle>
-                </PageHeader>
+        <AppPageBreadcrumbs breadcrumbs={[ Paths.createTeam ]} />
+            <AppPageContent variant="container">
+            <PageHeader>
+                <PageTitle>Create New Team</PageTitle>
+            </PageHeader>
 
-                <Boundary>
-                    <CreateNewTeam_Card/>
-                </Boundary>
-            </AppPageContent>
-        </HydrateClient>
-       
+            <Boundary>
+                <CreateNewTeam_Card/>
+            </Boundary>
+        </AppPageContent>
     </AppPage>
  }

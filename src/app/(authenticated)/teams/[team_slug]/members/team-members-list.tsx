@@ -24,7 +24,7 @@ import { PersonRef } from '@/lib/schemas/person'
 import { TeamData } from '@/lib/schemas/team'
 import { TeamMembershipData } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
@@ -33,7 +33,6 @@ import { useTRPC } from '@/trpc/client'
  * Card that displays the list of all team members and allows the user to add a new member.
  */
 export function Team_MembersList_Card({ team, showTags }: { team: TeamData, showTags: boolean }) {
-    const trpc = useTRPC()
 
     const membersQuery = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId: team.teamId }))
 

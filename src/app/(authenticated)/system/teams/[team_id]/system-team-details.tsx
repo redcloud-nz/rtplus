@@ -32,13 +32,13 @@ import { useToast } from '@/hooks/use-toast'
 import { TeamData, teamSchema } from '@/lib/schemas/team'
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
 
 export function System_Team_Details_Card({ teamId }: { teamId: string }) {
-    const trpc = useTRPC()
+    
 
     const { data: team } = useSuspenseQuery(trpc.teams.getTeam.queryOptions({ teamId }))
 
@@ -113,7 +113,7 @@ export function System_Team_Details_Card({ teamId }: { teamId: string }) {
 function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
-    const trpc = useTRPC()
+    
 
     const form = useForm<TeamData>({
         resolver: zodResolver(teamSchema),
@@ -226,7 +226,7 @@ function DeleteTeamDialog({ team }: { team: TeamData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
-    const trpc = useTRPC()
+    
 
     const [open, setOpen] = useState(false)
 

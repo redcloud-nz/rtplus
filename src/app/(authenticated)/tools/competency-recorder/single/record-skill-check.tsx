@@ -31,7 +31,7 @@ import { CompetenceLevelTerms } from '@/lib/competencies'
 import { nanoId16 } from '@/lib/id'
 import { skillCheckSchema } from '@/lib/schemas/skill-check'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
@@ -41,7 +41,6 @@ const singleSkillCheckSchema = skillCheckSchema.omit({ assessorId: true, session
 export function CompetencyRecorder_Single_Card() {
     const router = useRouter()
     const { toast } = useToast()
-    const trpc = useTRPC()
 
     const activeTeam = useActiveTeam()!
 

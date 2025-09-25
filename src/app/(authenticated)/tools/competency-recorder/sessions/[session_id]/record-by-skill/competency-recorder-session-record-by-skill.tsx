@@ -24,14 +24,13 @@ import { getAssignedSkills } from '@/hooks/use-assigned-skills'
 import { GetCheckReturn, useSkillCheckStore_experimental } from '@/hooks/use-skill-check-store'
 import { CompetenceLevel } from '@/lib/competencies'
 import { PersonRef } from '@/lib/schemas/person'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
 
 
 export function CompetencyRecorder_Session_RecordBySkill_PageContent({ sessionId }: { sessionId: string }) {
-    const trpc = useTRPC()
 
     const { assignedAssessees, assignedSkills } = useSuspenseQueries({
         queries: [

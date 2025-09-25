@@ -29,7 +29,7 @@ import { PersonId, PersonRef } from '@/lib/schemas/person'
 import { TeamData } from '@/lib/schemas/team'
 import { TeamMembershipData } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
@@ -41,7 +41,6 @@ import { useTRPC } from '@/trpc/client'
 export function System_Team_Members_Card({ team }: { team: TeamData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
-    const trpc = useTRPC()
 
     const teamMembersQuery = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId: team.teamId }))
 

@@ -11,7 +11,7 @@ import { useQuery } from '@tanstack/react-query'
 
 import { SkillData } from '@/lib/schemas/skill'
 import { SkillGroupData } from '@/lib/schemas/skill-group'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '../ui/select'
@@ -36,7 +36,6 @@ interface SkillPickerProps {
 }
 
 export function SkillPicker({ className, defaultValue = "", exclude = [], onValueChange, placeholder, size, value }: SkillPickerProps) {
-    const trpc = useTRPC()
 
     const query = useQuery(trpc.skills.getAvailablePackages.queryOptions())
 

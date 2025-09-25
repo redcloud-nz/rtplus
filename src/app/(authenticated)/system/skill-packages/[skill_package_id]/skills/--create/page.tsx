@@ -11,7 +11,6 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeade
 import * as Paths from '@/paths'
 
 import { fetchSkillPackage } from '@/server/fetch'
-import { HydrateClient } from '@/trpc/server'
 
 import { NewSkillDetailsCard } from './new-skill-details'
 import { Boundary } from '@/components/boundary'
@@ -35,18 +34,16 @@ export default async function NewSkillPage(props: { params: Promise<{ skill_pack
                 "Create"
             ]}
         />
-        <HydrateClient>
-            <AppPageContent variant='container'>
-                <PageHeader>
-                    <PageTitle>New Skill</PageTitle>
-                    <PageDescription>Create a new skill within this skill package.</PageDescription>
-                </PageHeader>
-                
-                <Boundary>
-                      <NewSkillDetailsCard skillPackageId={skillPackage.skillPackageId} />
-                </Boundary>
-            </AppPageContent>
-        </HydrateClient>
+        <AppPageContent variant='container'>
+            <PageHeader>
+                <PageTitle>New Skill</PageTitle>
+                <PageDescription>Create a new skill within this skill package.</PageDescription>
+            </PageHeader>
+            
+            <Boundary>
+                    <NewSkillDetailsCard skillPackageId={skillPackage.skillPackageId} />
+            </Boundary>
+        </AppPageContent>
         
     </AppPage>
 }

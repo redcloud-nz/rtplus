@@ -19,14 +19,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast'
 import { TeamInvitationData, teamInvitationSchema } from '@/lib/schemas/invitation'
 import { TeamData } from '@/lib/schemas/team'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
 export function Team_CreateInvitation_Dialog({ team, trigger }: { team: TeamData, trigger: React.ReactNode }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
-    const trpc = useTRPC()
 
     const [open, setOpen] = useState(false)
 

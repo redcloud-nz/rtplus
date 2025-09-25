@@ -21,12 +21,12 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 import { PersonData } from '@/lib/schemas/person'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 export function System_PersonnelList_Card() {
 
-    const trpc = useTRPC()
+    
 
     const personnelQuery = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({}))
 

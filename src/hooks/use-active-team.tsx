@@ -7,11 +7,10 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { TeamData } from '@/lib/schemas/team'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 export function useActiveTeam(): TeamData | null {
-    const trpc = useTRPC()
     
     const { data: team } = useQuery(trpc.teams.getActiveTeam.queryOptions())
 

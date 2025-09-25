@@ -32,9 +32,7 @@ import { useToast } from '@/hooks/use-toast'
 import { SkillPackageData, skillPackageSchema } from '@/lib/schemas/skill-package'
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
-
-
+import { trpc } from '@/trpc/client'
 
 
 /**
@@ -43,7 +41,6 @@ import { useTRPC } from '@/trpc/client'
  */
 export function System_SkillPackage_Details_Card({ skillPackageId }: { skillPackageId: string }) {
 
-    const trpc = useTRPC()
     const { data: skillPackage } = useSuspenseQuery(trpc.skills.getPackage.queryOptions({ skillPackageId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
@@ -118,7 +115,6 @@ export function System_SkillPackage_Details_Card({ skillPackageId }: { skillPack
 function UpdateSkillPackageForm({ onClose, skillPackage }: { onClose: () => void, skillPackage: SkillPackageData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
-    const trpc = useTRPC()
 
     const form = useForm<SkillPackageData>({
         resolver: zodResolver(skillPackageSchema),
@@ -218,7 +214,6 @@ function DeleteSkillPackageDialog({ skillPackage }: { skillPackage: SkillPackage
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
-    const trpc = useTRPC()
 
     const [open, setOpen] = useState(false)
 

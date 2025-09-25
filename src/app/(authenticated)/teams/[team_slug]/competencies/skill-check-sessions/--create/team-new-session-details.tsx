@@ -25,7 +25,7 @@ import { useToast } from '@/hooks/use-toast'
 import { skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
 import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
@@ -36,7 +36,6 @@ export function Team_NewSkillCheckSession_Details_Card({ team }: { team: TeamDat
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
-    const trpc = useTRPC()
 
     const sessionId = useNanoId8()
 

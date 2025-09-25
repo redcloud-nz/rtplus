@@ -13,7 +13,6 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent} from '@/components/app-pag
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
-import { HydrateClient } from '@/trpc/server'
 
 import { MonthView } from './month-view'
 
@@ -31,13 +30,11 @@ export default async function D4hCalendar_Page() {
             Paths.d4h, 
             Paths.d4h.calendar
         ]}/>
-        <HydrateClient>
-            <AppPageContent variant="full">
-                <Boundary>
-                    <MonthView personId={personId} />
-                </Boundary>
-            </AppPageContent>
-        </HydrateClient>
+        <AppPageContent variant="full">
+            <Boundary>
+                <MonthView personId={personId} />
+            </Boundary>
+        </AppPageContent>
     </AppPage>
 }
 

@@ -21,7 +21,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 
 import { SkillGroupDef } from '@/data/skills'
 import { assertNonNull } from '@/lib/utils'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 import { useSkillPackageImportStore } from './skill-package-import-store'
 
@@ -97,7 +97,7 @@ function ReviewPackageStep() {
     const { importPackage, packageToImport, reset } = useSkillPackageImportStore(useShallow(R.pick(['importPackage', 'packageToImport', 'reset'])))
     assertNonNull(packageToImport)
 
-    const trpc = useTRPC()
+    
 
     const mutation = useMutation(trpc.skills.importPackage.mutationOptions())
     

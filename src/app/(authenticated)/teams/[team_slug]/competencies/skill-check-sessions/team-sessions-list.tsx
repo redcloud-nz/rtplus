@@ -25,11 +25,10 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 export function Team_SkillCheckSessionsList_Card({ team }: { team: TeamData }) {
-    const trpc = useTRPC()
 
     const sessionsQuery = useSuspenseQuery(trpc.skillChecks.getTeamSessions.queryOptions({ teamId: team.teamId }))
 

@@ -29,7 +29,7 @@ import { PersonData } from '@/lib/schemas/person'
 import { TeamMembershipData } from '@/lib/schemas/team-membership'
 import { TeamId, TeamRef } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
@@ -39,7 +39,7 @@ import { useTRPC } from '@/trpc/client'
  * @param personId The ID of the person for whom to display team memberships.
  */
 export function System_Person_TeamMemberships_Card({ person }: { person: PersonData }) {
-    const trpc = useTRPC()
+    
     const queryClient = useQueryClient()
     const { toast } = useToast()
 

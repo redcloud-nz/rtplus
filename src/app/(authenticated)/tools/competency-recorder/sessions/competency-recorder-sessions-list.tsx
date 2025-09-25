@@ -20,12 +20,11 @@ import { Table } from '@/components/ui/table'
 
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
 export function CompetencyRecorder_SessionsList_Card() {
-    const trpc = useTRPC()
 
     const sessionsQuery = useQuery(trpc.skillChecks.getMySessions.queryOptions({ status: ['Draft'] }))
 
@@ -91,7 +90,7 @@ export function CompetencyRecorder_SessionsList_Card() {
     ]), [])
 
     const table = useReactTable({
-        data: sessionsQuery.data ?? [],
+        data: sessionsQuery.data || [],
         columns,
         getCoreRowModel: getCoreRowModel(),
         getExpandedRowModel: getExpandedRowModel(),

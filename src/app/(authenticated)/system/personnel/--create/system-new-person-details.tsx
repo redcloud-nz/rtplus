@@ -26,7 +26,7 @@ import { sandboxEmailOf } from '@/lib/sandbox'
 import { PersonData, personSchema } from '@/lib/schemas/person'
 import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
@@ -34,7 +34,7 @@ export function System_NewPerson_Details_Card() {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
-    const trpc = useTRPC()
+    
 
     const personId = useMemo(() => nanoId8(), [])
 

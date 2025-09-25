@@ -31,14 +31,13 @@ import { PersonRef } from '@/lib/schemas/person'
 import { TeamRef } from '@/lib/schemas/team'
 import { TeamMembershipData, teamMembershipSchema } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
 
 export function System_TeamMembership_Details_Card({ context, personId, teamId }: { context: 'person' | 'team', personId: string, teamId: string }) {
     const router = useRouter()
-    const trpc = useTRPC()
 
     const { data: { person, team, ...membership } } = useSuspenseQuery(trpc.teamMemberships.getTeamMembership.queryOptions({ personId, teamId }))
 
@@ -111,7 +110,6 @@ export function System_TeamMembership_Details_Card({ context, personId, teamId }
 function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membership: TeamMembershipData, onClose: () => void, person: PersonRef, team: TeamRef }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
-    const trpc = useTRPC()
 
     const form = useForm<TeamMembershipData>({
         resolver: zodResolver(teamMembershipSchema),

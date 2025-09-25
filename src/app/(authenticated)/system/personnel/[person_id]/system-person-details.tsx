@@ -33,7 +33,7 @@ import { PersonData, personSchema } from '@/lib/schemas/person'
 import { TeamId } from '@/lib/schemas/team'
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
@@ -43,7 +43,7 @@ import { useTRPC } from '@/trpc/client'
  * @param personId The ID of the person to display.
  */
 export function System_Person_Details_Card({ personId }: { personId: string }) {
-    const trpc = useTRPC()
+    
 
     const { data: person } = useSuspenseQuery(trpc.personnel.getPerson.queryOptions({ personId }))
 
@@ -112,7 +112,7 @@ export function System_Person_Details_Card({ personId }: { personId: string }) {
 function UpdatePersonForm({ onClose, person }: { onClose: () => void, person: PersonData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
-    const trpc = useTRPC()
+    
 
     const form = useForm<PersonData>({
         resolver: zodResolver(personSchema),
@@ -236,7 +236,7 @@ function DeletePersonDialog({ person }: { person: PersonData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
-    const trpc = useTRPC()
+    
 
     const [open, setOpen] = useState(false)
 

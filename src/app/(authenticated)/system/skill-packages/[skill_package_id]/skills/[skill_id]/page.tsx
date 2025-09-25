@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /app/system/skill-packages/[skill_package_id]/skills/[skill_id]
+ *  Path: /system/skill-packages/[skill_package_id]/skills/[skill_id]
  */
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
@@ -10,7 +10,6 @@ import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
 import { fetchSkill } from '@/server/fetch'
-import { HydrateClient } from '@/trpc/server'
 
 import { SkillDetailsCard } from './skill-details'
 
@@ -34,18 +33,16 @@ export default async function SkillPage(props: { params: Promise<{ skill_id: str
                 skill.name
             ]}
         />
-        <HydrateClient>
-            <AppPageContent variant='container'>
-                <PageHeader>
-                    <PageTitle objectType="Skill">{skill.name}</PageTitle>    
-                </PageHeader>
+        <AppPageContent variant='container'>
+            <PageHeader>
+                <PageTitle objectType="Skill">{skill.name}</PageTitle>    
+            </PageHeader>
 
-                <Boundary>
-                    <SkillDetailsCard skillId={skill.skillId} skillPackageId={skill.skillPackageId}/>
-                </Boundary>
-                
-            </AppPageContent>
-        </HydrateClient>
+            <Boundary>
+                <SkillDetailsCard skillId={skill.skillId} skillPackageId={skill.skillPackageId}/>
+            </Boundary>
+            
+        </AppPageContent>
         
     </AppPage>
 }

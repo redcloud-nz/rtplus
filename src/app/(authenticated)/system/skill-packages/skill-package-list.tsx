@@ -21,12 +21,12 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 import { SkillPackageData } from '@/lib/schemas/skill-package'
 import * as Paths from '@/paths'
-import { useTRPC, WithCounts } from '@/trpc/client'
+import { trpc, WithCounts } from '@/trpc/client'
 
 
 
 export function System_SkillPackagesList_Card() {
-    const trpc = useTRPC()
+    
 
     const skillPackagesQuery = useSuspenseQuery(trpc.skills.getPackages.queryOptions({}))
 

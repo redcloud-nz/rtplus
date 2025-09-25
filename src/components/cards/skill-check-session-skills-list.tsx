@@ -22,7 +22,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useToast } from '@/hooks/use-toast'
 import { EditableFeature } from '@/lib/editable-feature'
 import { SkillData } from '@/lib/schemas/skill'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
@@ -35,7 +35,6 @@ type RowData = { skillId: string, skill: SkillData }
 export function SkillCheckSession_SkillsList_Card({ sessionId }: { sessionId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
-    const trpc = useTRPC()
 
     const availablePackagesQuery = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions())
     const { data: assignedSkills, refetch: refetchAssignedSkills } = useSuspenseQuery(trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId }))

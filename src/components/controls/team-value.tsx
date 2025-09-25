@@ -9,11 +9,11 @@ import { ComponentProps } from 'react'
 import { useQuery } from '@tanstack/react-query'
 
 import { DisplayValue } from '@/components/ui/display-value'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 export function TeamValue({ teamId, ...props }: Omit<ComponentProps<typeof DisplayValue>, 'children' |'loading'> &  { teamId: string }) {
-    const trpc = useTRPC()
+    
 
     const query = useQuery(trpc.teams.getTeam.queryOptions({ teamId }))
 

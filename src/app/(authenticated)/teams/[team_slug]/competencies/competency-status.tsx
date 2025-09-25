@@ -11,7 +11,7 @@ import { Link } from '@/components/ui/link'
 
 import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
-import { useTRPC } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
 
 
@@ -33,7 +33,6 @@ function Stat({ objectType: title, value, description, linksTo }: StatProps) {
 }
 
 export function SkillsCount_Card({ team }: {team: TeamData }) {
-    const trpc = useTRPC()
 
     const { data: skillPackages } = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions())
     const skills = skillPackages.flatMap(pkg => pkg.skills)
@@ -42,7 +41,6 @@ export function SkillsCount_Card({ team }: {team: TeamData }) {
 }
 
 export function TeamMembersCount_Card({ team }: { team: TeamData }) {
-    const trpc = useTRPC()
 
     const { data: teamMembers } = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId: team.teamId }))
 
@@ -50,7 +48,6 @@ export function TeamMembersCount_Card({ team }: { team: TeamData }) {
 }
 
 export function SessionsCount_Card({ team }: { team: TeamData }) {
-    const trpc = useTRPC()
 
     const { data: sessions } = useSuspenseQuery(trpc.skillChecks.getTeamSessions.queryOptions({ teamId: team.teamId }))
 
@@ -59,7 +56,6 @@ export function SessionsCount_Card({ team }: { team: TeamData }) {
 
 
 export function SkillChecksCount_Card({ team }: { team: TeamData }) {
-    const trpc = useTRPC()
 
     const { data: skillChecks } = useSuspenseQuery(trpc.skillChecks.getSkillChecks.queryOptions({ teamId: team.teamId }))
 

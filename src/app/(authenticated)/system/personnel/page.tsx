@@ -10,7 +10,6 @@ import { Metadata } from 'next'
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
-import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 
 import { System_PersonnelList_Card } from './system-personnel-list' 
 
@@ -22,8 +21,6 @@ export const metadata: Metadata = { title: "Personnel" }
 
 export default async function System_PersonnelList_Page() {
 
-    prefetch(trpc.personnel.getPersonnel.queryOptions({ }))
-
     return <AppPage>
         <AppPageBreadcrumbs 
             breadcrumbs={[
@@ -31,16 +28,14 @@ export default async function System_PersonnelList_Page() {
                 Paths.system.personnel
             ]}
         />
-        <HydrateClient>
-            <AppPageContent variant="container">
-                <PageHeader>
-                    <PageTitle>Personnel</PageTitle>
-                </PageHeader>
-                <Boundary>
-                    <System_PersonnelList_Card/>
-                </Boundary>
-                
-            </AppPageContent>
-        </HydrateClient>
+        <AppPageContent variant="container">
+            <PageHeader>
+                <PageTitle>Personnel</PageTitle>
+            </PageHeader>
+            <Boundary>
+                <System_PersonnelList_Card/>
+            </Boundary>
+            
+        </AppPageContent>
     </AppPage>
 }
