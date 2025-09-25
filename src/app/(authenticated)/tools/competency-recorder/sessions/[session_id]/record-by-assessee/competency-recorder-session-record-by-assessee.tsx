@@ -14,18 +14,20 @@ import { FloatingFooter } from '@/components/footer'
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { CompetenceLevelRadioGroup } from '@/components/ui/competence-level-radio-group'
 import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 import { getAssignedSkills } from '@/hooks/use-assigned-skills'
 import { GetCheckReturn, useSkillCheckStore_experimental } from '@/hooks/use-skill-check-store'
+import { CompetenceLevel } from '@/lib/competencies'
 import { SkillData } from '@/lib/schemas/skill'
-import { cn } from '@/lib/utils'
 import { useTRPC } from '@/trpc/client'
+
+
 
 
 export function CompetencyRecorder_Session_RecordByAssessee_PageContent({ sessionId }: { sessionId: string }) {
@@ -126,29 +128,15 @@ function SkillRow({ skill, disabled, savedValue: value, onValueChange }: SkillRo
 
     return <div className="col-span-3 grid grid-cols-subgrid items-center py-1 gap-x-2 gap-y-1">
         <Label className="pl-1">{skill.name}</Label>
-        <ToggleGroup 
-            type="single" 
-            variant='outline' 
-            size="sm" 
-            value={value.result} 
-            onValueChange={val => onValueChange({ ...value, result: val })} 
-            disabled={disabled}
-            className={cn(resultChanged && '*:data-[state=on]:ring-2')}
         
-        >
-            <ToggleGroupItem value="NotTaught" className="data-[state=on]:bg-yellow-600/10 data-[state=on]:text-yellow-700 ring-yellow-700/20">
-                NT
-            </ToggleGroupItem>
-            <ToggleGroupItem value="NotCompetent" className="data-[state=on]:bg-red-600/10 data-[state=on]:text-red-700 ring-red-700/20">
-                NC
-            </ToggleGroupItem>
-            <ToggleGroupItem value="Competent" className="data-[state=on]:bg-green-600/10 data-[state=on]:text-green-700 ring-green-700/20">
-                C
-            </ToggleGroupItem>
-            <ToggleGroupItem value="HighlyConfident" className="data-[state=on]:bg-blue-600/10 data-[state=on]:text-blue-700 ring-blue-700/20">
-                HC
-            </ToggleGroupItem>
-        </ToggleGroup>
+        <CompetenceLevelRadioGroup 
+            value={value.result as CompetenceLevel}
+            prevValue={value.savedValue?.result as CompetenceLevel || null}
+            onValueChange={newValue => onValueChange({ ...value, result: newValue })} 
+            disabled={disabled}
+            className={resultChanged ? '' : ''}
+        />
+
         <Button variant="ghost" size="icon" onClick={() => setShowNotes(prev => !prev)} disabled={disabled}>
             <NotebookPenIcon/>
         </Button>

@@ -16,7 +16,7 @@ import * as Paths from '@/paths'
 import { CompetencyRecorder_Session_Menu } from '../session-menu'
 import { useSession } from '../use-session'
 
-import { CompetencyRecorder_Session_Recent } from './competency-recorder-session-recent'
+import { CompetencyRecorder_Session_Transcript_PageContent } from './competency-recorder-session-recent'
 
 
 export default function CompetencyRecorder_Session_Transcript_Page() {
@@ -42,7 +42,7 @@ export default function CompetencyRecorder_Session_Transcript_Page() {
         </AppPageControls>
         <AppPageContent variant="container">
             <Boundary>
-                <CompetencyRecorder_Session_Recent sessionId={session.sessionId} />
+                <CompetencyRecorder_Session_Transcript_PageContent sessionId={session.sessionId} />
             </Boundary>
         </AppPageContent>
     </AppPage>
