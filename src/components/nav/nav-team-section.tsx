@@ -52,9 +52,9 @@ export function NavTeamSection() {
 
             <Show when={isTeam}>
                 <NavCollapsible label="Skills" icon={<PocketKnifeIcon/>}>
+                    <NavSubItem path={Paths.team(slug).skills.catalogue}/>
                     <NavSubItem path={Paths.team(slug).skills.checks}/>
                     <NavSubItem path={Paths.team(slug).skills.sessions}/>
-                    <NavSubItem path={Paths.team(slug).skills.catalogue}/>
                     <NavSubItem path={Paths.team(slug).skills.reports}/>
                 </NavCollapsible>
             </Show>

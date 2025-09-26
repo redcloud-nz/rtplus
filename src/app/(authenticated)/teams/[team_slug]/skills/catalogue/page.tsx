@@ -5,13 +5,13 @@
  *  Path: /teams/[team_slug]/competencies/skills
  */
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
 import { getTeamFromParams } from '@/server/data/team'
 
-import { Team_Skills_PackageList_Card } from './team-skill-package-list'
+import { Team_Skills_List } from './team-skill-package-list'
 
 export const metadata = { title: 'Skills' }
 
@@ -28,11 +28,8 @@ export default async function Team_Skills_Catalogue_Page(props: { params: Promis
             ]}
         />
         <AppPageContent variant="container">
-            <PageHeader>
-                <PageTitle>Available Packages</PageTitle>
-            </PageHeader>
             <Boundary>
-                <Team_Skills_PackageList_Card />
+                <Team_Skills_List />
             </Boundary>
         </AppPageContent>
     </AppPage>
