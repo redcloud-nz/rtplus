@@ -29,7 +29,7 @@ import { trpc } from '@/trpc/client'
 
 type RowData = SkillCheckData & { assessee: PersonData, assessor: PersonData, skill: SkillData }
 
-export function Team_SkillChecksList_Card({ team }: { team: TeamData }) {
+export function Team_Skill_ChecksList_Card({ team }: { team: TeamData }) {
 
     const checksQuery = useSuspenseQuery(trpc.skillChecks.getSkillChecks.queryOptions({ teamId: team.teamId }))
 

@@ -15,7 +15,7 @@ import { Paragraph } from '@/components/ui/typography'
 import { trpc } from '@/trpc/client'
 
 
-export function Team_Competencies_SkillsList_Card() {
+export function Team_Skills_PackageList_Card() {
 
     const { data: skillPackages } = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions())
 

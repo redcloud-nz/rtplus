@@ -17,7 +17,7 @@ import { SkillCheckSession_Transcript_Card } from '@/components/cards/skill-chec
 import * as Paths from '@/paths'
 import { fetchSkillCheckSession } from '@/server/fetch'
 
-import { Team_SkillCheckSession_Details_Card } from './team-session-details'
+import { Team_Skills_SessionDetails_Card } from './team-session-details'
 
 import { GoToRecorder } from './go-to-recorder-button'
 
@@ -31,7 +31,7 @@ export async function generateMetadata(props: { params: Promise<{ session_id: st
     }
 }
 
-export default async function Team_SkillCheckSession_Page(props: { params: Promise<{ session_id: string, team_slug: string }> }) {
+export default async function Team_Skills_Session_Page(props: { params: Promise<{ session_id: string, team_slug: string }> }) {
     const session = await fetchSkillCheckSession(props.params)
     const team = session.team
 
@@ -44,8 +44,8 @@ export default async function Team_SkillCheckSession_Page(props: { params: Promi
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.team(team),
-                Paths.team(team).competencies,
-                Paths.team(team).competencies.sessions,
+                Paths.team(team).skills,
+                Paths.team(team).skills.sessions,
                 session.name
             ]}
         />
@@ -58,7 +58,7 @@ export default async function Team_SkillCheckSession_Page(props: { params: Promi
                 </PageControls>
             </PageHeader>
             <Boundary>
-                <Team_SkillCheckSession_Details_Card sessionId={session.sessionId} team={team} />
+                <Team_Skills_SessionDetails_Card sessionId={session.sessionId} team={team} />
             </Boundary>
             <Boundary>
                 <SkillCheckSession_SkillsList_Card sessionId={session.sessionId} />

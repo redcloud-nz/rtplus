@@ -15,15 +15,15 @@ import { getTeamFromParams } from '@/server/data/team'
 
 
 
-export default async function Team_Competencies_Reports_Index_Page(props: { params: Promise<{ team_slug: string }> }) {
+export default async function Team_Skills_Reports_Index_Page(props: { params: Promise<{ team_slug: string }> }) {
     const team = await getTeamFromParams(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.team(team), 
-                Paths.team(team).competencies, 
-                Paths.team(team).competencies.reports
+                Paths.team(team).skills, 
+                Paths.team(team).skills.reports
             ]}
         />
         <AppPageContent variant="container">
@@ -40,13 +40,13 @@ export default async function Team_Competencies_Reports_Index_Page(props: { para
                 <TableBody>
                     <TableRow>
                         <TableCell>
-                            <TextLink to={Paths.team(team).competencies.reports.individual}/>
+                            <TextLink to={Paths.team(team).skills.reports.individual}/>
                         </TableCell>
                         <TableCell>A report of an individuals competencies.</TableCell>
                     </TableRow>
                     <TableRow>
                         <TableCell>
-                            <TextLink to={Paths.team(team).competencies.reports.teamCompetencies}/>
+                            <TextLink to={Paths.team(team).skills.reports.teamCompetencies}/>
                         </TableCell>
                         <TableCell>A report of the teams competencies as the percentage of members currently competent.</TableCell>
                     </TableRow>

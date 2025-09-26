@@ -27,9 +27,9 @@ export default async function Team_Member_Skills_Report_Page(props: { params: Pr
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.team(team),
-                Paths.team(team).competencies,
-                Paths.team(team).competencies.reports,
-                Paths.team(team).competencies.reports.individual
+                Paths.team(team).skills,
+                Paths.team(team).skills.reports,
+                Paths.team(team).skills.reports.individual
             ]}
         />
         <AppPageContent variant="container">

@@ -12,20 +12,20 @@ import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 import { getTeamFromParams } from '@/server/data/team'
 
-import { Team_NewSkillCheckSession_Details_Card } from './team-new-session-details'
+import { Team_Skills_NewSession_Details_Card } from './team-new-session-details'
 
 export const metadata = { title: `New Skill Check Session` }
 
-export default async function Team_NewSkillCheckSession_Page(props: { params: Promise<{ team_slug: string }> }) {
+export default async function Team_Skills_NewSession_Page(props: { params: Promise<{ team_slug: string }> }) {
     const team = await getTeamFromParams(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.team(team.slug),
-                Paths.team(team.slug).competencies,
-                Paths.team(team.slug).competencies.sessions,
-                Paths.team(team.slug).competencies.sessions.create,
+                Paths.team(team.slug).skills,
+                Paths.team(team.slug).skills.sessions,
+                Paths.team(team.slug).skills.sessions.create,
             ]}
         />
         <AppPageContent variant="container">
@@ -34,7 +34,7 @@ export default async function Team_NewSkillCheckSession_Page(props: { params: Pr
             </PageHeader>
 
             <Boundary>
-                <Team_NewSkillCheckSession_Details_Card team={team}/>
+                <Team_Skills_NewSession_Details_Card team={team}/>
             </Boundary>
         </AppPageContent>
     </AppPage>

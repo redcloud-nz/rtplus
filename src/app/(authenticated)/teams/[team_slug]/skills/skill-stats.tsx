@@ -37,7 +37,7 @@ export function SkillsCount_Card({ team }: {team: TeamData }) {
     const { data: skillPackages } = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions())
     const skills = skillPackages.flatMap(pkg => pkg.skills)
 
-    return <Stat objectType="Skills" value={skills.length} description="Skills that can be checked" linksTo={Paths.team(team).competencies.skills}/>
+    return <Stat objectType="Skills" value={skills.length} description="Skills that can be checked" linksTo={Paths.team(team).skills.catalogue}/>
 }
 
 export function TeamMembersCount_Card({ team }: { team: TeamData }) {
@@ -51,7 +51,7 @@ export function SessionsCount_Card({ team }: { team: TeamData }) {
 
     const { data: sessions } = useSuspenseQuery(trpc.skillChecks.getTeamSessions.queryOptions({ teamId: team.teamId }))
 
-    return <Stat objectType="Sessions" value={sessions.length} description="have been created"  linksTo={Paths.team(team).competencies.sessions}/>
+    return <Stat objectType="Sessions" value={sessions.length} description="have been created"  linksTo={Paths.team(team).skills.sessions}/>
 }
 
 
@@ -59,5 +59,5 @@ export function SkillChecksCount_Card({ team }: { team: TeamData }) {
 
     const { data: skillChecks } = useSuspenseQuery(trpc.skillChecks.getSkillChecks.queryOptions({ teamId: team.teamId }))
 
-    return <Stat objectType="Skill Checks" value={skillChecks.length} description="have been completed" linksTo={Paths.team(team).competencies.skillChecks} />
+    return <Stat objectType="Skill Checks" value={skillChecks.length} description="have been completed" linksTo={Paths.team(team).skills.checks} />
 }

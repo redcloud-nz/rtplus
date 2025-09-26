@@ -12,7 +12,7 @@ import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 import { getTeamFromParams } from '@/server/data/team'
 
-import { Team_SkillCheckSessionsList_Card } from './team-sessions-list'
+import { Team_Skills_SessionList_Card } from './team-sessions-list'
 
 
 export const metadata = { title: `Skill Check Sessions` }
@@ -25,8 +25,8 @@ export default async function Team_SkillCheckSessionsList_Page(props: { params: 
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.team(team),
-                Paths.team(team).competencies,
-                Paths.team(team).competencies.sessions,
+                Paths.team(team).skills,
+                Paths.team(team).skills.sessions,
             ]}
         />
         <AppPageContent variant="container">
@@ -34,7 +34,7 @@ export default async function Team_SkillCheckSessionsList_Page(props: { params: 
                 <PageTitle>Skill Check Sessions</PageTitle>
             </PageHeader>
             <Boundary>
-                <Team_SkillCheckSessionsList_Card team={team}/>
+                <Team_Skills_SessionList_Card team={team}/>
             </Boundary>
         </AppPageContent>
     </AppPage>

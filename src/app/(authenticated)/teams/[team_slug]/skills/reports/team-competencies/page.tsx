@@ -32,9 +32,9 @@ export default async function Team_Skills_Report_Page(props: { params: Promise<{
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.team(team),
-                Paths.team(team).competencies,
-                Paths.team(team).competencies.reports,
-                Paths.team(team).competencies.reports.teamCompetencies
+                Paths.team(team).skills,
+                Paths.team(team).skills.reports,
+                Paths.team(team).skills.reports.teamCompetencies
             ]}
         />
         <AppPageContent variant="full">

@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     description: "RT+ Web Application.",
 }
 
-export default async function SignedIn_Layout({ children }: Readonly<{ children: ReactNode }>) {
+export default async function SignedIn_Layout({ children}: Readonly<{ children: ReactNode }>) {
 
     return <AppFrontendProvider>
         <AppSidebar>

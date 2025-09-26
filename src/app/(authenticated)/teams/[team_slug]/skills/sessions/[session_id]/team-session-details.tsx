@@ -16,7 +16,6 @@ import { Protect } from '@clerk/nextjs'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-
 import { Button } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { DatePicker } from '@/components/controls/date-picker'
@@ -38,7 +37,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function Team_SkillCheckSession_Details_Card({ sessionId, team }: { sessionId: string, team: TeamData }) {
+export function Team_Skills_SessionDetails_Card({ sessionId, team }: { sessionId: string, team: TeamData }) {
 
     const { data: session } = useSuspenseQuery(trpc.skillChecks.getSession.queryOptions({ sessionId }))
 
@@ -227,7 +226,7 @@ function DeleteSessionDialog({ session, team }: { session: SkillCheckSessionData
                 description: <>The session <ObjectName>{result.name}</ObjectName> has been deleted.</>,
             })
             setOpen(false)
-            router.push(Paths.team(team).competencies.sessions.href)
+            router.push(Paths.team(team).skills.sessions.href)
 
             queryClient.invalidateQueries(trpc.skillChecks.getTeamSessions.queryFilter({ teamId: team.teamId }))
             queryClient.setQueryData(trpc.skillChecks.getSession.queryKey({ sessionId: session.sessionId }), undefined)

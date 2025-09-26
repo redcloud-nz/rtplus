@@ -56,10 +56,10 @@ export default async function Team_Dashboard_Page(props: { params: Promise<{ tea
                     />
                      */}
                     <DashboardCard
-                        linksTo={Paths.team(team).competencies}
+                        linksTo={Paths.team(team).skills}
                         iconForeground="text-sky-700"
                         iconBackground="bg-sky-50"
-                        description="Manage, assess, and report competencies for your team."
+                        description="Manage, assess, and report skils for your team."
                     />
                      <DashboardCard
                         linksTo={Paths.team(team).members}

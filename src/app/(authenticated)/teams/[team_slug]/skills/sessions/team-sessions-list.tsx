@@ -28,7 +28,7 @@ import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
-export function Team_SkillCheckSessionsList_Card({ team }: { team: TeamData }) {
+export function Team_Skills_SessionList_Card({ team }: { team: TeamData }) {
 
     const sessionsQuery = useSuspenseQuery(trpc.skillChecks.getTeamSessions.queryOptions({ teamId: team.teamId }))
 
@@ -41,7 +41,7 @@ export function Team_SkillCheckSessionsList_Card({ team }: { team: TeamData }) {
     const columns = useMemo(() => defineColumns<SkillCheckSessionData>(columnHelper => [
         columnHelper.accessor('name', {
             header: 'Name',
-            cell: ctx => <Link to={Paths.team(team).competencies.session(ctx.row.original.sessionId)}>{ctx.getValue()}</Link>,
+            cell: ctx => <Link to={Paths.team(team).skills.session(ctx.row.original.sessionId)}>{ctx.getValue()}</Link>,
             enableGrouping: false,
             enableHiding: false,
             enableSorting: true,
@@ -124,7 +124,7 @@ export function Team_SkillCheckSessionsList_Card({ team }: { team: TeamData }) {
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button variant="ghost" size="icon" asChild>
-                                    <Link to={Paths.team(team.slug).competencies.sessions.create}>
+                                    <Link to={Paths.team(team.slug).skills.sessions.create}>
                                         <PlusIcon/>
                                     </Link>
                                 </Button>

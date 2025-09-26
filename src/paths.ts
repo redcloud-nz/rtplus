@@ -203,7 +203,7 @@ export const system = {
 export const team = (teamOrSlug: TeamData | string) => {
     const teamSlug = typeof teamOrSlug === 'string' ? teamOrSlug : teamOrSlug.slug
     const base = `/teams/${teamSlug}` as const
-    const competenciesBase = `${base}/competencies` as const
+    const skillsBase = `${base}/skills` as const
 
     return {
         href: base,
@@ -211,51 +211,6 @@ export const team = (teamOrSlug: TeamData | string) => {
         accept: `${base}/accept`,
         availability: `${base}/availability`,
         checklists: `${base}/checklists`,
-        competencies: {
-            label: 'Competencies',
-            href: competenciesBase,
-            icon: CompetenciesIcon,
-            skillChecks: {
-                label: 'Checks',
-                href: `${competenciesBase}/skill-checks`,
-                create: {
-                    label: 'Record Check',
-                    href: `${competenciesBase}/skill-checks/--create`
-                },
-            },
-            session: (sessionId: string) => ({
-                href: `${competenciesBase}/skill-check-sessions/${sessionId}`
-            } as const),
-            sessions: {
-                label: 'Team Sessions',
-                href: `${competenciesBase}/skill-check-sessions`,
-                create: {
-                    label: 'Create',
-                    href: `${competenciesBase}/skill-check-sessions/--create`,
-                },
-            },
-            skills: {
-                label: 'Skills',
-                href: `${competenciesBase}/skills`
-            },
-            record: `${competenciesBase}/record`,
-            reports: {
-                label: 'Reports',
-                href: `${competenciesBase}/reports`,
-                individual: {
-                    href: `${competenciesBase}/reports/individual`,
-                    label: 'Individual',
-                },
-                teamCompetencies: {
-                    href: `${competenciesBase}/reports/team-competencies`,
-                    label: 'Team Competencies',
-                },
-                teamMembers: {
-                    href: `${competenciesBase}/reports/team-members`,
-                    label: 'Team Members',
-                },
-            },
-        },
         dashboard: {
             label: 'Dashboard',
             href: `${base}/dashboard`
@@ -297,6 +252,51 @@ export const team = (teamOrSlug: TeamData | string) => {
             create: {
                 label: 'Create',
                 href: `${base}/notes/--create`,
+            },
+        },
+        skills: {
+            label: 'Skills',
+            href: skillsBase,
+            icon: CompetenciesIcon,
+            checks: {
+                label: 'Checks',
+                href: `${skillsBase}/checks`,
+                create: {
+                    label: 'Record Check',
+                    href: `${skillsBase}/checks/--create`
+                },
+            },
+            record: `${skillsBase}/record`,
+            reports: {
+                label: 'Reports',
+                href: `${skillsBase}/reports`,
+                individual: {
+                    href: `${skillsBase}/reports/individual`,
+                    label: 'Individual',
+                },
+                teamCompetencies: {
+                    href: `${skillsBase}/reports/team-competencies`,
+                    label: 'Team Competencies',
+                },
+                teamMembers: {
+                    href: `${skillsBase}/reports/team-members`,
+                    label: 'Team Members',
+                },
+            },
+            session: (sessionId: string) => ({
+                href: `${skillsBase}/sessions/${sessionId}`
+            } as const),
+             catalogue: {
+                label: 'Catalogue',
+                href: `${skillsBase}/catalogue`,
+            },
+            sessions: {
+                label: 'Sessions',
+                href: `${skillsBase}/sessions`,
+                create: {
+                    label: 'Create',
+                    href: `${skillsBase}/sessions/--create`,
+                },
             },
         },
         users: {

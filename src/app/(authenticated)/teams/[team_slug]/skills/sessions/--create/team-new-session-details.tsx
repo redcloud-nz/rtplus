@@ -32,7 +32,7 @@ import { trpc } from '@/trpc/client'
 const formSchema = skillCheckSessionSchema.pick({ sessionId: true, teamId: true, name: true, date: true })
 type FormData = z.infer<typeof formSchema>
 
-export function Team_NewSkillCheckSession_Details_Card({ team }: { team: TeamData }) {
+export function Team_Skills_NewSession_Details_Card({ team }: { team: TeamData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -68,7 +68,7 @@ export function Team_NewSkillCheckSession_Details_Card({ team }: { team: TeamDat
                 title: "Session created",
                 description: `The session ${result.name} has been created successfully.`,
             })
-            router.push(Paths.team(team).competencies.session(sessionId).href)
+            router.push(Paths.team(team).skills.session(sessionId).href)
         }
     }))
 

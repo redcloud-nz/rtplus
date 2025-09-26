@@ -1,38 +1,41 @@
 /*
- *  Copyright (c) 2024 Redcloud Development, Ltd.
+ *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /teams/[team_slug]/competencies/skills
+ *  Path: /teams/[team_slug]/competencies/skill-checks
  */
+
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
-
 import * as Paths from '@/paths'
 import { getTeamFromParams } from '@/server/data/team'
 
-import { Team_Competencies_SkillsList_Card } from './team-skills-list'
+import { Team_Skill_ChecksList_Card } from './team-skill-checks-list'
 
-export const metadata = { title: 'Skills' }
+export const metadata = {
+    title: "Skill Checks",
+}
 
-
-export default async function Team_Competencies_Skills_Page(props: { params: Promise<{ team_slug: string }> }) {
+export default async function Team_Skills_Checks_Page(props: { params: Promise<{ team_slug: string }> }) {
     const team = await getTeamFromParams(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.team(team),
-                Paths.team(team).competencies,
-                Paths.team(team).competencies.skills
+                Paths.team(team).skills,
+                Paths.team(team).skills.checks
             ]}
         />
+        
         <AppPageContent variant="container">
             <PageHeader>
-                <PageTitle>Available Skills</PageTitle>
+                <PageTitle>Skill Checks</PageTitle>
             </PageHeader>
+
             <Boundary>
-                <Team_Competencies_SkillsList_Card />
+                <Team_Skill_ChecksList_Card team={team}/>
             </Boundary>
         </AppPageContent>
     </AppPage>
