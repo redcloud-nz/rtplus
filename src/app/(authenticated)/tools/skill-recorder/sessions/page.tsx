@@ -21,8 +21,8 @@ export default async function CompetencyRecorder_SessionsList_Page() {
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.tools.competencyRecorder,
-                Paths.tools.competencyRecorder.sessions
+                Paths.tools.skillRecorder,
+                Paths.tools.skillRecorder.sessions
             ]}
         />
         <AppPageContent variant="container">

@@ -48,7 +48,7 @@ export default async function Team_Skills_Index_Page(props: { params: Promise<{ 
             </div>
             <Paragraph>
                 Welcome to the RT+ skills module. If you are a team admin, you can <TextLink to={Paths.team(team).skills.sessions.create}/> a session or start recording skill checks.
-                Everyone (that has access to RT+) can use the <TextLink to={Paths.tools.competencyRecorder}/> to see their assigned sessions and record skill checks for the assigned assessees.
+                Everyone (that has access to RT+) can use the <TextLink to={Paths.tools.skillRecorder}/> to see their assigned sessions and record skill checks for the assigned assessees.
             </Paragraph>
         </AppPageContent>
     </AppPage>

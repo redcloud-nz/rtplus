@@ -226,8 +226,8 @@ export const team = (teamOrSlug: TeamData | string) => {
             href: `${base}/members/${personId}`,
             label: typeof personOrPersonId === 'string' ? undefined as never: personOrPersonId.name,
             competencies: {
-                label: 'Competencies',
-                href: `${base}/members/${personId}/competencies`,
+                label: 'Skills',
+                href: `${base}/members/${personId}/skills`,
                 icon: CompetenciesIcon,
                 bgColor: 'bg-sky-500'
             },
@@ -274,9 +274,9 @@ export const team = (teamOrSlug: TeamData | string) => {
                     href: `${skillsBase}/reports/individual`,
                     label: 'Individual',
                 },
-                teamCompetencies: {
-                    href: `${skillsBase}/reports/team-competencies`,
-                    label: 'Team Competencies',
+                teamSkills: {
+                    href: `${skillsBase}/reports/team-skills`,
+                    label: 'Team Skills',
                 },
                 teamMembers: {
                     href: `${skillsBase}/reports/team-members`,
@@ -309,18 +309,18 @@ export const team = (teamOrSlug: TeamData | string) => {
 
 
 export const tools = {
-    competencyRecorder: {
-        href: `/tools/competency-recorder`,
-        label: 'Competency Recorder',
+    skillRecorder: {
+        href: `/tools/skill-recorder`,
+        label: 'Skill Recorder',
 
         single: {
             label: 'Single',
-            href: `/tools/competency-recorder/single`,
+            href: `/tools/skill-recorder/single`,
             icon: CheckIcon
         },
         session: (sessionOrSessionId: string | SkillCheckSessionData) => {
             const sessionId = typeof sessionOrSessionId === 'string' ? sessionOrSessionId : sessionOrSessionId.sessionId
-            const sessionBase = `/tools/competency-recorder/sessions/${sessionId}`
+            const sessionBase = `/tools/skill-recorder/sessions/${sessionId}`
             return {
                 label: typeof sessionOrSessionId === 'string' ? 'Session' : sessionOrSessionId.name,
                 href: sessionBase,
@@ -356,7 +356,7 @@ export const tools = {
         },
         sessions: {
             label: 'Sessions',
-            href: '/tools/competency-recorder/sessions',
+            href: '/tools/skill-recorder/sessions',
             icon: CheckCheckIcon
         },
     }

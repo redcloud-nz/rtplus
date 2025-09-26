@@ -46,7 +46,7 @@ export default async function Team_Skills_Reports_Index_Page(props: { params: Pr
                     </TableRow>
                     <TableRow>
                         <TableCell>
-                            <TextLink to={Paths.team(team).skills.reports.teamCompetencies}/>
+                            <TextLink to={Paths.team(team).skills.reports.teamSkills}/>
                         </TableCell>
                         <TableCell>A report of the teams competencies as the percentage of members currently competent.</TableCell>
                     </TableRow>

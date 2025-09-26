@@ -34,7 +34,7 @@ export default async function Team_Skills_Report_Page(props: { params: Promise<{
                 Paths.team(team),
                 Paths.team(team).skills,
                 Paths.team(team).skills.reports,
-                Paths.team(team).skills.reports.teamCompetencies
+                Paths.team(team).skills.reports.teamSkills
             ]}
         />
         <AppPageContent variant="full">

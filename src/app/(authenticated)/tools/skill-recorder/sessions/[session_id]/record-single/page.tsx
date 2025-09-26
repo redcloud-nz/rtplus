@@ -24,10 +24,10 @@ export default function CompetencyRecorder_Session_RecordIndividual_Page() {
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.tools.competencyRecorder,
-                Paths.tools.competencyRecorder.sessions,
-                Paths.tools.competencyRecorder.session(session),
-                Paths.tools.competencyRecorder.session(session).recordSingle,
+                Paths.tools.skillRecorder,
+                Paths.tools.skillRecorder.sessions,
+                Paths.tools.skillRecorder.session(session),
+                Paths.tools.skillRecorder.session(session).recordSingle,
             ]}
         />
 

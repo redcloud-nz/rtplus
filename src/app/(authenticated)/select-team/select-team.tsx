@@ -6,6 +6,7 @@
 'use client'
 
 import { PlusIcon } from 'lucide-react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { match } from 'ts-pattern'
 
@@ -90,6 +91,15 @@ export default function SelectTeam_PageContent() {
             <LoadingSpinner className="h-32 w-32"/>
         </div>}
     >
+       <div className="flex items-center justify-center">
+            <Image
+                className="dark:invert"
+                src="/logo.svg"
+                alt="RT+ logo"
+                width={128}
+                height={64}
+            />
+       </div>
         
         <PageDescription>Select a team to use:</PageDescription>
 

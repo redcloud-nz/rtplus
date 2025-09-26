@@ -22,8 +22,8 @@ export default async function CompetencyRecorder_Single_Page() {
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
-                Paths.tools.competencyRecorder,
-                Paths.tools.competencyRecorder.single
+                Paths.tools.skillRecorder,
+                Paths.tools.skillRecorder.single
             ]}
         />
         <AppPageContent variant="container">

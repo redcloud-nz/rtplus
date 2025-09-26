@@ -71,7 +71,7 @@ export function CompetencyRecorder_Single_Card() {
                 title: "Skill check recorded",
                 description: "The skill check has been successfully recorded.",
             })
-            router.push(Paths.tools.competencyRecorder.href)
+            router.push(Paths.tools.skillRecorder.href)
         }
     }))
 
@@ -152,7 +152,7 @@ export function CompetencyRecorder_Single_Card() {
 
                         <ToruGridFooter>
                             <FormSubmitButton labels={SubmitVerbs.save} size="sm"/>
-                            <FormCancelButton redirectTo={Paths.tools.competencyRecorder} size="sm"/>
+                            <FormCancelButton redirectTo={Paths.tools.skillRecorder} size="sm"/>
                         </ToruGridFooter>
                         
                     </ToruGrid>

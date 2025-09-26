@@ -16,31 +16,34 @@ import * as Paths from '@/paths'
 
 
 
-export const metadata: Metadata = { title: 'Competency Recorder' }
+export const metadata: Metadata = { title: 'Skill Recorder' }
 
 
-export default async function CompetencyRecorder_Page() {
+export default async function SkillRecorder_Page() {
 
     return <AppPage>
         <AppPageBreadcrumbs
-            breadcrumbs={[Paths.tools.competencyRecorder]}
+            breadcrumbs={[Paths.tools.skillRecorder]}
         />
         <AppPageContent variant="container">
             <PageHeader>
-                <PageTitle>Competency Recorder</PageTitle>
+                <PageTitle>Skill Recorder</PageTitle>
             </PageHeader>
             <Paragraph>
-                Welcome to the Competency Recorder tool. Here you can record skill checks for your team members, either as a single check or as part of a session.
+                Welcome to the RT+ Skill Recorder Tool. 
+            </Paragraph>
+            <Paragraph>
+                Here you can record skill checks for your team members, either as a single check or as part of a session.
             </Paragraph>
             <DashboardCardList>
                  <DashboardCard
-                    linksTo={Paths.tools.competencyRecorder.single}
+                    linksTo={Paths.tools.skillRecorder.single}
                     iconForeground="text-sky-700"
                     iconBackground="bg-sky-50"
                     description="Record a single skill check."
                 />
                 <DashboardCard
-                    linksTo={Paths.tools.competencyRecorder.sessions}
+                    linksTo={Paths.tools.skillRecorder.sessions}
                     iconForeground="text-purple-700"
                     iconBackground="bg-purple-50"
                     description="Participate in a skill check session."

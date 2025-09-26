@@ -33,17 +33,17 @@ export function CompetencyRecorder_Session_Menu({ sessionId }: { sessionId: stri
             <DropdownMenuGroup>
                 <DropdownMenuLabel>Configuration</DropdownMenuLabel>
                 <DropdownMenuItem asChild >
-                    <Link to={Paths.tools.competencyRecorder.session(sessionId)}>
+                    <Link to={Paths.tools.skillRecorder.session(sessionId)}>
                         Details
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                    <Link to={Paths.tools.competencyRecorder.session(sessionId).assessees}>
+                    <Link to={Paths.tools.skillRecorder.session(sessionId).assessees}>
                         Assessees
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                    <Link to={Paths.tools.competencyRecorder.session(sessionId).skills}>
+                    <Link to={Paths.tools.skillRecorder.session(sessionId).skills}>
                         Skills
                     </Link>
                 </DropdownMenuItem>
@@ -52,17 +52,17 @@ export function CompetencyRecorder_Session_Menu({ sessionId }: { sessionId: stri
             <DropdownMenuGroup>
                 <DropdownMenuLabel>Record Checks</DropdownMenuLabel>
                  <DropdownMenuItem asChild>
-                    <Link to={Paths.tools.competencyRecorder.session(sessionId).recordSingle}>
+                    <Link to={Paths.tools.skillRecorder.session(sessionId).recordSingle}>
                          Single
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                    <Link to={Paths.tools.competencyRecorder.session(sessionId).recordByAssessee}>
+                    <Link to={Paths.tools.skillRecorder.session(sessionId).recordByAssessee}>
                         By Assessee
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                    <Link to={Paths.tools.competencyRecorder.session(sessionId).recordBySkill}>
+                    <Link to={Paths.tools.skillRecorder.session(sessionId).recordBySkill}>
                         By Skill
                     </Link>
                 </DropdownMenuItem>
@@ -70,7 +70,7 @@ export function CompetencyRecorder_Session_Menu({ sessionId }: { sessionId: stri
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
                 <DropdownMenuItem asChild>
-                    <Link to={Paths.tools.competencyRecorder.session(sessionId).transcript}>
+                    <Link to={Paths.tools.skillRecorder.session(sessionId).transcript}>
                         Transcript
                     </Link>
                 </DropdownMenuItem>
