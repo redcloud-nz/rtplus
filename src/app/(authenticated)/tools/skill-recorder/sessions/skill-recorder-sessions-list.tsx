@@ -24,7 +24,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function CompetencyRecorder_SessionsList_Card() {
+export function SkillRecorder_SessionsList_Card() {
 
     const sessionsQuery = useQuery(trpc.skillChecks.getMySessions.queryOptions({ status: ['Draft'] }))
 

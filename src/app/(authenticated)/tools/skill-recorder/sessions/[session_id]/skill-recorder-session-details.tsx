@@ -15,12 +15,9 @@ import { TeamRef } from '@/lib/schemas/team'
 
 
 
-
-
-export function SkillCheckSession_Details_Card({ session }: { session: SkillCheckSessionData & { team: TeamRef } }) {
+export function SkillRecorder_Session_Details_Content({ scrollable = false, session }: { scrollable?: boolean, session: SkillCheckSessionData & { team: TeamRef } }) {
     
-    return <ScrollArea style={{ height: `calc(100vh - var(--header-height))` }} className="flex flex-col gap-4 px-2">
-        <ToruGrid>
+    const content = <ToruGrid>
             <ToruGridRow
                 label="Session ID"
                 control={<DisplayValue>{session.sessionId}</DisplayValue>}
@@ -42,5 +39,8 @@ export function SkillCheckSession_Details_Card({ session }: { session: SkillChec
                 control={<DisplayValue>{session.sessionStatus}</DisplayValue>}
             />
         </ToruGrid>
-    </ScrollArea>
+
+    return scrollable ? <ScrollArea style={{ height: `calc(100vh - var(--header-height))` }} className="flex flex-col gap-4 px-2">
+            {content}
+        </ScrollArea> : content
 }

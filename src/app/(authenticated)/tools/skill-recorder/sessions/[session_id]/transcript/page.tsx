@@ -9,14 +9,12 @@
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, AppPageControls, PageExplanation } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
-import { Separator } from '@/components/ui/separator'
 import { Paragraph } from '@/components/ui/typography'
 
 import * as Paths from '@/paths'
-import { CompetencyRecorder_Session_Menu } from '../session-menu'
 import { useSession } from '../use-session'
 
-import { CompetencyRecorder_Session_Transcript_PageContent } from './competency-recorder-session-recent'
+import { SkillRecorder_Session_Transcript_Content } from './skill-recorder-session-transcript'
 
 
 export default function CompetencyRecorder_Session_Transcript_Page() {
@@ -26,7 +24,7 @@ export default function CompetencyRecorder_Session_Transcript_Page() {
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.tools.skillRecorder,
-                Paths.tools.skillRecorder.sessions,
+                //Paths.tools.skillRecorder.sessions,
                 Paths.tools.skillRecorder.session(session),
                 Paths.tools.skillRecorder.session(session).transcript,
             ]}
@@ -37,12 +35,10 @@ export default function CompetencyRecorder_Session_Transcript_Page() {
                     This transcript shows the most recent skill checks recorded in this session, with the most recent at the top.
                 </Paragraph>
             </PageExplanation>
-            <Separator orientation="vertical"/>
-            <CompetencyRecorder_Session_Menu sessionId={session.sessionId} />
         </AppPageControls>
         <AppPageContent variant="container">
             <Boundary>
-                <CompetencyRecorder_Session_Transcript_PageContent sessionId={session.sessionId} />
+                <SkillRecorder_Session_Transcript_Content sessionId={session.sessionId} />
             </Boundary>
         </AppPageContent>
     </AppPage>

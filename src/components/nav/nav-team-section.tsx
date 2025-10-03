@@ -9,13 +9,11 @@ import Image from 'next/image'
 
 import { Protect, useOrganization } from '@clerk/nextjs'
 
-import { Button } from '@/components/ui/button'
-import { Link } from '@/components/ui/link'
 import { Skeleton } from '@/components/ui/skeleton'
 
 import * as Paths from '@/paths'
 
-import { NavCollapsible, NavItem, NavSection, NavSubItem } from './nav-section'
+import { NavCollapsible, NavItem, NavSection, NavSectionHeadingLink, NavSubItem } from './nav-section'
 import { Show } from '../show'
 
 /**
@@ -26,27 +24,22 @@ export function NavTeamSection() {
 
     const slug = organization?.slug ?? ''
     const type = organization?.publicMetadata?.type
-    const isSystem = slug == 'system'
-    const isTeam = slug.length > 0 && !isSystem
+    const isSystem = type == 'System'
+    const isTeam = type == 'Normal' || type == 'Sandbox'
     const isPersonal = organization == null
 
     return isLoaded
-        ? <>
-            <Button variant="ghost" className="w-full h-8 pl-0 border-0" asChild>
-                <Link 
-                    to={isPersonal 
-                        ? Paths.personal
-                        : isSystem 
-                            ? Paths.system
-                            : Paths.team(slug)
-                    }
-                >
-                    <div className="truncate font-semibold text-center">
-                        {isPersonal ? "Personal Account" : organization.name}
-                    </div>
-                </Link>
-            </Button>
-        <NavSection>
+        ? <NavSection>
+            <NavSectionHeadingLink
+                to={isPersonal 
+                    ? Paths.personal
+                    : isSystem 
+                        ? Paths.system
+                        : Paths.team(slug)
+                }
+            >
+                {isPersonal ? "Personal Account" : organization.name}
+            </NavSectionHeadingLink>
 
             {/* <NavItem label="About" href="/about" icon={<InfoIcon/>}/> */}
 
@@ -100,14 +93,13 @@ export function NavTeamSection() {
                 </Protect>
             </Show>
             <NavCollapsible label="Tools" icon={<HammerIcon/>}>
-                <NavSubItem path={Paths.tools.skillRecorder}/>
+                <NavSubItem path={Paths.tools.skillRecorder.sessions}/>
             </NavCollapsible>
             <Show when={isSystem}>
                 <NavItem path={Paths.system.teams}/>
             </Show>
             
         </NavSection>
-        </>
         : <Skeleton className="w-full h-32 mb-2 [&_[data-slot=spinner]]:w-10 [&_[data-slot=spinner]]:h-10" variant="spinner"/>
 
 }

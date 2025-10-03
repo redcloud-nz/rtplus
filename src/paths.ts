@@ -310,7 +310,7 @@ export const team = (teamOrSlug: TeamData | string) => {
 
 export const tools = {
     skillRecorder: {
-        href: `/tools/skill-recorder`,
+        // href: `/tools/skill-recorder`,
         label: 'Skill Recorder',
 
         single: {

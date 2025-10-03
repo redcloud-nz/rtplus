@@ -6,8 +6,9 @@
 
 import { ChevronRight, LucideProps } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { ForwardRefExoticComponent, ReactNode, RefAttributes } from 'react'
+import { ComponentProps, ForwardRefExoticComponent, ReactNode, RefAttributes } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleProps, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { ExternalLink, Link } from '@/components/ui/link'
 import {
@@ -21,20 +22,6 @@ import {
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar'
 
-
-export interface INavItem {
-    title: string
-    url: string
-    icon?: React.ReactNode
-    items?: INavSubItem[]
-    defaultOpen?: boolean
-    authRequired?: boolean
-}
-
-export interface INavSubItem {
-    title: string
-    url: string
-}
 
 
 export interface NavSectionProps {
@@ -137,4 +124,14 @@ export function NavSubItem({ external, ...props }: NavSubItemProps) {
             </SidebarMenuSubButton>
         </SidebarMenuSubItem>
     }
+}
+
+export function NavSectionHeadingLink({ children, ...props }: ComponentProps<typeof Link>) {
+    return <Button variant="ghost" className="w-full h-8 pl-0 border-0" asChild>
+        <Link {...props}>
+            <div className="truncate font-semibold text-center">
+                {children}
+            </div>
+        </Link>
+    </Button>
 }

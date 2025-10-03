@@ -8,13 +8,12 @@
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, AppPageControls, PageExplanation } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
-import { Separator } from '@/components/ui/separator'
+
 import { Paragraph } from '@/components/ui/typography'
 import * as Paths from '@/paths'
 
-import { CompetencyRecorder_Session_Menu } from '../session-menu'
 import { useSession } from '../use-session'
-import CompetencyRecorder_Session_Assessors_PageContents from './competency-recorder-session-assessors'
+import SkillRecorder_Session_Assessors_Content from './competency-recorder-session-assessors'
 
 
 /**
@@ -28,7 +27,7 @@ export default function CompetencyRecorder_Session_Assessors_Page() {
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.tools.skillRecorder,
-                Paths.tools.skillRecorder.sessions,
+                //Paths.tools.skillRecorder.sessions,
                 Paths.tools.skillRecorder.session(session),
                 Paths.tools.skillRecorder.session(session).assessors
             ]}
@@ -43,12 +42,10 @@ export default function CompetencyRecorder_Session_Assessors_Page() {
                     <li><span className="text-red-600 font-mono text-md pr-1">-</span> indicates an unsaved removal</li>
                 </ul>
             </PageExplanation>
-            <Separator orientation="vertical"/>
-            <CompetencyRecorder_Session_Menu sessionId={session.sessionId} />
         </AppPageControls>
         <AppPageContent variant="full">
             <Boundary>
-                <CompetencyRecorder_Session_Assessors_PageContents sessionId={session.sessionId} team={session.team} />
+                <SkillRecorder_Session_Assessors_Content sessionId={session.sessionId} team={session.team} />
             </Boundary>
         </AppPageContent>
     </AppPage>

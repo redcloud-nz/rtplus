@@ -9,14 +9,12 @@
 import { AppPage, AppPageBreadcrumbs, AppPageContent, AppPageControls, PageExplanation } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 import { GitHubIssueLink } from '@/components/ui/link'
-import { Separator } from '@/components/ui/separator'
 import { Paragraph } from '@/components/ui/typography'
 
 import * as Paths from '@/paths'
 
-import { CompetencyRecorder_Session_Menu } from '../session-menu'
 import { useSession } from '../use-session'
-import { CompetencyRecorder_Session_RecordBySkill_PageContent } from './competency-recorder-session-record-by-skill'
+import { CompetencyRecorder_Session_RecordBySkill_Content } from './skill-recorder-session-record-by-skill'
 
 
 
@@ -29,7 +27,7 @@ export default function CompetencyRecorder_Session_RecordBySkill_Page() {
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.tools.skillRecorder,
-                Paths.tools.skillRecorder.sessions,
+                //Paths.tools.skillRecorder.sessions,
                 Paths.tools.skillRecorder.session(session),
                 Paths.tools.skillRecorder.session(session).recordBySkill,
             ]}
@@ -47,13 +45,11 @@ export default function CompetencyRecorder_Session_RecordBySkill_Page() {
                     This page is an experimental feature. See <GitHubIssueLink issueNumber={13}/> for feedback or suggestions.
                 </Paragraph>
             </PageExplanation>
-            <Separator orientation="vertical"/>
-            <CompetencyRecorder_Session_Menu sessionId={session.sessionId} />
         </AppPageControls>
 
         <AppPageContent variant="full">
             <Boundary>
-                <CompetencyRecorder_Session_RecordBySkill_PageContent sessionId={session.sessionId} />
+                <CompetencyRecorder_Session_RecordBySkill_Content sessionId={session.sessionId} />
             </Boundary>
         </AppPageContent>
     </AppPage>

@@ -8,13 +8,11 @@
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, AppPageControls, PageExplanation } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
-import { Separator } from '@/components/ui/separator'
 import { Paragraph } from '@/components/ui/typography'
 import * as Paths from '@/paths'
 
-import { CompetencyRecorder_Session_Menu } from '../session-menu'
 import { useSession } from '../use-session'
-import { CompetencyRecorder_Session_RecordSingle_PageContent } from './competency-recorder-session-record-single'
+import { SkillRecorder_Session_RecordSingle_Content } from './skill-recorder-session-record-single'
 
 
 export default function CompetencyRecorder_Session_RecordIndividual_Page() {
@@ -25,7 +23,7 @@ export default function CompetencyRecorder_Session_RecordIndividual_Page() {
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.tools.skillRecorder,
-                Paths.tools.skillRecorder.sessions,
+                //Paths.tools.skillRecorder.sessions,
                 Paths.tools.skillRecorder.session(session),
                 Paths.tools.skillRecorder.session(session).recordSingle,
             ]}
@@ -37,13 +35,11 @@ export default function CompetencyRecorder_Session_RecordIndividual_Page() {
                     This page allows recording individual skill checks.
                 </Paragraph>
             </PageExplanation>
-            <Separator orientation="vertical"/>
-            <CompetencyRecorder_Session_Menu sessionId={session.sessionId} />
         </AppPageControls>
 
         <AppPageContent variant="full">
              <Boundary>
-                <CompetencyRecorder_Session_RecordSingle_PageContent session={session}/>
+                <SkillRecorder_Session_RecordSingle_Content session={session}/>
             </Boundary>
         </AppPageContent>
     </AppPage>

@@ -88,6 +88,7 @@ export function AppPageFooter({ className, id = "app-page-footer", ...props }: C
 
 export type PageBreadcrumb = { label: string, href?: string }
 
+
 function normalizeBreadcrumbs(breadcrumbs: (PageBreadcrumb | string)[]): PageBreadcrumb[] {
     return breadcrumbs.map(breadcrumb => 
         typeof breadcrumb === "string" ? { label: breadcrumb } : breadcrumb

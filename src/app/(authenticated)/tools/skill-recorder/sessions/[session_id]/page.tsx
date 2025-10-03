@@ -6,14 +6,16 @@
  */
 'use client'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, AppPageControls, PageExplanation } from '@/components/app-page'
-import { Separator } from '@/components/ui/separator'
+import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
+import { Team_Skills_SessionDetails_Card } from '@/components/cards/team-session-details'
 
 import * as Paths from '@/paths'
 
-import { CompetencyRecorder_Session_Menu } from './session-menu'
-import { SkillCheckSession_Details_Card } from './skill-check-session-details'
 import { useSession } from './use-session'
+
+
+
+
 
 
 
@@ -23,21 +25,15 @@ export default function CompetencyRecorder_Session_Details_Page() {
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.tools.skillRecorder,
-                Paths.tools.skillRecorder.sessions,
+                Paths.tools.skillRecorder.label,
+                //Paths.tools.skillRecorder.sessions,
                 Paths.tools.skillRecorder.session(session),
             ]}
         />
-        <AppPageControls>
-            <PageExplanation>
-                This page provides the details of the skill check session.
-            </PageExplanation>
-            <Separator orientation="vertical"/>
-            <CompetencyRecorder_Session_Menu sessionId={session.sessionId} />
-        </AppPageControls>
-        
-        <AppPageContent variant="full">
-            <SkillCheckSession_Details_Card session={session} />
+
+        <AppPageContent variant="container">
+            
+            <Team_Skills_SessionDetails_Card sessionId={session.sessionId} team={session.team} />
         </AppPageContent>
     </AppPage>
 }

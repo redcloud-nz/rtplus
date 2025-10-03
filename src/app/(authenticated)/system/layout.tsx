@@ -1,0 +1,34 @@
+/*
+ *  Copyright (c) 2025 Redcloud Development, Ltd.
+ *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
+ * 
+ * Path: /system
+ */
+
+import { Metadata } from 'next'
+import { ReactNode } from 'react'
+
+import { AppSidebar } from '@/components/nav/app-sidebar'
+import { NavTeamSection } from '@/components/nav/nav-team-section'
+
+
+
+export const metadata: Metadata = {
+    applicationName: "RT+",
+    title: {
+        template: `%s - System | RT+`,
+        default: "System",
+    },
+    description: "RT+ App",
+
+}
+
+export default async function System_Layout(props: { children: ReactNode }) {
+
+    return <>
+        <AppSidebar>
+            <NavTeamSection/>
+        </AppSidebar>
+        {props.children}
+    </>
+}

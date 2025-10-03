@@ -17,7 +17,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function CompetencyRecorder_Session_Transcript_PageContent({ sessionId }: { sessionId: string }) {
+export function SkillRecorder_Session_Transcript_Content({ sessionId }: { sessionId: string }) {
 
     const [
         { data: availablePackages }, 

@@ -23,7 +23,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-export default function CompetencyRecorder_Session_Assessees_PageContents({ sessionId, team}: { sessionId: string, team: TeamData }) {
+export default function SkillRecorder_Session_Assessees_PageContents({ sessionId, team}: { sessionId: string, team: TeamData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 

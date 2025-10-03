@@ -16,7 +16,7 @@ import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRo
 import { Button, RefreshButton} from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader } from '@/components/ui/card'
 import { DataTableBody, DataTableFooter, DataTableHead, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
-import { Link } from '@/components/ui/link'
+import { Link, TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -26,6 +26,7 @@ import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
+
 
 
 export function Team_Skills_SessionList_Card({ team }: { team: TeamData }) {
@@ -41,7 +42,7 @@ export function Team_Skills_SessionList_Card({ team }: { team: TeamData }) {
     const columns = useMemo(() => defineColumns<SkillCheckSessionData>(columnHelper => [
         columnHelper.accessor('name', {
             header: 'Name',
-            cell: ctx => <Link to={Paths.team(team).skills.session(ctx.row.original.sessionId)}>{ctx.getValue()}</Link>,
+            cell: ctx => <TextLink to={Paths.tools.skillRecorder.session(ctx.row.original.sessionId)}>{ctx.getValue()}</TextLink>,
             enableGrouping: false,
             enableHiding: false,
             enableSorting: true,
@@ -133,8 +134,8 @@ export function Team_Skills_SessionList_Card({ team }: { team: TeamData }) {
                                 Create a new skill check session for the team.
                             </TooltipContent>
                         </Tooltip>
-                        
                     </Protect>
+                        
                     <RefreshButton onClick={handleRefresh} />
                     <TableOptionsDropdown/>
                     <Separator orientation='vertical'/>

@@ -7,10 +7,13 @@
 
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
+import { AppSidebar } from '@/components/nav/app-sidebar'
+import { NavTeamSection } from '@/components/nav/nav-team-section'
 
 import * as Paths from '@/paths'
 
 import SelectTeam_PageContent from './select-team'
+
 
 export const metadata = {
     title: "Select Team",
@@ -25,10 +28,17 @@ export const metadata = {
  */
 export default function SelectTeam_Page() {
 
-    return <AppPage>
-        <AppPageBreadcrumbs breadcrumbs={[Paths.selectTeam]}/>
-        <AppPageContent variant="container">
-            <SelectTeam_PageContent/>
-        </AppPageContent>
-    </AppPage>
+    return <>
+        <AppSidebar>
+            <NavTeamSection/>
+        </AppSidebar>
+        <AppPage>
+            <AppPageBreadcrumbs breadcrumbs={[Paths.selectTeam]}/>
+            <AppPageContent variant="container">
+                <SelectTeam_PageContent/>
+            </AppPageContent>
+        </AppPage>
+    </>
+    
+    
 }

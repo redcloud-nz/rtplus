@@ -13,11 +13,12 @@ import { SkillCheckSession_AssesseesList_Card } from '@/components/cards/skill-c
 import { SkillCheckSession_AssessorsList_Card } from '@/components/cards/skill-check-session-assessors-list'
 import { SkillCheckSession_SkillsList_Card } from '@/components/cards/skill-check-session-skills-list'
 import { SkillCheckSession_Transcript_Card } from '@/components/cards/skill-check-session-transcript'
+import { Team_Skills_SessionDetails_Card } from '@/components/cards/team-session-details'
 
 import * as Paths from '@/paths'
 import { fetchSkillCheckSession } from '@/server/fetch'
 
-import { Team_Skills_SessionDetails_Card } from './team-session-details'
+
 
 import { GoToRecorder } from './go-to-recorder-button'
 

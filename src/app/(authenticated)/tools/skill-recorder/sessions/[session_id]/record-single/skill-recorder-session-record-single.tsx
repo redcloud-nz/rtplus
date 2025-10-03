@@ -35,7 +35,7 @@ type RecordingState = {
     dirty: boolean
 }
 
-export function CompetencyRecorder_Session_RecordSingle_PageContent({ session }: { session: SkillCheckSessionData }) {
+export function SkillRecorder_Session_RecordSingle_Content({ session }: { session: SkillCheckSessionData }) {
     const { sessionId } = session
 
     const queryClient = useQueryClient()

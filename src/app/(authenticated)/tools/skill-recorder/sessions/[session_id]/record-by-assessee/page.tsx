@@ -10,24 +10,22 @@
 import { AppPage, AppPageBreadcrumbs, AppPageContent, AppPageControls, PageExplanation } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 import { GitHubIssueLink } from '@/components/ui/link'
-import { Separator } from '@/components/ui/separator'
 import { Paragraph } from '@/components/ui/typography'
 
 import * as Paths from '@/paths'
 
-import { CompetencyRecorder_Session_Menu } from '../session-menu'
 import { useSession } from '../use-session'
-import { CompetencyRecorder_Session_RecordByAssessee_PageContent } from './competency-recorder-session-record-by-assessee'
+import { SkillRecorder_Session_RecordByAssessee_Content } from './skill-recorder-session-record-by-assessee'
 
 
-export default function CompetencyRecorder_Session_RecordByAssessee_Page() {
+export default function SkillRecorder_Session_RecordByAssessee_Page() {
     const session = useSession()
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.tools.skillRecorder,
-                Paths.tools.skillRecorder.sessions,
+                //Paths.tools.skillRecorder.sessions,
                 Paths.tools.skillRecorder.session(session),
                 Paths.tools.skillRecorder.session(session).recordByAssessee,
             ]}
@@ -45,13 +43,11 @@ export default function CompetencyRecorder_Session_RecordByAssessee_Page() {
                     This page is an experimental feature. See <GitHubIssueLink issueNumber={14}/> for feedback or suggestions.
                 </Paragraph>
             </PageExplanation>
-            <Separator orientation="vertical"/>
-            <CompetencyRecorder_Session_Menu sessionId={session.sessionId} />
         </AppPageControls>
 
         <AppPageContent variant="full">
             <Boundary>
-                <CompetencyRecorder_Session_RecordByAssessee_PageContent sessionId={session.sessionId}/>
+                <SkillRecorder_Session_RecordByAssessee_Content sessionId={session.sessionId}/>
             </Boundary>
         </AppPageContent>
     </AppPage>
