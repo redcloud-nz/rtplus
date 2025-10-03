@@ -8,10 +8,6 @@
 import { Metadata } from 'next'
 import { ReactNode } from 'react'
 
-import { AppSidebar } from '@/components/nav/app-sidebar'
-import { NavTeamSection } from '@/components/nav/nav-team-section'
-
-
 
 export const metadata: Metadata = {
     applicationName: "RT+",
@@ -25,10 +21,5 @@ export const metadata: Metadata = {
 
 export default async function System_Layout(props: { children: ReactNode }) {
 
-    return <>
-        <AppSidebar>
-            <NavTeamSection/>
-        </AppSidebar>
-        {props.children}
-    </>
+    return props.children
 }

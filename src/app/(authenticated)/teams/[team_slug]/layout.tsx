@@ -9,8 +9,6 @@ import { Metadata } from 'next'
 import { ReactNode } from 'react'
 
 import { getTeamFromParams } from '@/server/data/team'
-import { AppSidebar } from '@/components/nav/app-sidebar'
-import { NavTeamSection } from '@/components/nav/nav-team-section'
 
 
 export async function generateMetadata(props: { params: Promise<{ team_slug: string }> }): Promise<Metadata> {
@@ -28,10 +26,5 @@ export async function generateMetadata(props: { params: Promise<{ team_slug: str
 
 export default async function Team_Layout(props: { children: ReactNode }) {
 
-    return <>
-        <AppSidebar>
-            <NavTeamSection/>
-        </AppSidebar>
-        {props.children}
-    </>
+    return props.children
 }

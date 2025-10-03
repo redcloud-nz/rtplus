@@ -1,15 +1,14 @@
 /*
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
- * 
+ *
  */
 'use client'
 
 import { useState } from 'react'
 
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useSuspenseQueries, useSuspenseQuery } from '@tanstack/react-query'
 
-import { Boundary } from '@/components/boundary'
 import { FloatingFooter } from '@/components/footer'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -17,41 +16,53 @@ import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 import { useToast } from '@/hooks/use-toast'
-import { PersonRef } from '@/lib/schemas/person'
+import { PersonId, PersonRef } from '@/lib/schemas/person'
 import { TeamData } from '@/lib/schemas/team'
 import { trpc } from '@/trpc/client'
 
 
 
 
-export default function SkillRecorder_Session_Assessors_Content({ sessionId, team }: { sessionId: string , team: TeamData }) {
+
+export function SkillRecorder_Session_Assessees({ sessionId }: { sessionId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
-    const queryKey = trpc.skillChecks.getSessionAssessors.queryKey({ sessionId })
+    const [
+        { data: session },
+        { data: assignedAssessees }
+    ] = useSuspenseQueries({
+        queries: [
+            trpc.skillChecks.getSession.queryOptions({ sessionId }),
+            trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId })
+        ]
+    })
 
-    const { data: assignedAssessors } = useSuspenseQuery(trpc.skillChecks.getSessionAssessors.queryOptions({ sessionId }))
-
-    const [selectedAssessors, setSelectedAssessors] = useState<string[]>(assignedAssessors.map(a => a.personId))
-    const [changes, setChanges] = useState<{ added: string[], removed: string[] }>({ added: [], removed: [] })
+    const [selectedAssessees, setSelectedAssessees] = useState<PersonId[]>(assignedAssessees.map(a => a.personId))
+    const [changes, setChanges] = useState<{ added: PersonId[], removed: PersonId[] }>({ added: [], removed: [] })
 
     function handleReset() {
-        setSelectedAssessors(assignedAssessors.map(a => a.personId))
+        setSelectedAssessees(assignedAssessees.map(a => a.personId))
         setChanges({ added: [], removed: [] })
     }
 
-    const mutation = useMutation(trpc.skillChecks.updateSessionAssessors.mutationOptions({
+    const mutation = useMutation(trpc.skillChecks.updateSessionAssessees.mutationOptions({
         async onMutate({ additions, removals }) {
-            await queryClient.cancelQueries(trpc.skillChecks.getSessionAssessors.queryFilter({ sessionId }))
+            // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+            await queryClient.cancelQueries(trpc.skillChecks.getSessionAssessees.queryFilter({ sessionId }))
 
-            const previousData = queryClient.getQueryData(queryKey)
-            queryClient.setQueryData(queryKey, (old = []) => 
-                [...old.filter(a => !removals.includes(a.personId)), ...additions.map(personId => ({ personId, name: 'Loading...' } as { personId: string, name: string, email: string } as PersonRef)) ]
+            // Snapshot the previous value
+            const previousData = queryClient.getQueryData(trpc.skillChecks.getSessionAssessees.queryKey({ sessionId }))
+
+            // Optimistically update to the new value
+            queryClient.setQueryData(trpc.skillChecks.getSessionAssessees.queryKey({ sessionId }), (old = []) => 
+                [...old.filter(a => !removals.includes(a.personId)), ...additions.map(personId => ({ personId, name: 'Loading...', email: "" } as PersonRef)) ]
             )
             return { previousData }
         },
         onError(error, _data, context) {
-            queryClient.setQueryData(queryKey, context?.previousData)
+            // Revert to the previous value
+            queryClient.setQueryData(trpc.skillChecks.getSessionAssessees.queryKey({ sessionId }), context?.previousData)
             toast({
                 title: "Error updating assessees",
                 description: error.message,
@@ -59,14 +70,15 @@ export default function SkillRecorder_Session_Assessors_Content({ sessionId, tea
             })
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.skillChecks.getSessionAssessors.queryFilter({ sessionId}))
+            queryClient.invalidateQueries(trpc.skillChecks.getSessionAssessees.queryFilter({ sessionId }))
         }
     }))
 
-    function handleCheckedChange(assesseeId: string): (checked: boolean) => void {
+    function handleCheckedChange(assesseeId: PersonId): (checked: boolean) => void {
         return (checked) => {
             if (checked) {
-                setSelectedAssessors(prev => [...prev, assesseeId])
+                // Add the assessee to the selected list
+                setSelectedAssessees(prev => [...prev, assesseeId])
                 setChanges(prev => {
                     if(prev.removed.includes(assesseeId)) {
                         // If the skill was previously removed, clear the removal
@@ -76,7 +88,8 @@ export default function SkillRecorder_Session_Assessors_Content({ sessionId, tea
                     }
                 })
             } else {
-                setSelectedAssessors(prev => prev.filter(id => id !== assesseeId))
+                // Remove the assessee from the selected list
+                setSelectedAssessees(prev => prev.filter(id => id !== assesseeId))
                 setChanges(prev => {
                     if(prev.added.includes(assesseeId)) {
                         // If the skill was previously added, clear the addition
@@ -91,20 +104,17 @@ export default function SkillRecorder_Session_Assessors_Content({ sessionId, tea
 
     const isDirty = changes.added.length > 0 || changes.removed.length > 0
 
-    return <ScrollArea style={{ height: `calc(100vh - var(--header-height))` }} className="pl-4 pr-3 [&>[data-slot=scroll-area-viewport]]:pb-8">
+    return  <ScrollArea style={{ height: `calc(100vh - var(--header-height) - 56px)` }} className="[&>[data-slot=scroll-area-viewport]]:pb-8">
         <div className="flex flex-col divide-y divide-border">
-            <Boundary>
-                <TeamSection
-                    team={team}
-                    sessionId={sessionId}
-                    assignedAssessors={assignedAssessors.map(a => a.personId)}
-                    selectedAssessors={selectedAssessors}
-                    onSelectedChange={handleCheckedChange}
-                />
-            </Boundary>
-            {/* We could support multiple teams here in future. */}
+            <TeamSection
+                team={session.team}
+                assignedAssessees={assignedAssessees.map(a => a.personId)}
+                selectedAssessees={selectedAssessees}
+                onSelectedChange={handleCheckedChange}
+            />
+                {/* We could support multiple teams here in future. */}
         </div>
-
+        
         <FloatingFooter open={isDirty || mutation.isPending}>
             {mutation.isPending ?
                 <div className="animate-pulse text-sm text-muted-foreground p-2">Saving changes...</div>
@@ -129,36 +139,38 @@ export default function SkillRecorder_Session_Assessors_Content({ sessionId, tea
                 </>
             }
         </FloatingFooter>
+        
+        
     </ScrollArea>
 }
 
+
 interface TeamSectionProps {
     team: TeamData
-    sessionId: string
-    assignedAssessors: string[]
-    selectedAssessors: string[]
-    onSelectedChange: (assesseeId: string) => (checked: boolean) => void
+    assignedAssessees: string[]
+    selectedAssessees: string[]
+    onSelectedChange: (assesseeId: PersonId) => (checked: boolean) => void
 }
 
-function TeamSection({ team, sessionId, assignedAssessors, selectedAssessors, onSelectedChange }: TeamSectionProps) {
+function TeamSection({ team, assignedAssessees, selectedAssessees, onSelectedChange }: TeamSectionProps) {
 
-    const { data: users } = useSuspenseQuery(trpc.skillChecks.getAvailableAssessors.queryOptions({ sessionId }))
+    const { data: members } = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId: team.teamId }))
 
-    const teamAssessors = assignedAssessors.filter(a => users.find(u => u.personId === a))
+    const teamAssessees = members.filter(m => selectedAssessees.includes(m.personId))
 
     return <div className="py-4">
         <div className="flex items-center justify-between">
             <div className="font-semibold text-xl">{team.name}</div>
-            <div className="text-sm text-muted-foreground">{teamAssessors.length} selected</div>
+            <div className="text-sm text-muted-foreground">{teamAssessees.length} selected</div>
         </div>
         <ul className="pl-4">
-            {users
-                .map(user => <PersonRow
-                    key={user.personId}
-                    person={user}
-                    assigned={assignedAssessors.includes(user.personId)}
-                    selected={selectedAssessors.includes(user.personId)}
-                    onSelectedChange={onSelectedChange(user.personId)}
+            {members
+                .map(member => <PersonRow
+                    key={member.personId}
+                    person={member.person}
+                    assigned={assignedAssessees.includes(member.personId)}
+                    selected={selectedAssessees.includes(member.personId)}
+                    onSelectedChange={onSelectedChange(member.personId)}
                 />)
             }
         </ul>

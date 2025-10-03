@@ -30,7 +30,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function CompetencyRecorder_Session_RecordBySkill_Content({ sessionId }: { sessionId: string }) {
+export function SkillRecorder_Session_RecordBySkill({ sessionId }: { sessionId: string }) {
 
     const { assignedAssessees, assignedSkills } = useSuspenseQueries({
         queries: [
@@ -47,65 +47,63 @@ export function CompetencyRecorder_Session_RecordBySkill_Content({ sessionId }: 
     const skillCheckStore = useSkillCheckStore_experimental(sessionId)
 
     return <>
-        <div className="pl-4 pr-3 py-2 space-y-1">
-            <Label>Skill</Label>
-            <Show 
-                when={assignedAssessees.length > 0}
-                fallback={<Alert title="No skills configured for the session." severity="warning" className="p-2.5"/>}
+        <Show 
+            when={assignedAssessees.length > 0}
+            fallback={<Alert title="No skills configured for the session." severity="warning" className="p-2.5"/>}
+        >
+            <Select
+                value={targetSkillId} 
+                onValueChange={setTargetSkillId}
+                disabled={skillCheckStore.isDirty}
             >
-                <Select
-                    value={targetSkillId} 
-                    onValueChange={setTargetSkillId}
-                    disabled={skillCheckStore.isDirty}
-                >
-                    <SelectTrigger autoFocus>
-                        <SelectValue placeholder="Select a skill..."/>
-                    </SelectTrigger>
-                    <SelectContent>                  
-                        {assignedSkills.map(skill => (
-                            <SelectItem key={skill.skillId} value={skill.skillId}>
-                                {skill.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </Show>
-        </div>
-        <Separator orientation="horizontal"/>
-        <Show when={targetSkillId != ''}>
-             <ScrollArea style={{ height: `calc(100vh - var(--header-height) - 81px)` }} className="px-4 [&>[data-slot=scroll-area-viewport]]:pb-12">
-                <div className="grid grid-cols-[min(20%,--spacing(80))_1fr_1fr divide-y divide-zinc-950/5">
-                    {assignedAssessees.map(assessee => 
-                        <AssesseeRow
-                            key={assessee.personId}
-                            assessee={assessee}
-                            disabled={!targetSkillId}
-                            check={skillCheckStore.getCheck({ assesseeId: assessee.personId, skillId: targetSkillId })}
-                            onValueChange={skillCheckStore.updateCheck({ assesseeId: assessee.personId, skillId: targetSkillId })}
-                        />
-                    )}
-                </div>
-
-                <FloatingFooter open={skillCheckStore.isDirty}>
-                    <Button 
-                        size="sm"
-                        color="blue"
-                        onClick={async () => {
-                            await skillCheckStore.saveChecks()
-                            setTargetSkillId('')
-                        }}
-                        disabled={!skillCheckStore.isDirty}
-                    >Save</Button>
-                        
-                    <Button
-                        size="sm"
-                        color="red"
-                        disabled={!skillCheckStore.isDirty}
-                        onClick={() => skillCheckStore.reset()}
-                    >Reset</Button>
-                </FloatingFooter>
-            </ScrollArea>               
+                <SelectTrigger autoFocus>
+                    <SelectValue placeholder="Select a skill..."/>
+                </SelectTrigger>
+                <SelectContent>                  
+                    {assignedSkills.map(skill => (
+                        <SelectItem key={skill.skillId} value={skill.skillId}>
+                            {skill.name}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
         </Show>
+        <Separator orientation="horizontal" className="my-2"/>
+        
+        <ScrollArea style={{ height: `calc(100vh - var(--header-height) - 115px)` }} className="px-4 [&>[data-slot=scroll-area-viewport]]:pb-12">
+            <Show when={targetSkillId != ''}>
+            <div className="grid grid-cols-[min(20%,--spacing(80))_1fr_1fr divide-y divide-zinc-950/5">
+                {assignedAssessees.map(assessee => 
+                    <AssesseeRow
+                        key={assessee.personId}
+                        assessee={assessee}
+                        disabled={!targetSkillId}
+                        check={skillCheckStore.getCheck({ assesseeId: assessee.personId, skillId: targetSkillId })}
+                        onValueChange={skillCheckStore.updateCheck({ assesseeId: assessee.personId, skillId: targetSkillId })}
+                    />
+                )}
+            </div>
+
+            <FloatingFooter open={skillCheckStore.isDirty}>
+                <Button 
+                    size="sm"
+                    color="blue"
+                    onClick={async () => {
+                        await skillCheckStore.saveChecks()
+                        setTargetSkillId('')
+                    }}
+                    disabled={!skillCheckStore.isDirty}
+                >Save</Button>
+                    
+                <Button
+                    size="sm"
+                    color="red"
+                    disabled={!skillCheckStore.isDirty}
+                    onClick={() => skillCheckStore.reset()}
+                >Reset</Button>
+            </FloatingFooter>
+            </Show>
+        </ScrollArea>               
     </>
 }
 

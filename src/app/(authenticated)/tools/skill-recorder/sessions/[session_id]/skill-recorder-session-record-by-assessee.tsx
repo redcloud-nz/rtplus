@@ -30,7 +30,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function SkillRecorder_Session_RecordByAssessee_Content({ sessionId }: { sessionId: string }) {
+export function SkillRecorder_Session_RecordByAssessee({ sessionId }: { sessionId: string }) {
 
     const [{ data: assessor }, { data: availablePackages }, { data: assignedAssessees }, { data: assignedSkillIds }] = useSuspenseQueries({
         queries: [
@@ -47,35 +47,31 @@ export function SkillRecorder_Session_RecordByAssessee_Content({ sessionId }: { 
     const skillCheckStore = useSkillCheckStore_experimental(sessionId)
 
     return <>
-        <div className="px-4 py-2 space-y-1">
-            <Label>Assessee</Label>
-                
-            <Show 
-                when={assignedAssessees.length > 0}
-                fallback={<Alert title="No assessees defined" severity="warning" className="p-2.5"/>}
+        <Show 
+            when={assignedAssessees.length > 0}
+            fallback={<Alert title="No assessees defined" severity="warning" className="p-2.5"/>}
+        >
+            <Select
+                value={targetAssesseeId} 
+                onValueChange={setTargetAssesseeId}
+                disabled={skillCheckStore.isDirty}
             >
-                <Select
-                    value={targetAssesseeId} 
-                    onValueChange={setTargetAssesseeId}
-                    disabled={skillCheckStore.isDirty}
-                >
-                    <SelectTrigger>
-                        <SelectValue placeholder="Select a person..."/>
-                    </SelectTrigger>
-                    <SelectContent>
-                                                    
-                        {assignedAssessees.map(assessee => (
-                            <SelectItem key={assessee.personId} value={assessee.personId} disabled={assessee.personId === assessor.personId}>
-                                {assessee.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </Show>
-        </div>
-        <Separator orientation="horizontal"/>
-        <Show when={targetAssesseeId != ''}>
-            <ScrollArea style={{ height: `calc(100vh - var(--header-height) - 81px)` }} className="px-4 [&>[data-slot=scroll-area-viewport]]:pb-12">
+                <SelectTrigger autoFocus>
+                    <SelectValue placeholder="Select a person..."/>
+                </SelectTrigger>
+                <SelectContent>
+                                                
+                    {assignedAssessees.map(assessee => (
+                        <SelectItem key={assessee.personId} value={assessee.personId} disabled={assessee.personId === assessor.personId}>
+                            {assessee.name}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </Show>
+        <Separator orientation="horizontal" className="my-2"/>
+        <ScrollArea style={{ height: `calc(100vh - var(--header-height) - 115px)` }} className="px-4 [&>[data-slot=scroll-area-viewport]]:pb-12">
+            <Show when={targetAssesseeId != ''}>
                 <div className="grid grid-cols-[min(20%,--spacing(80))_1fr_1fr divide-y divide-zinc-950/5">
                     {assignedSkills.map(skill => 
                         <SkillRow
@@ -106,9 +102,10 @@ export function SkillRecorder_Session_RecordByAssessee_Content({ sessionId }: { 
                         onClick={() => skillCheckStore.reset()}
                     >Reset</Button>
                 </FloatingFooter>
-            </ScrollArea>
+            </Show>
+        </ScrollArea>
 
-        </Show>
+        
     </>
 }
 

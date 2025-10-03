@@ -94,7 +94,7 @@ export function Team_Skills_SessionList_Card({ team }: { team: TeamData }) {
             enableHiding: true,
             enableSorting: true,
         }),
-    ]), [team])
+    ]), [])
 
     const table = useReactTable({
         data: sessionsQuery.data,

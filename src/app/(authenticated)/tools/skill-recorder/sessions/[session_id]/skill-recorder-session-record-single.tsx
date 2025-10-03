@@ -15,6 +15,7 @@ import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 
@@ -23,8 +24,8 @@ import { useToast } from '@/hooks/use-toast'
 import { CompetenceLevel, CompetenceLevelTerms, isPass } from '@/lib/competencies'
 import { nanoId16  } from '@/lib/id'
 import { SkillCheckData } from '@/lib/schemas/skill-check'
-import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { trpc } from '@/trpc/client'
+
 
 
 
@@ -35,14 +36,14 @@ type RecordingState = {
     dirty: boolean
 }
 
-export function SkillRecorder_Session_RecordSingle_Content({ session }: { session: SkillCheckSessionData }) {
-    const { sessionId } = session
+export function SkillRecorder_Session_RecordSingle({ sessionId }: { sessionId: string }) {
 
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
     const [
         { data: assessor }, 
+        { data: session },
         { data: availablePackages }, 
         { data: assessees }, 
         { data: existingChecks }, 
@@ -50,6 +51,7 @@ export function SkillRecorder_Session_RecordSingle_Content({ session }: { sessio
     ] = useSuspenseQueries({
         queries: [
             trpc.currentUser.getPerson.queryOptions(),
+            trpc.skillChecks.getSession.queryOptions({ sessionId }),
             trpc.skills.getAvailablePackages.queryOptions(),
             trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId }),
             trpc.skillChecks.getSessionChecks.queryOptions({ sessionId, assessorId: 'me' }),
@@ -142,7 +144,7 @@ export function SkillRecorder_Session_RecordSingle_Content({ session }: { sessio
         
     }))
 
-    return <>
+    return <ScrollArea style={{ height: `calc(100vh - var(--header-height) - 56px)` }}>
 
         <form className="space-y-4 px-4 pt-2">
             {/* <div>
@@ -255,5 +257,5 @@ export function SkillRecorder_Session_RecordSingle_Content({ session }: { sessio
                 onClick={handleReset}
             >Reset</Button>
         </FloatingFooter>
-    </>
+    </ScrollArea>
 }

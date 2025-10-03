@@ -6,7 +6,7 @@
 'use client'
 
 import { PanelLeftIcon, PanelRightIcon } from 'lucide-react'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { tv, type VariantProps} from 'tailwind-variants'
 
 import { Slot } from '@radix-ui/react-slot'

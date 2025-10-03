@@ -7,6 +7,8 @@ import type { Metadata } from 'next'
 import { ReactNode } from 'react'
 
 import { AppFrontendProvider } from '@/components/app-frontend-provider'
+import { AppSidebar } from '@/components/nav/app-sidebar'
+import { NavTeamSection } from '@/components/nav/nav-team-section'
 
 
 
@@ -22,6 +24,9 @@ export const metadata: Metadata = {
 export default function Authenticated_Layout({ children }: { children: ReactNode }) {
 
     return <AppFrontendProvider>
+        <AppSidebar>
+            <NavTeamSection/>
+        </AppSidebar>
         {children}
     </AppFrontendProvider>
 }

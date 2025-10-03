@@ -13,7 +13,7 @@ import { SkillCheckSession_AssesseesList_Card } from '@/components/cards/skill-c
 import { SkillCheckSession_AssessorsList_Card } from '@/components/cards/skill-check-session-assessors-list'
 import { SkillCheckSession_SkillsList_Card } from '@/components/cards/skill-check-session-skills-list'
 import { SkillCheckSession_Transcript_Card } from '@/components/cards/skill-check-session-transcript'
-import { Team_Skills_SessionDetails_Card } from '@/components/cards/team-session-details'
+import { SkillRecorder_Session_Details } from '@/app/(authenticated)/tools/skill-recorder/sessions/[session_id]/skill-recorder-session-details'
 
 import * as Paths from '@/paths'
 import { fetchSkillCheckSession } from '@/server/fetch'
@@ -59,7 +59,7 @@ export default async function Team_Skills_Session_Page(props: { params: Promise<
                 </PageControls>
             </PageHeader>
             <Boundary>
-                <Team_Skills_SessionDetails_Card sessionId={session.sessionId} team={team} />
+                <SkillRecorder_Session_Details sessionId={session.sessionId}/>
             </Boundary>
             <Boundary>
                 <SkillCheckSession_SkillsList_Card sessionId={session.sessionId} />

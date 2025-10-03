@@ -48,18 +48,18 @@ export function AppPage({ children, rightControls, showLeftSidebarTrigger = true
     </div>
 }
 
-const appPageContentVariants = tv({
+export const appPageContentVariants = tv({
     base: 'col-span-full',
     variants: {
         variant: {
             default: 'flex flex-1 flex-col gap-4 p-4 ',
             full: 'w-full flex flex-col items-stretch',
             centered: 'w-full flex flex-col items-center justify-center',
-            container: 'flex flex-col items-center gap-4 p-4 *:w-full xl:*:w-4xl overflow-y-auto',
+            container: 'flex flex-col items-center gap-4 p-4 *:w-full xl:*:w-4xl overflow-y-auto relative',
         },
         hasFooter: {
-            true: 'row-3',
-            false: 'row-start-3 row-span-3'
+            true: 'row-end-3',
+            false: 'row-end-5'
         }
     },
     defaultVariants: {

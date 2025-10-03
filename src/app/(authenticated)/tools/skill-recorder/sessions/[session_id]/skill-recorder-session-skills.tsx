@@ -23,7 +23,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-export default function SkillRecorder_Session_Skills_Content({ sessionId }: { sessionId: string }) {
+export function SkillRecorder_Session_Skills({ sessionId }: { sessionId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
@@ -94,7 +94,7 @@ export default function SkillRecorder_Session_Skills_Content({ sessionId }: { se
 
     const isDirty = changes.added.length > 0 || changes.removed.length > 0
 
-    return <ScrollArea style={{ height: `calc(100vh - var(--header-height))` }} className="pl-4 pr-3 [&>[data-slot=scroll-area-viewport]]:pb-8">
+    return <ScrollArea style={{ height: `calc(100vh - var(--header-height) - 56px)` }} className="[&>[data-slot=scroll-area-viewport]]:pb-8">
         <div className="flex flex-col divide-y divide-border ">
             {availablePackages
                 .filter(pkg => pkg.skills.length > 0)

@@ -12,12 +12,14 @@ import { useSuspenseQueries } from '@tanstack/react-query'
 
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 import { trpc } from '@/trpc/client'
 
 
 
-export function SkillRecorder_Session_Transcript_Content({ sessionId }: { sessionId: string }) {
+
+export function SkillRecorder_Session_Transcript({ sessionId }: { sessionId: string }) {
 
     const [
         { data: availablePackages }, 
@@ -35,7 +37,7 @@ export function SkillRecorder_Session_Transcript_Content({ sessionId }: { sessio
 
     const recentChecks = checks.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
 
-    return <div>
+    return <ScrollArea style={{ height: `calc(100vh - var(--header-height) - 56px)` }}>
         <Show 
             when={checks.length > 0}
             fallback={<Alert severity="info" title="No Checks recorded.">You have not recorded any checks in this session.</Alert>}
@@ -51,5 +53,5 @@ export function SkillRecorder_Session_Transcript_Content({ sessionId }: { sessio
                 </li>
             })}</ul>
         </Show>
-    </div>
+    </ScrollArea>
 }
