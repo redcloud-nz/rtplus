@@ -21,9 +21,6 @@ import { TeamData } from '@/lib/schemas/team'
 import { trpc } from '@/trpc/client'
 
 
-
-
-
 export function SkillRecorder_Session_Assessees({ sessionId }: { sessionId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()

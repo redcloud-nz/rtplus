@@ -36,7 +36,7 @@ type RecordingState = {
     dirty: boolean
 }
 
-export function SkillRecorder_Session_RecordSingle({ sessionId }: { sessionId: string }) {
+export function SkillRecorder_Session_RecordSingle({ sessionId, teamId }: { sessionId: string, teamId: string }) {
 
     const queryClient = useQueryClient()
     const { toast } = useToast()
@@ -52,7 +52,7 @@ export function SkillRecorder_Session_RecordSingle({ sessionId }: { sessionId: s
         queries: [
             trpc.currentUser.getPerson.queryOptions(),
             trpc.skillChecks.getSession.queryOptions({ sessionId }),
-            trpc.skills.getAvailablePackages.queryOptions(),
+            trpc.skills.getAvailablePackages.queryOptions({ teamId }),
             trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId }),
             trpc.skillChecks.getSessionChecks.queryOptions({ sessionId, assessorId: 'me' }),
             trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId })

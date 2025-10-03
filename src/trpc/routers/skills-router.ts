@@ -19,6 +19,7 @@ import { skillPackageSchema, toSkillPackageData } from '@/lib/schemas/skill-pack
 import { ChangeCountsByType, createChangeCounts } from '@/lib/change-counts'
 import { PackageList, SkillPackageDef } from '@/data/skills'
 import { assertNonNull } from '@/lib/utils'
+import { TeamId } from '@/lib/schemas/team'
 
 
 export const skillsRouter = createTRPCRouter({
@@ -221,6 +222,9 @@ export const skillsRouter = createTRPCRouter({
         }),
 
     getAvailablePackages: authenticatedProcedure
+        .input(z.object({
+            teamId: TeamId.schema
+        }))
         .output(z.array(skillPackageSchema.extend({
             skillGroups: z.array(skillGroupSchema),
             skills: z.array(skillSchema)

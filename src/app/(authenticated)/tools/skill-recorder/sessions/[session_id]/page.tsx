@@ -8,8 +8,11 @@
 import { CheckCheckIcon, CheckIcon, InfoIcon, PocketKnifeIcon, ScrollTextIcon, UserIcon, UsersIcon } from 'lucide-react'
 
 import { AppPage, AppPageBreadcrumbs} from '@/components/app-page'
+import { Boundary } from '@/components/boundary'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+
+import { fetchSkillCheckSession } from '@/server/fetch'
 
 import { SkillRecorder_Session_Assessees } from './skill-recorder-session-assessees'
 import { SkillRecorder_Session_Details } from './skill-recorder-session-details'
@@ -18,15 +21,14 @@ import { SkillRecorder_Session_RecordBySkill } from './skill-recorder-session-re
 import { SkillRecorder_Session_RecordSingle } from './skill-recorder-session-record-single'
 import { SkillRecorder_Session_Skills } from './skill-recorder-session-skills'
 import { SkillRecorder_Session_Transcript } from './skill-recorder-session-transcript'
+import { SkillRecorder_Session_Prefetch } from './skill-recorder-prefetch'
 
-import { fetchSkillCheckSession } from '@/server/fetch'
-import { Boundary } from '@/components/boundary'
 
 
 export async function generateMetadata(props: PageProps<'/tools/skill-recorder/sessions/[session_id]'>) {
     const session = await fetchSkillCheckSession(props.params)
 
-    return { title: `${session.name}` }
+    return { title: `${session.name} - Skill Recorder` }
 }
 
 export default async function CompetencyRecorder_Session_Page(props: PageProps<'/tools/skill-recorder/sessions/[session_id]'>) {
@@ -70,7 +72,15 @@ export default async function CompetencyRecorder_Session_Page(props: PageProps<'
                     <span className="hidden md:inline">Transcript</span>
                 </TabsTrigger>
             </TabsList>
-            <Boundary>
+
+            <SkillRecorder_Session_Prefetch sessionId={session.sessionId} teamId={session.teamId}/>
+            <Boundary
+                slotProps={{
+                    loadingFallback: {
+                        style: { height: 'calc(100vh - var(--header-height) - 56px)', marginTop: '8px' }
+                    }
+                }}
+            >
                 <TabsContent value="details">
                     <SkillRecorder_Session_Details sessionId={session.sessionId}/>
                 </TabsContent>
@@ -78,19 +88,19 @@ export default async function CompetencyRecorder_Session_Page(props: PageProps<'
                     <SkillRecorder_Session_Assessees sessionId={session.sessionId}/>
                 </TabsContent>
                 <TabsContent value="skills">
-                    <SkillRecorder_Session_Skills sessionId={session.sessionId} />
+                    <SkillRecorder_Session_Skills sessionId={session.sessionId} teamId={session.teamId}/>
                 </TabsContent>
                 <TabsContent value="record-single">
-                    <SkillRecorder_Session_RecordSingle sessionId={session.sessionId}/>
+                    <SkillRecorder_Session_RecordSingle sessionId={session.sessionId} teamId={session.teamId}/>
                 </TabsContent>
                 <TabsContent value="record-by-assessee">
-                    <SkillRecorder_Session_RecordByAssessee sessionId={session.sessionId}/>
+                    <SkillRecorder_Session_RecordByAssessee sessionId={session.sessionId} teamId={session.teamId}/>
                 </TabsContent>
                 <TabsContent value="record-by-skill">
-                    <SkillRecorder_Session_RecordBySkill sessionId={session.sessionId}/>
+                    <SkillRecorder_Session_RecordBySkill sessionId={session.sessionId} teamId={session.teamId}/>
                 </TabsContent>
                 <TabsContent value="transcript">
-                    <SkillRecorder_Session_Transcript sessionId={session.sessionId}/>
+                    <SkillRecorder_Session_Transcript sessionId={session.sessionId} teamId={session.teamId}/>
                 </TabsContent>
             </Boundary>
             

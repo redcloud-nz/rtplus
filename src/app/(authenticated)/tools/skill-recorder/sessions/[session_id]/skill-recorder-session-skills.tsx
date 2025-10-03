@@ -23,13 +23,13 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function SkillRecorder_Session_Skills({ sessionId }: { sessionId: string }) {
+export function SkillRecorder_Session_Skills({ sessionId, teamId }: { sessionId: string, teamId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
     const [{ data: availablePackages }, { data: assignedSkillIds }] = useSuspenseQueries({
         queries: [
-            trpc.skills.getAvailablePackages.queryOptions(),
+            trpc.skills.getAvailablePackages.queryOptions({ teamId }),
             trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId })
         ]
     })
