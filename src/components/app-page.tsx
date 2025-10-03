@@ -20,7 +20,6 @@ import { Heading } from '@/components/ui/typography'
 import { cn } from '@/lib/utils'
 
 
-
 interface AppPageProps {
     children?: ReactNode
     showLeftSidebarTrigger?: boolean
@@ -57,10 +56,6 @@ export const appPageContentVariants = tv({
             centered: 'w-full flex flex-col items-center justify-center',
             container: 'flex flex-col items-center gap-4 p-4 *:w-full xl:*:w-4xl overflow-y-auto relative',
         },
-        hasFooter: {
-            true: 'row-end-3',
-            false: 'row-end-5'
-        }
     },
     defaultVariants: {
         variant: 'default'
@@ -69,21 +64,10 @@ export const appPageContentVariants = tv({
 
 export type AppPageContentProps = ComponentProps<typeof ScrollAreaPrimitive.Root> & VariantProps<typeof appPageContentVariants>
 
-export function AppPageContent({ children, className, hasFooter = false, variant = 'default', ...props }: AppPageContentProps) {
-    return <main className={cn(appPageContentVariants({ variant, className, hasFooter }))} {...props}>
+export function AppPageContent({ children, className, variant = 'default', ...props }: AppPageContentProps) {
+    return <main className={cn(appPageContentVariants({ variant, className }))} {...props}>
         {children}
     </main>
-}
-
-export function AppPageFooter({ className, id = "app-page-footer", ...props }: ComponentProps<'footer'>) {
-    return <>
-        <Separator orientation="horizontal" className="row-start-4 col-span-full"/>
-        <footer
-            className={cn("row-start-5 col-span-full flex items-center justify-between gap-2 px-2", className)}
-            id={id}
-            {...props}
-        />
-    </>
 }
 
 export type PageBreadcrumb = { label: string, href?: string }

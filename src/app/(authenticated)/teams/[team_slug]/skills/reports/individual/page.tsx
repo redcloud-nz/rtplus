@@ -8,7 +8,7 @@
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageControls, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
-import { Team_Member_Competencies_Card } from '@/components/cards/team-member-competencies'
+import { Team_Member_Skills_Card } from '@/components/cards/team-member-skills'
 
 import * as Paths from '@/paths'
 import {  getTeamFromParams } from '@/server/data/team'
@@ -40,7 +40,7 @@ export default async function Team_Member_Skills_Report_Page(props: { params: Pr
                 </PageControls>
             </PageHeader>
             <Boundary>
-                { pid ? <Team_Member_Competencies_Card personId={pid} teamId={team.teamId} /> : <p>No team member selected</p>}
+                { pid ? <Team_Member_Skills_Card personId={pid} teamId={team.teamId} /> : <p>No team member selected</p>}
             </Boundary>
         </AppPageContent>
     </AppPage>

@@ -16,9 +16,9 @@ import { getTeamFromParams } from '@/server/data/team'
 
 
 
-import { Team_Competencies_Card } from './team-competencies'
+import { Team_Skills_Card } from './team-skills'
 
-export const metadata = { title: 'Competencies' }
+export const metadata = { title: 'Team Skills' }
 
 
 export default async function Team_Skills_Report_Page(props: { params: Promise<{ team_slug: string }> }) {
@@ -39,7 +39,7 @@ export default async function Team_Skills_Report_Page(props: { params: Promise<{
         />
         <AppPageContent variant="full">
             <Boundary>
-                <Team_Competencies_Card teamId={team.teamId}/>
+                <Team_Skills_Card teamId={team.teamId}/>
             </Boundary>
         </AppPageContent>
     </AppPage>

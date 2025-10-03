@@ -5,7 +5,7 @@
 
 'use client'
 
-import { BadgeCheck, ChevronsUpDown, KeyRoundIcon, LogOutIcon, SettingsIcon } from 'lucide-react'
+import { BadgeCheck, ChevronsUpDown, KeyRoundIcon, LogOutIcon } from 'lucide-react'
 
 import { RedirectToSignIn, useClerk, useUser } from '@clerk/nextjs'
 
@@ -86,15 +86,15 @@ export function NavUser() {
                             <DropdownMenuItem asChild>
                                 <Link to={Paths.personal.account}>
                                     <BadgeCheck />
-                                    Profile
+                                    {Paths.personal.account.label}
                                 </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
+                            {/* <DropdownMenuItem asChild>
                                 <Link to={Paths.personal.settings}>
                                     <SettingsIcon/>
                                     {Paths.personal.settings.label}
                                 </Link>
-                            </DropdownMenuItem>
+                            </DropdownMenuItem> */}
                             <DropdownMenuItem asChild>
                                 <Link to={Paths.personal.d4hAccessTokens}>
                                     <KeyRoundIcon/>

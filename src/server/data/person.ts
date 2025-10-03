@@ -17,13 +17,13 @@ export const fetchPersonByIdCached = unstable_cache(
             where: { id },
         })
     },
-    ['person'],
+    [],
     {
-        tags: ["person"],
+        tags: ["personnel"],
         revalidate: 60, // 1 minute
     }
 )
 
-export function revalidatePersonCache() {
-    revalidateTag('person')
+export function revalidatePersonnelCache() {
+    revalidateTag('personnel')
 }

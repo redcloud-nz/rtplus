@@ -9,7 +9,7 @@ import { TeamData } from '@/lib/schemas/team'
 import { PersonRef } from './lib/schemas/person'
 import { SkillCheckSessionData } from './lib/schemas/skill-check-session'
 
-const CompetenciesIcon = PocketKnifeIcon
+const SkillsIcon = PocketKnifeIcon
 
 export const marketing = {
 
@@ -187,7 +187,7 @@ export const system = {
     skillPackages: {
         label: 'Skill Packages',
         href: '/system/skill-packages',
-        icon: CompetenciesIcon,
+        icon: SkillsIcon,
         create: {
             href: '/system/skill-packages/--create'
         },
@@ -225,10 +225,10 @@ export const team = (teamOrSlug: TeamData | string) => {
             return {
             href: `${base}/members/${personId}`,
             label: typeof personOrPersonId === 'string' ? undefined as never: personOrPersonId.name,
-            competencies: {
+            skills: {
                 label: 'Skills',
                 href: `${base}/members/${personId}/skills`,
-                icon: CompetenciesIcon,
+                icon: SkillsIcon,
                 bgColor: 'bg-sky-500'
             },
         } as const
@@ -257,7 +257,7 @@ export const team = (teamOrSlug: TeamData | string) => {
         skills: {
             label: 'Skills',
             href: skillsBase,
-            icon: CompetenciesIcon,
+            icon: SkillsIcon,
             checks: {
                 label: 'Checks',
                 href: `${skillsBase}/checks`,

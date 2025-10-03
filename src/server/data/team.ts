@@ -26,7 +26,7 @@ export const fetchTeamByIdCached = unstable_cache(
             where: { id: teamId }
         })
     },
-    ['teams'],
+    [],
     {
         tags: ["teams"],
         revalidate: 3600 // 1 hour
@@ -39,13 +39,13 @@ export const fetchTeamByIdCached = unstable_cache(
  * @returns A promise that resolves to the team data or null if not found.
  */
 export const fetchTeamBySlugCached = unstable_cache(
-        async (teamSlug: string): Promise<TeamRecord | null> => {
+    async (teamSlug: string): Promise<TeamRecord | null> => {
         // If the team is not cached, fetch it directly from the database
         return await prisma.team.findUnique({ 
             where: { slug: teamSlug } 
         })
     },
-    ['teams'],
+    [],
     {
         tags: ['teams'],
         revalidate: 3600 // 1 hour
@@ -71,7 +71,7 @@ export const fetchAllTeamSlugsCached = unstable_cache(
         const teams = await prisma.team.findMany({ select: { slug: true } })
         return teams.map(team => team.slug)
     },
-    ['team-slugs'],
+    [],
     {
         tags: ['teams'],
         revalidate: 3600 // 1 hour

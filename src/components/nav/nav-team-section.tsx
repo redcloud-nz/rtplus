@@ -4,7 +4,7 @@
  */
 'use client'
 
-import { BookOpenIcon, CableIcon, HammerIcon, PocketKnifeIcon, SettingsIcon, UsersIcon } from 'lucide-react'
+import { BookOpenIcon, CableIcon, PocketKnifeIcon, SettingsIcon, UsersIcon } from 'lucide-react'
 import Image from 'next/image'
 
 import { Protect, useOrganization } from '@clerk/nextjs'
@@ -92,9 +92,9 @@ export function NavTeamSection() {
                     </NavCollapsible>
                 </Protect>
             </Show>
-            <NavCollapsible label="Tools" icon={<HammerIcon/>}>
+            {/* <NavCollapsible label="Tools" icon={<HammerIcon/>}>
                 <NavSubItem path={Paths.tools.skillRecorder.sessions}/>
-            </NavCollapsible>
+            </NavCollapsible> */}
             <Show when={isSystem}>
                 <NavItem path={Paths.system.teams}/>
             </Show>

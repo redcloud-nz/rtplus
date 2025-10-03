@@ -9,7 +9,7 @@ import { Metadata } from 'next'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
-import { Team_Member_Competencies_Card } from '@/components/cards/team-member-competencies'
+import { Team_Member_Skills_Card } from '@/components/cards/team-member-skills'
 
 import * as Paths from '@/paths'
 import { fetchTeamMember } from '@/server/fetch'
@@ -22,7 +22,7 @@ export async function generateMetadata(props: { params: Promise<{ team_slug: str
 }
 
 
-export default async function Team_Member_Competencies_Page(props: { params: Promise<{ team_slug: string, person_id: string }>}) {
+export default async function Team_Member_Skills_Page(props: { params: Promise<{ team_slug: string, person_id: string }>}) {
     const { person, team } = await fetchTeamMember(props.params)
 
     return <AppPage>
@@ -31,7 +31,7 @@ export default async function Team_Member_Competencies_Page(props: { params: Pro
                 Paths.team(team),
                 Paths.team(team).members,
                 Paths.team(team).member(person),
-                Paths.team(team).member(person.personId).competencies
+                Paths.team(team).member(person.personId).skills
             ]}
         />
         <AppPageContent variant="container">
@@ -39,7 +39,7 @@ export default async function Team_Member_Competencies_Page(props: { params: Pro
                 <PageTitle objectType="Team Member">{person.name}</PageTitle>
             </PageHeader>
             <Boundary>
-                <Team_Member_Competencies_Card personId={person.personId} teamId={team.teamId} />
+                <Team_Member_Skills_Card personId={person.personId} teamId={team.teamId} />
             </Boundary>
         </AppPageContent>
         

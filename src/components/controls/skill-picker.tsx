@@ -31,13 +31,15 @@ interface SkillPickerProps {
 
     size?: 'default' | 'sm'
 
+    teamId: string
+
     value?: string
 
 }
 
-export function SkillPicker({ className, defaultValue = "", exclude = [], onValueChange, placeholder, size, value }: SkillPickerProps) {
+export function SkillPicker({ className, defaultValue = "", exclude = [], onValueChange, placeholder, size, teamId, value }: SkillPickerProps) {
 
-    const query = useQuery(trpc.skills.getAvailablePackages.queryOptions())
+    const query = useQuery(trpc.skills.getAvailablePackages.queryOptions({ teamId }))
 
     const [internalValue, setInternalValue] = useState<string>(value ?? defaultValue)
 

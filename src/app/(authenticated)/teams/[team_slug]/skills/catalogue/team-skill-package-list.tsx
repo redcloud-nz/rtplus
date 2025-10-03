@@ -11,9 +11,9 @@ import { Heading, Paragraph } from '@/components/ui/typography'
 import { trpc } from '@/trpc/client'
 
 
-export function Team_Skills_List() {
+export function Team_Skills_List({ teamId }: { teamId: string }) {
 
-    const { data: skillPackages } = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions())
+    const { data: skillPackages } = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions({ teamId }))
 
     return <>
         {skillPackages.map(pkg => <div key={pkg.skillPackageId}>

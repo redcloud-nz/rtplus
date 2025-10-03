@@ -5,17 +5,19 @@
 
 'use client'
 
+import { PlusIcon } from 'lucide-react'
 import { useMemo } from 'react'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { RefreshButton } from '@/components/ui/button'
+import { Button, RefreshButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader } from '@/components/ui/card'
 import { DataTableBody, DataTableFooter, DataTableHead, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
-import { TextLink } from '@/components/ui/link'
+import { Link, TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
+import { Tooltip, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { CompetenceLevel, CompetenceLevelTerms } from '@/lib/competencies'
 import { PersonData } from '@/lib/schemas/person'
@@ -128,6 +130,16 @@ export function Team_Skill_ChecksList_Card({ team }: { team: TeamData }) {
             <CardHeader>
                 <DataTableSearch size="sm" variant="ghost"/>
                 <CardActions>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" asChild>
+                                <Link to={Paths.team(team).skills.checks.create}>
+                                    <PlusIcon />
+                                </Link>
+                            </Button>
+                        </TooltipTrigger>
+                    </Tooltip>
+                    
                     <RefreshButton onClick={handleRefresh}/>
                     <TableOptionsDropdown/>
                     

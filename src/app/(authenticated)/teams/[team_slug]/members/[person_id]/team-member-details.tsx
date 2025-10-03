@@ -21,7 +21,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { DisplayValue } from '@/components/ui/display-value'
 import { Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
-import { Input, TagsInput } from '@/components/ui/input'
+import { Input } from '@/components/ui/input'
 import { TextLink } from '@/components/ui/link'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
@@ -216,15 +216,6 @@ function UpdateTeamMembershipForm({ membership, onClose, team, showTags }: { mem
                         />}
                     />
                 </Show>
-                <FormField
-                    control={form.control}
-                    name="tags"
-                    render={({ field }) => <ToruGridRow
-                        label="Tags"
-                        control={<TagsInput value={field.value} onValueChange={field.onChange} placeholder="Add tags"/>}
-                        description="Tags can be used to categorize or label the membership for easier searching and filtering."
-                    />}
-                />
                 <FormField
                     control={form.control}
                     name="status"

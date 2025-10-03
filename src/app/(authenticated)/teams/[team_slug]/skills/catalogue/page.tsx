@@ -29,7 +29,7 @@ export default async function Team_Skills_Catalogue_Page(props: { params: Promis
         />
         <AppPageContent variant="container">
             <Boundary>
-                <Team_Skills_List />
+                <Team_Skills_List teamId={team.teamId}/>
             </Boundary>
         </AppPageContent>
     </AppPage>

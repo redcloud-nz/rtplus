@@ -18,7 +18,7 @@ export function NotFound(props: AppPageContentProps) {
             <div className="font-semibold text-2xl text-zinc-800">404</div>
             <div className="font-semibold text-zinc-800">Not Found</div>
             <Separator orientation="horizontal" className="w-40"/>
-            <Paragraph>
+            <Paragraph className="px-2">
                 The resource you requested was not found. Have you tried turning it off and on again?
             </Paragraph>
         </main>

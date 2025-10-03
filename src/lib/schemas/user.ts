@@ -27,7 +27,7 @@ export function toUserData(user: ClerkUser, membership: ClerkOrganizationMembers
     return {
         personId: user.publicMetadata.person_id,
         name: user.fullName || "",
-        email: user.emailAddresses[0]?.emailAddress || '',
+        email: user.primaryEmailAddress?.emailAddress || "",
         clerkUserId: user.id,
         role: membership.role as 'org:admin' | 'org:member',
         lastActiveAt: user.lastActiveAt ? new Date(user.lastActiveAt).toISOString() : null,

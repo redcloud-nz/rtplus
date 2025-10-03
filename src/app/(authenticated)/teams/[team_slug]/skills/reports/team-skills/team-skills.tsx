@@ -12,7 +12,7 @@ import { randomInteger, sumBy } from 'remeda'
 import { match } from 'ts-pattern'
 
 import * as AccordionPrimitive from '@radix-ui/react-accordion'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useSuspenseQueries } from '@tanstack/react-query'
 
 import { SkillCheckGeneratorConfigData } from '@/components/cards/skill-check-generator-config'
 import { Button } from '@/components/ui/button'
@@ -24,14 +24,20 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function Team_Competencies_Card({ teamId }: { teamId: string }) {
+export function Team_Skills_Card({ teamId }: { teamId: string }) {
 
-    const skillPackagesQuery = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions())
-    const teamMembersQuery = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId }))
+    const [
+        { data: availablePackages, refetch: refetchAvailablePackages }, 
+        { data: teamMembers, refetch: refetchTeamMembers }
+    ] = useSuspenseQueries({
+        queries: [
+            trpc.skills.getAvailablePackages.queryOptions({ teamId }),
+            trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId })
+        ]
+    })
 
     async function handleRefresh() {
-        await skillPackagesQuery.refetch()
-        await teamMembersQuery.refetch()
+        await Promise.all([refetchAvailablePackages(), refetchTeamMembers()])
     }
 
     const [generatorConfigOpen, setGeneratorConfigOpen] = useState(false)
@@ -62,8 +68,8 @@ export function Team_Competencies_Card({ teamId }: { teamId: string }) {
             { start: subMonths(now, 9), end: now, weight: generatorConfig.dateWeights.OK }
         ])
 
-        return teamMembersQuery.data.flatMap(teamMember =>
-            skillPackagesQuery.data.flatMap(skillPackage =>
+        return teamMembers.flatMap(teamMember =>
+            availablePackages.flatMap(skillPackage =>
                 skillPackage.skills.map(skill => {
                     const result = statusGenerator()
                     const date = dateGenerator()
@@ -76,7 +82,7 @@ export function Team_Competencies_Card({ teamId }: { teamId: string }) {
                     return {
                         skillId: skill.skillId,
                         assesseeId: teamMember.personId,
-                        assessorId: teamMembersQuery.data[randomInteger(0, teamMembersQuery.data.length - 1)].personId,
+                        assessorId: teamMembers[randomInteger(0, teamMembers.length - 1)].personId,
                         result,
                         date,
                         ok: competent && !expired,
@@ -86,15 +92,15 @@ export function Team_Competencies_Card({ teamId }: { teamId: string }) {
                 })
             )
         ).filter((check): check is NonNullable<typeof check> => check !== undefined)
-    }, [skillPackagesQuery.data, teamMembersQuery.data, generatorConfig])
+    }, [availablePackages, teamMembers, generatorConfig])
 
     const skillPackages = useMemo(() => {
-        return skillPackagesQuery.data.flatMap(({ skills, skillGroups, ...skillPackage }) => {
+        return availablePackages.flatMap(({ skills, skillGroups, ...skillPackage }) => {
             const processedSkillGroups = skillGroups.map(skillGroup => {
                 const processedSkills = skills
                     .filter(skill => skill.skillGroupId === skillGroup.skillGroupId)
                     .map(skill => {
-                        const processedChecks = teamMembersQuery.data.map(teamMember =>
+                        const processedChecks = teamMembers.map(teamMember =>
                             skillChecks.find(check => check.skillId == skill.skillId && check.assesseeId == teamMember.personId)
                         )
                         return {
@@ -113,7 +119,7 @@ export function Team_Competencies_Card({ teamId }: { teamId: string }) {
                     aggregates: {
                         okCount: sumBy(processedSkills, skill => skill.aggregates.okCount),
                         cellCount: sumBy(processedSkills, skill => skill.aggregates.cellCount),
-                        okCountByTeamMember: teamMembersQuery.data.map((_, index) => processedSkills.filter(skill => skill.checks[index]?.ok).length),
+                        okCountByTeamMember: teamMembers.map((_, index) => processedSkills.filter(skill => skill.checks[index]?.ok).length),
                         skillsCount: processedSkills.length
                     }
                 }
@@ -125,34 +131,34 @@ export function Team_Competencies_Card({ teamId }: { teamId: string }) {
                 aggregates: {
                     okCount: sumBy(processedSkillGroups, group => group.aggregates.okCount),
                     cellCount: sumBy(processedSkillGroups, group => group.aggregates.cellCount),
-                    okCountByTeamMember: teamMembersQuery.data.map((_, index) => sumBy(processedSkillGroups, group => group.aggregates.okCountByTeamMember[index])),
+                    okCountByTeamMember: teamMembers.map((_, index) => sumBy(processedSkillGroups, group => group.aggregates.okCountByTeamMember[index])),
                     skillsCount: sumBy(processedSkillGroups, group => group.aggregates.skillsCount)
                 }
             }
         })
 
 
-    }, [skillPackagesQuery.data, teamMembersQuery.data, skillChecks])
+    }, [availablePackages, teamMembers, skillChecks])
 
     const teamMembersMap = useMemo(() => {
-        return new Map(teamMembersQuery.data.map(member => [member.personId, member]))
-    }, [teamMembersQuery.data])
+        return new Map(teamMembers.map(member => [member.personId, member]))
+    }, [teamMembers])
 
     const aggregates = {
         okCount: sumBy(skillPackages, group => group.aggregates.okCount),
         cellCount: sumBy(skillPackages, group => group.aggregates.cellCount),
-        okCountByTeamMember: teamMembersQuery.data.map((_, index) => sumBy(skillPackages, group => group.aggregates.okCountByTeamMember[index])),
+        okCountByTeamMember: teamMembers.map((_, index) => sumBy(skillPackages, group => group.aggregates.okCountByTeamMember[index])),
         skillsCount: sumBy(skillPackages, group => group.aggregates.skillsCount)
     }
 
-    const membersCount = teamMembersQuery.data.length
+    const membersCount = teamMembers.length
     const skillPackagesCount = skillPackages.length
 
-    return <div className="relative width-full h=[calc(100vh-49px)] overflow-auto text-sm">
+    return <div className="relative w-full h-[calc(100vh-49px)] overflow-auto text-sm">
         <div className="grid" style={{ gridTemplateColumns: `[left] minmax(240px, 20%) [body] repeat(${membersCount}, minmax(60px, 20%)) [total] 75px [control] 40px [right]`, gridTemplateRows: `[top] 120px [body] repeat(${skillPackagesCount}, auto) [total] 40px [bottom]` }}>
             <div className="grid row-[top] col-span-full grid-cols-subgrid sticky top-0 z-2 bg-white border-b-2 border-table-frame">
                 <div className="col-[left] sticky left-0 top-0 z-3 bg-white"></div>
-                {teamMembersQuery.data.map((member, colIndex) => <div key={colIndex} className="align-middle self-center">
+                {teamMembers.map((member, colIndex) => <div key={colIndex} className="align-middle self-center">
                     <div className="w-[120px] overflow-hidden overflow-ellipsis whitespace-nowrap rotate-[-60deg] -translate-2 p-1 font-semibold">{member.person.name}</div>
                 </div>)}
                 <div className="grid col-start-[total] col-end-[right] grid-cols-subgrid sticky right-0 top-0 z-3 bg-white">
@@ -167,7 +173,7 @@ export function Team_Competencies_Card({ teamId }: { teamId: string }) {
                         <div className="h-10 col-[left] sticky left-0 z-1 flex items-center not-group-hover:bg-white group-hover:bg-muted border-r border-table-frame">
                             <div className="w-full overflow-hidden overflow-ellipsis text-nowrap font-bold p-1 pl-2">{skillPackage.name}</div>
                         </div>
-                        {teamMembersQuery.data.map((teamMember, index) => <div key={teamMember.personId} className="h-10 flex items-center justify-center group-hover:bg-muted">
+                        {teamMembers.map((teamMember, index) => <div key={teamMember.personId} className="h-10 flex items-center justify-center group-hover:bg-muted">
                             <div className="p-1">{toPercentage(skillPackage.aggregates.okCountByTeamMember[index], skillPackage.aggregates.skillsCount)}%</div>
                         </div>)}
                         <div className="h-10 grid col-start-[total] col-end-[right] grid-cols-subgrid items-center sticky right-0 z-1 not-group-hover:bg-white group-hover:bg-muted border-l border-table-frame">
@@ -182,7 +188,7 @@ export function Team_Competencies_Card({ teamId }: { teamId: string }) {
                             <div className="h-10 col-[left] sticky left-0 z-1 p-1 flex items-center not-group-hover:bg-white group-hover:bg-muted border-r border-table-frame">
                                 <div className="w-full overflow-hidden overflow-ellipsis text-nowrap font-semibold p-1 pl-4">{skillGroup.name}</div>
                             </div>
-                            {teamMembersQuery.data.map((teamMember, index) => <div key={teamMember.personId} className="h-10 flex items-center justify-center group-hover:bg-muted">
+                            {teamMembers.map((teamMember, index) => <div key={teamMember.personId} className="h-10 flex items-center justify-center group-hover:bg-muted">
                                 <div className="p-1">{toPercentage(skillGroup.aggregates.okCountByTeamMember[index], skillGroup.aggregates.skillsCount)}%</div>
                             </div>)}
                             <div className="h-10 grid col-start-[total] col-end-[right] grid-cols-subgrid items-center sticky right-0 z-1 not-group-hover:bg-white group-hover:bg-muted border-l border-table-frame">
@@ -205,7 +211,7 @@ export function Team_Competencies_Card({ teamId }: { teamId: string }) {
                                 <div className="h-10 col-[left] sticky left-0 z-1 p-1 flex items-center not-group-hover:bg-white group-hover:bg-muted border-r border-table-frame">
                                     <div className="w-full overflow-hidden overflow-ellipsis text-nowrap p-1 pl-8">{skill.name}</div>
                                 </div>
-                                    {teamMembersQuery.data.map((teamMember, index) => 
+                                    {teamMembers.map((teamMember, index) => 
                                         <div key={teamMember.personId} className="flex justify-center items-center group-hover:bg-muted">
                                             {match(skill.checks[index])
                                                 .with({ competent: true, expired: false }, (check) => <Popover>
@@ -265,7 +271,7 @@ export function Team_Competencies_Card({ teamId }: { teamId: string }) {
                 <div className="h-9.5 col-[left] sticky left-0 bottom-0 z-1 flex items-center not-group-hover:bg-white group-hover:bg-muted border-r border-table-frame ">
                     <div className="w-full text-right font-bold p-1">Total</div>
                 </div>
-                {teamMembersQuery.data.map((_, index) => 
+                {teamMembers.map((_, index) => 
                     <div key={index} className="text-center self-center">{toPercentage(aggregates.okCountByTeamMember[index], aggregates.skillsCount)}%</div>
                 )}
                 <div className="h-9.5 grid col-start-[total] col-end-[right] grid-cols-subgrid items-center sticky right-0 z-1 not-group-hover:bg-white group-hover:bg-muted border-l border-table-frame">

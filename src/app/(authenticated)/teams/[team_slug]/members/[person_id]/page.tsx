@@ -48,7 +48,7 @@ export default async function Team_Member_Page(props: { params: Promise<{ team_s
                 <Team_Member_Details_Card personId={person.personId} teamId={team.teamId} showTags={teamMemberTagsEnabled}/>
             </Boundary>
             <CardLinkList>
-                <CardLink path={Paths.team(team).member(person.personId).competencies}/>
+                <CardLink path={Paths.team(team).member(person.personId).skills}/>
             </CardLinkList>
         </AppPageContent>
         

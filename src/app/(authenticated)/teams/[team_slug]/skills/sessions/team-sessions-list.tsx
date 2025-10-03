@@ -9,7 +9,6 @@ import { formatISO } from 'date-fns'
 import { PlusIcon } from 'lucide-react'
 import { useMemo } from 'react'
 
-import { Protect } from '@clerk/nextjs'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
@@ -121,20 +120,18 @@ export function Team_Skills_SessionList_Card({ team }: { team: TeamData }) {
             <CardHeader>
                 <DataTableSearch size="sm" variant="ghost"/>
                 <CardActions>
-                    <Protect role="org:admin">
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" asChild>
-                                    <Link to={Paths.team(team.slug).skills.sessions.create}>
-                                        <PlusIcon/>
-                                    </Link>
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                Create a new skill check session for the team.
-                            </TooltipContent>
-                        </Tooltip>
-                    </Protect>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" asChild>
+                                <Link to={Paths.team(team).skills.sessions.create}>
+                                    <PlusIcon/>
+                                </Link>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            Create a new skill check session for the team.
+                        </TooltipContent>
+                    </Tooltip>
                         
                     <RefreshButton onClick={handleRefresh} />
                     <TableOptionsDropdown/>

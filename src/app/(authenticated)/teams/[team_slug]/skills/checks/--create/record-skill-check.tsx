@@ -109,6 +109,7 @@ export function CompetencyRecorder_Single_Card() {
                                 label="Skill"
                                 control={<SkillPicker 
                                     {...field} 
+                                    teamId={activeTeam.teamId}
                                     onValueChange={({ skillId }) => field.onChange(skillId)}
                                     placeholder="Select a skill to assess..."
                                 />}

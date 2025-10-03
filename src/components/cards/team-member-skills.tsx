@@ -10,7 +10,7 @@ import { Fragment, useMemo, useState } from 'react'
 import { randomInteger, sumBy } from 'remeda'
 import { match } from 'ts-pattern'
 
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useSuspenseQueries } from '@tanstack/react-query'
 
 import { ATable, ATableCell, ATableSectionContent, ATableSection, ATableRow, ATableTrigger, ATableSectionHeader, ATableBody } from '@/components/ui/accordion-table'
 import { Alert } from '@/components/ui/alert'
@@ -27,13 +27,20 @@ import { SkillCheckGeneratorConfig_Card, SkillCheckGeneratorConfigData } from '.
 
 
 
-export function Team_Member_Competencies_Card({ personId, teamId }: { personId: string, teamId: string }) {
+export function Team_Member_Skills_Card({ personId, teamId }: { personId: string, teamId: string }) {
 
-    const skillPackagesQuery = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions())
-    const teamMembersQuery = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId }))
+    const [
+        { data: availablePackages, refetch: refetchAvailablePackages }, 
+        { data: teamMembers, refetch: refetchTeamMembers }
+    ] = useSuspenseQueries({
+        queries: [
+            trpc.skills.getAvailablePackages.queryOptions({ teamId }),
+            trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId })
+        ]
+    })
 
     async function handleRefresh() {
-        await skillPackagesQuery.refetch()
+        await Promise.all([refetchAvailablePackages(), refetchTeamMembers()])
     }
 
     const [generatorConfigOpen, setGeneratorConfigOpen] = useState(false)
@@ -64,7 +71,7 @@ export function Team_Member_Competencies_Card({ personId, teamId }: { personId: 
             { start: subMonths(now, 9), end: now, weight: generatorConfig.dateWeights.OK }
         ])
 
-        return skillPackagesQuery.data.flatMap(skillPackage =>
+        return availablePackages.flatMap(skillPackage =>
             skillPackage.skills.map(skill => {
                 const result = statusGenerator()
                 const date = dateGenerator()
@@ -75,19 +82,20 @@ export function Team_Member_Competencies_Card({ personId, teamId }: { personId: 
                 return {
                     skillId: skill.skillId,
                     assesseeId: personId,
-                    assessorId: teamMembersQuery.data[randomInteger(0, teamMembersQuery.data.length - 1)].personId,
+                    assessorId: teamMembers[randomInteger(0, teamMembers.length - 1)].personId,
                     result,
                     date,
                     ok: competent && !expired,
                     competent,
                     expired
+
                 }
             })
         )
-    }, [skillPackagesQuery.data, teamMembersQuery.data, generatorConfig, personId])
+    }, [availablePackages, teamMembers, generatorConfig, personId])
 
     const skillPackages = useMemo(() => {
-        return skillPackagesQuery.data.flatMap(({ skills, skillGroups, ...skillPackage }) => {
+        return availablePackages.flatMap(({ skills, skillGroups, ...skillPackage }) => {
             const processedSkillGroups = skillGroups.map(skillGroup => {
                 const processedSkills = skills
                     .filter(skill => skill.skillGroupId === skillGroup.skillGroupId)
@@ -121,11 +129,11 @@ export function Team_Member_Competencies_Card({ personId, teamId }: { personId: 
         })
 
 
-    }, [skillPackagesQuery.data, skillChecks, personId])
+    }, [availablePackages, skillChecks, personId])
 
     const teamMembersMap = useMemo(() => {
-        return new Map(teamMembersQuery.data.map(member => [member.personId, member]))
-    }, [teamMembersQuery.data])
+        return new Map(teamMembers.map(member => [member.personId as string, member]))
+    }, [teamMembers])
 
     const aggregates = {
         okCount: sumBy(skillPackages, group => group.aggregates.okCount),
@@ -146,12 +154,12 @@ export function Team_Member_Competencies_Card({ personId, teamId }: { personId: 
         /> }
         <Card>
             <CardHeader>
-                <CardTitle>Competencies</CardTitle>
+                <CardTitle>{teamMembersMap.get(personId)?.person.name}</CardTitle>
                 <CardActions>
                     <RefreshButton onClick={handleRefresh} />
                     <Separator orientation="vertical" />
                     <CardExplanation>
-                        This card displays the competencies for the team member.
+                        This card displays the skills for the team member.
                     </CardExplanation>
                 </CardActions>
             </CardHeader>

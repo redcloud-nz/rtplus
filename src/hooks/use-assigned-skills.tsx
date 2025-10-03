@@ -16,11 +16,11 @@ import type { RouterOutput } from '@/trpc/routers/_app'
  * @param sessionId The ID of the competency recorder session.
  * @returns The assigned skills.
  */
-export function useAssignedSkillsQuery({ sessionId }: { sessionId: string }) {
+export function useAssignedSkillsQuery({ sessionId, teamId }: { sessionId: string, teamId: string }) {
 
     return useSuspenseQueries({
         queries: [
-            trpc.skills.getAvailablePackages.queryOptions(),
+            trpc.skills.getAvailablePackages.queryOptions({ teamId }),
             trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId })
         ],
         combine: ([availablePackagesQuery, assignedSkillIdsQuery]) => {

@@ -8,7 +8,6 @@
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
-import { RequireActiveTeam } from '@/components/nav/require-active-team'
 
 import * as Paths from '@/paths'
 
@@ -28,11 +27,8 @@ export default async function CompetencyRecorder_Single_Page() {
         />
         <AppPageContent variant="container">
             <Boundary>
-                <RequireActiveTeam>
-                    <CompetencyRecorder_Single_Card/> 
-                </RequireActiveTeam>
+                <CompetencyRecorder_Single_Card/> 
             </Boundary>
-            
         </AppPageContent>
     </AppPage>
 }

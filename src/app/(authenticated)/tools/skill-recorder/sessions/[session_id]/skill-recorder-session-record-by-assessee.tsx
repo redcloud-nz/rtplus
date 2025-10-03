@@ -5,7 +5,7 @@
 
 'use client'
 
-import { NotebookPenIcon } from 'lucide-react'
+import { ArrowUpIcon, NotebookPenIcon } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import { useSuspenseQueries } from '@tanstack/react-query'
@@ -26,6 +26,7 @@ import { GetCheckReturn, useSkillCheckStore_experimental } from '@/hooks/use-ski
 import { CompetenceLevel } from '@/lib/competencies'
 import { SkillData } from '@/lib/schemas/skill'
 import { trpc } from '@/trpc/client'
+import { Paragraph } from '@/components/ui/typography'
 
 
 
@@ -49,7 +50,7 @@ export function SkillRecorder_Session_RecordByAssessee({ sessionId, teamId }: { 
     return <>
         <Show 
             when={assignedAssessees.length > 0}
-            fallback={<Alert title="No assessees defined" severity="warning" className="p-2.5"/>}
+            fallback={<Alert title="No assessees defined for this session." severity="warning" className="p-2.5"/>}
         >
             <Select
                 value={targetAssesseeId} 
@@ -71,7 +72,15 @@ export function SkillRecorder_Session_RecordByAssessee({ sessionId, teamId }: { 
         </Show>
         <Separator orientation="horizontal" className="my-2"/>
         <ScrollArea style={{ height: `calc(100vh - var(--header-height) - 115px)` }} className="px-4 [&>[data-slot=scroll-area-viewport]]:pb-12">
-            <Show when={targetAssesseeId != ''}>
+            <Show 
+                when={targetAssesseeId != ''}
+                fallback={<div className="flex flex-col items-center">
+                    <ArrowUpIcon className="size-8"/>
+                    <Paragraph>
+                        Select a person to start recording their skills.
+                    </Paragraph>
+                </div>}
+            >
                 <div className="grid grid-cols-[min(20%,--spacing(80))_1fr_1fr divide-y divide-zinc-950/5">
                     {assignedSkills.map(skill => 
                         <SkillRow
