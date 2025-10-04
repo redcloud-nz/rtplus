@@ -5,14 +5,17 @@
 
 'use client'
 
-import { format, formatISO, parseISO } from 'date-fns'
+import { formatISO, parseISO } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
 
-import { Calendar } from '../ui/calendar'
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
+import { formatDate } from '@/lib/utils'
 
-import { selectTriggerVariants } from '../ui/select'
+import { Calendar } from '@/components/ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+
+import { selectTriggerVariants } from '@/components/ui/select'
+
 
 
 export interface DatePickerProps {
@@ -46,7 +49,7 @@ export function DatePicker({ className, defaultValue = "", onValueChange = () =>
         <PopoverTrigger
             className={selectTriggerVariants({ className, size})}
         >
-            {date ? format(date, 'PP') : <span>{placeholder}</span>}
+            {date ? formatDate(date) : <span>{placeholder}</span>}
             <CalendarIcon className="mr-2 h-4 w-4"/>
         </PopoverTrigger>
         <PopoverContent className="w-auto overflow-hidden p-0">

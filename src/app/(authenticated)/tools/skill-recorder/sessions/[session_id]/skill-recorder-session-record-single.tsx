@@ -25,6 +25,8 @@ import { CompetenceLevel, CompetenceLevelTerms, isPass } from '@/lib/competencie
 import { nanoId16  } from '@/lib/id'
 import { SkillCheckData } from '@/lib/schemas/skill-check'
 import { trpc } from '@/trpc/client'
+import { CompetenceLevelRadioGroup } from '@/components/ui/competence-level-radio-group'
+import { Paragraph } from '@/components/ui/typography'
 
 
 
@@ -67,6 +69,8 @@ export function SkillRecorder_Session_RecordSingle({ sessionId, teamId }: { sess
         data: null,
         dirty: false
     })
+
+    const skill = skills.find(s => s.skillId === state.target.skillId)
 
     function handleChangeTarget({ assesseeId, skillId }: RecordingState['target']) {
 
@@ -208,17 +212,18 @@ export function SkillRecorder_Session_RecordSingle({ sessionId, teamId }: { sess
                     
                 </div>
             </div>
+            {skill && <Paragraph className="text-sm text-muted-foreground">{skill.description}</Paragraph>}
             <Show when={state.data != null}>
                 <div className="space-y-1">
-                    <Label>3. Competency Level</Label>
+                    <Label>3. Competence Level</Label>
                     <div>
-                        <Select
+                        {/* <Select
                             value={state.data?.result || ''} 
                             onValueChange={result => handleUpdateFormData({ result, notes: state.data?.notes || '' })}
                             disabled={state.data == null}
                         >
                             <SelectTrigger>
-                                <SelectValue placeholder="Select a competency level..."/>
+                                <SelectValue placeholder="Select a competene level..."/>
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectContent>
@@ -227,7 +232,13 @@ export function SkillRecorder_Session_RecordSingle({ sessionId, teamId }: { sess
                                 )}
                             </SelectContent>
                             </SelectContent>
-                        </Select>
+                        </Select> */}
+                        <CompetenceLevelRadioGroup
+                            className="py-2"
+                            value={state.data?.result as CompetenceLevel}
+                            prevValue={state.prevData?.result as CompetenceLevel || null}
+                            onValueChange={newValue => handleUpdateFormData({ result: newValue, notes: state.data?.notes || '' })}
+                        />
                     </div>
                 </div>
                 <div className="space-y-1">

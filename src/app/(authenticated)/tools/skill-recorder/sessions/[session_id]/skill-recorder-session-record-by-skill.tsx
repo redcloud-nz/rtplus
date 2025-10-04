@@ -4,7 +4,7 @@
  */
 'use client'
 
-import { NotebookPenIcon } from 'lucide-react'
+import { ArrowUpIcon, NotebookPenIcon } from 'lucide-react'
 import { useState } from 'react'
 
 import { useSuspenseQueries } from '@tanstack/react-query'
@@ -25,6 +25,7 @@ import { GetCheckReturn, useSkillCheckStore_experimental } from '@/hooks/use-ski
 import { CompetenceLevel } from '@/lib/competencies'
 import { PersonRef } from '@/lib/schemas/person'
 import { trpc } from '@/trpc/client'
+import { Paragraph } from '@/components/ui/typography'
 
 
 
@@ -71,7 +72,15 @@ export function SkillRecorder_Session_RecordBySkill({ sessionId, teamId }: { ses
         <Separator orientation="horizontal" className="my-2"/>
         
         <ScrollArea style={{ height: `calc(100vh - var(--header-height) - 115px)` }} className="px-4 [&>[data-slot=scroll-area-viewport]]:pb-12">
-            <Show when={targetSkillId != ''}>
+            <Show 
+                when={targetSkillId != ''}
+                fallback={<div className="flex flex-col items-center">
+                    <ArrowUpIcon className="size-8"/>
+                    <Paragraph>
+                        Select a skill to start recording checks.
+                    </Paragraph>
+                </div>}
+            >
             <div className="grid grid-cols-[min(20%,--spacing(80))_1fr_1fr divide-y divide-zinc-950/5">
                 {assignedAssessees.map(assessee => 
                     <AssesseeRow

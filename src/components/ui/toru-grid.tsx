@@ -18,7 +18,7 @@ const ToruGridContext = createContext<ToruGridContextValue>({ mode: 'default' })
 export function ToruGrid({ className, mode = 'default', ...props }: ComponentProps<'div'> & { mode?: 'default' | 'form' }) {
     return <ToruGridContext.Provider value={{ mode }}>
         <div 
-            className={cn("sm:grid sm:grid-cols-[min(20%,--spacing(80))_1fr] lg:grid-cols-[min(20%,--spacing(80))_1fr_1fr]", className)}
+            className={cn("flex flex-col lg:grid lg:grid-cols-[min(20%,--spacing(80))_1fr_1fr]", className)}
             data-component="ToruGrid"
             data-mode={mode}
             {...props}
@@ -28,11 +28,11 @@ export function ToruGrid({ className, mode = 'default', ...props }: ComponentPro
 
 
 const toruGridRowVariants = tv({
-    base: "sm:col-span-2 lg:col-span-3 sm:grid sm:grid-cols-subgrid border-t border-zinc-950/5 py-1 first:border-none md:gap-2",
+    base: " flex flex-col lg:grid lg:col-span-full lg:grid-cols-subgrid border-t border-zinc-950/5 py-1 first:border-none gap-2",
     slots: {
         label: "pt-3 pl-2",
         control: "sm:col-start-2",
-        description: "sm:col-start-1 lg:col-start-3 sm:col-span-2 lg:col-span-1 pl-2 align-middle",
+        description: "hidden lg:block lg:col-start-3 lg:col-span-1 pl-2 align-middle",
         message: "sm:col-start-1 lg:col-start-2 sm:col-span-2 pt-1 pl-2",
     },
     variants: {

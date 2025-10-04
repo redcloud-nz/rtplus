@@ -21,7 +21,7 @@ import { TeamMemberPicker } from '@/components/controls/team-member-picker'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CompetenceLevelRadioGroup } from '@/components/ui/competence-level-radio-group'
-import { DebugFormState, Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Textarea } from '@/components/ui/textarea'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 
@@ -121,6 +121,7 @@ export function Team_Skill_NewCheck_Card({ team }: { team: TeamData }) {
                                 label="Competence Level"
                                 control={
                                     <CompetenceLevelRadioGroup
+                                        className="py-2"
                                         value={field.value as CompetenceLevel}
                                         prevValue={null}
                                         onValueChange={newValue => field.onChange(newValue)}
@@ -151,7 +152,6 @@ export function Team_Skill_NewCheck_Card({ team }: { team: TeamData }) {
                         </ToruGridFooter>
                         
                     </ToruGrid>
-                    <DebugFormState/>
                 </Form>
             </FormProvider>
         </CardContent>

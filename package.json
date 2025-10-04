@@ -5,7 +5,7 @@
   "nz.rtplus": {
     "displayName": "RT+",
     "repositoryUrl": "https://github.com/redcloud-nz/rtplus",
-    "version": "0.5.6",
+    "version": "0.5.7",
     "versionName": "Philomel"
   },
   "scripts": {

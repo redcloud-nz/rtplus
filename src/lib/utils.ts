@@ -4,7 +4,7 @@
  */
 
 import { clsx, type ClassValue } from 'clsx'
-import { format } from 'date-fns'
+import { format, formatISO } from 'date-fns'
 import { twMerge } from 'tailwind-merge'
 
 
@@ -16,6 +16,12 @@ export function assertNonNull<T>(obj: T | null | undefined, message: string = ""
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+
+export function formatDate(stringOrDate: string | Date) {
+    const date = stringOrDate instanceof Date ? stringOrDate : new Date(stringOrDate)
+
+    return formatISO(new Date(date), { representation: 'date' })
 }
 
 export function formatDateTime(stringOrDate: string | Date) {

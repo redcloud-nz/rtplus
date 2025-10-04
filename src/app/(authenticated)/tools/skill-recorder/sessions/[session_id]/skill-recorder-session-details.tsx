@@ -4,7 +4,6 @@
  */
 'use client'
 
-import { formatISO } from 'date-fns'
 import { PencilIcon, TrashIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -35,6 +34,7 @@ import { TeamData } from '@/lib/schemas/team'
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
+import { formatDate } from '@/lib/utils'
 
 
 
@@ -81,7 +81,7 @@ export function SkillRecorder_Session_Details({ sessionId }: { sessionId: string
                             />
                             <ToruGridRow 
                                 label="Date" 
-                                control={<DisplayValue>{formatISO(new Date(session.date), { representation: 'date' })}</DisplayValue>}
+                                control={<DisplayValue>{formatDate(session.date)}</DisplayValue>}
                             />
                             <ToruGridRow 
                                 label="Status" 
@@ -157,7 +157,7 @@ function UpdateSession_Form({ onClose, session }: { onClose: () => void, session
     }))
 
     return <FormProvider {...form}>
-        <Form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))}>
+        <form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))}>
             <ToruGrid mode="form">
                 <FormField
                     control={form.control}
@@ -194,7 +194,7 @@ function UpdateSession_Form({ onClose, session }: { onClose: () => void, session
                     <FormCancelButton onClick={onClose} size="sm"/>
                 </ToruGridFooter>
             </ToruGrid>
-        </Form>
+        </form>
     </FormProvider>
 }
 
