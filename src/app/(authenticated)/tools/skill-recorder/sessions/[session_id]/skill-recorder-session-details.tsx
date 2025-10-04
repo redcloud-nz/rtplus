@@ -32,9 +32,9 @@ import { useToast } from '@/hooks/use-toast'
 import { SkillCheckSessionData, skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
 import { TeamData } from '@/lib/schemas/team'
 import { zodNanoId8 } from '@/lib/validation'
+import { formatDate } from '@/lib/utils'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
-import { formatDate } from '@/lib/utils'
 
 
 
@@ -75,6 +75,11 @@ export function SkillRecorder_Session_Details({ sessionId }: { sessionId: string
                                 label="Session ID" 
                                 control={<DisplayValue>{session.sessionId}</DisplayValue>}
                             />
+                            <ToruGridRow
+                                label="Team"
+                                control={<DisplayValue>{session.team.name}</DisplayValue>}
+                                description="The team to which this session belongs."
+                            />
                             <ToruGridRow 
                                 label="Name" 
                                 control={<DisplayValue>{session.name}</DisplayValue>}
@@ -91,7 +96,7 @@ export function SkillRecorder_Session_Details({ sessionId }: { sessionId: string
                         </ToruGrid>
                     )
                     .with('Update', () => 
-                        <UpdateSession_Form onClose={() => setMode('View')} session={session} />
+                        <UpdateSession_Form onClose={() => setMode('View')} session={session} team={session.team} />
                     )
                     .exhaustive()
                 }
@@ -104,7 +109,7 @@ export function SkillRecorder_Session_Details({ sessionId }: { sessionId: string
 const formSchema = skillCheckSessionSchema.pick({ sessionId: true, teamId: true, name: true, date: true })
 type FormData = z.infer<typeof formSchema>
 
-function UpdateSession_Form({ onClose, session }: { onClose: () => void, session: SkillCheckSessionData }) {
+function UpdateSession_Form({ onClose, session, team }: { onClose: () => void, session: SkillCheckSessionData, team: TeamData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
@@ -166,6 +171,11 @@ function UpdateSession_Form({ onClose, session }: { onClose: () => void, session
                         label="Session ID"
                         control={<DisplayValue>{session.sessionId}</DisplayValue>}
                     />}
+                />
+                <ToruGridRow
+                    label="Team"
+                    control={<DisplayValue>{team.name}</DisplayValue>}
+                    description="The team to which this session belongs."
                 />
                 <FormField
                     control={form.control}

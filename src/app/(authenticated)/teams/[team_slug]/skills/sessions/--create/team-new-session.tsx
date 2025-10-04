@@ -78,7 +78,7 @@ export function Team_Skills_NewSession_Card({ team }: { team: TeamData }) {
         </CardHeader>
         <CardContent>
             <FormProvider {...form}>
-                <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))} className="space-y-6">
+                <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
                     <ToruGrid mode="form">
                         <FormField
                             control={form.control}
@@ -91,9 +91,18 @@ export function Team_Skills_NewSession_Card({ team }: { team: TeamData }) {
                         />
                         <FormField
                             control={form.control}
+                            name="teamId"
+                            render={({ field }) => <ToruGridRow
+                                label="Team"
+                                control={<DisplayValue>{team.name}</DisplayValue>}
+                                description="The team to which this session belongs."
+                            />}
+                        />
+                        <FormField
+                            control={form.control}
                             name="name"
                             render={({ field }) => <ToruGridRow
-                                label="Session Name"
+                                label="Name"
                                 control={<Input maxLength={100} {...field} />}
                                 description="The name of the skill check session."
                             />}
@@ -103,9 +112,9 @@ export function Team_Skills_NewSession_Card({ team }: { team: TeamData }) {
                             control={form.control}
                             name="date"
                             render={({ field }) => <ToruGridRow
-                                label="Session Date"
+                                label="Date"
                                 control={<DatePicker {...field} />}
-                                description="The date of the skill check session."
+                                description="The date when the session takes place."
                             />}
                         />
 
@@ -114,7 +123,7 @@ export function Team_Skills_NewSession_Card({ team }: { team: TeamData }) {
                             <FormCancelButton onClick={() => router.back()} size="sm"/>
                         </ToruGridFooter>
                     </ToruGrid>
-                </Form>
+                </form>
             </FormProvider>
         </CardContent>
     </Card>
