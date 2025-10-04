@@ -28,15 +28,14 @@ import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
-
 type RowData = SkillCheckData & { assessee: PersonData, assessor: PersonData, skill: SkillData }
 
 export function Team_Skill_ChecksList_Card({ team }: { team: TeamData }) {
 
-    const checksQuery = useSuspenseQuery(trpc.skillChecks.getSkillChecks.queryOptions({ teamId: team.teamId }))
+    const { data: checks, refetch: checksRefetch } = useSuspenseQuery(trpc.skillChecks.getSkillChecks.queryOptions({ teamId: team.teamId }))
 
     async function handleRefresh() {
-        await checksQuery.refetch()
+        await checksRefetch()
     }
 
     const columns = useMemo(() => defineColumns<RowData>(columnHelper => [
@@ -101,7 +100,7 @@ export function Team_Skill_ChecksList_Card({ team }: { team: TeamData }) {
 
     const table = useReactTable<RowData>({
         columns,
-        data: checksQuery.data,
+        data: checks,
         getCoreRowModel: getCoreRowModel(),
         getExpandedRowModel: getExpandedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),

@@ -8,8 +8,6 @@
 import { Metadata } from 'next'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
-import { AppSidebar } from '@/components/nav/app-sidebar'
-import { NavTeamSection } from '@/components/nav/nav-team-section'
 import { DashboardCard, DashboardCardList } from '@/components/ui/dashboard-card'
 import { Paragraph } from '@/components/ui/typography'
 
@@ -22,9 +20,6 @@ export const metadata: Metadata = { title: 'Skill Recorder' }
 export default async function SkillRecorder_Page() {
 
     return <>
-        <AppSidebar>
-            <NavTeamSection/>
-        </AppSidebar>
         <AppPage>
             <AppPageBreadcrumbs
                 breadcrumbs={[Paths.tools.skillRecorder]}

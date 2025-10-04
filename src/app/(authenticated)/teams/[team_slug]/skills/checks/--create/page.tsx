@@ -2,7 +2,7 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /tools/competency-recorder/single
+ *  Path: /teams/[team_slug]/skills/skill-checks/--create
  */
 
 
@@ -10,14 +10,15 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-pa
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
+import { getTeamFromParams } from '@/server/data/team'
 
-import { CompetencyRecorder_Single_Card } from './record-skill-check'
+import { Team_Skill_NewCheck_Card } from './team-new-check'
 
 
-export const metadata = { title: 'Single' }
+export const metadata = { title: 'Create Skill Check' }
 
-export default async function CompetencyRecorder_Single_Page() {
-   
+export default async function Team_Skills_NewCheck_Page(props: PageProps<'/teams/[team_slug]/skills/checks/--create'>) {
+   const team = await getTeamFromParams(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
@@ -27,7 +28,7 @@ export default async function CompetencyRecorder_Single_Page() {
         />
         <AppPageContent variant="container">
             <Boundary>
-                <CompetencyRecorder_Single_Card/> 
+                <Team_Skill_NewCheck_Card team={team}/> 
             </Boundary>
         </AppPageContent>
     </AppPage>

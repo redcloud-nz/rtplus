@@ -20,35 +20,34 @@ import { SkillPicker } from '@/components/controls/skill-picker'
 import { TeamMemberPicker } from '@/components/controls/team-member-picker'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { CompetenceLevelRadioGroup } from '@/components/ui/competence-level-radio-group'
+import { DebugFormState, Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Textarea } from '@/components/ui/textarea'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 
-import { useActiveTeam } from '@/hooks/use-active-team'
 import { useToast } from '@/hooks/use-toast'
-import { CompetenceLevelTerms } from '@/lib/competencies'
+import { CompetenceLevel } from '@/lib/competencies'
 import { nanoId16 } from '@/lib/id'
 import { skillCheckSchema } from '@/lib/schemas/skill-check'
+import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
 
-const singleSkillCheckSchema = skillCheckSchema.omit({ assessorId: true, sessionId: true })
+const singleSkillCheckSchema = skillCheckSchema.pick({ teamId: true, skillCheckId: true, skillId: true, assesseeId: true, result: true, notes: true, date: true })
 
 
-export function CompetencyRecorder_Single_Card() {
+export function Team_Skill_NewCheck_Card({ team }: { team: TeamData }) {
     const router = useRouter()
     const { toast } = useToast()
-
-    const activeTeam = useActiveTeam()!
 
     const skillCheckId = useMemo(() => nanoId16(), [])
 
     const form = useForm<z.infer<typeof singleSkillCheckSchema>>({
         resolver: zodResolver(singleSkillCheckSchema),
         defaultValues: {
+            teamId: team.teamId,
             skillCheckId,
             skillId: '',
             assesseeId: '',
@@ -71,7 +70,7 @@ export function CompetencyRecorder_Single_Card() {
                 title: "Skill check recorded",
                 description: "The skill check has been successfully recorded.",
             })
-            router.push(Paths.tools.skillRecorder.href)
+            router.push(Paths.team(team).skills.checks.href)
         }
     }))
 
@@ -95,8 +94,8 @@ export function CompetencyRecorder_Single_Card() {
                                 label="Assessee"
                                 control={<TeamMemberPicker 
                                     {...field} 
-                                    teamId={activeTeam.teamId}
-                                    onValueChange={field.onChange}
+                                    teamId={team.teamId}
+                                    onValueChange={({ personId }) => field.onChange(personId)}
                                     placeholder="Select a person to assess..."
                                    size="default" 
                                 />}
@@ -109,7 +108,7 @@ export function CompetencyRecorder_Single_Card() {
                                 label="Skill"
                                 control={<SkillPicker 
                                     {...field} 
-                                    teamId={activeTeam.teamId}
+                                    teamId={team.teamId}
                                     onValueChange={({ skillId }) => field.onChange(skillId)}
                                     placeholder="Select a skill to assess..."
                                 />}
@@ -121,16 +120,11 @@ export function CompetencyRecorder_Single_Card() {
                             render={({ field }) => <ToruGridRow
                                 label="Competence Level"
                                 control={
-                                    <Select {...field} onValueChange={field.onChange}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select competence level ..."/>
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                             {Object.entries(CompetenceLevelTerms).map(([key, label]) =>
-                                                <SelectItem key={key} value={key}>{label}</SelectItem>
-                                            )}
-                                        </SelectContent>
-                                    </Select>
+                                    <CompetenceLevelRadioGroup
+                                        value={field.value as CompetenceLevel}
+                                        prevValue={null}
+                                        onValueChange={newValue => field.onChange(newValue)}
+                                    />
                                 }
                             />}
                         />
@@ -153,10 +147,11 @@ export function CompetencyRecorder_Single_Card() {
 
                         <ToruGridFooter>
                             <FormSubmitButton labels={SubmitVerbs.save} size="sm"/>
-                            <FormCancelButton redirectTo={Paths.tools.skillRecorder} size="sm"/>
+                            <FormCancelButton redirectTo={Paths.team(team).skills.checks} size="sm"/>
                         </ToruGridFooter>
                         
                     </ToruGrid>
+                    <DebugFormState/>
                 </Form>
             </FormProvider>
         </CardContent>

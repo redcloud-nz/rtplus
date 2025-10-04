@@ -222,10 +222,9 @@ export const skillChecksRouter = createTRPCRouter({
      * @param ctx The authenticated context.
      * @param input The skill check data to create.
      * @returns The created skill check data.
-     * @throws TRPCError(FORBIDDEN) if the user is not a team admin.
      */
-    createIndependentSkillCheck: teamAdminProcedure
-        .input(skillCheckSchema.omit({ assessorId: true, sessionId: true, timestamp: true }))
+    createIndependentSkillCheck: teamProcedure
+        .input(skillCheckSchema.pick({ skillCheckId: true, skillId: true, assesseeId: true, result: true, notes: true, date: true }))
         .output(skillCheckSchema)
         .mutation(async ({ ctx, input }) => {
 
