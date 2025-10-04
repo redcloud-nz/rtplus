@@ -17,6 +17,7 @@ import prisma from '@/server/prisma'
 
 import { Messages } from './messages'
 
+const DEVELOPMENT_DELAY = { min: 250, max: 1000 } // ms
 
 interface Meta {
     authRequired?: boolean
@@ -46,7 +47,6 @@ type RTPlusAuthWithActiveTeam = RTPlusAuth & {
 
 interface CreateInnerTRPCContextOptions {
     auth: RTPlusAuth | null
-    headers?: Headers
     getClerkClient: () => ReturnType<typeof createClerkClient>
     getTeamById: (teamId: string) => Promise<TeamRecord | null>
 }
@@ -55,11 +55,10 @@ interface CreateInnerTRPCContextOptions {
  * Creates the inner TRPC context.
  * Useful for testing and tRPC calls that don't have to go through the full auth flow.
  */
-export function createInnerTRPCContext({ auth, headers, getClerkClient, getTeamById }: CreateInnerTRPCContextOptions) {
+export function createInnerTRPCContext({ auth, getClerkClient, getTeamById }: CreateInnerTRPCContextOptions) {
     return { 
         prisma,
         auth,
-        headers,
         getClerkClient,
         getTeamById
     }
@@ -69,7 +68,7 @@ export function createInnerTRPCContext({ auth, headers, getClerkClient, getTeamB
  * Creates the TRPC context for each request.
  * Fetches the auth state from Clerk and adds it to the context.
  */
-export const createTRPCContext = cache(async ({ headers }: { headers?: Headers  }) => {
+export const createTRPCContext = cache(async () => {
 
     let clerkAuth: Awaited<ReturnType<typeof auth>>
     try {
@@ -93,7 +92,6 @@ export const createTRPCContext = cache(async ({ headers }: { headers?: Headers  
                     : null
             } satisfies RTPlusAuth 
             : null,
-        headers,
         getClerkClient() { return createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY}) },
         getTeamById: fetchTeamByIdCached,
     })
@@ -120,7 +118,20 @@ export const createCallerFactor = t.createCallerFactory
 
 export type PublicContext = Context
 
-export const publicProcedure = t.procedure
+export const publicProcedure = t.procedure.use(
+    async function artificialDelayInDevelopment(opts) {
+        const res = opts.next(opts)
+
+        if(process.env.NODE_ENV === 'development') {
+            const delay = Math.floor(Math.random() * (DEVELOPMENT_DELAY.max - DEVELOPMENT_DELAY.min + 1)) + DEVELOPMENT_DELAY.min
+
+            console.debug(`ℹ️  doing artificial delay of ${delay}ms before returning result for ${opts.path}`)
+            await new Promise(resolve => setTimeout(resolve, delay))
+        }
+
+        return res
+    }
+)
 
 export type AuthenticatedContext = Context & { 
     auth: RTPlusAuth,
@@ -165,7 +176,7 @@ function createAuthenticatedContext(ctx: Context): AuthenticatedContext {
  * Procedure that requires the user to be authenticated.
  * @throws TRPCError(UNAUTHORIZED) if there is no active session.
  */
-export const authenticatedProcedure = t.procedure.meta({ authRequired: true }).use((opts) => {
+export const authenticatedProcedure = publicProcedure.meta({ authRequired: true }).use((opts) => {
     const { auth } = opts.ctx
 
     if(auth == null) throw new TRPCError({ code: 'UNAUTHORIZED', message: "No active session." })
@@ -183,7 +194,7 @@ export type AuthenticatedTeamContext = AuthenticatedContext & { auth: RTPlusAuth
  * @throws TRPCError(UNAUTHORIZED) if there is no active team.
  * @throws TRPCError(FORBIDDEN) if the user does not have access to the team or the team is not active.
  */
-export const teamProcedure = t.procedure
+export const teamProcedure = publicProcedure
     .meta({ authRequired: true, activeTeamRequired: true })
     .input(z.object({ teamId: zodNanoId8 }))
     .use(async (opts) => {
@@ -212,7 +223,7 @@ export const teamProcedure = t.procedure
  * @throws TRPCError(UNAUTHORIZED) if there is no active team.
  * @throws TRPCError(FORBIDDEN) if the user is not an admin of the team.
  */
-export const teamAdminProcedure = t.procedure
+export const teamAdminProcedure = publicProcedure
     .meta({ authRequired: true, activeTeamRequired: true, teamAdminRequired: true })
     .input(z.object({ teamId: zodNanoId8 }))
     .use(async (opts) => {
@@ -237,7 +248,7 @@ export const teamAdminProcedure = t.procedure
     })
 
 
-export const systemAdminProcedure = t.procedure.meta({ authRequired: true, systemAdminRequired: true }).use((opts) => {
+export const systemAdminProcedure = publicProcedure.meta({ authRequired: true, systemAdminRequired: true }).use((opts) => {
     const { auth } = opts.ctx
 
     if(auth == null) throw new TRPCError({ code: 'UNAUTHORIZED', message: "No active session." })

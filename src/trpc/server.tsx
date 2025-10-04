@@ -5,7 +5,6 @@
 
 import 'server-only'
 
-import { headers } from 'next/headers'
 import { cache } from 'react'
 
 import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query'
@@ -21,9 +20,7 @@ export const getQueryClient = cache(makeQueryClient)
 
 
 const createContext = cache(async () => {
-    const heads = new Headers(await headers())
-    heads.set('x-trpc-source', 'rsc')
-    return createTRPCContext({ headers: heads })
+    return createTRPCContext()
 })
 
 export const trpc = createTRPCOptionsProxy({

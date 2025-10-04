@@ -13,6 +13,6 @@ const handler = (req: Request) =>
         endpoint: '/trpc',
         req,
         router: appRouter,
-        createContext: () => createTRPCContext({ headers: req.headers }),
+        createContext: createTRPCContext,
     })
 export { handler as GET, handler as POST }
