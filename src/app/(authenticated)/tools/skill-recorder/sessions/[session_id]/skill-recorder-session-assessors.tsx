@@ -18,19 +18,20 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 
 import { useToast } from '@/hooks/use-toast'
 import { PersonRef } from '@/lib/schemas/person'
+import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { TeamData } from '@/lib/schemas/team'
 import { trpc } from '@/trpc/client'
 
 
 
 
-export default function SkillRecorder_Session_Assessors({ sessionId, team }: { sessionId: string , team: TeamData }) {
+export default function SkillRecorder_Session_Assessors({ session }: { session: SkillCheckSessionData & { team: TeamData } }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
-    const queryKey = trpc.skillChecks.getSessionAssessors.queryKey({ sessionId })
+    const queryKey = trpc.skillChecks.getSessionAssessors.queryKey({ sessionId: session.sessionId })
 
-    const { data: assignedAssessors } = useSuspenseQuery(trpc.skillChecks.getSessionAssessors.queryOptions({ sessionId }))
+    const { data: assignedAssessors } = useSuspenseQuery(trpc.skillChecks.getSessionAssessors.queryOptions({ sessionId: session.sessionId }))
 
     const [selectedAssessors, setSelectedAssessors] = useState<string[]>(assignedAssessors.map(a => a.personId))
     const [changes, setChanges] = useState<{ added: string[], removed: string[] }>({ added: [], removed: [] })
@@ -42,7 +43,7 @@ export default function SkillRecorder_Session_Assessors({ sessionId, team }: { s
 
     const mutation = useMutation(trpc.skillChecks.updateSessionAssessors.mutationOptions({
         async onMutate({ additions, removals }) {
-            await queryClient.cancelQueries(trpc.skillChecks.getSessionAssessors.queryFilter({ sessionId }))
+            await queryClient.cancelQueries(trpc.skillChecks.getSessionAssessors.queryFilter({ sessionId: session.sessionId }))
 
             const previousData = queryClient.getQueryData(queryKey)
             queryClient.setQueryData(queryKey, (old = []) => 
@@ -59,7 +60,7 @@ export default function SkillRecorder_Session_Assessors({ sessionId, team }: { s
             })
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.skillChecks.getSessionAssessors.queryFilter({ sessionId}))
+            queryClient.invalidateQueries(trpc.skillChecks.getSessionAssessors.queryFilter({ sessionId: session.sessionId }))
         }
     }))
 
@@ -95,8 +96,8 @@ export default function SkillRecorder_Session_Assessors({ sessionId, team }: { s
         <div className="flex flex-col divide-y divide-border">
             <Boundary>
                 <TeamSection
-                    team={team}
-                    sessionId={sessionId}
+                    team={session.team}
+                    sessionId={session.sessionId}
                     assignedAssessors={assignedAssessors.map(a => a.personId)}
                     selectedAssessors={selectedAssessors}
                     onSelectedChange={handleCheckedChange}
@@ -112,7 +113,7 @@ export default function SkillRecorder_Session_Assessors({ sessionId, team }: { s
                     <Button 
                         size="sm"
                         color="blue"
-                        onClick={() => mutation.mutate({ sessionId, additions: changes.added, removals: changes.removed })}
+                        onClick={() => mutation.mutate({ sessionId: session.sessionId, additions: changes.added, removals: changes.removed })}
                         disabled={!isDirty}
                     >Save</Button>
                         

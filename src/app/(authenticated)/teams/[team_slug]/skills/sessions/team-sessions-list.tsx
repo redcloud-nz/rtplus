@@ -41,7 +41,7 @@ export function Team_Skills_SessionList_Card({ team }: { team: TeamData }) {
     const columns = useMemo(() => defineColumns<SkillCheckSessionData>(columnHelper => [
         columnHelper.accessor('name', {
             header: 'Name',
-            cell: ctx => <TextLink to={Paths.tools.skillRecorder.session(ctx.row.original.sessionId)}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.team(team).skills.session(ctx.row.original.sessionId)}>{ctx.getValue()}</TextLink>,
             enableGrouping: false,
             enableHiding: false,
             enableSorting: true,

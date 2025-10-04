@@ -20,32 +20,32 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
+import { Paragraph } from '@/components/ui/typography'
 
 import { getAssignedSkills } from '@/hooks/use-assigned-skills'
 import { GetCheckReturn, useSkillCheckStore_experimental } from '@/hooks/use-skill-check-store'
 import { CompetenceLevel } from '@/lib/competencies'
 import { SkillData } from '@/lib/schemas/skill'
+import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { trpc } from '@/trpc/client'
-import { Paragraph } from '@/components/ui/typography'
 
 
 
 
-export function SkillRecorder_Session_RecordByAssessee({ sessionId, teamId }: { sessionId: string, teamId: string }) {
+export function SkillRecorder_Session_RecordByAssessee({ session }: { session: SkillCheckSessionData }) {
 
-    const [{ data: assessor }, { data: availablePackages }, { data: assignedAssessees }, { data: assignedSkillIds }] = useSuspenseQueries({
+    const [{ data: availablePackages }, { data: assignedAssessees }, { data: assignedSkillIds }] = useSuspenseQueries({
         queries: [
-            trpc.currentUser.getPerson.queryOptions(),
-            trpc.skills.getAvailablePackages.queryOptions({ teamId }),
-            trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId }),
-            trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId })
+            trpc.skills.getAvailablePackages.queryOptions({ teamId: session.teamId }),
+            trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId: session.sessionId }),
+            trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId: session.sessionId })
         ]
     })
 
     const assignedSkills = useMemo(() => getAssignedSkills(availablePackages, assignedSkillIds), [availablePackages, assignedSkillIds])
 
     const [targetAssesseeId, setTargetAssesseeId] = useState<string>('')
-    const skillCheckStore = useSkillCheckStore_experimental(sessionId)
+    const skillCheckStore = useSkillCheckStore_experimental(session.sessionId)
 
     return <>
         <Show 
@@ -63,7 +63,7 @@ export function SkillRecorder_Session_RecordByAssessee({ sessionId, teamId }: { 
                 <SelectContent>
                                                 
                     {assignedAssessees.map(assessee => (
-                        <SelectItem key={assessee.personId} value={assessee.personId} disabled={assessee.personId === assessor.personId}>
+                        <SelectItem key={assessee.personId} value={assessee.personId}>
                             {assessee.name}
                         </SelectItem>
                     ))}

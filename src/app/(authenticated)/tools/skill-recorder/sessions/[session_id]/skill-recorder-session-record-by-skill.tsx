@@ -13,31 +13,30 @@ import { FloatingFooter } from '@/components/footer'
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { CompetenceLevelRadioGroup, } from '@/components/ui/competence-level-radio-group'
+import { CompetenceLevelRadioGroup } from '@/components/ui/competence-level-radio-group'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
+import { Paragraph } from '@/components/ui/typography'
 
 import { getAssignedSkills } from '@/hooks/use-assigned-skills'
 import { GetCheckReturn, useSkillCheckStore_experimental } from '@/hooks/use-skill-check-store'
 import { CompetenceLevel } from '@/lib/competencies'
 import { PersonRef } from '@/lib/schemas/person'
+import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { trpc } from '@/trpc/client'
-import { Paragraph } from '@/components/ui/typography'
 
 
 
-
-
-export function SkillRecorder_Session_RecordBySkill({ sessionId, teamId }: { sessionId: string, teamId: string }) {
+export function SkillRecorder_Session_RecordBySkill({ session }: { session: SkillCheckSessionData }) {
 
     const { assignedAssessees, assignedSkills } = useSuspenseQueries({
         queries: [
-            trpc.skills.getAvailablePackages.queryOptions({ teamId }),
-            trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId }),
-            trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId })
+            trpc.skills.getAvailablePackages.queryOptions({ teamId: session.teamId }),
+            trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId: session.sessionId }),
+            trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId: session.sessionId })
         ],
         combine: ([{ data: availablePackages }, { data: assignedAssessees }, { data: assignedSkillIds }]) => {
             return { assignedAssessees, assignedSkills: getAssignedSkills(availablePackages, assignedSkillIds) }
@@ -45,7 +44,7 @@ export function SkillRecorder_Session_RecordBySkill({ sessionId, teamId }: { ses
     })
 
     const [targetSkillId, setTargetSkillId] = useState<string>('')
-    const skillCheckStore = useSkillCheckStore_experimental(sessionId)
+    const skillCheckStore = useSkillCheckStore_experimental(session.sessionId)
 
     return <>
         <Show 

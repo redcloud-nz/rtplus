@@ -17,20 +17,25 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 
 import { useToast } from '@/hooks/use-toast'
 import { SkillData } from '@/lib/schemas/skill'
+import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { SkillGroupData } from '@/lib/schemas/skill-group'
 import { SkillPackageData } from '@/lib/schemas/skill-package'
 import { trpc } from '@/trpc/client'
 
 
 
-export function SkillRecorder_Session_Skills({ sessionId, teamId }: { sessionId: string, teamId: string }) {
+
+export function SkillRecorder_Session_Skills({ session }: { session: SkillCheckSessionData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
+    const queryKey = trpc.skillChecks.getSessionSkillIds.queryKey({ sessionId: session.sessionId })
+    const queryFilter = trpc.skillChecks.getSessionSkillIds.queryFilter({ sessionId: session.sessionId })
+
     const [{ data: availablePackages }, { data: assignedSkillIds }] = useSuspenseQueries({
         queries: [
-            trpc.skills.getAvailablePackages.queryOptions({ teamId }),
-            trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId })
+            trpc.skills.getAvailablePackages.queryOptions({ teamId: session.teamId }),
+            trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId: session.sessionId })
         ]
     })
 
@@ -44,17 +49,17 @@ export function SkillRecorder_Session_Skills({ sessionId, teamId }: { sessionId:
 
     const mutation = useMutation(trpc.skillChecks.updateSessionSkills.mutationOptions({
         async onMutate({ additions, removals }) {
-            await queryClient.cancelQueries(trpc.skillChecks.getSessionSkillIds.queryFilter({ sessionId }))
+            await queryClient.cancelQueries(queryFilter)
 
-            const previousData = queryClient.getQueryData(trpc.skillChecks.getSessionSkillIds.queryKey({ sessionId }))
-            queryClient.setQueryData(trpc.skillChecks.getSessionSkillIds.queryKey({ sessionId }), (old = []) => 
+            const previousData = queryClient.getQueryData(queryKey)
+            queryClient.setQueryData(queryKey, (old = []) => 
                 [...old.filter(skillId => !removals.includes(skillId)), ...additions ]
             )
             setChanges({ added: [], removed: [] })
             return { previousData }
         },
         onError(error, _data, context) {
-            queryClient.setQueryData(trpc.skillChecks.getSessionSkillIds.queryKey({ sessionId }), context?.previousData)
+            queryClient.setQueryData(queryKey, context?.previousData)
             toast({
                 title: 'Error updating skills',
                 description: error.message,
@@ -62,7 +67,7 @@ export function SkillRecorder_Session_Skills({ sessionId, teamId }: { sessionId:
             })
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.skillChecks.getSessionSkillIds.queryFilter({ sessionId }))
+            queryClient.invalidateQueries(queryFilter)
         }
     }))
 
@@ -116,7 +121,7 @@ export function SkillRecorder_Session_Skills({ sessionId, teamId }: { sessionId:
                     <Button 
                         size="sm"
                         color="blue"
-                        onClick={() => mutation.mutate({ sessionId, additions: changes.added, removals: changes.removed })}
+                        onClick={() => mutation.mutate({ sessionId: session.sessionId, additions: changes.added, removals: changes.removed })}
                         disabled={!isDirty}
                     >Save</Button>
                         
