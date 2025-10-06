@@ -27,10 +27,10 @@ export function SkillRecorder_Session_Assessees({ session }: { session: SkillChe
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
-    const queryKey = trpc.skillChecks.getSessionAssessees.queryKey({ sessionId: session.sessionId })
-    const queryFilter = trpc.skillChecks.getSessionAssessees.queryFilter({ sessionId: session.sessionId })
+    const queryKey = trpc.skillChecks.getSessionAssignedAssessees.queryKey({ sessionId: session.sessionId })
+    const queryFilter = trpc.skillChecks.getSessionAssignedAssessees.queryFilter({ sessionId: session.sessionId })
 
-    const { data: assignedAssessees } = useSuspenseQuery(trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId: session.sessionId }))
+    const { data: assignedAssessees } = useSuspenseQuery(trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ sessionId: session.sessionId }))
 
     const [selectedAssessees, setSelectedAssessees] = useState<PersonId[]>(assignedAssessees.map(a => a.personId))
     const [changes, setChanges] = useState<{ added: PersonId[], removed: PersonId[] }>({ added: [], removed: [] })

@@ -54,9 +54,9 @@ export function SkillRecorder_Session_RecordSingle({ session }: { session: Skill
         queries: [
             trpc.currentUser.getPerson.queryOptions(),
             trpc.skills.getAvailablePackages.queryOptions({ teamId: session.teamId }),
-            trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId: session.sessionId }),
+            trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ sessionId: session.sessionId }),
             trpc.skillChecks.getSessionChecks.queryOptions({ sessionId: session.sessionId, assessorId: 'me' }),
-            trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId: session.sessionId })
+            trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ sessionId: session.sessionId })
         ]
     })
 

@@ -29,9 +29,9 @@ export default function SkillRecorder_Session_Assessors({ session }: { session: 
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
-    const queryKey = trpc.skillChecks.getSessionAssessors.queryKey({ sessionId: session.sessionId })
+    const queryKey = trpc.skillChecks.getSessionAssignedAssessors.queryKey({ sessionId: session.sessionId })
 
-    const { data: assignedAssessors } = useSuspenseQuery(trpc.skillChecks.getSessionAssessors.queryOptions({ sessionId: session.sessionId }))
+    const { data: assignedAssessors } = useSuspenseQuery(trpc.skillChecks.getSessionAssignedAssessors.queryOptions({ sessionId: session.sessionId }))
 
     const [selectedAssessors, setSelectedAssessors] = useState<string[]>(assignedAssessors.map(a => a.personId))
     const [changes, setChanges] = useState<{ added: string[], removed: string[] }>({ added: [], removed: [] })
@@ -43,7 +43,7 @@ export default function SkillRecorder_Session_Assessors({ session }: { session: 
 
     const mutation = useMutation(trpc.skillChecks.updateSessionAssessors.mutationOptions({
         async onMutate({ additions, removals }) {
-            await queryClient.cancelQueries(trpc.skillChecks.getSessionAssessors.queryFilter({ sessionId: session.sessionId }))
+            await queryClient.cancelQueries(trpc.skillChecks.getSessionAssignedAssessors.queryFilter({ sessionId: session.sessionId }))
 
             const previousData = queryClient.getQueryData(queryKey)
             queryClient.setQueryData(queryKey, (old = []) => 
@@ -60,7 +60,7 @@ export default function SkillRecorder_Session_Assessors({ session }: { session: 
             })
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.skillChecks.getSessionAssessors.queryFilter({ sessionId: session.sessionId }))
+            queryClient.invalidateQueries(trpc.skillChecks.getSessionAssignedAssessors.queryFilter({ sessionId: session.sessionId }))
         }
     }))
 

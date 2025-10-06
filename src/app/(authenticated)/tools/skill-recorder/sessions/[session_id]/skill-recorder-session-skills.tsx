@@ -29,13 +29,13 @@ export function SkillRecorder_Session_Skills({ session }: { session: SkillCheckS
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
-    const queryKey = trpc.skillChecks.getSessionSkillIds.queryKey({ sessionId: session.sessionId })
-    const queryFilter = trpc.skillChecks.getSessionSkillIds.queryFilter({ sessionId: session.sessionId })
+    const queryKey = trpc.skillChecks.getSessionAssignedSkillIds.queryKey({ sessionId: session.sessionId })
+    const queryFilter = trpc.skillChecks.getSessionAssignedSkillIds.queryFilter({ sessionId: session.sessionId })
 
     const [{ data: availablePackages }, { data: assignedSkillIds }] = useSuspenseQueries({
         queries: [
             trpc.skills.getAvailablePackages.queryOptions({ teamId: session.teamId }),
-            trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId: session.sessionId })
+            trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ sessionId: session.sessionId })
         ]
     })
 

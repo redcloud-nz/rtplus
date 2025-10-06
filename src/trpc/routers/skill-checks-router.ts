@@ -456,14 +456,14 @@ export const skillChecksRouter = createTRPCRouter({
         }),
 
     /**
-     * Get a list of assessees for a specific skill check session.
+     * Get a list of assessees that are assigned to a specific skill check session.
      * @param ctx The authenticated context.
      * @param input The input containing the session ID.
      * @returns An array of assessees for the session.
      * @throws TRPCError(FORBIDDEN) if the user does not have access to the session.
      * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist.
      */
-    getSessionAssessees: sessionProcedure
+    getSessionAssignedAssessees: sessionProcedure
         .output(z.array(personRefSchema))
         .query(async ({ ctx, input }) => {
             const session = await ctx.prisma.skillCheckSession.findUnique({
@@ -487,7 +487,7 @@ export const skillChecksRouter = createTRPCRouter({
      * @throws TRPCError(FORBIDDEN) if the user does not have access to the session.
      * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist.
      */
-    getSessionAssessors: sessionProcedure
+    getSessionAssignedAssessors: sessionProcedure
         .output(z.array(personRefSchema))
         .query(async ({ ctx, input }) => {
         
@@ -512,7 +512,7 @@ export const skillChecksRouter = createTRPCRouter({
      * @throws TRPCError(FORBIDDEN) if the user does not have access to the session.
      * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist.
      */
-    getSessionSkillIds: sessionProcedure
+    getSessionAssignedSkillIds: sessionProcedure
         .output(z.array(zodNanoId8))
         .query(async ({ ctx, input }) => {
             
@@ -528,6 +528,64 @@ export const skillChecksRouter = createTRPCRouter({
             return (session?.skills ?? []).map(s => s.id)
         }),
         
+    /**
+     * Get a list of distinct assessees that have been checked in a specific skill check session.
+     * @param ctx The authenticated context.
+     * @param input The input containing the session ID.
+     * @returns An array of distinct assessees for the session.
+     * @throws TRPCError(FORBIDDEN) if the user does not have access to the session.
+     * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist.
+     */
+    getSessionDistinctAssessees: sessionProcedure
+        .output(z.array(personRefSchema))
+        .query(async ({ ctx, input }) => {
+            const checksWithUniqueAssessees = await ctx.prisma.skillCheck.findMany({
+                where: { sessionId: input.sessionId },
+                distinct: ['assesseeId'],
+                include: {
+                    assessee: { select: { id: true, name: true, email: true } },
+                }
+            })
+
+            return checksWithUniqueAssessees.map(a => toPersonRef(a.assessee))
+        }),
+
+    getSessionDistinctAssessors: sessionProcedure
+        .output(z.array(personRefSchema))
+        .query(async ({ ctx, input }) => {
+            const checksWithUniqueAssessors = await ctx.prisma.skillCheck.findMany({
+                where: { sessionId: input.sessionId },
+                distinct: ['assessorId'],
+                include: {
+                    assessor: { select: { id: true, name: true, email: true } },
+                }
+            })
+
+            return checksWithUniqueAssessors.map(a => toPersonRef(a.assessor))
+        }),
+
+    /**
+     * Get a list of distinct skills that have been checked in a specific skill check session.
+     * @param ctx The authenticated context.
+     * @param input The input containing the session ID.
+     * @returns An array of distinct skills for the session.
+     * @throws TRPCError(FORBIDDEN) if the user does not have access to the session.
+     * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist.
+     */
+    getSessionDistinctSkills: sessionProcedure
+        .output(z.array(skillSchema))
+        .query(async ({ ctx, input }) => {
+            const checksWithUniqueSkills = await ctx.prisma.skillCheck.findMany({
+                where: { sessionId: input.sessionId },
+                distinct: ['skillId'],
+                include: {
+                    skill: true,
+                }
+            })
+
+            return checksWithUniqueSkills.map(c => toSkillData(c.skill))
+        }),
+
     /**
      * Fetch the skill checks for a specific skill check session.
      * @param ctx The authenticated context.

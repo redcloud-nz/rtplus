@@ -15,9 +15,9 @@ export function SkillRecorder_Session_Prefetch({ sessionId, teamId }: { sessionI
     useEffect(() => {
         Promise.all([
             queryClient.prefetchQuery(trpc.skills.getAvailablePackages.queryOptions({ teamId })),
-            queryClient.prefetchQuery(trpc.skillChecks.getSessionAssessees.queryOptions({ sessionId })),
-            queryClient.prefetchQuery(trpc.skillChecks.getSessionAssessors.queryOptions({ sessionId })),
-            queryClient.prefetchQuery(trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId })),
+            queryClient.prefetchQuery(trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ sessionId })),
+            queryClient.prefetchQuery(trpc.skillChecks.getSessionAssignedAssessors.queryOptions({ sessionId })),
+            queryClient.prefetchQuery(trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ sessionId })),
         ])
     }, [queryClient, sessionId, teamId])
 

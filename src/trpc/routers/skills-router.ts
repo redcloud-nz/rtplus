@@ -341,6 +341,7 @@ export const skillsRouter = createTRPCRouter({
             status: zodRecordStatus,
             skillPackageId: zodNanoId8.optional(),
             skillGroupId: zodNanoId8.optional(),
+            skillIds: z.array(zodNanoId8).optional(),
         }))
         .output(z.array(skillSchema))
         .query(async ({ ctx, input }) => {
@@ -349,6 +350,7 @@ export const skillsRouter = createTRPCRouter({
                     status: { in: input.status },
                     skillPackageId: input.skillPackageId,
                     skillGroupId: input.skillGroupId,
+                    id: input.skillIds ? { in: input.skillIds } : undefined
                 },
                 orderBy: { sequence: 'asc' },
             })

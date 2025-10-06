@@ -2,7 +2,7 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /teams/[team_slug]/skills/skill-checks/--create
+ *  Path: /teams/[team_slug]/skills/checks/--create
  */
 
 
@@ -22,8 +22,10 @@ export default async function Team_Skills_NewCheck_Page(props: PageProps<'/teams
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
-                Paths.tools.skillRecorder,
-                Paths.tools.skillRecorder.single
+                Paths.team(team),
+                Paths.team(team).skills,
+                Paths.team(team).skills.checks,
+                "Create"
             ]}
         />
         <AppPageContent variant="container">

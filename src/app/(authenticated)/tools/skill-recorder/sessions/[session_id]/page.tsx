@@ -35,7 +35,7 @@ export async function generateMetadata(props: PageProps<'/tools/skill-recorder/s
     return { title: `${session.name} - Skill Recorder` }
 }
 
-export default async function CompetencyRecorder_Session_Page(props: PageProps<'/tools/skill-recorder/sessions/[session_id]'>) {
+export default async function SkillRecorder_Session_Page(props: PageProps<'/tools/skill-recorder/sessions/[session_id]'>) {
     const session = await fetchSkillCheckSession(props.params)
     const { orgSlug } = await auth()
 

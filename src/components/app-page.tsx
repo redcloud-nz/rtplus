@@ -28,7 +28,7 @@ interface AppPageProps {
 }
 
 export function AppPage({ children, rightControls, showLeftSidebarTrigger = true, showRightSidebarTrigger = false }: AppPageProps) {
-    return <div className="h-screen flex-1 grid grid-rows-[48px_1px_1fr_1px_48px] grid-cols-[auto_1fr_auto]">
+    return <div className="h-screen flex-1 grid grid-rows-[48px_1px_1fr] grid-cols-[auto_1fr_auto]">
         { showLeftSidebarTrigger && <div className="row-1 col-1 flex justify-center items-center pl-1 gap-1">
             <SidebarTrigger side="left"/>
              <Separator orientation="vertical"/>

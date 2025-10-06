@@ -22,6 +22,7 @@ import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, Dia
 import { DisplayValue } from '@/components/ui/display-value'
 import { Form, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Link } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
@@ -90,7 +91,11 @@ export function Team_Skills_Session_Card({ sessionId }: { sessionId: string }) {
                             label="Status" 
                             control={<DisplayValue>{session.sessionStatus}</DisplayValue>}
                         />
-                        <ToruGridFooter/>
+                        <ToruGridFooter>
+                            <Button size="sm" color="blue">
+                                <Link to={Paths.team(session.team).skills.session(session).review}>Review</Link>
+                            </Button>
+                        </ToruGridFooter>
                     </ToruGrid>
                 )
                 .with('Update', () => 
@@ -110,6 +115,7 @@ function UpdateSession_Form({ onClose, session, team }: { onClose: () => void, s
     const { toast } = useToast()
 
     const queryKey = trpc.skillChecks.getSession.queryKey({ sessionId: session.sessionId })
+    const queryFilter = trpc.skillChecks.getSession.queryFilter({ sessionId: session.sessionId })
 
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
@@ -124,7 +130,7 @@ function UpdateSession_Form({ onClose, session, team }: { onClose: () => void, s
     const mutation = useMutation(trpc.skillChecks.updateSession.mutationOptions({
         async onMutate({ sessionId, ...formData }) {
 
-            await queryClient.cancelQueries(trpc.skillChecks.getSession.queryFilter({ sessionId }))
+            await queryClient.cancelQueries(queryFilter)
 
             const previousData = queryClient.getQueryData(queryKey)
 
@@ -135,7 +141,7 @@ function UpdateSession_Form({ onClose, session, team }: { onClose: () => void, s
             onClose()
             return { previousData }
         },
-        onError: (error, data, context) => {
+        onError: (error, _data, context) => {
             queryClient.setQueryData(queryKey, context?.previousData)
 
             toast({
@@ -153,7 +159,7 @@ function UpdateSession_Form({ onClose, session, team }: { onClose: () => void, s
             queryClient.invalidateQueries(trpc.skillChecks.getTeamSessions.queryFilter({ teamId: session.teamId }))
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.skillChecks.getSession.queryFilter({ sessionId: session.sessionId }))
+            queryClient.invalidateQueries(queryFilter)
         }
     }))
 

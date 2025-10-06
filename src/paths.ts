@@ -5,9 +5,9 @@
 
 import { BookOpenIcon, CableIcon, CheckCheckIcon, CheckIcon, PocketKnifeIcon, ShieldHalfIcon, UsersIcon } from 'lucide-react'
 
-import { TeamData } from '@/lib/schemas/team'
 import { PersonRef } from './lib/schemas/person'
-import { SkillCheckSessionData } from './lib/schemas/skill-check-session'
+import { SkillCheckSessionRef } from './lib/schemas/skill-check-session'
+import { TeamData } from '@/lib/schemas/team'
 
 const SkillsIcon = PocketKnifeIcon
 
@@ -283,9 +283,18 @@ export const team = (teamOrSlug: TeamData | string) => {
                     label: 'Team Members',
                 },
             },
-            session: (sessionId: string) => ({
-                href: `${skillsBase}/sessions/${sessionId}`
-            } as const),
+            session: (sessionOrSessionId: SkillCheckSessionRef | string) => {
+                const sessionId = typeof sessionOrSessionId === 'string' ? sessionOrSessionId : sessionOrSessionId.sessionId
+                return {
+                    href: `${skillsBase}/sessions/${sessionId}`,
+                    label: typeof sessionOrSessionId === 'string' ? undefined as never : sessionOrSessionId.name,
+
+                    review: {
+                        href: `${skillsBase}/sessions/${sessionId}/review`,
+                        label: 'Review',
+                    }
+                } as const
+            },
              catalogue: {
                 label: 'Catalogue',
                 href: `${skillsBase}/catalogue`,
@@ -318,40 +327,11 @@ export const tools = {
             href: `/tools/skill-recorder/single`,
             icon: CheckIcon
         },
-        session: (sessionOrSessionId: string | SkillCheckSessionData) => {
+        session: (sessionOrSessionId: string | SkillCheckSessionRef) => {
             const sessionId = typeof sessionOrSessionId === 'string' ? sessionOrSessionId : sessionOrSessionId.sessionId
-            const sessionBase = `/tools/skill-recorder/sessions/${sessionId}`
             return {
-                label: typeof sessionOrSessionId === 'string' ? 'Session' : sessionOrSessionId.name,
-                href: sessionBase,
-                assessees: {
-                    label: 'Assessees',
-                    href: `${sessionBase}/assessees`,
-                },
-                assessors: {
-                    label: 'Assessors',
-                    href: `${sessionBase}/assessors`,
-                },
-                recordByAssessee: {
-                    label: 'By Assessee',
-                    href: `${sessionBase}/record-by-assessee`,
-                },
-                recordBySkill: {
-                    label: 'By Skill',
-                    href: `${sessionBase}/record-by-skill`,
-                },
-                recordSingle: {
-                    label: 'Single',
-                    href: `${sessionBase}/record-single`,
-                },
-                skills: {
-                    label: 'Skills',
-                    href: `${sessionBase}/skills`,
-                },
-                transcript: {
-                    label: 'Transcript',
-                    href: `${sessionBase}/transcript`,
-                },
+                label: typeof sessionOrSessionId === 'string' ? undefined as never : sessionOrSessionId.name,
+                href: `/tools/skill-recorder/sessions/${sessionId}`
             } as const
         },
         sessions: {

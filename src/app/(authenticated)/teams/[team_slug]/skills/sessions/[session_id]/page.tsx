@@ -37,12 +37,12 @@ export default async function Team_Skills_Session_Page(props: PageProps<'/teams/
                 Paths.team(session.team),
                 Paths.team(session.team).skills,
                 Paths.team(session.team).skills.sessions,
-                session.name,
+                Paths.team(session.team).skills.session(session),
             ]}
         />
         <AppPageContent variant="container">
             <PageHeader>
-                <PageTitle>{session.name}</PageTitle>
+                <PageTitle objectType="Skill Check Session">{session.name}</PageTitle>
                 <PageControls>
                     <Show when={session.sessionStatus == 'Draft'}>
                         <Button asChild>

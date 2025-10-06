@@ -21,7 +21,7 @@ export function useAssignedSkillsQuery({ sessionId, teamId }: { sessionId: strin
     return useSuspenseQueries({
         queries: [
             trpc.skills.getAvailablePackages.queryOptions({ teamId }),
-            trpc.skillChecks.getSessionSkillIds.queryOptions({ sessionId })
+            trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ sessionId })
         ],
         combine: ([availablePackagesQuery, assignedSkillIdsQuery]) => {
             return {
@@ -36,7 +36,7 @@ export function useAssignedSkillsQuery({ sessionId, teamId }: { sessionId: strin
 }
 
 
-export function getAssignedSkills(availablePackages: RouterOutput['skills']['getAvailablePackages'], assignedSkillIds: RouterOutput['skillChecks']['getSessionSkillIds']): SkillData[] {
+export function getAssignedSkills(availablePackages: RouterOutput['skills']['getAvailablePackages'], assignedSkillIds: RouterOutput['skillChecks']['getSessionAssignedSkillIds']): SkillData[] {
     return availablePackages.flatMap(pkg => 
         pkg.skillGroups.flatMap(skillGroup => 
             pkg.skills.filter(skill => skill.skillGroupId == skillGroup.skillGroupId && assignedSkillIds.includes(skill.skillId))
