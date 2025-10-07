@@ -7,39 +7,48 @@ import Image from 'next/image'
 import Link from 'next/link'
 import type { ComponentProps } from 'react'
 
+import { OrganizationSwitcher, UserButton } from '@clerk/nextjs'
+
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar'
 import * as Paths from '@/paths'
 
-import { NavUser } from './nav-user'
-
-
-export async function AppSidebar({ children, ...props }: Omit<ComponentProps<typeof Sidebar>, 'side'>) {
+export async function AppSidebar({ children, moduleName, ...props }: Omit<ComponentProps<typeof Sidebar>, 'side'> & { moduleName: string }) {
     return <Sidebar {...props}>
-        <SidebarHeader className="flex items-center justify-center">
-            <Link href={Paths.selectTeam.href}>
+        <SidebarHeader className="flex items-center justify-between">
+            <Link href={Paths.dashboard.href} className="flex items-center gap-1 text-2xl italic text-gray-600">
                 <Image
-                    className="dark:invert"
                     src="/logo.svg"
                     alt="RT+ logo"
-                    width={64}
-                    height={32}
+                    width={48}
+                    height={24}
                     priority
                 />
+                <div>{moduleName}</div>
             </Link>
+            <div className="flex items-center gap-2">
+                <UserButton/>
+            </div>
         </SidebarHeader>
         <SidebarContent>
+            <OrganizationSwitcher
+                appearance={{
+                    elements: {
+                        organizationSwitcherTrigger: 'w-[var(--sidebar-internal-width)] py-2',
+                    }
+                }}
+                hidePersonal
+            />
             {children}
         </SidebarContent>
         <SidebarFooter>
             <AppVersion/>
-            <NavUser/>
         </SidebarFooter>
         <SidebarRail side="left" />
     </Sidebar>
 }
 
 function AppVersion() {
-    return <div className="text-xs text-center text-muted-foreground">
+    return <div className="text-xs text-center text-muted-foreground py-1">
         RT+ v{process.env.NEXT_PUBLIC_APP_VERSION} ({process.env.NEXT_PUBLIC_APP_VERSION_NAME})
     </div>
 }

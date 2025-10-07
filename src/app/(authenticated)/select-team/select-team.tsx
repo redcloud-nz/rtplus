@@ -66,7 +66,7 @@ export default function SelectTeam_PageContent() {
         if(organization.slug == 'system') {
             router.push(Paths.system.href)
         } else {
-            router.push(Paths.team(organization.slug!).href)
+            router.push(Paths.org(organization.slug!).href)
         }
     }
 
@@ -82,7 +82,7 @@ export default function SelectTeam_PageContent() {
         await invitation.accept()
 
         queryClient.clear()
-        router.push(Paths.team(invitation.publicOrganizationData.slug!).href)
+        router.push(Paths.org(invitation.publicOrganizationData.slug!).href)
     }
 
     return <Show 

@@ -173,6 +173,7 @@ export function SidebarProvider({
         <div
             style={{
                 "--sidebar-width": SIDEBAR_WIDTH,
+                "--sidebar-internal-width": `calc(${SIDEBAR_WIDTH} - 1px)`,
                 "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
                 ...style,
             } as React.CSSProperties}

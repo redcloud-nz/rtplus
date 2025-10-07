@@ -68,7 +68,7 @@ export function CreateNewTeam_Card() {
             })
 
             queryClient.invalidateQueries(trpc.teams.getTeams.queryFilter())
-            router.push(Paths.team(result.slug).href)
+            router.push(Paths.org(result.slug).href)
         }
     }))
 

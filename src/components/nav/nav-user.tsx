@@ -5,7 +5,7 @@
 
 'use client'
 
-import { BadgeCheck, ChevronsUpDown, KeyRoundIcon, LogOutIcon } from 'lucide-react'
+import { KeyRoundIcon, LogOutIcon, SettingsIcon, UserCircleIcon } from 'lucide-react'
 
 import { RedirectToSignIn, useClerk, useUser } from '@clerk/nextjs'
 
@@ -20,20 +20,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Link } from '@/components/ui/link'
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from '@/components/ui/sidebar'
 
 import { getUserInitials } from '@/lib/utils'
 
 import * as Paths from '@/paths'
+import { Button } from '../ui/button'
 
-export function NavUser() {
 
-    const { isMobile } = useSidebar("left")
+
+export function UserDropdown() {
+
     const clerk = useClerk()
     const { isSignedIn, user } = useUser()
 
@@ -41,78 +37,53 @@ export function NavUser() {
     const initials = getUserInitials(fullName)
 
     
-    return <SidebarMenu>
-        <SidebarMenuItem>
-            { isSignedIn
-                ? <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <SidebarMenuButton
-                            size="lg"
-                            className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-                            >
-                            <Avatar className="h-8 w-8 rounded-lg">
-                                <AvatarImage src={user.imageUrl} alt={fullName} />
-                                <AvatarFallback className="rounded-lg">
-                                    {initials}
-                                </AvatarFallback>
-                            </Avatar>
-                            <div className="grid flex-1 text-left text-sm leading-tight">
-                                <span className="truncate font-semibold">{fullName}</span>
-                                <span className="truncate text-xs">{user.primaryEmailAddress?.emailAddress}</span>
-                            </div>
-                            <ChevronsUpDown className="ml-auto size-4" />
-                        </SidebarMenuButton>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                        className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-                        side={isMobile ? "bottom" : "right"}
-                        align="end"
-                        sideOffset={4}
-                    >
-                        <DropdownMenuLabel className="p-0 font-normal">
-                            <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                                <Avatar className="h-8 w-8 rounded-lg">
-                                <AvatarImage src={user.imageUrl} alt={fullName} />
-                                <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
-                                </Avatar>
-                                <div className="grid flex-1 text-left text-sm leading-tight">
-                                <span className="truncate font-semibold">{fullName}</span>
-                                <span className="truncate text-xs">{user.primaryEmailAddress?.emailAddress}</span>
-                                </div>
-                            </div>
-                        </DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                            <DropdownMenuItem asChild>
-                                <Link to={Paths.personal.account}>
-                                    <BadgeCheck />
-                                    {Paths.personal.account.label}
-                                </Link>
-                            </DropdownMenuItem>
-                            {/* <DropdownMenuItem asChild>
-                                <Link to={Paths.personal.settings}>
-                                    <SettingsIcon/>
-                                    {Paths.personal.settings.label}
-                                </Link>
-                            </DropdownMenuItem> */}
-                            <DropdownMenuItem asChild>
-                                <Link to={Paths.personal.d4hAccessTokens}>
-                                    <KeyRoundIcon/>
-                                    {Paths.personal.d4hAccessTokens.label}
-                                </Link>
-                            </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                            <DropdownMenuItem onClick={() => clerk.signOut({ redirectUrl: '/' })}>
-                                <LogOutIcon/>
-                                Sign out
-                            </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-                : <RedirectToSignIn/>
-            }
-        </SidebarMenuItem>
-    </SidebarMenu>
+    return isSignedIn
+        ? <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                    <UserCircleIcon/>
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+                className="w-[var(--sidebar-width)] rounded-md"
+                align="end"
+                
+            >
+                <DropdownMenuLabel className="p-0 font-normal">
+                    <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                        <Avatar className="h-8 w-8 rounded-lg">
+                        <AvatarImage src={user.imageUrl} alt={fullName} />
+                        <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+                        </Avatar>
+                        <div className="grid flex-1 text-left text-sm leading-tight">
+                        <span className="truncate font-semibold">{fullName}</span>
+                        <span className="truncate text-xs">{user.primaryEmailAddress?.emailAddress}</span>
+                        </div>
+                    </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                    <DropdownMenuItem asChild>
+                        <Link to={Paths.personal.account}>
+                            <SettingsIcon />
+                            {Paths.personal.account.label}
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                        <Link to={Paths.personal.d4hAccessTokens}>
+                            <KeyRoundIcon/>
+                            {Paths.personal.d4hAccessTokens.label}
+                        </Link>
+                    </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                    <DropdownMenuItem onClick={() => clerk.signOut({ redirectUrl: '/' })}>
+                        <LogOutIcon/>
+                        Sign out
+                    </DropdownMenuItem>
+                </DropdownMenuGroup>
+            </DropdownMenuContent>
+        </DropdownMenu>
+        : <RedirectToSignIn/>
 }

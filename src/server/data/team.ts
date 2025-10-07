@@ -58,8 +58,8 @@ export const fetchTeamBySlugCached = unstable_cache(
  * @param params The parameters containing the team slug.
  * @returns A promise that resolves to a TeamData object.
  */
-export async function getTeamFromParams(params: Promise<{ team_slug: string}>): Promise<TeamData>{
-    const { team_slug: teamSlug } = await params
+export async function getTeamFromParams(params: Promise<{ slug: string}>): Promise<TeamData>{
+    const { slug: teamSlug } = await params
 
     const team = await fetchTeamBySlugCached(teamSlug)
     return team ? toTeamData(team) : notFound()

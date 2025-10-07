@@ -45,14 +45,6 @@ export default clerkMiddleware(
             // Otherwise, redirect to sign in
             else return redirectToSignIn({ returnBackUrl: req.url })
         }
-    },
-    {
-        organizationSyncOptions: {
-            organizationPatterns: [
-                '/teams/:slug',
-                '/teams/:slug/(.*)'
-            ],
-        }
     }
 )
 

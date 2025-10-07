@@ -34,7 +34,11 @@ export const metadata: Metadata = {
 };
 
 export default async function Root_Layout({ children }: Readonly<{ children: React.ReactNode }>) {
-    return <ClerkProvider>
+    return <ClerkProvider
+        appearance={{
+            cssLayerName: 'clerk'
+        }}
+    >
         <html lang="en">
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
                 {children}

@@ -35,7 +35,7 @@ export function NavTeamSection() {
                     ? Paths.personal
                     : isSystem 
                         ? Paths.system
-                        : Paths.team(slug)
+                        : Paths.org(slug)
                 }
             >
                 {isPersonal ? "Personal Account" : organization.name}
@@ -45,10 +45,10 @@ export function NavTeamSection() {
 
             <Show when={isTeam}>
                 <NavCollapsible label="Skills" icon={<PocketKnifeIcon/>}>
-                    <NavSubItem path={Paths.team(slug).skills.catalogue}/>
-                    <NavSubItem path={Paths.team(slug).skills.checks}/>
-                    <NavSubItem path={Paths.team(slug).skills.sessions}/>
-                    <NavSubItem path={Paths.team(slug).skills.reports}/>
+                    <NavSubItem path={Paths.org(slug).skills.catalogue}/>
+                    <NavSubItem path={Paths.org(slug).skills.checks}/>
+                    <NavSubItem path={Paths.org(slug).skills.sessions}/>
+                    <NavSubItem path={Paths.org(slug).skills.reports}/>
                 </NavCollapsible>
             </Show>
 
@@ -64,7 +64,7 @@ export function NavTeamSection() {
             <NavItem external label="Documentation" href={`${process.env.NEXT_PUBLIC_APP_REPOSITORY_URL}/wiki`} icon={<BookOpenIcon/>}/>
 
             <Show when={isTeam}>
-                <NavItem path={Paths.team(slug).members} icon={<UsersIcon/>}/> 
+                <NavItem path={Paths.org(slug).members} icon={<UsersIcon/>}/> 
             </Show>
 
             <Show when={isSystem}>
@@ -77,8 +77,8 @@ export function NavTeamSection() {
 
             <Show when={isSystem}>
                 <NavCollapsible label="System Team">
-                    <NavSubItem path={Paths.team('system').invitations}/>
-                    <NavSubItem path={Paths.team('system').users}/>
+                    <NavSubItem path={Paths.org('system').invitations}/>
+                    <NavSubItem path={Paths.org('system').users}/>
                 </NavCollapsible>
             </Show>
 
@@ -87,8 +87,8 @@ export function NavTeamSection() {
             <Show when={isTeam}>
                 <Protect role="org:admin">
                     <NavCollapsible label="Team Admin" icon={<SettingsIcon/>}>
-                        <NavSubItem path={Paths.team(slug).invitations}/>
-                        <NavSubItem path={Paths.team(slug).users}/>
+                        <NavSubItem path={Paths.org(slug).invitations}/>
+                        <NavSubItem path={Paths.org(slug).users}/>
                     </NavCollapsible>
                 </Protect>
             </Show>

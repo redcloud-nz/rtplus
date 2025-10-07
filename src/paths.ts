@@ -3,11 +3,9 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { BookOpenIcon, CableIcon, CheckCheckIcon, CheckIcon, PocketKnifeIcon, ShieldHalfIcon, UsersIcon } from 'lucide-react'
+import { BookOpenIcon, CableIcon, CheckCheckIcon,  PocketKnifeIcon, ShieldHalfIcon, UsersIcon } from 'lucide-react'
 
-import { PersonRef } from './lib/schemas/person'
 import { SkillCheckSessionRef } from './lib/schemas/skill-check-session'
-import { TeamData } from '@/lib/schemas/team'
 
 const SkillsIcon = PocketKnifeIcon
 
@@ -48,6 +46,20 @@ export const about = {
     label: 'About',
     href: '/about',
 } as const
+
+export const admin = {
+    label: 'Admin',
+    href: '/admin',
+
+    personnel: {
+        label: 'Personnel',
+        href: '/admin/personnel',
+    },
+    teams: {
+        label: 'Teams',
+        href: '/admin/teams'
+    }
+}
 
 export const createTeam = {
     label: 'Create Team',
@@ -198,150 +210,82 @@ export const system = {
     } as const,
 }
 
+export const skills = {
+    label: 'Skills',
+    href: '/skills',
+    icon: SkillsIcon,
 
+    catalogue: {
+        label: 'Catalogue',
+        href: `/skills/catalogue`,
+    },
 
-export const team = (teamOrSlug: TeamData | string) => {
-    const teamSlug = typeof teamOrSlug === 'string' ? teamOrSlug : teamOrSlug.slug
-    const base = `/teams/${teamSlug}` as const
-    const skillsBase = `${base}/skills` as const
-
-    return {
-        href: base,
-        label: typeof teamOrSlug === 'string' ? undefined as never : (teamOrSlug.shortName || teamOrSlug.name),
-        accept: `${base}/accept`,
-        availability: `${base}/availability`,
-        checklists: `${base}/checklists`,
-        dashboard: {
-            label: 'Dashboard',
-            href: `${base}/dashboard`
+    checks: {
+        label: 'Checks',
+        href: `/skills/checks`,
+        create: {
+            label: 'Record Check',
+            href: `/skills/checks/--create`
         },
-        invitations: {
-            label: 'Invitations',
-            href: `${base}/invitations`
-        },
-        member: (personOrPersonId: PersonRef | string) => {
-            const personId = typeof personOrPersonId === 'string' ? personOrPersonId : personOrPersonId.personId
-
-            return {
-            href: `${base}/members/${personId}`,
-            label: typeof personOrPersonId === 'string' ? undefined as never: personOrPersonId.name,
-            skills: {
-                label: 'Skills',
-                href: `${base}/members/${personId}/skills`,
-                icon: SkillsIcon,
-                bgColor: 'bg-sky-500'
-            },
-        } as const
-        },
-        members: {
-            label: 'Members',
-            icon: UsersIcon,
-            href: `${base}/members`,
-            create: {
-                label: 'Create',
-                href: `${base}/members/--create`,
-            },
-        },
-        note: (noteId: string) => ({
-            href: `${base}/notes/${noteId}`,
-            label: `Note ${noteId}`,
-        }),
-        notes: {
-            label: 'Notes',
-            href: `${base}/notes`,
-            create: {
-                label: 'Create',
-                href: `${base}/notes/--create`,
-            },
-        },
-        skills: {
-            label: 'Skills',
-            href: skillsBase,
-            icon: SkillsIcon,
-            checks: {
-                label: 'Checks',
-                href: `${skillsBase}/checks`,
-                create: {
-                    label: 'Record Check',
-                    href: `${skillsBase}/checks/--create`
-                },
-            },
-            record: `${skillsBase}/record`,
-            reports: {
-                label: 'Reports',
-                href: `${skillsBase}/reports`,
-                individual: {
-                    href: `${skillsBase}/reports/individual`,
-                    label: 'Individual',
-                },
-                teamSkills: {
-                    href: `${skillsBase}/reports/team-skills`,
-                    label: 'Team Skills',
-                },
-                teamMembers: {
-                    href: `${skillsBase}/reports/team-members`,
-                    label: 'Team Members',
-                },
-            },
-            session: (sessionOrSessionId: SkillCheckSessionRef | string) => {
-                const sessionId = typeof sessionOrSessionId === 'string' ? sessionOrSessionId : sessionOrSessionId.sessionId
-                return {
-                    href: `${skillsBase}/sessions/${sessionId}`,
-                    label: typeof sessionOrSessionId === 'string' ? undefined as never : sessionOrSessionId.name,
-
-                    review: {
-                        href: `${skillsBase}/sessions/${sessionId}/review`,
-                        label: 'Review',
-                    }
-                } as const
-            },
-             catalogue: {
-                label: 'Catalogue',
-                href: `${skillsBase}/catalogue`,
-            },
-            sessions: {
-                label: 'Sessions',
-                href: `${skillsBase}/sessions`,
-                create: {
-                    label: 'Create',
-                    href: `${skillsBase}/sessions/--create`,
-                },
-            },
-        },
-        users: {
-            label: 'Users',
-            href: `${base}/users`
-        },
-    } as const
-}
-
-
-
-export const tools = {
-    skillRecorder: {
-        href: `/tools/skill-recorder`,
+    },
+    recorder: {
+        href: `/skills/recorder`,
         label: 'Skill Recorder',
 
-        single: {
-            label: 'Single',
-            href: `/tools/skill-recorder/single`,
-            icon: CheckIcon
-        },
         session: (sessionOrSessionId: string | SkillCheckSessionRef) => {
             const sessionId = typeof sessionOrSessionId === 'string' ? sessionOrSessionId : sessionOrSessionId.sessionId
             return {
                 label: typeof sessionOrSessionId === 'string' ? undefined as never : sessionOrSessionId.name,
-                href: `/tools/skill-recorder/sessions/${sessionId}`
+                href: `/skills/recorder/sessions/${sessionId}`
             } as const
         },
         sessions: {
             label: 'Sessions',
-            href: '/tools/skill-recorder/sessions',
+            href: '/skills/recorder/sessions',
             icon: CheckCheckIcon
         },
-    }
+    },
+    reports: {
+        label: 'Reports',
+        href: `/skills/reports`,
+        individual: {
+            href: `/skills/reports/individual`,
+            label: 'Individual',
+        },
+        teamSkills: {
+            href: `/skills/reports/team-skills`,
+            label: 'Team Skills',
+        },
+        teamMembers: {
+            href: `/skills/reports/team-members`,
+            label: 'Team Members',
+        },
+    },
+    session: (sessionOrSessionId: SkillCheckSessionRef | string) => {
+        const sessionId = typeof sessionOrSessionId === 'string' ? sessionOrSessionId : sessionOrSessionId.sessionId
+        return {
+            href: `/skills/sessions/${sessionId}`,
+            label: typeof sessionOrSessionId === 'string' ? undefined as never : sessionOrSessionId.name,
 
+            record: {
+                href: `/skills/sessions/${sessionId}/record`,
+            },
+            review: {
+                href: `/skills/sessions/${sessionId}/review`,
+                label: 'Review',
+            }
+        } as const
+    },
+    sessions: {
+        label: 'Sessions',
+        href: `/skills/sessions`,
+        create: {
+            label: 'Create',
+            href: `/skills/sessions/--create`,
+        },
+    },
 } as const
+
 
 export const d4h = {
     label: 'D4H Integration',
@@ -408,7 +352,7 @@ export const personal = {
         href: '/personal/whoami',
     },
     account: {
-        label: 'Account',
+        label: 'Manage Account',
         href: '/personal/account',
     },
 } as const
