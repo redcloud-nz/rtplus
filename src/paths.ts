@@ -3,11 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { BookOpenIcon, CableIcon, CheckCheckIcon,  PocketKnifeIcon, ShieldHalfIcon, UsersIcon } from 'lucide-react'
-
-import { SkillCheckSessionRef } from './lib/schemas/skill-check-session'
-
-const SkillsIcon = PocketKnifeIcon
+import { type SkillCheckSessionId } from './lib/schemas/skill-check-session'
 
 export const marketing = {
 
@@ -48,18 +44,114 @@ export const about = {
 } as const
 
 export const admin = {
+
     label: 'Admin',
     href: '/admin',
 
+    person: (personId: string) => {
+        const personBase = `/admin/personnel/${personId}` as const
+        return {
+            href: personBase,
+
+            teamMembership: (teamId: string) => ({
+                href: `${personBase}/team-memberships/${teamId}`,
+                update: `${personBase}/team-memberships/${teamId}/--update`,
+                delete: `${personBase}/team-memberships/${teamId}/--delete`,
+            } as const),
+
+            teamMemberships: {
+                label: 'Team Memberships',
+                href: `${personBase}/team-memberships`,
+                create: `${personBase}/team-memberships/--create`,
+            },
+        } as const
+    },
     personnel: {
         label: 'Personnel',
         href: '/admin/personnel',
+        create: {
+            label: "Create",
+            href: '/admin/personnel/--create'
+        },
+
+        import: {
+            label: 'Import Personnel',
+            href: '/admin/personnel/--import',
+        }
+    } as const,
+    settings: {
+        label: 'Settings',
+        href: '/admin/settings',
+    },
+    skillPackage: (skillPackageId: string) => {
+        const packageBase = `/admin/skill-packages/${skillPackageId}` as const
+
+        return {
+            href: packageBase,
+            update: `${packageBase}/--update`,
+            delete: `${packageBase}/--delete`,
+
+            group: (skillGroupId: string) => ({
+                href: `${packageBase}/groups/${skillGroupId}`,
+                update: `${packageBase}/groups/${skillGroupId}/--update`,
+                delete: `${packageBase}/groups/${skillGroupId}/--delete`,
+            } as const),
+            groups: {
+                label: 'Groups',
+                create: {
+                    href: `${packageBase}/groups/--create`
+                },
+            },
+
+            skill: (skillId: string) => ({
+                href: `${packageBase}/skills/${skillId}`,
+                update: `${packageBase}/skills/${skillId}/--update`,
+                delete: `${packageBase}/skills/${skillId}/--delete`,
+            } as const),
+
+            skills: {
+                label: 'Skills',
+                create: {
+                    href: `${packageBase}/skills/--create`
+                },
+            },
+        } as const
+    },
+    skillPackages: {
+        label: 'Skill Packages',
+        href: '/admin/skill-packages',
+        create: {
+            href: '/admin/skill-packages/--create'
+        },
+        import: {
+            label: 'Import Skill Package',
+            href: '/admin/skill-packages/--import',
+        }
+    } as const,
+    team: (teamId: string) => {
+        const teamBase = `/admin/teams/${teamId}` as const
+        return {
+            href: teamBase,
+
+            member: (personId: string) => ({
+                href: `${teamBase}/members/${personId}`,
+            } as const),
+            members: {
+                label: 'Members',
+                href: `${teamBase}/members`,
+            }
+        } as const
     },
     teams: {
         label: 'Teams',
-        href: '/admin/teams'
+        href: '/admin/teams',
+
+        create: {
+            label: "Create",
+            href: '/admin/teams/--create',
+        }
     }
-}
+} as const
 
 export const createTeam = {
     label: 'Create Team',
@@ -95,72 +187,6 @@ export const system = {
         label: 'Flags',
         href: '/system/flags',
     },
-
-    team: (teamId: string) => {
-        const teamBase = `/system/teams/${teamId}` as const
-
-        return {
-            href: teamBase,
-            d4h: `${teamBase}/d4h-integration`,
-
-            update: `${teamBase}/--update`,
-            delete: `${teamBase}/--delete`,
-            member: (personId: string) => ({
-                    href: `${teamBase}/members/${personId}`,
-                    update: `${teamBase}/members/${personId}/--update`,
-                    delete: `${teamBase}/members/${personId}/--delete`,
-            } as const),
-            members: {
-                label: 'Members',
-                href: `${teamBase}/members`,
-                create: `${teamBase}/members/--create`,
-            }
-        } as const
-    },
-    teams: {
-        label: 'Teams',
-        href: '/system/teams',
-        icon: ShieldHalfIcon,
-        create: {
-            label: "Create",
-            href: '/system/teams/--create',
-        },
-    },
-    person: (personId: string) => {
-        const personBase = `/system/personnel/${personId}` as const
-        return {
-            href: personBase,
-            update: `${personBase}/--update`,
-            delete: `${personBase}/--delete`,
-            access: `${personBase}/access`,
-
-            teamMembership: (teamId: string) => ({
-                href: `${personBase}/team-memberships/${teamId}`,
-                update: `${personBase}/team-memberships/${teamId}/--update`,
-                delete: `${personBase}/team-memberships/${teamId}/--delete`,
-            } as const),
-
-            teamMemberships: {
-                    label: 'Team Memberships',
-                    href: `${personBase}/team-memberships`,
-                    create: `${personBase}/team-memberships/--create`,
-            },
-        } as const
-    },
-    personnel: {
-        label: 'Personnel',
-        href: '/system/personnel',
-        icon: UsersIcon,
-        create: {
-            label: "Create",
-            href: '/system/personnel/--create'
-        },
-
-        import: {
-            label: 'Import Personnel',
-            href: '/system/personnel/--import',
-        }
-    } as const,
 
     skillPackage: (skillPackageId: string) => {
         const packageBase = `/system/skill-packages/${skillPackageId}` as const
@@ -199,7 +225,6 @@ export const system = {
     skillPackages: {
         label: 'Skill Packages',
         href: '/system/skill-packages',
-        icon: SkillsIcon,
         create: {
             href: '/system/skill-packages/--create'
         },
@@ -213,7 +238,6 @@ export const system = {
 export const skills = {
     label: 'Skills',
     href: '/skills',
-    icon: SkillsIcon,
 
     catalogue: {
         label: 'Catalogue',
@@ -226,23 +250,6 @@ export const skills = {
         create: {
             label: 'Record Check',
             href: `/skills/checks/--create`
-        },
-    },
-    recorder: {
-        href: `/skills/recorder`,
-        label: 'Skill Recorder',
-
-        session: (sessionOrSessionId: string | SkillCheckSessionRef) => {
-            const sessionId = typeof sessionOrSessionId === 'string' ? sessionOrSessionId : sessionOrSessionId.sessionId
-            return {
-                label: typeof sessionOrSessionId === 'string' ? undefined as never : sessionOrSessionId.name,
-                href: `/skills/recorder/sessions/${sessionId}`
-            } as const
-        },
-        sessions: {
-            label: 'Sessions',
-            href: '/skills/recorder/sessions',
-            icon: CheckCheckIcon
         },
     },
     reports: {
@@ -261,11 +268,9 @@ export const skills = {
             label: 'Team Members',
         },
     },
-    session: (sessionOrSessionId: SkillCheckSessionRef | string) => {
-        const sessionId = typeof sessionOrSessionId === 'string' ? sessionOrSessionId : sessionOrSessionId.sessionId
+    session: (sessionId: SkillCheckSessionId) => {
         return {
             href: `/skills/sessions/${sessionId}`,
-            label: typeof sessionOrSessionId === 'string' ? undefined as never : sessionOrSessionId.name,
 
             record: {
                 href: `/skills/sessions/${sessionId}/record`,
@@ -289,7 +294,6 @@ export const skills = {
 
 export const d4h = {
     label: 'D4H Integration',
-    icon: CableIcon,
     href: '/d4h',
     activities: {
         label: 'Activities',
@@ -366,7 +370,6 @@ export const documentation = {
     competencies: {
         label: 'Documentation',
         href: `${docsBase}/Competencies`,
-        icon: BookOpenIcon
     },
     personnel: `${docsBase}/personnel`,
     skills: `${docsBase}/skills`,

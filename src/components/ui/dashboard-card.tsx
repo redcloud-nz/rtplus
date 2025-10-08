@@ -3,8 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { LucideProps } from 'lucide-react'
-import { ComponentProps, ForwardRefExoticComponent, RefAttributes } from 'react'
+import { ComponentProps, ReactNode } from 'react'
 
 import { cn } from '@/lib/utils'
 import { ExternalLink, Link } from './link'
@@ -20,27 +19,17 @@ type DashboardCardProps = {
     linksTo: {
         label: string
         href: string
-        icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>
     }
-    iconForeground: string
-    iconBackground: string
     description: string
+    icon: ReactNode
 }
 
-export function DashboardCard({ className, description, external = false, iconForeground, iconBackground,  linksTo }: DashboardCardProps) {
+export function DashboardCard({ className, description, external = false, icon, linksTo }: DashboardCardProps) {
 
     return <li className={cn("col-span-1 divide-y divide-gray-200 rounded-sm bg-white shadow-sm border", className)}>
-        <div className="group relative p-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-50 space-y-2">
-            <div>
-                <span
-                    className={cn(
-                        iconBackground,
-                        iconForeground,
-                        'inline-flex rounded-lg p-3 ring-4 ring-white',
-                    )}
-                    >
-                    <linksTo.icon aria-hidden="true" className="size-6" />
-                </span>
+        <div className="h-full group relative p-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-50 space-y-2">
+            <div className="[&>*]:inline-flex [&>*]:rounded-lg [&>*]:p-3 [&>*]:ring-4 [&>*]:ring-white">
+                {icon}
             </div>
             <h3 className="text-base font-semibold text-gray-900">
                 {external ? (

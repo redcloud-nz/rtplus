@@ -8,13 +8,12 @@ import { z } from 'zod'
 
 import { TRPCError } from '@trpc/server'
 
-import { personSchema, toPersonData } from '@/lib/schemas/person'
-import { teamSchema, toTeamData } from '@/lib/schemas/team'
+import { PersonId, personRefSchema, toPersonRef } from '@/lib/schemas/person'
+import { TeamId, teamRefSchema, toTeamRef } from '@/lib/schemas/team'
 import { teamMembershipSchema, toTeamMembershipData } from '@/lib/schemas/team-membership'
-import { nanoId16} from '@/lib/id'
-import { zodRecordStatus, zodNanoId8 } from '@/lib/validation'
+import { recordStatusParameterSchema } from '@/lib/validation'
 
-import { authenticatedProcedure, createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
+import { createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
 import { Messages} from '../messages'
 import { getPersonById } from './personnel-router'
 import { getTeamById } from './teams-router'
@@ -36,8 +35,8 @@ export const teamMembershipsRouter = createTRPCRouter({
     createTeamMembership: orgAdminProcedure
         .input(teamMembershipSchema)
         .output(teamMembershipSchema.extend({
-            person: personSchema,
-            team: teamSchema
+            person: personRefSchema,
+            team: teamRefSchema
         }))
         .mutation(async ({ ctx, input: { personId, teamId, ...fields } }) => {
 
@@ -76,8 +75,8 @@ export const teamMembershipsRouter = createTRPCRouter({
 
             return { 
                 ...toTeamMembershipData(createdMembership), 
-                person: toPersonData(person), 
-                team: toTeamData(team)
+                person: toPersonRef(person), 
+                team: toTeamRef(team)
             }
         }),
 
@@ -91,8 +90,8 @@ export const teamMembershipsRouter = createTRPCRouter({
      */
     deleteTeamMembership: orgAdminProcedure
         .input(z.object({
-            personId: zodNanoId8,
-            teamId: zodNanoId8,
+            personId: PersonId.schema,
+            teamId: TeamId.schema,
         }))
         .output(teamMembershipSchema)
         .mutation(async ({ ctx, input: { personId, teamId } }) => {
@@ -127,12 +126,12 @@ export const teamMembershipsRouter = createTRPCRouter({
      */
     getTeamMembership: orgProcedure
         .input(z.object({
-            personId: zodNanoId8,
-            teamId: zodNanoId8,
+            personId: PersonId.schema,
+            teamId: TeamId.schema,
         }))
         .output(teamMembershipSchema.extend({
-            person: personSchema,
-            team: teamSchema
+            person: personRefSchema,
+            team: teamRefSchema
         }))
         .query(async ({ ctx, input: { personId, teamId } }) => {
 
@@ -146,8 +145,8 @@ export const teamMembershipsRouter = createTRPCRouter({
 
             return { 
                 ...toTeamMembershipData(membership), 
-                person: toPersonData(membership.person), 
-                team: toTeamData(membership.team)
+                person: toPersonRef(membership.person), 
+                team: toTeamRef(membership.team)
             }
         }),
 
@@ -158,21 +157,25 @@ export const teamMembershipsRouter = createTRPCRouter({
      */
     getTeamMemberships: orgProcedure
         .input(z.object({
-            personId: zodNanoId8.optional(),
-            teamId: zodNanoId8.optional(),
-            status: zodRecordStatus
+            personId: PersonId.schema.optional(),
+            teamId: TeamId.schema.optional(),
+            status: recordStatusParameterSchema
         }))
         .output(z.array(teamMembershipSchema.extend({
-            person: personSchema,
-            team: teamSchema
+            person: personRefSchema,
+            team: teamRefSchema
         })))
         .query(async ({ ctx, input }) => {
+             await Promise.all([
+                input.personId ? getPersonById(ctx, input.personId) : null,
+                input.teamId ? getTeamById(ctx, input.teamId) : null
+            ])
+
             const memberships = await ctx.prisma.teamMembership.findMany({
                 where: { 
                     personId: input.personId,
                     teamId: input.teamId,
                     status: { in: input.status },
-                    team: { orgId: ctx.auth.activeOrg?.orgId }
                 },
                 include: { 
                     person: true, 
@@ -182,7 +185,7 @@ export const teamMembershipsRouter = createTRPCRouter({
                 orderBy: [{ team: { name: 'asc' } }, { person: { name: 'asc' } }]
             })
 
-            return memberships.map(membership => ({ ...toTeamMembershipData(membership), person: toPersonData(membership.person), team: toTeamData(membership.team) }))
+            return memberships.map(membership => ({ ...toTeamMembershipData(membership), person: toPersonRef(membership.person), team: toTeamRef(membership.team) }))
         }),
 
     /**

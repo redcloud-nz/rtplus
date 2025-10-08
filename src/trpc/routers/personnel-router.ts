@@ -9,11 +9,10 @@ import { z } from 'zod'
 import { Person as PersonRecord } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
-import { personSchema, toPersonData } from '@/lib/schemas/person'
-import { nanoId16 } from '@/lib/id'
-import { zodRecordStatus, zodNanoId8 } from '@/lib/validation'
+import { PersonId, personSchema, toPersonData } from '@/lib/schemas/person'
+import { recordStatusParameterSchema } from '@/lib/validation'
 
-import { AuthenticatedContext, AuthenticatedOrgContext, createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
+import { AuthenticatedOrgContext, createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
 import { Messages } from '../messages'
 import { FieldConflictError } from '../types'
 
@@ -75,17 +74,16 @@ export const personnelRouter = createTRPCRouter({
      */
     deletePerson: orgAdminProcedure
         .input(z.object({
-            personId: zodNanoId8,
+            personId: PersonId.schema,
         }))
         .output(personSchema)
         .mutation(async ({ ctx, input: { personId }  }) => {
             
-            const person = await getPersonById(ctx, personId)
-            if(person == null) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(personId) })
+            // Ensure the person exists and belongs to the organization
+            await getPersonById(ctx, personId)
 
-            
-            const deleted = await ctx.prisma.person.delete({ where: { personId } })
-            
+            const deleted = await ctx.prisma.person.delete({ where: { orgId: ctx.auth.activeOrg.orgId, personId } })
+
             console.log(`Person deleted by ${ctx.auth.userId}:`, pick(deleted, ['personId', 'name', 'email']))
             return toPersonData(deleted)
         }),
@@ -99,7 +97,7 @@ export const personnelRouter = createTRPCRouter({
      */
     getPerson: orgProcedure
         .input(z.object({ 
-            personId: zodNanoId8.optional(),
+            personId: PersonId.schema.optional(),
             email: z.string().email().optional(),
         }).refine(data => data.personId || data.email, {
             message: 'Either personId or email must be provided.'
@@ -109,7 +107,6 @@ export const personnelRouter = createTRPCRouter({
 
             if(personId) {
                 const person = await getPersonById(ctx, personId)
-                if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(personId) })
                 return toPersonData(person)
 
             } else if(email) {
@@ -133,7 +130,7 @@ export const personnelRouter = createTRPCRouter({
      */
     getPersonnel: orgProcedure
         .input(z.object({
-            status: zodRecordStatus,
+            status: recordStatusParameterSchema,
         }))
         .output(z.array(personSchema))
         .query(async ({ ctx, input }) => {
@@ -161,8 +158,6 @@ export const personnelRouter = createTRPCRouter({
         .mutation(async ({ ctx, input: { personId, ...fields} }) => {
 
             const person = await getPersonById(ctx, personId)
-            if(person == null) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(personId) })
-
 
             if(fields.email != person.email) {
                 // Check if a person with the new email already exists
@@ -174,7 +169,7 @@ export const personnelRouter = createTRPCRouter({
             const changedFields = pipe(fields, pick(['name', 'email', 'status']), pickBy((value, key) => value != person[key]))
 
             const updated = await ctx.prisma.person.update({
-                where: { personId },
+                where: { orgId: ctx.auth.activeOrg.orgId,personId },
                 data: {
                     ...fields,
                     changeLogs: {
@@ -199,9 +194,10 @@ export const personnelRouter = createTRPCRouter({
  * @param personId The ID of the person to retrieve.
  * @returns The person object if found.
  */
-export async function getPersonById(ctx: AuthenticatedOrgContext, personId: string): Promise<PersonRecord | null> {
+export async function getPersonById(ctx: AuthenticatedOrgContext, personId: PersonId): Promise<PersonRecord> {
     const person = await ctx.prisma.person.findUnique({ 
         where: { personId, orgId: ctx.auth.activeOrg.orgId },
     })
+    if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(personId) })
     return person
 }

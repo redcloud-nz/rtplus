@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /system/teams
+ *  Path: /admin/teams
  */
 
 import { Metadata } from 'next'
@@ -12,21 +12,19 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 
-import { System_TeamsList_Card } from './system-team-list'
+import { TeamsList } from './teams-list'
 
-
-export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = { title: "Teams" }
 
 
-export default async function System_TeamsList_Page() {
+export default async function TeamsList_Page() {
 
     return <AppPage>
             <AppPageBreadcrumbs
                 breadcrumbs={[
-                    Paths.system,
-                    Paths.system.teams
+                    Paths.admin,
+                    Paths.admin.teams
                 ]}
             />
             <AppPageContent variant="container">
@@ -34,7 +32,7 @@ export default async function System_TeamsList_Page() {
                     <PageTitle>Teams</PageTitle>
                 </PageHeader>
                 <Boundary>
-                    <System_TeamsList_Card/>
+                    <TeamsList/>
                 </Boundary>
             </AppPageContent>
            

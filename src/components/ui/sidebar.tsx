@@ -355,7 +355,7 @@ export function SidebarInput({ className, ...props }: React.ComponentPropsWithRe
 export function SidebarHeader({ className, ...props }: React.ComponentPropsWithRef<'div'>) {
     return <div
         data-sidebar="header"
-        className={cn("h-[49px] flex justify-center items-center p-2 border-b", className)}
+        className={cn("h-[49px] flex justify-center items-center border-b", className)}
         {...props}
     />
 }

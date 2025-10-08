@@ -7,11 +7,14 @@
 
 import { Metadata } from 'next'
 import { ReactNode } from 'react'
+import { pick } from 'remeda'
 
 import { AppSidebar } from '@/components/nav/app-sidebar'
 import { NavItem, NavSection } from '@/components/nav/nav-section'
 
 import * as Paths from '@/paths'
+import { DashboardIcon, PersonnelIcon, SettingsIcon, SkillsIcon, TeamsIcon } from '@/components/icons'
+
 
 export const metadata: Metadata = {
     title: {
@@ -25,10 +28,13 @@ export const metadata: Metadata = {
 export default async function AdminModule_Layout(props: { children: ReactNode }) {
 
     return <>
-        <AppSidebar moduleName="Admin">
+        <AppSidebar moduleName="admin">
             <NavSection>
-                <NavItem path={Paths.admin.personnel}/>
-                <NavItem path={Paths.admin.teams}/>
+                <NavItem path={pick(Paths.admin, ['href', 'label'])} label="Dashboard" icon={<DashboardIcon/>}/>
+                <NavItem path={Paths.admin.personnel} icon={<PersonnelIcon/>}/>
+                <NavItem path={Paths.admin.settings} icon={<SettingsIcon/>}/>
+                <NavItem path={Paths.admin.skillPackages} icon={<SkillsIcon/>}/>
+                <NavItem path={Paths.admin.teams} icon={<TeamsIcon/>}/>
             </NavSection>
         </AppSidebar>
         {props.children}

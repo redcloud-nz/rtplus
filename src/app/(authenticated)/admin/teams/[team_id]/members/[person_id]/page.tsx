@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /system/teams/[team_id]/members/[person_id]
+ *  Path: /admin/teams/[team_id]/members/[person_id]
  */
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
@@ -12,12 +12,11 @@ import { System_TeamMembership_Details_Card } from '@/components/cards/system-te
 import * as Paths from '@/paths'
 import { fetchTeamMembership } from '@/server/fetch'
 
-
-
+    
 
 export async function generateMetadata(props: { params: Promise<{ person_id: string, team_id: string }> }) {
     const { person, team } = await fetchTeamMembership(props.params)
-    return { title: `${person.name} - ${team.shortName || team.name}` }
+    return { title: `${person.name} - ${team.name}` }
 }
 
 export default async function System_Team_Member_Page(props: { params: Promise<{ person_id: string, team_id: string }>} ) {
@@ -26,9 +25,9 @@ export default async function System_Team_Member_Page(props: { params: Promise<{
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.system,
-                Paths.system.teams,
-                { label: team.shortName || team.name, href: Paths.system.team(team.teamId).href },
+                Paths.admin,
+                Paths.admin.teams,
+                { label: team.name, href: Paths.admin.team(team.teamId).href },
                 "Members",
                 person.name
             ]}

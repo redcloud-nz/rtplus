@@ -18,7 +18,6 @@ import { TeamMembershipData, toTeamMembershipData } from '@/lib/schemas/team-mem
 import { getQueryClient, trpc } from '@/trpc/server'
 
 import prisma from './prisma'
-import { getTeamFromParams } from './data/team'
 
 /**
  * Fetch a person by its ID through the TRPC query client to ensure the data is available for both server and client components.
@@ -110,30 +109,6 @@ export async function fetchSkillPackage(params: Promise<{ skill_package_id: stri
             }
             return error
         })
-}
-
-
-export async function fetchTeamMember(params: Promise<{ team_slug: string, person_id: string }>): Promise<TeamMembershipData & { person: PersonRef, team: TeamData }> {
-    const { person_id: personId } = await params
-
-    const team = await getTeamFromParams(params)
-
-    const membership = await prisma.teamMembership.findFirst({
-        where: {
-            teamId: team.teamId,
-            personId
-        },
-        include: { person: true }
-    })
-    if(!membership) notFound()
-
-    const result = { 
-        ...toTeamMembershipData(membership), 
-        person: toPersonData(membership.person), 
-        team: team
-    }
-
-    return result
 }
 
 /**

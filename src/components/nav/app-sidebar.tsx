@@ -12,10 +12,10 @@ import { OrganizationSwitcher, UserButton } from '@clerk/nextjs'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar'
 import * as Paths from '@/paths'
 
-export async function AppSidebar({ children, moduleName, ...props }: Omit<ComponentProps<typeof Sidebar>, 'side'> & { moduleName: string }) {
+export async function AppSidebar({ children, moduleName, ...props }: Omit<ComponentProps<typeof Sidebar>, 'side'> & { moduleName?: string }) {
     return <Sidebar {...props}>
         <SidebarHeader className="flex items-center justify-between">
-            <Link href={Paths.dashboard.href} className="flex items-center gap-1 text-2xl italic text-gray-600">
+            <Link href={Paths.dashboard.href} className="h-full flex items-center p-2 gap-1 italic text-gray-600">
                 <Image
                     src="/logo.svg"
                     alt="RT+ logo"
@@ -23,21 +23,24 @@ export async function AppSidebar({ children, moduleName, ...props }: Omit<Compon
                     height={24}
                     priority
                 />
-                <div>{moduleName}</div>
+                { moduleName && <div className="text-xl pt-1">{moduleName}</div> }
             </Link>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 p-2">
                 <UserButton/>
             </div>
         </SidebarHeader>
         <SidebarContent>
-            <OrganizationSwitcher
-                appearance={{
-                    elements: {
-                        organizationSwitcherTrigger: 'w-[var(--sidebar-internal-width)] py-2',
-                    }
-                }}
-                hidePersonal
-            />
+            <div className="h-10 flex items-center">
+                <OrganizationSwitcher
+                    appearance={{
+                        elements: {
+                            organizationSwitcherTrigger: 'w-[var(--sidebar-internal-width)] py-2',
+                        }
+                    }}
+                    hidePersonal
+                />
+            </div>
+            
             {children}
         </SidebarContent>
         <SidebarFooter>

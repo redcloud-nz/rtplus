@@ -9,14 +9,15 @@ import Image from 'next/image'
 
 import * as Paths from '@/paths'
 import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
+import { D4HModuleIcon, AdminModuleIcon, SkillsModuleIcon } from '@/components/icons'
 import { DashboardCard, DashboardCardList } from '@/components/ui/dashboard-card'
 
 
 export const metadata = { title: 'Dashboard' }
 
-export default async function Dashboard_Page() {
+export default async function Root_Dashboard_Page() {
 
-    return <AppPage>
+    return <AppPage showLeftSidebarTrigger={false}>
             <AppPageBreadcrumbs
                 breadcrumbs={["Dashboard"]}
             />
@@ -34,49 +35,20 @@ export default async function Dashboard_Page() {
                         <p>Response Team Management Tools.</p>
                     </div>
                     <DashboardCardList>
-                        {/* <DashboardCard
-                            title="Availability"
-                            href={teamPath.availability}
-                            icon={ClockIcon}
-                            iconForeground="text-teal-700"
-                            iconBackground="bg-teal-50"
-                            description="Collect availabilty from your team."
+                        <DashboardCard
+                            linksTo={Paths.admin}
+                            icon={<span className="text-emerald-700 bg-emerald-50"><AdminModuleIcon aria-hidden="true" className="size-6" /></span>}
+                            description="Administrative tools for managing your organization."
                         />
-                         */}
+                         <DashboardCard
+                            linksTo={Paths.d4h}
+                            icon={<span className="text-indigo-700 bg-indigo-50"><D4HModuleIcon aria-hidden="true" className="size-6" /></span>}
+                            description="Alternate views of the data stored in D4H Team Manager. Unified across multiple teams."
+                        />
                         <DashboardCard
                             linksTo={Paths.skills}
-                            iconForeground="text-sky-700"
-                            iconBackground="bg-sky-50"
-                            description="Manage, assess, and report skils for your team."
-                        />
-                         {/* <DashboardCard
-                            linksTo={Paths.org(team).members}
-                            iconForeground="text-purple-700"
-                            iconBackground="bg-purple-50"
-                            description="Manage the members of your team."
-                        /> */}
-                        {/* <DashboardCard
-                            title="Field Operations Guide"
-                            href="/fog"
-                            icon={NotebookTextIcon}
-                            iconForeground="text-yellow-700"
-                            iconBackground="bg-yellow-50"
-                            description="Digital Field Operations Guide."
-                        />
-                        <DashboardCard
-                            title="Reference Cards"
-                            href="/cards"
-                            icon={WalletCardsIcon}
-                            iconForeground="text-rose-700"
-                            iconBackground="bg-rose-50"
-                            description="Access the Reference Cards."
-                        />
-                        */}
-                        <DashboardCard
-                            linksTo={Paths.d4h}
-                            iconForeground="text-indigo-700"
-                            iconBackground="bg-indigo-50"
-                            description="Alternate views of the data stored in D4H Team Manager. Unified across multiple teams."
+                            icon={<span className="text-sky-700 bg-sky-50"><SkillsModuleIcon aria-hidden="true" className="size-6" /></span>}
+                            description="Manage, assess, and report skills for your team."
                         />
                     </DashboardCardList>
             </AppPageContent>

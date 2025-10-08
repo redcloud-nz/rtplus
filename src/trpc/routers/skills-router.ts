@@ -10,7 +10,7 @@ import { Skill as SkillRecord, SkillGroup as SkillGroupRecord, SkillPackage as S
 
 import { skillSchema, toSkillData } from '@/lib/schemas/skill'
 import { nanoId16 } from '@/lib/id'
-import { zodNanoId8, zodRecordStatus } from '@/lib/validation'
+import { zodNanoId8, recordStatusParameterSchema } from '@/lib/validation'
 import { TRPCError } from '@trpc/server'
 
 import { AuthenticatedContext, AuthenticatedOrgContext, authenticatedProcedure, createTRPCRouter, orgAdminProcedure } from '../init'
@@ -268,7 +268,7 @@ export const skillsRouter = createTRPCRouter({
 
     getGroups: authenticatedProcedure
         .input(z.object({
-            status: zodRecordStatus,
+            status: recordStatusParameterSchema,
             skillPackageId: zodNanoId8.optional()
         }))
         .output(z.array(skillGroupSchema))
@@ -293,7 +293,7 @@ export const skillsRouter = createTRPCRouter({
 
     getPackages: authenticatedProcedure
         .input(z.object({
-            status: zodRecordStatus
+            status: recordStatusParameterSchema
         }))
         .output(z.array(skillPackageSchema.extend({
             _count: z.object({
@@ -337,7 +337,7 @@ export const skillsRouter = createTRPCRouter({
 
     getSkills: authenticatedProcedure
         .input(z.object({
-            status: zodRecordStatus,
+            status: recordStatusParameterSchema,
             skillPackageId: zodNanoId8.optional(),
             skillGroupId: zodNanoId8.optional(),
             skillIds: z.array(zodNanoId8).optional(),

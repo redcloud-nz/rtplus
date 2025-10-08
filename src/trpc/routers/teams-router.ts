@@ -11,10 +11,11 @@ import { TRPCError } from '@trpc/server'
 
 import { TeamId, teamSchema, toTeamData } from '@/lib/schemas/team'
 import { RTPlusLogger } from '@/lib/logger'
-import { zodRecordStatus } from '@/lib/validation'
+import { recordStatusParameterSchema } from '@/lib/validation'
 
 import { AuthenticatedOrgContext, createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
 import { FieldConflictError } from '../types'
+import { Messages } from '../messages'
 
 
 const logger = new RTPlusLogger('trpc/teams')
@@ -25,8 +26,8 @@ export const teamsRouter = createTRPCRouter({
         .input(teamSchema)
         .output(teamSchema)
         .mutation(async ({ ctx, input: { teamId, ...fields } }) => {
-            
-            const nameConflict = await ctx.prisma.team.findFirst({ where: { name: fields.name } })
+
+            const nameConflict = await ctx.prisma.team.findFirst({ where: { orgId: ctx.auth.activeOrg.orgId, name: fields.name } })
             if(nameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('name') })
 
             const createdTeam = await ctx.prisma.team.create({ 
@@ -54,9 +55,10 @@ export const teamsRouter = createTRPCRouter({
         .output(teamSchema)
         .mutation(async ({ ctx, input: { teamId } }) => {
 
-            const team = await getTeamById(ctx, teamId)
+            // Ensure the team exists and the user has access to it
+            await getTeamById(ctx, teamId)
 
-            const deleted = await ctx.prisma.team.delete({ where: { teamId } })
+            const deleted = await ctx.prisma.team.delete({ where: { orgId: ctx.auth.activeOrg.orgId,teamId } })
 
             logger.info(`Team deleted by ${ctx.auth.userId}:`, pick(deleted, ['teamId', 'name']))
 
@@ -76,7 +78,7 @@ export const teamsRouter = createTRPCRouter({
 
     getTeams: orgProcedure
         .input(z.object({
-            status: zodRecordStatus
+            status: recordStatusParameterSchema
         }).optional().default({}))
         .output(z.array(teamSchema.extend({
             _count: z.object({
@@ -118,7 +120,7 @@ export const teamsRouter = createTRPCRouter({
 
             if(Object.keys(changedFields).length > 0) {
                 const updated = await ctx.prisma.team.update({
-                    where: { teamId },
+                    where: { orgId: ctx.auth.activeOrg.orgId,teamId },
                     data: { 
                         ...changedFields,
                         changeLogs: { 
@@ -174,6 +176,6 @@ export async function getTeamById(ctx: AuthenticatedOrgContext, teamId: TeamId):
     const team = await ctx.prisma.team.findUnique({ 
         where: { teamId, orgId: ctx.auth.activeOrg.orgId },
     })
-    if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: `Team with ID '${teamId}' not found.` })
+    if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.teamNotFound(teamId) })
     return team
 }

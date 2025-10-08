@@ -15,13 +15,12 @@ import z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { Show } from '@/components/show'
 import { Button } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTriggerButton } from '@/components/ui/dialog'
 import { DisplayValue } from '@/components/ui/display-value'
 import { Form, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
-import { Input, SlugInput } from '@/components/ui/input'
+import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -29,7 +28,7 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { TeamData, teamSchema } from '@/lib/schemas/team'
+import { PersonData, personSchema } from '@/lib/schemas/person'
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
@@ -37,10 +36,14 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function System_Team_Details_Card({ teamId }: { teamId: string }) {
+/**
+ * Card that displays the details of a person and allows the user to edit them.
+ * @param personId The ID of the person to display.
+ */
+export function PersonDetails_Card({ personId }: { personId: string }) {
     
 
-    const { data: team } = useSuspenseQuery(trpc.teams.getTeam.queryOptions({ teamId }))
+    const { data: person } = useSuspenseQuery(trpc.personnel.getPerson.queryOptions({ personId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
 
@@ -48,84 +51,74 @@ export function System_Team_Details_Card({ teamId }: { teamId: string }) {
         <CardHeader>
             <CardTitle>Details</CardTitle>
             <CardActions>
-                <Show when={team.teamId != 'RT'}>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" onClick={() => setMode('Update')} disabled={mode == 'Update'}>
-                                <PencilIcon/>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Edit team details</TooltipContent>
-                    </Tooltip>
-                    <DeleteTeamDialog team={team}/>
-                </Show>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" onClick={() => setMode('Update')} disabled={mode == 'Update'}>
+                            <PencilIcon/>
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Edit person details</TooltipContent>
+                </Tooltip>
+                 <DeletePersonDialog person={person}/>
                 <Separator orientation="vertical"/>
                 <CardExplanation>
-                    This card displays the details of the team and allows you to edit them. You can also delete the team from here.
+                    This card displays the details of the person and allows you to edit them. You can also delete the person from here.
                 </CardExplanation>
             </CardActions>
-            
+          
         </CardHeader>
         <CardContent>
-            {match(mode)
+             {match(mode)
                 .with('View', () => 
                     <ToruGrid>
                         <ToruGridRow
-                            label="Team ID"
-                            control={<DisplayValue>{team.teamId}</DisplayValue>}
+                            label="Person ID"
+                            control={<DisplayValue>{person.personId}</DisplayValue>}
                         />
                         <ToruGridRow
                             label="Name"
-                            control={<DisplayValue>{team.name}</DisplayValue>}
+                            control={<DisplayValue>{person.name}</DisplayValue>}
                         />
                         <ToruGridRow
-                            label="Short Name"
-                            control={<DisplayValue>{team.shortName}</DisplayValue>}
-                        />
-                        <ToruGridRow
-                            label="Slug"
-                            control={<DisplayValue>{team.slug}</DisplayValue>}
-                        />
-                        <ToruGridRow
-                            label="Type"
-                            control={<DisplayValue>{team.type}</DisplayValue>}
+                            label="Email"
+                            control={<DisplayValue>{person.email}</DisplayValue>}
                         />
                         <ToruGridRow
                             label="Status"
-                            control={<DisplayValue>{team.status}</DisplayValue>}
+                            control={<DisplayValue>{person.status}</DisplayValue>}
                         />
                         <ToruGridFooter/>
                     </ToruGrid>
                 
                 )
                 .with('Update', () => 
-                    <UpdateTeamForm 
-                        team={team} 
+                    <UpdatePersonForm 
+                        person={person}
                         onClose={() => setMode('View')}
                     />
                 )
                 .exhaustive()
             }
-         </CardContent>
+        </CardContent>
     </Card>
-}
+}   
 
-function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamData }) {
+function UpdatePersonForm({ onClose, person }: { onClose: () => void, person: PersonData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     
 
-    const form = useForm<TeamData>({
-        resolver: zodResolver(teamSchema),
+    const form = useForm<PersonData>({
+        resolver: zodResolver(personSchema),
         defaultValues: {
-            ...team
-        },
+            ...person
+        }
     })
 
-    const mutation = useMutation(trpc.teams.updateTeam.mutationOptions({
+    const mutation = useMutation(trpc.personnel.updatePerson.mutationOptions({
         onError(error) {
             if(error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof TeamData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof PersonData, { message: error.shape.message })
             } else {
                 toast({
                     title: "Error updating team",
@@ -137,24 +130,24 @@ function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamData
         },
         onSuccess(result) {
             toast({
-                title: "Team updated",
-                description: <>The team <ObjectName>{result.name}</ObjectName> has been updated.</>,
+                title: 'Person updated',
+                description: <>The person <ObjectName>{result.name}</ObjectName> has been updated.</>,
             })
             onClose()
 
-            queryClient.invalidateQueries(trpc.teams.getTeam.queryFilter({ teamId: team.teamId }))
-            queryClient.invalidateQueries(trpc.teams.getTeams.queryFilter())
+            queryClient.invalidateQueries(trpc.personnel.getPerson.queryFilter({ personId: result.personId }))
+            queryClient.invalidateQueries(trpc.personnel.getPersonnel.queryFilter())
         }
     }))
 
     return <FormProvider {...form}>
-        <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
-            <ToruGrid mode='form'>
+        <Form onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData }))}>
+            <ToruGrid mode="form">
                 <FormField
                     control={form.control}
-                    name="teamId"
+                    name="personId"
                     render={({ field }) => <ToruGridRow
-                        label="Team ID"
+                        label="Person ID"
                         control={ <DisplayValue>{field.value}</DisplayValue>}
                     />}
                 />
@@ -164,33 +157,16 @@ function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamData
                     render={({ field }) => <ToruGridRow
                         label="Name"
                         control={<Input maxLength={100} {...field}/>}
-                        description="The full name of the team."
+                        description="The full name of the person."
                     />}
                 />
                 <FormField
                     control={form.control}
-                    name="shortName"
+                    name="email"
                     render={({ field }) => <ToruGridRow
-                        label="Short Name"
-                        control={<Input maxLength={20} {...field}/>}
-                        description="Short name of the team (eg NZ-RT13)."
-                    />}
-                />
-                <FormField
-                    control={form.control}
-                    name="slug"
-                    render={({ field }) => <ToruGridRow
-                        label="Slug"
-                        control={<SlugInput {...field} onValueChange={field.onChange}/>}
-                        description="URL-friendly identifier for the team."
-                    />}
-                />
-                <FormField
-                    control={form.control}
-                    name="type"
-                    render={({ field }) => <ToruGridRow
-                        label="Type"
-                        control={ <DisplayValue>{field.value}</DisplayValue>}
+                        label="Email"
+                        control={<Input type="email" maxLength={100} {...field}/>}
+                        description="The email address of the person (must be unique)."
                     />}
                 />
                 <FormField
@@ -209,7 +185,7 @@ function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamData
                                 </SelectContent>
                             </Select>
                         }
-                        description="The current status of the team."
+                        description="The current status of the person."
                     />}
                 />
                 <ToruGridFooter>
@@ -221,8 +197,7 @@ function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamData
     </FormProvider>
 }
 
-
-function DeleteTeamDialog({ team }: { team: TeamData }) {
+function DeletePersonDialog({ person }: { person: PersonData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -232,74 +207,64 @@ function DeleteTeamDialog({ team }: { team: TeamData }) {
 
     const form = useForm({
         resolver: zodResolver(z.object({
-            teamId: zodNanoId8,
-            teamName: z.literal(team.name)
+            personId: zodNanoId8,
+            personName: z.literal(person.name)
         })),
-        mode: 'onSubmit',
-        defaultValues: { teamId: team.teamId, teamName: "" }
+        defaultValues: { personId: person.personId, personName: "" }
     })
 
-    const mutation = useMutation(trpc.teams.deleteTeam.mutationOptions({
+    const mutation = useMutation(trpc.personnel.deletePerson.mutationOptions({
         onError(error) {
             toast({
-                title: 'Error deleting team',
+                title: 'Error deleting person',
                 description: error.message,
                 variant: 'destructive'
             })
-            setOpen(false)
         },
-        onSuccess(result) {
+        onSuccess() {
             toast({
-                title: 'Team deleted',
-                description: <>The team <ObjectName>{result.name}</ObjectName> has been deleted.</>,
+                title: 'Person deleted',
+                description: <>The person <ObjectName>{person.name}</ObjectName> has been deleted.</>,
             })
             setOpen(false)
-            router.push(Paths.system.teams.href)
+            router.push(Paths.admin.personnel.href)
 
-            queryClient.invalidateQueries(trpc.teams.getTeams.queryFilter())
-            queryClient.setQueryData(trpc.teams.getTeam.queryKey({ teamId: team.teamId }), undefined)
-        },
+            queryClient.invalidateQueries(trpc.personnel.getPersonnel.queryFilter())
+            queryClient.setQueryData(trpc.personnel.getPerson.queryKey({ personId: person.personId }), undefined)
+        }
     }))
 
     return <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTriggerButton tooltip="Delete team">
-            <TrashIcon/>    
+        <DialogTriggerButton tooltip="Delete person" >
+            <TrashIcon/>
         </DialogTriggerButton>
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>Delete Team</DialogTitle>
-                <DialogDescription>This will remove the team from RT+ forever (which is a really long time).</DialogDescription>
+                <DialogTitle>Delete Person</DialogTitle>
+                <DialogDescription>This will remove the person from RT+ forever (which is a really long time).</DialogDescription>
             </DialogHeader>
             <DialogBody>
                 <FormProvider {...form}>
-                    <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
+                    <Form onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData }))}>
                         <FormItem>
-                            <FormLabel>Team</FormLabel>
+                            <FormLabel>Person</FormLabel>
                             <FormControl>
-                                <DisplayValue>{team.name}</DisplayValue>
+                                <DisplayValue>{person.name}</DisplayValue>
                             </FormControl>
                         </FormItem>
                         <FormField
                             control={form.control}
-                            name="teamName"
+                            name="personName"
                             render={({ field }) => <FormItem>
-                                <FormLabel>Enter name</FormLabel>
+                                <FormLabel>Confirm Name</FormLabel>
                                 <FormControl>
-                                    <Input 
-                                        {...field} 
-                                        placeholder="Type the team name to confirm" 
-                                        maxLength={100} 
-                                        autoComplete="off" 
-                                    />
+                                    <Input {...field} placeholder="Type the person's name to confirm" />
                                 </FormControl>
                                 <FormMessage/>
                             </FormItem>}
                         />
                         <FormActions>
-                            <FormSubmitButton 
-                                labels={SubmitVerbs.delete} 
-                                color="destructive"
-                            />
+                            <FormSubmitButton labels={SubmitVerbs.delete} color="destructive"/>
                             <FormCancelButton onClick={() => setOpen(false)}/>
                         </FormActions>
                     </Form>
@@ -307,5 +272,4 @@ function DeleteTeamDialog({ team }: { team: TeamData }) {
             </DialogBody>
         </DialogContent>
     </Dialog>
-
 }

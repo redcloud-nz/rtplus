@@ -2,7 +2,7 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /system/personnel/--create
+ *  Path: /admin/personnel/--create
  */
 
 
@@ -11,17 +11,17 @@ import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
 
-import { System_NewPerson_Details_Card } from './system-new-person-details'
+import { NewPerson_Card } from './new-person'
 
 
-export default async function System_NewPerson_Page() { 
+export default async function NewPerson_Page() { 
     
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.system, 
-                Paths.system.personnel,
-                Paths.system.personnel.create
+                Paths.admin, 
+                Paths.admin.personnel,
+                Paths.admin.personnel.create
             ]}
         />
         <AppPageContent variant="container">
@@ -30,7 +30,7 @@ export default async function System_NewPerson_Page() {
             </PageHeader>
 
             <Boundary>
-                <System_NewPerson_Details_Card/>
+                <NewPerson_Card/>
             </Boundary>
         </AppPageContent>
         

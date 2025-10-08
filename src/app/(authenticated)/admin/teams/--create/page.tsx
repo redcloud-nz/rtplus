@@ -11,17 +11,17 @@ import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
 
-import { System_NewTeam_Details_Card } from './system-new-team-details'
+import { NewTeam_Card } from './new-team'
 
 
-export default async function System_NewTeam_Page() { 
+export default async function NewTeam_Page() { 
     
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.system, 
-                Paths.system.teams,
-                Paths.system.teams.create
+                Paths.admin, 
+                Paths.admin.teams,
+                Paths.admin.teams.create
             ]}
         />
         <AppPageContent variant="container">
@@ -30,7 +30,7 @@ export default async function System_NewTeam_Page() {
             </PageHeader>
 
             <Boundary>
-                <System_NewTeam_Details_Card/>
+                <NewTeam_Card/>
             </Boundary>
         </AppPageContent>
        

@@ -26,7 +26,7 @@ import { trpc } from '@/trpc/client'
 
 type RowData = TeamData & { _count: { teamMemberships: number } }
 
-export function System_TeamsList_Card() {
+export function TeamsList() {
 
     const teamsQuery = useSuspenseQuery(trpc.teams.getTeams.queryOptions({}))
 
@@ -44,13 +44,8 @@ export function System_TeamsList_Card() {
     }),
     columnHelper.accessor('name', {
         header: 'Name',
-        cell: ctx => <TextLink to={Paths.system.team(ctx.row.original.teamId)}>{ctx.getValue()}</TextLink>,
+        cell: ctx => <TextLink to={Paths.admin.team(ctx.row.original.teamId)}>{ctx.getValue()}</TextLink>,
         enableHiding: false
-    }),
-    columnHelper.accessor('shortName', {
-        header: 'Short Name',
-        cell: ctx => ctx.getValue(),
-        enableGrouping: false,
     }),
     columnHelper.accessor('_count.teamMemberships', {
         id: 'teamMemberCount',
@@ -108,7 +103,7 @@ export function System_TeamsList_Card() {
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button variant="ghost" size="icon" asChild>
-                                <Link to={Paths.system.teams.create}>
+                                <Link to={Paths.admin.teams.create}>
                                     <PlusIcon />
                                 </Link>
                             </Button>

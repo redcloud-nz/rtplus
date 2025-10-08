@@ -19,8 +19,6 @@ export const TeamId = {
     create: () => nanoId8() as TeamId,
 
     EMPTY: '' as TeamId,
-
-    SYSTEM: 'RTSYSTEM' as TeamId,
 } as const
 
 
@@ -46,6 +44,6 @@ export const teamRefSchema = z.object({
 
 export type TeamRef = z.infer<typeof teamRefSchema>
 
-export function toTeamRefData(record: TeamRecord): TeamRef {
+export function toTeamRef(record: TeamRecord): TeamRef {
     return teamRefSchema.parse(record)
 }

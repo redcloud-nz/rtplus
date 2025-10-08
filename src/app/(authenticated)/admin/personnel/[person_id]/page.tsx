@@ -12,26 +12,24 @@ import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 import { fetchPerson } from '@/server/fetch'
 
-import { System_Person_Details_Card } from './system-person-details'
-import { System_Person_TeamMemberships_Card } from './system-person-team-memberships'
+import { PersonDetails_Card } from './person-details'
+import { Person_TeamMemberships_List } from './person-team-memberships'
 
 
-
-
-export async function generateMetadata(props: { params: Promise<{ person_id: string }> }) {
+export async function generateMetadata(props: PageProps<'/admin/personnel/[person_id]'>) {
     const person = await fetchPerson(props.params)
     return { title: `${person.name} - Personnel` }
 }
 
 
-export default async function System_Person_Page(props: { params: Promise<{ person_id: string }> }) {
+export default async function Person_Page(props: PageProps<'/admin/personnel/[person_id]'>) {
     const person = await fetchPerson(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.system,
-                Paths.system.personnel, 
+                Paths.admin,
+                Paths.admin.personnel, 
                 person.name
             ]}
         />
@@ -41,10 +39,10 @@ export default async function System_Person_Page(props: { params: Promise<{ pers
             </PageHeader>
 
             <Boundary>
-                <System_Person_Details_Card personId={person.personId}/>
+                <PersonDetails_Card personId={person.personId}/>
             </Boundary>
             <Boundary>
-                <System_Person_TeamMemberships_Card person={person}/>
+                <Person_TeamMemberships_List person={person}/>
             </Boundary>
         </AppPageContent>
     </AppPage>

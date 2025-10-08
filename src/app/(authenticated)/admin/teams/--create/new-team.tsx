@@ -15,8 +15,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DisplayValue } from '@/components/ui/display-value'
 import { Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
-import { Input, SlugInput } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 import { ObjectName } from '@/components/ui/typography'
 
@@ -29,7 +28,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function System_NewTeam_Details_Card() {
+export function NewTeam_Card() {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -42,11 +41,9 @@ export function System_NewTeam_Details_Card() {
         defaultValues: {
             teamId: teamId,
             name: '',
-            shortName: '',
-            slug: teamId,
             color: '',
+            properties: {},
             status: 'Active',
-            type: 'Normal',
         }
     })
 
@@ -69,7 +66,7 @@ export function System_NewTeam_Details_Card() {
             })
 
             queryClient.invalidateQueries(trpc.teams.getTeams.queryFilter())
-            router.push(Paths.system.team(teamId).href)
+            router.push(Paths.admin.team(teamId).href)
         }
     }))
 
@@ -97,42 +94,6 @@ export function System_NewTeam_Details_Card() {
                                 label="Name"
                                 control={<Input maxLength={100} {...field}/>}
                                 description="The full name of the team."
-                            />}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="shortName"
-                            render={({ field }) => <ToruGridRow
-                                label="Short Name"
-                                control={<Input maxLength={20} {...field}/>}
-                                description="Short name of the team (eg NZ-RT13)."
-                            />}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="slug"
-                            render={({ field }) => <ToruGridRow
-                                label="Slug"
-                                control={<SlugInput {...field} onValueChange={field.onChange}/>}
-                                description="URL-friendly identifier for the team."
-                            />}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="type"
-                            render={({ field }) => <ToruGridRow
-                                label="Type"
-                                control={<Select value={field.value} onValueChange={field.onChange}>
-                                    <SelectTrigger>
-                                        <SelectValue/>
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Normal">Normal</SelectItem>
-                                        <SelectItem value="Sandbox">Sandbox</SelectItem>
-                                        <SelectItem value="System" disabled>System</SelectItem>
-                                    </SelectContent>
-                                </Select>}
-                                description="The type of team. Can't be changed later."
                             />}
                         />
                         <ToruGridRow

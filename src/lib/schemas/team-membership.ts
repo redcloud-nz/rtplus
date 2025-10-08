@@ -23,11 +23,6 @@ export type TeamMembershipData = z.infer<typeof teamMembershipSchema>
 
 
 
-export function toTeamMembershipData(data: TeamMembershipRecord): TeamMembershipData {
-    return teamMembershipSchema.parse({
-        teamId: data.teamId,
-        personId: data.personId,
-        tags: data.tags,
-        status: data.status
-    })
+export function toTeamMembershipData(record: TeamMembershipRecord): TeamMembershipData {
+    return teamMembershipSchema.parse(record)
 }

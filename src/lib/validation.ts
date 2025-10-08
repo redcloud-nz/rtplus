@@ -8,7 +8,7 @@ import { z } from 'zod'
 
 export const zodColor = z.string().regex(/^#[0-9A-F]{6}$/, "Must be a colour in RGB Hex format (eg #4682B4)")
 
-export const zodRecordStatus = z.union([
+export const recordStatusParameterSchema = z.union([
     z.enum(['Active', 'Inactive']),
     z.array(z.enum(['Active', 'Inactive'])).min(1).max(2)
 ]).optional().default(['Active', 'Inactive']).transform(value => Array.isArray(value) ? value : [value])

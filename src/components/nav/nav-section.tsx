@@ -4,9 +4,9 @@
  */
 'use client'
 
-import { ChevronRight, LucideProps } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { ComponentProps, ForwardRefExoticComponent, ReactNode, RefAttributes } from 'react'
+import { ComponentProps, ReactNode } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleProps, CollapsibleTrigger } from '@/components/ui/collapsible'
@@ -26,7 +26,7 @@ import {
 
 export interface NavSectionProps {
     title?: string
-    children: React.ReactNode
+    children: ReactNode
 }
 
 
@@ -40,7 +40,7 @@ export function NavSection({ title, children }: NavSectionProps) {
 }
 
 type NavItemExternalProps = { external: true, label: string, href: string, icon?: ReactNode }
-type NavItemInternalProps = { external?: never, href?: never, path: { label: string, href: string, icon?: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> }, label?: string, icon?: ReactNode, prefetch?: boolean | null }
+type NavItemInternalProps = { external?: never, href?: never, path: { label: string, href: string }, label?: string, icon?: ReactNode, prefetch?: boolean | null }
 type NavItemProps = NavItemExternalProps | NavItemInternalProps
 
 export function NavItem({ external, ...props }: NavItemProps) {
@@ -61,7 +61,7 @@ export function NavItem({ external, ...props }: NavItemProps) {
         return <SidebarMenuItem>
             <SidebarMenuButton tooltip={props.label ?? props.path.label} asChild isActive={pathname == props.path.href}>
                 <Link to={props.path} prefetch={props.prefetch}>
-                    {props.icon ?? (props.path.icon ? <props.path.icon /> : null)}
+                    {props.icon}
                     <span>{props.label ?? props.path.label}</span>
                 </Link>
             </SidebarMenuButton>
@@ -72,7 +72,7 @@ export function NavItem({ external, ...props }: NavItemProps) {
 
 type NavCollapsibleProps = CollapsibleProps & {
     label: string
-    icon?: React.ReactNode
+    icon?: ReactNode
 }
 
 export function NavCollapsible({ label, icon, children, ...props }: NavCollapsibleProps) {

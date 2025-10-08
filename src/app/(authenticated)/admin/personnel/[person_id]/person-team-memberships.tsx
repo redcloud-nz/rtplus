@@ -38,7 +38,7 @@ import { trpc } from '@/trpc/client'
  * It allows adding, editing, and deleting team memberships.
  * @param personId The ID of the person for whom to display team memberships.
  */
-export function System_Person_TeamMemberships_Card({ person }: { person: PersonData }) {
+export function Person_TeamMemberships_List({ person }: { person: PersonData }) {
     
     const queryClient = useQueryClient()
     const { toast } = useToast()
@@ -238,12 +238,13 @@ export function System_Person_TeamMemberships_Card({ person }: { person: PersonD
         createEmptyRow: () => ({
             teamId: TeamId.EMPTY,
             personId: person.personId,
-            status: 'Active' as const,
+            properties: {},
             tags: [],
+            status: 'Active',
             team: {
                 teamId: TeamId.EMPTY,
                 name: '',
-                slug: '',
+                status: 'Active'
             }
         }),
         onUpdate: (rowData) => {

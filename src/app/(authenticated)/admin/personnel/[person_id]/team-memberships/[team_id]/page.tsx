@@ -2,7 +2,7 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /system/personnel/[person_id]/team-memberships/[team_id]
+ *  Path: /admin/personnel/[person_id]/team-memberships/[team_id]
  */
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
@@ -19,10 +19,10 @@ export async function generateMetadata(props: { params: Promise<{ person_id: str
 
     const membership = await fetchTeamMembership(props.params)
 
-    return { title: `${membership.person.name} - ${membership.team.shortName || membership.team.name}` }
+    return { title: `${membership.person.name} - ${membership.team.name}` }
 }
 
-export default async function System_Person_TeamMembership_Page(props: { params: Promise<{ person_id: string, team_id: string }>} ) {
+export default async function Person_TeamMembership_Page(props: { params: Promise<{ person_id: string, team_id: string }>} ) {
     const { person, team } = await fetchTeamMembership(props.params)
 
     return <AppPage>
