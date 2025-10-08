@@ -41,7 +41,7 @@ export const createAuthenticatedMockContext = ({ personId, activeTeam, teams = [
         auth: {
             userId: 'user_test123',
             personId: personId,
-            activeTeam: activeTeam ?? {
+            activeOrg: activeTeam ?? {
                 orgId: 'org_test123',
                 slug: 'test-team',
                 role: 'org:member' as const,

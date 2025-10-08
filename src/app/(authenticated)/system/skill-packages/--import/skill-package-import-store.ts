@@ -47,7 +47,7 @@ export const useSkillPackageImportStore = create<SkillPackageImportStore>() (
             async loadPackage(packageId: string) {
                 set({ loading: true })
 
-                const pkg = PackageList.find(pkg => pkg.id == packageId)
+                const pkg = PackageList.find(pkg => pkg.skillPackageId == packageId)
                 await resolveAfter(null, 1000)
                 if(pkg) {
                     set({ status: 'Review', loading: false, packageToImport: pkg })

@@ -156,7 +156,7 @@ function UpdateSession_Form({ onClose, session, team }: { onClose: () => void, s
                 description: `The session ${session.name} has been updated successfully.`,
             })
 
-            queryClient.invalidateQueries(trpc.skillChecks.getTeamSessions.queryFilter({ teamId: session.teamId }))
+            queryClient.invalidateQueries(trpc.skillChecks.getSessions.queryFilter({ teamId: session.teamId }))
         },
         onSettled() {
             queryClient.invalidateQueries(queryFilter)
@@ -244,7 +244,7 @@ function DeleteSessionDialog({ session, team }: { session: SkillCheckSessionData
             setOpen(false)
             router.push(Paths.org(team).skills.sessions.href)
 
-            queryClient.invalidateQueries(trpc.skillChecks.getTeamSessions.queryFilter({ teamId: team.teamId }))
+            queryClient.invalidateQueries(trpc.skillChecks.getSessions.queryFilter({ teamId: team.teamId }))
             queryClient.setQueryData(trpc.skillChecks.getSession.queryKey({ sessionId: session.sessionId }), undefined)
         },
     }))

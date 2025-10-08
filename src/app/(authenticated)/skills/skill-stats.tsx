@@ -49,7 +49,7 @@ export function TeamMembersCount_Card({ team }: { team: TeamData }) {
 
 export function SessionsCount_Card({ team }: { team: TeamData }) {
 
-    const { data: sessions } = useSuspenseQuery(trpc.skillChecks.getTeamSessions.queryOptions({ teamId: team.teamId }))
+    const { data: sessions } = useSuspenseQuery(trpc.skillChecks.getSessions.queryOptions({ teamId: team.teamId }))
 
     return <Stat objectType="Sessions" value={sessions.length} description="have been created"  linksTo={Paths.org(team).skills.sessions}/>
 }

@@ -6,14 +6,14 @@
 import { IDValidationSet } from '@/lib/id'
 
 export interface SkillPackageDef {
-    id: string
+    skillPackageId: string
     name: string
     sequence: number
     skillGroups: SkillGroupDef[]
 }
 
 export interface SkillGroupDef {
-    id: string
+    skillGroupId: string
     name: string
     skillPackageId: string
     parentId: string | null
@@ -23,7 +23,7 @@ export interface SkillGroupDef {
 }
 
 export interface SkillDef {
-    id: string
+    skillId: string
     name: string
     skillPackageId: string
     skillGroupId: string
@@ -39,7 +39,7 @@ const vSet = new IDValidationSet()
 
 type SkillPackageArgs = Omit<SkillPackageDef, | 'skillGroups'> & Partial<Pick<SkillPackageDef, 'skillGroups'>>
 
-function definePackage({ id: skillPackageId, ...pkg }: SkillPackageArgs): SkillPackageDef {
+function definePackage({ skillPackageId: skillPackageId, ...pkg }: SkillPackageArgs): SkillPackageDef {
     function patchSkill(skill: SkillDef, skillGroupId: string, sequence: number): SkillDef {
         return { ...skill, skillPackageId, skillGroupId, sequence }
     }
@@ -49,8 +49,8 @@ function definePackage({ id: skillPackageId, ...pkg }: SkillPackageArgs): SkillP
             skillPackageId, 
             parentId,
             sequence,
-            subGroups: skillGroup.subGroups.map((subGroup, subGroupIndex) => patchSkillGroup(subGroup, skillGroup.id, subGroupIndex+1)),
-            skills: skillGroup.skills.map((skill, skillIndex) => patchSkill(skill, skillGroup.id, skillIndex+1)), 
+            subGroups: skillGroup.subGroups.map((subGroup, subGroupIndex) => patchSkillGroup(subGroup, skillGroup.skillGroupId, subGroupIndex+1)),
+            skills: skillGroup.skills.map((skill, skillIndex) => patchSkill(skill, skillGroup.skillGroupId, skillIndex+1)), 
         }
     }
 
@@ -58,17 +58,17 @@ function definePackage({ id: skillPackageId, ...pkg }: SkillPackageArgs): SkillP
 
     return { 
         ...pkg,
-        id: skillPackageId,
+        skillPackageId: skillPackageId,
         skillGroups: (pkg.skillGroups ?? []).map((skillGroup, groupIndex) => patchSkillGroup(skillGroup, null, groupIndex+1)),
     }
 }
 
 type SkillGroupArgs = Omit<SkillGroupDef, 'skillPackageId' | 'parentId' | 'sequence' | 'subGroups'> & Partial<Pick<SkillGroupDef, 'subGroups'>>
 
-function defineGroup({id, skills, subGroups = [], ...data }: SkillGroupArgs): SkillGroupDef {
+function defineGroup({skillGroupId: id, skills, subGroups = [], ...data }: SkillGroupArgs): SkillGroupDef {
     vSet.validate(id)
 
-    return { id, skillPackageId: PLACEHOLDER, parentId: PLACEHOLDER, sequence: -1, skills, subGroups, ...data }
+    return { skillGroupId: id, skillPackageId: PLACEHOLDER, parentId: PLACEHOLDER, sequence: -1, skills, subGroups, ...data }
 }
 
 interface SkillArgs {
@@ -82,17 +82,17 @@ interface SkillArgs {
 function defineSkill({ id, name, optional = false, frequency = 'P1Y', description = "" }: SkillArgs): SkillDef {
     vSet.validate(id)
 
-    return { id, name, skillPackageId: PLACEHOLDER, skillGroupId: PLACEHOLDER, optional, frequency, description, sequence: -1 }
+    return { skillId: id, name, skillPackageId: PLACEHOLDER, skillGroupId: PLACEHOLDER, optional, frequency, description, sequence: -1 }
 }
 
 export const PackageList: SkillPackageDef[] = [
     definePackage({ 
-        id: "5UjUAtIM", 
+        skillPackageId: "5UjUAtIM", 
         name: "Foundation", 
         sequence: 1,
         skillGroups: [
             defineGroup({ 
-                id: "paScPTf8", 
+                skillGroupId: "paScPTf8", 
                 name: "First Aid",
                 skills: [
                     defineSkill({ id: "QApthAIq", name: "First Aid Certificate", description: "Hold a current first aid certificate." }),
@@ -102,7 +102,7 @@ export const PackageList: SkillPackageDef[] = [
                 ]
             }),
             defineGroup({ 
-                id: "jNs8IGSU", 
+                skillGroupId: "jNs8IGSU", 
                 name: "Soft Skills", 
                 skills: [
                     defineSkill({ id: "tDQ2M8do", name: "Cultural Awareness", description: "Demonstrate cultural awareness.", frequency: 'P2Y' }),
@@ -110,7 +110,7 @@ export const PackageList: SkillPackageDef[] = [
                 ]
             }),
             defineGroup({ 
-                id: "6Xs8pOeC", 
+                skillGroupId: "6Xs8pOeC", 
                 name: "Other",
                 skills: [
                     defineSkill({ id: "LiHqycpC", name: "Staff a cordon", description: "Staff a cordon with appropriate PPE and make correct decisions about access." }),
@@ -124,7 +124,7 @@ export const PackageList: SkillPackageDef[] = [
                 ]}
             ),
             defineGroup({ 
-                id: "nwVvwKwX", 
+                skillGroupId: "nwVvwKwX", 
                 name: "Communications",
                 skills: [
                     defineSkill({ id: "tWrF9L0w", name: "Comms Center", description: "Operate and manage a communications centre or hub." }),
@@ -136,12 +136,12 @@ export const PackageList: SkillPackageDef[] = [
         ]
     }),
     definePackage({ 
-        id: "oB5l5D8U", 
+        skillPackageId: "oB5l5D8U", 
         name: "Light Rescue", 
         sequence: 2,
         skillGroups: [
             defineGroup({ 
-                id: "DxAar9TH", 
+                skillGroupId: "DxAar9TH", 
                 name: "Knots and Lines",
                 skills: [
                     defineSkill({ id: "3E2opDUi", name: "Single Figure 8", description: "Tie a single figure 8 knot." }),
@@ -161,7 +161,7 @@ export const PackageList: SkillPackageDef[] = [
                 ]}
             ),
             defineGroup({ 
-                id: "tCErpzSZ", 
+                skillGroupId: "tCErpzSZ", 
                 name: "Search Techniques", 
                 skills: [
                     defineSkill({ id: "fHf2Y6m9", name: "Correct PPE", description: "Wear correct PPE and complete a buddy check." }),
@@ -174,7 +174,7 @@ export const PackageList: SkillPackageDef[] = [
                 ]}
             ),
             defineGroup({ 
-                id: "htesLAjx", 
+                skillGroupId: "htesLAjx", 
                 name: "Ladders", 
                 skills: [
                     defineSkill({ id: "UhQjUBEu", name: "Extension Ladder", description: "Raise and lower an extension ladder." }),
@@ -185,7 +185,7 @@ export const PackageList: SkillPackageDef[] = [
                 ]}
             ),
             defineGroup({ 
-                id: "xm3QkP8s", 
+                skillGroupId: "xm3QkP8s", 
                 name: "Stretchers", 
                 skills: [
                     defineSkill({ id: "uIZVoIsX", name: "Load Stretcher", description: "Load and blanket stretcher with patient secured correctly." }),
@@ -200,14 +200,14 @@ export const PackageList: SkillPackageDef[] = [
                 ]}
             ),
             defineGroup({ 
-                id: "BSAmWUnH", 
+                skillGroupId: "BSAmWUnH", 
                 name: "ICP",
                 skills: [
                     defineSkill({ id: "MMBDDFfs", name: "Sign in/out board", description: "Establish and maintain a sign in/out board or T-card system." })
                 ]
             }),
             defineGroup({ 
-                id: "nwcyjXkx", 
+                skillGroupId: "nwcyjXkx", 
                 name: "Lowers", 
                 skills: [
                     defineSkill({ id: "rYfP2XhN", name: "Belay Anchors", description: "Establish top and/or bottom anchors for a lowering/belay system." }),
@@ -222,7 +222,7 @@ export const PackageList: SkillPackageDef[] = [
                 ]
             }),
             defineGroup({ 
-                id: "8BbKr0XS", 
+                skillGroupId: "8BbKr0XS", 
                 name: "Improvised Casualty Movement",
                 skills: [
                     defineSkill({ id: "IEc5HIlT", name: "Blanket/Clothing Lift", description: "Lift a patient using either a blanket lift or clothing lift. " }),
@@ -238,12 +238,12 @@ export const PackageList: SkillPackageDef[] = [
         ]
     }),
     definePackage({
-        id: "CvScf6pv", 
+        skillPackageId: "CvScf6pv", 
         name: "Flood Response", 
         sequence: 3,
         skillGroups: [
             defineGroup({
-                id: "fUjitkGa",
+                skillGroupId: "fUjitkGa",
                 name: "Flood Protection",
                 skills: [
                     defineSkill({ id: "gETPv0Z4", name: "Pumps", description: "Operate pumps (including priming and maintenance requirements)." }),
@@ -255,7 +255,7 @@ export const PackageList: SkillPackageDef[] = [
                 ]
             }),
             defineGroup({
-                id: "kyAIuLro",
+                skillGroupId: "kyAIuLro",
                 name: "Water Safety",
                 skills: [
                     defineSkill({ id: "dDqXtURG", name: "Correct PPE", description: "Correct PPE work and buddy checked" }),
@@ -272,12 +272,12 @@ export const PackageList: SkillPackageDef[] = [
         ]
     }),
     definePackage({ 
-        id: "vW8HWNb0", 
+        skillPackageId: "vW8HWNb0", 
         name: "Storm Response", 
         sequence: 4,
         skillGroups: [
             defineGroup({
-                id: "NWEGA1ou",
+                skillGroupId: "NWEGA1ou",
                 name: "Storm",
                 skills: [
                     defineSkill({ id: "g4izEP5Y", name: "Appropriate Anchors", description: "Choose appropriate anchors and rig correctly." }),
@@ -291,7 +291,7 @@ export const PackageList: SkillPackageDef[] = [
                 ]
             }),
             defineGroup({
-                id: "p0yK8Kyv",
+                skillGroupId: "p0yK8Kyv",
                 name: "Chainsaws",
                 skills: [
                     defineSkill({ id: "Ou7pPg7Q", name: "Chainsaw PPE", description: "Wears correct PPE when using a chainsaw", optional: true }),
@@ -305,12 +305,12 @@ export const PackageList: SkillPackageDef[] = [
         ]
     }),
     definePackage({ 
-        id: "14T0wSnu", 
+        skillPackageId: "14T0wSnu", 
         name: "CDC & Welfare", 
         sequence: 5,
         skillGroups: [
             defineGroup({
-                id: "3TVQZx0b",
+                skillGroupId: "3TVQZx0b",
                 name: "Civil Defence Centres and Welfare",
                 skills: [
                     defineSkill({ id: "PJhGL4QI", name: "Establish CDC", description: "Establish/setup a CDC as part of a team." }),
@@ -323,76 +323,76 @@ export const PackageList: SkillPackageDef[] = [
         ]
     }),
     definePackage({ 
-        id: "ydlzyyF", 
+        skillPackageId: "ydlzyyF", 
         name: "Swiftwater Rescue", 
         sequence: 6,
         skillGroups: [
             defineGroup({
-                id: "vcNSd82R",
+                skillGroupId: "vcNSd82R",
                 name: "Responder",
                 skills: []
             }),
             defineGroup({
-                id: "d7gpd6k7",
+                skillGroupId: "d7gpd6k7",
                 name: "Technician",
                 skills: []
             }),
             defineGroup({
-                id: "8UDRklM2",
+                skillGroupId: "8UDRklM2",
                 name: "Technician Advanced",
                 skills: []
             }),
             defineGroup({
-                id: "3ASEMJso",
+                skillGroupId: "3ASEMJso",
                 name: "Other",
                 skills: []
             }),
             defineGroup({
-                id: "619XPzxP",
+                skillGroupId: "619XPzxP",
                 name: "Non-powered Craft",
                 skills: []
             }),
             defineGroup({
-                id: "PdmC6qe3",
+                skillGroupId: "PdmC6qe3",
                 name: "Powered Craft",
                 skills: []
             }),
             defineGroup({
-                id: "crwp8m7N",
+                skillGroupId: "crwp8m7N",
                 name: "Rescue from Vehicle",
                 skills: []
             })
         ]
     }),
     definePackage({ 
-        id: "LnSfHuRJ", 
+        skillPackageId: "LnSfHuRJ", 
         name: "Rope Rescue", 
         sequence: 7,
         skillGroups: [
             defineGroup({
-                id: "LKGNWwia",
+                skillGroupId: "LKGNWwia",
                 name: "Responder",
                 skills: []
             }),
             defineGroup({
-                id: "3gaX0e3q",
+                skillGroupId: "3gaX0e3q",
                 name: "Technician",
                 skills: []
             }),
             defineGroup({
-                id: "TGMS2n6r",
+                skillGroupId: "TGMS2n6r",
                 name: "Specialist",
                 skills: []
             }),
         ]
     }),
     definePackage({ 
-        id: "kPhxyIZe", 
+        skillPackageId: "kPhxyIZe", 
         name: "Mass Casualty Support", 
         sequence: 8,
         skillGroups: [
             defineGroup({
-                id: "wTgBHf6l",
+                skillGroupId: "wTgBHf6l",
                 name: "Mass Casualty",
                 skills: [
                     defineSkill({ id: "yZOoqLnI", name: "Establish CCP", description: "Help to establish a Casualty Collection Point (including seperate area for deceased)." }),
@@ -404,7 +404,7 @@ export const PackageList: SkillPackageDef[] = [
                 ]
             }),
             defineGroup({
-                id: "Yp7N4H9Y",
+                skillGroupId: "Yp7N4H9Y",
                 name: "Medic",
                 skills: [
                     defineSkill({ id: "HCqIB98b", name: "Patient Survey", description: "Conduct a primary and secondary survey." }),
@@ -417,12 +417,12 @@ export const PackageList: SkillPackageDef[] = [
         ]
     }),
     definePackage({ 
-        id: "Qpy5AijR", 
+        skillPackageId: "Qpy5AijR", 
         name: "Out of Region", 
         sequence: 9,
         skillGroups: [
             defineGroup({
-                id: "ddpJejLo",
+                skillGroupId: "ddpJejLo",
                 name: "Driving & 4WD",
                 skills: [
                     defineSkill({ id: "F3fbLipk", name: "Drive on road", description: "Drive a team vehicle on road." }),
@@ -436,7 +436,7 @@ export const PackageList: SkillPackageDef[] = [
                 ]
             }),
             defineGroup({
-                id: "Lf76fZEP",
+                skillGroupId: "Lf76fZEP",
                 name: "Out of Region Deployment",
                 skills: [
                     defineSkill({ id: "WqG7PV59", name: "Deploy Out of Region", description: "Participate in an out-of-region deployment or exercise.", frequency: 'P2Y' }),
@@ -446,12 +446,12 @@ export const PackageList: SkillPackageDef[] = [
         ]
     }),
     definePackage({ 
-        id: "J8B8YGAX", 
+        skillPackageId: "J8B8YGAX", 
         name: "Leadership", 
         sequence: 10,
         skillGroups: [
             defineGroup({
-                id: "2sSvq5A6",
+                skillGroupId: "2sSvq5A6",
                 name: "Team Leadership",
                 skills: [
                     defineSkill({ id: "rs5O8bme", name: "Lead", description: "Lead a team or squad effectively." }),
@@ -461,7 +461,7 @@ export const PackageList: SkillPackageDef[] = [
                 ]
             }),
             defineGroup({
-                id: "fqBMC6IA",
+                skillGroupId: "fqBMC6IA",
                 name: "Safety Officer",
                 skills: [
                     defineSkill({ id: "LDWZpaH5", name: "Base Induction", description: "Understand team base health and safety induction requirements." }),

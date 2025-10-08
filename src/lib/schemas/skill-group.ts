@@ -9,10 +9,20 @@ import { SkillGroup as SkillGroupRecord } from '@prisma/client'
 
 import { zodNanoId8 } from '../validation'
 
+import { SkillPackageId } from './skill-package'
+
+export type SkillGroupId = string & z.BRAND<'SkillGroupId'>
+
+export const SkillGroupId = {
+    schema: z.string().length(8).regex(/^[a-zA-Z0-9]+$/, "8 character Skill Group ID expected.").brand<'SkillGroupId'>(),
+
+    create: () => zodNanoId8.parse(zodNanoId8),
+}
+
 export const skillGroupSchema = z.object({
-    skillGroupId: zodNanoId8,
-    skillPackageId: zodNanoId8,
-    parentId: z.union([zodNanoId8, z.null()]),
+    skillGroupId: SkillGroupId.schema,
+    skillPackageId: SkillPackageId.schema,
+    parentId: z.union([SkillGroupId.schema, z.null()]),
     name: z.string().nonempty().max(100),
     description: z.string().max(500),
     status: z.enum(['Active', 'Inactive']),
@@ -22,13 +32,5 @@ export const skillGroupSchema = z.object({
 export type SkillGroupData = z.infer<typeof skillGroupSchema>
 
 export function toSkillGroupData(data: SkillGroupRecord): SkillGroupData {
-    return {
-        skillGroupId: data.id,
-        skillPackageId: data.skillPackageId,
-        parentId: data.parentId,
-        name: data.name,
-        description: data.description,
-        status: data.status,
-        sequence: data.sequence
-    }
+    return skillGroupSchema.parse(data)
 }

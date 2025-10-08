@@ -18,3 +18,15 @@ export const zodSlug = z.string().max(100).regex(/^[a-zA-Z0-9\-]+$/, "Must be ur
 export const zodNanoId8 = z.string().length(8).regex(/^[a-zA-Z0-9]+$/, "Must be 8 character alphanumeric format (no spaces or special characters).")
 
 export const zodNanoId16 = z.string().length(16).regex(/^[a-zA-Z0-9]+$/, "Must be 16 character alphanumeric format (no spaces or special characters).")
+
+
+export const userIdSchema = z.string().startsWith('user_').max(50).brand<'ClerkUserId'>()
+
+export const orgIdSchema = z.string().startsWith('org_').max(50).brand<'ClerkOrgId'>()
+
+
+export const propertiesSchema = z.record(z.string(), z.any())
+
+export const recordStatusSchema = z.enum(['Active', 'Inactive'])
+
+export type RecordStatus = z.infer<typeof recordStatusSchema>

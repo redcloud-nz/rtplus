@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { Person as PersonRecord } from '@prisma/client'
 
 import { nanoId8 } from '../id'
-import { zodNanoId8 } from '../validation'
+import { propertiesSchema, recordStatusSchema } from '../validation'
 
 export const zodPersonId = z.string().length(8).regex(/^[a-zA-Z0-9]+$/, "8 character Person ID expected.").brand<'PersonId'>()
 
@@ -22,43 +22,31 @@ export const PersonId = {
     EMPTY: '' as PersonId,
 } as const
 
-export const EMPTY_PERSON_ID = '' as PersonId
-
 
 export const personSchema = z.object({
     personId: PersonId.schema,
     name: z.string().min(5).max(100),
     email: z.string().email(),
-    owningTeamId: zodNanoId8.nullable(),
-    type: z.enum(['Normal', 'Sandbox']),
-    status: z.enum(['Active', 'Inactive']),
+    properties: propertiesSchema,
+    status: recordStatusSchema
 })
 
 export type PersonData = z.infer<typeof personSchema>
 
 export function toPersonData(record: PersonRecord): PersonData {
-    return personSchema.parse({
-        personId: record.id,
-        name: record.name,
-        email: record.email,
-        owningTeamId: record.owningTeamId,
-        type: record.type,
-        status: record.status,
-    })
+    return personSchema.parse(record)
 }
+
 
 export const personRefSchema = z.object({
     personId: PersonId.schema,
     name: z.string().min(5).max(100),
     email: z.string().email(),
+    status: recordStatusSchema
 })
 
 export type PersonRef = z.infer<typeof personRefSchema>
 
-export function toPersonRef(record: Pick<PersonRecord, 'id' | 'name' | 'email'>): PersonRef {
-    return personRefSchema.parse({
-        personId: record.id,
-        name: record.name,
-        email: record.email,
-    })
+export function toPersonRef(record: Pick<PersonRecord, 'personId' | 'name' | 'email' | 'status'>): PersonRef {
+    return personRefSchema.parse(record)
 }

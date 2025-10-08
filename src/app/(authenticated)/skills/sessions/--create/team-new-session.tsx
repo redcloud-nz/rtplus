@@ -62,7 +62,7 @@ export function Team_Skills_NewSession_Card({ team }: { team: TeamData }) {
             }
         },
         onSuccess(result) {
-            queryClient.invalidateQueries(trpc.skillChecks.getTeamSessions.queryFilter())
+            queryClient.invalidateQueries(trpc.skillChecks.getSessions.queryFilter())
             
             toast({
                 title: "Session created",

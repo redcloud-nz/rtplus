@@ -7,34 +7,31 @@ import { z } from 'zod'
 
 import { Skill as SkillRecord } from '@prisma/client'
 
-import { zodNanoId8 } from '../validation'
+import { propertiesSchema, recordStatusSchema, zodNanoId8 } from '../validation'
+import { SkillGroupId } from './skill-group'
+import { SkillPackageId } from './skill-package'
 
 export type SkillId = string
 
+export const SkillId = {
+    schema: z.string().length(8).regex(/^[a-zA-Z0-9]+$/, "8 character Skill ID expected.").brand<'SkillId'>(),
+
+    create: () => zodNanoId8.parse(zodNanoId8),
+}
+
 export const skillSchema = z.object({
-    skillId: zodNanoId8,
-    skillGroupId: zodNanoId8,
-    skillPackageId: zodNanoId8,
+    skillId: SkillId.schema,
+    skillGroupId: SkillGroupId.schema,
+    skillPackageId: SkillPackageId.schema,
     name: z.string().nonempty().max(100),
     description: z.string().max(500),
-    frequency: z.string(),
-    optional: z.boolean().default(false),
+    properties: propertiesSchema,
     sequence: z.number(),
-    status: z.enum(['Active', 'Inactive'])
+    status: recordStatusSchema
 })
 
 export type SkillData = z.infer<typeof skillSchema>
 
 export function toSkillData(data: SkillRecord): SkillData {
-    return {
-        skillId: data.id,
-        skillGroupId: data.skillGroupId,
-        skillPackageId: data.skillPackageId,
-        name: data.name,
-        description: data.description,
-        frequency: data.frequency,
-        optional: data.optional,
-        sequence: data.sequence,
-        status: data.status
-    }
+    return skillSchema.parse(data)
 }

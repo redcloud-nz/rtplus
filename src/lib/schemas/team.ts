@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { Team as TeamRecord } from '@prisma/client'
 
 import { nanoId8 } from '../id'
-import { zodColor, zodSlug } from '../validation'
+import { propertiesSchema, recordStatusSchema, zodColor } from '../validation'
 
 
 export type TeamId = string & z.BRAND<'TeamId'>
@@ -27,35 +27,25 @@ export const TeamId = {
 export const teamSchema = z.object({
     teamId: TeamId.schema,
     name: z.string().min(5).max(100),
-    shortName: z.string().max(20),
-    slug: zodSlug,
     color: z.union([zodColor, z.literal('')]),
-    type: z.enum(['Normal', 'Sandbox', 'System']),
-    status: z.enum(['Active', 'Inactive']),
+    properties: propertiesSchema,
+    status: recordStatusSchema,
 })
 
 export type TeamData = z.infer<typeof teamSchema>
 
 export function toTeamData(record: TeamRecord): TeamData {
-    return teamSchema.parse({
-        teamId: record.id,
-        name: record.name,
-        shortName: record.shortName,
-        slug: record.slug,
-        color: record.color,
-        type: record.type,
-        status: record.status,
-    })
+    return teamSchema.parse(record)
 }
 
-export const teamRefSchema = teamSchema.pick({ teamId: true, name: true, slug: true })
+export const teamRefSchema = z.object({
+    teamId: TeamId.schema,
+    name: z.string().min(5).max(100),
+    status: recordStatusSchema,
+})
 
 export type TeamRef = z.infer<typeof teamRefSchema>
 
-export function toTeamRef(record: Pick<TeamRecord, 'id' | 'name' | 'slug'>): TeamRef {
-    return teamRefSchema.parse({
-        teamId: record.id,
-        name: record.name,
-        slug: record.slug,
-    })
+export function toTeamRefData(record: TeamRecord): TeamRef {
+    return teamRefSchema.parse(record)
 }

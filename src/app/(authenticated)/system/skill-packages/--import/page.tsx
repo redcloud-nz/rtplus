@@ -78,7 +78,7 @@ function SelectPackageStep() {
             </SelectTrigger>
             <SelectContent>
                 {availablePackages.map(pkg => 
-                    <SelectItem key={pkg.id} value={pkg.id}>{pkg.name}</SelectItem>
+                    <SelectItem key={pkg.skillPackageId} value={pkg.skillPackageId}>{pkg.name}</SelectItem>
                 )}
             </SelectContent>
         </Select>
@@ -102,23 +102,23 @@ function ReviewPackageStep() {
     const mutation = useMutation(trpc.skills.importPackage.mutationOptions())
     
     async function handleImport() {
-        await importPackage(() => mutation.mutateAsync({ skillPackageId: packageToImport!.id }))
+        await importPackage(() => mutation.mutateAsync({ skillPackageId: packageToImport!.skillPackageId }))
     }
 
     function renderGroup(skillGroup: SkillGroupDef): React.ReactNode {
-            return <React.Fragment key={skillGroup.id}>
+            return <React.Fragment key={skillGroup.skillGroupId}>
                 <TableRow>
                     <TableCell className="pl-6">Group</TableCell>
                     <TableCell>
                         <div>{skillGroup.name}</div>
                     </TableCell>
-                    <TableCell><span className="text-muted-foreground">ID:</span> {skillGroup.id}</TableCell>
+                    <TableCell><span className="text-muted-foreground">ID:</span> {skillGroup.skillGroupId}</TableCell>
                     <TableCell></TableCell>
                     <TableCell></TableCell>
                 </TableRow>
                 {skillGroup.subGroups.map(renderGroup)}
                 {skillGroup.skills.map(skill => 
-                    <TableRow key={skill.id}>
+                    <TableRow key={skill.skillId}>
                         <TableCell className="pl-10">Skill</TableCell>
                         <TableCell>{skill.name}</TableCell>
                         <TableCell>{skill.description}</TableCell>
@@ -146,7 +146,7 @@ function ReviewPackageStep() {
                     <TableCell>
                         <div>{packageToImport.name}</div>
                     </TableCell>
-                    <TableCell><span className="text-muted-foreground">ID:</span> {packageToImport.id}</TableCell>
+                    <TableCell><span className="text-muted-foreground">ID:</span> {packageToImport.skillPackageId}</TableCell>
                     <TableCell className="text-center"></TableCell>
                     <TableCell className="text-center"></TableCell>
                 </TableRow>

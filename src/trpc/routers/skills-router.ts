@@ -13,9 +13,9 @@ import { nanoId16 } from '@/lib/id'
 import { zodNanoId8, zodRecordStatus } from '@/lib/validation'
 import { TRPCError } from '@trpc/server'
 
-import { AuthenticatedContext, authenticatedProcedure, createTRPCRouter, systemAdminProcedure } from '../init'
-import { skillGroupSchema, toSkillGroupData } from '@/lib/schemas/skill-group'
-import { skillPackageSchema, toSkillPackageData } from '@/lib/schemas/skill-package'
+import { AuthenticatedContext, AuthenticatedOrgContext, authenticatedProcedure, createTRPCRouter, orgAdminProcedure } from '../init'
+import { SkillGroupId, skillGroupSchema, toSkillGroupData } from '@/lib/schemas/skill-group'
+import { SkillPackageId, skillPackageSchema, toSkillPackageData } from '@/lib/schemas/skill-package'
 import { ChangeCountsByType, createChangeCounts } from '@/lib/change-counts'
 import { PackageList, SkillPackageDef } from '@/data/skills'
 import { assertNonNull } from '@/lib/utils'
@@ -24,10 +24,14 @@ import { TeamId } from '@/lib/schemas/team'
 
 export const skillsRouter = createTRPCRouter({
 
-    createGroup: systemAdminProcedure
+    createGroup: orgAdminProcedure
         .input(skillGroupSchema)
         .output(skillGroupSchema)
         .mutation(async ({ ctx, input: { skillPackageId, skillGroupId, ...input} }) => {
+            const skillPackage = await getSkillPackageById(ctx, skillPackageId)
+
+            if(skillPackage.ownerOrgId != ctx.auth.activeOrg.orgId) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to modify SkillPackage(${skillPackageId})` })
+
             const aggregations = await ctx.prisma.skillGroup.aggregate({
                 where: { skillPackageId },
                 _max: { sequence: true }
@@ -38,7 +42,7 @@ export const skillsRouter = createTRPCRouter({
             const [created] = await ctx.prisma.$transaction([
                 ctx.prisma.skillGroup.create({
                     data: {
-                        id: skillGroupId,
+                        skillGroupId,
                         skillPackageId,
                         ...fields,
                     },
@@ -46,10 +50,9 @@ export const skillsRouter = createTRPCRouter({
 
                 ctx.prisma.skillPackageChangeLog.create({
                     data: {
-                        id: nanoId16(),
                         skillPackageId,
                         event: 'CreateGroup',
-                        actorId: ctx.auth.personId,
+                        actorId: ctx.auth.userId,
                         timestamp: new Date(),
                         meta: { skillGroupId },
                         fields: { ...fields },
@@ -57,10 +60,10 @@ export const skillsRouter = createTRPCRouter({
                 })
             ])
 
-            return { skillGroupId, ...created }
+            return created
         }),
 
-    createPackage: systemAdminProcedure
+    createPackage: orgAdminProcedure
         .input(skillPackageSchema)
         .output(skillPackageSchema)
         .mutation(async ({ ctx, input: { skillPackageId, ...input } }) => {
@@ -76,13 +79,13 @@ export const skillsRouter = createTRPCRouter({
 
             const created = await ctx.prisma.skillPackage.create({
                 data: {
-                    id: skillPackageId,
+                    skillPackageId,
+                    ownerOrgId: ctx.auth.activeOrg.orgId,
                     ...fields ,
                     changeLogs: {
                         create: {
-                            id: nanoId16(),
                             event: 'Create',
-                            actorId: ctx.auth.personId,
+                            actorId: ctx.auth.userId,
                             timestamp: new Date(),
                             fields: { ...fields },
                         }
@@ -90,16 +93,17 @@ export const skillsRouter = createTRPCRouter({
                 },
             })
 
-            return { skillPackageId, ...created }
+            return toSkillPackageData(created)
         }),
 
-    createSkill: systemAdminProcedure
+    createSkill: orgAdminProcedure
         .input(skillSchema)
-        .output(skillSchema.extend({
-            skillGroup: skillGroupSchema,
-            skillPackage: skillPackageSchema
-        }))
+        .output(skillSchema)
         .mutation(async ({ ctx, input: { skillPackageId, skillId, ...input } }) => {
+            const skillPackage = await getSkillPackageById(ctx, skillPackageId)
+
+            if(skillPackage.ownerOrgId != ctx.auth.activeOrg.orgId) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to modify SkillPackage(${skillPackageId})` })
+
             const aggregations = await ctx.prisma.skill.aggregate({
                 where: { skillPackageId: skillPackageId, skillGroupId: input.skillGroupId },
                 _max: { sequence: true }
@@ -110,7 +114,7 @@ export const skillsRouter = createTRPCRouter({
             const [newSkill] = await ctx.prisma.$transaction([
                 ctx.prisma.skill.create({
                     data: {
-                        id: skillId,
+                        skillId,
                         skillPackageId,
                         ...fields,
                     },
@@ -122,10 +126,9 @@ export const skillsRouter = createTRPCRouter({
 
                 ctx.prisma.skillPackageChangeLog.create({
                     data: {
-                        id: nanoId16(),
                         skillPackageId: skillPackageId,
                         event: 'CreateSkill',
-                        actorId: ctx.auth.personId,
+                        actorId: ctx.auth.userId,
                         timestamp: new Date(),
                         meta: { skillId },
                         fields: { ...fields },
@@ -133,21 +136,24 @@ export const skillsRouter = createTRPCRouter({
                 })
             ])
 
-            return { skillId, ...newSkill, skillGroup: { skillGroupId: newSkill.skillGroup.id, ...newSkill.skillGroup }, skillPackage: { skillPackageId: newSkill.skillPackage.id, ...newSkill.skillPackage } }
+            return toSkillData(newSkill)
         }),
 
-    deleteGroup: systemAdminProcedure
+    deleteGroup: orgAdminProcedure
         .input(z.object({
-            skillGroupId: zodNanoId8,
-            skillPackageId: zodNanoId8
+            skillGroupId: SkillGroupId.schema,
+            skillPackageId: SkillPackageId.schema
         }))
         .output(skillGroupSchema)
         .mutation(async ({ ctx, input: { skillGroupId, skillPackageId } }) => {
+
             const skillGroup = await getSkillGroupById(ctx, skillPackageId, skillGroupId)
+
+            if(skillGroup.skillPackage.ownerOrgId != ctx.auth.activeOrg.orgId) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to modify SkillGroup(${skillGroupId})` })
 
             const [deleted] = await ctx.prisma.$transaction([
                 ctx.prisma.skillGroup.delete({
-                    where: { id: skillGroupId },
+                    where: { skillGroupId },
                     include: {
                         skillPackage: true,
                         parent: true,
@@ -156,69 +162,63 @@ export const skillsRouter = createTRPCRouter({
 
                 ctx.prisma.skillPackageChangeLog.create({
                     data: {
-                        id: nanoId16(),
                         skillPackageId: skillGroup.skillPackageId,
                         event: 'DeleteGroup',
-                        actorId: ctx.auth.personId,
+                        actorId: ctx.auth.userId,
                         timestamp: new Date(),
                         meta: { skillGroupId },
                     }
                 })
             ])
 
-            return { skillGroupId, ...deleted }
+            return toSkillGroupData(deleted)
         }),
 
-    deletePackage: systemAdminProcedure
+    deletePackage: orgAdminProcedure
         .input(z.object({
             skillPackageId: zodNanoId8
         }))
         .output(skillPackageSchema)
         .mutation(async ({ ctx, input: { skillPackageId} }) => {
-            const existing = await getSkillPackageById(ctx, skillPackageId)
-            if(!existing) {
-                throw new TRPCError({ code: 'NOT_FOUND', message: `SkillPackage(${skillPackageId}) not found` })
-            }
+            const skillPackage = await getSkillPackageById(ctx, skillPackageId)
+            
+            if(skillPackage.ownerOrgId != ctx.auth.activeOrg.orgId) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to modify SkillPackage(${skillPackageId})` })
 
-            const deleted = await ctx.prisma.skillPackage.delete({ where: { id: skillPackageId } })
+            const deleted = await ctx.prisma.skillPackage.delete({ where: { skillPackageId } })
 
-            return { skillPackageId, ...deleted }
+            return toSkillPackageData(deleted)
         }),
 
-    deleteSkill: systemAdminProcedure
+    deleteSkill: orgAdminProcedure
         .input(z.object({
             skillId: zodNanoId8,
             skillPackageId: zodNanoId8
         }))
-        .output(skillSchema.extend({
-            skillGroup: skillGroupSchema,
-            skillPackage: skillPackageSchema
-        }))
+        .output(skillSchema)
         .mutation(async ({ ctx, input: { skillId, skillPackageId } }) => {
+
+
             const skill = await getSkillById(ctx, skillPackageId, skillId)
+
+            if(skill.skillPackage.ownerOrgId != ctx.auth.activeOrg.orgId) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to modify Skill(${skillId})` })
 
             const [deletedSkill] = await ctx.prisma.$transaction([
                 ctx.prisma.skill.delete({
-                    where: { id: skillId },
-                    include: {
-                        skillPackage: true,
-                        skillGroup: true,
-                    }
+                    where: { skillId },
                 }),
 
                 ctx.prisma.skillPackageChangeLog.create({
                     data: {
-                        id: nanoId16(),
                         skillPackageId: skill.skillPackageId,
                         event: 'DeleteSkill',
-                        actorId: ctx.auth.personId,
+                        actorId: ctx.auth.userId,
                         timestamp: new Date(),
                         meta: { skillId },
                     }
                 })
             ])
 
-            return { skillId, ...deletedSkill, skillGroup: { skillGroupId: deletedSkill.skillGroup.id, ...deletedSkill.skillGroup }, skillPackage: { skillPackageId: deletedSkill.skillPackage.id, ...deletedSkill.skillPackage } }
+            return toSkillData(deletedSkill)
         }),
 
     getAvailablePackages: authenticatedProcedure
@@ -254,16 +254,16 @@ export const skillsRouter = createTRPCRouter({
 
     getGroup: authenticatedProcedure
         .input(z.object({
-            skillGroupId: zodNanoId8,
-            skillPackageId: zodNanoId8
+            skillGroupId: SkillGroupId.schema,
+            skillPackageId: SkillPackageId.schema
         }))
         .output(skillGroupSchema.extend({
             skillPackage: skillPackageSchema
         }))
         .query(async ({ ctx, input: { skillGroupId, skillPackageId } }) => {
-            const { skillPackage, ...group } = await getSkillGroupById(ctx, skillPackageId, skillGroupId)
+            const { skillPackage, ...skillGroup} = await getSkillGroupById(ctx, skillPackageId, skillGroupId)
 
-            return { skillGroupId, ...group, skillPackage: { skillPackageId, ...skillPackage } }
+            return { ...toSkillGroupData(skillGroup), skillPackage: toSkillPackageData(skillPackage) }
         }),
 
     getGroups: authenticatedProcedure
@@ -278,7 +278,7 @@ export const skillsRouter = createTRPCRouter({
                 orderBy: { sequence: 'asc' },
             })
 
-            return groups.map(group => ({ skillGroupId: group.id, ...group }))
+            return groups
         }),
 
     getPackage: authenticatedProcedure
@@ -287,9 +287,8 @@ export const skillsRouter = createTRPCRouter({
         }))
         .output(skillPackageSchema)
         .query(async ({ ctx, input: { skillPackageId} }) => {
-            const skillPackage = await getSkillPackageById(ctx, skillPackageId)
-
-            return { skillPackageId, ...skillPackage }
+            const found = await getSkillPackageById(ctx, skillPackageId)
+            return toSkillPackageData(found)
         }), 
 
     getPackages: authenticatedProcedure
@@ -318,7 +317,7 @@ export const skillsRouter = createTRPCRouter({
                 }
             })
 
-            return skillPackages.map(pkg => ({ skillPackageId: pkg.id, ...pkg }))
+            return skillPackages.map(skillPackage => ({ ...toSkillPackageData(skillPackage), _count: skillPackage._count }))
         }),
 
     getSkill: authenticatedProcedure
@@ -333,7 +332,7 @@ export const skillsRouter = createTRPCRouter({
         .query(async ({ ctx, input: { skillId, skillPackageId } }) => {
             const { skillPackage, skillGroup, ...skill } = await getSkillById(ctx, skillPackageId, skillId)
 
-            return { skillId, ...skill, skillPackage: { skillPackageId, ...skillPackage }, skillGroup: { skillGroupId: skillGroup.id, ...skillGroup } }
+            return { ...toSkillData(skill), skillGroup: toSkillGroupData(skillGroup), skillPackage: toSkillPackageData(skillPackage) }
         }),
 
     getSkills: authenticatedProcedure
@@ -350,17 +349,17 @@ export const skillsRouter = createTRPCRouter({
                     status: { in: input.status },
                     skillPackageId: input.skillPackageId,
                     skillGroupId: input.skillGroupId,
-                    id: input.skillIds ? { in: input.skillIds } : undefined
+                    skillId: input.skillIds ? { in: input.skillIds } : undefined
                 },
                 orderBy: { sequence: 'asc' },
             })
-            return skills.map(skill => ({ skillId: skill.id, ...skill }))
+            return skills.map(toSkillData)
         }),
 
     
 
 
-    importPackage: systemAdminProcedure
+    importPackage: orgAdminProcedure
         .input(z.object({
             skillPackageId: zodNanoId8
         }))
@@ -368,7 +367,7 @@ export const skillsRouter = createTRPCRouter({
         
             const startTime = Date.now()
 
-            const packageToImport = PackageList.find(pkg => pkg.id == input.skillPackageId)
+            const packageToImport = PackageList.find(pkg => pkg.skillPackageId == input.skillPackageId)
             assertNonNull(packageToImport, `No such SkillPackage with id = ${input.skillPackageId}`)
 
 
@@ -379,17 +378,19 @@ export const skillsRouter = createTRPCRouter({
             return { changeCounts: changeCounts, elapsedTime }
         }),
 
-    updateGroup: systemAdminProcedure
+    updateGroup: orgAdminProcedure
         .input(skillGroupSchema)
         .output(skillGroupSchema)
         .mutation(async ({ ctx, input: { skillGroupId, skillPackageId, ...input} }) => {
-            const existing = await getSkillGroupById(ctx, skillPackageId, skillGroupId)
+            const skillGroup = await getSkillGroupById(ctx, skillPackageId, skillGroupId)
 
-            const changedFields = pickBy(input, (value, key) => value != existing[key])
+            if(skillGroup.skillPackage.ownerOrgId != ctx.auth.activeOrg.orgId) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to modify SkillGroup(${skillGroupId})` })
+
+            const changedFields = pickBy(input, (value, key) => value != skillGroup[key])
 
             const [updated] = await ctx.prisma.$transaction([
                 ctx.prisma.skillGroup.update({
-                    where: { id: skillGroupId },
+                    where: { skillGroupId },
                     data: changedFields,
                     include: {
                         skillPackage: true,
@@ -399,10 +400,9 @@ export const skillsRouter = createTRPCRouter({
 
                 ctx.prisma.skillPackageChangeLog.create({
                     data: {
-                        id: nanoId16(),
-                        skillPackageId: existing.skillPackageId,
+                        skillPackageId: skillGroup.skillPackageId,
                         event: 'UpdateGroup',
-                        actorId: ctx.auth.personId,
+                        actorId: ctx.auth.userId,
                         timestamp: new Date(),
                         meta: { skillGroupId },
                         fields: changedFields, 
@@ -410,28 +410,29 @@ export const skillsRouter = createTRPCRouter({
                 })
             ])
 
-            return { skillGroupId, ...updated }
+            return toSkillGroupData(updated)
         }),
 
     
-    updatePackage: systemAdminProcedure
+    updatePackage: orgAdminProcedure
         .input(skillPackageSchema)
         .output(skillPackageSchema)
         .mutation(async ({ ctx, input: { skillPackageId, ...update } }) => {
-            const existing = await getSkillPackageById(ctx, skillPackageId)
+            const skillPackage = await getSkillPackageById(ctx, skillPackageId)
+
+            if(skillPackage.ownerOrgId != ctx.auth.activeOrg.orgId) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to modify SkillPackage(${skillPackageId})` })
 
             // Pick only the fields that have changed
-            const changedFields = pickBy(update, (value, key) => value != existing[key])
+            const changedFields = pickBy(update, (value, key) => value != skillPackage[key])
 
             const updated = await ctx.prisma.skillPackage.update({
-                where: { id: skillPackageId },
+                where: { skillPackageId },
                 data: {
                     ...changedFields,
                     changeLogs: {
                         create: {
-                            id: nanoId16(),
                             event: 'Update',
-                            actorId: ctx.auth.personId,
+                            actorId: ctx.auth.userId,
                             timestamp: new Date(),
                             fields: changedFields,
                         }
@@ -439,23 +440,22 @@ export const skillsRouter = createTRPCRouter({
                 },
             })
 
-            return { skillPackageId, ...updated }
+            return toSkillPackageData(updated)
         }),
 
-    updateSkill: systemAdminProcedure
+    updateSkill: orgAdminProcedure
         .input(skillSchema)
-        .output(skillSchema.extend({
-            skillGroup: skillGroupSchema,
-            skillPackage: skillPackageSchema
-        }))
+        .output(skillSchema)
         .mutation(async ({ ctx, input: { skillPackageId, skillId, ...input } }) => {
             const skill = await getSkillById(ctx, skillPackageId, skillId)
+
+            if(skill.skillPackage.ownerOrgId != ctx.auth.activeOrg.orgId) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to modify Skill(${skillId})` })
 
             const changedFields = pickBy(input, (value, key) => value != skill[key])
 
             const [updatedSkill] = await ctx.prisma.$transaction([
                 ctx.prisma.skill.update({
-                    where: { id: skillId },
+                    where: { skillId },
                     data: changedFields,
                     include: {
                         skillPackage: true,
@@ -465,10 +465,9 @@ export const skillsRouter = createTRPCRouter({
 
                 ctx.prisma.skillPackageChangeLog.create({
                     data: {
-                        id: nanoId16(),
                         skillPackageId,
                         event: 'UpdateSkill',
-                        actorId: ctx.auth.personId,
+                        actorId: ctx.auth.userId,
                         timestamp: new Date(),
                         meta: { skillId },
                         fields: changedFields,
@@ -476,14 +475,14 @@ export const skillsRouter = createTRPCRouter({
                 })
             ])
 
-            return { skillId, ...updatedSkill, skillGroup: { skillGroupId: updatedSkill.skillGroup.id, ...updatedSkill.skillGroup }, skillPackage: { skillPackageId: updatedSkill.skillPackage.id, ...updatedSkill.skillPackage } }
+            return toSkillData(updatedSkill)
         })
 })
 
 
 export async function getSkillById(ctx: AuthenticatedContext, skillPackageId: string, skillId: string): Promise<SkillRecord & { skillGroup: SkillGroupRecord, skillPackage: SkillPackageRecord }> {
     const skill = await ctx.prisma.skill.findUnique({
-        where: { id: skillId, skillPackageId},
+        where: { skillId, skillPackageId },
         include: {
             skillPackage: true,
             skillGroup: true,
@@ -495,9 +494,9 @@ export async function getSkillById(ctx: AuthenticatedContext, skillPackageId: st
     return skill
 }
 
-export async function getSkillGroupById(ctx: AuthenticatedContext, skillPackageId: string, skillGroupId: string): Promise<SkillGroupRecord & { skillPackage: SkillPackageRecord }> {
+export async function getSkillGroupById(ctx: AuthenticatedContext, skillPackageId: SkillPackageId, skillGroupId: SkillGroupId): Promise<SkillGroupRecord & { skillPackage: SkillPackageRecord }> {
     const skillGroup = await ctx.prisma.skillGroup.findUnique({
-        where: { id: skillGroupId, skillPackageId },
+        where: { skillGroupId, skillPackageId },
         include: {
             skillPackage: true,
             parent: true,
@@ -511,30 +510,27 @@ export async function getSkillGroupById(ctx: AuthenticatedContext, skillPackageI
 
 export async function getSkillPackageById(ctx: AuthenticatedContext, skillPackageId: string): Promise<SkillPackageRecord> {
     const skillPackage = await ctx.prisma.skillPackage.findUnique({ 
-            where: { id: skillPackageId },
+            where: { skillPackageId },
         })
 
         if(!skillPackage) {
-            throw new TRPCError({ 
-                code: 'NOT_FOUND', 
-                message: `SkillPackage(${skillPackageId}) not found` 
-            })
+            throw new TRPCError({ code: 'NOT_FOUND', message: `SkillPackage(${skillPackageId}) not found` })
         }
         return skillPackage
 }
 
 
-async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPackageDef): Promise<ChangeCountsByType<'skillPackages' | 'skillGroups' | 'skills'>> {
+async function importPackage(ctx: AuthenticatedOrgContext, skillPackage: SkillPackageDef): Promise<ChangeCountsByType<'skillPackages' | 'skillGroups' | 'skills'>> {
     const changeCounts = createChangeCounts(['skillPackages', 'skillGroups', 'skills'])
 
-    const storedPackage = await ctx.prisma.skillPackage.findUnique({ where: { id: skillPackage.id } })
+    const storedPackage = await ctx.prisma.skillPackage.findUnique({ where: { skillPackageId: skillPackage.skillPackageId } })
 
     if(storedPackage) {
         // Existing Package
-        const existingData = pick(storedPackage, ['name', 'id', 'sequence'])
+        const existingData = pick(storedPackage, ['name', 'skillPackageId', 'sequence'])
         const changes = pipe(
             skillPackage, 
-            pick(['name', 'id', 'sequence']),
+            pick(['name', 'skillPackageId', 'sequence']),
             entries(), 
             filter(([key, value]) => value !== existingData[key]),
             fromEntries()
@@ -543,14 +539,13 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
         if(!isEmpty(changes)) {
             // Only update if one of the fields has changed
             await ctx.prisma.skillPackage.update({ 
-                where: { id: skillPackage.id }, 
+                where: { skillPackageId: skillPackage.skillPackageId }, 
                 data: {
                     ...changes,
                     changeLogs: {
                         create: {
-                            id: nanoId16(),
                             event: 'Update',
-                            actorId: ctx.auth.personId,
+                            actorId: ctx.auth.userId,
                             timestamp: new Date(),
                             fields: changes,
                             description: "Imported skill package"
@@ -562,16 +557,16 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
         }
     } else {
         // New Package
-        const fields = pick(skillPackage, ['id', 'name', 'sequence'])
+        const fields = pick(skillPackage, ['skillPackageId', 'name', 'sequence'])
 
         await ctx.prisma.skillPackage.create({ 
             data: {
                 ...fields,
+                ownerOrgId: ctx.auth.activeOrg.orgId,
                 changeLogs: {
                     create: {
-                        id: nanoId16(),
                         event: 'Create',
-                        actorId: ctx.auth.personId,
+                        actorId: ctx.auth.userId,
                         timestamp: new Date(),
                         fields: fields,
                         description: "Import skill package"
@@ -583,7 +578,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
     }
 
     // Groups that currently exist in the database
-    const storedGroups = await ctx.prisma.skillGroup.findMany({ where: { skillPackageId: skillPackage.id } })
+    const storedGroups = await ctx.prisma.skillGroup.findMany({ where: { skillPackageId: skillPackage.skillPackageId } })
 
     // Groups that are in the imported package
     const groupsToImport = skillPackage.skillGroups
@@ -591,7 +586,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
     // Skill Groups that are in the sample set but not in the stored set
     const groupsToAdd = pipe(
         groupsToImport, 
-        differenceWith(storedGroups, (a, b) => a.id == b.id),
+        differenceWith(storedGroups, (a, b) => a.skillGroupId == b.skillGroupId),
         map(omit(['skills', 'subGroups']))
     )
 
@@ -601,14 +596,14 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
             ctx.prisma.skillGroup.createMany({ 
                 data: groupsToAdd.map(group => ({
                     ...group,
-                    skillPackageId: skillPackage.id
+                    skillPackageId: skillPackage.skillPackageId
                 }))
             }),
             ctx.prisma.skillPackageChangeLog.createMany({ 
                 data: groupsToAdd.map(group => ({
                     id: nanoId16(),
                     event: 'CreateGroup',
-                    actorId: ctx.auth.personId,
+                    actorId: ctx.auth.userId,
                     skillPackageId: group.skillPackageId,
                     timestamp,
                     fields: group,
@@ -621,7 +616,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
 
     // Skill Groups that could need updating
     for(const group of groupsToImport) {
-        const storedGroup = storedGroups.find(c => c.id == group.id)
+        const storedGroup = storedGroups.find(c => c.skillGroupId == group.skillGroupId)
         if(!storedGroup) continue // New group
 
         const changes = pipe(
@@ -635,14 +630,13 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
         if(!isEmpty(changes)) {
             await ctx.prisma.$transaction([
                 ctx.prisma.skillGroup.update({
-                    where: { id: group.id },
+                    where: { skillGroupId: group.skillGroupId },
                     data: changes
                 }),
                 ctx.prisma.skillPackageChangeLog.create({
                     data: {
-                        id: nanoId16(),
                         event: 'UpdateGroup',
-                        actorId: ctx.auth.personId,
+                        actorId: ctx.auth.userId,
                         skillPackageId: group.skillPackageId,
                         timestamp: new Date(),
                         fields: changes,
@@ -655,7 +649,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
     }
 
     // Skills that currently exist in the database
-    const storedSkills = await ctx.prisma.skill.findMany({ where: { skillPackageId: skillPackage.id }})
+    const storedSkills = await ctx.prisma.skill.findMany({ where: { skillPackageId: skillPackage.skillPackageId }})
 
     // Skills that are in the imported package
     const skillsToImport = pipe(skillPackage.skillGroups, flatMap(group => group.skills))
@@ -663,7 +657,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
     // Skills that are in the sample set but not in the stored set
     const skillsToAdd = pipe(
         skillsToImport, 
-        differenceWith(storedSkills, (a, b) => a.id == b.id),
+        differenceWith(storedSkills, (a, b) => a.skillId == b.skillId),
     )
 
     if(skillsToAdd.length > 0) {
@@ -672,15 +666,15 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
             ctx.prisma.skill.createMany({
                 data: skillsToAdd.map(skill => ({
                     ...skill,
-                    skillPackageId: skillPackage.id
+                    skillPackageId: skillPackage.skillPackageId
                 }))
             }),
             ctx.prisma.skillPackageChangeLog.createMany({ 
                 data: skillsToAdd.map(skill => ({
                     id: nanoId16(),
                     event: 'CreateSkill',
-                    actorId: ctx.auth.personId,
-                    skillPackageId: skillPackage.id,
+                    actorId: ctx.auth.userId,
+                    skillPackageId: skillPackage.skillPackageId,
                     timestamp,
                     fields: { ...skill },
                     description: "Import skill package"
@@ -693,7 +687,7 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
 
     // Skills that could need updating
     for(const skill of skillsToImport) {
-        const storedSkill = storedSkills.find(c => c.id == skill.id)
+        const storedSkill = storedSkills.find(c => c.skillId == skill.skillId)
         if(!storedSkill) continue // New skill
 
         const changes = pipe(
@@ -707,15 +701,14 @@ async function importPackage(ctx: AuthenticatedContext, skillPackage: SkillPacka
         if(!isEmpty(changes)) {
             await ctx.prisma.$transaction([
                 ctx.prisma.skill.update({
-                    where: { id: skill.id },
+                    where: { skillId: skill.skillId },
                     data: changes
                 }),
                 ctx.prisma.skillPackageChangeLog.create({
                     data: {
-                        id: nanoId16(),
                         event: 'UpdateSkill',
-                        actorId: ctx.auth.personId,
-                        skillPackageId: skillPackage.id,
+                        actorId: ctx.auth.userId,
+                        skillPackageId: skillPackage.skillPackageId,
                         timestamp: new Date(),
                         fields: changes,
                         description: "Imported skill package"

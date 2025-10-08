@@ -14,6 +14,7 @@ import { TeamId } from './team'
 export const teamMembershipSchema = z.object({
     teamId: TeamId.schema,
     personId: PersonId.schema,
+    properties: z.record(z.string(), z.any()),
     tags: z.array(z.string()),
     status: z.enum(['Active', 'Inactive']),
 })

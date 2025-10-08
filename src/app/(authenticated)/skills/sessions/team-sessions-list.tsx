@@ -30,7 +30,7 @@ import { trpc } from '@/trpc/client'
 
 export function Team_Skills_SessionList_Card({ team }: { team: TeamData }) {
 
-    const sessionsQuery = useSuspenseQuery(trpc.skillChecks.getTeamSessions.queryOptions({ teamId: team.teamId }))
+    const sessionsQuery = useSuspenseQuery(trpc.skillChecks.getSessions.queryOptions({ teamId: team.teamId }))
 
     async function handleRefresh() {
         await sessionsQuery.refetch()

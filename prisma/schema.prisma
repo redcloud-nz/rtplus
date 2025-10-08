@@ -13,29 +13,21 @@ datasource db {
     directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
-enum InviteStatus {
-    None
-    Invited
-    Complete
-}
 
 model Note {
-    id         String          @id @db.VarChar(16)
-    personId   String?         @map("person_id") @db.VarChar(16)
-    teamId     String?         @map("team_id") @db.VarChar(16)
+    noteId     String          @map("note_id") @id @db.VarChar(32)
+    orgId      String          @map("org_id") @db.VarChar(50)
     title      String          @db.VarChar(100)
     content    String          @db.Text
     date       String          @db.Char(10)
 
     changeLogs NoteChangeLog[] @relation("note_change_log_to_note")
-    person     Person?         @relation("note_to_person", fields: [personId], references: [id], onDelete: Cascade)
-    team       Team?           @relation("note_to_team", fields: [teamId], references: [id], onDelete: Cascade)
 
     @@map("notes")
 }
 
 model NoteChangeLog {
-    id          String            @id @db.VarChar(16)
+    entryId     String            @map("entry_id") @id @default(cuid())
     noteId      String            @map("note_id") @db.VarChar(16)
     actorId     String?           @map("actor_id") @db.VarChar(50)
     event       NoteChangeEvent
@@ -44,7 +36,7 @@ model NoteChangeLog {
     timestamp   DateTime          @default(now())
   
     // Relations
-    note        Note              @relation("note_change_log_to_note", fields: [noteId], references: [id], onDelete: Cascade)
+    note        Note              @relation("note_change_log_to_note", fields: [noteId], references: [noteId], onDelete: Cascade)
 
     @@map("notes_change_log")
 }
@@ -57,15 +49,15 @@ enum NoteChangeEvent {
 
 /// defines an individual person.
 model Person {
-    id                           String                       @id @db.VarChar(16)
+    personId                     String                       @map("person_id") @id @db.VarChar(32)
     orgId                        String                       @map("org_id") @db.VarChar(50)
     name                         String                       @db.VarChar(100)
     email                        String                       @db.VarChar(100)
+    properties                   Json                         @default("{}")
     status                       RecordStatus                 @default(Active)
 
     // Relations
     changeLogs                   PersonChangeLog[]            @relation("person_change_log_to_person")
-    notes                        Note[]                       @relation("note_to_person")
     skillChecksAsAssessee        SkillCheck[]                 @relation("skill_check_to_assessee")
     skillChecksAsAssessor        SkillCheck[]                 @relation("skill_check_to_assessor")
     skillCheckSessionsAsAssessee SkillCheckSession[]          @relation("skill_check_session_to_assessee")
@@ -85,23 +77,19 @@ enum PersonChangeEvent {
 
 /// defines a change to a person record.
 model PersonChangeLog {
-    id          String            @id @db.VarChar(16)
-    personId    String            @map("person_id") @db.VarChar(16)
+    entryId     String            @map("entryId") @id @default(cuid())
+    personId    String            @map("person_id") @db.VarChar(32)
     actorId     String?           @map("actor_id") @db.VarChar(50)
     event       PersonChangeEvent
     description String            @default("")
     meta        Json              @default("{}")
     fields      Json              @default("{}")
     timestamp   DateTime          @default(now())
-    person      Person            @relation("person_change_log_to_person", fields: [personId], references: [id], onDelete: Cascade)
+    person      Person            @relation("person_change_log_to_person", fields: [personId], references: [personId], onDelete: Cascade)
 
     @@map("personnel_change_log")
 }
 
-enum PersonType {
-    Normal
-    Sandbox
-}
 
 /// defines the current status of a record.
 enum RecordStatus {
@@ -111,32 +99,32 @@ enum RecordStatus {
 
 /// defines an individual skill that can be assessed.
 model Skill {
-    id                 String              @id @db.VarChar(16)
-    skillPackageId     String              @map("skill_package_id") @db.VarChar(16)
-    skillGroupId       String              @map("skill_group_id") @db.VarChar(16)
+    skillId            String              @map("skillId") @id @db.VarChar(32)
+    skillPackageId     String              @map("skill_package_id") @db.VarChar(32)
+    skillGroupId       String              @map("skill_group_id") @db.VarChar(32)
     name               String
     description        String
-    frequency          String
-    optional           Boolean
+    tags               String[]            @default([])
+    properties         Json                @default("{}")
     sequence           Int
     status             RecordStatus        @default(Active)
 
     // Relations
     checks             SkillCheck[]        @relation("skill_check_to_skill")
-    skillPackage       SkillPackage        @relation("skill_to_skill_package", fields: [skillPackageId], references: [id], onDelete: Cascade)
-    skillGroup         SkillGroup          @relation("skill_to_skill_group", fields: [skillGroupId], references: [id], onDelete: Cascade)
+    skillPackage       SkillPackage        @relation("skill_to_skill_package", fields: [skillPackageId], references: [skillPackageId], onDelete: Cascade)
+    skillGroup         SkillGroup          @relation("skill_to_skill_group", fields: [skillGroupId], references: [skillGroupId], onDelete: Cascade)
     skillCheckSessions SkillCheckSession[] @relation("skill_check_session_to_skill")
 
     @@map("skills")
 }
 
 model SkillCheck {
-    id              String                    @id @db.VarChar(16)
+    skillCheckId    String                    @map("skill_check_id") @id @default(cuid())
     orgId           String                    @map("org_id") @db.VarChar(50)
-    sessionId       String?                   @map("session_id") @db.VarChar(16)
-    skillId         String                    @map("skill_id") @db.VarChar(16)
-    assesseeId      String                    @map("assessee_id") @db.VarChar(16)
-    assessorId      String                    @map("assessor_id") @db.VarChar(16)
+    sessionId       String?                   @map("session_id") @db.VarChar(32)
+    skillId         String                    @map("skill_id") @db.VarChar(32)
+    assesseeId      String                    @map("assessee_id") @db.VarChar(32)
+    assessorId      String                    @map("assessor_id") @db.VarChar(32)
     passed          Boolean                
     result          String                    @default("")    
     notes           String                    @default("")    
@@ -145,16 +133,16 @@ model SkillCheck {
     timestamp       DateTime                  @default(now())
 
     // Relations
-    session         SkillCheckSession?        @relation("skill_check_to_skill_check_session", fields: [sessionId], references: [id], onDelete: SetNull)
-    assessee        Person                    @relation("skill_check_to_assessee", fields: [assesseeId], references: [id], onDelete: Cascade)
-    assessor        Person                    @relation("skill_check_to_assessor", fields: [assessorId], references: [id], onDelete: Restrict)
-    skill           Skill                     @relation("skill_check_to_skill", fields: [skillId], references: [id], onDelete: Cascade)
+    session         SkillCheckSession?        @relation("skill_check_to_skill_check_session", fields: [sessionId], references: [sessionId], onDelete: SetNull)
+    assessee        Person                    @relation("skill_check_to_assessee", fields: [assesseeId], references: [personId], onDelete: Cascade)
+    assessor        Person                    @relation("skill_check_to_assessor", fields: [assessorId], references: [personId], onDelete: Restrict)
+    skill           Skill                     @relation("skill_check_to_skill", fields: [skillId], references: [skillId], onDelete: Cascade)
 
     @@map("skill_checks")
 }
 
 model SkillCheckSession {
-    id            String                       @id @db.VarChar(16)
+    sessionId    String                        @map("session_id") @id @db.VarChar(32)
     orgId         String                       @map("org_id") @db.VarChar(50)
     name          String                       @db.VarChar(100)
     notes         String                       @default("")
@@ -190,8 +178,8 @@ enum SkillCheckSessionEvent {
 }
 
 model SkillCheckSessionChangeLog {
-    id             String                  @id @db.VarChar(16)
-    sessionId      String                  @map("session_id") @db.VarChar(16)
+    entryId        String                  @map("entry_id") @id @default(cuid())
+    sessionId      String                  @map("session_id") @db.VarChar(32)
     actorId        String?                 @map("actor_id") @db.VarChar(50)
     event          SkillCheckSessionEvent
     description    String                  @default("")
@@ -200,7 +188,7 @@ model SkillCheckSessionChangeLog {
     timestamp      DateTime                @default(now())
 
     // Relations
-    session        SkillCheckSession       @relation("skill_check_session_change_log_to_skill_check_session", fields: [sessionId], references: [id], onDelete: Cascade)
+    session        SkillCheckSession       @relation("skill_check_session_change_log_to_skill_check_session", fields: [sessionId], references: [sessionId], onDelete: Cascade)
 
     @@map("skill_check_sessions_change_log")
 }
@@ -219,17 +207,19 @@ enum SkillCheckStatus {
 
 /// defines a group of skills within a skill package.
 model SkillGroup {
-    id             String       @id @db.VarChar(16)
+    skillGroupId   String       @map("skill_group_id") @id @db.VarChar(32)
     name           String       @db.VarChar(100)
     description    String       @default("")
-    skillPackageId String       @map("skill_package_id") @db.VarChar(16)
-    parentId       String?      @map("parent_id") @db.VarChar(16)
+    skillPackageId String       @map("skill_package_id") @db.VarChar(32)
+    parentId       String?      @map("parent_id") @db.VarChar(32)
+    tags           String[]     @default([])
+    properties     Json         @default("{}")
     sequence       Int
     status         RecordStatus @default(Active)
 
     // Relations
-    skillPackage   SkillPackage @relation("skill_group_to_skill_package", fields: [skillPackageId], references: [id], onDelete: Cascade)
-    parent         SkillGroup?  @relation("skill_group_to_parent", fields: [parentId], references: [id], onDelete: SetNull)
+    skillPackage   SkillPackage @relation("skill_group_to_skill_package", fields: [skillPackageId], references: [skillPackageId], onDelete: Cascade)
+    parent         SkillGroup?  @relation("skill_group_to_parent", fields: [parentId], references: [skillGroupId], onDelete: SetNull)
     children       SkillGroup[] @relation("skill_group_to_parent")
     skills         Skill[]      @relation("skill_to_skill_group")
 
@@ -238,16 +228,19 @@ model SkillGroup {
 
 /// defines a package of skills that can be assessed.
 model SkillPackage {
-    id          String                  @id @db.VarChar(16)
-    name        String                  @db.VarChar(100)
-    description String                  @default("")
-    sequence    Int
-    status      RecordStatus            @default(Active)
+    skillPackageId String                  @map("skill_package_id") @id @db.VarChar(32)
+    ownerOrgId     String                  @map("owner_org_id") @db.VarChar(50)
+    name           String                  @db.VarChar(100)
+    description    String                  @default("")
+    tags           String[]                @default([])
+    properties     Json                    @default("{}")
+    sequence       Int
+    status         RecordStatus            @default(Active)
 
     // Relations
-    changeLogs  SkillPackageChangeLog[] @relation("skill_package_change_log_to_skill_package")
-    skillGroups SkillGroup[]            @relation("skill_group_to_skill_package")
-    skills      Skill[]                 @relation("skill_to_skill_package")
+    changeLogs  SkillPackageChangeLog[]    @relation("skill_package_change_log_to_skill_package")
+    skillGroups SkillGroup[]               @relation("skill_group_to_skill_package")
+    skills      Skill[]                    @relation("skill_to_skill_package")
 
     @@map("skill_packages")
 }
@@ -266,8 +259,8 @@ enum SkillPackageChangeEvent {
 
 // defines a change to a skill package record.
 model SkillPackageChangeLog {
-    id             String                  @id @db.VarChar(16)
-    skillPackageId String                  @map("skill_package_id") @db.VarChar(16)
+    entryId        String                  @map("entry_id") @id @default(cuid())
+    skillPackageId String                  @map("skill_package_id") @db.VarChar(32)
     actorId        String?                 @map("actor_id") @db.VarChar(50)
     event          SkillPackageChangeEvent
     description    String                  @default("")
@@ -276,23 +269,24 @@ model SkillPackageChangeLog {
     timestamp      DateTime                @default(now())
 
     // Relations
-    skillPackage   SkillPackage            @relation("skill_package_change_log_to_skill_package", fields: [skillPackageId], references: [id], onDelete: Cascade)
+    skillPackage   SkillPackage            @relation("skill_package_change_log_to_skill_package", fields: [skillPackageId], references: [skillPackageId], onDelete: Cascade)
 
     @@map("skill_packages_change_log")
 }
 
+
 // defines a response team or similar high level organizational unit.
 model Team {
-    id                 String              @id @db.VarChar(16)
+    teamId             String              @map("team_id") @id @db.VarChar(32)
     orgId              String              @map("org_id") @db.VarChar(50)
     name               String              @db.VarChar(100)
     color              String              @db.VarChar(10)
+    properties         Json                @default("{}")
     status             RecordStatus        @default(Active)
 
     // Relations
     d4hInfo            TeamD4hInfo?        @relation("team_d4h_info_to_team")
     changeLogs         TeamChangeLog[]     @relation("team_change_log_to_team")
-    notes              Note[]              @relation("note_to_team")       
     teamMemberships    TeamMembership[]    @relation("team_membership_to_team")
 
     @@unique([orgId, name])
@@ -310,8 +304,8 @@ enum TeamChangeEvent {
 
 /// defines a change to a team record.
 model TeamChangeLog {
-    id          String          @id @db.VarChar(16)
-    teamId      String          @map("team_id") @db.VarChar(16)
+    entryId     String          @map("entry_id") @id @default(cuid())
+    teamId      String          @map("team_id") @db.VarChar(32)
     actorId     String?         @map("actor_id") @db.VarChar(50)
     event       TeamChangeEvent
     description String          @default("")
@@ -320,43 +314,44 @@ model TeamChangeLog {
     timestamp   DateTime        @default(now())
 
     // Relations
-    team        Team            @relation("team_change_log_to_team", fields: [teamId], references: [id], onDelete: Cascade)
+    team        Team            @relation("team_change_log_to_team", fields: [teamId], references: [teamId], onDelete: Cascade)
 
     @@map("teams_change_log")
 }
 
 model TeamD4hInfo {
-    teamId     String       @map("team_id") @db.VarChar(16) @unique
+    teamId     String       @map("team_id") @db.VarChar(32) @unique
     d4hTeamId  Int          @map("d4h_team_id")
     serverCode String       @map("server_code")
     status     RecordStatus @default(Active)
 
     // Relations
-    team      Team          @relation("team_d4h_info_to_team", fields:[teamId], references: [id], onDelete: Cascade)
+    team      Team          @relation("team_d4h_info_to_team", fields:[teamId], references: [teamId], onDelete: Cascade)
 
     @@map("team_d4h_info")
 }
 
 model TeamMembership {
-    personId           String                 @map("person_id") @db.VarChar(16)
-    teamId             String                 @map("team_id") @db.VarChar(16)
+    personId           String                 @map("person_id") @db.VarChar(32)
+    teamId             String                 @map("team_id") @db.VarChar(32)
     clerkMembershipId  String?                @map("clerk_membership_id") @db.VarChar(50) @unique
     clerkInvitationId  String?                @map("clerk_invitation_id") @db.VarChar(50) @unique
     tags               String[]               @default([])
+    properties         Json                   @default("{}")
     status             RecordStatus           @default(Active)
   
     // Relations
     d4hInfo            TeamMembershipD4hInfo? @relation("team_membership_to_d4h_info")
-    person             Person                 @relation("team_membership_to_person", fields: [personId], references: [id], onDelete: Cascade)
-    team               Team                   @relation("team_membership_to_team", fields: [teamId], references: [id], onDelete: Cascade)
+    person             Person                 @relation("team_membership_to_person", fields: [personId], references: [personId], onDelete: Cascade)
+    team               Team                   @relation("team_membership_to_team", fields: [teamId], references: [teamId], onDelete: Cascade)
 
     @@id([personId, teamId])
     @@map("team_memberships")
 }
 
 model TeamMembershipD4hInfo {
-    personId         String                  @map("person_id") @db.VarChar(16)
-    teamId           String                  @map("team_id") @db.VarChar(16)
+    personId         String                  @map("person_id") @db.VarChar(32)
+    teamId           String                  @map("team_id") @db.VarChar(32)
     position         String
     d4hStatus        TeamMembershipD4hStatus @map("d4h_status")
     d4hMemberId      Int                     @map("d4h_member_id")
