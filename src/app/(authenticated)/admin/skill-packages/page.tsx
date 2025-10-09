@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /system/skill-packages
+ *  Path: /admin/skill-packages
  */
 
 import { ImportIcon } from 'lucide-react'
@@ -16,18 +16,15 @@ import * as Paths from '@/paths'
 
 import { System_SkillPackagesList_Card } from './skill-package-list'
 
-
-export const dynamic = 'force-dynamic'
-
 export const metadata = { title: "Skill Packages" }
 
-export default async function System_SkillPackagesList_Page() {
+export default async function SkillPackagesList_Page() {
 
     return <AppPage>
         <AppPageBreadcrumbs 
             breadcrumbs={[
-                Paths.system, 
-                Paths.system.skillPackages,
+                Paths.admin, 
+                Paths.admin.skillPackages,
             ]}
         />
         <AppPageContent variant="container">
@@ -35,7 +32,7 @@ export default async function System_SkillPackagesList_Page() {
                 <PageTitle>Skill Packages</PageTitle>
                 <PageControls>
                     <Button variant="ghost" size="icon" asChild>
-                        <Link to={Paths.system.skillPackages.import}>
+                        <Link to={Paths.admin.skillPackages.import}>
                             <ImportIcon/>
                         </Link>
                     </Button>

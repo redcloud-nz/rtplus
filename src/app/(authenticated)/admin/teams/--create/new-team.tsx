@@ -42,6 +42,7 @@ export function NewTeam_Card() {
             teamId: teamId,
             name: '',
             color: '',
+            tags: [],
             properties: {},
             status: 'Active',
         }

@@ -17,7 +17,7 @@ export interface SkillPackageImportStore {
     loading: boolean
     packageToImport: SkillPackageDef | null
     message: string
-    availablePackages: Pick<SkillPackageDef, 'id' | 'name'>[]
+    availablePackages: Pick<SkillPackageDef, 'skillPackageId' | 'name'>[]
     result: { elapsedTime: number, changeCounts: ChangeCountsByType<"skillGroups" | "skills" | "skillPackages"> } | null
 
     // Actions

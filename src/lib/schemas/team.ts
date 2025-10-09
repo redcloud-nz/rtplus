@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { Team as TeamRecord } from '@prisma/client'
 
 import { nanoId8 } from '../id'
-import { propertiesSchema, recordStatusSchema, zodColor } from '../validation'
+import { propertiesSchema, recordStatusSchema, tagsSchema, zodColor } from '../validation'
 
 
 export type TeamId = string & z.BRAND<'TeamId'>
@@ -26,6 +26,7 @@ export const teamSchema = z.object({
     teamId: TeamId.schema,
     name: z.string().min(5).max(100),
     color: z.union([zodColor, z.literal('')]),
+    tags: tagsSchema,
     properties: propertiesSchema,
     status: recordStatusSchema,
 })

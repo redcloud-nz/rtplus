@@ -7,11 +7,11 @@ import { z } from 'zod'
 
 import { SkillCheck as SkillCheckRecord } from '@prisma/client'
 
-import { zodNanoId16 } from '@/lib/validation'
-
+import { nanoId16 } from '../id'
 import { PersonId } from './person'
 import { SkillId } from './skill'
 import { SkillCheckSessionId } from './skill-check-session'
+
 
 
 export type SkillCheckId = string & z.BRAND<'SkillCheckId'>
@@ -19,7 +19,7 @@ export type SkillCheckId = string & z.BRAND<'SkillCheckId'>
 export const SkillCheckId = {
     schema: z.string().length(16).regex(/^[a-zA-Z0-9]+$/, "16 character Skill Check ID expected.").brand<'SkillCheckId'>(),
 
-    create: () => SkillCheckId.schema.parse(zodNanoId16),
+    create: () => nanoId16() as SkillCheckId,
 } as const
 
 
@@ -33,7 +33,8 @@ export const skillCheckSchema = z.object({
     result: z.string().nonempty(),
     notes: z.string().max(1000),
     date: z.string().date(),
-    timestamp: z.string().datetime()
+    timestamp: z.string().datetime(),
+    checkStatus: z.enum(['Draft', 'Include', 'Exclude']),
 })
 
 export type SkillCheckData = z.infer<typeof skillCheckSchema>

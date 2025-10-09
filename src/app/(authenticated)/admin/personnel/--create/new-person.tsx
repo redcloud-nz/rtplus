@@ -39,6 +39,7 @@ export function NewPerson_Card() {
             personId: personId,
             name: '',
             email: '',
+            tags: [],
             properties: {},
             status: 'Active',
         }

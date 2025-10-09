@@ -188,51 +188,7 @@ export const system = {
         href: '/system/flags',
     },
 
-    skillPackage: (skillPackageId: string) => {
-        const packageBase = `/system/skill-packages/${skillPackageId}` as const
-
-        return {
-            href: packageBase,
-            update: `${packageBase}/--update`,
-            delete: `${packageBase}/--delete`,
-
-            group: (skillGroupId: string) => ({
-                href: `${packageBase}/groups/${skillGroupId}`,
-                update: `${packageBase}/groups/${skillGroupId}/--update`,
-                delete: `${packageBase}/groups/${skillGroupId}/--delete`,
-            } as const),
-            groups: {
-                label: 'Groups',
-                create: {
-                    href: `${packageBase}/groups/--create`
-                },
-            },
-
-            skill: (skillId: string) => ({
-                href: `${packageBase}/skills/${skillId}`,
-                update: `${packageBase}/skills/${skillId}/--update`,
-                delete: `${packageBase}/skills/${skillId}/--delete`,
-            } as const),
-
-            skills: {
-                label: 'Skills',
-                create: {
-                    href: `${packageBase}/skills/--create`
-                },
-            },
-        } as const
-    }, 
-    skillPackages: {
-        label: 'Skill Packages',
-        href: '/system/skill-packages',
-        create: {
-            href: '/system/skill-packages/--create'
-        },
-        import: {
-            label: 'Import Skill Package',
-            href: '/system/skill-packages/--import',
-        }
-    } as const,
+    
 }
 
 export const skills = {

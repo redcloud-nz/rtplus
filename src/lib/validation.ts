@@ -29,4 +29,6 @@ export const propertiesSchema = z.record(z.string(), z.any())
 
 export const recordStatusSchema = z.enum(['Active', 'Inactive'])
 
+export const tagsSchema = z.array(z.string().nonempty())
+
 export type RecordStatus = z.infer<typeof recordStatusSchema>

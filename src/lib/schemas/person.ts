@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { Person as PersonRecord } from '@prisma/client'
 
 import { nanoId8 } from '../id'
-import { propertiesSchema, recordStatusSchema } from '../validation'
+import { propertiesSchema, recordStatusSchema, tagsSchema } from '../validation'
 
 export const zodPersonId = z.string().length(8).regex(/^[a-zA-Z0-9]+$/, "8 character Person ID expected.").brand<'PersonId'>()
 
@@ -27,6 +27,7 @@ export const personSchema = z.object({
     personId: PersonId.schema,
     name: z.string().min(5).max(100),
     email: z.string().email(),
+    tags: tagsSchema,
     properties: propertiesSchema,
     status: recordStatusSchema
 })

@@ -7,16 +7,18 @@ import { z } from 'zod'
 
 import { TeamMembership as TeamMembershipRecord } from '@prisma/client'
 
+import { propertiesSchema, recordStatusSchema, tagsSchema } from '../validation'
 import { PersonId } from './person'
 import { TeamId } from './team'
+
 
 
 export const teamMembershipSchema = z.object({
     teamId: TeamId.schema,
     personId: PersonId.schema,
-    properties: z.record(z.string(), z.any()),
-    tags: z.array(z.string()),
-    status: z.enum(['Active', 'Inactive']),
+    properties: propertiesSchema,
+    tags: tagsSchema,
+    status: recordStatusSchema,
 })
 
 export type TeamMembershipData = z.infer<typeof teamMembershipSchema>

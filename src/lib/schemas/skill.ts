@@ -7,16 +7,18 @@ import { z } from 'zod'
 
 import { Skill as SkillRecord } from '@prisma/client'
 
-import { propertiesSchema, recordStatusSchema, zodNanoId8 } from '../validation'
+import { nanoId8 } from '../id'
+import { propertiesSchema, recordStatusSchema, tagsSchema } from '../validation'
 import { SkillGroupId } from './skill-group'
 import { SkillPackageId } from './skill-package'
+
 
 export type SkillId = string
 
 export const SkillId = {
     schema: z.string().length(8).regex(/^[a-zA-Z0-9]+$/, "8 character Skill ID expected.").brand<'SkillId'>(),
 
-    create: () => zodNanoId8.parse(zodNanoId8),
+    create: () => nanoId8() as SkillId,
 }
 
 export const skillSchema = z.object({
@@ -25,6 +27,7 @@ export const skillSchema = z.object({
     skillPackageId: SkillPackageId.schema,
     name: z.string().nonempty().max(100),
     description: z.string().max(500),
+    tags: tagsSchema,
     properties: propertiesSchema,
     sequence: z.number(),
     status: recordStatusSchema

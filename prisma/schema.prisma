@@ -20,8 +20,11 @@ model Note {
     title      String          @db.VarChar(100)
     content    String          @db.Text
     date       String          @db.Char(10)
+    tags       String[]        @default([])
+    properties Json            @default("{}")
 
     changeLogs NoteChangeLog[] @relation("note_change_log_to_note")
+    organization Organization  @relation("note_to_org", fields: [orgId], references: [orgId], onDelete: Cascade)
 
     @@map("notes")
 }
@@ -47,17 +50,35 @@ enum NoteChangeEvent {
     Delete
 }
 
+model Organization {
+    orgId        String          @map("org_id") @id @db.VarChar(50)
+    name         String          @db.VarChar(100)
+    settings     Json            @default("{}")
+
+    // Relations
+    personnel          Person[]            @relation("person_to_org")
+    teams              Team[]              @relation("team_to_org")
+    skillChecks        SkillCheck[]        @relation("skill_check_to_org")
+    skillCheckSessions SkillCheckSession[] @relation("skill_check_session_to_org")
+    skillPackages      SkillPackage[]      @relation("skill_package_to_owner")
+    notes              Note[]              @relation("note_to_org")
+
+    @@map("organizations")
+}
+
 /// defines an individual person.
 model Person {
     personId                     String                       @map("person_id") @id @db.VarChar(32)
     orgId                        String                       @map("org_id") @db.VarChar(50)
     name                         String                       @db.VarChar(100)
     email                        String                       @db.VarChar(100)
+    tags                         String[]                     @default([])
     properties                   Json                         @default("{}")
     status                       RecordStatus                 @default(Active)
 
     // Relations
     changeLogs                   PersonChangeLog[]            @relation("person_change_log_to_person")
+    organization                 Organization                 @relation("person_to_org", fields: [orgId], references: [orgId], onDelete: Cascade)
     skillChecksAsAssessee        SkillCheck[]                 @relation("skill_check_to_assessee")
     skillChecksAsAssessor        SkillCheck[]                 @relation("skill_check_to_assessor")
     skillCheckSessionsAsAssessee SkillCheckSession[]          @relation("skill_check_session_to_assessee")
@@ -133,16 +154,17 @@ model SkillCheck {
     timestamp       DateTime                  @default(now())
 
     // Relations
-    session         SkillCheckSession?        @relation("skill_check_to_skill_check_session", fields: [sessionId], references: [sessionId], onDelete: SetNull)
     assessee        Person                    @relation("skill_check_to_assessee", fields: [assesseeId], references: [personId], onDelete: Cascade)
     assessor        Person                    @relation("skill_check_to_assessor", fields: [assessorId], references: [personId], onDelete: Restrict)
+    organization    Organization              @relation("skill_check_to_org", fields: [orgId], references: [orgId], onDelete: Cascade)
+    session         SkillCheckSession?        @relation("skill_check_to_skill_check_session", fields: [sessionId], references: [sessionId], onDelete: SetNull)
     skill           Skill                     @relation("skill_check_to_skill", fields: [skillId], references: [skillId], onDelete: Cascade)
 
     @@map("skill_checks")
 }
 
 model SkillCheckSession {
-    sessionId    String                        @map("session_id") @id @db.VarChar(32)
+    sessionId     String                       @map("session_id") @id @db.VarChar(32)
     orgId         String                       @map("org_id") @db.VarChar(50)
     name          String                       @db.VarChar(100)
     notes         String                       @default("")
@@ -154,6 +176,7 @@ model SkillCheckSession {
     assessees     Person[]                     @relation("skill_check_session_to_assessee")
     changeLogs    SkillCheckSessionChangeLog[] @relation("skill_check_session_change_log_to_skill_check_session")
     checks        SkillCheck[]                 @relation("skill_check_to_skill_check_session")
+    organization  Organization                 @relation("skill_check_session_to_org", fields: [orgId], references: [orgId], onDelete: Cascade)
     skills        Skill[]                      @relation("skill_check_session_to_skill")
     
     @@map("skill_check_sessions")
@@ -195,14 +218,14 @@ model SkillCheckSessionChangeLog {
 
 enum SkillCheckSessionStatus {
     Draft
-    Complete
-    Discard
+    Include
+    Exclude
 }
 
 enum SkillCheckStatus {
     Draft
-    Complete
-    Discard
+    Include
+    Exclude
 }
 
 /// defines a group of skills within a skill package.
@@ -239,6 +262,7 @@ model SkillPackage {
 
     // Relations
     changeLogs  SkillPackageChangeLog[]    @relation("skill_package_change_log_to_skill_package")
+    owner       Organization               @relation("skill_package_to_owner", fields: [ownerOrgId], references: [orgId], onDelete: Cascade)
     skillGroups SkillGroup[]               @relation("skill_group_to_skill_package")
     skills      Skill[]                    @relation("skill_to_skill_package")
 
@@ -281,12 +305,14 @@ model Team {
     orgId              String              @map("org_id") @db.VarChar(50)
     name               String              @db.VarChar(100)
     color              String              @db.VarChar(10)
+    tags               String[]            @default([])
     properties         Json                @default("{}")
     status             RecordStatus        @default(Active)
 
     // Relations
     d4hInfo            TeamD4hInfo?        @relation("team_d4h_info_to_team")
     changeLogs         TeamChangeLog[]     @relation("team_change_log_to_team")
+    organization       Organization        @relation("team_to_org", fields: [orgId], references: [orgId], onDelete: Cascade)
     teamMemberships    TeamMembership[]    @relation("team_membership_to_team")
 
     @@unique([orgId, name])
@@ -334,8 +360,6 @@ model TeamD4hInfo {
 model TeamMembership {
     personId           String                 @map("person_id") @db.VarChar(32)
     teamId             String                 @map("team_id") @db.VarChar(32)
-    clerkMembershipId  String?                @map("clerk_membership_id") @db.VarChar(50) @unique
-    clerkInvitationId  String?                @map("clerk_invitation_id") @db.VarChar(50) @unique
     tags               String[]               @default([])
     properties         Json                   @default("{}")
     status             RecordStatus           @default(Active)

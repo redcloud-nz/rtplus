@@ -7,7 +7,7 @@ import { z } from 'zod'
 
 import { Note as NoteRecord } from '@prisma/client'
 
-import { zodNanoId8 } from '../validation'
+import { propertiesSchema, tagsSchema, zodNanoId8 } from '../validation'
 
 export type NoteId = string & z.BRAND<'NoteId'>
 
@@ -22,6 +22,8 @@ export const noteSchema = z.object({
     title: z.string().min(1).max(100), // Reasonable limit for note title
     content: z.string().min(1).max(10000), // Reasonable limit for note content
     date: z.string().length(10), // Fixed length for date (YYYY-MM-DD)
+    tags: tagsSchema,
+    properties: propertiesSchema,
 })
 
 

@@ -28,16 +28,16 @@ import { useSkillPackageImportStore } from './skill-package-import-store'
 
 
 
-export default function ImportSkillPackage() {
+export default function ImportSkillPackage_Page() {
 
     const { message, status } = useSkillPackageImportStore(useShallow(R.pick(['message', 'status'])))
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.system,
-                Paths.system.skillPackages,
-                Paths.system.skillPackages.import,
+                Paths.admin,
+                Paths.admin.skillPackages,
+                Paths.admin.skillPackages.import,
             ]}
         />
         <AppPageContent>
