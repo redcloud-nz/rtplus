@@ -7,7 +7,7 @@
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
-import { System_TeamMembership_Details_Card } from '@/components/cards/system-team-membership-details'
+import { TeamMembership_Details_Card } from '@/components/cards/team-membership-details'
 
 import * as Paths from '@/paths'
 import { fetchTeamMembership } from '@/server/fetch'
@@ -37,7 +37,7 @@ export default async function System_Team_Member_Page(props: { params: Promise<{
                 <PageTitle objectType="Team Member">{person.name}</PageTitle>
             </PageHeader>
             <Boundary>
-                <System_TeamMembership_Details_Card 
+                <TeamMembership_Details_Card 
                     context='team'
                     personId={person.personId}
                     teamId={team.teamId}

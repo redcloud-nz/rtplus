@@ -6,7 +6,6 @@
  */
 
 import { Metadata } from 'next'
-import { ReactNode } from 'react'
 import { pick } from 'remeda'
 
 import { AppSidebar } from '@/components/nav/app-sidebar'
@@ -25,7 +24,7 @@ export const metadata: Metadata = {
 }
 
 
-export default async function AdminModule_Layout(props: { children: ReactNode }) {
+export default async function AdminModule_Layout(props: LayoutProps<'/admin'>) {
 
     return <>
         <AppSidebar moduleName="admin">

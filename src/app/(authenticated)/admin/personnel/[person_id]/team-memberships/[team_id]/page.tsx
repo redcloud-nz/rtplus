@@ -7,7 +7,7 @@
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
-import { System_TeamMembership_Details_Card } from '@/components/cards/system-team-membership-details'
+import { TeamMembership_Details_Card } from '@/components/cards/team-membership-details'
 
 import * as Paths from '@/paths'
 import { fetchTeamMembership } from '@/server/fetch'
@@ -28,9 +28,9 @@ export default async function Person_TeamMembership_Page(props: { params: Promis
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.system,
-                Paths.system.personnel,
-                { label: person.name, href: Paths.system.person(person.personId).href },
+                Paths.admin,
+                Paths.admin.personnel,
+                { label: person.name, href: Paths.admin.person(person.personId).href },
                 "Team Memberships",
                 team.name
             ]}
@@ -40,7 +40,7 @@ export default async function Person_TeamMembership_Page(props: { params: Promis
                 <PageTitle objectType="Team Membership">{team.name}</PageTitle>
             </PageHeader>
             <Boundary>
-                <System_TeamMembership_Details_Card 
+                <TeamMembership_Details_Card 
                     context='person'
                     personId={person.personId}
                     teamId={team.teamId}

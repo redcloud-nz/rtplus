@@ -4,7 +4,6 @@
  */
 
 import type { Metadata } from 'next'
-import { ReactNode } from 'react'
 
 import { AppFrontendProvider } from '@/components/app-frontend-provider'
 
@@ -18,7 +17,7 @@ export const metadata: Metadata = {
     description: "RT+ Web Application.",
 }
 
-export default function Authenticated_Layout({ children }: { children: ReactNode }) {
+export default function Authenticated_Layout({ children }: LayoutProps<'/'>) {
 
     return <AppFrontendProvider>
         {children}

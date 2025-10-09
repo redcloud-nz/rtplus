@@ -7,7 +7,7 @@
 
 import { LoadingSpinner } from '@/components/ui/loading'
 
-export default function SignedIn_Loading() {
+export default function Authenticated_Loading() {
     return (
         <div className="flex flex-col items-center justify-center w-full h-screen">
             <LoadingSpinner className="w-32 h-32"/>

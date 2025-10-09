@@ -13,7 +13,7 @@ import { nanoId16 } from '@/lib/id'
 import { zodNanoId8, recordStatusParameterSchema } from '@/lib/validation'
 import { TRPCError } from '@trpc/server'
 
-import { AuthenticatedContext, AuthenticatedOrgContext, authenticatedProcedure, createTRPCRouter, orgAdminProcedure } from '../init'
+import { AuthenticatedContext, AuthenticatedOrgContext, authenticatedProcedure, createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
 import { SkillGroupId, skillGroupSchema, toSkillGroupData } from '@/lib/schemas/skill-group'
 import { SkillPackageId, skillPackageSchema, toSkillPackageData } from '@/lib/schemas/skill-package'
 import { ChangeCountsByType, createChangeCounts } from '@/lib/change-counts'
@@ -60,7 +60,7 @@ export const skillsRouter = createTRPCRouter({
                 })
             ])
 
-            return created
+            return toSkillGroupData(created)
         }),
 
     createPackage: orgAdminProcedure
@@ -221,7 +221,7 @@ export const skillsRouter = createTRPCRouter({
             return toSkillData(deletedSkill)
         }),
 
-    getAvailablePackages: authenticatedProcedure
+    getAvailablePackages: orgProcedure
         .input(z.object({
             teamId: TeamId.schema
         }))
@@ -252,7 +252,7 @@ export const skillsRouter = createTRPCRouter({
             }))
         }),
 
-    getGroup: authenticatedProcedure
+    getGroup: orgProcedure
         .input(z.object({
             skillGroupId: SkillGroupId.schema,
             skillPackageId: SkillPackageId.schema
@@ -266,7 +266,7 @@ export const skillsRouter = createTRPCRouter({
             return { ...toSkillGroupData(skillGroup), skillPackage: toSkillPackageData(skillPackage) }
         }),
 
-    getGroups: authenticatedProcedure
+    getGroups: orgProcedure
         .input(z.object({
             status: recordStatusParameterSchema,
             skillPackageId: zodNanoId8.optional()
@@ -278,10 +278,10 @@ export const skillsRouter = createTRPCRouter({
                 orderBy: { sequence: 'asc' },
             })
 
-            return groups
+            return groups.map(toSkillGroupData)
         }),
 
-    getPackage: authenticatedProcedure
+    getPackage: orgProcedure
         .input(z.object({
             skillPackageId: zodNanoId8
         }))
@@ -291,9 +291,10 @@ export const skillsRouter = createTRPCRouter({
             return toSkillPackageData(found)
         }), 
 
-    getPackages: authenticatedProcedure
+    getPackages: orgProcedure
         .input(z.object({
-            status: recordStatusParameterSchema
+            status: recordStatusParameterSchema,
+            owner: z.enum(['any', 'org']).optional().default('any'),
         }))
         .output(z.array(skillPackageSchema.extend({
             _count: z.object({
@@ -303,16 +304,21 @@ export const skillsRouter = createTRPCRouter({
         })))
         .query(async ({ ctx, input }) => {
             const skillPackages = await ctx.prisma.skillPackage.findMany({ 
-                where: { status: { in: input.status } },
+                where: { 
+                    status: { in: input.status },
+                    ownerOrgId: input.owner == 'org' ? ctx.auth.activeOrg.orgId : undefined
+                },
                 orderBy: { sequence: 'asc' },
                 include: {
                     _count: {
-                        select: { skillGroups: {
-                            where: { status: { in: input.status } }
-                        }, 
-                        skills: {
-                            where: { status: { in: input.status } }
-                        } }
+                        select: { 
+                            skillGroups: {
+                                where: { status: { in: input.status } }
+                            }, 
+                            skills: {
+                                where: { status: { in: input.status } }
+                            }
+                        }
                     }
                 }
             })

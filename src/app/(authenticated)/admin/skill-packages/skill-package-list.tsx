@@ -25,10 +25,10 @@ import { trpc, WithCounts } from '@/trpc/client'
 
 
 
-export function System_SkillPackagesList_Card() {
+export function SkillPackagesList() {
     
 
-    const skillPackagesQuery = useSuspenseQuery(trpc.skills.getPackages.queryOptions({}))
+    const skillPackagesQuery = useSuspenseQuery(trpc.skills.getPackages.queryOptions({ owner: 'org' }))
 
     async function handleRefresh() {
         await skillPackagesQuery.refetch()

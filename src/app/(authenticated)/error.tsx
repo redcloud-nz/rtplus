@@ -10,7 +10,7 @@ import { AppPage } from '@/components/app-page'
 import { UnknownError } from '@/components/nav/errors'
 
 
-export default function SignedIn_ErrorPage({ error }: { error: Error & { digest?: string } }) {
+export default function Authenticated_ErrorPage({ error }: { error: Error & { digest?: string } }) {
     return <AppPage>
         <UnknownError error={error}/>
     </AppPage>

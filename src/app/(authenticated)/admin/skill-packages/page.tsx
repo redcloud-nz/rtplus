@@ -14,7 +14,7 @@ import { Link } from '@/components/ui/link'
 
 import * as Paths from '@/paths'
 
-import { System_SkillPackagesList_Card } from './skill-package-list'
+import { SkillPackagesList } from './skill-package-list'
 
 export const metadata = { title: "Skill Packages" }
 
@@ -40,7 +40,7 @@ export default async function SkillPackagesList_Page() {
             </PageHeader>
 
             <Boundary>
-                <System_SkillPackagesList_Card/>
+                <SkillPackagesList/>
             </Boundary>
         </AppPageContent>
     </AppPage>
