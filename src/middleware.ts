@@ -7,11 +7,14 @@ import { NextResponse } from 'next/server'
 
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
-const isPublicRoute = createRouteMatcher(['/', '/about', '/contact', '/privacy-policy', '/terms-of-service'])
+
+const isPublicRoute = createRouteMatcher(['/', '/about', '/contact', '/privacy-policy', '/terms-of-service', '/api/webhooks(.*)'])
 const isSystemRoute = createRouteMatcher(['/system(/.*)'])
 
 export default clerkMiddleware(
     async (auth, req) => {
+        if(isPublicRoute(req)) return NextResponse.next()
+        
         const { userId, sessionClaims, redirectToSignIn } = await auth()
 
         if(userId) {
@@ -39,20 +42,12 @@ export default clerkMiddleware(
         } else {
             // Unauthenticated user
 
-            // If request is for a public route, allow access
-            if(isPublicRoute(req)) return NextResponse.next()
-
             // Otherwise, redirect to sign in
-            else return redirectToSignIn({ returnBackUrl: req.url })
+            return redirectToSignIn({ returnBackUrl: req.url })
         }
     }
 )
 
 export const config = {
-    matcher: [
-        // Skip Next.js internals and all static files, unless found in search params
-        '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-        // Always run for API routes
-        '/(api|trpc)(.*)',
-    ]
+    matcher: ['/((?!.*\\..*|_next).*)', '/', '/(api|trpc)(.*)'],
 }
