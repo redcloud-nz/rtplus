@@ -3,23 +3,22 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import { pickBy } from 'remeda'
 import { z } from 'zod'
 
 import { UTCDate } from '@date-fns/utc'
 import { TRPCError } from '@trpc/server'
 
 import { CompetenceLevel, isPass } from '@/lib/competencies'
-import { nanoId16 } from '@/lib/id'
+import { diffObject } from '@/lib/diff'
 import { toPersonData, personSchema, personRefSchema, toPersonRef, PersonId } from '@/lib/schemas/person'
 import { toSkillData, skillSchema } from '@/lib/schemas/skill'
 import { toSkillCheckData, skillCheckSchema } from '@/lib/schemas/skill-check'
 import { toSkillCheckSessionData, skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
-import { teamSchema, toTeamData } from '@/lib/schemas/team'
-import { recordStatusSchema, zodNanoId16, zodNanoId8 } from '@/lib/validation'
+import { zodNanoId16, zodNanoId8 } from '@/lib/validation'
 
 import { createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
 import { Messages } from '../messages'
+
 
 
 const sessionProcedure = orgProcedure
@@ -68,7 +67,7 @@ export const skillChecksRouter = createTRPCRouter({
                     changeLogs: {
                         create: {
                             event: 'AddAssessee',
-                            actorId: ctx.auth.userId,
+                            userId: ctx.auth.userId,
                             meta: { assesseeId }
                         }
                     }
@@ -121,7 +120,7 @@ export const skillChecksRouter = createTRPCRouter({
                     changeLogs: {
                         create: {
                             event: 'AddAssessor',
-                            actorId: ctx.auth.userId,
+                            userId: ctx.auth.userId,
                             meta: { assessorId }
                         }
                     }
@@ -175,7 +174,7 @@ export const skillChecksRouter = createTRPCRouter({
                     changeLogs: {
                         create: {
                             event: 'AddSkill',
-                            actorId: ctx.auth.userId,
+                            userId: ctx.auth.userId,
                             meta: { skillId }
                         }
                     }
@@ -224,11 +223,10 @@ export const skillChecksRouter = createTRPCRouter({
                     result: input.result,
                     notes: input.notes,
                     date: input.date,
-                    checkStatus: 'Complete',
-
-                    skill: { connect: { skillId: input.skillId } },
-                    assessee: { connect: { personId: input.assesseeId } },
-                    assessor: { connect: { personId: assessorId } },
+                    checkStatus: 'Include',
+                    skillId: input.skillId,
+                    assesseeId: input.assesseeId,
+                    assessorId: assessorId
                 }
             })
 
@@ -243,7 +241,7 @@ export const skillChecksRouter = createTRPCRouter({
      * @throws TRPCError(BAD_REQUEST) if the session ID is not provided or if the session already exists.
      */
     createSession: orgAdminProcedure
-        .input(skillCheckSessionSchema.pick({ sessionId: true, name: true, date: true }))
+        .input(skillCheckSessionSchema.omit({ sessionStatus: true }))
         .output(skillCheckSessionSchema)
         .mutation(async ({ ctx, input: { sessionId, ...fields } }) => {
 
@@ -254,6 +252,8 @@ export const skillChecksRouter = createTRPCRouter({
                 throw new TRPCError({ code: 'BAD_REQUEST', message: `Session with ID ${sessionId} already exists.` })
             }
 
+            const changes = diffObject({}, fields)
+
             const session = await ctx.prisma.skillCheckSession.create({
                 data: {
                     sessionId,
@@ -262,8 +262,8 @@ export const skillChecksRouter = createTRPCRouter({
                     changeLogs: {
                         create: {
                             event: 'Create',
-                            actorId: ctx.auth.userId,
-                            fields
+                            userId: ctx.auth.userId,
+                            changes: changes as object[],
                         },
                     },
                 },
@@ -338,7 +338,7 @@ export const skillChecksRouter = createTRPCRouter({
                     changeLogs: {
                         create: {
                             event: 'DeleteCheck',
-                            actorId: ctx.auth.personId,
+                            userId: ctx.auth.userId,
                             timestamp,
                             meta: {
                                 skillCheckId,
@@ -567,7 +567,7 @@ export const skillChecksRouter = createTRPCRouter({
      */
     getSessions: orgProcedure
         .input(z.object({
-            status: z.enum(['Draft', 'Complete', 'Discard']).array().optional(),
+            status: z.enum(['Draft', 'Include', 'Exclude']).array().optional(),
         }))
         .output(z.array(skillCheckSessionSchema))
         .query(async ({ ctx, input }) => {
@@ -662,7 +662,7 @@ export const skillChecksRouter = createTRPCRouter({
                     changeLogs: {
                         create: {
                             event: 'RemoveAssessee',
-                            actorId: ctx.auth.userId,
+                            userId: ctx.auth.userId,
                             meta: { assesseeId }
                         }
                     }
@@ -715,7 +715,7 @@ export const skillChecksRouter = createTRPCRouter({
                     changeLogs: {
                         create: {
                             event: 'RemoveAssessor',
-                            actorId: ctx.auth.userId,
+                            userId: ctx.auth.userId,
                             meta: { assessorId }
                         }
                     }
@@ -768,7 +768,7 @@ export const skillChecksRouter = createTRPCRouter({
                     changeLogs: {
                         create: {
                             event: 'RemoveSkill',
-                            actorId: ctx.auth.userId,
+                            userId: ctx.auth.userId,
                             meta: { skillId }
                         }
                     }
@@ -827,9 +827,9 @@ export const skillChecksRouter = createTRPCRouter({
                                 notes: input.notes,
                                 date: session.date,
                                 checkStatus: 'Draft',
-                                skill: { connect: { skillId: input.skillId } },
-                                assessee: { connect: { personId: input.assesseeId } },
-                                assessor: { connect: { personId: assessorId } },
+                                skillId: input.skillId,
+                                assesseeId: input.assesseeId,
+                                assessorId: assessorId,
                                 
                             },
                             update: {
@@ -888,10 +888,10 @@ export const skillChecksRouter = createTRPCRouter({
                         notes: inputCheck.notes,
                         date: session.date,
                         checkStatus: 'Draft',
-                        skill: { connect: { skillId: inputCheck.skillId } },
-                        session: { connect: { sessionId: input.sessionId } },
-                        assessee: { connect: { personId: inputCheck.assesseeId } },
-                        assessor: { connect: { personId: assessorId } },
+                        skillId: inputCheck.skillId,
+                        sessionId: input.sessionId,
+                        assesseeId: inputCheck.assesseeId,
+                        assessorId: assessorId,
                     },
                     update: {
                         result: inputCheck.result,
@@ -928,32 +928,27 @@ export const skillChecksRouter = createTRPCRouter({
      * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist in the active team.
      */
     updateSession: orgAdminProcedure
-        .input(skillCheckSessionSchema.pick({ sessionId: true, name: true, date: true }))
+        .input(skillCheckSessionSchema.omit({ sessionStatus: true }))
         .output(skillCheckSessionSchema)
-        .mutation(async ({ ctx, input: { sessionId, ...update } }) => {
+        .mutation(async ({ ctx, input: { sessionId, ...fields } }) => {
             const session = await ctx.prisma.skillCheckSession.findUnique({
                 where: { sessionId, orgId: ctx.auth.activeOrg.orgId }
             })
             if(!session) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.sessionNotFound(sessionId) })
 
-            // Pick only the fields that have changed
-            const changedFields = pickBy(update, (value, key) => value != session[key])
+            const changes = diffObject(skillCheckSessionSchema.omit({ sessionId: true, sessionStatus: true }).parse(session), fields)
+            if(changes.length == 0) return toSkillCheckSessionData(session) // No changes
 
             const updatedSession = await ctx.prisma.skillCheckSession.update({
                 where: { sessionId, orgId: ctx.auth.activeOrg.orgId },
                 data: {
-                    ...update,
+                    ...fields,
                     changeLogs: {
                         create: {
                             event: 'Update',
-                            actorId: ctx.auth.userId,
-                            fields: changedFields
+                            userId: ctx.auth.userId,
+                            changes: changes as object[],
                         },
-                    },
-                },
-                include: {
-                    _count: {
-                        select: { skills: true, assessees: true, assessors: true, checks: true }
                     },
                 }
             })
@@ -1002,15 +997,13 @@ export const skillChecksRouter = createTRPCRouter({
                     changeLogs: {
                         create: [
                             ...additions.map(assesseeId => ({
-                                id: nanoId16(),
                                 event: 'AddAssessee',
-                                actorId: ctx.auth.userId,
+                                userId: ctx.auth.userId,
                                 meta: { assesseeId }
                             } as const)),
                             ...removals.map(assesseeId => ({
-                                id: nanoId16(),
                                 event: 'RemoveAssessee',
-                                actorId: ctx.auth.userId,
+                                userId: ctx.auth.userId,
                                 meta: { assesseeId }
                             } as const))
                         ]
@@ -1067,16 +1060,14 @@ export const skillChecksRouter = createTRPCRouter({
                     changeLogs: {
                         create: [
                             ...additions.map(assessorId => ({
-                                id: nanoId16(),
                                 event: 'AddAssessor',
-                                actorId: ctx.auth.userId,
+                                userId: ctx.auth.userId,
                                 meta: { assessorId }
                             } as const)),
                             ...removals.map(assessorId => ({
-                                id: nanoId16(),
                                 event: 'RemoveAssessor',
-                                actorId: ctx.auth.userId,
-                                meta: { assesseeId: assessorId }
+                                userId: ctx.auth.userId,
+                                meta: { assessorId }
                             } as const))
                         ]
                     }
@@ -1134,15 +1125,13 @@ export const skillChecksRouter = createTRPCRouter({
                     changeLogs: {
                         create: [
                             ...additions.map(skillId => ({
-                                id: nanoId16(),
                                 event: 'AddSkill',
-                                actorId: ctx.auth.userId,
+                                userId: ctx.auth.userId,
                                 meta: { skillId }
                             } as const)),
                             ...removals.map(skillId => ({
-                                id: nanoId16(),
                                 event: 'RemoveSkill',
-                                actorId: ctx.auth.userId,
+                                userId: ctx.auth.userId,
                                 meta: { skillId }
                             } as const))
                         ]

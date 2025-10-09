@@ -35,7 +35,7 @@ model NoteChangeLog {
     userId      String?           @map("user_id") @db.VarChar(50)
     event       NoteChangeEvent
     meta        Json              @default("{}")
-    fields      Json              @default("{}")
+    changes     Json[]            @default([])
     timestamp   DateTime          @default(now())
   
     // Relations
@@ -107,7 +107,7 @@ model PersonChangeLog {
     event       PersonChangeEvent
     description String            @default("")
     meta        Json              @default("{}")
-    fields      Json              @default("{}")
+    changes     Json[]            @default([])
     timestamp   DateTime          @default(now())
 
     // Relations
@@ -209,11 +209,11 @@ enum SkillCheckSessionEvent {
 model SkillCheckSessionChangeLog {
     entryId        String                  @map("entry_id") @id @default(cuid())
     sessionId      String                  @map("session_id") @db.VarChar(32)
-    actorId        String?                 @map("actor_id") @db.VarChar(50)
+    userId         String?                 @map("user_id") @db.VarChar(50)
     event          SkillCheckSessionEvent
     description    String                  @default("")
     meta           Json                    @default("{}")
-    fields         Json                    @default("{}")
+    changes        Json[]                  @default([])
     timestamp      DateTime                @default(now())
 
     // Relations
@@ -295,7 +295,7 @@ model SkillPackageChangeLog {
     event          SkillPackageChangeEvent
     description    String                  @default("")
     meta           Json                    @default("{}")
-    fields         Json                    @default("{}")
+    changes        Json[]                  @default([])
     timestamp      DateTime                @default(now())
 
     // Relations
@@ -343,7 +343,7 @@ model TeamChangeLog {
     event       TeamChangeEvent
     description String          @default("")
     meta        Json            @default("{}")
-    fields      Json            @default("{}")
+    changes     Json[]          @default([])
     timestamp   DateTime        @default(now())
 
     // Relations
@@ -404,18 +404,18 @@ enum TeamMembershipD4hStatus {
 }
 
 model User {
-    userId    String       @map("user_id") @id @db.VarChar(50) // This is the Clerk user ID
-    name      String       @db.VarChar(100)
-    email     String       @db.VarChar(100)
-    settings  Json         @default("{}")
-    deleted   Boolean      @default(false)
+    userId    String                               @map("user_id") @id @db.VarChar(50) // This is the Clerk user ID
+    name      String                               @db.VarChar(100)
+    email     String                               @db.VarChar(100)
+    settings  Json                                 @default("{}")
+    deleted   Boolean                              @default(false)
 
     // Relations
-    noteChangeLogs         NoteChangeLog[] @relation("note_change_log_to_user")
-    personChangeLogs       PersonChangeLog[] @relation("person_change_log_to_user")
-    personnel              Person[] @relation("person_to_user")
+    noteChangeLogs         NoteChangeLog[]         @relation("note_change_log_to_user")
+    personChangeLogs       PersonChangeLog[]       @relation("person_change_log_to_user")
+    personnel              Person[]                @relation("person_to_user")
     skillPackageChangeLogs SkillPackageChangeLog[] @relation("skill_package_change_log_to_user")
-    teamChangeLogs         TeamChangeLog[] @relation("team_change_log_to_user")
+    teamChangeLogs         TeamChangeLog[]         @relation("team_change_log_to_user")
 
     @@map("users")
 }

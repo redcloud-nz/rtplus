@@ -3,12 +3,13 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import { pick, pickBy, pipe } from 'remeda'
+import { pick } from 'remeda'
 import { z } from 'zod'
 
 import { Person as PersonRecord } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
+import { diffObject } from '@/lib/diff'
 import { PersonId, personSchema, toPersonData } from '@/lib/schemas/person'
 import { UserId } from '@/lib/schemas/user'
 import { recordStatusParameterSchema } from '@/lib/validation'
@@ -16,6 +17,7 @@ import { recordStatusParameterSchema } from '@/lib/validation'
 import { AuthenticatedOrgContext, createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
 import { Messages } from '../messages'
 import { FieldConflictError } from '../types'
+
 
 
 
@@ -49,6 +51,8 @@ export const personnelRouter = createTRPCRouter({
 
             if(userIdConflict) throw new TRPCError({ code: 'CONFLICT', message: `A person with user ID ${fields.userId} already exists in this organization.`, cause: new FieldConflictError('userId') })
 
+            const changes = diffObject({ tags: [], properties: [], status: 'Active' }, fields)
+
             const created = await ctx.prisma.person.create({
                 data: {
                     personId,
@@ -58,7 +62,7 @@ export const personnelRouter = createTRPCRouter({
                         create: {
                             userId: ctx.auth.userId,
                             event: 'Create',
-                            fields: { ...fields }
+                            changes: changes as object[]
                         }
                     }
                 }
@@ -168,23 +172,23 @@ export const personnelRouter = createTRPCRouter({
         .output(personSchema)
         .mutation(async ({ ctx, input: { personId, ...fields} }) => {
 
-            const person = await getPersonById(ctx, personId)
+            const existing = await getPersonById(ctx, personId)
 
-            if(fields.email != person.email) {
+            if(fields.email != existing.email) {
                 // Check if a person with the new email already exists
                 const emailConflict = await ctx.prisma.person.findFirst({ where: { email: fields.email, orgId: ctx.auth.activeOrg.orgId } })
                 if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists in this organisation.', cause: new FieldConflictError('email') })
             }
 
-            if(fields.userId && fields.userId != person.userId) {
+            if(fields.userId && fields.userId != existing.userId) {
                 // Check if a person with the new userId already exists
                 const userIdConflict = await ctx.prisma.person.findFirst({ where: { userId: fields.userId, orgId: ctx.auth.activeOrg.orgId } })
                 if(userIdConflict) throw new TRPCError({ code: 'CONFLICT', message: `A person with user ID ${fields.userId} already exists in this organization.`, cause: new FieldConflictError('userId') })
             }
-            
-            // Pick only the fields that have changed
-            const changedFields = pipe(fields, pick(['name', 'email', 'status']), pickBy((value, key) => value != person[key]))
 
+            const changes = diffObject(personSchema.omit({ personId: true }).parse(existing), fields)
+
+            if(changes.length == 0) return toPersonData(existing) // No changes
             const updated = await ctx.prisma.person.update({
                 where: { orgId: ctx.auth.activeOrg.orgId,personId },
                 data: {
@@ -193,7 +197,7 @@ export const personnelRouter = createTRPCRouter({
                         create: {
                             userId: ctx.auth.userId,
                             event: 'Update',
-                            fields: changedFields
+                            changes: changes as object[]
                         }
                     }
                 }

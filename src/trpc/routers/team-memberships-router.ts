@@ -17,6 +17,7 @@ import { createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
 import { Messages} from '../messages'
 import { getPersonById } from './personnel-router'
 import { getTeamById } from './teams-router'
+import { diffObject } from '@/lib/diff'
 
 
 
@@ -54,6 +55,8 @@ export const teamMembershipsRouter = createTRPCRouter({
             })
             if(existing) throw new TRPCError({ code: 'CONFLICT', message: `Team membership for Person(${personId}) and Team(${teamId}) already exists.` })
 
+            const changes = diffObject({ tags: [], properties: {}, status: 'Active' }, fields)
+
             const [createdMembership] = await ctx.prisma.$transaction([
                 ctx.prisma.teamMembership.create({
                     data: {
@@ -65,10 +68,10 @@ export const teamMembershipsRouter = createTRPCRouter({
                 ctx.prisma.teamChangeLog.create({
                     data: {
                         teamId,
-                        actorId: ctx.auth.userId,
+                        userId: ctx.auth.userId,
                         event: 'AddMember',
                         meta: { personId },
-                        fields: fields
+                        changes: changes as object[]
                     }
                 })
             ])
@@ -108,7 +111,7 @@ export const teamMembershipsRouter = createTRPCRouter({
                 ctx.prisma.teamChangeLog.create({
                     data: {
                         teamId,
-                        actorId: ctx.auth.userId,
+                        userId: ctx.auth.userId,
                         event: 'RemoveMember',
                         meta: { personId },
                     }
@@ -199,28 +202,28 @@ export const teamMembershipsRouter = createTRPCRouter({
     updateTeamMembership: orgAdminProcedure
         .input(teamMembershipSchema)
         .output(teamMembershipSchema)
-        .mutation(async ({ ctx, input: { personId, teamId, ...update } }) => {
+        .mutation(async ({ ctx, input: { personId, teamId, ...fields } }) => {
 
             const existing = await ctx.prisma.teamMembership.findUnique({
                 where: { personId_teamId: { personId, teamId } }
             })
             if(!existing) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.teamMembershipNotFound(personId, teamId) })
 
-            // Pick only the fields that have changed
-            const changedFields = pickBy(update, (value, key) => value != existing[key])
+            const changes = diffObject(teamMembershipSchema.omit({ personId: true, teamId: true }).parse(existing), fields)
+
 
             const [updated] = await ctx.prisma.$transaction([
                 ctx.prisma.teamMembership.update({
                     where: { personId_teamId: { personId, teamId } },
-                    data: changedFields,
+                    data: fields,
                 }),
                 ctx.prisma.teamChangeLog.create({
                     data: {
                         teamId,
-                        actorId: ctx.auth.userId,
+                        userId: ctx.auth.userId,
                         event: 'UpdateMember',
                         meta: { personId },
-                        fields: changedFields
+                        changes: changes as object[]
                     }
                 })
             ])

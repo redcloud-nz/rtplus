@@ -8,18 +8,18 @@ import { z } from 'zod'
 
 import { Skill as SkillRecord, SkillGroup as SkillGroupRecord, SkillPackage as SkillPackageRecord } from '@prisma/client'
 
+import { PackageList, SkillPackageDef } from '@/data/skills'
+import { ChangeCountsByType, createChangeCounts } from '@/lib/change-counts'
+import { diffObject } from '@/lib/diff'
 import { skillSchema, toSkillData } from '@/lib/schemas/skill'
-import { nanoId16 } from '@/lib/id'
+import { SkillGroupId, skillGroupSchema, toSkillGroupData } from '@/lib/schemas/skill-group'
+import { SkillPackageId, skillPackageSchema, toSkillPackageData } from '@/lib/schemas/skill-package'
+import { TeamId } from '@/lib/schemas/team'
+import { assertNonNull } from '@/lib/utils'
 import { zodNanoId8, recordStatusParameterSchema } from '@/lib/validation'
 import { TRPCError } from '@trpc/server'
 
 import { AuthenticatedContext, AuthenticatedOrgContext, authenticatedProcedure, createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
-import { SkillGroupId, skillGroupSchema, toSkillGroupData } from '@/lib/schemas/skill-group'
-import { SkillPackageId, skillPackageSchema, toSkillPackageData } from '@/lib/schemas/skill-package'
-import { ChangeCountsByType, createChangeCounts } from '@/lib/change-counts'
-import { PackageList, SkillPackageDef } from '@/data/skills'
-import { assertNonNull } from '@/lib/utils'
-import { TeamId } from '@/lib/schemas/team'
 
 
 export const skillsRouter = createTRPCRouter({
@@ -39,6 +39,8 @@ export const skillsRouter = createTRPCRouter({
 
             const fields = { ...input, sequence: (aggregations._max.sequence ?? 0) + 1 }
 
+            const changes = diffObject({ tags: [], properties: {}, status: 'Active' }, fields)
+
             const [created] = await ctx.prisma.$transaction([
                 ctx.prisma.skillGroup.create({
                     data: {
@@ -52,10 +54,10 @@ export const skillsRouter = createTRPCRouter({
                     data: {
                         skillPackageId,
                         event: 'CreateGroup',
-                        actorId: ctx.auth.userId,
+                        userId: ctx.auth.userId,
                         timestamp: new Date(),
                         meta: { skillGroupId },
-                        fields: { ...fields },
+                        changes: changes as object[],
                     }
                 })
             ])
@@ -64,18 +66,16 @@ export const skillsRouter = createTRPCRouter({
         }),
 
     createPackage: orgAdminProcedure
-        .input(skillPackageSchema)
+        .input(skillPackageSchema.omit({ ownerOrgId: true }))
         .output(skillPackageSchema)
         .mutation(async ({ ctx, input: { skillPackageId, ...input } }) => {
             const aggregations = await ctx.prisma.skillPackage.aggregate({
                 _max: { sequence: true },
             })
 
-            const fields = {
-                name: input.name,
-                sequence: (aggregations._max.sequence ?? 0) + 1,
-                status: input.status,
-            }
+            const fields = { ...input, sequence: (aggregations._max.sequence ?? 0) + 1 }
+
+            const changes = diffObject({ tags: [], properties: {}, status: 'Active' }, fields)
 
             const created = await ctx.prisma.skillPackage.create({
                 data: {
@@ -85,9 +85,9 @@ export const skillsRouter = createTRPCRouter({
                     changeLogs: {
                         create: {
                             event: 'Create',
-                            actorId: ctx.auth.userId,
+                            userId: ctx.auth.userId,
                             timestamp: new Date(),
-                            fields: { ...fields },
+                            changes: changes as object[],
                         }
                     }
                 },
@@ -111,6 +111,8 @@ export const skillsRouter = createTRPCRouter({
 
             const fields = { ...input, sequence: (aggregations._max.sequence ?? 0) + 1 }
 
+            const changes = diffObject({ tags: [], properties: {}, status: 'Active' }, fields)
+
             const [newSkill] = await ctx.prisma.$transaction([
                 ctx.prisma.skill.create({
                     data: {
@@ -128,10 +130,10 @@ export const skillsRouter = createTRPCRouter({
                     data: {
                         skillPackageId: skillPackageId,
                         event: 'CreateSkill',
-                        actorId: ctx.auth.userId,
+                        userId: ctx.auth.userId,
                         timestamp: new Date(),
                         meta: { skillId },
-                        fields: { ...fields },
+                        changes: changes as object[],
                     }
                 })
             ])
@@ -164,7 +166,7 @@ export const skillsRouter = createTRPCRouter({
                     data: {
                         skillPackageId: skillGroup.skillPackageId,
                         event: 'DeleteGroup',
-                        actorId: ctx.auth.userId,
+                        userId: ctx.auth.userId,
                         timestamp: new Date(),
                         meta: { skillGroupId },
                     }
@@ -211,7 +213,7 @@ export const skillsRouter = createTRPCRouter({
                     data: {
                         skillPackageId: skill.skillPackageId,
                         event: 'DeleteSkill',
-                        actorId: ctx.auth.userId,
+                        userId: ctx.auth.userId,
                         timestamp: new Date(),
                         meta: { skillId },
                     }
@@ -387,17 +389,18 @@ export const skillsRouter = createTRPCRouter({
     updateGroup: orgAdminProcedure
         .input(skillGroupSchema)
         .output(skillGroupSchema)
-        .mutation(async ({ ctx, input: { skillGroupId, skillPackageId, ...input} }) => {
+        .mutation(async ({ ctx, input: { skillGroupId, skillPackageId, ...fields} }) => {
             const skillGroup = await getSkillGroupById(ctx, skillPackageId, skillGroupId)
 
             if(skillGroup.skillPackage.ownerOrgId != ctx.auth.activeOrg.orgId) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to modify SkillGroup(${skillGroupId})` })
 
-            const changedFields = pickBy(input, (value, key) => value != skillGroup[key])
+            const changes = diffObject(skillGroupSchema.omit({ skillGroupId: true, skillPackageId: true }).parse(skillGroup), fields)
+            if(changes.length == 0) return toSkillGroupData(skillGroup) // No changes
 
             const [updated] = await ctx.prisma.$transaction([
                 ctx.prisma.skillGroup.update({
                     where: { skillGroupId },
-                    data: changedFields,
+                    data: fields,
                     include: {
                         skillPackage: true,
                         parent: true,
@@ -408,10 +411,10 @@ export const skillsRouter = createTRPCRouter({
                     data: {
                         skillPackageId: skillGroup.skillPackageId,
                         event: 'UpdateGroup',
-                        actorId: ctx.auth.userId,
+                        userId: ctx.auth.userId,
                         timestamp: new Date(),
                         meta: { skillGroupId },
-                        fields: changedFields, 
+                        changes: changes as object[],
                     }
                 })
             ])
@@ -421,26 +424,26 @@ export const skillsRouter = createTRPCRouter({
 
     
     updatePackage: orgAdminProcedure
-        .input(skillPackageSchema)
+        .input(skillPackageSchema.omit({ ownerOrgId: true }))
         .output(skillPackageSchema)
-        .mutation(async ({ ctx, input: { skillPackageId, ...update } }) => {
+        .mutation(async ({ ctx, input: { skillPackageId, ...fields } }) => {
             const skillPackage = await getSkillPackageById(ctx, skillPackageId)
 
             if(skillPackage.ownerOrgId != ctx.auth.activeOrg.orgId) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to modify SkillPackage(${skillPackageId})` })
 
-            // Pick only the fields that have changed
-            const changedFields = pickBy(update, (value, key) => value != skillPackage[key])
+            const changes = diffObject(skillPackageSchema.omit({ skillPackageId: true, ownerOrgId: true }).parse(skillPackage), fields)
+            if(changes.length == 0) return toSkillPackageData(skillPackage) // No changes
 
             const updated = await ctx.prisma.skillPackage.update({
                 where: { skillPackageId },
                 data: {
-                    ...changedFields,
+                    ...fields,
                     changeLogs: {
                         create: {
                             event: 'Update',
-                            actorId: ctx.auth.userId,
+                            userId: ctx.auth.userId,
                             timestamp: new Date(),
-                            fields: changedFields,
+                            changes: changes as object[],
                         }
                     }
                 },
@@ -452,31 +455,28 @@ export const skillsRouter = createTRPCRouter({
     updateSkill: orgAdminProcedure
         .input(skillSchema)
         .output(skillSchema)
-        .mutation(async ({ ctx, input: { skillPackageId, skillId, ...input } }) => {
+        .mutation(async ({ ctx, input: { skillPackageId, skillId, ...fields } }) => {
             const skill = await getSkillById(ctx, skillPackageId, skillId)
 
             if(skill.skillPackage.ownerOrgId != ctx.auth.activeOrg.orgId) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to modify Skill(${skillId})` })
 
-            const changedFields = pickBy(input, (value, key) => value != skill[key])
+            const changes = diffObject(skillSchema.omit({ skillId: true, skillPackageId: true }).parse(skill), fields)
+            if(changes.length == 0) return toSkillData(skill) // No changes
 
             const [updatedSkill] = await ctx.prisma.$transaction([
                 ctx.prisma.skill.update({
                     where: { skillId },
-                    data: changedFields,
-                    include: {
-                        skillPackage: true,
-                        skillGroup: true,
-                    }
+                    data: fields,
                 }),
 
                 ctx.prisma.skillPackageChangeLog.create({
                     data: {
                         skillPackageId,
                         event: 'UpdateSkill',
-                        actorId: ctx.auth.userId,
+                        userId: ctx.auth.userId,
                         timestamp: new Date(),
                         meta: { skillId },
-                        fields: changedFields,
+                        changes: changes as object[],
                     }
                 })
             ])
@@ -533,27 +533,23 @@ async function importPackage(ctx: AuthenticatedOrgContext, skillPackage: SkillPa
 
     if(storedPackage) {
         // Existing Package
-        const existingData = pick(storedPackage, ['name', 'skillPackageId', 'sequence'])
-        const changes = pipe(
-            skillPackage, 
-            pick(['name', 'skillPackageId', 'sequence']),
-            entries(), 
-            filter(([key, value]) => value !== existingData[key]),
-            fromEntries()
-        )
+        const existingData = pick(storedPackage, ['name', 'sequence'])
+        
+        const fields = pick(skillPackage, ['name', 'sequence'])
 
-        if(!isEmpty(changes)) {
+        const changes = diffObject(existingData, fields)
+
+        if(changes.length > 0) {
             // Only update if one of the fields has changed
             await ctx.prisma.skillPackage.update({ 
                 where: { skillPackageId: skillPackage.skillPackageId }, 
                 data: {
-                    ...changes,
+                    ...fields,
                     changeLogs: {
                         create: {
                             event: 'Update',
-                            actorId: ctx.auth.userId,
+                            userId: ctx.auth.userId,
                             timestamp: new Date(),
-                            fields: changes,
                             description: "Imported skill package"
                         }
                     }
@@ -565,6 +561,8 @@ async function importPackage(ctx: AuthenticatedOrgContext, skillPackage: SkillPa
         // New Package
         const fields = pick(skillPackage, ['skillPackageId', 'name', 'sequence'])
 
+        const changes = diffObject({ tags: [], properties: {}, status: 'Active' }, fields)
+
         await ctx.prisma.skillPackage.create({ 
             data: {
                 ...fields,
@@ -572,9 +570,8 @@ async function importPackage(ctx: AuthenticatedOrgContext, skillPackage: SkillPa
                 changeLogs: {
                     create: {
                         event: 'Create',
-                        actorId: ctx.auth.userId,
+                        userId: ctx.auth.userId,
                         timestamp: new Date(),
-                        fields: fields,
                         description: "Import skill package"
                     }
                 }
@@ -607,12 +604,12 @@ async function importPackage(ctx: AuthenticatedOrgContext, skillPackage: SkillPa
             }),
             ctx.prisma.skillPackageChangeLog.createMany({ 
                 data: groupsToAdd.map(group => ({
-                    id: nanoId16(),
                     event: 'CreateGroup',
-                    actorId: ctx.auth.userId,
+                    userId: ctx.auth.userId,
                     skillPackageId: group.skillPackageId,
                     timestamp,
-                    fields: group,
+                    meta: { skillGroupId: group.skillGroupId },
+                    changes: [],
                     description: "Import skill package"
                 }))
             })
@@ -642,10 +639,10 @@ async function importPackage(ctx: AuthenticatedOrgContext, skillPackage: SkillPa
                 ctx.prisma.skillPackageChangeLog.create({
                     data: {
                         event: 'UpdateGroup',
-                        actorId: ctx.auth.userId,
+                        userId: ctx.auth.userId,
                         skillPackageId: group.skillPackageId,
                         timestamp: new Date(),
-                        fields: changes,
+                        meta: { skillGroupId: group.skillGroupId },
                         description: "Imported skill package"
                     }
                 })
@@ -677,12 +674,11 @@ async function importPackage(ctx: AuthenticatedOrgContext, skillPackage: SkillPa
             }),
             ctx.prisma.skillPackageChangeLog.createMany({ 
                 data: skillsToAdd.map(skill => ({
-                    id: nanoId16(),
                     event: 'CreateSkill',
-                    actorId: ctx.auth.userId,
+                    userId: ctx.auth.userId,
                     skillPackageId: skillPackage.skillPackageId,
+                    meta: { skillId: skill.skillId },
                     timestamp,
-                    fields: { ...skill },
                     description: "Import skill package"
                 }))
             })
@@ -713,10 +709,10 @@ async function importPackage(ctx: AuthenticatedOrgContext, skillPackage: SkillPa
                 ctx.prisma.skillPackageChangeLog.create({
                     data: {
                         event: 'UpdateSkill',
-                        actorId: ctx.auth.userId,
+                        userId: ctx.auth.userId,
                         skillPackageId: skillPackage.skillPackageId,
                         timestamp: new Date(),
-                        fields: changes,
+                        meta: { skillId: skill.skillId },
                         description: "Imported skill package"
                     }
                 })

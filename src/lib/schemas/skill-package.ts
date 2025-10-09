@@ -10,6 +10,8 @@ import { SkillPackage as SkillPackageRecord } from '@prisma/client'
 import { nanoId8 } from '../id'
 import { propertiesSchema, recordStatusSchema, tagsSchema } from '../validation'
 
+import { OrganizationId } from './organization'
+
 
 export type SkillPackageId = string & z.BRAND<'SkillPackageId'>
 
@@ -21,6 +23,7 @@ export const SkillPackageId = {
 
 export const skillPackageSchema = z.object({
     skillPackageId: SkillPackageId.schema,
+    ownerOrgId: OrganizationId.schema,
     name: z.string().nonempty().max(100),
     description: z.string().max(500),
     tags: tagsSchema,

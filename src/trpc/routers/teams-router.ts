@@ -3,12 +3,13 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import { pick, pickBy, pipe } from 'remeda'
+import { pick } from 'remeda'
 import { z } from 'zod'
 
 import { Team as TeamRecord } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
+import { diffObject } from '@/lib/diff'
 import { TeamId, teamSchema, toTeamData } from '@/lib/schemas/team'
 import { RTPlusLogger } from '@/lib/logger'
 import { recordStatusParameterSchema } from '@/lib/validation'
@@ -16,6 +17,7 @@ import { recordStatusParameterSchema } from '@/lib/validation'
 import { AuthenticatedOrgContext, createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
 import { FieldConflictError } from '../types'
 import { Messages } from '../messages'
+
 
 
 const logger = new RTPlusLogger('trpc/teams')
@@ -30,6 +32,8 @@ export const teamsRouter = createTRPCRouter({
             const nameConflict = await ctx.prisma.team.findFirst({ where: { orgId: ctx.auth.activeOrg.orgId, name: fields.name } })
             if(nameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('name') })
 
+            const changes = diffObject({ tags: [], properties: {}, status: 'Active' }, fields)
+
             const createdTeam = await ctx.prisma.team.create({ 
                 data: { 
                     teamId,
@@ -37,9 +41,9 @@ export const teamsRouter = createTRPCRouter({
                     ...fields, 
                     changeLogs: { 
                         create: { 
-                            actorId: ctx.auth.userId,
+                            userId: ctx.auth.userId,
                             event: 'Create',
-                            fields: fields
+                            changes: changes as object[]
                         }
                     }
                 }
@@ -115,28 +119,24 @@ export const teamsRouter = createTRPCRouter({
                 if(nameConflict) throw new TRPCError({ code: 'CONFLICT', cause: new FieldConflictError('name') })
             }
 
-            // Pick only the fields that have changed
-            const changedFields = pipe(fields, pick(['color', 'name', 'status']), pickBy((value, key) => value != team[key]))
+            const changes = diffObject(teamSchema.omit({ teamId: true }).parse(team), fields)
 
-            if(Object.keys(changedFields).length > 0) {
-                const updated = await ctx.prisma.team.update({
-                    where: { orgId: ctx.auth.activeOrg.orgId,teamId },
-                    data: { 
-                        ...changedFields,
-                        changeLogs: { 
-                            create: { 
-                                actorId: ctx.auth.userId,
-                                event: 'Update',
-                                fields: changedFields
-                            }
+            if(changes.length == 0) return toTeamData(team) // No changes
+            const updated = await ctx.prisma.team.update({
+                where: { orgId: ctx.auth.activeOrg.orgId,teamId },
+                data: { 
+                    ...fields,
+                    changeLogs: { 
+                        create: { 
+                            userId: ctx.auth.userId,
+                            event: 'Update',
+                            changes: changes as object[]
                         }
                     }
-                })
+                }
+            })
 
-                return toTeamData(updated)
-            } else {
-                return toTeamData(team)
-            }
+            return toTeamData(updated)
         }),
 
     updateTeamD4h: orgAdminProcedure

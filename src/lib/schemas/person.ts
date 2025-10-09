@@ -12,8 +12,6 @@ import { propertiesSchema, recordStatusSchema, tagsSchema } from '../validation'
 
 import { UserId } from './user'
 
-export const zodPersonId = z.string().length(8).regex(/^[a-zA-Z0-9]+$/, "8 character Person ID expected.").brand<'PersonId'>()
-
 export type PersonId = string & z.BRAND<'PersonId'>
 
 export const PersonId = {
