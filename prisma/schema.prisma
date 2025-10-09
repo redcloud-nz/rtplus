@@ -32,7 +32,7 @@ model Note {
 model NoteChangeLog {
     entryId     String            @map("entry_id") @id @default(cuid())
     noteId      String            @map("note_id") @db.VarChar(16)
-    actorId     String?           @map("actor_id") @db.VarChar(50)
+    userId      String?           @map("user_id") @db.VarChar(50)
     event       NoteChangeEvent
     meta        Json              @default("{}")
     fields      Json              @default("{}")
@@ -40,6 +40,7 @@ model NoteChangeLog {
   
     // Relations
     note        Note              @relation("note_change_log_to_note", fields: [noteId], references: [noteId], onDelete: Cascade)
+    user        User?             @relation("note_change_log_to_user", fields: [userId], references: [userId], onDelete: SetNull)
 
     @@map("notes_change_log")
 }
@@ -51,7 +52,7 @@ enum NoteChangeEvent {
 }
 
 model Organization {
-    orgId        String          @map("org_id") @id @db.VarChar(50)
+    orgId        String          @map("org_id") @id @db.VarChar(50) // This is the Clerk organization ID
     name         String          @db.VarChar(100)
     settings     Json            @default("{}")
 
@@ -70,6 +71,7 @@ model Organization {
 model Person {
     personId                     String                       @map("person_id") @id @db.VarChar(32)
     orgId                        String                       @map("org_id") @db.VarChar(50)
+    userId                       String?                      @map("user_id") @db.VarChar(50)
     name                         String                       @db.VarChar(100)
     email                        String                       @db.VarChar(100)
     tags                         String[]                     @default([])
@@ -84,6 +86,7 @@ model Person {
     skillCheckSessionsAsAssessee SkillCheckSession[]          @relation("skill_check_session_to_assessee")
     skillCheckSessionsAsAssessor SkillCheckSession[]          @relation("skill_check_session_to_assessor")
     teamMemberships              TeamMembership[]             @relation("team_membership_to_person")
+    user                         User?                        @relation("person_to_user", fields: [userId], references: [userId], onDelete: SetNull)
 
     @@unique([orgId, email])
     @@map("personnel")
@@ -100,13 +103,16 @@ enum PersonChangeEvent {
 model PersonChangeLog {
     entryId     String            @map("entryId") @id @default(cuid())
     personId    String            @map("person_id") @db.VarChar(32)
-    actorId     String?           @map("actor_id") @db.VarChar(50)
+    userId      String?           @map("user_id") @db.VarChar(50)
     event       PersonChangeEvent
     description String            @default("")
     meta        Json              @default("{}")
     fields      Json              @default("{}")
     timestamp   DateTime          @default(now())
+
+    // Relations
     person      Person            @relation("person_change_log_to_person", fields: [personId], references: [personId], onDelete: Cascade)
+    user        User?             @relation("person_change_log_to_user", fields: [userId], references: [userId], onDelete: SetNull)
 
     @@map("personnel_change_log")
 }
@@ -285,7 +291,7 @@ enum SkillPackageChangeEvent {
 model SkillPackageChangeLog {
     entryId        String                  @map("entry_id") @id @default(cuid())
     skillPackageId String                  @map("skill_package_id") @db.VarChar(32)
-    actorId        String?                 @map("actor_id") @db.VarChar(50)
+    userId         String?                 @map("user_id") @db.VarChar(50)
     event          SkillPackageChangeEvent
     description    String                  @default("")
     meta           Json                    @default("{}")
@@ -294,6 +300,7 @@ model SkillPackageChangeLog {
 
     // Relations
     skillPackage   SkillPackage            @relation("skill_package_change_log_to_skill_package", fields: [skillPackageId], references: [skillPackageId], onDelete: Cascade)
+    user           User?                   @relation("skill_package_change_log_to_user", fields: [userId], references: [userId], onDelete: SetNull)
 
     @@map("skill_packages_change_log")
 }
@@ -332,7 +339,7 @@ enum TeamChangeEvent {
 model TeamChangeLog {
     entryId     String          @map("entry_id") @id @default(cuid())
     teamId      String          @map("team_id") @db.VarChar(32)
-    actorId     String?         @map("actor_id") @db.VarChar(50)
+    userId      String?         @map("user_id") @db.VarChar(50)
     event       TeamChangeEvent
     description String          @default("")
     meta        Json            @default("{}")
@@ -341,6 +348,7 @@ model TeamChangeLog {
 
     // Relations
     team        Team            @relation("team_change_log_to_team", fields: [teamId], references: [teamId], onDelete: Cascade)
+    user        User?           @relation("team_change_log_to_user", fields: [userId], references: [userId], onDelete: SetNull)
 
     @@map("teams_change_log")
 }
@@ -393,4 +401,21 @@ enum TeamMembershipD4hStatus {
     NonOperational
     Observer
     Retired
+}
+
+model User {
+    userId    String       @map("user_id") @id @db.VarChar(50) // This is the Clerk user ID
+    name      String       @db.VarChar(100)
+    email     String       @db.VarChar(100)
+    settings  Json         @default("{}")
+    deleted   Boolean      @default(false)
+
+    // Relations
+    noteChangeLogs         NoteChangeLog[] @relation("note_change_log_to_user")
+    personChangeLogs       PersonChangeLog[] @relation("person_change_log_to_user")
+    personnel              Person[] @relation("person_to_user")
+    skillPackageChangeLogs SkillPackageChangeLog[] @relation("skill_package_change_log_to_user")
+    teamChangeLogs         TeamChangeLog[] @relation("team_change_log_to_user")
+
+    @@map("users")
 }

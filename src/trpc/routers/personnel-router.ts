@@ -10,6 +10,7 @@ import { Person as PersonRecord } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
 import { PersonId, personSchema, toPersonData } from '@/lib/schemas/person'
+import { UserId } from '@/lib/schemas/user'
 import { recordStatusParameterSchema } from '@/lib/validation'
 
 import { AuthenticatedOrgContext, createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
@@ -24,8 +25,7 @@ import { FieldConflictError } from '../types'
 export const personnelRouter = createTRPCRouter({
 
     /**
-     * Creates a new person in the system.
-     * If the user is not a system admin, the owning team ID is set to the active team.
+     * Creates a new person in the organization.
      * @param ctx The authenticated context.
      * @param input The input object containing the person data.
      * @returns The created person object.
@@ -37,14 +37,17 @@ export const personnelRouter = createTRPCRouter({
         .mutation(async ({ ctx, input: { personId, ...fields } }) => {
 
             // Check for conflicts
-            const [personIdConflict, emailConflict] = await Promise.all([
+            const [personIdConflict, emailConflict, userIdConflict] = await Promise.all([
                 ctx.prisma.person.findUnique({ where: { personId } }),
-                ctx.prisma.person.findFirst({ where: { orgId: ctx.auth.activeOrg.orgId, email: fields.email } })
+                ctx.prisma.person.findFirst({ where: { orgId: ctx.auth.activeOrg.orgId, email: fields.email } }),
+                ctx.prisma.person.findFirst({ where: { orgId: ctx.auth.activeOrg.orgId, userId: fields.userId } })
             ])
 
             if(personIdConflict) throw new TRPCError({ code: 'CONFLICT', message: `A person with ID ${personId} already exists.`, cause: new FieldConflictError('personId') })
-            
-            if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists in this organisation.', cause: new FieldConflictError('email') })
+
+            if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists in this organization.', cause: new FieldConflictError('email') })
+
+            if(userIdConflict) throw new TRPCError({ code: 'CONFLICT', message: `A person with user ID ${fields.userId} already exists in this organization.`, cause: new FieldConflictError('userId') })
 
             const created = await ctx.prisma.person.create({
                 data: {
@@ -53,7 +56,7 @@ export const personnelRouter = createTRPCRouter({
                     ...fields,
                     changeLogs: {
                         create: {
-                            actorId: ctx.auth.userId,
+                            userId: ctx.auth.userId,
                             event: 'Create',
                             fields: { ...fields }
                         }
@@ -65,7 +68,7 @@ export const personnelRouter = createTRPCRouter({
         }),
 
     /**
-     * Delete a person from the system.
+     * Delete a person from the organization.
      * @param ctx The authenticated context.
      * @param input The input object containing the personId.
      * @returns The deleted person object.
@@ -89,9 +92,9 @@ export const personnelRouter = createTRPCRouter({
         }),
 
     /**
-     * Retrieves a person by their ID
+     * Retrieves a person by their personId, email, or userId.
      * @param ctx The authenticated context.
-     * @param input The input object containing either personId or email.
+     * @param input The input object containing either personId, email, or userId.
      * @returns The person object if found.
      * @throws TRPCError(NOT_FOUND) if the person is not found.
      */
@@ -99,11 +102,12 @@ export const personnelRouter = createTRPCRouter({
         .input(z.object({ 
             personId: PersonId.schema.optional(),
             email: z.string().email().optional(),
-        }).refine(data => data.personId || data.email, {
-            message: 'Either personId or email must be provided.'
+            userId: UserId.schema.optional(),
+        }).refine(data => data.personId || data.email || data.userId, {
+            message: 'One of personId, email, or userId must be provided.'
         }))
         .output(personSchema)
-        .query(async ({ ctx, input: { personId, email} }) => {
+        .query(async ({ ctx, input: { personId, email, userId } }) => {
 
             if(personId) {
                 const person = await getPersonById(ctx, personId)
@@ -117,6 +121,13 @@ export const personnelRouter = createTRPCRouter({
                 if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person with email ${email} not found.` })
                 return toPersonData(person)
 
+            } else if(userId) {
+                const person = await ctx.prisma.person.findFirst({ 
+                    where: { userId: userId, orgId: ctx.auth.activeOrg.orgId },
+                })
+
+                if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `Person with user ID ${userId} not found.` })
+                return toPersonData(person)
             } else {
                 throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid input' })
             }
@@ -164,6 +175,12 @@ export const personnelRouter = createTRPCRouter({
                 const emailConflict = await ctx.prisma.person.findFirst({ where: { email: fields.email, orgId: ctx.auth.activeOrg.orgId } })
                 if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists in this organisation.', cause: new FieldConflictError('email') })
             }
+
+            if(fields.userId && fields.userId != person.userId) {
+                // Check if a person with the new userId already exists
+                const userIdConflict = await ctx.prisma.person.findFirst({ where: { userId: fields.userId, orgId: ctx.auth.activeOrg.orgId } })
+                if(userIdConflict) throw new TRPCError({ code: 'CONFLICT', message: `A person with user ID ${fields.userId} already exists in this organization.`, cause: new FieldConflictError('userId') })
+            }
             
             // Pick only the fields that have changed
             const changedFields = pipe(fields, pick(['name', 'email', 'status']), pickBy((value, key) => value != person[key]))
@@ -174,7 +191,7 @@ export const personnelRouter = createTRPCRouter({
                     ...fields,
                     changeLogs: {
                         create: {
-                            actorId: ctx.auth.userId,
+                            userId: ctx.auth.userId,
                             event: 'Update',
                             fields: changedFields
                         }
