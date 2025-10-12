@@ -8,8 +8,12 @@ import { match } from 'ts-pattern'
 
 import { verifyWebhook, WebhookEvent } from '@clerk/nextjs/webhooks'
 
-import prisma from '@/server/prisma'
 import { RTPlusLogger } from '@/lib/logger'
+import { getClerkClient } from '@/server/clerk'
+import prisma from '@/server/prisma'
+import { PersonId } from '@/lib/schemas/person'
+
+
 
 const logger = new RTPlusLogger('webhooks/clerk')
 
@@ -68,23 +72,95 @@ async function processWebhook(event: WebhookEvent) {
                 where: { orgId: data.id },
             })
         })
-        .with({ type: 'organizationMembership.created' }, ({ data }) => {
+        .with({ type: 'organizationMembership.created' }, async ({ data }) => {
+            const clerkClient = getClerkClient()
+            const clerkUser = await clerkClient.users.getUser(data.public_user_data.user_id)
+            const email = clerkUser.primaryEmailAddress?.emailAddress || null
+            if(email === null) {
+                logger.warn(`User ${data.public_user_data.user_id} has no primary email address, cannot link to person records`)
+                return
+            }
+
+            // If there is a person with this email in this org, link them to the user
+            await prisma.person.updateMany({
+                where: { email: email, orgId: data.organization.id, userId: null },
+                data: {
+                    userId: clerkUser.id
+                }
+            })
+
+            const existing = await prisma.person.updateManyAndReturn({
+                where: { email, orgId: data.organization.id, userId: null },
+                data: { userId: clerkUser.id }
+            })
+
+            if(existing.length !== 0) {
+                logger.info(`Linked existing person ${existing[0].personId} to user ${clerkUser.id}`)
+                return
+            }
+            // No existing person - create a new one
+            const created = await prisma.person.create({
+                data: {
+                    personId: PersonId.create(),
+                    name: clerkUser.firstName + (clerkUser.lastName ? ` ${clerkUser.lastName}` : ''),
+                    email: email,
+                    userId: clerkUser.id,
+                    orgId: data.organization.id,
+                    status: 'Active',
+                    tags: [],
+                    properties: {},
+                }
+            })
 
         })
-        .with({ type: 'organizationMembership.updated' }, ({ data }) => {
+        .with({ type: 'organizationMembership.updated' }, async ({ data }) => {
+            // Nothing to do here for now
+            
 
         })
-        .with({ type: 'organizationMembership.deleted' }, ({ data }) => {
+        .with({ type: 'organizationMembership.deleted' }, async ({ data }) => {
+            // Disconnect the user from person records in this org
+            await prisma.person.updateMany({
+                where: { userId: data.public_user_data.user_id, orgId: data.organization.id },
+                data: {
+                    userId: null
+                }
+            })
 
         })
-        .with({ type: 'user.created' }, ({ data }) => {
+        .with({ type: 'user.created' }, async ({ data }) => {
+            await prisma.user.upsert({
+                where: { userId: data.id },
+                create: {
+                    userId: data.id,
+                    name: data.first_name + (data.last_name ? ` ${data.last_name}` : ''),
+                    email: data.email_addresses?.[0]?.email_address || '',
+                    settings: {},
+                },
+                update: {
+                    name: data.first_name + (data.last_name ? ` ${data.last_name}` : ''),
+                    email: data.email_addresses?.[0]?.email_address || '',
+                }
+            })
 
         })
-        .with({ type: 'user.updated' }, ({ data }) => {
+        .with({ type: 'user.updated' }, async ({ data }) => {
+            await prisma.user.update({
+                where: { userId: data.id },
+                data: {
+                    name: data.first_name + (data.last_name ? ` ${data.last_name}` : ''),
+                    email: data.email_addresses?.[0]?.email_address || '',
+                }
+            })
 
         })
-        .with({ type: 'user.deleted' }, ({ data }) => {
-
+        .with({ type: 'user.deleted' }, async ({ data }) => {
+            await prisma.user.update({
+                where: { userId: data.id },
+                data: {
+                    deleted: true,
+                }
+            })
         })
         .otherwise(() => {
             logger.warn(`Unhandled webhook event: ${event.type}, id: ${event.data.id}`)

@@ -48,7 +48,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
                     </Button>
                 </SignedIn>
                 <SignedOut>
-                    <SignInButton forceRedirectUrl={Paths.selectTeam.href}>
+                    <SignInButton>
                         <Button> Sign In</Button>
                     </SignInButton>
                 </SignedOut>

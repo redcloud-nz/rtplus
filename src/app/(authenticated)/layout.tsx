@@ -7,7 +7,6 @@ import type { Metadata } from 'next'
 
 import { AppFrontendProvider } from '@/components/app-frontend-provider'
 
-
 export const metadata: Metadata = {
     applicationName: "RT+",
     title: {
