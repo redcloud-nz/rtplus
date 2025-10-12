@@ -8,6 +8,7 @@
 import { PlusIcon } from 'lucide-react'
 import { useMemo } from 'react'
 
+import { Protect } from '@clerk/nextjs'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
@@ -96,19 +97,21 @@ export function PersonnelList() {
             <CardHeader>
                 <DataTableSearch size="sm" variant="ghost"/>
                 <CardActions>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" asChild>
-                                <Link to={Paths.admin.personnel.create}>
-                                    <PlusIcon />
-                                </Link>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            Create new person
-                        </TooltipContent>
-                    </Tooltip>
-
+                    <Protect role="org:admin">
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" asChild>
+                                    <Link to={Paths.admin.personnel.create}>
+                                        <PlusIcon />
+                                    </Link>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                Create new person
+                            </TooltipContent>
+                        </Tooltip>
+                    </Protect>
+                    
                     <RefreshButton onClick={handleRefresh}/>
                     <TableOptionsDropdown/>
                     <Separator orientation="vertical"/>

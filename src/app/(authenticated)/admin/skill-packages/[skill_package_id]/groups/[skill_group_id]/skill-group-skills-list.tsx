@@ -8,6 +8,7 @@
 import { PlusIcon } from 'lucide-react'
 import { useMemo } from 'react'
 
+import { Protect } from '@clerk/nextjs'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getFilteredRowModel,  getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
@@ -22,8 +23,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { SkillData } from '@/lib/schemas/skill'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
-
-
 
 export function SkillGroup_SkillsList_Card({ skillGroupId, skillPackageId }: { skillGroupId: string, skillPackageId: string }) {
     
@@ -45,7 +44,7 @@ export function SkillGroup_SkillsList_Card({ skillGroupId, skillPackageId }: { s
         }),
         columnHelper.accessor('name', {
             header: 'Skill',
-            cell: ctx => <TextLink to={Paths.system.skillPackage(skillPackageId).skill(ctx.row.original.skillId)}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.admin.skillPackage(skillPackageId).skill(ctx.row.original.skillId)}>{ctx.getValue()}</TextLink>,
             enableGrouping: false,
             enableHiding: false
         }),
@@ -55,13 +54,6 @@ export function SkillGroup_SkillsList_Card({ skillGroupId, skillPackageId }: { s
             enableHiding: true,
             enableSorting: false,
             enableGrouping: false,
-            enableGlobalFilter: false,
-        }),
-        columnHelper.accessor('frequency', {
-            header: 'Frequency',
-            cell: ctx => ctx.getValue() || <i className="text-muted-foreground">Not set</i>,
-            enableHiding: true,
-            enableSorting: false,
             enableGlobalFilter: false,
         }),
         columnHelper.accessor('status', {
@@ -111,17 +103,18 @@ export function SkillGroup_SkillsList_Card({ skillGroupId, skillPackageId }: { s
             <CardHeader>
                 <CardTitle>Skills</CardTitle>
                 <CardActions>
-
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" disabled>
-                                <PlusIcon/>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            Add new skill to group.
-                        </TooltipContent>
-                    </Tooltip>
+                    <Protect role="org:admin">
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" disabled>
+                                    <PlusIcon/>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                Add new skill to group.
+                            </TooltipContent>
+                        </Tooltip>
+                    </Protect>
 
                     <RefreshButton onClick={handleRefresh}/>
                     <TableOptionsDropdown/>

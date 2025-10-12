@@ -2,7 +2,7 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- * Path: /app/system/skill-packages/[skill_package_id]/skills/create
+ * Path: /admin/skill-packages/[skill_package_id]/skills/create
  */
 
 import { Metadata } from 'next'
@@ -12,26 +12,26 @@ import * as Paths from '@/paths'
 
 import { fetchSkillPackage } from '@/server/fetch'
 
-import { NewSkillDetailsCard } from './new-skill-details'
+import { NewSkillDetailsCard } from './new-skill'
 import { Boundary } from '@/components/boundary'
 
 
-export async function generateMetadata(props: { params: Promise<{ skill_package_id: string }> }): Promise<Metadata> {
+export async function generateMetadata(props: PageProps<'/admin/skill-packages/[skill_package_id]/skills/[skill_id]'>): Promise<Metadata> {
     const skillPackage = await fetchSkillPackage(props.params)
     return { title: `New Skill | ${skillPackage.name}` }
 }
 
-export default async function NewSkillPage(props: { params: Promise<{ skill_package_id: string }>}) {
+export default async function NewSkillPage(props: PageProps<'/admin/skill-packages/[skill_package_id]/skills/[skill_id]'>) {
     const skillPackage = await fetchSkillPackage(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.system,
-                Paths.system.skillPackages,
-                { label: skillPackage.name, href: Paths.system.skillPackage(skillPackage.skillPackageId).href },
-                "Skills",
-                "Create"
+                Paths.admin,
+                Paths.admin.skillPackages,
+                { label: skillPackage.name, href: Paths.admin.skillPackage(skillPackage.skillPackageId).href },
+                Paths.admin.skillPackage(skillPackage.skillPackageId).skills,
+                Paths.admin.skillPackage(skillPackage.skillPackageId).skills.create
             ]}
         />
         <AppPageContent variant='container'>

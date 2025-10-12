@@ -16,7 +16,6 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 
 import { Button } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTriggerButton } from '@/components/ui/dialog'
 import { DisplayValue } from '@/components/ui/display-value'
 import { Form, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
@@ -37,7 +36,6 @@ import { SkillPackageData } from '@/lib/schemas/skill-package'
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
-
 
 
 
@@ -92,7 +90,7 @@ export function SkillDetailsCard({ skillId, skillPackageId }: { skillId: string,
                             label="Skill Package"
                             control={
                                 <DisplayValue>
-                                    <TextLink to={Paths.system.skillPackage(skill.skillPackageId)}>
+                                    <TextLink to={Paths.admin.skillPackage(skill.skillPackageId)}>
                                         {skill.skillPackage.name}
                                     </TextLink>
                                 </DisplayValue>
@@ -102,7 +100,7 @@ export function SkillDetailsCard({ skillId, skillPackageId }: { skillId: string,
                             label="Skill Group"
                             control={
                                 <DisplayValue>
-                                    <TextLink to={Paths.system.skillPackage(skill.skillPackageId).group(skill.skillGroupId)}>
+                                    <TextLink to={Paths.admin.skillPackage(skill.skillPackageId).group(skill.skillGroupId)}>
                                         {skill.skillGroup.name}
                                     </TextLink>
                                 </DisplayValue>
@@ -119,14 +117,6 @@ export function SkillDetailsCard({ skillId, skillPackageId }: { skillId: string,
                                     {skill.description || <span className="text-muted-foreground">No description provided.</span>}
                                 </DisplayValue>
                             }
-                        />
-                        <ToruGridRow
-                            label="Frequency"
-                            control={<DisplayValue>{skill.frequency}</DisplayValue>}
-                        />
-                        <ToruGridRow
-                            label="Optional"
-                            control={<DisplayValue>{skill.optional ? 'Yes' : 'No'}</DisplayValue>}
                         />
                         <ToruGridRow
                             label="Status"
@@ -208,7 +198,7 @@ function UpdateSkillForm({ onClose, skill, skillPackage, skillGroup }: { onClose
                         label="Skill Package"
                         control={
                             <DisplayValue>
-                                <TextLink to={Paths.system.skillPackage(skill.skillPackageId)}>
+                                <TextLink to={Paths.admin.skillPackage(skill.skillPackageId)}>
                                     {skillPackage.name}
                                 </TextLink>
                             </DisplayValue>
@@ -222,7 +212,7 @@ function UpdateSkillForm({ onClose, skill, skillPackage, skillGroup }: { onClose
                         label="Skill Group"
                         control={
                             <DisplayValue>
-                                <TextLink to={Paths.system.skillPackage(skill.skillPackageId).group(skill.skillGroupId)}>
+                                <TextLink to={Paths.admin.skillPackage(skill.skillPackageId).group(skill.skillGroupId)}>
                                     {skillGroup.name}
                                 </TextLink>
                             </DisplayValue>
@@ -245,29 +235,6 @@ function UpdateSkillForm({ onClose, skill, skillPackage, skillGroup }: { onClose
                         label="Description"
                         control={<Textarea maxLength={500} {...field} />}
                         description="A brief description of the skill."
-                    />}
-                />
-                <FormField
-                    control={form.control}
-                    name="frequency"
-                    render={({ field }) => <ToruGridRow
-                        label="Frequency"
-                        control={<Input maxLength={50} {...field} />}
-                        description="How often this skill should be assessed."
-                    />}
-                />
-                <FormField
-                    control={form.control}
-                    name="optional"
-                    render={({ field }) => <ToruGridRow
-                        label="Optional"
-                        control={
-                            <Checkbox 
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                            />
-                        }
-                        description="Whether this skill is optional for assessment."
                     />}
                 />
                 <FormField
@@ -340,7 +307,7 @@ function DeleteSkillDialog({ skill }: { skill: SkillData }) {
 
             queryClient.invalidateQueries(trpc.skills.getSkills.queryFilter())
             queryClient.invalidateQueries(trpc.skills.getSkill.queryFilter({ skillId: skill.skillId }))
-            router.push(Paths.system.skillPackage(skill.skillPackageId).group(skill.skillGroupId).href)
+            router.push(Paths.admin.skillPackage(skill.skillPackageId).group(skill.skillGroupId).href)
         }
     }))
 

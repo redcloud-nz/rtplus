@@ -11,6 +11,7 @@ import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 
+import { Protect } from '@clerk/nextjs'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
@@ -36,6 +37,7 @@ import { trpc } from '@/trpc/client'
 
 
 
+
 export function TeamMembership_Details_Card({ context, personId, teamId }: { context: 'person' | 'team', personId: string, teamId: string }) {
     const router = useRouter()
 
@@ -47,22 +49,25 @@ export function TeamMembership_Details_Card({ context, personId, teamId }: { con
         <CardHeader>
             <CardTitle>Details</CardTitle>
             <CardActions>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={() => setMode('Update')} disabled={mode == 'Update'}>
-                            <PencilIcon/>
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Edit membership details</TooltipContent>
-                </Tooltip>
-                <DeleteTeamMembershipDialog
-                    onDelete={() => {
-                        if(context == 'person') router.push(Paths.admin.person(person.personId).href)
-                        else router.push(Paths.admin.team(team.teamId).href)
-                    }}
-                    personId={personId}
-                    teamId={teamId}
-                />
+                <Protect role="org:admin">
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" onClick={() => setMode('Update')} disabled={mode == 'Update'}>
+                                <PencilIcon/>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Edit membership details</TooltipContent>
+                    </Tooltip>
+                    <DeleteTeamMembershipDialog
+                        onDelete={() => {
+                            if(context == 'person') router.push(Paths.admin.person(person.personId).href)
+                            else router.push(Paths.admin.team(team.teamId).href)
+                        }}
+                        personId={personId}
+                        teamId={teamId}
+                    />
+                </Protect>
+                
                 <Separator orientation="vertical"/>
                 <CardExplanation>
                     This card displays the details of {person.name}&apos;s membership in {team.name}. You can edit the membership details or delete the membership entirely.

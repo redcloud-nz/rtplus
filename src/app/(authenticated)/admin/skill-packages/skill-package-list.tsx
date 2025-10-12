@@ -8,6 +8,7 @@
 import { PlusIcon } from 'lucide-react'
 import { useMemo } from 'react'
 
+import { Protect } from '@clerk/nextjs'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
@@ -22,7 +23,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { SkillPackageData } from '@/lib/schemas/skill-package'
 import * as Paths from '@/paths'
 import { trpc, WithCounts } from '@/trpc/client'
-
 
 
 export function SkillPackagesList() {
@@ -101,18 +101,21 @@ export function SkillPackagesList() {
             <CardHeader>
                 <DataTableSearch size="sm" variant="ghost"/>
                 <CardActions>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" asChild>
-                                <Link to={Paths.admin.skillPackages.create}>
-                                    <PlusIcon />
-                                </Link>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            Create new skill package
-                        </TooltipContent>
-                    </Tooltip>
+                    <Protect role="org:admin">
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" asChild>
+                                    <Link to={Paths.admin.skillPackages.create}>
+                                        <PlusIcon />
+                                    </Link>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                Create new skill package
+                            </TooltipContent>
+                        </Tooltip>
+                    </Protect>
+                    
 
                     <RefreshButton onClick={handleRefresh}/>
                     <TableOptionsDropdown/>

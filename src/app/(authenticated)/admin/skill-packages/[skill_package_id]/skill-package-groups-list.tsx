@@ -21,13 +21,13 @@ import { Table } from '@/components/ui/table'
 import { SkillGroupData } from '@/lib/schemas/skill-group'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
+import { Protect } from '@clerk/nextjs'
 
 
 
-export function System_SkillPackage_GroupsList_Card({ skillPackageId }: { skillPackageId: string }) {
+export function SkillPackage_GroupsList({ skillPackageId }: { skillPackageId: string }) {
 
-     
-
+    
     const groupsQuery = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ skillPackageId }))
 
     async function handleRefresh() {
@@ -45,7 +45,7 @@ export function System_SkillPackage_GroupsList_Card({ skillPackageId }: { skillP
         }),
         columnHelper.accessor('name', {
             header: 'Group',
-            cell: ctx => <TextLink to={Paths.system.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId)}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.admin.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId)}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('description', {
@@ -102,18 +102,20 @@ export function System_SkillPackage_GroupsList_Card({ skillPackageId }: { skillP
             <CardHeader>
                 <CardTitle>Skill Groups</CardTitle>
                 <CardActions>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" asChild>
-                                <Link to={Paths.system.skillPackage(skillPackageId).groups.create}>
-                                    <PlusIcon/>
-                                </Link>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            Add new group
-                        </TooltipContent>
-                    </Tooltip>
+                    <Protect role="org:admin">
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" asChild>
+                                    <Link to={Paths.admin.skillPackage(skillPackageId).groups.create}>
+                                        <PlusIcon/>
+                                    </Link>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                Add new group
+                            </TooltipContent>
+                        </Tooltip>
+                    </Protect>
 
                     <RefreshButton onClick={handleRefresh}/>
                     <TableOptionsDropdown/> 

@@ -8,16 +8,15 @@ import { notFound } from 'next/navigation'
 
 import { TRPCError } from '@trpc/server'
 
-import { PersonData, PersonRef, toPersonData } from '@/lib/schemas/person'
+import { PersonData } from '@/lib/schemas/person'
 import { SkillData } from '@/lib/schemas/skill'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { SkillGroupData } from '@/lib/schemas/skill-group'
 import { SkillPackageData } from '@/lib/schemas/skill-package'
 import { TeamData } from '@/lib/schemas/team'
-import { TeamMembershipData, toTeamMembershipData } from '@/lib/schemas/team-membership'
+import { TeamMembershipData } from '@/lib/schemas/team-membership'
 import { getQueryClient, trpc } from '@/trpc/server'
 
-import prisma from './prisma'
 
 /**
  * Fetch a person by its ID through the TRPC query client to ensure the data is available for both server and client components.

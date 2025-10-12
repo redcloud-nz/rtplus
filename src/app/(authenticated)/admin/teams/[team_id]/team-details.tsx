@@ -12,10 +12,10 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 import z from 'zod'
 
+import { Protect } from '@clerk/nextjs'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { Show } from '@/components/show'
 import { Button } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTriggerButton } from '@/components/ui/dialog'
@@ -37,9 +37,9 @@ import { trpc } from '@/trpc/client'
 
 
 
+
 export function TeamDetails_Card({ teamId }: { teamId: string }) {
     
-
     const { data: team } = useSuspenseQuery(trpc.teams.getTeam.queryOptions({ teamId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
@@ -48,7 +48,7 @@ export function TeamDetails_Card({ teamId }: { teamId: string }) {
         <CardHeader>
             <CardTitle>Details</CardTitle>
             <CardActions>
-                <Show when={team.teamId != 'RT'}>
+                <Protect role="org:admin">
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button variant="ghost" size="icon" onClick={() => setMode('Update')} disabled={mode == 'Update'}>
@@ -58,7 +58,8 @@ export function TeamDetails_Card({ teamId }: { teamId: string }) {
                         <TooltipContent>Edit team details</TooltipContent>
                     </Tooltip>
                     <DeleteTeamDialog team={team}/>
-                </Show>
+                </Protect>
+                
                 <Separator orientation="vertical"/>
                 <CardExplanation>
                     This card displays the details of the team and allows you to edit them. You can also delete the team from here.

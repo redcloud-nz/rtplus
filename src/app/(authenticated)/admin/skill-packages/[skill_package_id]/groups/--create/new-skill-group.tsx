@@ -68,7 +68,7 @@ export function NewSkillGroupDetailsCard({ skillPackageId }: { skillPackageId: s
             })
 
             queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter({ skillPackageId }))
-            router.push(Paths.system.skillPackage(skillPackageId).group(result.skillGroupId).href)
+            router.push(Paths.admin.skillPackage(skillPackageId).group(result.skillGroupId).href)
         }
     }))
 

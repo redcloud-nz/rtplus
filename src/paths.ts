@@ -99,6 +99,7 @@ export const admin = {
             groups: {
                 label: 'Groups',
                 create: {
+                    label: 'Create',
                     href: `${packageBase}/groups/--create`
                 },
             },
@@ -112,6 +113,7 @@ export const admin = {
             skills: {
                 label: 'Skills',
                 create: {
+                    label: 'Create',
                     href: `${packageBase}/skills/--create`
                 },
             },
@@ -121,6 +123,7 @@ export const admin = {
         label: 'Skill Packages',
         href: '/admin/skill-packages',
         create: {
+            label: 'Create',
             href: '/admin/skill-packages/--create'
         },
         import: {

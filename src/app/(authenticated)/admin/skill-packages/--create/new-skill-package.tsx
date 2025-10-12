@@ -65,7 +65,7 @@ export function NewSkillPackageDetailsCard() {
             })
 
             queryClient.invalidateQueries(trpc.skills.getPackages.queryFilter())
-            router.push(Paths.system.skillPackage(result.skillPackageId).href)
+            router.push(Paths.admin.skillPackage(result.skillPackageId).href)
         }
     }))
 

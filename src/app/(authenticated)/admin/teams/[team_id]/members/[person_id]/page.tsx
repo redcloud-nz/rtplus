@@ -14,12 +14,12 @@ import { fetchTeamMembership } from '@/server/fetch'
 
     
 
-export async function generateMetadata(props: { params: Promise<{ person_id: string, team_id: string }> }) {
+export async function generateMetadata(props: PageProps<'/admin/teams/[team_id]/members/[person_id]'>) {
     const { person, team } = await fetchTeamMembership(props.params)
     return { title: `${person.name} - ${team.name}` }
 }
 
-export default async function System_Team_Member_Page(props: { params: Promise<{ person_id: string, team_id: string }>} ) {
+export default async function System_Team_Member_Page(props: PageProps<'/admin/teams/[team_id]/members/[person_id]'>) {
     const { person, team } = await fetchTeamMembership(props.params)
 
     return <AppPage>
@@ -28,7 +28,7 @@ export default async function System_Team_Member_Page(props: { params: Promise<{
                 Paths.admin,
                 Paths.admin.teams,
                 { label: team.name, href: Paths.admin.team(team.teamId).href },
-                "Members",
+                Paths.admin.team(team.teamId).members,
                 person.name
             ]}
         />

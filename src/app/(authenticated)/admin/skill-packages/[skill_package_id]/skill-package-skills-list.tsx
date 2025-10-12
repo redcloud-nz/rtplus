@@ -7,6 +7,7 @@
 import { PlusIcon } from 'lucide-react'
 import { useMemo } from 'react'
 
+import { Protect } from '@clerk/nextjs'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel,  getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
@@ -25,8 +26,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-
-export function System_SkillPackage_SkillsList_Card({ skillPackageId }: { skillPackageId: string }) {
+export function SkillPackage_SkillsList({ skillPackageId }: { skillPackageId: string }) {
 
     const skillGroupsQuery = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ skillPackageId }))
     const skillsQuery = useSuspenseQuery(trpc.skills.getSkills.queryOptions({ skillPackageId }))
@@ -51,13 +51,13 @@ export function System_SkillPackage_SkillsList_Card({ skillPackageId }: { skillP
         }),
         columnHelper.accessor('name', {
             header: 'Skill',
-            cell: ctx => <TextLink to={Paths.system.skillPackage(skillPackageId).skill(ctx.row.original.skillId)}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.admin.skillPackage(skillPackageId).skill(ctx.row.original.skillId)}>{ctx.getValue()}</TextLink>,
             enableGrouping: false,
             enableHiding: false
         }),
          columnHelper.accessor('skillGroup.name', {
             header: 'Group',
-            cell: ctx => <TextLink to={Paths.system.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId)}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.admin.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId)}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('description', {
@@ -66,13 +66,6 @@ export function System_SkillPackage_SkillsList_Card({ skillPackageId }: { skillP
             enableHiding: true,
             enableSorting: false,
             enableGrouping: false,
-            enableGlobalFilter: false,
-        }),
-        columnHelper.accessor('frequency', {
-            header: 'Frequency',
-            cell: ctx => ctx.getValue() || <i className="text-muted-foreground">Not set</i>,
-            enableHiding: true,
-            enableSorting: false,
             enableGlobalFilter: false,
         }),
         columnHelper.accessor('status', {
@@ -115,20 +108,22 @@ export function System_SkillPackage_SkillsList_Card({ skillPackageId }: { skillP
             <CardHeader>
                 <CardTitle>Skills</CardTitle>
                 <CardActions>
-
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" asChild>
-                                <Link to={Paths.system.skillPackage(skillPackageId).skills.create}>
-                                    <PlusIcon/>
-                                </Link>
-                                
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            Add new skill
-                        </TooltipContent>
-                    </Tooltip>
+                    <Protect role="org:admin">
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" asChild>
+                                    <Link to={Paths.admin.skillPackage(skillPackageId).skills.create}>
+                                        <PlusIcon/>
+                                    </Link>
+                                    
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                Add new skill
+                            </TooltipContent>
+                        </Tooltip>
+                    </Protect>
+                    
 
                     <RefreshButton onClick={handleRefresh}/>
                     <TableOptionsDropdown/>

@@ -9,6 +9,7 @@ import { PencilIcon, PlusIcon, SaveIcon, XIcon } from 'lucide-react'
 import { useMemo } from 'react'
 import { match } from 'ts-pattern'
 
+import { Protect } from '@clerk/nextjs'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
@@ -30,7 +31,6 @@ import { TeamId } from '@/lib/schemas/team'
 import { TeamMembershipData } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
-
 
 
 /**
@@ -190,29 +190,32 @@ export function TeamMembers_Card({ teamId }: { teamId: TeamId }) {
             id: 'actions',
             header: 'Actions',
             cell: ctx => <div className="-m-2 flex items-center justify-end">
-                {match(ctx.row.getEditMode())
-                    .with('Create', 'Update', () => <>
-                        <Button variant="ghost" size="icon" onClick={() => ctx.row.saveEdit()}>
-                            <SaveIcon/>
-                            <span className="sr-only">Save</span>
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => {
-                            ctx.row.cancelEdit()
-                        }}>
-                            <XIcon/>
-                            <span className="sr-only">Cancel</span>
-                        </Button>
-                    </>)
-                    .with('View', () => <>
-                        <Button variant="ghost" size="icon" onClick={() => ctx.row.startEdit()}>
-                            <PencilIcon/>
-                            <span className="sr-only">Edit</span>
-                        </Button>
-                        <DeleteConfirmButton onDelete={() => ctx.row.delete()}/>
-                       
-                    </>)
-                    .exhaustive()
-                }
+                <Protect role="org:admin">
+                    {match(ctx.row.getEditMode())
+                        .with('Create', 'Update', () => <>
+                            <Button variant="ghost" size="icon" onClick={() => ctx.row.saveEdit()}>
+                                <SaveIcon/>
+                                <span className="sr-only">Save</span>
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => {
+                                ctx.row.cancelEdit()
+                            }}>
+                                <XIcon/>
+                                <span className="sr-only">Cancel</span>
+                            </Button>
+                        </>)
+                        .with('View', () => <>
+                            <Button variant="ghost" size="icon" onClick={() => ctx.row.startEdit()}>
+                                <PencilIcon/>
+                                <span className="sr-only">Edit</span>
+                            </Button>
+                            <DeleteConfirmButton onDelete={() => ctx.row.delete()}/>
+                        
+                        </>)
+                        .exhaustive()
+                    }
+                </Protect>
+                
             </div>,
             enableHiding: false,
             enableSorting: false,
@@ -279,15 +282,16 @@ export function TeamMembers_Card({ teamId }: { teamId: TeamId }) {
             <CardHeader>
                 <CardTitle>Team Members</CardTitle>
                 <CardActions>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" onClick={() => table.startCreating()}>
-                                <PlusIcon/>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Add a new team member</TooltipContent>
-                    </Tooltip>
-
+                    <Protect role="org:admin">
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" onClick={() => table.startCreating()}>
+                                    <PlusIcon/>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Add a new team member</TooltipContent>
+                        </Tooltip>
+                    </Protect>
                     <RefreshButton onClick={handleRefresh}/>
                     <TableOptionsDropdown/>
                     <Separator orientation='vertical'/>

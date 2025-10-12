@@ -12,6 +12,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 import z from 'zod'
 
+import { Protect } from '@clerk/nextjs'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
@@ -35,7 +36,6 @@ import { trpc } from '@/trpc/client'
 
 
 
-
 /**
  * Card that displays the details of a person and allows the user to edit them.
  * @param personId The ID of the person to display.
@@ -51,15 +51,18 @@ export function PersonDetails_Card({ personId }: { personId: string }) {
         <CardHeader>
             <CardTitle>Details</CardTitle>
             <CardActions>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={() => setMode('Update')} disabled={mode == 'Update'}>
-                            <PencilIcon/>
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Edit person details</TooltipContent>
-                </Tooltip>
-                 <DeletePersonDialog person={person}/>
+                <Protect role="org:admin">
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" onClick={() => setMode('Update')} disabled={mode == 'Update'}>
+                                <PencilIcon/>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Edit person details</TooltipContent>
+                    </Tooltip>
+                    <DeletePersonDialog person={person}/>
+                </Protect>
+                
                 <Separator orientation="vertical"/>
                 <CardExplanation>
                     This card displays the details of the person and allows you to edit them. You can also delete the person from here.

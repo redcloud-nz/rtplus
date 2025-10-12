@@ -12,6 +12,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 import z from 'zod'
 
+import { Protect } from '@clerk/nextjs'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
@@ -35,6 +36,7 @@ import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
+
 /**
  * Card that displays the details of a skill package and allows the user to edit or delete it.
  * @param skillPackageId The ID of the skill package to display.
@@ -50,16 +52,17 @@ export function System_SkillPackage_Details_Card({ skillPackageId }: { skillPack
             <CardTitle>Details</CardTitle>
 
             <CardActions>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={() => setMode('Update')}>
-                            <PencilIcon/>
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Edit skill package</TooltipContent>
-                </Tooltip>
-                 <DeleteSkillPackageDialog skillPackage={skillPackage}  />
-
+                <Protect role="org:admin">
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" onClick={() => setMode('Update')}>
+                                <PencilIcon/>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Edit skill package</TooltipContent>
+                    </Tooltip>
+                    <DeleteSkillPackageDialog skillPackage={skillPackage}  />
+                </Protect>
                  <Separator orientation="vertical"/>
 
                  <CardExplanation>
@@ -245,7 +248,7 @@ function DeleteSkillPackageDialog({ skillPackage }: { skillPackage: SkillPackage
             queryClient.invalidateQueries(trpc.skills.getPackages.queryFilter())
             queryClient.invalidateQueries(trpc.skills.getPackage.queryFilter({ skillPackageId: skillPackage.skillPackageId }))
             queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter({ skillPackageId: skillPackage.skillPackageId }))
-            router.push(Paths.system.skillPackages.href)
+            router.push(Paths.admin.skillPackages.href)
         }
     }))
 

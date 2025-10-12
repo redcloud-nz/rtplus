@@ -22,6 +22,7 @@ import { Table } from '@/components/ui/table'
 import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
+import { Protect } from '@clerk/nextjs'
 
 
 type RowData = TeamData & { _count: { teamMemberships: number } }
@@ -100,18 +101,21 @@ export function TeamsList() {
             <CardHeader>
                 <DataTableSearch size="sm" variant="ghost"/>
                 <CardActions>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" asChild>
-                                <Link to={Paths.admin.teams.create}>
-                                    <PlusIcon />
-                                </Link>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            Create new team
-                        </TooltipContent>
-                    </Tooltip>
+                    <Protect role="org:admin">
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" asChild>
+                                    <Link to={Paths.admin.teams.create}>
+                                        <PlusIcon />
+                                    </Link>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                Create new team
+                            </TooltipContent>
+                        </Tooltip>
+                    </Protect>
+                    
 
                     <RefreshButton onClick={handleRefresh}/>
                     <TableOptionsDropdown/>

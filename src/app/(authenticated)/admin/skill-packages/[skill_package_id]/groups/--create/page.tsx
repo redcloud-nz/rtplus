@@ -2,7 +2,7 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- * Path: /app/system/skill-packages/[skill_package_id]/groups/create
+ * Path: /admin/skill-packages/[skill_package_id]/groups/--create
  */
 
 import { Metadata } from 'next'
@@ -12,26 +12,26 @@ import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 import { fetchSkillPackage } from '@/server/fetch'
 
-import { NewSkillGroupDetailsCard } from './new-skill-group-details'
+import { NewSkillGroupDetailsCard } from './new-skill-group'
 
 
 
-export async function generateMetadata(props: { params: Promise<{ skill_package_id: string }> }): Promise<Metadata> {
+export async function generateMetadata(props: PageProps<'/admin/skill-packages/[skill_package_id]/groups/--create'>): Promise<Metadata> {
     const skillPackage = await fetchSkillPackage(props.params)
     return { title: `New Skill | ${skillPackage.name}` }
 }
 
-export default async function NewSkillGroupPage(props: { params: Promise<{ skill_package_id: string }>}) {
-    const skillPackage = await fetchSkillPackage(props.params)
+export default async function NewSkillGroupPage(props: PageProps<'/admin/skill-packages/[skill_package_id]/groups/--create'>) {
+    const { skillPackageId, name } = await fetchSkillPackage(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.system,
-                Paths.system.skillPackages,
-                { label: skillPackage.name, href: Paths.system.skillPackage(skillPackage.skillPackageId).href },
-                "Groups",
-                "Create"
+                Paths.admin,
+                Paths.admin.skillPackages,
+                { label: name, href: Paths.admin.skillPackage(skillPackageId).href },
+                Paths.admin.skillPackage(skillPackageId).groups,
+                Paths.admin.skillPackage(skillPackageId).groups.create
             ]}
         />
         <AppPageContent variant='container'>
@@ -41,7 +41,7 @@ export default async function NewSkillGroupPage(props: { params: Promise<{ skill
             </PageHeader>
             
             <Boundary>
-                <NewSkillGroupDetailsCard skillPackageId={skillPackage.skillPackageId} />
+                <NewSkillGroupDetailsCard skillPackageId={skillPackageId} />
             </Boundary>
             
         </AppPageContent>

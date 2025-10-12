@@ -11,6 +11,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 import z from 'zod'
 
+import { Protect } from '@clerk/nextjs'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
@@ -36,6 +37,7 @@ import { trpc } from '@/trpc/client'
 
 
 
+
 /**
  * Card that displays the details of a skill group and allows the user to edit or delete it.
  * @param skillGroupId The ID of the skill group to display.
@@ -53,15 +55,18 @@ export function SkillGroup_Details_Card({ skillGroupId, skillPackageId }: { skil
             <CardTitle>Details</CardTitle>
 
             <CardActions>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={() => setMode('Update')}>
-                            <PencilIcon/>
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Edit skill group</TooltipContent>
-                </Tooltip>
-                <DeleteSkillGroupDialog skillGroup={skillGroup} />
+                <Protect role="org:admin">
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" onClick={() => setMode('Update')}>
+                                <PencilIcon/>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Edit skill group</TooltipContent>
+                    </Tooltip>
+                    <DeleteSkillGroupDialog skillGroup={skillGroup} />
+                </Protect>
+                
 
                 <Separator orientation="vertical"/>
 
@@ -86,7 +91,7 @@ export function SkillGroup_Details_Card({ skillGroupId, skillPackageId }: { skil
                             label="Skill Package"
                             control={
                                 <DisplayValue>
-                                    <TextLink to={Paths.system.skillPackage(skillGroup.skillPackageId)}>
+                                    <TextLink to={Paths.admin.skillPackage(skillGroup.skillPackageId)}>
                                         {skillGroup.skillPackage.name}
                                     </TextLink>
                                 </DisplayValue>
@@ -183,7 +188,7 @@ function UpdateSkillGroupForm({ onClose, skillGroup, skillPackage }: { onClose: 
                         label="Skill Package"
                         control={
                             <DisplayValue>
-                                <TextLink to={Paths.system.skillPackage(skillPackage.skillPackageId)}>
+                                <TextLink to={Paths.admin.skillPackage(skillPackage.skillPackageId)}>
                                     {skillPackage.name}
                                 </TextLink>
                             </DisplayValue>
@@ -258,7 +263,7 @@ function DeleteSkillGroupDialog({ skillGroup }: { skillGroup: SkillGroupData }) 
 
             queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter())
             queryClient.invalidateQueries(trpc.skills.getGroup.queryFilter({ skillGroupId: skillGroup.skillGroupId }))
-            router.push(Paths.system.skillPackage(skillGroup.skillPackageId).href)
+            router.push(Paths.admin.skillPackage(skillGroup.skillPackageId).href)
         }
     }))
 

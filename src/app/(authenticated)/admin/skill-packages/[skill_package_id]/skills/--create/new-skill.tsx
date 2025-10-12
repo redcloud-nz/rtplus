@@ -56,8 +56,6 @@ export function NewSkillDetailsCard({ skillPackageId }: NewSkillDetailsCardProps
             skillGroupId: '',
             name: '',
             description: '',
-            frequency: '',
-            optional: false,
             status: 'Active',
         }
     })
@@ -83,7 +81,7 @@ export function NewSkillDetailsCard({ skillPackageId }: NewSkillDetailsCardProps
             queryClient.invalidateQueries(trpc.skills.getSkills.queryFilter({ skillPackageId }))
             queryClient.invalidateQueries(trpc.skills.getSkills.queryFilter({ skillGroupId: result.skillGroupId }))
 
-            router.push(Paths.system.skillPackage(skillPackageId).skill(result.skillId).href)
+            router.push(Paths.admin.skillPackage(skillPackageId).skill(result.skillId).href)
         }
     }))
 
@@ -152,29 +150,6 @@ export function NewSkillDetailsCard({ skillPackageId }: NewSkillDetailsCardProps
                                 label="Description"
                                 control={<Textarea maxLength={500} {...field} />}
                                 description="A brief description of the skill."
-                            />}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="frequency"
-                            render={({ field }) => <ToruGridRow
-                                label="Frequency"
-                                control={<Input maxLength={100} {...field} />}
-                                description="How often this skill should be practiced or assessed."
-                            />}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="optional"
-                            render={({ field }) => <ToruGridRow
-                                label="Optional"
-                                control={
-                                    <Checkbox 
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                    />
-                                }
-                                description="Whether this skill is optional for competency."
                             />}
                         />
                         <ToruGridRow
