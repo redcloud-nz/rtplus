@@ -8,6 +8,7 @@
 import { PlusIcon } from 'lucide-react'
 import { useMemo } from 'react'
 
+import { Protect } from '@clerk/nextjs'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
@@ -18,11 +19,13 @@ import { Link, TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Table } from '@/components/ui/table'
+import { Paragraph } from '@/components/ui/typography'
 
 import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
-import { Protect } from '@clerk/nextjs'
+
+
 
 
 type RowData = TeamData & { _count: { teamMemberships: number } }
@@ -111,7 +114,7 @@ export function TeamsList() {
                                 </Button>
                             </TooltipTrigger>
                             <TooltipContent>
-                                Create new team
+                                Create New Team
                             </TooltipContent>
                         </Tooltip>
                     </Protect>
@@ -122,10 +125,8 @@ export function TeamsList() {
                     <Separator orientation="vertical"/>
 
                     <CardExplanation>
-                        This is a list of all the teams in the system.
+                        <Paragraph>This is a list of all the teams in your organisation.</Paragraph>
                     </CardExplanation>
-                    
-                    
                 </CardActions>
                 
             </CardHeader>

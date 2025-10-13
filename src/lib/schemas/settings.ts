@@ -4,9 +4,14 @@
 */
 
 import { z } from 'zod'
+import { enabledModulesSchema } from './modules'
+
+const MODULES = ['d4h', 'notes', 'skills'] as const
+
+
 
 export const organizationSettingsSchema = z.object({
-
+    enabledModules: enabledModulesSchema,
 })
 
 export type OrganizationSettings = z.infer<typeof organizationSettingsSchema>

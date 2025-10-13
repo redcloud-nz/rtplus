@@ -668,7 +668,7 @@ async function importPackage(ctx: AuthenticatedOrgContext, skillPackage: SkillPa
         await ctx.prisma.$transaction([
             ctx.prisma.skill.createMany({
                 data: skillsToAdd.map(skill => ({
-                    ...skill,
+                    ...pick(skill, ['skillId', 'skillGroupId', 'name', 'description', 'sequence']),
                     skillPackageId: skillPackage.skillPackageId
                 }))
             }),

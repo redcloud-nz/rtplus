@@ -4,7 +4,7 @@
 */
 
 import { organizationSettingsSchema, userSettingsSchema } from '@/lib/schemas/settings'
-import { authenticatedProcedure, createTRPCRouter, orgProcedure } from '../init'
+import { authenticatedProcedure, createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
 import { RTPlusLogger } from '@/lib/logger'
 
 const logger = new RTPlusLogger('trpc/settings')
@@ -33,5 +33,20 @@ export const settingsRouter = createTRPCRouter({
             if(!org) logger.warn('Organization not found', { orgId: ctx.auth.activeOrg.orgId })
 
             return organizationSettingsSchema.parse(org?.settings || {})
+        }),
+
+    updateEnabledModules: orgAdminProcedure
+        .input(organizationSettingsSchema.pick({ enabledModules: true }))
+        .mutation(async ({ ctx, input }) => {
+            const org = await ctx.prisma.organization.update({
+                where: { orgId: ctx.auth.activeOrg.orgId },
+                data: { 
+                    settings: { ...input }
+                },
+            })
+
+            if(!org) logger.warn('Organization not found', { orgId: ctx.auth.activeOrg.orgId })
+
+            return organizationSettingsSchema.pick({ enabledModules: true }).parse(org?.settings || {})
         }),
 })

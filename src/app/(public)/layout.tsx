@@ -44,7 +44,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <div className="ml-6 flex items-center gap-2">
                 <SignedIn>
                     <Button asChild>
-                        <Link to={Paths.selectTeam}>RT+ Dashboard <ArrowRightIcon/></Link>
+                        <Link to={Paths.dashboard}>RT+ Dashboard <ArrowRightIcon/></Link>
                     </Button>
                 </SignedIn>
                 <SignedOut>

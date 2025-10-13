@@ -3,12 +3,15 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
-import { NotImplemented } from '@/components/nav/errors'
+import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
+import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
+import { EnabledModulesForm } from './enabled-modules'
 
-export default function Admin_Settings_Page() {
+export const metadata = { title: "Organisation Settings" }
+
+export default function Admin_OrganizationSettings_Page() {
 
     return <AppPage>
         <AppPageBreadcrumbs
@@ -17,6 +20,13 @@ export default function Admin_Settings_Page() {
                 Paths.admin.settings
             ]}
         />
-        <NotImplemented />
+        <AppPageContent variant="container">
+            <PageHeader>
+                <PageTitle>Organisation Settings</PageTitle>
+            </PageHeader>
+            <Boundary>
+                <EnabledModulesForm />
+            </Boundary>
+        </AppPageContent>
     </AppPage> 
 }
