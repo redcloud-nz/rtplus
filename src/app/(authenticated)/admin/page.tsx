@@ -12,6 +12,7 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-pa
 import { PersonnelIcon, SettingsIcon, SkillsModuleIcon, TeamsIcon } from '@/components/icons'
 import { DashboardCard, DashboardCardList } from '@/components/ui/dashboard-card'
 import * as Paths from '@/paths'
+import { ModuleOnly } from '@/components/nav/module-only'
 
 
 export const metadata = { title: 'Dashboard' }
@@ -48,11 +49,14 @@ export default async function Admin_Dashboard_Page() {
                             description="Manage your organisation's settings."
                             icon={<span className="text-blue-700 bg-blue-50"><SettingsIcon aria-hidden="true" className="size-6" /></span>}
                         />
-                        <DashboardCard
-                            linksTo={Paths.admin.skillPackages}
-                            description="Manage the skill-packages owned by your organisation."
-                            icon={<span className="text-lime-700 bg-lime-50"><SkillsModuleIcon aria-hidden="true" className="size-6" /></span>}
-                        />
+                        <ModuleOnly module="skills">
+                            <DashboardCard
+                                linksTo={Paths.admin.skillPackages}
+                                description="Manage the skill-packages owned by your organisation."
+                                icon={<span className="text-lime-700 bg-lime-50"><SkillsModuleIcon aria-hidden="true" className="size-6" /></span>}
+                            />
+                        </ModuleOnly>
+                        
                         <DashboardCard
                             linksTo={Paths.admin.teams}
                             description="Manage your organisation's teams."

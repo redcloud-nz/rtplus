@@ -18,6 +18,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 
 import { getQueryClient } from '@/trpc/client'
 import { initUser } from '@/server/init-user'
+import { AppContextProvider } from '@/hooks/use-app-context'
 
 
 export type FrontendProviderProps = Readonly<{
@@ -63,7 +64,9 @@ export function AppFrontendProvider({ children }: FrontendProviderProps) {
     return <QueryClientProvider client={queryClient}>
         <SidebarProvider>
             <TooltipProvider>
-                {children}
+                <AppContextProvider>
+                    {children}
+                </AppContextProvider>
             </TooltipProvider>
         </SidebarProvider>
         <Toaster/>

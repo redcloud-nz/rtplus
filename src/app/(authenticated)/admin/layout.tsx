@@ -13,6 +13,7 @@ import { NavItem, NavSection } from '@/components/nav/nav-section'
 
 import * as Paths from '@/paths'
 import { DashboardIcon, PersonnelIcon, SettingsIcon, SkillsIcon, TeamsIcon } from '@/components/icons'
+import { ModuleOnly } from '@/components/nav/module-only'
 
 
 export const metadata: Metadata = {
@@ -32,7 +33,9 @@ export default async function AdminModule_Layout(props: LayoutProps<'/admin'>) {
                 <NavItem path={pick(Paths.admin, ['href', 'label'])} label="Dashboard" icon={<DashboardIcon/>}/>
                 <NavItem path={Paths.admin.personnel} icon={<PersonnelIcon/>}/>
                 <NavItem path={Paths.admin.settings} icon={<SettingsIcon/>}/>
-                <NavItem path={Paths.admin.skillPackages} icon={<SkillsIcon/>}/>
+                <ModuleOnly module="skills">
+                    <NavItem path={Paths.admin.skillPackages} icon={<SkillsIcon/>}/>
+                </ModuleOnly>
                 <NavItem path={Paths.admin.teams} icon={<TeamsIcon/>}/>
             </NavSection>
         </AppSidebar>

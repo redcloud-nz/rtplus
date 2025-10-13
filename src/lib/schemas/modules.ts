@@ -5,7 +5,7 @@
 
 import { z } from 'zod'
 
-type ModuleID = 'd4h' | 'notes' | 'skills' | 'skill-package-builder'
+export type ModuleID = 'd4h' | 'notes' | 'skills'
 
 export interface Module {
     moduleId: ModuleID
@@ -17,9 +17,8 @@ export const Modules: Module[] = [
     { moduleId: 'd4h', label: 'D4H Integration' },
     { moduleId: 'notes', label: 'Notes' },
     { moduleId: 'skills', label: 'Skill Tracking' },
-    { moduleId: 'skill-package-builder', label: 'Skill Package Builder' },
 ] as const 
 
-export const enabledModulesSchema = z.array(z.enum(['d4h', 'notes', 'skills', 'skill-package-builder'])).default([])
+export const enabledModulesSchema = z.array(z.enum(['d4h', 'notes', 'skills', 'skill-package-builder']))
 
 export type EnabledModulesData = z.infer<typeof enabledModulesSchema>
