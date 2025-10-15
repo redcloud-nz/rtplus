@@ -9,7 +9,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 const headingVariants = tv({
     variants: {
         level: {
-            1: 'scroll-m-20 text-2xl lg:text-4xl font-extrabold tracking-tight',
+            1: 'scroll-m-20 text-3xl lg:text-4xl font-extrabold tracking-tight text-balance',
             2: 'scroll-m-20 border-b pb-2 text-2xl lg:text-3xl font-semibold tracking-tight first:mt-0',
             3: 'scroll-m-20 text-2xl font-semibold tracking-tight',
             4: 'scroll-m-20 text-xl font-semibold tracking-tight',
@@ -31,7 +31,7 @@ export function Heading({ className, level = 1, ...props }: HeadingProps) {
 }
 
 export function Paragraph({ className, ...props }: React.ComponentPropsWithRef<'p'>) {
-    return <p className={cn('leading-5 not-first:mt-6', className)} {...props}/>
+    return <p className={cn('leading-7 not-first:mt-6', className)} {...props}/>
 }
 
 export function Blockquote({ className, ...props}: React.ComponentPropsWithRef<'blockquote'>) {

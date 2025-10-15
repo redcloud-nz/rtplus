@@ -3,15 +3,23 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, ScrollablePageContent } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
-import { EnabledModulesForm } from './enabled-modules'
+import { clerkAuth } from '@/server/clerk'
+
+
+import { OrganizationSettings } from './organization-settings'
+import { Heading } from '@/components/ui/typography'
+
+
 
 export const metadata = { title: "Organisation Settings" }
 
 export default function Admin_OrganizationSettings_Page() {
+
+    clerkAuth.protect({ role: 'org:admin' })
 
     return <AppPage>
         <AppPageBreadcrumbs
@@ -20,13 +28,13 @@ export default function Admin_OrganizationSettings_Page() {
                 Paths.admin.settings
             ]}
         />
-        <AppPageContent variant="container">
-            <PageHeader>
-                <PageTitle>Organisation Settings</PageTitle>
-            </PageHeader>
+
+        <ScrollablePageContent>
+            <Heading level={1}>Organisation Settings</Heading>
+
             <Boundary>
-                <EnabledModulesForm />
+                <OrganizationSettings/>
             </Boundary>
-        </AppPageContent>
+        </ScrollablePageContent>
     </AppPage> 
 }

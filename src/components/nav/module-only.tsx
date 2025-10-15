@@ -8,14 +8,14 @@
 import { ReactNode } from 'react'
 
 import { useAppContext } from '@/hooks/use-app-context'
-import { type ModuleID } from '@/lib/schemas/modules'
+import { type ModuleID } from '@/lib/modules'
 
 
 export function ModuleOnly({ children, fallback, module }: { children: ReactNode, fallback?: ReactNode, module: ModuleID }) {
 
     const appContext = useAppContext()
 
-    if (!appContext.organizationSettings.enabledModules.includes(module)) {
+    if (!appContext.organizationSettings.modules[module]?.enabled) {
         return fallback ?? null
     }
 

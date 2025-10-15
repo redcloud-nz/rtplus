@@ -13,11 +13,14 @@ import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Heading } from '@/components/ui/typography'
 import { cn } from '@/lib/utils'
+import { omit } from 'remeda'
+
 
 
 interface AppPageProps {
@@ -28,7 +31,7 @@ interface AppPageProps {
 }
 
 export function AppPage({ children, rightControls, showLeftSidebarTrigger = true, showRightSidebarTrigger = false }: AppPageProps) {
-    return <div className="h-screen flex-1 grid grid-rows-[48px_1px_1fr] grid-cols-[auto_1fr_auto]">
+    return <div className="h-screen flex-1 grid grid-rows-[48px_1px_1fr] grid-cols-[auto_1fr_auto] overflow-hidden">
         { showLeftSidebarTrigger && <div className="row-1 col-1 flex justify-center items-center pl-1 gap-1">
             <SidebarTrigger side="left"/>
              <Separator orientation="vertical"/>
@@ -69,6 +72,23 @@ export function AppPageContent({ children, className, variant = 'default', ...pr
         {children}
     </main>
 }
+
+interface ScrollablePageContentProps {
+    children: ReactNode
+    slotProps?: {
+        scrollArea?: Omit<ComponentProps<typeof ScrollArea>, 'children'>
+        main?: Omit<ComponentProps<'main'>, 'children'>
+    }
+}
+
+export function ScrollablePageContent({ children, slotProps = {} }: ScrollablePageContentProps) {
+    const { scrollArea: scrollAreaProps, main: mainProps } = { scrollArea: {}, main: {}, ...slotProps }
+
+    return <ScrollArea style={{ height: `calc(100vh - var(--header-height))` }} className={cn("col-span-full [&>[data-slot=scroll-area-viewport]]:pb-8", scrollAreaProps.className)} {...omit(scrollAreaProps, ['className'])}>
+        <main className={cn("max-w-4xl mx-auto space-y-4 p-4", mainProps.className)} {...omit(mainProps, ['className'])}>{children}</main>
+    </ScrollArea>
+}
+    
 
 export type PageBreadcrumb = { label: string, href?: string }
 

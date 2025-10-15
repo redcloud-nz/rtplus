@@ -10,9 +10,10 @@ import Image from 'next/image'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 import { PersonnelIcon, SettingsIcon, SkillsModuleIcon, TeamsIcon } from '@/components/icons'
+import { ModuleOnly } from '@/components/nav/module-only'
 import { DashboardCard, DashboardCardList } from '@/components/ui/dashboard-card'
 import * as Paths from '@/paths'
-import { ModuleOnly } from '@/components/nav/module-only'
+
 
 
 export const metadata = { title: 'Dashboard' }

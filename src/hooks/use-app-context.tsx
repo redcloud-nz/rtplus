@@ -7,11 +7,11 @@ import { createContext, ReactNode, useContext, useMemo } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
 
-import { UserSettings, OrganizationSettings, DefaultOrganizationSettings, DefaultUserSettings } from '@/lib/schemas/settings'
+import { UserSettingsData, OrganizationSettingsData, DefaultOrganizationSettings, DefaultUserSettings } from '@/lib/schemas/settings'
 
 import { trpc } from '@/trpc/client'
 
-type AppContext = { userSettings: UserSettings, organizationSettings: OrganizationSettings }
+type AppContext = { userSettings: UserSettingsData, organizationSettings: OrganizationSettingsData }
 
 const AppContext = createContext<AppContext | undefined>(undefined)
 

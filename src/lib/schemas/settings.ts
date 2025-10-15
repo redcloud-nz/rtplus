@@ -4,16 +4,28 @@
 */
 
 import { z } from 'zod'
-import { enabledModulesSchema } from './modules'
 
 
 export const organizationSettingsSchema = z.object({
-    enabledModules: enabledModulesSchema.default([]),
+    modules: z.object({
+        d4h: z.object({
+            enabled: z.boolean().default(false),
+        }).default({ enabled: false }),
+        notes: z.object({
+            enabled: z.boolean().default(false),
+        }).default({ enabled: false }),
+        skills: z.object({
+            enabled: z.boolean().default(true),
+        }).default({ enabled: true }),
+        
+       
+    }).default({}),
+    
 })
 
-export type OrganizationSettings = z.infer<typeof organizationSettingsSchema>
+export type OrganizationSettingsData = z.infer<typeof organizationSettingsSchema>
 
-export const DefaultOrganizationSettings: OrganizationSettings = organizationSettingsSchema.parse({
+export const DefaultOrganizationSettings: OrganizationSettingsData = organizationSettingsSchema.parse({
     enabledModules: []
 })
 
@@ -21,6 +33,6 @@ export const userSettingsSchema = z.object({
     
 })
 
-export type UserSettings = z.infer<typeof userSettingsSchema>
+export type UserSettingsData = z.infer<typeof userSettingsSchema>
 
-export const DefaultUserSettings: UserSettings = userSettingsSchema.parse({})
+export const DefaultUserSettings: UserSettingsData = userSettingsSchema.parse({})

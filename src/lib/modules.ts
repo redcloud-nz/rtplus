@@ -3,7 +3,8 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import { z } from 'zod'
+import { entries, mapToObj } from 'remeda'
+
 
 export type ModuleID = 'd4h' | 'notes' | 'skills'
 
@@ -17,8 +18,9 @@ export const Modules: Module[] = [
     { moduleId: 'd4h', label: 'D4H Integration' },
     { moduleId: 'notes', label: 'Notes' },
     { moduleId: 'skills', label: 'Skill Tracking' },
-] as const 
+] as const
 
-export const enabledModulesSchema = z.array(z.enum(['d4h', 'notes', 'skills', 'skill-package-builder']))
 
-export type EnabledModulesData = z.infer<typeof enabledModulesSchema>
+export function extractEnabledModules(modules: Record<ModuleID, { enabled: boolean }>): Record<ModuleID, boolean> {
+    return mapToObj(entries(modules), ([key, value]) => [key, value.enabled])
+}
