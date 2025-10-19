@@ -17,7 +17,7 @@ export type SkillGroupId = string & z.BRAND<'SkillGroupId'>
 export const SkillGroupId = {
     schema: z.string().length(8).regex(/^[a-zA-Z0-9]+$/, "8 character Skill Group ID expected.").brand<'SkillGroupId'>(),
 
-    create: () => nanoId8() as SkillGroupId,
+    create: () => SkillGroupId.schema.parse(nanoId8()),
 }
 
 export const skillGroupSchema = z.object({

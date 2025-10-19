@@ -14,7 +14,7 @@ export type SkillCheckSessionId = string & z.BRAND<'SkillCheckSessionId'>
 export const SkillCheckSessionId = {
     schema: z.string().length(8).regex(/^[a-zA-Z0-9]+$/, "8 character Skill Check Session ID expected.").brand<'SkillCheckSessionId'>(),
 
-    create: () => nanoId8() as SkillCheckSessionId,
+    create: () => SkillCheckSessionId.schema.parse(nanoId8()),
 } as const
 
 export const skillCheckSessionSchema = z.object({

@@ -7,17 +7,14 @@ import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
 
 import * as Paths from '@/paths'
 import { NotImplemented } from '@/components/nav/errors'
-import { getTeamFromParams } from '@/server/data/team'
 
-export const metadata = { title: 'Team Notes' }
+export const metadata = { title: 'Notes' }
 
-export default async function Team_NotesList_Page(props: { params: Promise<{ team_slug: string }> }) {
-    const team = await getTeamFromParams(props.params)
+export default async function NotesModule_Index_Page() {
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
-            Paths.org(team), 
-            Paths.org(team).notes
+            Paths.notesModule
         ]}/>
         <NotImplemented ghIssueNumber={25}/>
     </AppPage>

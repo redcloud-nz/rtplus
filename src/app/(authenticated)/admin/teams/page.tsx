@@ -12,19 +12,19 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 
-import { TeamsList } from './teams-list'
+import { AdminModile_TeamsList } from './teams-list'
 
 
 export const metadata: Metadata = { title: "Teams" }
 
 
-export default async function TeamsList_Page() {
+export default async function AdminModule_TeamsList_Page() {
 
     return <AppPage>
             <AppPageBreadcrumbs
                 breadcrumbs={[
-                    Paths.admin,
-                    Paths.admin.teams
+                    Paths.adminModule,
+                    Paths.adminModule.teams
                 ]}
             />
             <AppPageContent variant="container">
@@ -32,7 +32,7 @@ export default async function TeamsList_Page() {
                     <PageTitle>Teams</PageTitle>
                 </PageHeader>
                 <Boundary>
-                    <TeamsList/>
+                    <AdminModile_TeamsList/>
                 </Boundary>
             </AppPageContent>
            

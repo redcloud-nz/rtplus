@@ -13,12 +13,12 @@ import { SkillGroupId } from './skill-group'
 import { SkillPackageId } from './skill-package'
 
 
-export type SkillId = string
+export type SkillId = string & z.BRAND<'SkillId'>
 
 export const SkillId = {
     schema: z.string().length(8).regex(/^[a-zA-Z0-9]+$/, "8 character Skill ID expected.").brand<'SkillId'>(),
 
-    create: () => nanoId8() as SkillId,
+    create: () => SkillId.schema.parse(nanoId8()),
 }
 
 export const skillSchema = z.object({

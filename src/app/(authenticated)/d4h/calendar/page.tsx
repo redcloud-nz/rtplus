@@ -27,8 +27,8 @@ export default async function D4hCalendar_Page() {
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
-            Paths.d4h, 
-            Paths.d4h.calendar
+            Paths.d4hModule, 
+            Paths.d4hModule.calendar
         ]}/>
         <AppPageContent variant="full">
             <Boundary>

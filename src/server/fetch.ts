@@ -58,7 +58,7 @@ export async function fetchSkill(params: Promise<{ skill_id: string, skill_packa
         })
 }
 
-export async function fetchSkillCheckSession(params: Promise<{ session_id: string }>) : Promise<SkillCheckSessionData & { team: TeamData }> {
+export async function fetchSkillCheckSession(params: Promise<{ session_id: string }>) : Promise<SkillCheckSessionData> {
     const { session_id: sessionId } = await params
     
     return getQueryClient()

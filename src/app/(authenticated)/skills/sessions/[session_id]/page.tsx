@@ -16,7 +16,7 @@ import { Link } from '@/components/ui/link'
 import * as Paths from '@/paths'
 import { fetchSkillCheckSession } from '@/server/fetch'
 
-import { Team_Skills_Session_Card } from './team-session'
+import { SkillsModule_SessionDetails } from './session-details'
 
 
 
@@ -26,16 +26,15 @@ export async function generateMetadata(props: PageProps<'/skills/sessions/[sessi
     return { title: `${session.name} - Skill Check Sessions` }
 }
 
-export default async function Team_Skills_Session_Page(props: PageProps<'/skills/sessions/[session_id]'>) {
+export default async function SkillsModule_Session_Page(props: PageProps<'/skills/sessions/[session_id]'>) {
     const session = await fetchSkillCheckSession(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.org(session.team),
-                Paths.org(session.team).skills,
-                Paths.org(session.team).skills.sessions,
-                Paths.org(session.team).skills.session(session),
+                Paths.skillsModule,
+                Paths.skillsModule.sessions,
+                session.name,
             ]}
         />
         <AppPageContent variant="container">
@@ -44,7 +43,7 @@ export default async function Team_Skills_Session_Page(props: PageProps<'/skills
                 <PageControls>
                     <Show when={session.sessionStatus == 'Draft'}>
                         <Button asChild>
-                            <Link to={Paths.skills.session(session.sessionId).record}>
+                            <Link to={Paths.skillsModule.session(session.sessionId).record}>
                                 <span className="hidden md:inline">Open in</span> Skill Recorder
                                 <ArrowRightIcon />
                             </Link>
@@ -55,7 +54,7 @@ export default async function Team_Skills_Session_Page(props: PageProps<'/skills
             </PageHeader>
 
             <Boundary>
-                <Team_Skills_Session_Card sessionId={session.sessionId}/>
+                <SkillsModule_SessionDetails sessionId={session.sessionId}/>
             </Boundary>
         </AppPageContent>
     </AppPage>

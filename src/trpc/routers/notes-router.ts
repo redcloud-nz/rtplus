@@ -7,10 +7,13 @@ import { z } from 'zod'
 
 import { TRPCError } from '@trpc/server'
 
-import { noteSchema } from '@/lib/schemas/note'
-import { zodNanoId8 } from '@/lib/validation'
+import { NoteId, noteSchema } from '@/lib/schemas/note'
+
+import { PersonId } from '@/lib/schemas/person'
+import { TeamId } from '@/lib/schemas/team'
 
 import {  authenticatedProcedure, createTRPCRouter, orgProcedure } from '../init'
+
 
 
 /**
@@ -42,7 +45,7 @@ export const notesRouter = createTRPCRouter({
      */
     deleteNote: authenticatedProcedure
         .input(z.object({
-            noteId: zodNanoId8,
+            noteId: NoteId.schema,
         }))
         .output(noteSchema)
         .mutation(async ({ input, ctx }) => {
@@ -59,9 +62,9 @@ export const notesRouter = createTRPCRouter({
      */
     getNote: authenticatedProcedure
         .input(z.object({
-            noteId: zodNanoId8,
-            personId: zodNanoId8.optional(),
-            teamId: zodNanoId8.optional(),
+            noteId: NoteId.schema,
+            personId: PersonId.schema.optional(),
+            teamId: TeamId.schema.optional(),
         }))
         .output(noteSchema)
         .query(async ({ input, ctx }) => {

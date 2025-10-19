@@ -11,7 +11,7 @@ import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 import { fetchSkill } from '@/server/fetch'
 
-import { SkillDetailsCard } from './skill-details'
+import { AdminModule_SkillDetails } from './skill-details'
 
 
 export async function generateMetadata(props: PageProps<'/admin/skill-packages/[skill_package_id]/skills/[skill_id]'>) {
@@ -19,16 +19,16 @@ export async function generateMetadata(props: PageProps<'/admin/skill-packages/[
     return { title: `${skill.name} - Skills` }
 }
 
-export default async function SkillPage(props: PageProps<'/admin/skill-packages/[skill_package_id]/skills/[skill_id]'>) {
+export default async function AdminModile_Skill_Page(props: PageProps<'/admin/skill-packages/[skill_package_id]/skills/[skill_id]'>) {
     const skill = await fetchSkill(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.admin,
-                Paths.admin.skillPackages,
-                { label: skill.skillPackage.name, href: Paths.admin.skillPackage(skill.skillPackageId).href },
-                Paths.admin.skillPackage(skill.skillPackageId).skills,
+                Paths.adminModule,
+                Paths.adminModule.skillPackages,
+                { label: skill.skillPackage.name, href: Paths.adminModule.skillPackage(skill.skillPackageId).href },
+                Paths.adminModule.skillPackage(skill.skillPackageId).skills,
                 skill.name
             ]}
         />
@@ -38,7 +38,7 @@ export default async function SkillPage(props: PageProps<'/admin/skill-packages/
             </PageHeader>
 
             <Boundary>
-                <SkillDetailsCard skillId={skill.skillId} skillPackageId={skill.skillPackageId}/>
+                <AdminModule_SkillDetails skillId={skill.skillId} skillPackageId={skill.skillPackageId}/>
             </Boundary>
             
         </AppPageContent>

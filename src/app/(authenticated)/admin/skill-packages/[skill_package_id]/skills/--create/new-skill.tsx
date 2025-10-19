@@ -14,7 +14,6 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 
 import { SkillPackageValue } from '@/components/controls/skill-package-value'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
 import { DisplayValue } from '@/components/ui/display-value'
 import { Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -30,11 +29,11 @@ import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
-interface NewSkillDetailsCardProps {
+interface AdminModule_NewSkill_FormProps {
     skillPackageId: string
 }
 
-export function NewSkillDetailsCard({ skillPackageId }: NewSkillDetailsCardProps) {
+export function AdminModule_NewSkill_Form({ skillPackageId }: AdminModule_NewSkill_FormProps) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -81,7 +80,7 @@ export function NewSkillDetailsCard({ skillPackageId }: NewSkillDetailsCardProps
             queryClient.invalidateQueries(trpc.skills.getSkills.queryFilter({ skillPackageId }))
             queryClient.invalidateQueries(trpc.skills.getSkills.queryFilter({ skillGroupId: result.skillGroupId }))
 
-            router.push(Paths.admin.skillPackage(skillPackageId).skill(result.skillId).href)
+            router.push(Paths.adminModule.skillPackage(skillPackageId).skill(result.skillId).href)
         }
     }))
 

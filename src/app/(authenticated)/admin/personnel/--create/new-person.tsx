@@ -26,7 +26,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function NewPerson_Card() {
+export function AdminModule_NewPerson_Form() {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -64,7 +64,7 @@ export function NewPerson_Card() {
             })
 
             queryClient.invalidateQueries(trpc.personnel.getPersonnel.queryFilter())
-            router.push(Paths.admin.person(personId).href)
+            router.push(Paths.adminModule.person(personId).href)
         }
     }))
 

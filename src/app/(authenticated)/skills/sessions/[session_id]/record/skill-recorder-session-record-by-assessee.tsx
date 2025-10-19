@@ -36,7 +36,7 @@ export function SkillRecorder_Session_RecordByAssessee({ session }: { session: S
 
     const [{ data: availablePackages }, { data: assignedAssessees }, { data: assignedSkillIds }] = useSuspenseQueries({
         queries: [
-            trpc.skills.getAvailablePackages.queryOptions({ teamId: session.teamId }),
+            trpc.skills.getAvailablePackages.queryOptions({ }),
             trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ sessionId: session.sessionId }),
             trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ sessionId: session.sessionId })
         ]

@@ -24,15 +24,15 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function Team_Skills_Card({ teamId }: { teamId: string }) {
+export function Team_Skills_Card() {
 
     const [
         { data: availablePackages, refetch: refetchAvailablePackages }, 
         { data: teamMembers, refetch: refetchTeamMembers }
     ] = useSuspenseQueries({
         queries: [
-            trpc.skills.getAvailablePackages.queryOptions({ teamId }),
-            trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId })
+            trpc.skills.getAvailablePackages.queryOptions({}),
+            trpc.teamMemberships.getTeamMemberships.queryOptions({})
         ]
     })
 

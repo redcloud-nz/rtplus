@@ -23,7 +23,7 @@ import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
-export function Team_NewNote_Card({ teamId }: { teamId: string }) {
+export function NotesModule_NewNote_Form() {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
@@ -35,8 +35,6 @@ export function Team_NewNote_Card({ teamId }: { teamId: string }) {
         resolver: zodResolver(noteSchema),
         defaultValues: {
             noteId,
-            personId: null,
-            teamId,
             title: '',
             content: '',
             date: new Date().toISOString().split('T')[0],
@@ -52,7 +50,7 @@ export function Team_NewNote_Card({ teamId }: { teamId: string }) {
             queryClient.setQueryData(trpc.notes.getPersonalNotes.queryKey(), (old: NoteData[] = []) => {
                 return [
                     ...old,
-                    data
+                    noteSchema.parse(data)
                 ]
             })
 

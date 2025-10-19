@@ -12,7 +12,7 @@ import * as Paths from '@/paths'
 
 import { fetchSkillPackage } from '@/server/fetch'
 
-import { NewSkillDetailsCard } from './new-skill'
+import { AdminModule_NewSkill_Form } from './new-skill'
 import { Boundary } from '@/components/boundary'
 
 
@@ -21,17 +21,17 @@ export async function generateMetadata(props: PageProps<'/admin/skill-packages/[
     return { title: `New Skill | ${skillPackage.name}` }
 }
 
-export default async function NewSkillPage(props: PageProps<'/admin/skill-packages/[skill_package_id]/skills/[skill_id]'>) {
+export default async function AdminModule_NewSkill_Page(props: PageProps<'/admin/skill-packages/[skill_package_id]/skills/[skill_id]'>) {
     const skillPackage = await fetchSkillPackage(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.admin,
-                Paths.admin.skillPackages,
-                { label: skillPackage.name, href: Paths.admin.skillPackage(skillPackage.skillPackageId).href },
-                Paths.admin.skillPackage(skillPackage.skillPackageId).skills,
-                Paths.admin.skillPackage(skillPackage.skillPackageId).skills.create
+                Paths.adminModule,
+                Paths.adminModule.skillPackages,
+                { label: skillPackage.name, href: Paths.adminModule.skillPackage(skillPackage.skillPackageId).href },
+                Paths.adminModule.skillPackage(skillPackage.skillPackageId).skills,
+                Paths.adminModule.skillPackage(skillPackage.skillPackageId).skills.create
             ]}
         />
         <AppPageContent variant='container'>
@@ -41,7 +41,7 @@ export default async function NewSkillPage(props: PageProps<'/admin/skill-packag
             </PageHeader>
             
             <Boundary>
-                    <NewSkillDetailsCard skillPackageId={skillPackage.skillPackageId} />
+                    <AdminModule_NewSkill_Form skillPackageId={skillPackage.skillPackageId} />
             </Boundary>
         </AppPageContent>
         

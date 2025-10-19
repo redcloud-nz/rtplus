@@ -11,17 +11,17 @@ import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
 
-import { NewPerson_Card } from './new-person'
+import { AdminModule_NewPerson_Form } from './new-person'
 
 
-export default async function NewPerson_Page() { 
+export default async function AdminModule_NewPerson_Page() { 
     
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.admin, 
-                Paths.admin.personnel,
-                Paths.admin.personnel.create
+                Paths.adminModule, 
+                Paths.adminModule.personnel,
+                Paths.adminModule.personnel.create
             ]}
         />
         <AppPageContent variant="container">
@@ -30,7 +30,7 @@ export default async function NewPerson_Page() {
             </PageHeader>
 
             <Boundary>
-                <NewPerson_Card/>
+                <AdminModule_NewPerson_Form/>
             </Boundary>
         </AppPageContent>
         

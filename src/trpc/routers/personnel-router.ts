@@ -96,6 +96,25 @@ export const personnelRouter = createTRPCRouter({
         }),
 
     /**
+     * Get the person record for the current authenticated user.
+     * @param ctx The authenticated context.
+     * @returns The person object for the current user.
+     * @throws TRPCError(NOT_FOUND) if no person is found for the current user.
+     */
+    getCurrentPerson: orgProcedure
+        .output(personSchema)
+        .query(async ({ ctx }) => {
+            const person = await ctx.prisma.person.findFirst({
+                where: {
+                    orgId: ctx.auth.activeOrg.orgId,
+                    userId: ctx.auth.userId,
+                }
+            })
+            if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: `No person found for current user in organization ${ctx.auth.activeOrg.orgId}` })
+            return toPersonData(person)
+        }),
+
+    /**
      * Retrieves a person by their personId, email, or userId.
      * @param ctx The authenticated context.
      * @param input The input object containing either personId, email, or userId.

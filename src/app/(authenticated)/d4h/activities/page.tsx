@@ -25,8 +25,8 @@ export default async function D4HActivities_Page() {
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
-            Paths.d4h,
-            Paths.d4h.activities
+            Paths.d4hModule,
+            Paths.d4hModule.activities
         ]}/>
         <AppPageContent>
             <PageHeader>

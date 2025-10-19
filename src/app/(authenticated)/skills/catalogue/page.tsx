@@ -9,27 +9,24 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-pa
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
-import { getTeamFromParams } from '@/server/data/team'
 
-import { Team_Skills_List } from './team-skill-package-list'
+import { SkillsModule_SkillPackages_List } from './team-skill-package-list'
 
 export const metadata = { title: 'Skills' }
 
 
-export default async function Team_Skills_Catalogue_Page(props: { params: Promise<{ team_slug: string }> }) {
-    const team = await getTeamFromParams(props.params)
+export default async function SkillsModule_Catalogue_Page() {
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.org(team),
-                Paths.org(team).skills,
-                Paths.org(team).skills.catalogue
+                Paths.skillsModule,
+                Paths.skillsModule.catalogue
             ]}
         />
         <AppPageContent variant="container">
             <Boundary>
-                <Team_Skills_List teamId={team.teamId}/>
+                <SkillsModule_SkillPackages_List/>
             </Boundary>
         </AppPageContent>
     </AppPage>

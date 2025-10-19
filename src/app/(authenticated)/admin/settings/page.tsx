@@ -17,15 +17,15 @@ import { Heading } from '@/components/ui/typography'
 
 export const metadata = { title: "Organisation Settings" }
 
-export default function Admin_OrganizationSettings_Page() {
+export default function AdminModule_OrganizationSettings_Page() {
 
     clerkAuth.protect({ role: 'org:admin' })
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.admin,
-                Paths.admin.settings
+                Paths.adminModule,
+                Paths.adminModule.settings
             ]}
         />
 

@@ -24,8 +24,9 @@ import { Paragraph } from '@/components/ui/typography'
 import { getAssignedSkills } from '@/hooks/use-assigned-skills'
 import { useToast } from '@/hooks/use-toast'
 import { CompetenceLevel, isPass } from '@/lib/competencies'
-import { nanoId16  } from '@/lib/id'
-import { SkillCheckData } from '@/lib/schemas/skill-check'
+import { PersonId } from '@/lib/schemas/person'
+import { SkillId } from '@/lib/schemas/skill'
+import { SkillCheckData, SkillCheckId, skillCheckSchema } from '@/lib/schemas/skill-check'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { trpc } from '@/trpc/client'
 
@@ -34,9 +35,16 @@ import { trpc } from '@/trpc/client'
 
 type RecordingState = {
     prevData: SkillCheckData | null
-    target: { assesseeId: string, skillId: string }
-    data: Pick<SkillCheckData,  'skillCheckId' | 'result' | 'notes'> | null
+    target: { assesseeId: PersonId | null, skillId: SkillId | null }
+    data: Pick<SkillCheckData, 'skillCheckId' | 'result' | 'notes'> | null
     dirty: boolean
+}
+
+const EmptyRecordingState: RecordingState = {
+    prevData: null,
+    target: { assesseeId: null, skillId: null },
+    data: null,
+    dirty: false
 }
 
 export function SkillRecorder_Session_RecordSingle({ session }: { session: SkillCheckSessionData }) {
@@ -45,15 +53,15 @@ export function SkillRecorder_Session_RecordSingle({ session }: { session: Skill
     const { toast } = useToast()
 
     const [
-        { data: assessor }, 
+        { data: assessor },
         { data: availablePackages }, 
         { data: assessees }, 
         { data: existingChecks }, 
         { data: assignedSkillIds }
     ] = useSuspenseQueries({
         queries: [
-            trpc.currentUser.getPerson.queryOptions(),
-            trpc.skills.getAvailablePackages.queryOptions({ teamId: session.teamId }),
+            trpc.personnel.getCurrentPerson.queryOptions(),
+            trpc.skills.getAvailablePackages.queryOptions({ }),
             trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ sessionId: session.sessionId }),
             trpc.skillChecks.getSessionChecks.queryOptions({ sessionId: session.sessionId, assessorId: 'me' }),
             trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ sessionId: session.sessionId })
@@ -62,12 +70,7 @@ export function SkillRecorder_Session_RecordSingle({ session }: { session: Skill
 
     const skills = useMemo(() => getAssignedSkills(availablePackages, assignedSkillIds), [availablePackages, assignedSkillIds])
 
-    const [state, setState] = useState<RecordingState>({
-        prevData: null,
-        target: { assesseeId: '', skillId: '' },
-        data: null,
-        dirty: false
-    })
+    const [state, setState] = useState<RecordingState>(EmptyRecordingState)
 
     const skill = skills.find(s => s.skillId === state.target.skillId)
 
@@ -89,12 +92,12 @@ export function SkillRecorder_Session_RecordSingle({ session }: { session: Skill
                 setState(({ 
                     prevData: null, 
                     target: { assesseeId, skillId }, 
-                    data: { skillCheckId: nanoId16(), result: '', notes: '' },
+                    data: { skillCheckId: SkillCheckId.create(), result: '', notes: '' },
                     dirty: false
                 }))
             }
         } else {
-            setState(({ prevData: null, target: { assesseeId, skillId }, data: null, dirty: false }))
+            setState(EmptyRecordingState)
         }
     }
 
@@ -109,7 +112,7 @@ export function SkillRecorder_Session_RecordSingle({ session }: { session: Skill
     }
 
     function handleReset() {
-        setState(({ prevData: null, target: { assesseeId: '', skillId: '' }, data: null, dirty: false }))
+        setState(EmptyRecordingState)
     }
 
     const queryKey = trpc.skillChecks.getSessionChecks.queryKey({ sessionId: session.sessionId, assessorId: 'me' })
@@ -123,9 +126,11 @@ export function SkillRecorder_Session_RecordSingle({ session }: { session: Skill
             const previousChecks = queryClient.getQueryData(queryKey)
 
             if (previousChecks) {
+                const skillCheck = skillCheckSchema.parse({ ...data, assessorId: assessor.personId, passed: isPass(data.result as CompetenceLevel), date: session.date, timestamp: new Date().toISOString(), checkStatus: 'Draft' })
+
                 queryClient.setQueryData(queryKey, (prev = []) => 
                     // Update or add the skill check
-                    [...prev.filter(c => c.skillCheckId != data.skillCheckId), { ...data, assessorId: assessor.personId, passed: isPass(data.result as CompetenceLevel), sessionId: session.sessionId, date: session.date, timestamp: new Date().toISOString(), teamId: session.teamId }]
+                    [...prev.filter(c => c.skillCheckId != data.skillCheckId), skillCheck]
                 )
             }
 
@@ -166,8 +171,8 @@ export function SkillRecorder_Session_RecordSingle({ session }: { session: Skill
                         fallback={<Alert title="No assessees defined" severity="warning" className="p-2.5"/>}
                     >
                         <Select
-                            value={state.target.assesseeId} 
-                            onValueChange={newValue => handleChangeTarget({ assesseeId: newValue, skillId: state.target.skillId })}
+                            value={state.target.assesseeId ?? ''} 
+                            onValueChange={newValue => handleChangeTarget({ assesseeId: newValue as PersonId, skillId: state.target.skillId })}
                             disabled={state.dirty}
                         >
                             <SelectTrigger>
@@ -194,8 +199,8 @@ export function SkillRecorder_Session_RecordSingle({ session }: { session: Skill
                         fallback={<Alert title="No skills defined" severity="warning" className="p-2.5"/>}
                     >
                         <Select
-                            value={state.target.skillId} 
-                            onValueChange={newValue => handleChangeTarget({ assesseeId: state.target.assesseeId, skillId: newValue })}
+                            value={state.target.skillId ?? ''} 
+                            onValueChange={newValue => handleChangeTarget({ assesseeId: state.target.assesseeId, skillId: newValue as SkillId })}
                             disabled={state.dirty}
                         >
                             <SelectTrigger>
@@ -260,7 +265,7 @@ export function SkillRecorder_Session_RecordSingle({ session }: { session: Skill
             <Button
                 size="sm"
                 color="blue"
-                onClick={() => mutation.mutate({ sessionId: session.sessionId, ...state.target, ...state.data! })}
+                onClick={() => mutation.mutate({ sessionId: session.sessionId, skillId: state.target.skillId!, assesseeId: state.target.assesseeId!, ...state.data! })}
                 disabled={!state.dirty}
             >Save</Button>
             <Button 

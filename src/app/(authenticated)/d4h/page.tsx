@@ -20,13 +20,13 @@ import { D4HAccessTokenCheck_Card } from './d4h-access-token-check'
 
 export const metadata: Metadata = { title: "D4H Integration" }
 
-export default async function D4HIndex_Page() {
+export default async function D4HModike_Index_Page() {
 
     const { sessionClaims: { rt_person_id: personId } } = await auth.protect()
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
-                Paths.d4h,
+                Paths.d4hModule,
         ]}/>
         <AppPageContent variant="container">
             <PageHeader>
@@ -42,10 +42,10 @@ export default async function D4HIndex_Page() {
             </Boundary>
 
             <CardLinkList>
-                <CardLink to={Paths.d4h.activities}/>
-                <CardLink to={Paths.d4h.calendar}/>
-                <CardLink to={Paths.d4h.equipment}/>
-                <CardLink to={Paths.d4h.personnel}/>
+                <CardLink to={Paths.d4hModule.activities}/>
+                <CardLink to={Paths.d4hModule.calendar}/>
+                <CardLink to={Paths.d4hModule.equipment}/>
+                <CardLink to={Paths.d4hModule.personnel}/>
             </CardLinkList>
                 
 

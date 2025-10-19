@@ -19,12 +19,12 @@ import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = { title: "Cards | RT+" }
 
-export default async function ReferenceCardsPage() {
+export default async function CardsModule_Index_Page() {
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.referenceCards
+                Paths.cardsModule
             ]}
         />
         <AppPageContent>

@@ -29,9 +29,7 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { SkillCheckSessionData, skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
-import { TeamData } from '@/lib/schemas/team'
-import { zodNanoId8 } from '@/lib/validation'
+import { SkillCheckSessionData, SkillCheckSessionId, skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
 import { formatDate } from '@/lib/utils'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
@@ -39,7 +37,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function Team_Skills_Session_Card({ sessionId }: { sessionId: string }) {
+export function SkillsModule_SessionDetails({ sessionId }: { sessionId: SkillCheckSessionId }) {
 
     const { data: session } = useSuspenseQuery(trpc.skillChecks.getSession.queryOptions({ sessionId }))
 
@@ -58,7 +56,7 @@ export function Team_Skills_Session_Card({ sessionId }: { sessionId: string }) {
                         </TooltipTrigger>
                         <TooltipContent>Edit session details</TooltipContent>
                     </Tooltip>
-                    <DeleteSessionDialog session={session} team={session.team}/>
+                    <DeleteSessionDialog session={session}/>
                     <Separator orientation="vertical" />
                     <CardExplanation>
                         This card displays the details of the skill check session. You can edit the session details or delete the session entirely.
@@ -74,11 +72,6 @@ export function Team_Skills_Session_Card({ sessionId }: { sessionId: string }) {
                             label="Session ID" 
                             control={<DisplayValue>{session.sessionId}</DisplayValue>}
                         />
-                        <ToruGridRow
-                            label="Team"
-                            control={<DisplayValue>{session.team.name}</DisplayValue>}
-                            description="The team to which this session belongs."
-                        />
                         <ToruGridRow 
                             label="Name" 
                             control={<DisplayValue>{session.name}</DisplayValue>}
@@ -93,13 +86,13 @@ export function Team_Skills_Session_Card({ sessionId }: { sessionId: string }) {
                         />
                         <ToruGridFooter>
                             <Button size="sm" color="blue">
-                                <Link to={Paths.org(session.team).skills.session(session).review}>Review</Link>
+                                <Link to={Paths.skillsModule.session(session.sessionId).review}>Review</Link>
                             </Button>
                         </ToruGridFooter>
                     </ToruGrid>
                 )
                 .with('Update', () => 
-                    <UpdateSession_Form onClose={() => setMode('View')} session={session} team={session.team} />
+                    <UpdateSession_Form onClose={() => setMode('View')} session={session} />
                 )
                 .exhaustive()
             }
@@ -107,10 +100,10 @@ export function Team_Skills_Session_Card({ sessionId }: { sessionId: string }) {
     </Card>
 }
 
-const formSchema = skillCheckSessionSchema.pick({ sessionId: true, teamId: true, name: true, date: true })
+const formSchema = skillCheckSessionSchema.pick({ sessionId: true, name: true, date: true, notes: true })
 type FormData = z.infer<typeof formSchema>
 
-function UpdateSession_Form({ onClose, session, team }: { onClose: () => void, session: SkillCheckSessionData, team: TeamData }) {
+function UpdateSession_Form({ onClose, session }: { onClose: () => void, session: SkillCheckSessionData}) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
@@ -121,9 +114,9 @@ function UpdateSession_Form({ onClose, session, team }: { onClose: () => void, s
         resolver: zodResolver(formSchema),
         defaultValues: {
             sessionId: session.sessionId,
-            teamId: session.teamId,
             name: session.name,
             date: session.date,
+            notes: session.notes
         }
     })
 
@@ -156,7 +149,7 @@ function UpdateSession_Form({ onClose, session, team }: { onClose: () => void, s
                 description: `The session ${session.name} has been updated successfully.`,
             })
 
-            queryClient.invalidateQueries(trpc.skillChecks.getSessions.queryFilter({ teamId: session.teamId }))
+            queryClient.invalidateQueries(trpc.skillChecks.getSessions.queryFilter({  }))
         },
         onSettled() {
             queryClient.invalidateQueries(queryFilter)
@@ -173,11 +166,6 @@ function UpdateSession_Form({ onClose, session, team }: { onClose: () => void, s
                         label="Session ID"
                         control={<DisplayValue>{session.sessionId}</DisplayValue>}
                     />}
-                />
-                <ToruGridRow
-                    label="Team"
-                    control={<DisplayValue>{team.name}</DisplayValue>}
-                    description="The team to which this session belongs."
                 />
                 <FormField
                     control={form.control}
@@ -210,7 +198,7 @@ function UpdateSession_Form({ onClose, session, team }: { onClose: () => void, s
     </FormProvider>
 }
 
-function DeleteSessionDialog({ session, team }: { session: SkillCheckSessionData, team: TeamData }) {
+function DeleteSessionDialog({ session }: { session: SkillCheckSessionData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -219,12 +207,11 @@ function DeleteSessionDialog({ session, team }: { session: SkillCheckSessionData
 
     const form = useForm({
         resolver: zodResolver(z.object({
-            sessionId: zodNanoId8,
-            teamId: zodNanoId8,
+            sessionId: SkillCheckSessionId.schema,
             sessionName: z.literal(session.name)
         })),
         mode: 'onSubmit',
-        defaultValues: { sessionId: session.sessionId, teamId: session.teamId, sessionName: "" }
+        defaultValues: { sessionId: session.sessionId, sessionName: "" }
     })
 
     const mutation = useMutation(trpc.skillChecks.deleteSession.mutationOptions({
@@ -242,9 +229,9 @@ function DeleteSessionDialog({ session, team }: { session: SkillCheckSessionData
                 description: <>The session <ObjectName>{result.name}</ObjectName> has been deleted.</>,
             })
             setOpen(false)
-            router.push(Paths.org(team).skills.sessions.href)
+            router.push(Paths.skillsModule.sessions.href)
 
-            queryClient.invalidateQueries(trpc.skillChecks.getSessions.queryFilter({ teamId: team.teamId }))
+            queryClient.invalidateQueries(trpc.skillChecks.getSessions.queryFilter({ }))
             queryClient.setQueryData(trpc.skillChecks.getSession.queryKey({ sessionId: session.sessionId }), undefined)
         },
     }))

@@ -27,10 +27,10 @@ export default async function SkillsModule_Layout(props: { children: ReactNode }
     return <>
         <AppSidebar moduleName="Skills">
             <NavSection>
-                <NavItem path={Paths.skills.catalogue}/>
-                <NavItem path={Paths.skills.checks}/>
-                <NavItem path={Paths.skills.sessions}/>
-                <NavItem path={Paths.skills.reports}/>
+                <NavItem path={Paths.skillsModule.catalogue}/>
+                <NavItem path={Paths.skillsModule.checks}/>
+                <NavItem path={Paths.skillsModule.sessions}/>
+                <NavItem path={Paths.skillsModule.reports}/>
             </NavSection>
         </AppSidebar>
         {props.children}

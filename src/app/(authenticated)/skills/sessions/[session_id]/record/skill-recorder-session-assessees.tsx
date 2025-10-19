@@ -7,7 +7,7 @@
 
 import { useState } from 'react'
 
-import { useMutation, useQueryClient, useSuspenseQueries, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
 import { FloatingFooter } from '@/components/footer'
 import { Button } from '@/components/ui/button'
@@ -18,12 +18,11 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { useToast } from '@/hooks/use-toast'
 import { PersonId, PersonRef } from '@/lib/schemas/person'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
-import { TeamData } from '@/lib/schemas/team'
 import { trpc } from '@/trpc/client'
 
 
 
-export function SkillRecorder_Session_Assessees({ session }: { session: SkillCheckSessionData & { team: TeamData } }) {
+export function SkillRecorder_Session_Assessees({ session }: { session: SkillCheckSessionData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
@@ -100,8 +99,7 @@ export function SkillRecorder_Session_Assessees({ session }: { session: SkillChe
 
     return  <ScrollArea style={{ height: `calc(100vh - var(--header-height) - 56px)` }} className="[&>[data-slot=scroll-area-viewport]]:pb-8">
         <div className="flex flex-col divide-y divide-border">
-            <TeamSection
-                team={session.team}
+            <AvailablePersonnel
                 assignedAssessees={assignedAssessees.map(a => a.personId)}
                 selectedAssessees={selectedAssessees}
                 onSelectedChange={handleCheckedChange}
@@ -140,31 +138,29 @@ export function SkillRecorder_Session_Assessees({ session }: { session: SkillChe
 
 
 interface TeamSectionProps {
-    team: TeamData
     assignedAssessees: string[]
     selectedAssessees: string[]
     onSelectedChange: (assesseeId: PersonId) => (checked: boolean) => void
 }
 
-function TeamSection({ team, assignedAssessees, selectedAssessees, onSelectedChange }: TeamSectionProps) {
+function AvailablePersonnel({ assignedAssessees, selectedAssessees, onSelectedChange }: TeamSectionProps) {
 
-    const { data: members } = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId: team.teamId }))
+    const { data: personnel } = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({ }))
 
-    const teamAssessees = members.filter(m => selectedAssessees.includes(m.personId))
+    const selected = personnel.filter(m => selectedAssessees.includes(m.personId))
 
     return <div className="py-4">
         <div className="flex items-center justify-between">
-            <div className="font-semibold text-xl">{team.name}</div>
-            <div className="text-sm text-muted-foreground">{teamAssessees.length} selected</div>
+            <div className="text-sm text-muted-foreground">{selected.length} selected</div>
         </div>
         <ul className="pl-4">
-            {members
-                .map(member => <PersonRow
-                    key={member.personId}
-                    person={member.person}
-                    assigned={assignedAssessees.includes(member.personId)}
-                    selected={selectedAssessees.includes(member.personId)}
-                    onSelectedChange={onSelectedChange(member.personId)}
+            {personnel
+                .map(person => <PersonRow
+                    key={person.personId}
+                    person={person}
+                    assigned={assignedAssessees.includes(person.personId)}
+                    selected={selectedAssessees.includes(person.personId)}
+                    onSelectedChange={onSelectedChange(person.personId)}
                 />)
             }
         </ul>

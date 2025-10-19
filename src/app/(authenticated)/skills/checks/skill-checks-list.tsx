@@ -20,19 +20,18 @@ import { Table } from '@/components/ui/table'
 import { Tooltip, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { CompetenceLevel, CompetenceLevelTerms } from '@/lib/competencies'
-import { PersonData } from '@/lib/schemas/person'
+import { PersonRef } from '@/lib/schemas/person'
 import { SkillCheckData } from '@/lib/schemas/skill-check'
 import { SkillData } from '@/lib/schemas/skill'
-import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
-type RowData = SkillCheckData & { assessee: PersonData, assessor: PersonData, skill: SkillData }
+type RowData = SkillCheckData & { assessee: PersonRef, assessor: PersonRef, skill: SkillData }
 
-export function Team_Skill_ChecksList_Card({ team }: { team: TeamData }) {
+export function SkillsModule_SkillChecks_List() {
 
-    const { data: checks, refetch: checksRefetch } = useSuspenseQuery(trpc.skillChecks.getSkillChecks.queryOptions({ teamId: team.teamId }))
+    const { data: checks, refetch: checksRefetch } = useSuspenseQuery(trpc.skillChecks.getSkillChecks.queryOptions({}))
 
     async function handleRefresh() {
         await checksRefetch()
@@ -51,7 +50,7 @@ export function Team_Skill_ChecksList_Card({ team }: { team: TeamData }) {
         columnHelper.accessor('assessee.name', {
             id: 'assessee',
             header: 'Assessee',
-            cell: ctx => <TextLink to={Paths.org(team).member(ctx.row.original.assesseeId)}>
+            cell: ctx => <TextLink to={Paths.adminModule.person(ctx.row.original.assesseeId)}>
                 {ctx.getValue()}
             </TextLink>,
             enableGrouping: true,
@@ -62,7 +61,7 @@ export function Team_Skill_ChecksList_Card({ team }: { team: TeamData }) {
         columnHelper.accessor('assessor.name', {
             id: 'assessor',
             header: 'Assessor',
-            cell: ctx => <TextLink to={Paths.org(team).member(ctx.row.original.assessorId)}>
+            cell: ctx => <TextLink to={Paths.adminModule.person(ctx.row.original.assessorId)}>
                 {ctx.getValue()}
             </TextLink>,
             enableGrouping: true,
@@ -96,7 +95,7 @@ export function Team_Skill_ChecksList_Card({ team }: { team: TeamData }) {
             enableSorting: true,
             enableGlobalFilter: false,
         }),
-    ]), [team])
+    ]), [])
 
     const table = useReactTable<RowData>({
         columns,
@@ -132,7 +131,7 @@ export function Team_Skill_ChecksList_Card({ team }: { team: TeamData }) {
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button variant="ghost" size="icon" asChild>
-                                <Link to={Paths.org(team).skills.checks.create}>
+                                <Link to={Paths.skillsModule.checks.create}>
                                     <PlusIcon />
                                 </Link>
                             </Button>

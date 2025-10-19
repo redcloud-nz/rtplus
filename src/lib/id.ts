@@ -5,6 +5,7 @@
 
 import { customAlphabet } from 'nanoid'
 import { v4 as uuidv4, validate } from 'uuid'
+import { z } from 'zod'
 
 /**
  * Create a new v4 UUID
@@ -59,3 +60,4 @@ export function validateNanoid16(id: string) {
 }
 
 
+export const EMPTY = '' as string & z.BRAND<'Empty'>

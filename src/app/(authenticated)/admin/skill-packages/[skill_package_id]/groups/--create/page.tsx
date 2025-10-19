@@ -12,7 +12,7 @@ import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 import { fetchSkillPackage } from '@/server/fetch'
 
-import { NewSkillGroupDetailsCard } from './new-skill-group'
+import { AdminModule_NewSkillGroup_Form } from './new-skill-group'
 
 
 
@@ -21,17 +21,17 @@ export async function generateMetadata(props: PageProps<'/admin/skill-packages/[
     return { title: `New Skill | ${skillPackage.name}` }
 }
 
-export default async function NewSkillGroupPage(props: PageProps<'/admin/skill-packages/[skill_package_id]/groups/--create'>) {
+export default async function AdminModuleNewSkillGroup_Page(props: PageProps<'/admin/skill-packages/[skill_package_id]/groups/--create'>) {
     const { skillPackageId, name } = await fetchSkillPackage(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.admin,
-                Paths.admin.skillPackages,
-                { label: name, href: Paths.admin.skillPackage(skillPackageId).href },
-                Paths.admin.skillPackage(skillPackageId).groups,
-                Paths.admin.skillPackage(skillPackageId).groups.create
+                Paths.adminModule,
+                Paths.adminModule.skillPackages,
+                { label: name, href: Paths.adminModule.skillPackage(skillPackageId).href },
+                Paths.adminModule.skillPackage(skillPackageId).groups,
+                Paths.adminModule.skillPackage(skillPackageId).groups.create
             ]}
         />
         <AppPageContent variant='container'>
@@ -41,7 +41,7 @@ export default async function NewSkillGroupPage(props: PageProps<'/admin/skill-p
             </PageHeader>
             
             <Boundary>
-                <NewSkillGroupDetailsCard skillPackageId={skillPackageId} />
+                <AdminModule_NewSkillGroup_Form skillPackageId={skillPackageId} />
             </Boundary>
             
         </AppPageContent>

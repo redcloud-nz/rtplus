@@ -25,7 +25,7 @@ import { Protect } from '@clerk/nextjs'
 
 
 
-export function SkillPackage_GroupsList({ skillPackageId }: { skillPackageId: string }) {
+export function AdminModule_SkillPackage_GroupsList({ skillPackageId }: { skillPackageId: string }) {
 
     
     const groupsQuery = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ skillPackageId }))
@@ -45,7 +45,7 @@ export function SkillPackage_GroupsList({ skillPackageId }: { skillPackageId: st
         }),
         columnHelper.accessor('name', {
             header: 'Group',
-            cell: ctx => <TextLink to={Paths.admin.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId)}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.adminModule.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId)}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('description', {
@@ -106,7 +106,7 @@ export function SkillPackage_GroupsList({ skillPackageId }: { skillPackageId: st
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button variant="ghost" size="icon" asChild>
-                                    <Link to={Paths.admin.skillPackage(skillPackageId).groups.create}>
+                                    <Link to={Paths.adminModule.skillPackage(skillPackageId).groups.create}>
                                         <PlusIcon/>
                                     </Link>
                                 </Button>

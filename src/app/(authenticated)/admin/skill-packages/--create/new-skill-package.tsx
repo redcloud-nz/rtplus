@@ -28,7 +28,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function NewSkillPackageDetailsCard() {
+export function AdminModile_NewSkillPackage_Form() {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -65,7 +65,7 @@ export function NewSkillPackageDetailsCard() {
             })
 
             queryClient.invalidateQueries(trpc.skills.getPackages.queryFilter())
-            router.push(Paths.admin.skillPackage(result.skillPackageId).href)
+            router.push(Paths.adminModule.skillPackage(result.skillPackageId).href)
         }
     }))
 

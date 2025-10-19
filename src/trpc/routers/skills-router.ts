@@ -11,7 +11,7 @@ import { Skill as SkillRecord, SkillGroup as SkillGroupRecord, SkillPackage as S
 import { PackageList, SkillPackageDef } from '@/data/skills'
 import { ChangeCountsByType, createChangeCounts } from '@/lib/change-counts'
 import { diffObject } from '@/lib/diff'
-import { skillSchema, toSkillData } from '@/lib/schemas/skill'
+import { SkillId, skillSchema, toSkillData } from '@/lib/schemas/skill'
 import { SkillGroupId, skillGroupSchema, toSkillGroupData } from '@/lib/schemas/skill-group'
 import { SkillPackageId, skillPackageSchema, toSkillPackageData } from '@/lib/schemas/skill-package'
 import { TeamId } from '@/lib/schemas/team'
@@ -178,7 +178,7 @@ export const skillsRouter = createTRPCRouter({
 
     deletePackage: orgAdminProcedure
         .input(z.object({
-            skillPackageId: zodNanoId8
+            skillPackageId: SkillPackageId.schema
         }))
         .output(skillPackageSchema)
         .mutation(async ({ ctx, input: { skillPackageId} }) => {
@@ -193,8 +193,8 @@ export const skillsRouter = createTRPCRouter({
 
     deleteSkill: orgAdminProcedure
         .input(z.object({
-            skillId: zodNanoId8,
-            skillPackageId: zodNanoId8
+            skillId: SkillId.schema,
+            skillPackageId: SkillPackageId.schema
         }))
         .output(skillSchema)
         .mutation(async ({ ctx, input: { skillId, skillPackageId } }) => {
@@ -225,7 +225,7 @@ export const skillsRouter = createTRPCRouter({
 
     getAvailablePackages: orgProcedure
         .input(z.object({
-            teamId: TeamId.schema
+            teamId: TeamId.schema.optional()
         }))
         .output(z.array(skillPackageSchema.extend({
             skillGroups: z.array(skillGroupSchema),
@@ -271,7 +271,7 @@ export const skillsRouter = createTRPCRouter({
     getGroups: orgProcedure
         .input(z.object({
             status: recordStatusParameterSchema,
-            skillPackageId: zodNanoId8.optional()
+            skillPackageId: SkillPackageId.schema.optional()
         }))
         .output(z.array(skillGroupSchema))
         .query(async ({ ctx, input }) => {
@@ -285,7 +285,7 @@ export const skillsRouter = createTRPCRouter({
 
     getPackage: orgProcedure
         .input(z.object({
-            skillPackageId: zodNanoId8
+            skillPackageId: SkillPackageId.schema
         }))
         .output(skillPackageSchema)
         .query(async ({ ctx, input: { skillPackageId} }) => {
@@ -330,8 +330,8 @@ export const skillsRouter = createTRPCRouter({
 
     getSkill: authenticatedProcedure
         .input(z.object({
-            skillId: zodNanoId8,
-            skillPackageId: zodNanoId8
+            skillId: SkillId.schema,
+            skillPackageId: SkillPackageId.schema
         }))
         .output(skillSchema.extend({
             skillGroup: skillGroupSchema,
@@ -346,9 +346,9 @@ export const skillsRouter = createTRPCRouter({
     getSkills: authenticatedProcedure
         .input(z.object({
             status: recordStatusParameterSchema,
-            skillPackageId: zodNanoId8.optional(),
-            skillGroupId: zodNanoId8.optional(),
-            skillIds: z.array(zodNanoId8).optional(),
+            skillPackageId: SkillPackageId.schema.optional(),
+            skillGroupId: SkillGroupId.schema.optional(),
+            skillIds: z.array(SkillId.schema).optional(),
         }))
         .output(z.array(skillSchema))
         .query(async ({ ctx, input }) => {
@@ -369,7 +369,7 @@ export const skillsRouter = createTRPCRouter({
 
     importPackage: orgAdminProcedure
         .input(z.object({
-            skillPackageId: zodNanoId8
+            skillPackageId: SkillPackageId.schema
         }))
         .mutation(async ({ ctx, input }) => {
         

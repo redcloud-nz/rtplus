@@ -25,7 +25,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-export default function SkillRecorder_Session_Assessors({ session }: { session: SkillCheckSessionData & { team: TeamData } }) {
+export default function SkillRecorder_Session_Assessors({ session }: { session: SkillCheckSessionData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
@@ -95,8 +95,7 @@ export default function SkillRecorder_Session_Assessors({ session }: { session: 
     return <ScrollArea style={{ height: `calc(100vh - var(--header-height))` }} className="pl-4 pr-3 [&>[data-slot=scroll-area-viewport]]:pb-8">
         <div className="flex flex-col divide-y divide-border">
             <Boundary>
-                <TeamSection
-                    team={session.team}
+                <AvailablePersonnel
                     sessionId={session.sessionId}
                     assignedAssessors={assignedAssessors.map(a => a.personId)}
                     selectedAssessors={selectedAssessors}
@@ -133,24 +132,24 @@ export default function SkillRecorder_Session_Assessors({ session }: { session: 
     </ScrollArea>
 }
 
-interface TeamSectionProps {
-    team: TeamData
+interface AvailablePersonnelProps {
     sessionId: string
     assignedAssessors: string[]
     selectedAssessors: string[]
     onSelectedChange: (assesseeId: string) => (checked: boolean) => void
 }
 
-function TeamSection({ team, sessionId, assignedAssessors, selectedAssessors, onSelectedChange }: TeamSectionProps) {
+function AvailablePersonnel({ assignedAssessors, selectedAssessors, onSelectedChange }: AvailablePersonnelProps) {
 
-    const { data: users } = useSuspenseQuery(trpc.skillChecks.getAvailableAssessors.queryOptions({ sessionId }))
+    const { data: personnel } = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({  }))
 
-    const teamAssessors = assignedAssessors.filter(a => users.find(u => u.personId === a))
+    const users = personnel.filter(p => p.userId !== null)
+
+    const selected = users.filter(m => selectedAssessors.includes(m.personId))
 
     return <div className="py-4">
         <div className="flex items-center justify-between">
-            <div className="font-semibold text-xl">{team.name}</div>
-            <div className="text-sm text-muted-foreground">{teamAssessors.length} selected</div>
+            <div className="text-sm text-muted-foreground">{selected.length} selected</div>
         </div>
         <ul className="pl-4">
             {users

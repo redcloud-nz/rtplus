@@ -13,7 +13,7 @@ import * as Paths from '@/paths'
 export default function D4HModule_NotFound() {
     return <AppPage>
         <AppPageBreadcrumbs
-            breadcrumbs={[Paths.d4h]}
+            breadcrumbs={[Paths.d4hModule]}
         />
         <NotFound/>
     </AppPage>

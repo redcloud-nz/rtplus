@@ -38,6 +38,9 @@ export default async function Root_Layout({ children }: Readonly<{ children: Rea
         appearance={{
             cssLayerName: 'clerk'
         }}
+        taskUrls={{
+            'choose-organization': "/onboarding/choose-organization",
+        }}
     >
         <html lang="en">
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>

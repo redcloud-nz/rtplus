@@ -25,7 +25,7 @@ import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
-export function PersonnelList() {
+export function AdminModule_PersonnelList() {
 
     
     const personnelQuery = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({}))
@@ -44,7 +44,7 @@ export function PersonnelList() {
         }),
         columnHelper.accessor('name', {
             header: 'Name',
-            cell : ctx => <TextLink to={Paths.admin.person(ctx.row.original.personId)}>{ctx.getValue()}</TextLink>,
+            cell : ctx => <TextLink to={Paths.adminModule.person(ctx.row.original.personId)}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('email', {
@@ -101,7 +101,7 @@ export function PersonnelList() {
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button variant="ghost" size="icon" asChild>
-                                    <Link to={Paths.admin.personnel.create}>
+                                    <Link to={Paths.adminModule.personnel.create}>
                                         <PlusIcon />
                                     </Link>
                                 </Button>

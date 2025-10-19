@@ -41,7 +41,7 @@ import { trpc } from '@/trpc/client'
  * Card that displays the details of a skill package and allows the user to edit or delete it.
  * @param skillPackageId The ID of the skill package to display.
  */
-export function System_SkillPackage_Details_Card({ skillPackageId }: { skillPackageId: string }) {
+export function AdminModule_SkillPackage_Details({ skillPackageId }: { skillPackageId: string }) {
 
     const { data: skillPackage } = useSuspenseQuery(trpc.skills.getPackage.queryOptions({ skillPackageId }))
 
@@ -248,7 +248,7 @@ function DeleteSkillPackageDialog({ skillPackage }: { skillPackage: SkillPackage
             queryClient.invalidateQueries(trpc.skills.getPackages.queryFilter())
             queryClient.invalidateQueries(trpc.skills.getPackage.queryFilter({ skillPackageId: skillPackage.skillPackageId }))
             queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter({ skillPackageId: skillPackage.skillPackageId }))
-            router.push(Paths.admin.skillPackages.href)
+            router.push(Paths.adminModule.skillPackages.href)
         }
     }))
 

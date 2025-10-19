@@ -15,25 +15,18 @@ export default clerkMiddleware(
     async (auth, req) => {
         if(isPublicRoute(req)) return NextResponse.next()
         
-        const { userId, sessionClaims, redirectToSignIn } = await auth()
+        const { userId, redirectToSignIn } = await auth()
 
         if(userId) {
             // Authenticated user
 
-            if(sessionClaims.rt_onboarding_status != 'complete' && !req.nextUrl.pathname.startsWith('/onboarding')) {
-                // Redirect users with incomplete onboarding
-                const url = req.nextUrl.clone()
-                url.pathname = '/onboarding'
-                url.searchParams.set('redirect_url', req.url)
-                return NextResponse.redirect(url)
-            }
-
-            // Redirect non system users from system routes
-            if(isSystemRoute(req) && sessionClaims?.org_slug != 'system') {
-                const url = req.nextUrl.clone()
-                url.pathname = '/dashboard'
-                return NextResponse.rewrite(url)
-            }
+            // if(sessionClaims.rt_onboarding_status != 'complete' && !req.nextUrl.pathname.startsWith('/onboarding')) {
+            //     // Redirect users with incomplete onboarding
+            //     const url = req.nextUrl.clone()
+            //     url.pathname = '/onboarding'
+            //     url.searchParams.set('redirect_url', req.url)
+            //     return NextResponse.redirect(url)
+            // }
             
             // Allow access
             return NextResponse.next()

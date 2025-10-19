@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  *
- *  Path: /teams/[team-slug]/skills/sessions
+ *  Path: /skills/sessions
  */
 
 
@@ -10,23 +10,20 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
-import { getTeamFromParams } from '@/server/data/team'
 
-import { Team_Skills_SessionList_Card } from './team-sessions-list'
+import { SkillModule_SkillCheckSessionsList } from './sessions-list'
 
 
 export const metadata = { title: `Skill Check Sessions` }
 
 
-export default async function Team_SkillCheckSessionsList_Page(props: { params: Promise<{ team_slug: string }> }) {
-    const team = await getTeamFromParams(props.params)
+export default async function SkillsModule_SkillCheckSessions_Page() {
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.org(team),
-                Paths.org(team).skills,
-                Paths.org(team).skills.sessions,
+                Paths.skillsModule,
+                Paths.skillsModule.sessions,
             ]}
         />
         <AppPageContent variant="container">
@@ -34,7 +31,7 @@ export default async function Team_SkillCheckSessionsList_Page(props: { params: 
                 <PageTitle>Skill Check Sessions</PageTitle>
             </PageHeader>
             <Boundary>
-                <Team_Skills_SessionList_Card team={team}/>
+                <SkillModule_SkillCheckSessionsList/>
             </Boundary>
         </AppPageContent>
     </AppPage>

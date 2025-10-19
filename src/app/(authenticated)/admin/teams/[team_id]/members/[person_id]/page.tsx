@@ -19,16 +19,16 @@ export async function generateMetadata(props: PageProps<'/admin/teams/[team_id]/
     return { title: `${person.name} - ${team.name}` }
 }
 
-export default async function System_Team_Member_Page(props: PageProps<'/admin/teams/[team_id]/members/[person_id]'>) {
+export default async function AdminModule_Team_Member_Page(props: PageProps<'/admin/teams/[team_id]/members/[person_id]'>) {
     const { person, team } = await fetchTeamMembership(props.params)
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.admin,
-                Paths.admin.teams,
-                { label: team.name, href: Paths.admin.team(team.teamId).href },
-                Paths.admin.team(team.teamId).members,
+                Paths.adminModule,
+                Paths.adminModule.teams,
+                { label: team.name, href: Paths.adminModule.team(team.teamId).href },
+                Paths.adminModule.team(team.teamId).members,
                 person.name
             ]}
         />

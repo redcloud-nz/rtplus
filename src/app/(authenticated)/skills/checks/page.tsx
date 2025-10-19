@@ -9,23 +9,20 @@
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
-import { getTeamFromParams } from '@/server/data/team'
 
-import { Team_Skill_ChecksList_Card } from './team-skill-checks-list'
+import { SkillsModule_SkillChecks_List } from './skill-checks-list'
 
 export const metadata = {
     title: "Skill Checks",
 }
 
-export default async function Team_Skills_Checks_Page(props: { params: Promise<{ team_slug: string }> }) {
-    const team = await getTeamFromParams(props.params)
+export default async function SkillModule_SkillChecks_Page() {
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.org(team),
-                Paths.org(team).skills,
-                Paths.org(team).skills.checks
+                Paths.skillsModule,
+                Paths.skillsModule.checks
             ]}
         />
         
@@ -35,7 +32,7 @@ export default async function Team_Skills_Checks_Page(props: { params: Promise<{
             </PageHeader>
 
             <Boundary>
-                <Team_Skill_ChecksList_Card team={team}/>
+                <SkillsModule_SkillChecks_List/>
             </Boundary>
         </AppPageContent>
     </AppPage>

@@ -2,12 +2,11 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /tools/skill-recorder/sessions/[session_id]
+ *  Path: /skills/sessions/[session_id]/record
  */
 
 import { CheckCheckIcon, CheckIcon, InfoIcon, PocketKnifeIcon, ScrollTextIcon, UserIcon, UsersIcon } from 'lucide-react'
 
-import { auth } from '@clerk/nextjs/server'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent} from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
@@ -35,9 +34,8 @@ export async function generateMetadata(props: PageProps<'/skills/sessions/[sessi
     return { title: `${session.name} - Skill Recorder` }
 }
 
-export default async function SkillRecorder_Session_Page(props: PageProps<'/skills/sessions/[session_id]/record'>) {
+export default async function SkillsModule_SessionRecord_Page(props: PageProps<'/skills/sessions/[session_id]/record'>) {
     const session = await fetchSkillCheckSession(props.params)
-    const { orgSlug } = await auth()
 
     return <AppPage>
         <AppPageBreadcrumbs
@@ -84,7 +82,7 @@ export default async function SkillRecorder_Session_Page(props: PageProps<'/skil
                     </TabsTrigger>
                 </TabsList>
 
-                <SkillRecorder_Session_Prefetch sessionId={session.sessionId} teamId={session.teamId}/>
+                <SkillRecorder_Session_Prefetch sessionId={session.sessionId}/>
                 <Boundary
                     slotProps={{
                         loadingFallback: {
@@ -93,7 +91,7 @@ export default async function SkillRecorder_Session_Page(props: PageProps<'/skil
                     }}
                 >
                     <TabsContent value="details">
-                        <SkillRecorder_Session_Details session={session} belongsToOwnTeam={orgSlug == session.team.slug} />
+                        <SkillRecorder_Session_Details session={session} />
                     </TabsContent>
                     <TabsContent value="assessees">
                         <SkillRecorder_Session_Assessees session={session}/>

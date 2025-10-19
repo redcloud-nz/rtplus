@@ -27,7 +27,7 @@ export function SkillRecorder_Session_Transcript({ session }: { session: SkillCh
         { data: checks },
     ] = useSuspenseQueries({
         queries: [
-            trpc.skills.getAvailablePackages.queryOptions({ teamId: session.teamId }),
+            trpc.skills.getAvailablePackages.queryOptions({ }),
             trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ sessionId: session.sessionId }),
             trpc.skillChecks.getSessionChecks.queryOptions({ sessionId: session.sessionId, assessorId: 'me' }),
         ],

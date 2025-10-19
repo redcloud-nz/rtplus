@@ -13,7 +13,7 @@ import * as Paths from '@/paths'
 export default function SkillsModule_NotFound() {
     return <AppPage>
         <AppPageBreadcrumbs
-            breadcrumbs={[Paths.skills]}
+            breadcrumbs={[Paths.skillsModule]}
         />
         <NotFound/>
     </AppPage>

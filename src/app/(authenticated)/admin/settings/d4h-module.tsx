@@ -18,7 +18,7 @@ import { OrganizationSettingsData } from '@/lib/schemas/settings'
 
 
 
-export function D4HModuleSettingsForm({ form }: { form: ReturnType<typeof useForm<OrganizationSettingsData>> }) {
+export function D4HModuleSettingsForm({}: { form: ReturnType<typeof useForm<OrganizationSettingsData>> }) {
 
     return <Card2>
         <Card2Header>

@@ -60,8 +60,8 @@ export function TeamMembership_Details_Card({ context, personId, teamId }: { con
                     </Tooltip>
                     <DeleteTeamMembershipDialog
                         onDelete={() => {
-                            if(context == 'person') router.push(Paths.admin.person(person.personId).href)
-                            else router.push(Paths.admin.team(team.teamId).href)
+                            if(context == 'person') router.push(Paths.adminModule.person(person.personId).href)
+                            else router.push(Paths.adminModule.team(team.teamId).href)
                         }}
                         personId={personId}
                         teamId={teamId}
@@ -80,11 +80,11 @@ export function TeamMembership_Details_Card({ context, personId, teamId }: { con
                     <ToruGrid>
                         <ToruGridRow
                             label="Team"
-                            control={<DisplayValue><TextLink to={Paths.admin.team(team.teamId)}>{team.name}</TextLink></DisplayValue>}
+                            control={<DisplayValue><TextLink to={Paths.adminModule.team(team.teamId)}>{team.name}</TextLink></DisplayValue>}
                         />
                         <ToruGridRow
                             label="Person"
-                            control={<DisplayValue><TextLink to={Paths.admin.person(person.personId)}>{person.name}</TextLink></DisplayValue>}
+                            control={<DisplayValue><TextLink to={Paths.adminModule.person(person.personId)}>{person.name}</TextLink></DisplayValue>}
                         />
                         <ToruGridRow
                             label="Tags"

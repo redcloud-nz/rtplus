@@ -24,7 +24,7 @@ import { SkillData } from '@/lib/schemas/skill'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
-export function SkillGroup_SkillsList_Card({ skillGroupId, skillPackageId }: { skillGroupId: string, skillPackageId: string }) {
+export function AdminModule_SkillGroup_SkillsList({ skillGroupId, skillPackageId }: { skillGroupId: string, skillPackageId: string }) {
     
 
     const skillsQuery = useSuspenseQuery(trpc.skills.getSkills.queryOptions({ skillGroupId }))
@@ -44,7 +44,7 @@ export function SkillGroup_SkillsList_Card({ skillGroupId, skillPackageId }: { s
         }),
         columnHelper.accessor('name', {
             header: 'Skill',
-            cell: ctx => <TextLink to={Paths.admin.skillPackage(skillPackageId).skill(ctx.row.original.skillId)}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.adminModule.skillPackage(skillPackageId).skill(ctx.row.original.skillId)}>{ctx.getValue()}</TextLink>,
             enableGrouping: false,
             enableHiding: false
         }),

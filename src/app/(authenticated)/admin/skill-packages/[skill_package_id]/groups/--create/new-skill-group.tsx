@@ -29,7 +29,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function NewSkillGroupDetailsCard({ skillPackageId }: { skillPackageId: string }) {
+export function AdminModule_NewSkillGroup_Form({ skillPackageId }: { skillPackageId: string }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -68,7 +68,7 @@ export function NewSkillGroupDetailsCard({ skillPackageId }: { skillPackageId: s
             })
 
             queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter({ skillPackageId }))
-            router.push(Paths.admin.skillPackage(skillPackageId).group(result.skillGroupId).href)
+            router.push(Paths.adminModule.skillPackage(skillPackageId).group(result.skillGroupId).href)
         }
     }))
 

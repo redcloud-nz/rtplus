@@ -12,21 +12,21 @@ import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
 
-import { NewSkillPackageDetailsCard } from './new-skill-package'
+import { AdminModile_NewSkillPackage_Form } from './new-skill-package'
 
 
 export const metadata: Metadata = {
     title: 'Create Skill Package'
 }
 
-export default async function CreateSkillPackagePage() { 
+export default async function AdminModile_NewSkillPackage_Page() { 
     
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.admin,
-                Paths.admin.skillPackages,
-                Paths.admin.skillPackages.create
+                Paths.adminModule,
+                Paths.adminModule.skillPackages,
+                Paths.adminModule.skillPackages.create
             ]}
         />
         <AppPageContent variant="container">
@@ -35,7 +35,7 @@ export default async function CreateSkillPackagePage() {
             </PageHeader>
 
             <Boundary>
-                <NewSkillPackageDetailsCard />
+                <AdminModile_NewSkillPackage_Form />
             </Boundary>
         </AppPageContent>
     </AppPage>

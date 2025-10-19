@@ -43,7 +43,7 @@ import { trpc } from '@/trpc/client'
  * @param skillGroupId The ID of the skill group to display.
  * @param skillPackageId The ID of the skill package that the skill group belongs to.
  */
-export function SkillGroup_Details_Card({ skillGroupId, skillPackageId }: { skillGroupId: string, skillPackageId: string }) {
+export function AdminModule_SkillGroupDetails({ skillGroupId, skillPackageId }: { skillGroupId: string, skillPackageId: string }) {
 
     
     const { data: skillGroup } = useSuspenseQuery(trpc.skills.getGroup.queryOptions({ skillGroupId, skillPackageId }))
@@ -91,7 +91,7 @@ export function SkillGroup_Details_Card({ skillGroupId, skillPackageId }: { skil
                             label="Skill Package"
                             control={
                                 <DisplayValue>
-                                    <TextLink to={Paths.admin.skillPackage(skillGroup.skillPackageId)}>
+                                    <TextLink to={Paths.adminModule.skillPackage(skillGroup.skillPackageId)}>
                                         {skillGroup.skillPackage.name}
                                     </TextLink>
                                 </DisplayValue>
@@ -188,7 +188,7 @@ function UpdateSkillGroupForm({ onClose, skillGroup, skillPackage }: { onClose: 
                         label="Skill Package"
                         control={
                             <DisplayValue>
-                                <TextLink to={Paths.admin.skillPackage(skillPackage.skillPackageId)}>
+                                <TextLink to={Paths.adminModule.skillPackage(skillPackage.skillPackageId)}>
                                     {skillPackage.name}
                                 </TextLink>
                             </DisplayValue>
@@ -263,7 +263,7 @@ function DeleteSkillGroupDialog({ skillGroup }: { skillGroup: SkillGroupData }) 
 
             queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter())
             queryClient.invalidateQueries(trpc.skills.getGroup.queryFilter({ skillGroupId: skillGroup.skillGroupId }))
-            router.push(Paths.admin.skillPackage(skillGroup.skillPackageId).href)
+            router.push(Paths.adminModule.skillPackage(skillGroup.skillPackageId).href)
         }
     }))
 

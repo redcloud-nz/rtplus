@@ -38,7 +38,7 @@ import { trpc } from '@/trpc/client'
  * It allows adding, editing, and deleting team memberships.
  * @param personId The ID of the person for whom to display team memberships.
  */
-export function Person_TeamMemberships_List({ person }: { person: PersonData }) {
+export function AdminModule_Person_TeamMembershipList({ person }: { person: PersonData }) {
     
     const queryClient = useQueryClient()
     const { toast } = useToast()
@@ -128,7 +128,7 @@ export function Person_TeamMemberships_List({ person }: { person: PersonData }) 
                     )
                 })
                 .otherwise(() => 
-                    <TextLink to={Paths.admin.person(person.personId).teamMembership(ctx.row.original.teamId)}>{ctx.getValue()}</TextLink>
+                    <TextLink to={Paths.adminModule.person(person.personId).teamMembership(ctx.row.original.teamId)}>{ctx.getValue()}</TextLink>
                 )
             ),
             enableGrouping: false,
@@ -239,13 +239,13 @@ export function Person_TeamMemberships_List({ person }: { person: PersonData }) 
         getExpandedRowModel: getExpandedRowModel(),
         getRowId: (row) => row.teamId,
         createEmptyRow: () => ({
-            teamId: TeamId.EMPTY,
+            teamId: '' as TeamId,
             personId: person.personId,
             properties: {},
             tags: [],
             status: 'Active',
             team: {
-                teamId: TeamId.EMPTY,
+                teamId: '' as TeamId,
                 name: '',
                 status: 'Active'
             }

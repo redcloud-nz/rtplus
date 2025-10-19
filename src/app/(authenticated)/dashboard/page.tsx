@@ -36,20 +36,20 @@ export default async function Root_Dashboard_Page() {
                 </div>
                 <DashboardCardList>
                     <DashboardCard
-                        linksTo={Paths.admin}
+                        linksTo={Paths.adminModule}
                         icon={<span className="text-emerald-700 bg-emerald-50"><AdminModuleIcon aria-hidden="true" className="size-6" /></span>}
                         description="Administrative tools for managing your organization."
                     />
                     <ModuleOnly module="d4h">
                         <DashboardCard
-                            linksTo={Paths.d4h}
+                            linksTo={Paths.d4hModule}
                             icon={<span className="text-indigo-700 bg-indigo-50"><D4HModuleIcon aria-hidden="true" className="size-6" /></span>}
                             description="Alternate views of the data stored in D4H Team Manager. Unified across multiple teams."
                         />
                     </ModuleOnly>
                     <ModuleOnly module="skills">
                         <DashboardCard
-                            linksTo={Paths.skills}
+                            linksTo={Paths.skillsModule}
                             icon={<span className="text-sky-700 bg-sky-50"><SkillsModuleIcon aria-hidden="true" className="size-6" /></span>}
                             description="Manage, assess, and report skills for your team."
                         />

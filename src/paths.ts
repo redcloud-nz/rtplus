@@ -43,7 +43,7 @@ export const about = {
     href: '/about',
 } as const
 
-export const admin = {
+export const adminModule = {
 
     label: 'Admin',
     href: '/admin',
@@ -156,9 +156,35 @@ export const admin = {
     }
 } as const
 
-export const createTeam = {
-    label: 'Create Team',
-    href: '/create-team',
+export const cardsModule = {
+    label: 'Reference Cards',
+    href: '/cards'
+} as const
+
+export const d4hModule = {
+    label: 'D4H Integration',
+    href: '/d4h',
+    activities: {
+        label: 'Activities',
+        href: '/d4h/activities',
+        bgColor: 'bg-teal-400'
+    },
+    calendar: {
+        label: 'Calendar',
+        href: '/d4h/calendar',
+        bgColor: 'bg-yellow-400'
+    },
+    
+    equipment: {
+        label: 'Equipment',
+        href: '/d4h/equipment',
+        bgColor: 'bg-red-400'
+    },
+    personnel: {
+        label: 'Personnel',
+        href: '/d4h/personnel',
+        bgColor: 'bg-blue-400'
+    },
 } as const
 
 export const dashboard = {
@@ -166,35 +192,36 @@ export const dashboard = {
     href: '/dashboard',
 }
 
-export const fog = {
+export const fogModule = {
     label: 'Field Operations Guide',
     href: '/fog',
 } as const
 
+export const notesModule = {
+    label: 'Notes',
+    href: '/notes',
 
-export const referenceCards = {
-    label: 'Reference Cards',
-    href: '/cards'
-} as const
-
-export const selectTeam = {
-    label: "Select Team",
-    href: '/select-team'
-} as const
-
-export const system = {
-    label: 'System',
-    href: '/system',
-
-    flags: {
-        label: 'Flags',
-        href: '/system/flags',
+    create: {
+        label: 'Create',
+        href: '/notes/--create',
     },
 
-    
+    note: (noteId: string) => ({
+        label: `Note ${noteId}`,
+        href: `/notes/${noteId}`,
+    } as const),
 }
 
-export const skills = {
+export const onboarding = {
+    
+    'chooseOrganization': {
+        label: 'Choose Organization',
+        href: '/onboarding/choose-organization',
+    },
+}
+
+
+export const skillsModule = {
     label: 'Skills',
     href: '/skills',
 
@@ -250,32 +277,6 @@ export const skills = {
     },
 } as const
 
-
-export const d4h = {
-    label: 'D4H Integration',
-    href: '/d4h',
-    activities: {
-        label: 'Activities',
-        href: '/d4h/activities',
-        bgColor: 'bg-teal-400'
-    },
-    calendar: {
-        label: 'Calendar',
-        href: '/d4h/calendar',
-        bgColor: 'bg-yellow-400'
-    },
-    
-    equipment: {
-        label: 'Equipment',
-        href: '/d4h/equipment',
-        bgColor: 'bg-red-400'
-    },
-    personnel: {
-        label: 'Personnel',
-        href: '/d4h/personnel',
-        bgColor: 'bg-blue-400'
-    },
-} as const
 
 //  /------------------------------\
 //  |           Account            |

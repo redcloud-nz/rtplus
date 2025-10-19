@@ -15,9 +15,9 @@ export default function ImportPersonnel() {
     return <AppPage>
         <AppPageBreadcrumbs 
             breadcrumbs={[
-                Paths.admin,
-                Paths.admin.personnel,
-                Paths.admin.personnel.import
+                Paths.adminModule,
+                Paths.adminModule.personnel,
+                Paths.adminModule.personnel.import
             ]} />
         <NotImplemented />
     </AppPage>

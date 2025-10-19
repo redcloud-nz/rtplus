@@ -11,10 +11,10 @@ import { TRPCError } from '@trpc/server'
 import { CompetenceLevel, isPass } from '@/lib/competencies'
 import { diffObject } from '@/lib/diff'
 import { toPersonData, personSchema, personRefSchema, toPersonRef, PersonId } from '@/lib/schemas/person'
-import { toSkillData, skillSchema } from '@/lib/schemas/skill'
-import { toSkillCheckData, skillCheckSchema } from '@/lib/schemas/skill-check'
-import { toSkillCheckSessionData, skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
-import { zodNanoId16, zodNanoId8 } from '@/lib/validation'
+import { toSkillData, skillSchema, SkillId } from '@/lib/schemas/skill'
+import { toSkillCheckData, skillCheckSchema, SkillCheckId } from '@/lib/schemas/skill-check'
+import { toSkillCheckSessionData, skillCheckSessionSchema, SkillCheckSessionId } from '@/lib/schemas/skill-check-session'
+import { zodNanoId8 } from '@/lib/validation'
 
 import { createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
 import { Messages } from '../messages'
@@ -22,7 +22,7 @@ import { Messages } from '../messages'
 
 
 const sessionProcedure = orgProcedure
-    .input(z.object({ sessionId: zodNanoId8 }))
+    .input(z.object({ sessionId: SkillCheckSessionId.schema }))
     .use(async ({ ctx, input, next }) => {
         const session = await ctx.prisma.skillCheckSession.findUnique({
             where: { sessionId: input.sessionId, orgId: ctx.auth.activeOrg.orgId },
@@ -50,7 +50,7 @@ export const skillChecksRouter = createTRPCRouter({
      */
     addSessionAssessee: sessionProcedure
         .input(z.object({
-            assesseeId: zodNanoId8
+            assesseeId: PersonId.schema
         }))
         .output(z.object({
             session: skillCheckSessionSchema,
@@ -103,7 +103,7 @@ export const skillChecksRouter = createTRPCRouter({
      */
     addSessionAssessor: sessionProcedure
         .input(z.object({
-            assessorId: zodNanoId8
+            assessorId: PersonId.schema
         }))
         .output(z.object({
             session: skillCheckSessionSchema,
@@ -156,8 +156,8 @@ export const skillChecksRouter = createTRPCRouter({
      */
     addSessionSkill: sessionProcedure
         .input(z.object({
-            sessionId: zodNanoId8,
-            skillId: zodNanoId8
+            sessionId: SkillCheckSessionId.schema,
+            skillId: SkillId.schema
         }))
         .output(z.object({
             session: skillCheckSessionSchema,
@@ -279,7 +279,7 @@ export const skillChecksRouter = createTRPCRouter({
      * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist in the active team.
      */
     deleteSession: orgAdminProcedure
-        .input(z.object({ sessionId: zodNanoId8 }))
+        .input(z.object({ sessionId: SkillCheckSessionId.schema }))
         .output(skillCheckSessionSchema)
         .mutation(async ({ ctx, input: { sessionId } }) => {
             const session = await ctx.prisma.skillCheckSession.findUnique({
@@ -303,8 +303,8 @@ export const skillChecksRouter = createTRPCRouter({
      */
     deleteSessionCheck: sessionProcedure
         .input(z.object({
-            sessionId: zodNanoId8,
-            skillCheckId: zodNanoId16
+            sessionId: SkillCheckSessionId.schema,
+            skillCheckId: SkillCheckId.schema
         }))
         .output(z.object({
             session: skillCheckSessionSchema,
@@ -418,7 +418,7 @@ export const skillChecksRouter = createTRPCRouter({
      * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist.
      */
     getSessionAssignedSkillIds: sessionProcedure
-        .output(z.array(zodNanoId8))
+        .output(z.array(SkillId.schema))
         .query(async ({ ctx, input: { sessionId } }) => {
             
             const session = await ctx.prisma.skillCheckSession.findUnique({
@@ -503,7 +503,7 @@ export const skillChecksRouter = createTRPCRouter({
      */
     getSessionChecks: sessionProcedure
         .input(z.object({
-            assessorId: z.union([zodNanoId8, z.literal('me')]).optional()
+            assessorId: z.union([PersonId.schema, z.literal('me')]).optional()
         }))
         .output(z.array(skillCheckSchema))
         .query(async ({ ctx, input: { sessionId, assessorId } }) => {
@@ -602,9 +602,9 @@ export const skillChecksRouter = createTRPCRouter({
      */
     getSkillChecks: orgProcedure
         .input(z.object({
-            assesseeIds: z.array(zodNanoId8).optional(),
-            assessorIds: z.array(zodNanoId8).optional(),
-            skillIds: z.array(zodNanoId8).optional(),
+            assesseeIds: z.array(PersonId.schema).optional(),
+            assessorIds: z.array(PersonId.schema).optional(),
+            skillIds: z.array(SkillId.schema).optional(),
         }))
         .output(z.array(skillCheckSchema.extend({ assessee: personRefSchema, assessor: personRefSchema, skill: skillSchema })))
         .query(async ({ ctx, input }) => {
@@ -751,7 +751,7 @@ export const skillChecksRouter = createTRPCRouter({
      */
     removeSessionSkill: sessionProcedure
         .input(z.object({
-            skillId: zodNanoId8
+            skillId: SkillId.schema
         }))
         .output(z.object({
             session: skillCheckSessionSchema,
@@ -1092,8 +1092,8 @@ export const skillChecksRouter = createTRPCRouter({
      */
     updateSessionSkills: sessionProcedure
         .input(z.object({
-            additions: z.array(zodNanoId8),
-            removals: z.array(zodNanoId8)
+            additions: z.array(SkillId.schema),
+            removals: z.array(SkillId.schema)
         }))
         .output(z.object({
             addCount: z.number(),

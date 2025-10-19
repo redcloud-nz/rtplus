@@ -12,7 +12,6 @@ import { Boundary } from '@/components/boundary'
 import { ExperimentalFeaturePopup } from '@/components/ui/experimental-feature-popup'
 import { GitHubIssueLink } from '@/components/ui/link'
 import * as Paths from '@/paths'
-import { getTeamFromParams } from '@/server/data/team'
 
 
 
@@ -21,8 +20,7 @@ import { Team_Skills_Card } from './team-skills'
 export const metadata = { title: 'Team Skills' }
 
 
-export default async function Team_Skills_Report_Page(props: { params: Promise<{ team_slug: string }> }) {
-    const team = await getTeamFromParams(props.params)
+export default async function Team_Skills_Report_Page() {
 
     return <AppPage
         rightControls={<ExperimentalFeaturePopup>
@@ -31,15 +29,14 @@ export default async function Team_Skills_Report_Page(props: { params: Promise<{
     >
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.org(team),
-                Paths.org(team).skills,
-                Paths.org(team).skills.reports,
-                Paths.org(team).skills.reports.teamSkills
+                Paths.skillsModule,
+                Paths.skillsModule.reports,
+                Paths.skillsModule.reports.teamSkills
             ]}
         />
         <AppPageContent variant="full">
             <Boundary>
-                <Team_Skills_Card teamId={team.teamId}/>
+                <Team_Skills_Card/>
             </Boundary>
         </AppPageContent>
     </AppPage>

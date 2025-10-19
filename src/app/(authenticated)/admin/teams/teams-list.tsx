@@ -30,7 +30,7 @@ import { trpc } from '@/trpc/client'
 
 type RowData = TeamData & { _count: { teamMemberships: number } }
 
-export function TeamsList() {
+export function AdminModile_TeamsList() {
 
     const teamsQuery = useSuspenseQuery(trpc.teams.getTeams.queryOptions({}))
 
@@ -48,7 +48,7 @@ export function TeamsList() {
     }),
     columnHelper.accessor('name', {
         header: 'Name',
-        cell: ctx => <TextLink to={Paths.admin.team(ctx.row.original.teamId)}>{ctx.getValue()}</TextLink>,
+        cell: ctx => <TextLink to={Paths.adminModule.team(ctx.row.original.teamId)}>{ctx.getValue()}</TextLink>,
         enableHiding: false
     }),
     columnHelper.accessor('_count.teamMemberships', {
@@ -108,7 +108,7 @@ export function TeamsList() {
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button variant="ghost" size="icon" asChild>
-                                    <Link to={Paths.admin.teams.create}>
+                                    <Link to={Paths.adminModule.teams.create}>
                                         <PlusIcon />
                                     </Link>
                                 </Button>

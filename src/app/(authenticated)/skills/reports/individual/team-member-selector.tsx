@@ -6,10 +6,10 @@
 
 import { useRouter } from 'next/navigation'
 
-import { TeamMemberPicker } from '@/components/controls/team-member-picker'
+import { PersonPicker } from '@/components/controls/person-picker'
 
 
-export function IndividualReport_TeamMemberSelector({ personId, teamId }: { personId?: string, teamId: string }) {
+export function IndividualReport_TeamMemberSelector({ personId }: { personId?: string }) {
     const router = useRouter()
 
 
@@ -20,11 +20,10 @@ export function IndividualReport_TeamMemberSelector({ personId, teamId }: { pers
     }
 
     return <>
-        <TeamMemberPicker
-            teamId={teamId}
+        <PersonPicker
             value={personId ?? ''}
             onValueChange={(newMember) => handleChange(newMember.personId)}
-            placeholder="Select a team member..."
+            placeholder="Select a person..."
         />
     </>
 }

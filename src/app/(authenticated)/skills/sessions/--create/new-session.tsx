@@ -16,36 +16,34 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { DatePicker } from '@/components/controls/date-picker'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DisplayValue } from '@/components/ui/display-value'
-import { Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 
-import { useNanoId8 } from '@/hooks/use-id'
 import { useToast } from '@/hooks/use-toast'
-import { skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
-import { TeamData } from '@/lib/schemas/team'
+import { SkillCheckSessionId, skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
 
-const formSchema = skillCheckSessionSchema.pick({ sessionId: true, teamId: true, name: true, date: true })
+const formSchema = skillCheckSessionSchema.pick({ sessionId: true, name: true, date: true, notes: true })
 type FormData = z.infer<typeof formSchema>
 
-export function Team_Skills_NewSession_Card({ team }: { team: TeamData }) {
+export function SkillsModule_NewSession_Form() {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
 
-    const sessionId = useNanoId8()
+    const sessionId = SkillCheckSessionId.create()
 
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             sessionId,
-            teamId: team.teamId,
             name: '',
             date: formatISO(new Date(), { representation: 'date' }),
+            notes: ""
         }
     })
 
@@ -68,7 +66,7 @@ export function Team_Skills_NewSession_Card({ team }: { team: TeamData }) {
                 title: "Session created",
                 description: `The session ${result.name} has been created successfully.`,
             })
-            router.push(Paths.org(team).skills.session(sessionId).href)
+            router.push(Paths.skillsModule.session(sessionId).href)
         }
     }))
 
@@ -87,15 +85,6 @@ export function Team_Skills_NewSession_Card({ team }: { team: TeamData }) {
                                 label="Session ID"
                                 control={<DisplayValue>{field.value}</DisplayValue>}
                                 description="The unique identifier for this session. It is generated automatically."
-                            />}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="teamId"
-                            render={({ field }) => <ToruGridRow
-                                label="Team"
-                                control={<DisplayValue>{team.name}</DisplayValue>}
-                                description="The team to which this session belongs."
                             />}
                         />
                         <FormField

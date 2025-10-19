@@ -27,15 +27,15 @@ import { SkillCheckGeneratorConfig_Card, SkillCheckGeneratorConfigData } from '.
 
 
 
-export function Team_Member_Skills_Card({ personId, teamId }: { personId: string, teamId: string }) {
+export function Team_Member_Skills_Card({ personId }: { personId: string }) {
 
     const [
         { data: availablePackages, refetch: refetchAvailablePackages }, 
         { data: teamMembers, refetch: refetchTeamMembers }
     ] = useSuspenseQueries({
         queries: [
-            trpc.skills.getAvailablePackages.queryOptions({ teamId }),
-            trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId })
+            trpc.skills.getAvailablePackages.queryOptions({  }),
+            trpc.teamMemberships.getTeamMemberships.queryOptions({ })
         ]
     })
 

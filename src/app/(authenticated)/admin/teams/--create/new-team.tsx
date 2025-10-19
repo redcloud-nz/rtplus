@@ -28,7 +28,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function NewTeam_Card() {
+export function AdminModile_NewTeam_Form() {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -67,7 +67,7 @@ export function NewTeam_Card() {
             })
 
             queryClient.invalidateQueries(trpc.teams.getTeams.queryFilter())
-            router.push(Paths.admin.team(teamId).href)
+            router.push(Paths.adminModule.team(teamId).href)
         }
     }))
 

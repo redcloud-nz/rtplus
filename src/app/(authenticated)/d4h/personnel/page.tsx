@@ -23,8 +23,8 @@ export default async function D4HPersonnel_Page() {
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
-                Paths.d4h,
-                Paths.d4h.personnel
+                Paths.d4hModule,
+                Paths.d4hModule.personnel
         ]}/>
         <AppPageContent>
             <PageHeader>

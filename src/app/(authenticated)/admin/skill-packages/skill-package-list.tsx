@@ -25,7 +25,7 @@ import * as Paths from '@/paths'
 import { trpc, WithCounts } from '@/trpc/client'
 
 
-export function SkillPackagesList() {
+export function AdminModule_SkillPackagesList() {
     
 
     const skillPackagesQuery = useSuspenseQuery(trpc.skills.getPackages.queryOptions({ owner: 'org' }))
@@ -44,7 +44,7 @@ export function SkillPackagesList() {
         }),
         columnHelper.accessor('name', {
             header: 'Name',
-            cell: ctx => <TextLink to={Paths.admin.skillPackage(ctx.row.original.skillPackageId)}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.adminModule.skillPackage(ctx.row.original.skillPackageId)}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('_count.skillGroups', {
@@ -105,7 +105,7 @@ export function SkillPackagesList() {
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button variant="ghost" size="icon" asChild>
-                                    <Link to={Paths.admin.skillPackages.create}>
+                                    <Link to={Paths.adminModule.skillPackages.create}>
                                         <PlusIcon />
                                     </Link>
                                 </Button>

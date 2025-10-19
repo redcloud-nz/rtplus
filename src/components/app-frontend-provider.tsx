@@ -16,9 +16,9 @@ import { SidebarProvider } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/toaster'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
-import { getQueryClient } from '@/trpc/client'
-import { initUser } from '@/server/init-user'
 import { AppContextProvider } from '@/hooks/use-app-context'
+import { initUser } from '@/server/init-user'
+import { getQueryClient } from '@/trpc/client'
 
 
 export type FrontendProviderProps = Readonly<{
@@ -59,7 +59,7 @@ export function AppFrontendProvider({ children }: FrontendProviderProps) {
                 })
         }
 
-    }, [isOrgLoaded, isUserLoaded, organization, user])
+    }, [queryClient, isOrgLoaded, isUserLoaded, organization, user])
 
     return <QueryClientProvider client={queryClient}>
         <SidebarProvider>

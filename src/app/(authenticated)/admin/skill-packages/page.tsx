@@ -16,18 +16,18 @@ import { Link } from '@/components/ui/link'
 
 import * as Paths from '@/paths'
 
-import { SkillPackagesList } from './skill-package-list'
+import { AdminModule_SkillPackagesList } from './skill-package-list'
 
 
 export const metadata = { title: "Skill Packages" }
 
-export default async function SkillPackagesList_Page() {
+export default async function AdminModule_SkillPackagesList_Page() {
 
     return <AppPage>
         <AppPageBreadcrumbs 
             breadcrumbs={[
-                Paths.admin, 
-                Paths.admin.skillPackages,
+                Paths.adminModule, 
+                Paths.adminModule.skillPackages,
             ]}
         />
         <AppPageContent variant="container">
@@ -36,7 +36,7 @@ export default async function SkillPackagesList_Page() {
                 <PageControls>
                     <Protect role="org:admin">
                         <Button variant="ghost" size="icon" asChild>
-                            <Link to={Paths.admin.skillPackages.import}>
+                            <Link to={Paths.adminModule.skillPackages.import}>
                                 <ImportIcon/>
                             </Link>
                         </Button>
@@ -46,7 +46,7 @@ export default async function SkillPackagesList_Page() {
             </PageHeader>
 
             <Boundary>
-                <SkillPackagesList/>
+                <AdminModule_SkillPackagesList/>
             </Boundary>
         </AppPageContent>
     </AppPage>

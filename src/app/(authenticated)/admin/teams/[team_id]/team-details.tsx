@@ -21,7 +21,7 @@ import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle 
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTriggerButton } from '@/components/ui/dialog'
 import { DisplayValue } from '@/components/ui/display-value'
 import { Form, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
-import { Input, SlugInput } from '@/components/ui/input'
+import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -38,7 +38,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function TeamDetails_Card({ teamId }: { teamId: string }) {
+export function AdminModule_TeamDetails({ teamId }: { teamId: string }) {
     
     const { data: team } = useSuspenseQuery(trpc.teams.getTeam.queryOptions({ teamId }))
 
@@ -217,7 +217,7 @@ function DeleteTeamDialog({ team }: { team: TeamData }) {
                 description: <>The team <ObjectName>{result.name}</ObjectName> has been deleted.</>,
             })
             setOpen(false)
-            router.push(Paths.admin.teams.href)
+            router.push(Paths.adminModule.teams.href)
 
             queryClient.invalidateQueries(trpc.teams.getTeams.queryFilter())
             queryClient.setQueryData(trpc.teams.getTeam.queryKey({ teamId: team.teamId }), undefined)

@@ -16,7 +16,7 @@ import { CompetenceLevel, CompetenceLevelTerms } from '@/lib/competencies'
 
 
 
-export function Team_Skills_Session_Review_Card({ session }: { session: SkillCheckSessionData }) {
+export function SkillsModule_SessionReview_Card({ session }: { session: SkillCheckSessionData }) {
 
     const [
         { data: assignedAssessees },

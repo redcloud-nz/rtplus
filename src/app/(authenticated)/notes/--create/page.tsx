@@ -1,6 +1,8 @@
 /*
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
+ * 
+ * /notes/--create
 */
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
@@ -11,9 +13,7 @@ import { NotImplemented } from '@/components/nav/errors'
 import { notesEnabledFlag } from '@/lib/flags'
 import * as Paths from '@/paths'
 
-import { getTeamFromParams } from '@/server/data/team'
-
-import { Team_NewNote_Card } from './team-new-note'
+import { NotesModule_NewNote_Form } from './new-note'
 
 
 
@@ -21,16 +21,14 @@ export const metadata = {
     title: 'Create - Team Notes',
 }
 
-export default async function Team_NewNote_Page(props: { params: Promise<{ team_slug: string }> }) {
-    const team = await getTeamFromParams(props.params)
+export default async function NotesModule_NewNote_Page() {
 
     const notesEnabled = await notesEnabledFlag()
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
-            Paths.org(team),
-            Paths.org(team).notes,
-            Paths.org(team).notes.create
+            Paths.notesModule,
+            Paths.notesModule.create
         ]}/>
         <Show 
             when={notesEnabled}
@@ -41,7 +39,7 @@ export default async function Team_NewNote_Page(props: { params: Promise<{ team_
                     <PageTitle>Create Team Note</PageTitle>
                 </PageHeader>
                 <Boundary>
-                    <Team_NewNote_Card teamId={team.teamId} />
+                    <NotesModule_NewNote_Form/>
                 </Boundary>
             </AppPageContent>
         </Show>        

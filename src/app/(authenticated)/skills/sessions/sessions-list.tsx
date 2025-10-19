@@ -22,15 +22,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 import { useIsMobile } from '@/hooks/use-mobile'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
-import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
+export function SkillModule_SkillCheckSessionsList() {
 
-export function Team_Skills_SessionList_Card({ team }: { team: TeamData }) {
-
-    const sessionsQuery = useSuspenseQuery(trpc.skillChecks.getSessions.queryOptions({ teamId: team.teamId }))
+    const sessionsQuery = useSuspenseQuery(trpc.skillChecks.getSessions.queryOptions({}))
 
     async function handleRefresh() {
         await sessionsQuery.refetch()
@@ -41,7 +39,7 @@ export function Team_Skills_SessionList_Card({ team }: { team: TeamData }) {
     const columns = useMemo(() => defineColumns<SkillCheckSessionData>(columnHelper => [
         columnHelper.accessor('name', {
             header: 'Name',
-            cell: ctx => <TextLink to={Paths.org(team).skills.session(ctx.row.original.sessionId)}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.skillsModule.session(ctx.row.original.sessionId)}>{ctx.getValue()}</TextLink>,
             enableGrouping: false,
             enableHiding: false,
             enableSorting: true,
@@ -53,38 +51,38 @@ export function Team_Skills_SessionList_Card({ team }: { team: TeamData }) {
             enableHiding: false,
             enableSorting: true,
         }),
-        columnHelper.accessor('_count.assessees', {
-            id: 'assessees',
-            header: 'Assessees',
-            cell: ctx => ctx.getValue(),
-            enableGrouping: false,
-            enableHiding: true,
-            enableSorting: true,
-        }),
-        columnHelper.accessor('_count.assessors', {
-            id: 'assessors',
-            header: 'Assessors',
-            cell: ctx => ctx.getValue(),
-            enableGrouping: false,
-            enableHiding: true,
-            enableSorting: true,
-        }),
-        columnHelper.accessor('_count.skills', {
-            id: 'skills',
-            header: 'Skills',
-            cell: ctx => ctx.getValue(),
-            enableGrouping: false,
-            enableHiding: true,
-            enableSorting: true,
-        }),
-        columnHelper.accessor('_count.checks', {
-            id: 'checks',
-            header: 'Checks',
-            cell: ctx => ctx.getValue(),
-            enableGrouping: false,
-            enableHiding: true,
-            enableSorting: true,
-        }),
+        // columnHelper.accessor('_count.assessees', {
+        //     id: 'assessees',
+        //     header: 'Assessees',
+        //     cell: ctx => ctx.getValue(),
+        //     enableGrouping: false,
+        //     enableHiding: true,
+        //     enableSorting: true,
+        // }),
+        // columnHelper.accessor('_count.assessors', {
+        //     id: 'assessors',
+        //     header: 'Assessors',
+        //     cell: ctx => ctx.getValue(),
+        //     enableGrouping: false,
+        //     enableHiding: true,
+        //     enableSorting: true,
+        // }),
+        // columnHelper.accessor('_count.skills', {
+        //     id: 'skills',
+        //     header: 'Skills',
+        //     cell: ctx => ctx.getValue(),
+        //     enableGrouping: false,
+        //     enableHiding: true,
+        //     enableSorting: true,
+        // }),
+        // columnHelper.accessor('_count.checks', {
+        //     id: 'checks',
+        //     header: 'Checks',
+        //     cell: ctx => ctx.getValue(),
+        //     enableGrouping: false,
+        //     enableHiding: true,
+        //     enableSorting: true,
+        // }),
         columnHelper.accessor('sessionStatus', {
             id: 'status',
             header: 'Status',
@@ -123,7 +121,7 @@ export function Team_Skills_SessionList_Card({ team }: { team: TeamData }) {
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button variant="ghost" size="icon" asChild>
-                                <Link to={Paths.org(team).skills.sessions.create}>
+                                <Link to={Paths.skillsModule.sessions.create}>
                                     <PlusIcon/>
                                 </Link>
                             </Button>

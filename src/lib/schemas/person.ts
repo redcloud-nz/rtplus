@@ -17,9 +17,7 @@ export type PersonId = string & z.BRAND<'PersonId'>
 export const PersonId = {
     schema: z.string().length(8).regex(/^[a-zA-Z0-9]+$/, "8 character Person ID expected.").brand<'PersonId'>(),
 
-    create: () => nanoId8() as PersonId,
-
-    EMPTY: '' as PersonId,
+    create: () => PersonId.schema.parse(nanoId8()),
 } as const
 
 

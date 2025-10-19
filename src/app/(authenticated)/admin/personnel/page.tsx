@@ -11,19 +11,19 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 
-import { PersonnelList } from './personnel-list' 
+import { AdminModule_PersonnelList } from './personnel-list' 
 
 
 export const metadata: Metadata = { title: "Personnel" }
 
 
-export default async function PersonnelList_Page() {
+export default async function AdminModule_PersonnelList_Page() {
 
     return <AppPage>
         <AppPageBreadcrumbs 
             breadcrumbs={[
-                Paths.admin, 
-                Paths.admin.personnel
+                Paths.adminModule, 
+                Paths.adminModule.personnel
             ]}
         />
         <AppPageContent variant="container">
@@ -31,7 +31,7 @@ export default async function PersonnelList_Page() {
                 <PageTitle>Personnel</PageTitle>
             </PageHeader>
             <Boundary>
-                <PersonnelList/>
+                <AdminModule_PersonnelList/>
             </Boundary>
             
         </AppPageContent>

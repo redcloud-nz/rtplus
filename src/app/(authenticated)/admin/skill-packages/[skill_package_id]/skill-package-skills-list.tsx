@@ -26,7 +26,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function SkillPackage_SkillsList({ skillPackageId }: { skillPackageId: string }) {
+export function AdminModule_SkillPackage_SkillsList({ skillPackageId }: { skillPackageId: string }) {
 
     const skillGroupsQuery = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ skillPackageId }))
     const skillsQuery = useSuspenseQuery(trpc.skills.getSkills.queryOptions({ skillPackageId }))
@@ -51,13 +51,13 @@ export function SkillPackage_SkillsList({ skillPackageId }: { skillPackageId: st
         }),
         columnHelper.accessor('name', {
             header: 'Skill',
-            cell: ctx => <TextLink to={Paths.admin.skillPackage(skillPackageId).skill(ctx.row.original.skillId)}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.adminModule.skillPackage(skillPackageId).skill(ctx.row.original.skillId)}>{ctx.getValue()}</TextLink>,
             enableGrouping: false,
             enableHiding: false
         }),
          columnHelper.accessor('skillGroup.name', {
             header: 'Group',
-            cell: ctx => <TextLink to={Paths.admin.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId)}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.adminModule.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId)}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('description', {
@@ -112,7 +112,7 @@ export function SkillPackage_SkillsList({ skillPackageId }: { skillPackageId: st
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button variant="ghost" size="icon" asChild>
-                                    <Link to={Paths.admin.skillPackage(skillPackageId).skills.create}>
+                                    <Link to={Paths.adminModule.skillPackage(skillPackageId).skills.create}>
                                         <PlusIcon/>
                                     </Link>
                                     

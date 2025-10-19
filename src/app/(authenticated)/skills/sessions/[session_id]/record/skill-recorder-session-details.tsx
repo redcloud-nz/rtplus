@@ -10,11 +10,10 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { Heading } from '@/components/ui/typography'
 
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
-import { TeamData } from '@/lib/schemas/team'
 import { formatDate } from '@/lib/utils'
 import * as Paths from '@/paths'
 
-export function SkillRecorder_Session_Details({ session, belongsToOwnTeam }: { session: SkillCheckSessionData & { team: TeamData }, belongsToOwnTeam: boolean }) {
+export function SkillRecorder_Session_Details({ session }: { session: SkillCheckSessionData }) {
     
     return <ScrollArea style={{ height: `calc(100vh - var(--header-height) - 56px)` }}>
         <Heading level={4}>Session Details</Heading>
@@ -22,14 +21,9 @@ export function SkillRecorder_Session_Details({ session, belongsToOwnTeam }: { s
             <ToruGridRow 
                 label="Session ID" 
                 control={<DisplayValue>
-                    {belongsToOwnTeam ? <TextLink to={Paths.org(session.team).skills.session(session.sessionId)}>{session.sessionId}</TextLink> : session.sessionId}
+                    <TextLink to={Paths.skillsModule.session(session.sessionId)}>{session.sessionId}</TextLink>
                 </DisplayValue>
                 }
-            />
-            <ToruGridRow
-                label="Team"
-                control={<DisplayValue>{session.team.name}</DisplayValue>}
-                description="The team to which this session belongs."
             />
             <ToruGridRow 
                 label="Name" 

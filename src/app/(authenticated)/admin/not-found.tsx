@@ -13,7 +13,7 @@ import * as Paths from '@/paths'
 export default function AdminModule_NotFound() {
     return <AppPage>
         <AppPageBreadcrumbs
-            breadcrumbs={[Paths.admin]}
+            breadcrumbs={[Paths.adminModule]}
         />
         <NotFound/>
     </AppPage>

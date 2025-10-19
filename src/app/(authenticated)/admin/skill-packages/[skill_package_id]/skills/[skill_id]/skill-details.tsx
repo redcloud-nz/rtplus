@@ -45,7 +45,7 @@ import { trpc } from '@/trpc/client'
  * @param skillId The ID of the skill to display.
  * @param skillPackageId The ID of the skill package that the skill belongs to.
  */
-export function SkillDetailsCard({ skillId, skillPackageId }: { skillId: string, skillPackageId: string }) {
+export function AdminModule_SkillDetails({ skillId, skillPackageId }: { skillId: string, skillPackageId: string }) {
 
     
     const { data: skill } = useSuspenseQuery(trpc.skills.getSkill.queryOptions({ skillId, skillPackageId }))
@@ -90,7 +90,7 @@ export function SkillDetailsCard({ skillId, skillPackageId }: { skillId: string,
                             label="Skill Package"
                             control={
                                 <DisplayValue>
-                                    <TextLink to={Paths.admin.skillPackage(skill.skillPackageId)}>
+                                    <TextLink to={Paths.adminModule.skillPackage(skill.skillPackageId)}>
                                         {skill.skillPackage.name}
                                     </TextLink>
                                 </DisplayValue>
@@ -100,7 +100,7 @@ export function SkillDetailsCard({ skillId, skillPackageId }: { skillId: string,
                             label="Skill Group"
                             control={
                                 <DisplayValue>
-                                    <TextLink to={Paths.admin.skillPackage(skill.skillPackageId).group(skill.skillGroupId)}>
+                                    <TextLink to={Paths.adminModule.skillPackage(skill.skillPackageId).group(skill.skillGroupId)}>
                                         {skill.skillGroup.name}
                                     </TextLink>
                                 </DisplayValue>
@@ -198,7 +198,7 @@ function UpdateSkillForm({ onClose, skill, skillPackage, skillGroup }: { onClose
                         label="Skill Package"
                         control={
                             <DisplayValue>
-                                <TextLink to={Paths.admin.skillPackage(skill.skillPackageId)}>
+                                <TextLink to={Paths.adminModule.skillPackage(skill.skillPackageId)}>
                                     {skillPackage.name}
                                 </TextLink>
                             </DisplayValue>
@@ -212,7 +212,7 @@ function UpdateSkillForm({ onClose, skill, skillPackage, skillGroup }: { onClose
                         label="Skill Group"
                         control={
                             <DisplayValue>
-                                <TextLink to={Paths.admin.skillPackage(skill.skillPackageId).group(skill.skillGroupId)}>
+                                <TextLink to={Paths.adminModule.skillPackage(skill.skillPackageId).group(skill.skillGroupId)}>
                                     {skillGroup.name}
                                 </TextLink>
                             </DisplayValue>
@@ -307,7 +307,7 @@ function DeleteSkillDialog({ skill }: { skill: SkillData }) {
 
             queryClient.invalidateQueries(trpc.skills.getSkills.queryFilter())
             queryClient.invalidateQueries(trpc.skills.getSkill.queryFilter({ skillId: skill.skillId }))
-            router.push(Paths.admin.skillPackage(skill.skillPackageId).group(skill.skillGroupId).href)
+            router.push(Paths.adminModule.skillPackage(skill.skillPackageId).group(skill.skillGroupId).href)
         }
     }))
 

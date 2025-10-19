@@ -11,17 +11,17 @@ import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
 
-import { NewTeam_Card } from './new-team'
+import { AdminModile_NewTeam_Form } from './new-team'
 
 
-export default async function NewTeam_Page() { 
+export default async function AdminModule_NewTeam_Page() { 
     
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.admin, 
-                Paths.admin.teams,
-                Paths.admin.teams.create
+                Paths.adminModule, 
+                Paths.adminModule.teams,
+                Paths.adminModule.teams.create
             ]}
         />
         <AppPageContent variant="container">
@@ -30,7 +30,7 @@ export default async function NewTeam_Page() {
             </PageHeader>
 
             <Boundary>
-                <NewTeam_Card/>
+                <AdminModile_NewTeam_Form/>
             </Boundary>
         </AppPageContent>
        

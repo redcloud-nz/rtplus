@@ -30,13 +30,13 @@ export default async function AdminModule_Layout(props: LayoutProps<'/admin'>) {
     return <>
         <AppSidebar moduleName="admin">
             <NavSection>
-                <NavItem path={pick(Paths.admin, ['href', 'label'])} label="Dashboard" icon={<DashboardIcon/>}/>
-                <NavItem path={Paths.admin.personnel} icon={<PersonnelIcon/>}/>
-                <NavItem path={Paths.admin.settings} icon={<SettingsIcon/>}/>
+                <NavItem path={pick(Paths.adminModule, ['href', 'label'])} label="Dashboard" icon={<DashboardIcon/>}/>
+                <NavItem path={Paths.adminModule.personnel} icon={<PersonnelIcon/>}/>
+                <NavItem path={Paths.adminModule.settings} icon={<SettingsIcon/>}/>
                 <ModuleOnly module="skills">
-                    <NavItem path={Paths.admin.skillPackages} icon={<SkillsIcon/>}/>
+                    <NavItem path={Paths.adminModule.skillPackages} icon={<SkillsIcon/>}/>
                 </ModuleOnly>
-                <NavItem path={Paths.admin.teams} icon={<TeamsIcon/>}/>
+                <NavItem path={Paths.adminModule.teams} icon={<TeamsIcon/>}/>
             </NavSection>
         </AppSidebar>
         {props.children}

@@ -6,6 +6,7 @@
 'use client'
 
 import { useState } from 'react'
+import { z } from 'zod'
 
 import { useMutation, useQueryClient, useSuspenseQueries} from '@tanstack/react-query'
 
@@ -16,7 +17,7 @@ import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 import { useToast } from '@/hooks/use-toast'
-import { SkillData } from '@/lib/schemas/skill'
+import { SkillData, SkillId } from '@/lib/schemas/skill'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { SkillGroupData } from '@/lib/schemas/skill-group'
 import { SkillPackageData } from '@/lib/schemas/skill-package'
@@ -34,13 +35,13 @@ export function SkillRecorder_Session_Skills({ session }: { session: SkillCheckS
 
     const [{ data: availablePackages }, { data: assignedSkillIds }] = useSuspenseQueries({
         queries: [
-            trpc.skills.getAvailablePackages.queryOptions({ teamId: session.teamId }),
+            trpc.skills.getAvailablePackages.queryOptions({ }),
             trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ sessionId: session.sessionId })
         ]
     })
 
-    const [selectedSkills, setSelectedSkills] = useState<string[]>(assignedSkillIds)
-    const [changes, setChanges] = useState<{ added: string[], removed: string[] }>({ added: [], removed: [] })
+    const [selectedSkills, setSelectedSkills] = useState<SkillId[]>(assignedSkillIds)
+    const [changes, setChanges] = useState<{ added: SkillId[], removed: SkillId[] }>({ added: [], removed: [] })
 
     function handleReset() {
         setSelectedSkills(assignedSkillIds)
@@ -48,7 +49,11 @@ export function SkillRecorder_Session_Skills({ session }: { session: SkillCheckS
     }
 
     const mutation = useMutation(trpc.skillChecks.updateSessionSkills.mutationOptions({
-        async onMutate({ additions, removals }) {
+        async onMutate(data) {
+            const { additions, removals } = z.object({
+                additions: z.array(SkillId.schema),
+                removals: z.array(SkillId.schema)
+            }).parse(data)
             await queryClient.cancelQueries(queryFilter)
 
             const previousData = queryClient.getQueryData(queryKey)
@@ -71,7 +76,7 @@ export function SkillRecorder_Session_Skills({ session }: { session: SkillCheckS
         }
     }))
 
-    function handleCheckedChange(skillId: string): (checked: boolean) => void {
+    function handleCheckedChange(skillId: SkillId): (checked: boolean) => void {
         return (checked) => {
             if (checked) {
                 setSelectedSkills(prev => [...prev, skillId])
@@ -143,9 +148,9 @@ export function SkillRecorder_Session_Skills({ session }: { session: SkillCheckS
 
 interface SkillPackageSectionProps {
     pkg: SkillPackageData & { skills: SkillData[], skillGroups: SkillGroupData[] }
-    assignedSkills: string[]
-    selectedSkills: string[]
-    onSelectedChange: (skillId: string) => (checked: boolean) => void
+    assignedSkills: SkillId[]
+    selectedSkills: SkillId[]
+    onSelectedChange: (skillId: SkillId) => (checked: boolean) => void
 }
 
 function SkillPackageSection({ pkg, assignedSkills, selectedSkills, onSelectedChange }: SkillPackageSectionProps) {

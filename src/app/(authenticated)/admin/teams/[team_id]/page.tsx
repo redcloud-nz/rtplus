@@ -15,8 +15,8 @@ import { toTeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 import prisma from '@/server/prisma'
 
-import { TeamDetails_Card } from './team-details'
-import { TeamMembers_Card } from './team-members'
+import { AdminModule_TeamDetails } from './team-details'
+import { AdminModule_Team_Members } from './team-members'
 
 
 
@@ -40,14 +40,14 @@ export async function generateMetadata(props: PageProps<'/admin/teams/[team_id]'
 }
 
 
-export default async function Team_Page(props: PageProps<'/admin/teams/[team_id]'>) {
+export default async function AdminModule_Team_Page(props: PageProps<'/admin/teams/[team_id]'>) {
     const team = await fetchTeam(props)
     
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.admin, 
-                Paths.admin.teams,
+                Paths.adminModule, 
+                Paths.adminModule.teams,
                 team.name
             ]}
         />
@@ -57,10 +57,10 @@ export default async function Team_Page(props: PageProps<'/admin/teams/[team_id]
             </PageHeader>
 
             <Boundary>
-                <TeamDetails_Card teamId={team.teamId}/>
+                <AdminModule_TeamDetails teamId={team.teamId}/>
             </Boundary>
             <Boundary>
-                <TeamMembers_Card teamId={team.teamId}/>
+                <AdminModule_Team_Members teamId={team.teamId}/>
             </Boundary>
         </AppPageContent>
         

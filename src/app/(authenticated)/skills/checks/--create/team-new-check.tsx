@@ -15,9 +15,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 
 import { DatePicker } from '@/components/controls/date-picker'
+import { PersonPicker } from '@/components/controls/person-picker'
 import { CurrentPersonValue } from '@/components/controls/person-value'
 import { SkillPicker } from '@/components/controls/skill-picker'
-import { TeamMemberPicker } from '@/components/controls/team-member-picker'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CompetenceLevelRadioGroup } from '@/components/ui/competence-level-radio-group'
@@ -29,16 +29,16 @@ import { useToast } from '@/hooks/use-toast'
 import { CompetenceLevel } from '@/lib/competencies'
 import { nanoId16 } from '@/lib/id'
 import { skillCheckSchema } from '@/lib/schemas/skill-check'
-import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
 
-const singleSkillCheckSchema = skillCheckSchema.pick({ teamId: true, skillCheckId: true, skillId: true, assesseeId: true, result: true, notes: true, date: true })
+
+const singleSkillCheckSchema = skillCheckSchema.pick({ skillCheckId: true, skillId: true, assesseeId: true, result: true, notes: true, date: true })
 
 
-export function Team_Skill_NewCheck_Card({ team }: { team: TeamData }) {
+export function SkillsModule_NewCheck_Form() {
     const router = useRouter()
     const { toast } = useToast()
 
@@ -47,7 +47,6 @@ export function Team_Skill_NewCheck_Card({ team }: { team: TeamData }) {
     const form = useForm<z.infer<typeof singleSkillCheckSchema>>({
         resolver: zodResolver(singleSkillCheckSchema),
         defaultValues: {
-            teamId: team.teamId,
             skillCheckId,
             skillId: '',
             assesseeId: '',
@@ -70,7 +69,7 @@ export function Team_Skill_NewCheck_Card({ team }: { team: TeamData }) {
                 title: "Skill check recorded",
                 description: "The skill check has been successfully recorded.",
             })
-            router.push(Paths.org(team).skills.checks.href)
+            router.push(Paths.skillsModule.checks.href)
         }
     }))
 
@@ -92,9 +91,8 @@ export function Team_Skill_NewCheck_Card({ team }: { team: TeamData }) {
                             name="assesseeId"
                             render={({ field }) => <ToruGridRow
                                 label="Assessee"
-                                control={<TeamMemberPicker 
-                                    {...field} 
-                                    teamId={team.teamId}
+                                control={<PersonPicker
+                                    {...field}
                                     onValueChange={({ personId }) => field.onChange(personId)}
                                     placeholder="Select a person to assess..."
                                    size="default" 
@@ -108,7 +106,6 @@ export function Team_Skill_NewCheck_Card({ team }: { team: TeamData }) {
                                 label="Skill"
                                 control={<SkillPicker 
                                     {...field} 
-                                    teamId={team.teamId}
                                     onValueChange={({ skillId }) => field.onChange(skillId)}
                                     placeholder="Select a skill to assess..."
                                 />}
@@ -148,7 +145,7 @@ export function Team_Skill_NewCheck_Card({ team }: { team: TeamData }) {
 
                         <ToruGridFooter>
                             <FormSubmitButton labels={SubmitVerbs.save} size="sm"/>
-                            <FormCancelButton redirectTo={Paths.org(team).skills.checks} size="sm"/>
+                            <FormCancelButton redirectTo={Paths.skillsModule.checks} size="sm"/>
                         </ToruGridFooter>
                         
                     </ToruGrid>

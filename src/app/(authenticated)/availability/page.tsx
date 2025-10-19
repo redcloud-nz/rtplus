@@ -2,11 +2,11 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  *
- *  Path: /teams/[team_slug]/availability
+ *  Path: /availability
  */
 
 import { NotImplemented } from '@/components/nav/errors'
 
-export default async function Availability_Index_Page() {
+export default async function AvailabilityModule_Index_Page() {
     return <NotImplemented/>
 }

@@ -7,14 +7,16 @@ import { z } from 'zod'
 
 import { Note as NoteRecord } from '@prisma/client'
 
-import { propertiesSchema, tagsSchema, zodNanoId8 } from '../validation'
+import { nanoId8 } from '../id'
+import { propertiesSchema, tagsSchema } from '../validation'
+
 
 export type NoteId = string & z.BRAND<'NoteId'>
 
 export const NoteId = {
     schema: z.string().length(8).regex(/^[a-zA-Z0-9]+$/, "8 character Note ID expected.").brand<'NoteId'>(),
 
-    create: () => zodNanoId8.parse(zodNanoId8) as NoteId,
+    create: () => NoteId.schema.parse(nanoId8()),
 } as const
 
 export const noteSchema = z.object({

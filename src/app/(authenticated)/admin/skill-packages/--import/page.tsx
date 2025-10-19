@@ -35,9 +35,9 @@ export default function ImportSkillPackage_Page() {
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.admin,
-                Paths.admin.skillPackages,
-                Paths.admin.skillPackages.import,
+                Paths.adminModule,
+                Paths.adminModule.skillPackages,
+                Paths.adminModule.skillPackages.import,
             ]}
         />
         <AppPageContent>

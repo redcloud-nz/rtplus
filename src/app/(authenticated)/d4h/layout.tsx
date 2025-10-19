@@ -27,10 +27,10 @@ export default async function D4HModule_Layout(props: { children: ReactNode }) {
     return <>
         <AppSidebar moduleName="D4H">
             <NavSection>
-                <NavItem path={Paths.d4h.activities}/>
-                <NavItem path={Paths.d4h.calendar}/>
-                <NavItem path={Paths.d4h.equipment}/>
-                <NavItem path={Paths.d4h.personnel}/>
+                <NavItem path={Paths.d4hModule.activities}/>
+                <NavItem path={Paths.d4hModule.calendar}/>
+                <NavItem path={Paths.d4hModule.equipment}/>
+                <NavItem path={Paths.d4hModule.personnel}/>
             </NavSection>
         </AppSidebar>
         {props.children}

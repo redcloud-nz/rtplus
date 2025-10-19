@@ -9,9 +9,9 @@ import { NotImplemented } from '@/components/nav/errors'
 
 import * as Paths from '@/paths'
 
-export default async function FOGPage() {
+export default async function FOGModule_Page() {
     return <AppPage>
-        <AppPageBreadcrumbs breadcrumbs={[Paths.fog]}/>
+        <AppPageBreadcrumbs breadcrumbs={[Paths.fogModule]}/>
         <NotImplemented/>
     </AppPage>
 }

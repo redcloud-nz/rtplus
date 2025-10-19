@@ -11,19 +11,16 @@ import { TextLink } from '@/components/ui/link'
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from '@/components/ui/table'
 
 import * as Paths from '@/paths'
-import { getTeamFromParams } from '@/server/data/team'
 
 
 
-export default async function Team_Skills_Reports_Index_Page(props: { params: Promise<{ team_slug: string }> }) {
-    const team = await getTeamFromParams(props.params)
+export default async function Team_Skills_Reports_Index_Page() {
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.org(team), 
-                Paths.org(team).skills, 
-                Paths.org(team).skills.reports
+                Paths.skillsModule, 
+                Paths.skillsModule.reports
             ]}
         />
         <AppPageContent variant="container">
@@ -40,13 +37,13 @@ export default async function Team_Skills_Reports_Index_Page(props: { params: Pr
                 <TableBody>
                     <TableRow>
                         <TableCell>
-                            <TextLink to={Paths.org(team).skills.reports.individual}/>
+                            <TextLink to={Paths.skillsModule.reports.individual}/>
                         </TableCell>
                         <TableCell>A report of an individuals competencies.</TableCell>
                     </TableRow>
                     <TableRow>
                         <TableCell>
-                            <TextLink to={Paths.org(team).skills.reports.teamSkills}/>
+                            <TextLink to={Paths.skillsModule.reports.teamSkills}/>
                         </TableCell>
                         <TableCell>A report of the teams competencies as the percentage of members currently competent.</TableCell>
                     </TableRow>

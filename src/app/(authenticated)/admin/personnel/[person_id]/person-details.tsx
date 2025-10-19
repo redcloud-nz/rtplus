@@ -40,7 +40,7 @@ import { trpc } from '@/trpc/client'
  * Card that displays the details of a person and allows the user to edit them.
  * @param personId The ID of the person to display.
  */
-export function PersonDetails_Card({ personId }: { personId: string }) {
+export function AdminModule_PersonDetails({ personId }: { personId: string }) {
     
 
     const { data: person } = useSuspenseQuery(trpc.personnel.getPerson.queryOptions({ personId }))
@@ -230,7 +230,7 @@ function DeletePersonDialog({ person }: { person: PersonData }) {
                 description: <>The person <ObjectName>{person.name}</ObjectName> has been deleted.</>,
             })
             setOpen(false)
-            router.push(Paths.admin.personnel.href)
+            router.push(Paths.adminModule.personnel.href)
 
             queryClient.invalidateQueries(trpc.personnel.getPersonnel.queryFilter())
             queryClient.setQueryData(trpc.personnel.getPerson.queryKey({ personId: person.personId }), undefined)
