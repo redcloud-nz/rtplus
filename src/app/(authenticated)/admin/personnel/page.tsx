@@ -7,7 +7,7 @@
 
 import { Metadata } from 'next'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
+import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 
@@ -27,9 +27,6 @@ export default async function AdminModule_PersonnelList_Page() {
             ]}
         />
         <AppPageContent variant="container">
-            <PageHeader>
-                <PageTitle>Personnel</PageTitle>
-            </PageHeader>
             <Boundary>
                 <AdminModule_PersonnelList/>
             </Boundary>

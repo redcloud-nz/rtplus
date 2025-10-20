@@ -87,6 +87,10 @@ export function AdminModule_PersonDetails({ personId }: { personId: string }) {
                             control={<DisplayValue>{person.email}</DisplayValue>}
                         />
                         <ToruGridRow
+                            label="Linked User ID"
+                            control={<DisplayValue>{person.userId ?? 'Not linked'}</DisplayValue>}
+                        />
+                        <ToruGridRow
                             label="Status"
                             control={<DisplayValue>{person.status}</DisplayValue>}
                         />

@@ -23,7 +23,7 @@ export const PersonId = {
 
 export const personSchema = z.object({
     personId: PersonId.schema,
-    userId: UserId.schema.optional(),
+    userId: UserId.schema.nullable(),
     name: z.string().min(5).max(100),
     email: z.string().email(),
     tags: tagsSchema,

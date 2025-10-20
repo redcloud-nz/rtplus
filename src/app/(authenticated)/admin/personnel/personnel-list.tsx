@@ -12,9 +12,11 @@ import { Protect } from '@clerk/nextjs'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
+import { Show } from '@/components/show'
 import { Button, RefreshButton } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardExplanation, CardActions } from '@/components/ui/card'
 import { DataTableBody, DataTableHead, DataTableFooter, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown} from '@/components/ui/data-table'
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from '@/components/ui/empty'
 import { Link, TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
@@ -25,13 +27,14 @@ import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
+
 export function AdminModule_PersonnelList() {
 
     
-    const personnelQuery = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({}))
+    const { data: personnel, refetch } = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({}))
 
     async function handleRefresh() {
-        await personnelQuery.refetch()
+        await refetch()
     }
 
     const columns = useMemo(() => defineColumns<PersonData>(columnHelper => [
@@ -66,7 +69,7 @@ export function AdminModule_PersonnelList() {
 
     const table = useReactTable({
         columns,
-        data: personnelQuery.data,
+        data: personnel,
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
@@ -92,45 +95,65 @@ export function AdminModule_PersonnelList() {
         }
     })
 
-    return <DataTableProvider value={table}>
-        <Card>
-            <CardHeader>
-                <DataTableSearch size="sm" variant="ghost"/>
-                <CardActions>
-                    <Protect role="org:admin">
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" asChild>
-                                    <Link to={Paths.adminModule.personnel.create}>
-                                        <PlusIcon />
-                                    </Link>
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                Create new person
-                            </TooltipContent>
-                        </Tooltip>
-                    </Protect>
+    return <Show 
+        when={personnel.length > 100}
+        fallback={<Empty>
+            <EmptyHeader>
+                <EmptyTitle>No Personnel Yet</EmptyTitle>
+                <EmptyDescription>
+                    You haven't added any personnel to your organisation. Get started by adding some.
+                </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+                <Button asChild>
+                    <Link to={Paths.adminModule.personnel.create}>
+                        <PlusIcon className="mr-2 h-4 w-4"/>
+                        Add Person
+                    </Link>
+                </Button>
+            </EmptyContent>
+        </Empty>}
+    >
+        <DataTableProvider value={table}>
+            <Card>
+                <CardHeader>
+                    <DataTableSearch size="sm" variant="ghost"/>
+                    <CardActions>
+                        <Protect role="org:admin">
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" asChild>
+                                        <Link to={Paths.adminModule.personnel.create}>
+                                            <PlusIcon />
+                                        </Link>
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    Create new person
+                                </TooltipContent>
+                            </Tooltip>
+                        </Protect>
+                        
+                        <RefreshButton onClick={handleRefresh}/>
+                        <TableOptionsDropdown/>
+                        <Separator orientation="vertical"/>
+                        
+                        <CardExplanation>
+                            Personnel are the people who can be assigned to teams and competencies. 
+                            They can be active or inactive, and you can filter the list by status.
+                        </CardExplanation>
+                        
+                    </CardActions>
                     
-                    <RefreshButton onClick={handleRefresh}/>
-                    <TableOptionsDropdown/>
-                    <Separator orientation="vertical"/>
-                    
-                    <CardExplanation>
-                        Personnel are the people who can be assigned to teams and competencies. 
-                        They can be active or inactive, and you can filter the list by status.
-                    </CardExplanation>
-                    
-                </CardActions>
-                
-            </CardHeader>
-            <CardContent>
-                <Table>
-                    <DataTableHead/>
-                    <DataTableBody/>
-                    <DataTableFooter variant="pagination"/>
-                </Table>
-            </CardContent>
-        </Card>
-    </DataTableProvider>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <DataTableHead/>
+                        <DataTableBody/>
+                        <DataTableFooter variant="pagination"/>
+                    </Table>
+                </CardContent>
+            </Card>
+        </DataTableProvider>
+    </Show>
 }

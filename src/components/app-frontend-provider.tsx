@@ -17,7 +17,7 @@ import { Toaster } from '@/components/ui/toaster'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
 import { AppContextProvider } from '@/hooks/use-app-context'
-import { initUser } from '@/server/init-user'
+import { verifyUserConsistency } from '@/server/init-user'
 import { getQueryClient } from '@/trpc/client'
 
 
@@ -50,7 +50,7 @@ export function AppFrontendProvider({ children }: FrontendProviderProps) {
 
                 prevOrgRef.current = orgId
             }
-            initUser({ userId: user.id, orgId })
+            verifyUserConsistency({ userId: user.id, orgId })
                 .then(() => {
                     console.log("User initialization complete")
                 })

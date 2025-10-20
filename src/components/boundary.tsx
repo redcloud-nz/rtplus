@@ -24,7 +24,7 @@ export function Boundary({ children, slotProps = {} }: BoundaryProps) {
         const alertProps = { severity: 'error' as const, title: 'An error occured', ...(slotProps.errorAlert ?? {}) }
         return <Alert {...alertProps}>{error.message}</Alert>
     }}>
-        <Suspense 
+        <Suspense
             fallback={<LoadingFallback {...(slotProps.loadingFallback ?? {})} />}
         >
             {children}

@@ -9,16 +9,14 @@ import { ClerkClient } from '@clerk/backend'
 import { Organization as OrganizationRecord, Person as PersonRecord, User as UserRecord } from '@prisma/client'
 
 import { RTPlusLogger } from '@/lib/logger'
-import { PersonId } from '@/lib/schemas/person'
 
 import { clerkAuth, getClerkClient } from './clerk'
 import prisma from './prisma'
 
 
-
 const logger = new RTPlusLogger('server/init-user')
 
-export async function initUser(args: { userId: string, orgId: string | null}) {
+export async function verifyUserConsistency(args: { userId: string, orgId: string | null}) {
     
     const { userId, orgId } = await clerkAuth.protect()
 
@@ -32,15 +30,18 @@ export async function initUser(args: { userId: string, orgId: string | null}) {
     if(orgId) {
         // The user is signed in to an organization
 
-        // Ensure the organization exists in our database
         const org = await ensureOrgRecord(orgId, clerkClient)
 
-        // Ensure that there is a person record for this user in this organization
-        await ensurePersonRecord(user, org.orgId)
+        await connectPersonRecord(user, orgId)
     }
 }
 
-
+/**
+ * Ensure that a user record exists for the given userId.
+ * @param userId The clerk user ID
+ * @param clerkClient The Clerk client
+ * @returns The existing or newly created user record
+ */
 async function ensureUserRecord(userId: string, clerkClient: ClerkClient): Promise<UserRecord> {
     const user = await prisma.user.findUnique({ where: { userId } })
     if(user) return user
@@ -69,7 +70,12 @@ async function ensureUserRecord(userId: string, clerkClient: ClerkClient): Promi
     return created
 }
 
-
+/**
+ * Ensure that an organization record exists for the given orgId.
+ * @param orgId The clerk organization ID
+ * @param clerkClient The Clerk client
+ * @returns The existing or newly created organization record
+ */
 async function ensureOrgRecord(orgId: string, clerkClient: ClerkClient): Promise<OrganizationRecord> {
     const org = await prisma.organization.findUnique({ where: { orgId } })
     if(org) return org
@@ -96,8 +102,14 @@ async function ensureOrgRecord(orgId: string, clerkClient: ClerkClient): Promise
 }
 
 
-export async function ensurePersonRecord(user: UserRecord, orgId: string): Promise<PersonRecord> {
-   // Ensure that there is a person record for this user in this organization
+/**
+ * Connect the given user to a person record in the given organization, if possible.
+ * @param user 
+ * @param orgId 
+ * @returns 
+ */
+export async function connectPersonRecord(user: UserRecord, orgId: string): Promise<PersonRecord | null> {
+   // See if there is already a person record for this user in this organization
    const person = await prisma.person.findFirst({ where: { userId: user.userId, orgId } })
    if(person) return person
 
@@ -111,19 +123,6 @@ export async function ensurePersonRecord(user: UserRecord, orgId: string): Promi
         logger.info(`Linked existing person ${existing[0].personId} to user ${user.userId}`)
         return existing[0]
     }
-    // No existing person - create a new one
-    const created = await prisma.person.create({
-        data: {
-            personId: PersonId.create(),
-            name: user.name,
-            email: user.email,
-            userId: user.userId,
-            orgId,
-            status: 'Active',
-            tags: [],
-            properties: {},
-        }
-    })
-    logger.info(`Created new person ${created.personId} for user ${user.userId} in org ${orgId}`)
-    return created
+    
+    return null
 }

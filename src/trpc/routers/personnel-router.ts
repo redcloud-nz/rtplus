@@ -40,7 +40,7 @@ export const personnelRouter = createTRPCRouter({
 
             // Check for conflicts
             const [personIdConflict, emailConflict, userIdConflict] = await Promise.all([
-                ctx.prisma.person.findUnique({ where: { personId } }),
+                ctx.prisma.person.findFirst({ where: { personId } }),
                 ctx.prisma.person.findFirst({ where: { orgId: ctx.auth.activeOrg.orgId, email: fields.email } }),
                 ctx.prisma.person.findFirst({ where: { orgId: ctx.auth.activeOrg.orgId, userId: fields.userId } })
             ])
@@ -49,7 +49,7 @@ export const personnelRouter = createTRPCRouter({
 
             if(emailConflict) throw new TRPCError({ code: 'CONFLICT', message: 'A person with this email address already exists in this organization.', cause: new FieldConflictError('email') })
 
-            if(userIdConflict) throw new TRPCError({ code: 'CONFLICT', message: `A person with user ID ${fields.userId} already exists in this organization.`, cause: new FieldConflictError('userId') })
+            if(fields.userId && userIdConflict) throw new TRPCError({ code: 'CONFLICT', message: `A person with user ID ${fields.userId} already exists in this organization.`, cause: new FieldConflictError('userId') })
 
             const changes = diffObject({ tags: [], properties: [], status: 'Active' }, fields)
 

@@ -14,7 +14,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DisplayValue } from '@/components/ui/display-value'
-import { DebugFormState, Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 import { ObjectName } from '@/components/ui/typography'
@@ -37,6 +37,7 @@ export function AdminModule_NewPerson_Form() {
         resolver: zodResolver(personSchema),
         defaultValues: {
             personId: personId,
+            userId: null,
             name: '',
             email: '',
             tags: [],
@@ -46,8 +47,12 @@ export function AdminModule_NewPerson_Form() {
     })
 
     const mutation = useMutation(trpc.personnel.createPerson.mutationOptions({
+        onMutate() {
+            console.log("Creating person...")
+        },
         onError(error) {
             if (error.shape?.cause?.name == 'FieldConflictError') {
+                console.warn("FieldConflictError:", error.shape.cause)
                 form.setError(error.shape.cause.message as keyof PersonData, { message: error.shape.message })
             } else {
                 toast({
@@ -113,7 +118,6 @@ export function AdminModule_NewPerson_Form() {
                         </ToruGridFooter>
                     </ToruGrid>
                 </Form>
-                <DebugFormState />
             </FormProvider>
             </CardContent>
 
