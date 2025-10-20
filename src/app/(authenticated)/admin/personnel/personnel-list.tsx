@@ -16,7 +16,7 @@ import { Show } from '@/components/show'
 import { Button, RefreshButton } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardExplanation, CardActions } from '@/components/ui/card'
 import { DataTableBody, DataTableHead, DataTableFooter, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown} from '@/components/ui/data-table'
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from '@/components/ui/empty'
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
 import { Link, TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
@@ -99,18 +99,24 @@ export function AdminModule_PersonnelList() {
         when={personnel.length > 100}
         fallback={<Empty>
             <EmptyHeader>
+                <EmptyMedia>
+                    
+                </EmptyMedia>
                 <EmptyTitle>No Personnel Yet</EmptyTitle>
                 <EmptyDescription>
-                    You haven't added any personnel to your organisation. Get started by adding some.
+                    You haven't added any personnel to your organisation. 
+                    <Protect role="org:admin" fallback="Ask your administrator to add one.">Get started by adding some.</Protect>
                 </EmptyDescription>
             </EmptyHeader>
             <EmptyContent>
-                <Button asChild>
-                    <Link to={Paths.adminModule.personnel.create}>
-                        <PlusIcon className="mr-2 h-4 w-4"/>
-                        Add Person
-                    </Link>
-                </Button>
+                <Protect role="org:admin">
+                    <Button asChild>
+                        <Link to={Paths.adminModule.personnel.create}>
+                            <PlusIcon className="mr-2 h-4 w-4"/>
+                            Add Person
+                        </Link>
+                    </Button>
+                </Protect>
             </EmptyContent>
         </Empty>}
     >

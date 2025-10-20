@@ -12,9 +12,11 @@ import { Protect } from '@clerk/nextjs'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
+import { Show } from '@/components/show'
 import { Button, RefreshButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader } from '@/components/ui/card'
 import { DataTableBody, DataTableHead, DataTableFooter, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
 import { Link, TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -28,14 +30,17 @@ import { trpc } from '@/trpc/client'
 
 
 
+
+
+
 type RowData = TeamData & { _count: { teamMemberships: number } }
 
-export function AdminModile_TeamsList() {
+export function AdminModule_TeamsList() {
 
-    const teamsQuery = useSuspenseQuery(trpc.teams.getTeams.queryOptions({}))
+    const { data: teams, refetch } = useSuspenseQuery(trpc.teams.getTeams.queryOptions({}))
 
     async function handleRefresh() {
-        await teamsQuery.refetch()
+        await refetch()
     }
 
     const columns = useMemo(() => defineColumns<RowData>(columnHelper => [
@@ -73,7 +78,7 @@ export function AdminModile_TeamsList() {
 
     const table = useReactTable<RowData>({
         columns,
-        data: teamsQuery.data,
+        data: teams,
         getCoreRowModel: getCoreRowModel(),
         getExpandedRowModel: getExpandedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
@@ -99,44 +104,70 @@ export function AdminModile_TeamsList() {
         }
     })
 
-    return <DataTableProvider value={table}>
-        <Card>
-            <CardHeader>
-                <DataTableSearch size="sm" variant="ghost"/>
-                <CardActions>
-                    <Protect role="org:admin">
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" asChild>
-                                    <Link to={Paths.adminModule.teams.create}>
-                                        <PlusIcon />
-                                    </Link>
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                Create New Team
-                            </TooltipContent>
-                        </Tooltip>
-                    </Protect>
+    return <Show 
+        when={teams.length > 0} 
+        fallback={<Empty>
+            <EmptyHeader>
+                <EmptyMedia>
+                </EmptyMedia>
+                <EmptyTitle>No Personnel Yet</EmptyTitle>
+                <EmptyDescription>
+                    You haven't added any personnel to your organisation.
+                    <Protect role="org:admin" fallback="Ask your administrator to add one.">Get started by adding one.</Protect>
+                </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+                <Protect role="org:admin">
+                    <Button asChild>
+                        <Link to={Paths.adminModule.teams.create}>
+                            <PlusIcon className="mr-2 h-4 w-4"/>
+                            Add Team
+                        </Link>
+                    </Button>
+                </Protect>
+            </EmptyContent>
+        </Empty>}
+    >
+        <DataTableProvider value={table}>
+            <Card>
+                <CardHeader>
+                    <DataTableSearch size="sm" variant="ghost"/>
+                    <CardActions>
+                        <Protect role="org:admin">
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" asChild>
+                                        <Link to={Paths.adminModule.teams.create}>
+                                            <PlusIcon />
+                                        </Link>
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    Create New Team
+                                </TooltipContent>
+                            </Tooltip>
+                        </Protect>
+                        
+
+                        <RefreshButton onClick={handleRefresh}/>
+                        <TableOptionsDropdown/>
+                        <Separator orientation="vertical"/>
+
+                        <CardExplanation>
+                            <Paragraph>This is a list of all the teams in your organisation.</Paragraph>
+                        </CardExplanation>
+                    </CardActions>
                     
-
-                    <RefreshButton onClick={handleRefresh}/>
-                    <TableOptionsDropdown/>
-                    <Separator orientation="vertical"/>
-
-                    <CardExplanation>
-                        <Paragraph>This is a list of all the teams in your organisation.</Paragraph>
-                    </CardExplanation>
-                </CardActions>
-                
-            </CardHeader>
-            <CardContent>
-                <Table>
-                    <DataTableHead/>
-                    <DataTableBody/>
-                    <DataTableFooter variant="pagination"/>
-                </Table>
-            </CardContent>
-        </Card>
-    </DataTableProvider>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <DataTableHead/>
+                        <DataTableBody/>
+                        <DataTableFooter variant="pagination"/>
+                    </Table>
+                </CardContent>
+            </Card>
+        </DataTableProvider>
+    </Show>
+    
 }
