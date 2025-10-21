@@ -2,23 +2,22 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /admin/teams
+ *  Path: /admin/artie-test
  */
 
 import { Metadata } from 'next'
 import React from 'react'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
-import { Boundary } from '@/components/boundary'
+import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 import * as Paths from '@/paths'
 
-import { AdminModule_TeamsList } from './teams-list'
+import { ArtieTest } from './artie-test'
 
 
-export const metadata: Metadata = { title: "Teams" }
+export const metadata: Metadata = { title: "Artie Test" }
 
 
-export default async function AdminModule_TeamsList_Page() {
+export default async function AdminModule_ArtieTest_Page() {
 
     return <AppPage>
             <AppPageBreadcrumbs
@@ -28,9 +27,7 @@ export default async function AdminModule_TeamsList_Page() {
                 ]}
             />
             <AppPageContent variant="container">
-                <Boundary>
-                    <AdminModule_TeamsList/>
-                </Boundary>
+                <ArtieTest/>
             </AppPageContent>
            
         </AppPage>

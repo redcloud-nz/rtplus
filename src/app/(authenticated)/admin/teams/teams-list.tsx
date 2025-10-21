@@ -12,6 +12,7 @@ import { Protect } from '@clerk/nextjs'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
+import Artie from '@/components/art/artie'
 import { Show } from '@/components/show'
 import { Button, RefreshButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader } from '@/components/ui/card'
@@ -26,7 +27,6 @@ import { Paragraph } from '@/components/ui/typography'
 import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
-
 
 
 
@@ -109,11 +109,12 @@ export function AdminModule_TeamsList() {
         fallback={<Empty>
             <EmptyHeader>
                 <EmptyMedia>
+                    <Artie pose="Empty"/>
                 </EmptyMedia>
-                <EmptyTitle>No Personnel Yet</EmptyTitle>
+                <EmptyTitle>No Teams Yet</EmptyTitle>
                 <EmptyDescription>
-                    You haven't added any personnel to your organisation.
-                    <Protect role="org:admin" fallback="Ask your administrator to add one.">Get started by adding one.</Protect>
+                    There are no teams defined for your organisation.
+                    <Protect role="org:admin" fallback=" Ask your administrator to add one."> Get started by adding one.</Protect>
                 </EmptyDescription>
             </EmptyHeader>
             <EmptyContent>

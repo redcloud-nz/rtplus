@@ -7,6 +7,9 @@
 
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
+import { Jersey_10 } from 'next/font/google'
+
+
 
 import { ClerkProvider } from '@clerk/nextjs'
 
@@ -22,6 +25,12 @@ const geistMono = localFont({
     src: "./fonts/GeistMonoVF.woff",
     variable: "--font-geist-mono",
     weight: "100 900",
+});
+
+const jersey10 = Jersey_10({
+    subsets: ['latin'],
+    variable: "--font-jersey-10",
+    weight: ['400'],
 });
 
 export const metadata: Metadata = {
@@ -43,7 +52,7 @@ export default async function Root_Layout({ children }: Readonly<{ children: Rea
         }}
     >
         <html lang="en">
-            <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+            <body className={`${geistSans.className} ${geistSans.variable} ${geistMono.variable} ${jersey10.variable} antialiased`}>
                 {children}
             </body>
         </html>

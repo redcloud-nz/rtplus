@@ -5,20 +5,42 @@
  *  Path: /
  */
 
-import Image from 'next/image'
+import { ArrowRightIcon } from 'lucide-react'
 
-import { NotFound } from '@/components/nav/errors'
+import { SignedIn, SignedOut } from '@clerk/nextjs'
+
+import Artie from '@/components/art/artie'
+import { Button } from '@/components/ui/button'
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
+import { Link } from '@/components/ui/link'
+
+import * as Paths from '@/paths'
+
 
 export default function Root_NotFound() {
-    return <div className="w-full h-screen flex flex-col justify-center items-center gap-4">
-        <Image
-            className="dark:invert"
-            src="/logo.svg"
-            alt="RT+ logo"
-            width={200}
-            height={100}
-            priority
-        />
-        <NotFound/>
+    return <div className="w-full h-screen flex flex-col justify-center md:items-center gap-4">
+        <Empty>
+            <EmptyHeader>
+                <EmptyMedia>
+                    <Artie pose="NotFound"/>
+                </EmptyMedia>
+                <EmptyTitle>404 - Not Found</EmptyTitle>
+                <EmptyDescription>
+                    The resource you requested was not found. Have you tried looking under the couch?
+                </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+                <SignedIn>
+                    <Button variant="outline" asChild>
+                        <Link to={Paths.dashboard}>RT+ Dashboard <ArrowRightIcon/></Link>
+                    </Button>
+                </SignedIn>
+                <SignedOut>
+                    <Button variant="outline" asChild>
+                        <Link to={{ href: '/' }}>Home Page</Link>
+                    </Button>
+                </SignedOut>
+            </EmptyContent>
+        </Empty>
     </div>
 }

@@ -12,6 +12,7 @@ import { Protect } from '@clerk/nextjs'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
+import Artie from '@/components/art/artie'
 import { Show } from '@/components/show'
 import { Button, RefreshButton } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardExplanation, CardActions } from '@/components/ui/card'
@@ -25,6 +26,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { PersonData } from '@/lib/schemas/person'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
+
 
 
 
@@ -96,11 +98,11 @@ export function AdminModule_PersonnelList() {
     })
 
     return <Show 
-        when={personnel.length > 100}
+        when={personnel.length > 0}
         fallback={<Empty>
             <EmptyHeader>
                 <EmptyMedia>
-                    
+                    <Artie pose="Empty"/>
                 </EmptyMedia>
                 <EmptyTitle>No Personnel Yet</EmptyTitle>
                 <EmptyDescription>

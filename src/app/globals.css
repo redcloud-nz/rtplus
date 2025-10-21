@@ -40,6 +40,8 @@
   --table-frame: oklch(0.645 0.246 16.439);
 
   --header-height: 49px;
+
+
 }
  
 .dark {
@@ -111,6 +113,11 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   --color-table-frame: var(--table-frame);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --font-pixelated: var(--font-jersey-10);
 }
  
 @layer base {
@@ -120,4 +127,12 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+
+@media print {
+    @page {
+        size: --paper-size;
+        margin: 20mm;
+    }
 }

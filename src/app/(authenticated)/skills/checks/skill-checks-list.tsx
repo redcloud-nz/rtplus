@@ -25,6 +25,9 @@ import { SkillCheckData } from '@/lib/schemas/skill-check'
 import { SkillData } from '@/lib/schemas/skill'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
+import { Show } from '@/components/show'
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
+import Artie from '@/components/art/artie'
 
 
 type RowData = SkillCheckData & { assessee: PersonRef, assessor: PersonRef, skill: SkillData }
@@ -123,39 +126,64 @@ export function SkillsModule_SkillChecks_List() {
         },
     })
 
-    return <DataTableProvider value={table}>
-        <Card>
-            <CardHeader>
-                <DataTableSearch size="sm" variant="ghost"/>
-                <CardActions>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" asChild>
-                                <Link to={Paths.skillsModule.checks.create}>
-                                    <PlusIcon />
-                                </Link>
-                            </Button>
-                        </TooltipTrigger>
-                    </Tooltip>
-                    
-                    <RefreshButton onClick={handleRefresh}/>
-                    <TableOptionsDropdown/>
-                    
-                    <Separator orientation="vertical"/>
+    return <Show 
+        when={checks.length > 0} 
+        fallback={<Empty>
+            <EmptyHeader>
+                <EmptyMedia>
+                    <Artie pose="Empty"/>
+                </EmptyMedia>
+                <EmptyTitle>No Checks Recorded</EmptyTitle>
+                <EmptyDescription>
+                    Your organisation has not recorded any skill checks yet.
+                </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+                <Button asChild>
+                    <Link to={Paths.skillsModule.checks.create}>
+                        <PlusIcon className="mr-2 h-4 w-4"/>
+                        Record Check
+                    </Link>
+                </Button>
+            </EmptyContent>
+        </Empty>}
+    >
+        <DataTableProvider value={table}>
+            <Card>
+                <CardHeader>
+                    <DataTableSearch size="sm" variant="ghost"/>
+                    <CardActions>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" asChild>
+                                    <Link to={Paths.skillsModule.checks.create}>
+                                        <PlusIcon />
+                                    </Link>
+                                </Button>
+                            </TooltipTrigger>
+                        </Tooltip>
+                        
+                        <RefreshButton onClick={handleRefresh}/>
+                        <TableOptionsDropdown/>
+                        
+                        <Separator orientation="vertical"/>
 
-                    <CardExplanation>
-                        This card displays the list of skill checks recorded for the active team. 
-                        You can filter, sort, and search through the records.
-                    </CardExplanation>
-                </CardActions>
-            </CardHeader>
-            <CardContent>
-                <Table>
-                    <DataTableHead/>
-                    <DataTableBody/>
-                    <DataTableFooter variant="pagination"/>
-                </Table>
-            </CardContent>
-        </Card>
-    </DataTableProvider>
+                        <CardExplanation>
+                            This card displays the list of skill checks recorded for the active team. 
+                            You can filter, sort, and search through the records.
+                        </CardExplanation>
+                    </CardActions>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <DataTableHead/>
+                        <DataTableBody/>
+                        <DataTableFooter variant="pagination"/>
+                    </Table>
+                </CardContent>
+            </Card>
+        </DataTableProvider>
+    </Show>
+    
+    
 }

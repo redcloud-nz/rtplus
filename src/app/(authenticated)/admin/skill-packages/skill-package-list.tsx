@@ -12,9 +12,12 @@ import { Protect } from '@clerk/nextjs'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
+import Artie from '@/components/art/artie'
+import { Show } from '@/components/show'
 import { Button, RefreshButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader } from '@/components/ui/card'
 import { DataTableBody, DataTableHead, DataTableFooter, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
 import { Link, TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
@@ -25,13 +28,15 @@ import * as Paths from '@/paths'
 import { trpc, WithCounts } from '@/trpc/client'
 
 
+
+
 export function AdminModule_SkillPackagesList() {
     
 
-    const skillPackagesQuery = useSuspenseQuery(trpc.skills.getPackages.queryOptions({ owner: 'org' }))
+    const { data: skillPackages, refetch: skillPackagesRefetch } = useSuspenseQuery(trpc.skills.getPackages.queryOptions({ owner: 'org' }))
 
     async function handleRefresh() {
-        await skillPackagesQuery.refetch()
+        await skillPackagesRefetch()
     }
 
     const columns = useMemo(() => defineColumns<WithCounts<SkillPackageData, 'skills' | 'skillGroups'>>(columnHelper => [
@@ -75,7 +80,7 @@ export function AdminModule_SkillPackagesList() {
 
     const table = useReactTable({
         columns,
-        data: skillPackagesQuery.data,
+        data: skillPackages,
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
@@ -96,44 +101,71 @@ export function AdminModule_SkillPackagesList() {
         }
     })
 
-    return <DataTableProvider value={table}>
-        <Card>
-            <CardHeader>
-                <DataTableSearch size="sm" variant="ghost"/>
-                <CardActions>
-                    <Protect role="org:admin">
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" asChild>
-                                    <Link to={Paths.adminModule.skillPackages.create}>
-                                        <PlusIcon />
-                                    </Link>
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                Create new skill package
-                            </TooltipContent>
-                        </Tooltip>
-                    </Protect>
-                    
+    return <Show 
+        when={skillPackages.length > 0} 
+        fallback={<Empty>
+            <EmptyHeader>
+                <EmptyMedia>
+                    <Artie pose="Empty"/>
+                </EmptyMedia>
+                <EmptyTitle>No Skill Packages Defined</EmptyTitle>
+                <EmptyDescription>
+                    Your organization has not created any skill packages yet.
+                    <br/>
+                </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+                <Protect role="org:admin">
+                    <Button asChild>
+                        <Link to={Paths.adminModule.skillPackages.create}>
+                            <PlusIcon className="mr-2 h-4 w-4"/>
+                            Add Skill Package
+                        </Link>
+                    </Button>
+                </Protect>
+            </EmptyContent>
+        </Empty>}
+    >
+    
+        <DataTableProvider value={table}>
+            <Card>
+                <CardHeader>
+                    <DataTableSearch size="sm" variant="ghost"/>
+                    <CardActions>
+                        <Protect role="org:admin">
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" asChild>
+                                        <Link to={Paths.adminModule.skillPackages.create}>
+                                            <PlusIcon />
+                                        </Link>
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    Create new skill package
+                                </TooltipContent>
+                            </Tooltip>
+                        </Protect>
+                        
 
-                    <RefreshButton onClick={handleRefresh}/>
-                    <TableOptionsDropdown/>
-                    <Separator orientation="vertical"/>
-                    <CardExplanation>
-                        This is a list of all the available skill packages in the system.
-                    </CardExplanation>
-                   
-                </CardActions>
-                
-            </CardHeader>
-            <CardContent>
-                <Table>
-                    <DataTableHead/>
-                    <DataTableBody/>
-                    <DataTableFooter/>
-                </Table>
-            </CardContent>
-        </Card>
-    </DataTableProvider>
+                        <RefreshButton onClick={handleRefresh}/>
+                        <TableOptionsDropdown/>
+                        <Separator orientation="vertical"/>
+                        <CardExplanation>
+                            This is a list of all the available skill packages in the system.
+                        </CardExplanation>
+                    
+                    </CardActions>
+                    
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <DataTableHead/>
+                        <DataTableBody/>
+                        <DataTableFooter/>
+                    </Table>
+                </CardContent>
+            </Card>
+        </DataTableProvider>
+    </Show>
 }

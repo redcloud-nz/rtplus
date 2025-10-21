@@ -4,24 +4,27 @@
  */
 
 import { AppPageContent, AppPageContentProps } from '@/components/app-page'
+import Artie from '@/components/art/artie'
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
 import { ExternalLink, GitHubIssueLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 import { Paragraph } from '@/components/ui/typography'
 
 
-
-
 export function NotFound(props: AppPageContentProps) {
 
     return <AppPageContent variant="centered" {...props}>
-        <main className="flex flex-col gap-2 items-center">
-            <div className="font-semibold text-2xl text-zinc-800">404</div>
-            <div className="font-semibold text-zinc-800">Not Found</div>
-            <Separator orientation="horizontal" className="w-40"/>
-            <Paragraph className="px-2">
-                The resource you requested was not found. Have you tried turning it off and on again?
-            </Paragraph>
-        </main>
+        <Empty>
+            <EmptyHeader>
+                <EmptyMedia>
+                    <Artie pose="NotFound"/>
+                </EmptyMedia>
+                <EmptyTitle>404 - Not Found</EmptyTitle>
+                <EmptyDescription>
+                    The resource you requested was not found. Have you tried looking under the couch?
+                </EmptyDescription>
+            </EmptyHeader>
+        </Empty>
         
     </AppPageContent>
 }
@@ -80,17 +83,22 @@ export function Forbidden({ ...props }: AppPageContentProps) {
 
 export function UnknownError({ error, ...props }: AppPageContentProps & { error: Error & { digest?: string } }) {
     return <AppPageContent variant="centered" {...props}>
-        <div className="flex flex-col gap-2 items-center">
-            <div className="font-semibold text-2xl text-zinc-800">500</div>
-            <div className="font-semibold text-zinc-800">Error</div>
+        <Empty>
+            <EmptyHeader>
+                <EmptyMedia>
+                    <Artie pose="Error"/>
+                </EmptyMedia>
+                <EmptyTitle>500 - Error</EmptyTitle>
+                <EmptyDescription>
+                    Something went wrong on our end. Please try again later.
+                </EmptyDescription>
+            </EmptyHeader>
             <Separator orientation="horizontal" className="w-40"/>
-            <Paragraph>
-                Something went wrong on our end. Please try again later.
-            </Paragraph>
-            <Paragraph>{error.message}</Paragraph>
-            {error.digest && <Paragraph>{error.digest}</Paragraph>}
-
-        </div>
+            <EmptyContent>
+                <Paragraph>{error.message}</Paragraph>
+                {error.digest && <Paragraph>{error.digest}</Paragraph>}
+            </EmptyContent>
+        </Empty>
 
     </AppPageContent>
 }
