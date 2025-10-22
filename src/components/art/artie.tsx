@@ -6,7 +6,7 @@
 
 import Image from 'next/image'
 
-type ArtiePose = 'CheckThisOut' | 'Empty' | 'Error' | 'Login' | 'NotAllowed' | 'NotFound' | 'Question' | 'Secure' | 'Success' | 'Welcome' | 'Working' | 'Writing'
+type ArtiePose = 'CheckThisOut' | 'Empty' | 'Error' | 'Login' | 'NotAllowed' | 'NotFound' | 'Question' | 'Searching' | 'Secure' | 'Success' | 'Welcome' | 'Working' | 'Writing'
 
 interface ArtieProps {
     pose: ArtiePose
@@ -22,6 +22,7 @@ const poseToImage: Record<ArtiePose, string> = {
     NotAllowed: '/artie/artie-not-allowed.png',
     NotFound: '/artie/artie-not-found.png',
     Question: '/artie/artie-question.png',
+    Searching: '/artie/artie-searching.png',
     Secure: '/artie/artie-secure.png',
     Success: '/artie/artie-success.png',
     Welcome: '/artie/artie-welcome.png',
@@ -53,3 +54,4 @@ export default function Artie({ pose, alt }: ArtieProps) {
         />
     )
 }
+
