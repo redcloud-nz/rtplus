@@ -43,148 +43,153 @@ export const about = {
     href: '/about',
 } as const
 
-export const adminModule = {
+export type AdminModulePaths = ReturnType<typeof adminModule>
 
-    label: 'Admin',
-    href: '/admin',
+export function adminModule(org_slug: string) {
+    const base = `/orgs/${org_slug}/admin` as const
 
-    person: (personId: string) => {
-        const personBase = `/admin/personnel/${personId}` as const
-        return {
-            href: personBase,
+    return {
+        label: 'Admin',
+        href: base,
 
-            teamMembership: (teamId: string) => ({
-                href: `${personBase}/team-memberships/${teamId}`,
-                update: `${personBase}/team-memberships/${teamId}/--update`,
-                delete: `${personBase}/team-memberships/${teamId}/--delete`,
-            } as const),
+        person: (personId: string) => {
+            const personBase = `${base}/personnel/${personId}` as const
+            return {
+                href: personBase,
 
-            teamMemberships: {
-                label: 'Team Memberships',
-                href: `${personBase}/team-memberships`,
-                create: `${personBase}/team-memberships/--create`,
-            },
-        } as const
-    },
-    personnel: {
-        label: 'Personnel',
-        href: '/admin/personnel',
-        create: {
-            label: "Create",
-            href: '/admin/personnel/--create'
-        },
+                teamMembership: (teamId: string) => ({
+                    href: `${personBase}/team-memberships/${teamId}`,
+                    update: `${personBase}/team-memberships/${teamId}/--update`,
+                    delete: `${personBase}/team-memberships/${teamId}/--delete`,
+                } as const),
 
-        import: {
-            label: 'Import Personnel',
-            href: '/admin/personnel/--import',
-        }
-    } as const,
-    settings: {
-        label: 'Settings',
-        href: '/admin/settings',
-    },
-    skillPackage: (skillPackageId: string) => {
-        const packageBase = `/admin/skill-packages/${skillPackageId}` as const
-
-        return {
-            href: packageBase,
-            update: `${packageBase}/--update`,
-            delete: `${packageBase}/--delete`,
-
-            group: (skillGroupId: string) => ({
-                href: `${packageBase}/groups/${skillGroupId}`,
-                update: `${packageBase}/groups/${skillGroupId}/--update`,
-                delete: `${packageBase}/groups/${skillGroupId}/--delete`,
-            } as const),
-            groups: {
-                label: 'Groups',
-                create: {
-                    label: 'Create',
-                    href: `${packageBase}/groups/--create`
+                teamMemberships: {
+                    label: 'Team Memberships',
+                    href: `${personBase}/team-memberships`,
+                    create: `${personBase}/team-memberships/--create`,
                 },
-            },
-
-            skill: (skillId: string) => ({
-                href: `${packageBase}/skills/${skillId}`,
-                update: `${packageBase}/skills/${skillId}/--update`,
-                delete: `${packageBase}/skills/${skillId}/--delete`,
-            } as const),
-
-            skills: {
-                label: 'Skills',
-                create: {
-                    label: 'Create',
-                    href: `${packageBase}/skills/--create`
-                },
-            },
-        } as const
-    },
-    skillPackages: {
-        label: 'Skill Packages',
-        href: '/admin/skill-packages',
-        create: {
-            label: 'Create',
-            href: '/admin/skill-packages/--create'
+            } as const
         },
-        import: {
-            label: 'Import Skill Package',
-            href: '/admin/skill-packages/--import',
-        }
-    } as const,
-    team: (teamId: string) => {
-        const teamBase = `/admin/teams/${teamId}` as const
-        return {
-            href: teamBase,
+        personnel: {
+            label: 'Personnel',
+            href: `${base}/personnel`,
+            create: {
+                label: "Create",
+                href: `${base}/personnel/--create`
+            },
 
-            member: (personId: string) => ({
-                href: `${teamBase}/members/${personId}`,
-            } as const),
-            members: {
-                label: 'Members',
-                href: `${teamBase}/members`,
+            import: {
+                label: 'Import Personnel',
+                href: `${base}/personnel/--import`,
             }
-        } as const
-    },
-    teams: {
-        label: 'Teams',
-        href: '/admin/teams',
+        } as const,
+        settings: {
+            label: 'Settings',
+            href: `${base}/settings`,
+        },
+        skillPackage: (skillPackageId: string) => {
+            const packageBase = `${base}/skill-packages/${skillPackageId}` as const
 
-        create: {
-            label: "Create",
-            href: '/admin/teams/--create',
+            return {
+                href: packageBase,
+                update: `${packageBase}/--update`,
+                delete: `${packageBase}/--delete`,
+
+                group: (skillGroupId: string) => ({
+                    href: `${packageBase}/groups/${skillGroupId}`,
+                    update: `${packageBase}/groups/${skillGroupId}/--update`,
+                    delete: `${packageBase}/groups/${skillGroupId}/--delete`,
+                } as const),
+                groups: {
+                    label: 'Groups',
+                    create: {
+                        label: 'Create',
+                        href: `${packageBase}/groups/--create`
+                    },
+                },
+
+                skill: (skillId: string) => ({
+                    href: `${packageBase}/skills/${skillId}`,
+                    update: `${packageBase}/skills/${skillId}/--update`,
+                    delete: `${packageBase}/skills/${skillId}/--delete`,
+                } as const),
+
+                skills: {
+                    label: 'Skills',
+                    create: {
+                        label: 'Create',
+                        href: `${packageBase}/skills/--create`
+                    },
+                },
+            } as const
+        },
+        skillPackages: {
+            label: 'Skill Packages',
+            href: `${base}/skill-packages`,
+            create: {
+                label: 'Create',
+                href: `${base}/skill-packages/--create`
+            },
+            import: {
+                label: 'Import Skill Package',
+                href: `${base}/skill-packages/--import`,
+            }
+        } as const,
+        team: (teamId: string) => {
+            const teamBase = `${base}/teams/${teamId}` as const
+            return {
+                href: teamBase,
+
+                member: (personId: string) => ({
+                    href: `${teamBase}/members/${personId}`,
+                } as const),
+                members: {
+                    label: 'Members',
+                    href: `${teamBase}/members`,
+                }
+            } as const
+        },
+        teams: {
+            label: 'Teams',
+            href: `${base}/teams`,
+
+            create: {
+                label: "Create",
+                href: `${base}/teams/--create`,
+            }
         }
-    }
-} as const
+    } as const
+}
 
-export const cardsModule = {
-    label: 'Reference Cards',
-    href: '/cards'
-} as const
+    export const cardsModule = {
+        label: 'Reference Cards',
+        href: '/cards'
+    } as const
 
-export const d4hModule = {
-    label: 'D4H Integration',
-    href: '/d4h',
-    activities: {
-        label: 'Activities',
-        href: '/d4h/activities',
-        bgColor: 'bg-teal-400'
-    },
-    calendar: {
-        label: 'Calendar',
-        href: '/d4h/calendar',
-        bgColor: 'bg-yellow-400'
-    },
-    
-    equipment: {
-        label: 'Equipment',
-        href: '/d4h/equipment',
-        bgColor: 'bg-red-400'
-    },
-    personnel: {
-        label: 'Personnel',
-        href: '/d4h/personnel',
-        bgColor: 'bg-blue-400'
-    },
+    export const d4hModule = {
+        label: 'D4H Integration',
+        href: '/d4h',
+        activities: {
+            label: 'Activities',
+            href: '/d4h/activities',
+            bgColor: 'bg-teal-400'
+        },
+        calendar: {
+            label: 'Calendar',
+            href: '/d4h/calendar',
+            bgColor: 'bg-yellow-400'
+        },
+        
+        equipment: {
+            label: 'Equipment',
+            href: '/d4h/equipment',
+            bgColor: 'bg-red-400'
+        },
+        personnel: {
+            label: 'Personnel',
+            href: '/d4h/personnel',
+            bgColor: 'bg-blue-400'
+        },
 } as const
 
 export const dashboard = {

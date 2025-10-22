@@ -38,7 +38,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function TeamMembership_Details_Card({ context, personId, teamId }: { context: 'person' | 'team', personId: string, teamId: string }) {
+export function TeamMembership_Details_Card({ context, orgSlug, personId, teamId }: { context: 'person' | 'team', orgSlug: string, personId: string, teamId: string }) {
     const router = useRouter()
 
     const { data: { person, team, ...membership } } = useSuspenseQuery(trpc.teamMemberships.getTeamMembership.queryOptions({ personId, teamId }))
@@ -60,8 +60,8 @@ export function TeamMembership_Details_Card({ context, personId, teamId }: { con
                     </Tooltip>
                     <DeleteTeamMembershipDialog
                         onDelete={() => {
-                            if(context == 'person') router.push(Paths.adminModule.person(person.personId).href)
-                            else router.push(Paths.adminModule.team(team.teamId).href)
+                            if(context == 'person') router.push(Paths.adminModule(orgSlug).person(person.personId).href)
+                            else router.push(Paths.adminModule(orgSlug).team(team.teamId).href)
                         }}
                         personId={personId}
                         teamId={teamId}
@@ -80,11 +80,11 @@ export function TeamMembership_Details_Card({ context, personId, teamId }: { con
                     <ToruGrid>
                         <ToruGridRow
                             label="Team"
-                            control={<DisplayValue><TextLink to={Paths.adminModule.team(team.teamId)}>{team.name}</TextLink></DisplayValue>}
+                            control={<DisplayValue><TextLink to={Paths.adminModule(orgSlug).team(teamId)}>{team.name}</TextLink></DisplayValue>}
                         />
                         <ToruGridRow
                             label="Person"
-                            control={<DisplayValue><TextLink to={Paths.adminModule.person(person.personId)}>{person.name}</TextLink></DisplayValue>}
+                            control={<DisplayValue><TextLink to={Paths.adminModule(orgSlug).person(personId)}>{person.name}</TextLink></DisplayValue>}
                         />
                         <ToruGridRow
                             label="Tags"

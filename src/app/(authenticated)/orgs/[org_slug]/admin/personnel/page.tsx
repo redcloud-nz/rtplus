@@ -1,0 +1,37 @@
+/*
+ *  Copyright (c) 2025 Redcloud Development, Ltd.
+ *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
+ * 
+ *  Path: /orgs/[org_slug]/admin/personnel
+ */
+
+import { Metadata } from 'next'
+
+import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
+import { Boundary } from '@/components/boundary'
+import * as Paths from '@/paths'
+
+import { AdminModule_PersonnelList } from './personnel-list' 
+
+
+export const metadata: Metadata = { title: "Personnel" }
+
+
+export default async function AdminModule_PersonnelList_Page(props: PageProps<'/orgs/[org_slug]/admin/personnel'>) {
+    const { org_slug } = await props.params
+
+    return <AppPage>
+        <AppPageBreadcrumbs 
+            breadcrumbs={[
+                Paths.adminModule(org_slug), 
+                Paths.adminModule(org_slug).personnel
+            ]}
+        />
+        <AppPageContent variant="container">
+            <Boundary>
+                <AdminModule_PersonnelList org_slug={org_slug}/>
+            </Boundary>
+            
+        </AppPageContent>
+    </AppPage>
+}
