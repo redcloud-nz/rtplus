@@ -30,7 +30,7 @@ export async function verifyUserConsistency(args: { userId: string, orgId: strin
     if(orgId) {
         // The user is signed in to an organization
 
-        const org = await ensureOrgRecord(orgId, clerkClient)
+        await ensureOrgRecord(orgId, clerkClient)
 
         await connectPersonRecord(user, orgId)
     }

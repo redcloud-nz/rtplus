@@ -14,7 +14,6 @@ import { toPersonData, personSchema, personRefSchema, toPersonRef, PersonId } fr
 import { toSkillData, skillSchema, SkillId } from '@/lib/schemas/skill'
 import { toSkillCheckData, skillCheckSchema, SkillCheckId } from '@/lib/schemas/skill-check'
 import { toSkillCheckSessionData, skillCheckSessionSchema, SkillCheckSessionId } from '@/lib/schemas/skill-check-session'
-import { zodNanoId8 } from '@/lib/validation'
 
 import { createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
 import { Messages } from '../messages'
@@ -212,8 +211,11 @@ export const skillChecksRouter = createTRPCRouter({
         .output(skillCheckSchema)
         .mutation(async ({ ctx, input }) => {
 
-            const assessorId = ctx.auth.personId
-            if(!assessorId) throw new TRPCError({ code: 'FORBIDDEN', message: "Only users linked to a person can create skill checks." })
+            // Validate the assessor exists in the organization
+            const assessor = await ctx.prisma.person.findFirst({
+                where: { userId: ctx.auth.userId, orgId: ctx.auth.activeOrg.orgId }
+            })
+            if(!assessor) throw new TRPCError({ code: 'FORBIDDEN', message: "Only users linked to a person can create skill checks." })
 
             const created = await ctx.prisma.skillCheck.create({
                 data: {
@@ -226,7 +228,7 @@ export const skillChecksRouter = createTRPCRouter({
                     checkStatus: 'Include',
                     skillId: input.skillId,
                     assesseeId: input.assesseeId,
-                    assessorId: assessorId
+                    assessorId: assessor.personId
                 }
             })
 
@@ -508,10 +510,13 @@ export const skillChecksRouter = createTRPCRouter({
         .output(z.array(skillCheckSchema))
         .query(async ({ ctx, input: { sessionId, assessorId } }) => {
             if(assessorId === 'me') {
-                if(!ctx.auth.personId) {
+                const assessor = await ctx.prisma.person.findFirst({
+                    where: { userId: ctx.auth.userId, orgId: ctx.auth.activeOrg.orgId }
+                })
+                if(!assessor) {
                     throw new TRPCError({ code: 'FORBIDDEN', message: "Only users linked to a person can filter by 'me'." })
                 }
-                assessorId = ctx.auth.personId
+                assessorId = assessor.personId as PersonId
             }
 
             const session = await ctx.prisma.skillCheckSession.findUnique({
@@ -809,8 +814,12 @@ export const skillChecksRouter = createTRPCRouter({
         }))
         .mutation(async ({ ctx, input }) => {
 
-            const assessorId = ctx.auth.personId
-            if(!assessorId) throw new TRPCError({ code: 'FORBIDDEN', message: "Only users linked to a person can create skill checks." })
+            // Validate the assessor exists in the organization
+            const assessor = await ctx.prisma.person.findFirst({
+                where: { userId: ctx.auth.userId, orgId: ctx.auth.activeOrg.orgId }
+            })
+            if(!assessor) throw new TRPCError({ code: 'FORBIDDEN', message: "Only users linked to a person can create skill checks." })
+
             const session = ctx.skillCheckSession
 
             const updated = await ctx.prisma.skillCheckSession.update({
@@ -829,7 +838,7 @@ export const skillChecksRouter = createTRPCRouter({
                                 checkStatus: 'Draft',
                                 skillId: input.skillId,
                                 assesseeId: input.assesseeId,
-                                assessorId: assessorId,
+                                assessorId: assessor.personId,
                                 
                             },
                             update: {
@@ -872,9 +881,11 @@ export const skillChecksRouter = createTRPCRouter({
             checks: z.array(skillCheckSchema.pick({ skillCheckId: true, skillId: true, assesseeId: true, result: true, notes: true }))
         }))
         .mutation(async ({ ctx, input }) => {
-            const assessorId = ctx.auth.personId
-            if(!assessorId) throw new TRPCError({ code: 'FORBIDDEN', message: "Only users linked to a person can create skill checks." })
-
+            // Validate the assessor exists in the organization
+            const assessor = await ctx.prisma.person.findFirst({
+                where: { userId: ctx.auth.userId, orgId: ctx.auth.activeOrg.orgId }
+            })
+            if(!assessor) throw new TRPCError({ code: 'FORBIDDEN', message: "Only users linked to a person can create skill checks." })
 
             const session = ctx.skillCheckSession
 
@@ -891,7 +902,7 @@ export const skillChecksRouter = createTRPCRouter({
                         skillId: inputCheck.skillId,
                         sessionId: input.sessionId,
                         assesseeId: inputCheck.assesseeId,
-                        assessorId: assessorId,
+                        assessorId: assessor.personId,
                     },
                     update: {
                         result: inputCheck.result,

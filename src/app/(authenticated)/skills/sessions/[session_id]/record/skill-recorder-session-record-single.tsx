@@ -126,7 +126,7 @@ export function SkillRecorder_Session_RecordSingle({ session }: { session: Skill
             const previousChecks = queryClient.getQueryData(queryKey)
 
             if (previousChecks) {
-                const skillCheck = skillCheckSchema.parse({ ...data, assessorId: assessor.personId, passed: isPass(data.result as CompetenceLevel), date: session.date, timestamp: new Date().toISOString(), checkStatus: 'Draft' })
+                const skillCheck = skillCheckSchema.parse({ ...data, assessorId: assessor?.personId, passed: isPass(data.result as CompetenceLevel), date: session.date, timestamp: new Date().toISOString(), checkStatus: 'Draft' })
 
                 queryClient.setQueryData(queryKey, (prev = []) => 
                     // Update or add the skill check
@@ -181,7 +181,7 @@ export function SkillRecorder_Session_RecordSingle({ session }: { session: Skill
                             <SelectContent>
                                                             
                                 {assessees.map(assessee => (
-                                    <SelectItem key={assessee.personId} value={assessee.personId} disabled={assessee.personId === assessor.personId}>
+                                    <SelectItem key={assessee.personId} value={assessee.personId} disabled={assessee.personId === assessor?.personId}>
                                         {assessee.name}
                                     </SelectItem>
                                 ))}

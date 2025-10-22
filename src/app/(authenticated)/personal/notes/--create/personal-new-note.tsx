@@ -35,25 +35,24 @@ export function Personal_NewNote_Card() {
         resolver: zodResolver(noteSchema),
         defaultValues: {
             noteId,
-            personId: null,
-            teamId: null,
             title: '',
             content: '',
+            tags: [],
+            properties: {},
             date: new Date().toISOString().split('T')[0],
         }
     })
 
     const createNoteMutation = useMutation(trpc.notes.createNote.mutationOptions({
         async onMutate(data) {
+            const update = noteSchema.parse(data)
+
             await queryClient.cancelQueries(trpc.notes.getPersonalNotes.queryFilter())
 
             const previousNotes = queryClient.getQueryData(trpc.notes.getPersonalNotes.queryKey())
 
             queryClient.setQueryData(trpc.notes.getPersonalNotes.queryKey(), (old: NoteData[] = []) => {
-                return [
-                    ...old,
-                    data
-                ]
+                return [ ...old, update ]
             })
 
             return { previousNotes }

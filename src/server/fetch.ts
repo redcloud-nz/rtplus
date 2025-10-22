@@ -130,3 +130,9 @@ export async function fetchTeamMembership(params: Promise<{ person_id: string, t
             return error
     })
 }
+
+
+export async function fetchCurrentPerson(): Promise<PersonData | null> {
+    return getQueryClient()
+        .fetchQuery(trpc.personnel.getCurrentPerson.queryOptions())
+}

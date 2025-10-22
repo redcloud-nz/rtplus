@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import { differenceWith, entries, filter, flatMap, fromEntries, isEmpty, map, omit, pick, pickBy, pipe } from 'remeda'
+import { differenceWith, entries, filter, flatMap, fromEntries, isEmpty, map, omit, pick, pipe } from 'remeda'
 import { z } from 'zod'
 
 import { Skill as SkillRecord, SkillGroup as SkillGroupRecord, SkillPackage as SkillPackageRecord } from '@prisma/client'
@@ -16,7 +16,7 @@ import { SkillGroupId, skillGroupSchema, toSkillGroupData } from '@/lib/schemas/
 import { SkillPackageId, skillPackageSchema, toSkillPackageData } from '@/lib/schemas/skill-package'
 import { TeamId } from '@/lib/schemas/team'
 import { assertNonNull } from '@/lib/utils'
-import { zodNanoId8, recordStatusParameterSchema } from '@/lib/validation'
+import { recordStatusParameterSchema } from '@/lib/validation'
 import { TRPCError } from '@trpc/server'
 
 import { AuthenticatedContext, AuthenticatedOrgContext, authenticatedProcedure, createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
@@ -572,7 +572,8 @@ async function importPackage(ctx: AuthenticatedOrgContext, skillPackage: SkillPa
                         event: 'Create',
                         userId: ctx.auth.userId,
                         timestamp: new Date(),
-                        description: "Import skill package"
+                        description: "Import skill package",
+                        changes: changes as object[],
                     }
                 }
             }

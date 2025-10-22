@@ -106,7 +106,7 @@ export function AdminModule_PersonnelList() {
                 </EmptyMedia>
                 <EmptyTitle>No Personnel Yet</EmptyTitle>
                 <EmptyDescription>
-                    You haven't added any personnel to your organisation. 
+                    You haven&apos;t added any personnel to your organisation. 
                     <Protect role="org:admin" fallback="Ask your administrator to add one.">Get started by adding some.</Protect>
                 </EmptyDescription>
             </EmptyHeader>

@@ -12,15 +12,16 @@ import { FormProvider, useForm } from 'react-hook-form'
 import z from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 
 import { DatePicker } from '@/components/controls/date-picker'
 import { PersonPicker } from '@/components/controls/person-picker'
-import { CurrentPersonValue } from '@/components/controls/person-value'
+
 import { SkillPicker } from '@/components/controls/skill-picker'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CompetenceLevelRadioGroup } from '@/components/ui/competence-level-radio-group'
+import { DisplayValue } from '@/components/ui/display-value'
 import { Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Textarea } from '@/components/ui/textarea'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
@@ -32,6 +33,9 @@ import { skillCheckSchema } from '@/lib/schemas/skill-check'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
+import { PersonRequireMessage } from '../../person-required-message'
+
+
 
 
 
@@ -41,6 +45,10 @@ const singleSkillCheckSchema = skillCheckSchema.pick({ skillCheckId: true, skill
 export function SkillsModule_NewCheck_Form() {
     const router = useRouter()
     const { toast } = useToast()
+
+    const { data: currentPerson } = useSuspenseQuery(trpc.personnel.getCurrentPerson.queryOptions())
+
+    
 
     const skillCheckId = useMemo(() => nanoId16(), [])
 
@@ -73,6 +81,8 @@ export function SkillsModule_NewCheck_Form() {
         }
     }))
 
+    if(!currentPerson) return <PersonRequireMessage/>
+
     return <Card>
         <CardHeader>
             <CardTitle>Record Skill Check</CardTitle>
@@ -84,7 +94,7 @@ export function SkillsModule_NewCheck_Form() {
                         
                         <ToruGridRow
                             label="Assessor"
-                            control={<CurrentPersonValue/>}
+                            control={<DisplayValue>{currentPerson.name}</DisplayValue>}
                         />
                         <FormField
                             control={form.control}

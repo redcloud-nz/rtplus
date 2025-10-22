@@ -5,15 +5,15 @@
 
 import { cache } from 'react'
 import superjson from 'superjson'
-import z from 'zod'
 
 import { auth, createClerkClient } from '@clerk/nextjs/server'
 
-import { PersonId } from '@/lib/schemas/person'
-import { orgIdSchema, userIdSchema } from '@/lib/validation'
-
+import { OrganizationId } from '@/lib/schemas/organization'
+import { UserId } from '@/lib/schemas/user'
 import {  initTRPC, TRPCError } from '@trpc/server'
 import prisma from '@/server/prisma'
+
+
 
 
 const DEVELOPMENT_DELAY = { min: 250, max: 1000 } // ms
@@ -27,17 +27,16 @@ interface Meta {
 }
 
 interface RTPlusAuth {
-    userId: string & z.BRAND<'ClerkUserId'>
-    personId: PersonId | null
+    userId: UserId
     activeOrg: {
-        orgId: string & z.BRAND<'ClerkOrgId'>,
+        orgId: OrganizationId,
         role: 'org:admin' | 'org:member'
     } | null
 }
 
 type RTPlusAuthWithActiveOrganization = RTPlusAuth & {
     activeOrg: {
-        orgId: string,
+        orgId: OrganizationId,
         role: 'org:admin' | 'org:member'
     }
 }
@@ -74,13 +73,12 @@ export const createTRPCContext = cache(async () => {
     }
 
     return createInnerTRPCContext({ 
-        auth: clerkAuth.userId 
+        auth: clerkAuth.userId
             ? { 
-                userId: userIdSchema.parse(clerkAuth.userId),
-                personId: clerkAuth.sessionClaims?.rt_person_id ? PersonId.schema.parse(clerkAuth.sessionClaims?.rt_person_id) : null,
+                userId: UserId.schema.parse(clerkAuth.userId),
                 activeOrg: clerkAuth.orgId 
                     ? {
-                        orgId: orgIdSchema.parse(clerkAuth.orgId!),
+                        orgId: OrganizationId.schema.parse(clerkAuth.orgId!),
                         role: clerkAuth.orgRole as 'org:admin' | 'org:member',
                     } 
                     : null

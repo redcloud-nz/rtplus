@@ -99,7 +99,7 @@ async function processWebhook(event: WebhookEvent) {
                 return
             }
             // No existing person - create a new one
-            const created = await prisma.person.create({
+            await prisma.person.create({
                 data: {
                     personId: PersonId.create(),
                     name: clerkUser.firstName + (clerkUser.lastName ? ` ${clerkUser.lastName}` : ''),
@@ -113,7 +113,7 @@ async function processWebhook(event: WebhookEvent) {
             })
 
         })
-        .with({ type: 'organizationMembership.updated' }, async ({ data }) => {
+        .with({ type: 'organizationMembership.updated' }, async () => {
             // Nothing to do here for now
             
 

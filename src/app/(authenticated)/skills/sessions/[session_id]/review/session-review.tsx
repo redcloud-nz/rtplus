@@ -35,6 +35,7 @@ export function SkillsModule_SessionReview_Card({ session }: { session: SkillChe
     })
 
     // Find any assessees that were assigned to the session but have no recorded checks
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const unusedAssessees = assignedAssessees.filter(a => !distinctAssessees.some(d => d.personId === a.personId))
 
 
@@ -45,7 +46,7 @@ export function SkillsModule_SessionReview_Card({ session }: { session: SkillChe
             <CardActions>
                 <Separator orientation="vertical"/>
                 <CardExplanation>
-                    After recording a skill check session, you can review the recorded checks here before committing them to the team's skill check history.
+                    After recording a skill check session, you can review the recorded checks here before committing them to the team&apos;s skill check history.
                 </CardExplanation>
             </CardActions>
         </CardHeader>

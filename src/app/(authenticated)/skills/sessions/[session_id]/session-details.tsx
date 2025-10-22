@@ -8,6 +8,7 @@ import { PencilIcon, TrashIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+import { omit } from 'remeda'
 import { match } from 'ts-pattern'
 import z from 'zod'
 
@@ -33,6 +34,7 @@ import { SkillCheckSessionData, SkillCheckSessionId, skillCheckSessionSchema } f
 import { formatDate } from '@/lib/utils'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
+
 
 
 
@@ -121,14 +123,14 @@ function UpdateSession_Form({ onClose, session }: { onClose: () => void, session
     })
 
     const mutation = useMutation(trpc.skillChecks.updateSession.mutationOptions({
-        async onMutate({ sessionId, ...formData }) {
+        async onMutate(formData) {
 
             await queryClient.cancelQueries(queryFilter)
 
             const previousData = queryClient.getQueryData(queryKey)
 
             if(previousData) {
-                queryClient.setQueryData(queryKey, { ...previousData, ...formData })
+                queryClient.setQueryData(queryKey, { ...previousData, ...omit(formData, ['sessionId']) })
             }
 
             onClose()

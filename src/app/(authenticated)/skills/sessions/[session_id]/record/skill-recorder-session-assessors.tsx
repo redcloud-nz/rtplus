@@ -19,7 +19,6 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { useToast } from '@/hooks/use-toast'
 import { PersonRef } from '@/lib/schemas/person'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
-import { TeamData } from '@/lib/schemas/team'
 import { trpc } from '@/trpc/client'
 
 

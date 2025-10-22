@@ -14,7 +14,9 @@ import { Show } from '@/components/show'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import { fetchSkillCheckSession } from '@/server/fetch'
+import { fetchCurrentPerson, fetchSkillCheckSession } from '@/server/fetch'
+
+import { PersonRequireMessage } from '../../../person-required-message'
 
 import { SkillRecorder_Session_Assessees } from './skill-recorder-session-assessees'
 import { SkillRecorder_Session_Details } from './skill-recorder-session-details'
@@ -28,6 +30,7 @@ import { SkillRecorder_Session_Transcript } from './skill-recorder-session-trans
 
 
 
+
 export async function generateMetadata(props: PageProps<'/skills/sessions/[session_id]/record'>) {
     const session = await fetchSkillCheckSession(props.params)
 
@@ -35,7 +38,21 @@ export async function generateMetadata(props: PageProps<'/skills/sessions/[sessi
 }
 
 export default async function SkillsModule_SessionRecord_Page(props: PageProps<'/skills/sessions/[session_id]/record'>) {
-    const session = await fetchSkillCheckSession(props.params)
+    const [session, currentPerson] = await Promise.all([
+        fetchSkillCheckSession(props.params),
+        fetchCurrentPerson()
+    ])
+
+    if(!currentPerson) {
+        return <AppPage>
+            <AppPageBreadcrumbs
+                breadcrumbs={["Skill Recorder"]}
+            />
+            <AppPageContent variant="container" className="p-4">
+                <PersonRequireMessage/>
+            </AppPageContent>
+        </AppPage>
+    }
 
     return <AppPage>
         <AppPageBreadcrumbs

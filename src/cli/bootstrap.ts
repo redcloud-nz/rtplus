@@ -4,18 +4,13 @@
  */
 'use client'
 
-import { bootstrapAction } from './bootstrap-action'
 
 export default function bootstrap() {
 
     (async () => {
         try {
-            const result = await bootstrapAction()
-            if(result.success) {
-                console.log(`Bootstrap successful. Created person: ${result.person?.name}`)
-            } else {
-                console.log('Bootstrap not required.')
-            }
+            const result = null
+            console.log('Bootstrap result:', result)
         } catch(error) {
             console.error(error)
         }

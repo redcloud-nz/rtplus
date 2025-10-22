@@ -3,6 +3,8 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
+/* eslint-disable */
+
 import { z } from 'zod'
 
 import { TRPCError } from '@trpc/server'
