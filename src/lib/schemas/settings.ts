@@ -16,7 +16,7 @@ export const organizationSettingsSchema = z.object({
         }).default({ enabled: false }),
         skills: z.object({
             enabled: z.boolean().default(true),
-        }).default({ enabled: true }),
+        }).default({ enabled: false }),
         
        
     }).default({}),

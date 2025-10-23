@@ -16,9 +16,9 @@ export default async function ImportPersonnel(props: PageProps<'/orgs/[org_slug]
     return <AppPage>
         <AppPageBreadcrumbs 
             breadcrumbs={[
-                Paths.adminModule(orgSlug),
-                Paths.adminModule(orgSlug).personnel,
-                Paths.adminModule(orgSlug).personnel.import
+                Paths.org(orgSlug).admin,
+                Paths.org(orgSlug).admin.personnel,
+                Paths.org(orgSlug).admin.personnel.import
             ]}
         />
         <NotImplemented />

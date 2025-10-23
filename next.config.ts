@@ -25,12 +25,13 @@ const packageData = packageDataJson as unknown as PackageData;
 const appMetadata = packageData['nz.rtplus']
 
 const nextConfig: NextConfig = {
-  env: {
-    NEXT_PUBLIC_APP_VERSION: appMetadata?.version,
-    NEXT_PUBLIC_APP_VERSION_NAME: appMetadata?.versionName,
-    NEXT_PUBLIC_APP_DISPLAY_NAME: appMetadata?.displayName,
-    NEXT_PUBLIC_APP_REPOSITORY_URL: appMetadata?.repositoryUrl,
-  }
+    cacheComponents: true,
+    env: {
+        NEXT_PUBLIC_APP_VERSION: appMetadata?.version,
+        NEXT_PUBLIC_APP_VERSION_NAME: appMetadata?.versionName,
+        NEXT_PUBLIC_APP_DISPLAY_NAME: appMetadata?.displayName,
+        NEXT_PUBLIC_APP_REPOSITORY_URL: appMetadata?.repositoryUrl,
+    },
 }
 
 export default nextConfig

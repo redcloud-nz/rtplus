@@ -5,8 +5,10 @@
 
 import { z } from 'zod'
 
-
+import { Organization as ClerkOrganization } from '@clerk/nextjs/server'
 import { Organization as OrganizationRecord } from '@prisma/client'
+
+import { organizationSettingsSchema } from './settings'
 
 export type OrganizationId = string & z.BRAND<'OrganizationId'>
 
@@ -16,12 +18,18 @@ export const OrganizationId = {
 
 export const organizationSchema = z.object({
     orgId: OrganizationId.schema,
+    slug: z.string().min(3).max(50),
     name: z.string().min(3).max(100),
-    settings: z.record(z.any()),
+    settings: organizationSettingsSchema,
 })
 
-export function toOrganizationData(record: OrganizationRecord) {
-    return organizationSchema.parse(record)
+export function toOrganizationData(record: OrganizationRecord, clerkOrganization: ClerkOrganization): OrganizationData {
+    return organizationSchema.parse({
+        orgId: record.orgId,
+        slug: clerkOrganization.slug,
+        name: clerkOrganization.name,
+        settings: organizationSettingsSchema.parse(record.settings),
+    })
 }
 
 export type OrganizationData = z.infer<typeof organizationSchema>

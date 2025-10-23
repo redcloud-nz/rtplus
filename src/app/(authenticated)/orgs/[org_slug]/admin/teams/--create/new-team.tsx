@@ -20,6 +20,7 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { TeamData, teamSchema } from '@/lib/schemas/team'
 import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
@@ -28,7 +29,8 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function AdminModule_NewTeam_Form({ orgSlug }: { orgSlug: string }) {
+
+export function AdminModule_NewTeam_Form({ organization }: { organization: OrganizationData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -67,7 +69,7 @@ export function AdminModule_NewTeam_Form({ orgSlug }: { orgSlug: string }) {
             })
 
             queryClient.invalidateQueries(trpc.teams.getTeams.queryFilter())
-            router.push(Paths.adminModule(orgSlug).team(teamId).href)
+            router.push(Paths.org(organization.slug).admin.team(teamId).href)
         }
     }))
 

@@ -11,8 +11,10 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
+import { getOrganization } from '@/server/organization'
 
 import { AdminModile_NewSkillPackage_Form } from './new-skill-package'
+
 
 
 export const metadata: Metadata = {
@@ -21,13 +23,14 @@ export const metadata: Metadata = {
 
 export default async function AdminModile_NewSkillPackage_Page(props: PageProps<'/orgs/[org_slug]/admin/skill-packages/--create'>) {
     const { org_slug: orgSlug } = await props.params
+    const organisation = await getOrganization(orgSlug)
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.adminModule(orgSlug),
-                Paths.adminModule(orgSlug).skillPackages,
-                Paths.adminModule(orgSlug).skillPackages.create
+                Paths.org(orgSlug).admin,
+                Paths.org(orgSlug).admin.skillPackages,
+                Paths.org(orgSlug).admin.skillPackages.create
             ]}
         />
         <AppPageContent variant="container">
@@ -36,7 +39,7 @@ export default async function AdminModile_NewSkillPackage_Page(props: PageProps<
             </PageHeader>
 
             <Boundary>
-                <AdminModile_NewSkillPackage_Form orgSlug={orgSlug} />
+                <AdminModile_NewSkillPackage_Form organization={organisation} />
             </Boundary>
         </AppPageContent>
     </AppPage>

@@ -26,6 +26,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 import { useToast } from '@/hooks/use-toast'
 import { EditableFeature } from '@/lib/editable-feature'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { PersonData } from '@/lib/schemas/person'
 import { TeamMembershipData } from '@/lib/schemas/team-membership'
 import { TeamId, TeamRef } from '@/lib/schemas/team'
@@ -33,12 +34,13 @@ import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
+
 /**
  * Card that displays the team memberships for a specific person.
  * It allows adding, editing, and deleting team memberships.
  * @param personId The ID of the person for whom to display team memberships.
  */
-export function AdminModule_Person_TeamMembershipList({ orgSlug, person }: { orgSlug: string, person: PersonData }) {
+export function AdminModule_Person_TeamMembershipList({ organization, person }: { organization: OrganizationData, person: PersonData }) {
     
     const queryClient = useQueryClient()
     const { toast } = useToast()
@@ -128,7 +130,7 @@ export function AdminModule_Person_TeamMembershipList({ orgSlug, person }: { org
                     )
                 })
                 .otherwise(() => 
-                    <TextLink to={Paths.adminModule(orgSlug).person(person.personId).teamMembership(ctx.row.original.teamId)}>{ctx.getValue()}</TextLink>
+                    <TextLink to={Paths.org(organization.slug).admin.person(person.personId).teamMembership(ctx.row.original.teamId)}>{ctx.getValue()}</TextLink>
                 )
             ),
             enableGrouping: false,

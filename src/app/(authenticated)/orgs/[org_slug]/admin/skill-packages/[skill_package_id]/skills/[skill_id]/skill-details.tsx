@@ -29,6 +29,7 @@ import { ObjectName } from '@/components/ui/typography'
 import { TextLink } from '@/components/ui/link'
 
 import { useToast } from '@/hooks/use-toast'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { SkillData, skillSchema } from '@/lib/schemas/skill'
 import { SkillGroupData } from '@/lib/schemas/skill-group'
 import { SkillPackageData } from '@/lib/schemas/skill-package'
@@ -40,12 +41,13 @@ import { trpc } from '@/trpc/client'
 
 
 
+
 /**
  * Card that displays the details of a skill and allows the user to edit or delete it.
  * @param skillId The ID of the skill to display.
  * @param skillPackageId The ID of the skill package that the skill belongs to.
  */
-export function AdminModule_SkillDetails({ skillId, skillPackageId }: { skillId: string, skillPackageId: string }) {
+export function AdminModule_SkillDetails({ organization, skillId, skillPackageId }: { organization: OrganizationData, skillId: string, skillPackageId: string }) {
 
     
     const { data: skill } = useSuspenseQuery(trpc.skills.getSkill.queryOptions({ skillId, skillPackageId }))
@@ -65,14 +67,13 @@ export function AdminModule_SkillDetails({ skillId, skillPackageId }: { skillId:
                     </TooltipTrigger>
                     <TooltipContent>Edit skill</TooltipContent>
                 </Tooltip>
-                <DeleteSkillDialog skill={skill} />
+                <DeleteSkillDialog organization={organization} skill={skill} />
 
                 <Separator orientation="vertical"/>
 
                 <CardExplanation>
                     This skill defines a specific competency that can be assessed within a skill group. 
                     Skills can be marked as optional or required and have different assessment frequencies.
-                    <br/>
                     <br/>
                     You can edit the skill details or delete it if it is no longer needed.
                 </CardExplanation>
@@ -90,7 +91,7 @@ export function AdminModule_SkillDetails({ skillId, skillPackageId }: { skillId:
                             label="Skill Package"
                             control={
                                 <DisplayValue>
-                                    <TextLink to={Paths.adminModule.skillPackage(skill.skillPackageId)}>
+                                    <TextLink to={Paths.org(organization.slug).admin.skillPackage(skill.skillPackageId)}>
                                         {skill.skillPackage.name}
                                     </TextLink>
                                 </DisplayValue>
@@ -100,7 +101,7 @@ export function AdminModule_SkillDetails({ skillId, skillPackageId }: { skillId:
                             label="Skill Group"
                             control={
                                 <DisplayValue>
-                                    <TextLink to={Paths.adminModule.skillPackage(skill.skillPackageId).group(skill.skillGroupId)}>
+                                    <TextLink to={Paths.org(organization.slug).admin.skillPackage(skill.skillPackageId).group(skill.skillGroupId)}>
                                         {skill.skillGroup.name}
                                     </TextLink>
                                 </DisplayValue>
@@ -127,6 +128,7 @@ export function AdminModule_SkillDetails({ skillId, skillPackageId }: { skillId:
                 )
                 .with('Update', () => 
                     <UpdateSkillForm
+                        organization={organization}
                         skillPackage={skill.skillPackage}
                         skillGroup={skill.skillGroup}
                         skill={skill}
@@ -145,7 +147,7 @@ export function AdminModule_SkillDetails({ skillId, skillPackageId }: { skillId:
  * @param onClose Callback to close the form.
  * @param skill The skill to update.
  */
-function UpdateSkillForm({ onClose, skill, skillPackage, skillGroup }: { onClose: () => void, skill: SkillData, skillPackage: SkillPackageData, skillGroup: SkillGroupData }) {
+function UpdateSkillForm({ onClose, organization, skill, skillPackage, skillGroup }: { onClose: () => void, organization: OrganizationData, skill: SkillData, skillPackage: SkillPackageData, skillGroup: SkillGroupData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     
@@ -198,7 +200,7 @@ function UpdateSkillForm({ onClose, skill, skillPackage, skillGroup }: { onClose
                         label="Skill Package"
                         control={
                             <DisplayValue>
-                                <TextLink to={Paths.adminModule.skillPackage(skill.skillPackageId)}>
+                                <TextLink to={Paths.org(organization.slug).admin.skillPackage(skill.skillPackageId)}>
                                     {skillPackage.name}
                                 </TextLink>
                             </DisplayValue>
@@ -212,7 +214,7 @@ function UpdateSkillForm({ onClose, skill, skillPackage, skillGroup }: { onClose
                         label="Skill Group"
                         control={
                             <DisplayValue>
-                                <TextLink to={Paths.adminModule.skillPackage(skill.skillPackageId).group(skill.skillGroupId)}>
+                                <TextLink to={Paths.org(organization.slug).admin.skillPackage(skill.skillPackageId).group(skill.skillGroupId)}>
                                     {skillGroup.name}
                                 </TextLink>
                             </DisplayValue>
@@ -271,7 +273,7 @@ function UpdateSkillForm({ onClose, skill, skillPackage, skillGroup }: { onClose
  * @param skill The skill to delete.
  * @param skillPackageId The ID of the skill package that the skill belongs to.
  */
-function DeleteSkillDialog({ skill }: { skill: SkillData }) {
+function DeleteSkillDialog({ organization, skill }: { organization: OrganizationData, skill: SkillData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -307,7 +309,7 @@ function DeleteSkillDialog({ skill }: { skill: SkillData }) {
 
             queryClient.invalidateQueries(trpc.skills.getSkills.queryFilter())
             queryClient.invalidateQueries(trpc.skills.getSkill.queryFilter({ skillId: skill.skillId }))
-            router.push(Paths.adminModule.skillPackage(skill.skillPackageId).group(skill.skillGroupId).href)
+            router.push(Paths.org(organization.slug).admin.skillPackage(skill.skillPackageId).group(skill.skillGroupId).href)
         }
     }))
 

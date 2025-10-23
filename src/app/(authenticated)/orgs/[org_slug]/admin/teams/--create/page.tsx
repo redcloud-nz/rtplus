@@ -10,21 +10,23 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } fr
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
+import { getOrganization } from '@/server/organization'
 
 import { AdminModule_NewTeam_Form } from './new-team'
 
 
+
 export default async function AdminModule_NewTeam_Page(props: PageProps<'/orgs/[org_slug]/admin/teams/--create'>) { 
     const { org_slug: orgSlug } = await props.params
+    const organization = await getOrganization(orgSlug)
 
-    const paths = Paths.adminModule(orgSlug)
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.adminModule(orgSlug), 
-                Paths.adminModule(orgSlug).teams,
-                Paths.adminModule(orgSlug).teams.create
+                Paths.org(orgSlug).admin, 
+                Paths.org(orgSlug).admin.teams,
+                Paths.org(orgSlug).admin.teams.create
             ]}
         />
         <AppPageContent variant="container">
@@ -33,7 +35,7 @@ export default async function AdminModule_NewTeam_Page(props: PageProps<'/orgs/[
             </PageHeader>
 
             <Boundary>
-                <AdminModule_NewTeam_Form orgSlug={orgSlug} />
+                <AdminModule_NewTeam_Form organization={organization} />
             </Boundary>
         </AppPageContent>
        

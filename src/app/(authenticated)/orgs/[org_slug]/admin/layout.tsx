@@ -16,13 +16,13 @@ import { DashboardIcon, PersonnelIcon, SettingsIcon, SkillsIcon, TeamsIcon } fro
 import { ModuleOnly } from '@/components/nav/module-only'
 
 
-export const metadata: Metadata = {
-    title: {
-        template: `%s | RT+ Admin`,
-        default: "Admin"
-    },
-    description: "RT+ Admin Module",
-}
+// export const metadata: Metadata = {
+//     title: {
+//         template: `%s | RT+ Admin`,
+//         default: "Admin"
+//     },
+//     description: "RT+ Admin Module",
+// }
 
 
 export default async function AdminModule_Layout(props: LayoutProps<'/orgs/[org_slug]/admin'>) {
@@ -31,13 +31,13 @@ export default async function AdminModule_Layout(props: LayoutProps<'/orgs/[org_
     return <>
         <AppSidebar moduleName="admin">
             <NavSection>
-                <NavItem path={pick(Paths.adminModule(orgSlug), ['href', 'label'])} label="Dashboard" icon={<DashboardIcon/>}/>
-                <NavItem path={Paths.adminModule(orgSlug).personnel} icon={<PersonnelIcon/>}/>
-                <NavItem path={Paths.adminModule(orgSlug).settings} icon={<SettingsIcon/>}/>
+                <NavItem path={pick(Paths.org(orgSlug).admin, ['href', 'label'])} label="Dashboard" icon={<DashboardIcon/>}/>
+                <NavItem path={Paths.org(orgSlug).admin.personnel} icon={<PersonnelIcon/>}/>
+                <NavItem path={Paths.org(orgSlug).admin.settings} icon={<SettingsIcon/>}/>
                 <ModuleOnly module="skills">
-                    <NavItem path={Paths.adminModule(orgSlug).skillPackages} icon={<SkillsIcon/>}/>
+                    <NavItem path={Paths.org(orgSlug).admin.skillPackages} icon={<SkillsIcon/>}/>
                 </ModuleOnly>
-                <NavItem path={Paths.adminModule(orgSlug).teams} icon={<TeamsIcon/>}/>
+                <NavItem path={Paths.org(orgSlug).admin.teams} icon={<TeamsIcon/>}/>
             </NavSection>
         </AppSidebar>
         {props.children}

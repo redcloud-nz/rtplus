@@ -23,6 +23,7 @@ import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
+import { OrganizationData } from '@/lib/schemas/organization'
 import { PersonData } from '@/lib/schemas/person'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
@@ -30,7 +31,8 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function AdminModule_PersonnelList({ org_slug}: { org_slug: string }) {
+
+export function AdminModule_PersonnelList({ organization }: { organization: OrganizationData }) {
     
     const { data: personnel, refetch } = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({}))
 
@@ -48,7 +50,7 @@ export function AdminModule_PersonnelList({ org_slug}: { org_slug: string }) {
         }),
         columnHelper.accessor('name', {
             header: 'Name',
-            cell : ctx => <TextLink to={Paths.adminModule(org_slug).person(ctx.row.original.personId)}>{ctx.getValue()}</TextLink>,
+            cell : ctx => <TextLink to={Paths.org(organization.slug).admin.person(ctx.row.original.personId)}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('email', {
@@ -112,7 +114,7 @@ export function AdminModule_PersonnelList({ org_slug}: { org_slug: string }) {
             <EmptyContent>
                 <Protect role="org:admin">
                     <Button asChild>
-                        <Link to={Paths.adminModule(org_slug).personnel.create}>
+                        <Link to={Paths.org(organization.slug).admin.personnel.create}>
                             <PlusIcon className="mr-2 h-4 w-4"/>
                             Add Person
                         </Link>
@@ -130,7 +132,7 @@ export function AdminModule_PersonnelList({ org_slug}: { org_slug: string }) {
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button variant="ghost" size="icon" asChild>
-                                        <Link to={Paths.adminModule(org_slug).personnel.create}>
+                                        <Link to={Paths.org(organization.slug).admin.personnel.create}>
                                             <PlusIcon />
                                         </Link>
                                     </Button>

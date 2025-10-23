@@ -36,9 +36,9 @@ export default function ImportSkillPackage_Page(props: PageProps<'/orgs/[org_slu
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.adminModule(orgSlug),
-                Paths.adminModule(orgSlug).skillPackages,
-                Paths.adminModule(orgSlug).skillPackages.import,
+                Paths.org(orgSlug).admin,
+                Paths.org(orgSlug).admin.skillPackages,
+                Paths.org(orgSlug).admin.skillPackages.import,
             ]}
         />
         <AppPageContent>

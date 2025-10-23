@@ -14,6 +14,7 @@ import { Jersey_10 } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
 
 import './globals.css'
+import { Suspense } from 'react'
 
 
 const geistSans = localFont({
@@ -43,18 +44,21 @@ export const metadata: Metadata = {
 };
 
 export default async function Root_Layout({ children }: Readonly<{ children: React.ReactNode }>) {
-    return <ClerkProvider
-        appearance={{
-            cssLayerName: 'clerk'
-        }}
-        taskUrls={{
-            'choose-organization': "/onboarding/choose-organization",
-        }}
-    >
-        <html lang="en">
+    return <html lang="en">
             <body className={`${geistSans.className} ${geistSans.variable} ${geistMono.variable} ${jersey10.variable} antialiased`}>
-                {children}
+                <Suspense>
+                    <ClerkProvider
+                        appearance={{
+                            cssLayerName: 'clerk'
+                        }}
+                        taskUrls={{
+                            'choose-organization': "/onboarding/choose-organization",
+                        }}
+                    >
+                        {children}
+                    </ClerkProvider>
+                </Suspense>
             </body>
         </html>
-    </ClerkProvider>
+    return 
 }

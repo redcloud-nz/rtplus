@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
+import { type OrganizationData } from './lib/schemas/organization'
 import { type SkillCheckSessionId } from './lib/schemas/skill-check-session'
 
 export const marketing = {
@@ -43,9 +44,26 @@ export const about = {
     href: '/about',
 } as const
 
-export type AdminModulePaths = ReturnType<typeof adminModule>
+type OrgPaths = {
+    admin: ReturnType<typeof adminModule>
+}
 
-export function adminModule(org_slug: string) {
+const orgPathCache = new Map<string, OrgPaths>()
+
+
+export function org(orgSlug: string): OrgPaths {
+    let paths = orgPathCache.get(orgSlug)
+    if(!paths) {
+        paths = {
+            admin: adminModule(orgSlug)
+        } satisfies OrgPaths
+        orgPathCache.set(orgSlug, paths)
+    }
+
+    return paths
+}
+
+function adminModule(org_slug: string) {
     const base = `/orgs/${org_slug}/admin` as const
 
     return {

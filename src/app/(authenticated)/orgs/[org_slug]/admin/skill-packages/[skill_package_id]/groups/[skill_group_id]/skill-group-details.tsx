@@ -29,6 +29,7 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { SkillGroupData, skillGroupSchema } from '@/lib/schemas/skill-group'
 import { SkillPackageData } from '@/lib/schemas/skill-package'
 import { zodNanoId8 } from '@/lib/validation'
@@ -38,12 +39,13 @@ import { trpc } from '@/trpc/client'
 
 
 
+
 /**
  * Card that displays the details of a skill group and allows the user to edit or delete it.
  * @param skillGroupId The ID of the skill group to display.
  * @param skillPackageId The ID of the skill package that the skill group belongs to.
  */
-export function AdminModule_SkillGroupDetails({ skillGroupId, skillPackageId }: { skillGroupId: string, skillPackageId: string }) {
+export function AdminModule_SkillGroupDetails({ organization, skillGroupId, skillPackageId }: { organization: OrganizationData, skillGroupId: string, skillPackageId: string }) {
 
     
     const { data: skillGroup } = useSuspenseQuery(trpc.skills.getGroup.queryOptions({ skillGroupId, skillPackageId }))
@@ -64,7 +66,7 @@ export function AdminModule_SkillGroupDetails({ skillGroupId, skillPackageId }: 
                         </TooltipTrigger>
                         <TooltipContent>Edit skill group</TooltipContent>
                     </Tooltip>
-                    <DeleteSkillGroupDialog skillGroup={skillGroup} />
+                    <DeleteSkillGroupDialog organization={organization} skillGroup={skillGroup} />
                 </Protect>
                 
 
@@ -91,7 +93,7 @@ export function AdminModule_SkillGroupDetails({ skillGroupId, skillPackageId }: 
                             label="Skill Package"
                             control={
                                 <DisplayValue>
-                                    <TextLink to={Paths.adminModule.skillPackage(skillGroup.skillPackageId)}>
+                                    <TextLink to={Paths.org(organization.slug).admin.skillPackage(skillGroup.skillPackageId)}>
                                         {skillGroup.skillPackage.name}
                                     </TextLink>
                                 </DisplayValue>
@@ -118,6 +120,7 @@ export function AdminModule_SkillGroupDetails({ skillGroupId, skillPackageId }: 
                 )
                 .with('Update', () => 
                     <UpdateSkillGroupForm
+                        organization={organization}
                         skillGroup={skillGroup}
                         skillPackage={skillGroup.skillPackage}
                         onClose={() => setMode('View')}
@@ -135,7 +138,7 @@ export function AdminModule_SkillGroupDetails({ skillGroupId, skillPackageId }: 
  * @param onClose Callback to close the form.
  * @param skillGroup The skill group to update.
  */
-function UpdateSkillGroupForm({ onClose, skillGroup, skillPackage }: { onClose: () => void, skillGroup: SkillGroupData, skillPackage: SkillPackageData }) {
+function UpdateSkillGroupForm({ onClose, organization, skillGroup, skillPackage }: { onClose: () => void, organization: OrganizationData, skillGroup: SkillGroupData, skillPackage: SkillPackageData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     
@@ -188,7 +191,7 @@ function UpdateSkillGroupForm({ onClose, skillGroup, skillPackage }: { onClose: 
                         label="Skill Package"
                         control={
                             <DisplayValue>
-                                <TextLink to={Paths.adminModule.skillPackage(skillPackage.skillPackageId)}>
+                                <TextLink to={Paths.org(organization.slug).admin.skillPackage(skillPackage.skillPackageId)}>
                                     {skillPackage.name}
                                 </TextLink>
                             </DisplayValue>
@@ -227,7 +230,7 @@ function UpdateSkillGroupForm({ onClose, skillGroup, skillPackage }: { onClose: 
  * It requires the user to confirm by entering the skill group name.
  * @param skillGroup The skill group to delete.
  */
-function DeleteSkillGroupDialog({ skillGroup }: { skillGroup: SkillGroupData }) {
+function DeleteSkillGroupDialog({ organization, skillGroup }: { organization: OrganizationData, skillGroup: SkillGroupData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -263,7 +266,7 @@ function DeleteSkillGroupDialog({ skillGroup }: { skillGroup: SkillGroupData }) 
 
             queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter())
             queryClient.invalidateQueries(trpc.skills.getGroup.queryFilter({ skillGroupId: skillGroup.skillGroupId }))
-            router.push(Paths.adminModule.skillPackage(skillGroup.skillPackageId).href)
+            router.push(Paths.org(organization.slug).admin.skillPackage(skillGroup.skillPackageId).group(skillGroup.skillGroupId).href)
         }
     }))
 

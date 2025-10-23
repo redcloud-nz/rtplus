@@ -30,6 +30,7 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { SkillPackageData, skillPackageSchema } from '@/lib/schemas/skill-package'
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
@@ -37,11 +38,12 @@ import { trpc } from '@/trpc/client'
 
 
 
+
 /**
  * Card that displays the details of a skill package and allows the user to edit or delete it.
  * @param skillPackageId The ID of the skill package to display.
  */
-export function AdminModule_SkillPackage_Details({ orgSlug, skillPackageId }: { orgSlug: string, skillPackageId: string }) {
+export function AdminModule_SkillPackage_Details({ organization, skillPackageId }: { organization: OrganizationData, skillPackageId: string }) {
 
     const { data: skillPackage } = useSuspenseQuery(trpc.skills.getPackage.queryOptions({ skillPackageId }))
 
@@ -61,7 +63,7 @@ export function AdminModule_SkillPackage_Details({ orgSlug, skillPackageId }: { 
                         </TooltipTrigger>
                         <TooltipContent>Edit skill package</TooltipContent>
                     </Tooltip>
-                    <DeleteSkillPackageDialog orgSlug={orgSlug} skillPackage={skillPackage}  />
+                    <DeleteSkillPackageDialog organization={organization} skillPackage={skillPackage}  />
                 </Protect>
                  <Separator orientation="vertical"/>
 
@@ -99,7 +101,7 @@ export function AdminModule_SkillPackage_Details({ orgSlug, skillPackageId }: { 
                 )
                 .with('Update', () => 
                     <UpdateSkillPackageForm
-                        orgSlug={orgSlug}
+                        organization={organization}
                         skillPackage={skillPackage}
                         onClose={() => setMode('View')}
                     />
@@ -116,7 +118,7 @@ export function AdminModule_SkillPackage_Details({ orgSlug, skillPackageId }: { 
  * @param onClose Callback to close the form.
  * @param skillPackage The skill package to update.
  */
-function UpdateSkillPackageForm({ onClose, skillPackage }: { onClose: () => void, orgSlug: string, skillPackage: SkillPackageData }) {
+function UpdateSkillPackageForm({ onClose, skillPackage, organization }: { onClose: () => void, organization: OrganizationData, skillPackage: SkillPackageData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
@@ -214,7 +216,7 @@ function UpdateSkillPackageForm({ onClose, skillPackage }: { onClose: () => void
  * It requires the user to confirm by entering the skill package name.
  * @param skillPackage The skill package to delete.
  */
-function DeleteSkillPackageDialog({ orgSlug, skillPackage }: { orgSlug: string, skillPackage: SkillPackageData }) {
+function DeleteSkillPackageDialog({ organization, skillPackage }: { organization: OrganizationData, skillPackage: SkillPackageData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -249,7 +251,7 @@ function DeleteSkillPackageDialog({ orgSlug, skillPackage }: { orgSlug: string, 
             queryClient.invalidateQueries(trpc.skills.getPackages.queryFilter())
             queryClient.invalidateQueries(trpc.skills.getPackage.queryFilter({ skillPackageId: skillPackage.skillPackageId }))
             queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter({ skillPackageId: skillPackage.skillPackageId }))
-            router.push(Paths.adminModule(orgSlug).skillPackages.href)
+            router.push(Paths.org(organization.slug).admin.skillPackages.href)
         }
     }))
 

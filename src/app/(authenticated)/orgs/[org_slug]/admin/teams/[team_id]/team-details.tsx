@@ -29,6 +29,7 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { TeamData, teamSchema } from '@/lib/schemas/team'
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
@@ -38,7 +39,8 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function AdminModule_TeamDetails({ orgSlug, teamId }: { orgSlug: string, teamId: string }) {
+
+export function AdminModule_TeamDetails({ organization, teamId }: { organization: OrganizationData, teamId: string }) {
     
     const { data: team } = useSuspenseQuery(trpc.teams.getTeam.queryOptions({ teamId }))
 
@@ -57,7 +59,7 @@ export function AdminModule_TeamDetails({ orgSlug, teamId }: { orgSlug: string, 
                         </TooltipTrigger>
                         <TooltipContent>Edit team details</TooltipContent>
                     </Tooltip>
-                    <DeleteTeamDialog orgSlug={orgSlug} team={team}/>
+                    <DeleteTeamDialog organization={organization} team={team}/>
                 </Protect>
                 
                 <Separator orientation="vertical"/>
@@ -185,7 +187,7 @@ function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamData
 }
 
 
-function DeleteTeamDialog({ orgSlug, team }: { orgSlug: string, team: TeamData }) {
+function DeleteTeamDialog({ organization, team }: { organization: OrganizationData, team: TeamData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -217,7 +219,7 @@ function DeleteTeamDialog({ orgSlug, team }: { orgSlug: string, team: TeamData }
                 description: <>The team <ObjectName>{result.name}</ObjectName> has been deleted.</>,
             })
             setOpen(false)
-            router.push(Paths.adminModule(orgSlug).teams.href)
+            router.push(Paths.org(organization.slug).admin.teams.href)
 
             queryClient.invalidateQueries(trpc.teams.getTeams.queryFilter())
             queryClient.setQueryData(trpc.teams.getTeam.queryKey({ teamId: team.teamId }), undefined)

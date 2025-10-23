@@ -19,6 +19,7 @@ import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Table } from '@/components/ui/table'
 
+import { OrganizationData } from '@/lib/schemas/organization'
 import { SkillGroupData } from '@/lib/schemas/skill-group'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
@@ -26,7 +27,8 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function AdminModule_SkillPackage_GroupsList({ orgSlug, skillPackageId }: { orgSlug: string, skillPackageId: string }) {
+
+export function AdminModule_SkillPackage_GroupsList({ organization, skillPackageId }: { organization: OrganizationData, skillPackageId: string }) {
     
     const groupsQuery = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ skillPackageId }))
 
@@ -45,7 +47,7 @@ export function AdminModule_SkillPackage_GroupsList({ orgSlug, skillPackageId }:
         }),
         columnHelper.accessor('name', {
             header: 'Group',
-            cell: ctx => <TextLink to={Paths.adminModule(orgSlug).skillPackage(skillPackageId).group(ctx.row.original.skillGroupId)}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.org(organization.slug).admin.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId)}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('description', {
@@ -106,7 +108,7 @@ export function AdminModule_SkillPackage_GroupsList({ orgSlug, skillPackageId }:
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button variant="ghost" size="icon" asChild>
-                                    <Link to={Paths.adminModule(orgSlug).skillPackage(skillPackageId).groups.create}>
+                                    <Link to={Paths.org(organization.slug).admin.skillPackage(skillPackageId).groups.create}>
                                         <PlusIcon/>
                                     </Link>
                                 </Button>

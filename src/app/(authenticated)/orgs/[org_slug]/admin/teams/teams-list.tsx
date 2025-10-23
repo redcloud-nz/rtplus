@@ -17,21 +17,23 @@ import { Card, CardActions, CardContent, CardExplanation, CardHeader } from '@/c
 import { DataTableBody, DataTableHead, DataTableFooter, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
 import { Link, TextLink } from '@/components/ui/link'
-import { ListLoading } from '@/components/ui/loading'
+import { PageLoadingSpinner } from '@/components/ui/loading'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Table } from '@/components/ui/table'
 import { Paragraph } from '@/components/ui/typography'
 
+import { OrganizationData } from '@/lib/schemas/organization'
 import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
 
+
 type RowData = TeamData & { _count: { teamMemberships: number } }
 
-export function AdminModule_TeamsList({ orgSlug }: { orgSlug: string }) {
+export function AdminModule_TeamsList({ organization }: { organization: OrganizationData }) {
 
     const teamsQuery = useQuery(trpc.teams.getTeams.queryOptions({}))
 
@@ -49,7 +51,7 @@ export function AdminModule_TeamsList({ orgSlug }: { orgSlug: string }) {
     }),
     columnHelper.accessor('name', {
         header: 'Name',
-        cell: ctx => <TextLink to={Paths.adminModule(orgSlug).team(ctx.row.original.teamId)}>{ctx.getValue()}</TextLink>,
+        cell: ctx => <TextLink to={Paths.org(organization.slug).admin.team(ctx.row.original.teamId)}>{ctx.getValue()}</TextLink>,
         enableHiding: false
     }),
     columnHelper.accessor('_count.teamMemberships', {
@@ -100,7 +102,7 @@ export function AdminModule_TeamsList({ orgSlug }: { orgSlug: string }) {
         }
     })
 
-    if(teamsQuery.isLoading) return <ListLoading message="Loading Teams"/>
+    if(teamsQuery.isLoading) return <PageLoadingSpinner message="Loading Teams"/>
 
     if(teamsQuery.data && teamsQuery.data.length == 0) return <Empty>
             <EmptyHeader>
@@ -116,7 +118,7 @@ export function AdminModule_TeamsList({ orgSlug }: { orgSlug: string }) {
             <EmptyContent>
                 <Protect role="org:admin">
                     <Button asChild>
-                        <Link to={Paths.adminModule(orgSlug).teams.create}>
+                        <Link to={Paths.org(organization.slug).admin.teams.create}>
                             <PlusIcon/>
                             Add Team
                         </Link>
@@ -134,7 +136,7 @@ export function AdminModule_TeamsList({ orgSlug }: { orgSlug: string }) {
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button variant="ghost" size="icon" asChild>
-                                    <Link to={Paths.adminModule(orgSlug).teams.create}>
+                                    <Link to={Paths.org(organization.slug).admin.teams.create}>
                                         <PlusIcon />
                                     </Link>
                                 </Button>

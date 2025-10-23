@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation'
 
 import { TRPCError } from '@trpc/server'
 
+import { OrganizationId } from '@/lib/schemas/organization'
 import { PersonData } from '@/lib/schemas/person'
 import { SkillData } from '@/lib/schemas/skill'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
@@ -18,6 +19,7 @@ import { TeamMembershipData } from '@/lib/schemas/team-membership'
 import { getQueryClient, trpc } from '@/trpc/server'
 
 
+
 /**
  * Fetch a person by its ID through the TRPC query client to ensure the data is available for both server and client components.
  * 
@@ -25,7 +27,7 @@ import { getQueryClient, trpc } from '@/trpc/server'
  * @param params The parameters containing the person ID.
  * @returns A promise that resolves to a PersonData object.
  */
-export async function fetchPerson({ orgSlug, personId }: { orgSlug: string, personId: string }): Promise<PersonData> {
+export async function fetchPerson({ orgId, personId }: { orgId: OrganizationId, personId: string }): Promise<PersonData> {
     return getQueryClient()
         .fetchQuery(trpc.personnel.getPerson.queryOptions({ personId }))
         .catch(error => {
@@ -43,8 +45,7 @@ export async function fetchPerson({ orgSlug, personId }: { orgSlug: string, pers
  * @param params The parameters containing the skill ID.
  * @returns A promise that resolves to a SkillDataWithPackageAndGroup object.
  */
-export async function fetchSkill(params: Promise<{ skill_id: string, skill_package_id: string }>): Promise<SkillData & { skillPackage: SkillPackageData, skillGroup: SkillGroupData }> {
-    const { skill_id: skillId, skill_package_id: skillPackageId } = await params
+export async function fetchSkill({ orgId, skillId, skillPackageId }: { orgId: OrganizationId, skillId: string, skillPackageId: string }): Promise<SkillData & { skillPackage: SkillPackageData, skillGroup: SkillGroupData }> {
     
     return getQueryClient()
         .fetchQuery(trpc.skills.getSkill.queryOptions({ skillId, skillPackageId }))
@@ -75,9 +76,8 @@ export async function fetchSkillCheckSession(params: Promise<{ session_id: strin
  * @param params The parameters containing the skill group ID.
  * @returns A promise that resolves to a SkillGroupDataWithPackage object.
  */
-export async function fetchSkillGroup(params: Promise<{ skill_group_id: string, skill_package_id: string }>): Promise<SkillGroupData & { skillPackage: SkillPackageData }> {
-    const { skill_group_id: skillGroupId, skill_package_id: skillPackageId } = await params
-
+export async function fetchSkillGroup({ orgId, skillGroupId, skillPackageId }: { orgId: OrganizationId, skillGroupId: string, skillPackageId: string }): Promise<SkillGroupData & { skillPackage: SkillPackageData }> {
+    
     return getQueryClient()
         .fetchQuery(trpc.skills.getGroup.queryOptions({ skillGroupId, skillPackageId }))
         .catch(error => {
@@ -95,7 +95,7 @@ export async function fetchSkillGroup(params: Promise<{ skill_group_id: string, 
  * @param params The parameters containing the skill package ID.
  * @returns A promise that resolves to a SkillPackageData object.
  */
-export async function fetchSkillPackage({ skillPackageId }: { skillPackageId: string }): Promise<SkillPackageData> {
+export async function fetchSkillPackage({ orgId, skillPackageId }: { orgId: OrganizationId, skillPackageId: string }): Promise<SkillPackageData> {
     
     return getQueryClient()
         .fetchQuery(trpc.skills.getPackage.queryOptions({ skillPackageId }))
@@ -115,7 +115,7 @@ export async function fetchSkillPackage({ skillPackageId }: { skillPackageId: st
  * @returns A promise that resolves to a TeamMembershipDataWithPersonAndTeam object.
 
  */
-export async function fetchTeamMembership({ orgSlug, personId, teamId }: { orgSlug: string, personId: string, teamId: string }): Promise<TeamMembershipData & { person: PersonData, team: TeamData }> {
+export async function fetchTeamMembership({ orgId, personId, teamId }: { orgId: string, personId: string, teamId: string }): Promise<TeamMembershipData & { person: PersonData, team: TeamData }> {
     return getQueryClient()
         .fetchQuery(trpc.teamMemberships.getTeamMembership.queryOptions({ personId, teamId }))
         .catch(error => {

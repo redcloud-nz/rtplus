@@ -11,20 +11,23 @@ import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 
 import { Heading } from '@/components/ui/typography'
+import { getOrganization } from '@/server/organization'
 
 import { OrganizationSettings } from './organization-settings'
+
 
 
 export const metadata = { title: "Organisation Settings" }
 
 export default async function AdminModule_OrganizationSettings_Page(props: PageProps<'/orgs/[org_slug]/admin/settings'>) {
     const { org_slug: orgSlug } = await props.params
+    const organization = await getOrganization(orgSlug)
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.adminModule(orgSlug),
-                Paths.adminModule(orgSlug).settings
+                Paths.org(orgSlug).admin,
+                Paths.org(orgSlug).admin.settings
             ]}
         />
 
@@ -32,7 +35,7 @@ export default async function AdminModule_OrganizationSettings_Page(props: PageP
             <Heading level={1}>Organisation Settings</Heading>
 
             <Boundary>
-                <OrganizationSettings orgSlug={orgSlug}/>
+                <OrganizationSettings organization={organization} />
             </Boundary>
         </ScrollablePageContent>
     </AppPage> 

@@ -28,6 +28,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 
 import { useToast } from '@/hooks/use-toast'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { PersonRef } from '@/lib/schemas/person'
 import { TeamRef } from '@/lib/schemas/team'
 import { TeamMembershipData, teamMembershipSchema } from '@/lib/schemas/team-membership'
@@ -38,7 +39,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function TeamMembership_Details_Card({ context, orgSlug, personId, teamId }: { context: 'person' | 'team', orgSlug: string, personId: string, teamId: string }) {
+export function TeamMembership_Details_Card({ context, organization, personId, teamId }: { context: 'person' | 'team', organization: OrganizationData, personId: string, teamId: string }) {
     const router = useRouter()
 
     const { data: { person, team, ...membership } } = useSuspenseQuery(trpc.teamMemberships.getTeamMembership.queryOptions({ personId, teamId }))
@@ -60,8 +61,8 @@ export function TeamMembership_Details_Card({ context, orgSlug, personId, teamId
                     </Tooltip>
                     <DeleteTeamMembershipDialog
                         onDelete={() => {
-                            if(context == 'person') router.push(Paths.adminModule(orgSlug).person(person.personId).href)
-                            else router.push(Paths.adminModule(orgSlug).team(team.teamId).href)
+                            if(context == 'person') router.push(Paths.adminModule(organization.slug).person(person.personId).href)
+                            else router.push(Paths.adminModule(organization.slug).team(team.teamId).href)
                         }}
                         personId={personId}
                         teamId={teamId}
@@ -80,11 +81,11 @@ export function TeamMembership_Details_Card({ context, orgSlug, personId, teamId
                     <ToruGrid>
                         <ToruGridRow
                             label="Team"
-                            control={<DisplayValue><TextLink to={Paths.adminModule(orgSlug).team(teamId)}>{team.name}</TextLink></DisplayValue>}
+                            control={<DisplayValue><TextLink to={Paths.adminModule(organization.slug).team(teamId)}>{team.name}</TextLink></DisplayValue>}
                         />
                         <ToruGridRow
                             label="Person"
-                            control={<DisplayValue><TextLink to={Paths.adminModule(orgSlug).person(personId)}>{person.name}</TextLink></DisplayValue>}
+                            control={<DisplayValue><TextLink to={Paths.adminModule(organization.slug).person(personId)}>{person.name}</TextLink></DisplayValue>}
                         />
                         <ToruGridRow
                             label="Tags"

@@ -20,13 +20,15 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { PersonData, PersonId, personSchema } from '@/lib/schemas/person'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
 
-export function AdminModule_NewPerson_Form({ orgSlug }: { orgSlug: string }) {
+
+export function AdminModule_NewPerson_Form({ organization }: { organization: OrganizationData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -69,7 +71,7 @@ export function AdminModule_NewPerson_Form({ orgSlug }: { orgSlug: string }) {
             })
 
             queryClient.invalidateQueries(trpc.personnel.getPersonnel.queryFilter())
-            router.push(Paths.adminModule(orgSlug).person(personId).href)
+            router.push(Paths.org(organization.slug).admin.person(personId).href)
         }
     }))
 

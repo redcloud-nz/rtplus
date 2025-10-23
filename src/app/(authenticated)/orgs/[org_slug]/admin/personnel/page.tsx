@@ -12,6 +12,7 @@ import { Boundary } from '@/components/boundary'
 import * as Paths from '@/paths'
 
 import { AdminModule_PersonnelList } from './personnel-list' 
+import { getOrganization } from '@/server/organization'
 
 
 export const metadata: Metadata = { title: "Personnel" }
@@ -19,6 +20,7 @@ export const metadata: Metadata = { title: "Personnel" }
 
 export default async function AdminModule_PersonnelList_Page(props: PageProps<'/orgs/[org_slug]/admin/personnel'>) {
     const { org_slug } = await props.params
+    const organization = await getOrganization(org_slug)
 
     return <AppPage>
         <AppPageBreadcrumbs 
@@ -29,7 +31,7 @@ export default async function AdminModule_PersonnelList_Page(props: PageProps<'/
         />
         <AppPageContent variant="container">
             <Boundary>
-                <AdminModule_PersonnelList org_slug={org_slug}/>
+                <AdminModule_PersonnelList organization={organization}/>
             </Boundary>
             
         </AppPageContent>

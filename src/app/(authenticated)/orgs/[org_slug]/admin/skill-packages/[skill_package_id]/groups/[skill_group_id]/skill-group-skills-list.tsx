@@ -20,11 +20,13 @@ import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
+import { OrganizationData } from '@/lib/schemas/organization'
 import { SkillData } from '@/lib/schemas/skill'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
-export function AdminModule_SkillGroup_SkillsList({ skillGroupId, skillPackageId }: { skillGroupId: string, skillPackageId: string }) {
+
+export function AdminModule_SkillGroup_SkillsList({ organization, skillGroupId, skillPackageId }: { organization: OrganizationData, skillGroupId: string, skillPackageId: string }) {
     
 
     const skillsQuery = useSuspenseQuery(trpc.skills.getSkills.queryOptions({ skillGroupId }))
@@ -44,7 +46,7 @@ export function AdminModule_SkillGroup_SkillsList({ skillGroupId, skillPackageId
         }),
         columnHelper.accessor('name', {
             header: 'Skill',
-            cell: ctx => <TextLink to={Paths.adminModule.skillPackage(skillPackageId).skill(ctx.row.original.skillId)}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.org(organization.slug).admin.skillPackage(skillPackageId).skill(ctx.row.original.skillId)}>{ctx.getValue()}</TextLink>,
             enableGrouping: false,
             enableHiding: false
         }),

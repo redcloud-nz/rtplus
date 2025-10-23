@@ -10,13 +10,10 @@ import { NotFound } from '@/components/nav/errors'
 
 import * as Paths from '@/paths'
 
-export default async function AdminModule_NotFound(props: PageProps<'/orgs/[org_slug]/admin'>) {
-    const { org_slug: orgSlug } = await props.params
+export default function AdminModule_NotFound(props: PageProps<'/orgs/[org_slug]/admin'>) {
 
     return <AppPage>
-        <AppPageBreadcrumbs
-            breadcrumbs={[Paths.adminModule(orgSlug)]}
-        />
+        
         <NotFound/>
     </AppPage>
 }

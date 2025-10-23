@@ -19,6 +19,7 @@ import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Table } from '@/components/ui/table'
 
+import { OrganizationData } from '@/lib/schemas/organization'
 import { SkillData } from '@/lib/schemas/skill'
 import { SkillGroupData } from '@/lib/schemas/skill-group'
 import * as Paths from '@/paths'
@@ -26,7 +27,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function AdminModule_SkillPackage_SkillsList({ skillPackageId }: { skillPackageId: string }) {
+export function AdminModule_SkillPackage_SkillsList({ organization, skillPackageId }: { organization: OrganizationData, skillPackageId: string }) {
 
     const skillGroupsQuery = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ skillPackageId }))
     const skillsQuery = useSuspenseQuery(trpc.skills.getSkills.queryOptions({ skillPackageId }))
@@ -51,13 +52,13 @@ export function AdminModule_SkillPackage_SkillsList({ skillPackageId }: { skillP
         }),
         columnHelper.accessor('name', {
             header: 'Skill',
-            cell: ctx => <TextLink to={Paths.adminModule.skillPackage(skillPackageId).skill(ctx.row.original.skillId)}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.org(organization.slug).admin.skillPackage(skillPackageId).skill(ctx.row.original.skillId)}>{ctx.getValue()}</TextLink>,
             enableGrouping: false,
             enableHiding: false
         }),
          columnHelper.accessor('skillGroup.name', {
             header: 'Group',
-            cell: ctx => <TextLink to={Paths.adminModule.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId)}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.org(organization.slug).admin.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId)}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('description', {
@@ -112,7 +113,7 @@ export function AdminModule_SkillPackage_SkillsList({ skillPackageId }: { skillP
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button variant="ghost" size="icon" asChild>
-                                    <Link to={Paths.adminModule.skillPackage(skillPackageId).skills.create}>
+                                    <Link to={Paths.org(organization.slug).admin.skillPackage(skillPackageId).skills.create}>
                                         <PlusIcon/>
                                     </Link>
                                     

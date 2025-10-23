@@ -13,18 +13,18 @@ import { Boundary } from '@/components/boundary'
 
 import { toTeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
+import { getOrganization } from '@/server/organization'
 import prisma from '@/server/prisma'
+
 
 import { AdminModule_TeamDetails } from './team-details'
 import { AdminModule_Team_Members } from './team-members'
 
 
-
-const fetchTeam = cache(async (teamId: string) => {
-    
+const fetchTeam = cache(async (orgId: string,teamId: string) => {
 
     const team = await prisma.team.findUnique({
-        where: { teamId }
+        where: { orgId, teamId }
     })
 
     if (!team) notFound()
@@ -34,8 +34,9 @@ const fetchTeam = cache(async (teamId: string) => {
 
 
 export async function generateMetadata(props: PageProps<'/orgs/[org_slug]/admin/teams/[team_id]'>) {
-    const { team_id } = await props.params
-    const team = await fetchTeam(team_id)
+    const { org_slug, team_id: teamId } = await props.params
+    const organization = await getOrganization(org_slug)
+    const team = await fetchTeam(organization.orgId, teamId)
     
     return { title: `${team.name} - Teams` }
 }
@@ -43,13 +44,14 @@ export async function generateMetadata(props: PageProps<'/orgs/[org_slug]/admin/
 
 export default async function AdminModule_Team_Page(props: PageProps<'/orgs/[org_slug]/admin/teams/[team_id]'>) {
     const { org_slug: orgSlug, team_id: teamId } = await props.params
-    const team = await fetchTeam(teamId)
+    const organization = await getOrganization(orgSlug)
+    const team = await fetchTeam(organization.orgId, teamId)
     
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.adminModule(orgSlug),
-                Paths.adminModule(orgSlug).teams,
+                Paths.org(orgSlug).admin,
+                Paths.org(orgSlug).admin.teams,
                 team.name
             ]}
         />
@@ -59,10 +61,10 @@ export default async function AdminModule_Team_Page(props: PageProps<'/orgs/[org
             </PageHeader>
 
             <Boundary>
-                <AdminModule_TeamDetails orgSlug={orgSlug} teamId={team.teamId}/>
+                <AdminModule_TeamDetails organization={organization} teamId={team.teamId}/>
             </Boundary>
             <Boundary>
-                <AdminModule_Team_Members orgSlug={orgSlug} teamId={team.teamId}/>
+                <AdminModule_Team_Members organization={organization} teamId={team.teamId}/>
             </Boundary>
         </AppPageContent>
         

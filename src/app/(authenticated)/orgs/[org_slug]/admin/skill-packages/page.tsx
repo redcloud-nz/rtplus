@@ -15,20 +15,23 @@ import { Button } from '@/components/ui/button'
 import { Link } from '@/components/ui/link'
 
 import * as Paths from '@/paths'
+import { getOrganization } from '@/server/organization'
 
 import { AdminModule_SkillPackagesList } from './skill-package-list'
+
 
 
 export const metadata = { title: "Skill Packages" }
 
 export default async function AdminModule_SkillPackagesList_Page(props: PageProps<'/orgs/[org_slug]/admin/skill-packages'>) {
     const { org_slug: orgSlug } = await props.params
+    const organization = await getOrganization(orgSlug)
 
     return <AppPage>
         <AppPageBreadcrumbs 
             breadcrumbs={[
-                Paths.adminModule(orgSlug),
-                Paths.adminModule(orgSlug).skillPackages,
+                Paths.org(orgSlug).admin,
+                Paths.org(orgSlug).admin.skillPackages,
             ]}
         />
         <AppPageContent variant="container">
@@ -37,7 +40,7 @@ export default async function AdminModule_SkillPackagesList_Page(props: PageProp
                 <PageControls>
                     <Protect role="org:admin">
                         <Button variant="ghost" size="icon" asChild>
-                            <Link to={Paths.adminModule(orgSlug).skillPackages.import}>
+                            <Link to={Paths.org(orgSlug).admin.skillPackages.import}>
                                 <ImportIcon/>
                             </Link>
                         </Button>
@@ -47,7 +50,7 @@ export default async function AdminModule_SkillPackagesList_Page(props: PageProp
             </PageHeader>
 
             <Boundary>
-                <AdminModule_SkillPackagesList orgSlug={orgSlug}/>
+                <AdminModule_SkillPackagesList organization={organization} />
             </Boundary>
         </AppPageContent>
     </AppPage>

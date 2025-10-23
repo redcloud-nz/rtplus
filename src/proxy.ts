@@ -37,6 +37,14 @@ export default clerkMiddleware(
             // Otherwise, redirect to sign in
             return redirectToSignIn({ returnBackUrl: req.url })
         }
+    },
+    { 
+        organizationSyncOptions: {
+            organizationPatterns: [
+                '/orgs/:slug',
+                '/orgs/:slug/(.*)',
+            ]
+        }
     }
 )
 

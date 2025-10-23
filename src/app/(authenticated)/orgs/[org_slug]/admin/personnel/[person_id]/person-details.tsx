@@ -29,6 +29,7 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { PersonData, personSchema } from '@/lib/schemas/person'
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
@@ -36,11 +37,12 @@ import { trpc } from '@/trpc/client'
 
 
 
+
 /**
  * Card that displays the details of a person and allows the user to edit them.
  * @param personId The ID of the person to display.
  */
-export function AdminModule_PersonDetails({ orgSlug, personId }: { orgSlug: string, personId: string }) {
+export function AdminModule_PersonDetails({ organization, personId }: { organization: OrganizationData, personId: string }) {
 
     const { data: person } = useSuspenseQuery(trpc.personnel.getPerson.queryOptions({ personId }))
 
@@ -59,7 +61,7 @@ export function AdminModule_PersonDetails({ orgSlug, personId }: { orgSlug: stri
                         </TooltipTrigger>
                         <TooltipContent>Edit person details</TooltipContent>
                     </Tooltip>
-                    <DeletePersonDialog orgSlug={orgSlug} person={person}/>
+                    <DeletePersonDialog organization={organization} person={person}/>
                 </Protect>
                 
                 <Separator orientation="vertical"/>
@@ -203,7 +205,7 @@ function UpdatePersonForm({ onClose, person }: { onClose: () => void, person: Pe
     </FormProvider>
 }
 
-function DeletePersonDialog({ orgSlug, person }: { orgSlug: string, person: PersonData }) {
+function DeletePersonDialog({ organization, person }: { organization: OrganizationData, person: PersonData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -233,7 +235,7 @@ function DeletePersonDialog({ orgSlug, person }: { orgSlug: string, person: Pers
                 description: <>The person <ObjectName>{person.name}</ObjectName> has been deleted.</>,
             })
             setOpen(false)
-            router.push(Paths.adminModule(orgSlug).personnel.href)
+            router.push(Paths.org(organization.slug).admin.personnel.href)
 
             queryClient.invalidateQueries(trpc.personnel.getPersonnel.queryFilter())
             queryClient.setQueryData(trpc.personnel.getPerson.queryKey({ personId: person.personId }), undefined)

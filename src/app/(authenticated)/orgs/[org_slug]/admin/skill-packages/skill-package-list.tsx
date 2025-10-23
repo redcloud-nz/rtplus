@@ -23,6 +23,7 @@ import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
+import { OrganizationData } from '@/lib/schemas/organization'
 import { SkillPackageData } from '@/lib/schemas/skill-package'
 import * as Paths from '@/paths'
 import { trpc, WithCounts } from '@/trpc/client'
@@ -30,7 +31,7 @@ import { trpc, WithCounts } from '@/trpc/client'
 
 
 
-export function AdminModule_SkillPackagesList({ orgSlug }: { orgSlug: string }) {
+export function AdminModule_SkillPackagesList({ organization }: { organization: OrganizationData }) {
     
 
     const { data: skillPackages, refetch: skillPackagesRefetch } = useSuspenseQuery(trpc.skills.getPackages.queryOptions({ owner: 'org' }))
@@ -49,7 +50,7 @@ export function AdminModule_SkillPackagesList({ orgSlug }: { orgSlug: string }) 
         }),
         columnHelper.accessor('name', {
             header: 'Name',
-            cell: ctx => <TextLink to={Paths.adminModule(orgSlug).skillPackage(ctx.row.original.skillPackageId)}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.org(organization.slug).admin.skillPackage(ctx.row.original.skillPackageId)}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('_count.skillGroups', {
@@ -117,7 +118,7 @@ export function AdminModule_SkillPackagesList({ orgSlug }: { orgSlug: string }) 
             <EmptyContent>
                 <Protect role="org:admin">
                     <Button asChild>
-                        <Link to={Paths.adminModule(orgSlug).skillPackages.create}>
+                        <Link to={Paths.org(organization.slug).admin.skillPackages.create}>
                             <PlusIcon className="mr-2 h-4 w-4"/>
                             Add Skill Package
                         </Link>
@@ -136,7 +137,7 @@ export function AdminModule_SkillPackagesList({ orgSlug }: { orgSlug: string }) 
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button variant="ghost" size="icon" asChild>
-                                        <Link to={Paths.adminModule(orgSlug).skillPackages.create}>
+                                        <Link to={Paths.org(organization.slug).admin.skillPackages.create}>
                                             <PlusIcon />
                                         </Link>
                                     </Button>

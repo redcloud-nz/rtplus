@@ -22,19 +22,18 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { SkillGroupData, skillGroupSchema } from '@/lib/schemas/skill-group'
 import { nanoId8 } from '@/lib/id'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
-
-export function AdminModule_NewSkillGroup_Form({ skillPackageId }: { skillPackageId: string }) {
+export function AdminModule_NewSkillGroup_Form({ organization, skillPackageId }: { organization: OrganizationData, skillPackageId: string }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
     
-
     const skillGroupId = useMemo(() => nanoId8(), [])
 
     const form = useForm<SkillGroupData>({
@@ -68,7 +67,7 @@ export function AdminModule_NewSkillGroup_Form({ skillPackageId }: { skillPackag
             })
 
             queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter({ skillPackageId }))
-            router.push(Paths.adminModule.skillPackage(skillPackageId).group(result.skillGroupId).href)
+            router.push(Paths.org(organization.slug).admin.skillPackage(skillPackageId).group(result.skillGroupId).href)
         }
     }))
 

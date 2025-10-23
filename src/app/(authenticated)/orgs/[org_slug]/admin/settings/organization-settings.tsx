@@ -12,6 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
 import { Show } from '@/components/show'
+import { Alert } from '@/components/ui/alert'
 import { Card2, Card2Content } from '@/components/ui/card2'
 import { Button } from '@/components/ui/button'
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field'
@@ -20,14 +21,13 @@ import { Switch } from '@/components/ui/switch'
 import { Heading, Paragraph } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { OrganizationSettingsData, organizationSettingsSchema } from '@/lib/schemas/settings'
 import { trpc } from '@/trpc/client'
 
 
-import { Alert } from '@/components/ui/alert'
 
-
-export function OrganizationSettings({ }: { orgSlug: string }) {
+export function OrganizationSettings({ }: {organization: OrganizationData  }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
