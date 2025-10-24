@@ -30,6 +30,7 @@ interface RTPlusAuth {
     userId: UserId
     activeOrg: {
         orgId: OrganizationId,
+        orgSlug: string,
         role: 'org:admin' | 'org:member'
     } | null
 }
@@ -37,6 +38,7 @@ interface RTPlusAuth {
 type RTPlusAuthWithActiveOrganization = RTPlusAuth & {
     activeOrg: {
         orgId: OrganizationId,
+        orgSlug: string,
         role: 'org:admin' | 'org:member'
     }
 }
@@ -78,7 +80,8 @@ export const createTRPCContext = cache(async () => {
                 userId: UserId.schema.parse(clerkAuth.userId),
                 activeOrg: clerkAuth.orgId 
                     ? {
-                        orgId: OrganizationId.schema.parse(clerkAuth.orgId!),
+                        orgId: OrganizationId.schema.parse(clerkAuth.orgId),
+                        orgSlug: clerkAuth.orgSlug!,
                         role: clerkAuth.orgRole as 'org:admin' | 'org:member',
                     } 
                     : null

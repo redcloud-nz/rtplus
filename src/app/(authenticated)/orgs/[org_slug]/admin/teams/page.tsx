@@ -23,7 +23,6 @@ export default async function AdminModule_TeamsList_Page(props: PageProps<'/orgs
     const { org_slug: orgSlug } = await props.params
     const organization = await getOrganization(orgSlug)
 
-
     return <AppPage>
             <AppPageBreadcrumbs breadcrumbs={[
                 Paths.org(orgSlug).admin, 

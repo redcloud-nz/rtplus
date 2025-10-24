@@ -57,8 +57,7 @@ export async function fetchSkill({ orgId, skillId, skillPackageId }: { orgId: Or
         })
 }
 
-export async function fetchSkillCheckSession(params: Promise<{ session_id: string }>) : Promise<SkillCheckSessionData> {
-    const { session_id: sessionId } = await params
+export async function fetchSkillCheckSession({ orgId, sessionId }: { orgId: OrganizationId, sessionId: string }) : Promise<SkillCheckSessionData> {
     
     return getQueryClient()
         .fetchQuery(trpc.skillChecks.getSession.queryOptions({ sessionId }))

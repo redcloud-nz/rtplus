@@ -3,7 +3,6 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { type OrganizationData } from './lib/schemas/organization'
 import { type SkillCheckSessionId } from './lib/schemas/skill-check-session'
 
 export const marketing = {
@@ -45,17 +44,35 @@ export const about = {
 } as const
 
 type OrgPaths = {
-    admin: ReturnType<typeof adminModule>
+    
+    admin: ReturnType<typeof adminModule>,
+    availability: ReturnType<typeof availabilityModule>,
+    cards: ReturnType<typeof cardsModule>,
+    checklists: ReturnType<typeof checklistsModule>,
+    dashboard: { label: string, href: string },
+    d4h: ReturnType<typeof d4hModule>,
+    fog: ReturnType<typeof fogModule>,
+    notes: ReturnType<typeof notesModule>,
+    skills: ReturnType<typeof skillsModule>,
 }
 
 const orgPathCache = new Map<string, OrgPaths>()
 
 
-export function org(orgSlug: string): OrgPaths {
+export function org(orgSlug: string): OrgPaths  {
     let paths = orgPathCache.get(orgSlug)
     if(!paths) {
         paths = {
-            admin: adminModule(orgSlug)
+            
+            admin: adminModule(orgSlug),
+            availability: availabilityModule(orgSlug),
+            cards: cardsModule(orgSlug),
+            checklists: checklistsModule(orgSlug),
+            dashboard: { label: 'Dashboard', href: `/orgs/${orgSlug}` },
+            d4h: d4hModule(orgSlug),
+            fog: fogModule(orgSlug),
+            notes: notesModule(orgSlug),
+            skills: skillsModule(orgSlug),
         } satisfies OrgPaths
         orgPathCache.set(orgSlug, paths)
     }
@@ -179,60 +196,87 @@ function adminModule(org_slug: string) {
     } as const
 }
 
-    export const cardsModule = {
-        label: 'Reference Cards',
-        href: '/cards'
-    } as const
+function availabilityModule(orgSlug: string) {
+    const base = `/orgs/${orgSlug}/availability` as const
 
-    export const d4hModule = {
+    return {
+        label: 'Availability',
+        href: base
+    } as const
+}
+
+function cardsModule(orgSlug: string)  {
+    const base = `/orgs/${orgSlug}/cards` as const
+
+    return {
+        label: 'Reference Cards',
+        href: base
+    } as const
+}
+
+function checklistsModule(orgSlug: string) {
+    const base = `/orgs/${orgSlug}/checklists` as const
+
+    return {
+        label: 'Checklists',
+        href: base
+    } as const
+}
+
+function d4hModule(orgSlug: string) {
+    const base = `/orgs/${orgSlug}/d4h` as const
+
+    return {
         label: 'D4H Integration',
-        href: '/d4h',
+        href: base,
         activities: {
             label: 'Activities',
-            href: '/d4h/activities',
+            href: `${base}/activities`,
             bgColor: 'bg-teal-400'
         },
         calendar: {
             label: 'Calendar',
-            href: '/d4h/calendar',
+            href: `${base}/calendar`,
             bgColor: 'bg-yellow-400'
         },
         
         equipment: {
             label: 'Equipment',
-            href: '/d4h/equipment',
+            href: `${base}/equipment`,
             bgColor: 'bg-red-400'
         },
         personnel: {
             label: 'Personnel',
-            href: '/d4h/personnel',
+            href: `${base}/personnel`,
             bgColor: 'bg-blue-400'
         },
-} as const
-
-export const dashboard = {
-    label: 'Dashboard',
-    href: '/dashboard',
+    } as const
 }
 
-export const fogModule = {
-    label: 'Field Operations Guide',
-    href: '/fog',
-} as const
 
-export const notesModule = {
-    label: 'Notes',
-    href: '/notes',
+function fogModule(orgSlug: string) {
+    return {
+        label: 'Field Operations Guide',
+        href: `/orgs/${orgSlug}/fog`,
+    } as const
+}
 
-    create: {
-        label: 'Create',
-        href: '/notes/--create',
-    },
+function notesModule(orgSlug: string) {
+    const base = `/orgs/${orgSlug}/notes` as const
+    return {
+        label: 'Notes',
+        href: base,
 
-    note: (noteId: string) => ({
-        label: `Note ${noteId}`,
-        href: `/notes/${noteId}`,
-    } as const),
+        create: {
+            label: 'Create',
+            href: `${base}/--create`,
+        },
+
+        note: (noteId: string) => ({
+            label: `Note ${noteId}`,
+            href: `${base}/${noteId}`,
+        } as const),
+    } as const
 }
 
 export const onboarding = {
@@ -244,61 +288,65 @@ export const onboarding = {
 }
 
 
-export const skillsModule = {
-    label: 'Skills',
-    href: '/skills',
+function skillsModule(orgSlug: string) {
+    const base = `/orgs/${orgSlug}/skills` as const
+    return {
 
-    catalogue: {
-        label: 'Catalogue',
-        href: `/skills/catalogue`,
-    },
+        label: 'Skills',
+        href: base,
 
-    checks: {
-        label: 'Checks',
-        href: `/skills/checks`,
-        create: {
-            label: 'Record Check',
-            href: `/skills/checks/--create`
+        catalogue: {
+            label: 'Catalogue',
+            href: `${base}/catalogue`,
         },
-    },
-    reports: {
-        label: 'Reports',
-        href: `/skills/reports`,
-        individual: {
-            href: `/skills/reports/individual`,
-            label: 'Individual',
-        },
-        teamSkills: {
-            href: `/skills/reports/team-skills`,
-            label: 'Team Skills',
-        },
-        teamMembers: {
-            href: `/skills/reports/team-members`,
-            label: 'Team Members',
-        },
-    },
-    session: (sessionId: SkillCheckSessionId) => {
-        return {
-            href: `/skills/sessions/${sessionId}`,
 
-            record: {
-                href: `/skills/sessions/${sessionId}/record`,
+        checks: {
+            label: 'Checks',
+            href: `${base}/checks`,
+            create: {
+                label: 'Record Check',
+                href: `${base}/checks/--create`
             },
-            review: {
-                href: `/skills/sessions/${sessionId}/review`,
-                label: 'Review',
-            }
-        } as const
-    },
-    sessions: {
-        label: 'Sessions',
-        href: `/skills/sessions`,
-        create: {
-            label: 'Create',
-            href: `/skills/sessions/--create`,
         },
-    },
-} as const
+        reports: {
+            label: 'Reports',
+            href: `${base}/reports`,
+            individual: {
+                href: `${base}/reports/individual`,
+                label: 'Individual',
+            },
+            teamSkills: {
+                href: `${base}/reports/team-skills`,
+                label: 'Team Skills',
+            },
+            teamMembers: {
+                href: `${base}/reports/team-members`,
+                label: 'Team Members',
+            },
+        },
+        session: (sessionId: SkillCheckSessionId) => {
+            return {
+                href: `${base}/sessions/${sessionId}`,
+
+                record: {
+                    href: `${base}/sessions/${sessionId}/record`,
+                },
+                review: {
+                    href: `${base}/sessions/${sessionId}/review`,
+                    label: 'Review',
+                }
+            } as const
+        },
+        sessions: {
+            label: 'Sessions',
+            href: `${base}/sessions`,
+            create: {
+                label: 'Create',
+                href: `${base}/sessions/--create`,
+            },
+        },
+    } as const
+}
 
 
 //  /------------------------------\

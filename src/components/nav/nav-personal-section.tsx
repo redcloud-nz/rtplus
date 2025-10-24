@@ -10,9 +10,11 @@ import * as Paths from '@/paths'
 
 
 export function NavPersonalSection() {
+    const prefix = Paths.personal
+
     return <NavSection title="Personal">
-        <NavItem path={Paths.personal.account} icon={<BadgeCheckIcon/>}/>
-        <NavItem path={Paths.personal.settings} icon={<SettingsIcon/>}/>
-        <NavItem path={Paths.personal.d4hAccessTokens} icon={<KeyRoundIcon/>}/>
+        <NavItem path={prefix.account} icon={<BadgeCheckIcon/>}/>
+        <NavItem path={prefix.settings} icon={<SettingsIcon/>}/>
+        <NavItem path={prefix.d4hAccessTokens} icon={<KeyRoundIcon/>}/>
     </NavSection>
 }

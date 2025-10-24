@@ -39,30 +39,28 @@ export function NavSection({ title, children }: NavSectionProps) {
     </SidebarGroup>
 }
 
-type NavItemExternalProps = { external: true, label: string, href: string, icon?: ReactNode }
-type NavItemInternalProps = { external?: never, href?: never, path: { label: string, href: string }, label?: string, icon?: ReactNode, prefetch?: boolean | null }
-type NavItemProps = NavItemExternalProps | NavItemInternalProps
+type NavItemExternalProps = { external: true, href: string, path?: never, label: string }
+type NavItemInternalProps = { external?: never, href?: never, path: { label: string, href: string }, label?: string }
+type NavItemProps = (NavItemExternalProps | NavItemInternalProps) & Omit<ComponentProps<typeof SidebarMenuItem>, 'children'> & { icon?: ReactNode }
 
-export function NavItem({ external, ...props }: NavItemProps) {
+export function NavItem({ external, href, icon, label, path, ...props }: NavItemProps) {
     const pathname = usePathname()
 
     if(external) {
-        props = props as NavItemExternalProps
-        return <SidebarMenuItem>
-            <SidebarMenuButton tooltip={props.label} asChild>
-                <ExternalLink href={props.href} noDecoration>
-                    {props.icon}
-                    <span>{props.label}</span>
-                    </ExternalLink>
+        return <SidebarMenuItem {...props}>
+            <SidebarMenuButton asChild>
+                <ExternalLink href={href} noDecoration>
+                    {icon}
+                    <span>{label}</span>
+                </ExternalLink>
             </SidebarMenuButton>
         </SidebarMenuItem>
     } else {
-        props = props as NavItemInternalProps
-        return <SidebarMenuItem>
-            <SidebarMenuButton tooltip={props.label ?? props.path.label} asChild isActive={pathname == props.path.href}>
-                <Link to={props.path} prefetch={props.prefetch}>
-                    {props.icon}
-                    <span>{props.label ?? props.path.label}</span>
+        return <SidebarMenuItem {...props}>
+            <SidebarMenuButton asChild isActive={pathname == path.href}>
+                <Link to={path}>
+                    {icon}
+                    <span>{label ?? path.label}</span>
                 </Link>
             </SidebarMenuButton>
         </SidebarMenuItem>
@@ -98,28 +96,28 @@ export function NavCollapsible({ label, icon, children, ...props }: NavCollapsib
     </Collapsible>
 }
 
-type NavSubItemExternalProps = { external: true, label: string, href: string }
+type NavSubItemExternalProps = { external: true, href: string, path?: never, label: string }
 type NavSubItemInternalProps = { external?: never, href?: never, path: { label: string, href: string }, label?: string }
-type NavSubItemProps = NavSubItemExternalProps | NavSubItemInternalProps
+type NavSubItemProps = (NavSubItemExternalProps | NavSubItemInternalProps) & Omit<ComponentProps<typeof SidebarMenuSubItem>, 'children'> & { icon?: ReactNode }
 
-export function NavSubItem({ external, ...props }: NavSubItemProps) {
+export function NavSubItem({ external, href, icon, label, path, ...props }: NavSubItemProps) {
     const pathname = usePathname()
 
     if(external) {
-        props = props as NavItemExternalProps
         return <SidebarMenuSubItem>
             <SidebarMenuSubButton asChild>
-                <ExternalLink href={props.href} noDecoration>
-                    <span>{props.label}</span>
-                    </ExternalLink>
+                <ExternalLink href={href} noDecoration>
+                    {icon}
+                    <span>{label}</span>
+                </ExternalLink>
             </SidebarMenuSubButton>
         </SidebarMenuSubItem>
     } else {
-        props = props as NavItemInternalProps
         return <SidebarMenuSubItem>
-            <SidebarMenuSubButton asChild isActive={pathname == props.path.href}>
-                <Link to={props.path}>
-                    <span>{props.label ?? props.path.label}</span>
+            <SidebarMenuSubButton asChild isActive={pathname == path.href}>
+                <Link to={path}>
+                    {icon}
+                    <span>{label ?? path.label}</span>
                 </Link>
             </SidebarMenuSubButton>
         </SidebarMenuSubItem>
