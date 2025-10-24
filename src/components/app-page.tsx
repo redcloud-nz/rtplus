@@ -6,6 +6,7 @@
 import { InfoIcon } from 'lucide-react'
 import Link from 'next/link'
 import { ComponentProps, Fragment, ReactNode } from 'react'
+import { omit } from 'remeda'
 import { tv, type VariantProps } from 'tailwind-variants'
 
 import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area'
@@ -19,7 +20,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Heading } from '@/components/ui/typography'
 import { cn } from '@/lib/utils'
-import { omit } from 'remeda'
+
 
 
 

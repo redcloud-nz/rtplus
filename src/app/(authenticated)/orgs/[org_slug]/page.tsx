@@ -22,7 +22,7 @@ export default async function OrganizationDashboard_Page(props: PageProps<'/orgs
     const { org_slug: orgSlug } = await props.params
     const organization = await getOrganization(orgSlug)
 
-    return <AppPage showLeftSidebarTrigger={false}>
+    return <AppPage>
             <AppPageBreadcrumbs
                 breadcrumbs={["Dashboard"]}
             />
