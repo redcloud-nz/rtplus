@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /orgs/[org_slug]/d4h/activites
+ *  Path: /orgs/[org_slug]/d4h-views/activities
  */
 
 import { Metadata } from 'next'
@@ -13,21 +13,21 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeade
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
-import { D4h_ActivitiesList_Card } from './d4h-activities-list'
+import { D4hViewsModule_ActivitiesList_Card } from './d4h-activities-list'
 
 
 
 export const metadata: Metadata = { title: "Activities - D4H" }
 
 
-export default async function D4HActivities_Page(props: PageProps<'/orgs/[org_slug]/d4h/activities'>) {
+export default async function D4hViewsModule_Activities_Page(props: PageProps<'/orgs/[org_slug]/d4h-views/activities'>) {
     const { org_slug: orgSlug } = await props.params
     const { userId } = await auth.protect()
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
-            Paths.org(orgSlug).d4h,
-            Paths.org(orgSlug).d4h.activities
+            Paths.org(orgSlug).d4hViews,
+            Paths.org(orgSlug).d4hViews.activities
         ]}/>
         <AppPageContent>
             <PageHeader>
@@ -37,7 +37,7 @@ export default async function D4HActivities_Page(props: PageProps<'/orgs/[org_sl
                 </PageDescription>
             </PageHeader>
             <Boundary>
-                <D4h_ActivitiesList_Card userId={userId} />
+                <D4hViewsModule_ActivitiesList_Card userId={userId} />
             </Boundary>
         </AppPageContent>
     </AppPage>

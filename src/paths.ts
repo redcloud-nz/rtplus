@@ -5,6 +5,16 @@
 
 import { type SkillCheckSessionId } from './lib/schemas/skill-check-session'
 
+export const about = {
+    label: 'About',
+    href: '/about',
+} as const
+
+export const dashboard = {
+    label: 'Dashboard',
+    href: '/dashboard',
+} as const
+
 export const marketing = {
 
     index: { href: '/' },
@@ -38,10 +48,15 @@ export const marketing = {
     },
 }
 
-export const about = {
-    label: 'About',
-    href: '/about',
-} as const
+export const onboarding = {
+    
+    'chooseOrganization': {
+        label: 'Choose Organization',
+        href: '/onboarding/choose-organization',
+    },
+}
+
+
 
 type OrgPaths = {
     
@@ -50,7 +65,7 @@ type OrgPaths = {
     cards: ReturnType<typeof cardsModule>,
     checklists: ReturnType<typeof checklistsModule>,
     dashboard: { label: string, href: string },
-    d4h: ReturnType<typeof d4hModule>,
+    d4hViews: ReturnType<typeof d4hViewsModule>,
     fog: ReturnType<typeof fogModule>,
     notes: ReturnType<typeof notesModule>,
     skills: ReturnType<typeof skillsModule>,
@@ -70,7 +85,7 @@ export function org(orgSlug: string): OrgPaths  {
             cards: cardsModule(orgSlug),
             checklists: checklistsModule(orgSlug),
             dashboard: { label: 'Dashboard', href: `/orgs/${orgSlug}` },
-            d4h: d4hModule(orgSlug),
+            d4hViews: d4hViewsModule(orgSlug),
             fog: fogModule(orgSlug),
             notes: notesModule(orgSlug),
             skills: skillsModule(orgSlug),
@@ -81,6 +96,8 @@ export function org(orgSlug: string): OrgPaths  {
 
     return paths
 }
+
+// Modules
 
 function adminModule(org_slug: string) {
     const base = `/orgs/${org_slug}/admin` as const
@@ -177,7 +194,7 @@ function checklistsModule(orgSlug: string) {
     } as const
 }
 
-function d4hModule(orgSlug: string) {
+function d4hViewsModule(orgSlug: string) {
     const base = `/orgs/${orgSlug}/d4h` as const
 
     return {
@@ -207,12 +224,6 @@ function d4hModule(orgSlug: string) {
     } as const
 }
 
-export const dashboard = {
-    label: 'Dashboard',
-    href: '/dashboard',
-} as const
-
-
 function fogModule(orgSlug: string) {
     return {
         label: 'Field Operations Guide',
@@ -237,15 +248,6 @@ function notesModule(orgSlug: string) {
         } as const),
     } as const
 }
-
-export const onboarding = {
-    
-    'chooseOrganization': {
-        label: 'Choose Organization',
-        href: '/onboarding/choose-organization',
-    },
-}
-
 
 function skillsModule(orgSlug: string) {
     const base = `/orgs/${orgSlug}/skills` as const

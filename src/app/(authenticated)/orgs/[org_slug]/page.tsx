@@ -57,9 +57,9 @@ export default async function OrganizationDashboard_Page(props: PageProps<'/orgs
                     </Item>
                     <Show when={isModuleEnabled(organization, 'd4h-views')}>
                         <Item asChild>
-                            <Link to={Paths.org(orgSlug).d4h}>
+                            <Link to={Paths.org(orgSlug).d4hViews}>
                                 <ItemContent>
-                                    <ItemTitle>D4H</ItemTitle>
+                                    <ItemTitle>D4H Views</ItemTitle>
                                     <ItemDescription>Alternate views of the data stored in D4H Team Manager.</ItemDescription>
                                 </ItemContent>
                                 <ItemActions>

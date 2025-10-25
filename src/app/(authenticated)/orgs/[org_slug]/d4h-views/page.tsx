@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /orgs/[org_slug]/d4h
+ *  Path: /orgs/[org_slug]/d4h-views
  */
 
 import { Metadata } from 'next'
@@ -20,12 +20,12 @@ import { D4HAccessTokenCheck_Card } from './d4h-access-token-check'
 
 export const metadata: Metadata = { title: "D4H Integration" }
 
-export default async function D4HModule_Index_Page(props: PageProps<'/orgs/[org_slug]/d4h'>) {
+export default async function D4hViewsModule_Index_Page(props: PageProps<'/orgs/[org_slug]/d4h-views'>) {
     const { org_slug: orgSlug } = await props.params
 
     const { userId } = await auth.protect()
 
-    const prefix = Paths.org(orgSlug).d4h
+    const prefix = Paths.org(orgSlug).d4hViews
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[prefix]}/>

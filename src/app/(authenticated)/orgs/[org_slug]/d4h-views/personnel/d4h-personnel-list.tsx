@@ -33,7 +33,7 @@ const StatusOptions: Record<D4hMember['status'], string> = {
 }
 
 
-export function D4hPersonnelList_Card({ userId }: { userId: string }) {
+export function D4hViewsModule_PersonnelList_Card({ userId }: { userId: string }) {
 
     const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions(userId))
 

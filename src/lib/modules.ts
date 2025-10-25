@@ -17,7 +17,7 @@ export interface Module {
 
 
 export const Modules: Module[] = [
-    { moduleId: 'd4h-views', label: 'D4H Integration', settingsKey: 'd4hViews' },
+    { moduleId: 'd4h-views', label: 'D4H Views', settingsKey: 'd4hViews' },
     { moduleId: 'notes', label: 'Notes', settingsKey: 'notes' },
     { moduleId: 'skills', label: 'Skill Tracking', settingsKey: 'skills' },
     { moduleId: 'skill-package-manager', label: 'Skill Package Manager', settingsKey: 'skillPackageManager' },
