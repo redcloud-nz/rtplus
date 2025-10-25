@@ -6,7 +6,7 @@
 
 import { ChevronRight } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { ComponentProps, ReactNode } from 'react'
+import { ComponentProps, ReactNode, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleProps, CollapsibleTrigger } from '@/components/ui/collapsible'
@@ -21,14 +21,11 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar'
+import { cn } from '@/lib/utils'
 
 
 
-export interface NavSectionProps {
-    title?: string
-    children: ReactNode
-}
-
+export type NavSectionProps = ComponentProps<typeof SidebarGroup> & { title?: string }
 
 export function NavSection({ title, children }: NavSectionProps) {
     return <SidebarGroup>
@@ -68,15 +65,22 @@ export function NavItem({ external, href, icon, label, path, ...props }: NavItem
 }
 
 
-type NavCollapsibleProps = CollapsibleProps & {
-    label: string
+type NavCollapsibleProps = Omit<CollapsibleProps, 'asChild' | 'open' | 'onOpenChange'> & {
     icon?: ReactNode
+    label: string
+    prefix?: string
 }
 
-export function NavCollapsible({ label, icon, children, ...props }: NavCollapsibleProps) {
+export function NavCollapsible({ children, className, icon, label, prefix, ...props }: NavCollapsibleProps) {
+    const pathname = usePathname()
+
+    const [open, setOpen] = useState<boolean>(false)
+
     return <Collapsible
         asChild
-        className="group/collapsible"
+        className={cn("group/collapsible", className)}
+        open={open || (!!prefix && pathname.startsWith(prefix))}
+        onOpenChange={setOpen}
         {...props}
     >
         <SidebarMenuItem>

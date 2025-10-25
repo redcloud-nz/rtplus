@@ -5,26 +5,26 @@
  */
 'use client'
 
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
-import { Show } from '@/components/show'
-import { Alert } from '@/components/ui/alert'
-import { Card2, Card2Content, Card2Description, Card2Header, Card2Title } from '@/components/ui/card2'
 import { Button } from '@/components/ui/button'
-import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { FloatingFooter } from '@/components/footer'
-import { Switch } from '@/components/ui/switch'
 import { Heading, Paragraph } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
 import { OrganizationData } from '@/lib/schemas/organization'
 import { OrganizationSettingsData, organizationSettingsSchema } from '@/lib/schemas/settings'
 import { trpc } from '@/trpc/client'
-import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/items'
+
+import { Settings_D4hIntegration_Card } from './d4h-integration'
+import { Settings_EnabledModules_Card } from './enabled-modules'
+import { Settings_NotesModule_Card } from './notes-module'
+import { Settings_SkillsModule_Card } from './skills-module'
+import { Settings_SkillPackageManagerModule_Card } from './skill-package-manager-module'
 
 
 
@@ -57,85 +57,41 @@ export function OrganizationSettings({ organization }: {organization: Organizati
         }
     }))
 
-    return <form id="organization-settings-form" className="space-y-8" onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData, orgId: organization.orgId }))}>
+    return <form id="organization-settings-form" className="max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-4" onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData, orgId: organization.orgId }))}>
+        
+        <Heading level={2} className="col-span-full mt-4">General Settings</Heading>
 
-        <Card2>
-            <Card2Header>
-                <Card2Title>Modules</Card2Title>
-                <Card2Description>
-                    Manage the modules enabled for your organization.
-                </Card2Description>
-            </Card2Header>
-            <Card2Content>
-                <FieldGroup>
-                    <Controller
-                        name="modules.d4h.enabled"
-                        control={form.control}
-                        render={({ field, fieldState }) => <Field orientation="horizontal">
-                            <FieldContent>
-                                <FieldLabel htmlFor="d4h-module-enabled">D4H Integration</FieldLabel>
-                            </FieldContent>
-                            <Switch
-                                id="d4h-module-enabled"
-                                name={field.name}
-                                aria-invalid={fieldState.invalid}
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                            />
-                        </Field>
-                    }/>
-                    <Controller
-                        name="modules.notes.enabled"
-                        control={form.control}
-                        render={({ field, fieldState }) => <Field orientation="horizontal">
-                            <FieldContent>
-                                <FieldLabel htmlFor="notes-module-enabled">Notes</FieldLabel>
-                            </FieldContent>
-                            <Switch
-                                id="notes-module-enabled"
-                                name={field.name}
-                                aria-invalid={fieldState.invalid}
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                            />
-                        </Field>
-                    }/>
-                    <Controller
-                        name="modules.skills.enabled"
-                        control={form.control}
-                        render={({ field, fieldState }) => <Field orientation="horizontal">
-                            <FieldContent>
-                                <FieldLabel htmlFor="skills-module-enabled">Skills</FieldLabel>
-                            </FieldContent>
-                            <Switch
-                                id="skills-module-enabled"
-                                name={field.name}
-                                aria-invalid={fieldState.invalid}
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                            />
-                        </Field>
-                    }/>
-                    <Controller
-                        name="modules.spm.enabled"
-                        control={form.control}
-                        render={({ field, fieldState }) => <Field orientation="horizontal">
-                            <FieldContent>
-                                <FieldLabel htmlFor="spm-module-enabled">Skill Package Manager</FieldLabel>
-                            </FieldContent>
-                            <Switch
-                                id="spm-module-enabled"
-                                name={field.name}
-                                aria-invalid={fieldState.invalid}
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                            />
-                        </Field>
-                    }/>
-                </FieldGroup>
-            </Card2Content>
-        </Card2>                  
+        <div>
+            <Heading level={3}>D4H Integration</Heading>
+            <Paragraph>Configure the D4H integration settings for your organization.</Paragraph>
+        </div>
+        <Settings_D4hIntegration_Card form={form} />
 
+        <Heading level={2} className="col-span-full mt-4">Modules</Heading>
+
+         <div>
+            <Heading level={3}>Enabled Modules</Heading>
+            <Paragraph>Manage the modules enabled for your organization.</Paragraph>
+        </div>
+        <Settings_EnabledModules_Card form={form} />
+
+        <div>
+            <Heading level={3}>Notes Module</Heading>
+            <Paragraph></Paragraph>
+        </div>
+        <Settings_NotesModule_Card form={form} />
+
+        <div>
+            <Heading level={3}>Skill Package Manager Module</Heading>
+            <Paragraph></Paragraph>
+        </div>
+        <Settings_SkillPackageManagerModule_Card form={form} />
+
+        <div>
+            <Heading level={3}>Skills Module</Heading>
+            <Paragraph></Paragraph>
+        </div>
+        <Settings_SkillsModule_Card form={form} />
 
         <FloatingFooter open={form.formState.isDirty || mutation.isPending}>
             {mutation.isPending ?

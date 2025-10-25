@@ -103,7 +103,7 @@ export function UnknownError({ error, ...props }: AppPageContentProps & { error:
     </AppPageContent>
 }
 
-export function ModuleNotAvailable({ moduleName, ...props}: AppPageContentProps & { moduleName: string }) {
+export function ModuleNotEnabled({ moduleName, ...props}: AppPageContentProps & { moduleName: string }) {
 
     return <AppPageContent variant="centered" {...props}>
         <Empty>

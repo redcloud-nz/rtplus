@@ -2,20 +2,20 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /orgs/[org_slug]/skill-package-manager
+ *  Path: /orgs/[org_slug]/skills
  */
 
 import { ModuleNotEnabled } from '@/components/nav/errors'
 import { isModuleEnabled } from '@/lib/modules'
 import { getOrganization } from '@/server/organization'
 
-export default async function SkillPackageManagerModule_Layout(props: LayoutProps<'/orgs/[org_slug]/skill-package-manager'>) {
+export default async function SkillsModule_Layout(props: LayoutProps<'/orgs/[org_slug]/skills'>) {
     const { org_slug: orgSlug } = await props.params
     const organization = await getOrganization(orgSlug)
 
-    if(isModuleEnabled(organization, 'skill-package-manager')) {
+    if(isModuleEnabled(organization, 'skills')) {
         return <>{props.children}</>
     } else {
-        return <ModuleNotEnabled moduleName="skill-package-manager"/>
+        return <ModuleNotEnabled moduleName="skills"/>
     }
 }

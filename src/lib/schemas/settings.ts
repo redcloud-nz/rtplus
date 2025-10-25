@@ -5,9 +5,17 @@
 
 import { z } from 'zod'
 
+import { D4hServerCode } from '@/lib/d4h-api/servers'
+
 export const organizationSettingsSchema = z.object({
-    modules: z.object({
+    integrations: z.object({
         d4h: z.object({
+            enabled: z.boolean().default(false),
+            server: D4hServerCode.schema.default('us'),
+        }).default({}),
+    }).default({}),
+    modules: z.object({
+        d4hViews: z.object({
             enabled: z.boolean().default(false),
         }).default({ enabled: false }),
         notes: z.object({
@@ -16,7 +24,7 @@ export const organizationSettingsSchema = z.object({
         skills: z.object({
             enabled: z.boolean().default(true),
         }).default({ enabled: false }),
-        spm: z.object({
+        skillPackageManager: z.object({
             enabled: z.boolean().default(false),
         }).default({ enabled: false }),
 

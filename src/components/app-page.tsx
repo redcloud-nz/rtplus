@@ -106,11 +106,16 @@ export interface AppPageBreadcrumbsProps {
 
 export function AppPageBreadcrumbs({ breadcrumbs = [] }: AppPageBreadcrumbsProps) {
     if(breadcrumbs.length === 0) return null
-    
-    const normalizedBreadcrumbs = normalizeBreadcrumbs(breadcrumbs)
 
     return <div className="row-1 col-2 flex items-center h-12 gap-2 pr-2">
-        <Breadcrumb className="px-2">
+        <AppPageBreadcrumbs_Inner breadcrumbs={breadcrumbs}/>
+    </div>
+}
+
+function AppPageBreadcrumbs_Inner({ breadcrumbs = [] }: AppPageBreadcrumbsProps) {
+    const normalizedBreadcrumbs = normalizeBreadcrumbs(breadcrumbs)
+
+    return <Breadcrumb className="px-2">
             <BreadcrumbList>
                 {normalizedBreadcrumbs.slice(0, -1).map((breadcrumb, idx) => 
                     <Fragment key={idx}>
@@ -130,7 +135,18 @@ export function AppPageBreadcrumbs({ breadcrumbs = [] }: AppPageBreadcrumbsProps
                 </BreadcrumbItem>
             </BreadcrumbList>    
         </Breadcrumb>
-    </div>
+}
+
+interface AppPageHeaderProps {
+    breadcrumbs?: (PageBreadcrumb | string)[]
+}
+
+export function AppPageHeader({ breadcrumbs }: AppPageHeaderProps) {
+    return <header className="bg-background sticky top-0 flex h-[var(--header-height)] shrink-0 items-center gap-2 border-b px-2">
+        <SidebarTrigger side="left"/>
+        <Separator orientation="vertical"/>
+        { breadcrumbs && <AppPageBreadcrumbs_Inner breadcrumbs={breadcrumbs} /> }
+    </header>
 }
 
 export function AppPageControls({ children, className }: ComponentProps<'div'>) {

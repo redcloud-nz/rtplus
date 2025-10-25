@@ -33,9 +33,3 @@ export function toOrganizationData(record: OrganizationRecord, clerkOrganization
 }
 
 export type OrganizationData = z.infer<typeof organizationSchema>
-
-
-export function isModuleEnabled(organization: OrganizationData, module: keyof OrganizationData['settings']['modules']): boolean {
-    const modules = organization.settings.modules || {}
-    return modules[module]?.enabled === true
-}

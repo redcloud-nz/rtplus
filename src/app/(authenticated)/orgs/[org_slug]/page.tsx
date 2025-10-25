@@ -13,7 +13,7 @@ import { Show } from '@/components/show'
 import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/items'
 import { Link } from '@/components/ui/link'
 
-import { isModuleEnabled } from '@/lib/schemas/organization'
+import { isModuleEnabled } from '@/lib/modules'
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
 
@@ -55,7 +55,7 @@ export default async function OrganizationDashboard_Page(props: PageProps<'/orgs
                             </ItemActions>
                         </Link>
                     </Item>
-                    <Show when={isModuleEnabled(organization, 'd4h')}>
+                    <Show when={isModuleEnabled(organization, 'd4h-views')}>
                         <Item asChild>
                             <Link to={Paths.org(orgSlug).d4h}>
                                 <ItemContent>
@@ -68,7 +68,7 @@ export default async function OrganizationDashboard_Page(props: PageProps<'/orgs
                             </Link>
                         </Item>
                     </Show>
-                    <Show when={isModuleEnabled(organization, 'spm')}>
+                    <Show when={isModuleEnabled(organization, 'skill-package-manager')}>
                         <Item asChild>
                             <Link to={Paths.org(orgSlug).spm}>
                                 <ItemContent>

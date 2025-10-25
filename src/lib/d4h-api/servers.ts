@@ -3,9 +3,16 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
+import { z } from 'zod'
+
 export type D4hServerCode = 'ap' | 'eu' | 'us'
 
+export const D4hServerCode = {
+    schema: z.enum(['ap', 'eu', 'us'] as const),
+}
+
 export const D4hServerCodes = ['ap', 'eu', 'us'] as const
+
 
 interface D4HServer {
     code: D4hServerCode

@@ -5,15 +5,16 @@
  * Path: /orgs/[org_slug]/admin/settings
  */
 
-import { AppPage, AppPageBreadcrumbs, ScrollablePageContent } from '@/components/app-page'
-import { Boundary } from '@/components/boundary'
+import { AppPageHeader } from '@/components/app-page'
+import { SidebarInset } from '@/components/ui/sidebar'
 
 import * as Paths from '@/paths'
 
-import { Heading } from '@/components/ui/typography'
 import { getOrganization } from '@/server/organization'
 
 import { OrganizationSettings } from './organization-settings'
+import { clerkAuth } from '@/server/clerk'
+
 
 
 
@@ -23,20 +24,17 @@ export default async function AdminModule_OrganizationSettings_Page(props: PageP
     const { org_slug: orgSlug } = await props.params
     const organization = await getOrganization(orgSlug)
 
-    return <AppPage>
-        <AppPageBreadcrumbs
+    await clerkAuth.protect({role: 'admin' })
+
+    return <SidebarInset>
+        <AppPageHeader 
             breadcrumbs={[
                 Paths.org(orgSlug).admin,
                 Paths.org(orgSlug).admin.settings
             ]}
         />
-
-        <ScrollablePageContent>
-            <Heading level={1}>Organisation Settings</Heading>
-
-            <Boundary>
-                <OrganizationSettings organization={organization} />
-            </Boundary>
-        </ScrollablePageContent>
-    </AppPage> 
+        <div className="flex flex-1 flex-col gap-4 p-4">
+            <OrganizationSettings organization={organization} />
+        </div>
+    </SidebarInset>
 }
