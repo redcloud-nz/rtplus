@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /orgs/[org_slug]/admin/skill-packages
+ *  Path: /orgs/[org_slug]/skill-package-manager/skill-packages
  */
 
 import { ImportIcon } from 'lucide-react'
@@ -23,15 +23,15 @@ import { AdminModule_SkillPackagesList } from './skill-package-list'
 
 export const metadata = { title: "Skill Packages" }
 
-export default async function AdminModule_SkillPackagesList_Page(props: PageProps<'/orgs/[org_slug]/admin/skill-packages'>) {
+export default async function AdminModule_SkillPackagesList_Page(props: PageProps<'/orgs/[org_slug]/skill-package-manager/skill-packages'>) {
     const { org_slug: orgSlug } = await props.params
     const organization = await getOrganization(orgSlug)
 
     return <AppPage>
         <AppPageBreadcrumbs 
             breadcrumbs={[
-                Paths.org(orgSlug).admin,
-                Paths.org(orgSlug).admin.skillPackages,
+                Paths.org(orgSlug).spm,
+                Paths.org(orgSlug).spm.skillPackages,
             ]}
         />
         <AppPageContent variant="container">
@@ -40,7 +40,7 @@ export default async function AdminModule_SkillPackagesList_Page(props: PageProp
                 <PageControls>
                     <Protect role="org:admin">
                         <Button variant="ghost" size="icon" asChild>
-                            <Link to={Paths.org(orgSlug).admin.skillPackages.import}>
+                            <Link to={Paths.org(orgSlug).spm.skillPackages.import}>
                                 <ImportIcon/>
                             </Link>
                         </Button>

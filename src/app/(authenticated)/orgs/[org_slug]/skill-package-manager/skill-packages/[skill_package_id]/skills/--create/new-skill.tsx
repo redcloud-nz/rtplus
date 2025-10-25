@@ -75,7 +75,7 @@ export function AdminModule_NewSkill_Form({ organization, skillPackageId }: { or
             queryClient.invalidateQueries(trpc.skills.getSkills.queryFilter({ skillPackageId }))
             queryClient.invalidateQueries(trpc.skills.getSkills.queryFilter({ skillGroupId: result.skillGroupId }))
 
-            router.push(Paths.org(organization.slug).admin.skillPackage(skillPackageId).skill(result.skillId).href)
+            router.push(Paths.org(organization.slug).spm.skillPackage(skillPackageId).skill(result.skillId).href)
         }
     }))
 

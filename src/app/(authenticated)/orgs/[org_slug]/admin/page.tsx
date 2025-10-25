@@ -10,11 +10,9 @@ import Image from 'next/image'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 
-import { Show } from '@/components/show'
 import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/items'
 import { Link } from '@/components/ui/link'
 
-import { isModuleEnabled } from '@/lib/schemas/organization'
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
 
@@ -42,7 +40,7 @@ export default async function AdminModule_Index_Page(props: PageProps<'/orgs/[or
                     height={100}
                     priority
                 />
-                <p>Response Team Management Tools.</p>
+                <p>RT+ Admin Module</p>
             </div>
             <div className="flex w-full max-w-md flex-col gap-4">
                 <Item asChild>
@@ -67,7 +65,7 @@ export default async function AdminModule_Index_Page(props: PageProps<'/orgs/[or
                         </ItemActions>
                     </Link>
                 </Item>
-                <Show when={isModuleEnabled(organization, 'skills')}>
+                {/* <Show when={isModuleEnabled(organization, 'skills')}>
                     <Item asChild>
                         <Link to={Paths.org(orgSlug).admin.skillPackages}>
                             <ItemContent>
@@ -79,7 +77,7 @@ export default async function AdminModule_Index_Page(props: PageProps<'/orgs/[or
                             </ItemActions>
                         </Link>
                     </Item>
-                </Show>
+                </Show> */}
                 <Item asChild>
                     <Link to={Paths.org(orgSlug).admin.teams}>
                         <ItemContent>

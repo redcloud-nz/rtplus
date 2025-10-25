@@ -13,7 +13,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 
 import { Show } from '@/components/show'
 import { Alert } from '@/components/ui/alert'
-import { Card2, Card2Content } from '@/components/ui/card2'
+import { Card2, Card2Content, Card2Description, Card2Header, Card2Title } from '@/components/ui/card2'
 import { Button } from '@/components/ui/button'
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { FloatingFooter } from '@/components/footer'
@@ -24,6 +24,7 @@ import { useToast } from '@/hooks/use-toast'
 import { OrganizationData } from '@/lib/schemas/organization'
 import { OrganizationSettingsData, organizationSettingsSchema } from '@/lib/schemas/settings'
 import { trpc } from '@/trpc/client'
+import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/items'
 
 
 
@@ -57,92 +58,84 @@ export function OrganizationSettings({ organization }: {organization: Organizati
     }))
 
     return <form id="organization-settings-form" className="space-y-8" onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData, orgId: organization.orgId }))}>
-        <section className="space-y-4">
-            <Heading level={2} id="modules">General Settings</Heading>
-            <Paragraph>TODO</Paragraph>
-        </section>
 
-        <section className="space-y-4">
-            <Heading level={2} id="d4h-module">D4H Integration Module</Heading>
+        <Card2>
+            <Card2Header>
+                <Card2Title>Modules</Card2Title>
+                <Card2Description>
+                    Manage the modules enabled for your organization.
+                </Card2Description>
+            </Card2Header>
+            <Card2Content>
+                <FieldGroup>
+                    <Controller
+                        name="modules.d4h.enabled"
+                        control={form.control}
+                        render={({ field, fieldState }) => <Field orientation="horizontal">
+                            <FieldContent>
+                                <FieldLabel htmlFor="d4h-module-enabled">D4H Integration</FieldLabel>
+                            </FieldContent>
+                            <Switch
+                                id="d4h-module-enabled"
+                                name={field.name}
+                                aria-invalid={fieldState.invalid}
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                            />
+                        </Field>
+                    }/>
+                    <Controller
+                        name="modules.notes.enabled"
+                        control={form.control}
+                        render={({ field, fieldState }) => <Field orientation="horizontal">
+                            <FieldContent>
+                                <FieldLabel htmlFor="notes-module-enabled">Notes</FieldLabel>
+                            </FieldContent>
+                            <Switch
+                                id="notes-module-enabled"
+                                name={field.name}
+                                aria-invalid={fieldState.invalid}
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                            />
+                        </Field>
+                    }/>
+                    <Controller
+                        name="modules.skills.enabled"
+                        control={form.control}
+                        render={({ field, fieldState }) => <Field orientation="horizontal">
+                            <FieldContent>
+                                <FieldLabel htmlFor="skills-module-enabled">Skills</FieldLabel>
+                            </FieldContent>
+                            <Switch
+                                id="skills-module-enabled"
+                                name={field.name}
+                                aria-invalid={fieldState.invalid}
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                            />
+                        </Field>
+                    }/>
+                    <Controller
+                        name="modules.spm.enabled"
+                        control={form.control}
+                        render={({ field, fieldState }) => <Field orientation="horizontal">
+                            <FieldContent>
+                                <FieldLabel htmlFor="spm-module-enabled">Skill Package Manager</FieldLabel>
+                            </FieldContent>
+                            <Switch
+                                id="spm-module-enabled"
+                                name={field.name}
+                                aria-invalid={fieldState.invalid}
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                            />
+                        </Field>
+                    }/>
+                </FieldGroup>
+            </Card2Content>
+        </Card2>                  
 
-            <Card2>
-                <Card2Content>
-                    <FieldGroup>
-                        <Controller
-                            name="modules.d4h.enabled"
-                            control={form.control}
-                            render={({ field, fieldState }) => <Field orientation="horizontal">
-                                <FieldContent>
-                                    <FieldLabel htmlFor="d4h-module-enabled">Enable Module</FieldLabel>
-                                    <FieldDescription>Toggle the D4H module for your organization.</FieldDescription>
-                                </FieldContent>
-                                <Switch
-                                    id="d4h-module-enabled"
-                                    name={field.name}
-                                    aria-invalid={fieldState.invalid}
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                />
-                            </Field>
-                        }/>
-                    </FieldGroup>
-                </Card2Content>
-            </Card2>
-            <Show when={form.getValues("modules.d4h.enabled")}>
-                <Alert severity="info" title="No settings available" className="mt-4">
-                    No configurable settings are available for this module at this time.
-                </Alert>
-            </Show>                    
-            
-        </section>
-
-        <section className="space-y-4">
-            <Heading level={2} id="notes-module">Notes Module</Heading>
-
-            <Alert severity="info" title="Module not yet available" className="mt-4">
-                This module is not yet available. Please check back later.
-            </Alert>
-
-                                
-        </section>
-
-        <section className="space-y-4">
-            <Heading level={2} id="skills-module">
-                Skills Module
-            </Heading>
-            
-            <Card2>
-                <Card2Content>
-                    <FieldGroup>
-                        <Controller
-                            name="modules.skills.enabled"
-                            control={form.control}
-                            render={({ field, fieldState }) => <Field orientation="horizontal">
-                                <FieldContent>
-                                    <FieldLabel htmlFor="skills-module-enabled">Enable Module</FieldLabel>
-                                    <FieldDescription>Toggle the skills module for your organization.</FieldDescription>
-                                </FieldContent>
-                                <Switch
-                                    id="skills-module-enabled"
-                                    name={field.name}
-                                    aria-invalid={fieldState.invalid}
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                />
-                            </Field>
-                        }/>
-                    </FieldGroup>
-                </Card2Content>
-            </Card2>
-
-            <Show when={form.getValues("modules.skills.enabled")}>
-                <Alert severity="info" title="No settings available" className="mt-4">
-                    No configurable settings are available for this module at this time.
-                </Alert>
-            </Show>
-
-            
-        </section>
 
         <FloatingFooter open={form.formState.isDirty || mutation.isPending}>
             {mutation.isPending ?

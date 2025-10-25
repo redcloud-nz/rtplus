@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /orgs/admin/skill-packages/[skill_package_id]
+ *  Path: /orgs/[org_slug]/skill-package-manager/skill-packages/[skill_package_id]
  */
 
 
@@ -19,14 +19,14 @@ import { AdminModule_SkillPackage_SkillsList } from './skill-package-skills-list
 
 
 
-export async function generateMetadata(props: PageProps<'/orgs/[org_slug]/admin/skill-packages/[skill_package_id]'>) {
+export async function generateMetadata(props: PageProps<'/orgs/[org_slug]/skill-package-manager/skill-packages/[skill_package_id]'>) {
     const { org_slug: orgSlug, skill_package_id: skillPackageId } = await props.params
     const organization = await getOrganization(orgSlug)
     const skillPackage = await fetchSkillPackage({ orgId: organization.orgId, skillPackageId })
     return { title: `${skillPackage.name} - Skill Packages` }
 }
 
-export default async function AdminModule_SkillPackage_Page(props: PageProps<'/orgs/[org_slug]/admin/skill-packages/[skill_package_id]'>) {
+export default async function AdminModule_SkillPackage_Page(props: PageProps<'/orgs/[org_slug]/skill-package-manager/skill-packages/[skill_package_id]'>) {
     const { org_slug: orgSlug, skill_package_id: skillPackageId } = await props.params
     const organization = await getOrganization(orgSlug)
     const skillPackage = await fetchSkillPackage({ orgId: organization.orgId, skillPackageId })
@@ -34,8 +34,8 @@ export default async function AdminModule_SkillPackage_Page(props: PageProps<'/o
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.org(orgSlug).admin, 
-                Paths.org(orgSlug).admin.skillPackages,
+                Paths.org(orgSlug).spm, 
+                Paths.org(orgSlug).spm.skillPackages,
                 skillPackage.name
             ]}
         />

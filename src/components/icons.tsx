@@ -4,7 +4,7 @@
  */
 
 
-import { BookOpenIcon, CableIcon, LayoutDashboardIcon, PocketKnifeIcon, SettingsIcon, ShieldHalfIcon, UsersIcon, WrenchIcon } from 'lucide-react'
+import { BookOpenIcon, CableIcon, ContainerIcon, LayoutDashboardIcon, PocketKnifeIcon, SettingsIcon, ShieldHalfIcon, UsersIcon, WrenchIcon } from 'lucide-react'
 
 export { 
     WrenchIcon as AdminModuleIcon,
@@ -15,5 +15,6 @@ export {
     SettingsIcon as SettingsIcon,
     PocketKnifeIcon as SkillsIcon,
     PocketKnifeIcon as SkillsModuleIcon,
+    ContainerIcon as SPMModuleIcon,
     ShieldHalfIcon as TeamsIcon
 }

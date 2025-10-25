@@ -67,7 +67,7 @@ export function AdminModile_NewSkillPackage_Form({ organization }: { organizatio
             })
 
             queryClient.invalidateQueries(trpc.skills.getPackages.queryFilter())
-            router.push(Paths.org(organization.slug).admin.skillPackage(result.skillPackageId).href)
+            router.push(Paths.org(organization.slug).spm.skillPackage(result.skillPackageId).href)
         }
     }))
 

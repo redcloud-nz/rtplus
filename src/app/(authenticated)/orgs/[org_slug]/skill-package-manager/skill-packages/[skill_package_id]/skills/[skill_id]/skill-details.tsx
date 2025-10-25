@@ -11,7 +11,6 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 import z from 'zod'
 
-import { Protect } from '@clerk/nextjs'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 
@@ -21,17 +20,20 @@ import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, Dia
 import { DisplayValue } from '@/components/ui/display-value'
 import { Form, FormActions, FormCancelButton, FormControl, FormField, FormItem, FormLabel, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { TextLink } from '@/components/ui/link'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
 import { ObjectName } from '@/components/ui/typography'
+import { TextLink } from '@/components/ui/link'
 
 import { useToast } from '@/hooks/use-toast'
 import { OrganizationData } from '@/lib/schemas/organization'
-import { SkillGroupData, skillGroupSchema } from '@/lib/schemas/skill-group'
+import { SkillData, skillSchema } from '@/lib/schemas/skill'
+import { SkillGroupData } from '@/lib/schemas/skill-group'
 import { SkillPackageData } from '@/lib/schemas/skill-package'
+
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
@@ -41,14 +43,13 @@ import { trpc } from '@/trpc/client'
 
 
 /**
- * Card that displays the details of a skill group and allows the user to edit or delete it.
- * @param skillGroupId The ID of the skill group to display.
- * @param skillPackageId The ID of the skill package that the skill group belongs to.
+ * Card that displays the details of a skill and allows the user to edit or delete it.
+ * @param skillId The ID of the skill to display.
+ * @param skillPackageId The ID of the skill package that the skill belongs to.
  */
-export function AdminModule_SkillGroupDetails({ organization, skillGroupId, skillPackageId }: { organization: OrganizationData, skillGroupId: string, skillPackageId: string }) {
+export function AdminModule_SkillDetails({ organization, skillId, skillPackageId }: { organization: OrganizationData, skillId: string, skillPackageId: string }) {
 
-
-    const { data: skillGroup } = useSuspenseQuery(trpc.skills.getGroup.queryOptions({ orgId: organization.orgId, skillGroupId, skillPackageId }))
+    const { data: skill } = useSuspenseQuery(trpc.skills.getSkill.queryOptions({ orgId: organization.orgId, skillId, skillPackageId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
 
@@ -57,27 +58,23 @@ export function AdminModule_SkillGroupDetails({ organization, skillGroupId, skil
             <CardTitle>Details</CardTitle>
 
             <CardActions>
-                <Protect role="org:admin">
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" onClick={() => setMode('Update')}>
-                                <PencilIcon/>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Edit skill group</TooltipContent>
-                    </Tooltip>
-                    <DeleteSkillGroupDialog organization={organization} skillGroup={skillGroup} />
-                </Protect>
-                
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" onClick={() => setMode('Update')}>
+                            <PencilIcon/>
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Edit skill</TooltipContent>
+                </Tooltip>
+                <DeleteSkillDialog organization={organization} skill={skill} />
 
                 <Separator orientation="vertical"/>
 
                 <CardExplanation>
-                    This skill group is used to organize related skills within a skill package. 
-                    It helps categorize and structure skills for better management and understanding.
+                    This skill defines a specific competency that can be assessed within a skill group. 
+                    Skills can be marked as optional or required and have different assessment frequencies.
                     <br/>
-                    <br/>
-                    You can edit the skill group details or delete it if it is no longer needed.
+                    You can edit the skill details or delete it if it is no longer needed.
                 </CardExplanation>
             </CardActions>
         </CardHeader>
@@ -86,43 +83,54 @@ export function AdminModule_SkillGroupDetails({ organization, skillGroupId, skil
                 .with('View', () => 
                     <ToruGrid>
                         <ToruGridRow
-                            label="Skill Group ID"
-                            control={<DisplayValue>{skillGroup.skillGroupId}</DisplayValue>}
+                            label="Skill ID"
+                            control={<DisplayValue>{skill.skillId}</DisplayValue>}
                         />
                         <ToruGridRow
                             label="Skill Package"
                             control={
                                 <DisplayValue>
-                                    <TextLink to={Paths.org(organization.slug).admin.skillPackage(skillGroup.skillPackageId)}>
-                                        {skillGroup.skillPackage.name}
+                                    <TextLink to={Paths.org(organization.slug).spm.skillPackage(skill.skillPackageId)}>
+                                        {skill.skillPackage.name}
+                                    </TextLink>
+                                </DisplayValue>
+                            }
+                        />
+                        <ToruGridRow
+                            label="Skill Group"
+                            control={
+                                <DisplayValue>
+                                    <TextLink to={Paths.org(organization.slug).spm.skillPackage(skill.skillPackageId).group(skill.skillGroupId)}>
+                                        {skill.skillGroup.name}
                                     </TextLink>
                                 </DisplayValue>
                             }
                         />
                         <ToruGridRow
                             label="Name"
-                            control={<DisplayValue>{skillGroup.name}</DisplayValue>}
+                            control={<DisplayValue>{skill.name}</DisplayValue>}
                         />
                         <ToruGridRow
                             label="Description"
                             control={
                                 <DisplayValue variant="paragraph">
-                                    {skillGroup.description || <span className="text-muted-foreground">No description provided.</span>}
+                                    {skill.description || <span className="text-muted-foreground">No description provided.</span>}
                                 </DisplayValue>
                             }
                         />
                         <ToruGridRow
                             label="Status"
-                            control={<DisplayValue>{skillGroup.status}</DisplayValue>}
+                            control={<DisplayValue>{skill.status}</DisplayValue>}
                         />
                         <ToruGridFooter/>
                     </ToruGrid>
                 )
                 .with('Update', () => 
-                    <UpdateSkillGroupForm
+                    <UpdateSkillForm
                         organization={organization}
-                        skillGroup={skillGroup}
-                        skillPackage={skillGroup.skillPackage}
+                        skillPackage={skill.skillPackage}
+                        skillGroup={skill.skillGroup}
+                        skill={skill}
                         onClose={() => setMode('View')}
                     />
                 )
@@ -134,27 +142,27 @@ export function AdminModule_SkillGroupDetails({ organization, skillGroupId, skil
 
 
 /**
- * Form to update a skill group.
+ * Form to update a skill.
  * @param onClose Callback to close the form.
- * @param skillGroup The skill group to update.
+ * @param skill The skill to update.
  */
-function UpdateSkillGroupForm({ onClose, organization, skillGroup, skillPackage }: { onClose: () => void, organization: OrganizationData, skillGroup: SkillGroupData, skillPackage: SkillPackageData }) {
+function UpdateSkillForm({ onClose, organization, skill, skillPackage, skillGroup }: { onClose: () => void, organization: OrganizationData, skill: SkillData, skillPackage: SkillPackageData, skillGroup: SkillGroupData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     
 
-    const form = useForm<SkillGroupData>({
-        resolver: zodResolver(skillGroupSchema),
-        defaultValues: { ...skillGroup }
+    const form = useForm<SkillData>({
+        resolver: zodResolver(skillSchema),
+        defaultValues: { ...skill}
     })
 
-    const mutation = useMutation(trpc.skills.updateGroup.mutationOptions({
+    const mutation = useMutation(trpc.skills.updateSkill.mutationOptions({
         onError(error) {
             if (error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof SkillGroupData, { message: error.shape.message })
+                form.setError(error.shape.cause.message as keyof SkillData, { message: error.shape.message })
             } else {
                 toast({
-                    title: 'Error updating skill group',
+                    title: 'Error updating skill',
                     description: error.message,
                     variant: 'destructive',
                 })
@@ -163,12 +171,12 @@ function UpdateSkillGroupForm({ onClose, organization, skillGroup, skillPackage 
         },
         onSuccess(result) {
             toast({
-                title: 'Skill Group Updated',
-                description: <>The skill group <ObjectName>{result.name}</ObjectName> has been updated successfully.</>,
+                title: 'Skill Updated',
+                description: <>The skill <ObjectName>{result.name}</ObjectName> has been updated successfully.</>,
             })
 
-            queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter())
-            queryClient.invalidateQueries(trpc.skills.getGroup.queryFilter({ skillGroupId: result.skillGroupId }))
+            queryClient.invalidateQueries(trpc.skills.getSkills.queryFilter())
+            queryClient.invalidateQueries(trpc.skills.getSkill.queryFilter({ skillId: result.skillId }))
             onClose()
         }
     }))
@@ -178,9 +186,9 @@ function UpdateSkillGroupForm({ onClose, organization, skillGroup, skillPackage 
             <ToruGrid mode="form">
                 <FormField
                     control={form.control}
-                    name="skillGroupId"
+                    name="skillId"
                     render={({ field }) => <ToruGridRow
-                        label="Skill Group ID"
+                        label="Skill ID"
                         control={<DisplayValue>{field.value}</DisplayValue>}
                     />}
                 />
@@ -191,8 +199,22 @@ function UpdateSkillGroupForm({ onClose, organization, skillGroup, skillPackage 
                         label="Skill Package"
                         control={
                             <DisplayValue>
-                                <TextLink to={Paths.org(organization.slug).admin.skillPackage(skillPackage.skillPackageId)}>
+                                <TextLink to={Paths.org(organization.slug).spm.skillPackage(skill.skillPackageId)}>
                                     {skillPackage.name}
+                                </TextLink>
+                            </DisplayValue>
+                        }
+                    />}
+                />
+                <FormField
+                    control={form.control}
+                    name="skillGroupId"
+                    render={() => <ToruGridRow
+                        label="Skill Group"
+                        control={
+                            <DisplayValue>
+                                <TextLink to={Paths.org(organization.slug).spm.skillPackage(skill.skillPackageId).group(skill.skillGroupId)}>
+                                    {skillGroup.name}
                                 </TextLink>
                             </DisplayValue>
                         }
@@ -204,7 +226,7 @@ function UpdateSkillGroupForm({ onClose, organization, skillGroup, skillPackage 
                     render={({ field }) => <ToruGridRow
                         label="Name"
                         control={<Input maxLength={100} {...field} />}
-                        description="The name of the skill group."
+                        description="The name of the skill."
                     />}
                 />
                 <FormField
@@ -213,7 +235,26 @@ function UpdateSkillGroupForm({ onClose, organization, skillGroup, skillPackage 
                     render={({ field }) => <ToruGridRow
                         label="Description"
                         control={<Textarea maxLength={500} {...field} />}
-                        description="A brief description of the skill group."
+                        description="A brief description of the skill."
+                    />}
+                />
+                <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => <ToruGridRow
+                        label="Status"
+                        control={
+                            <Select {...field} onValueChange={field.onChange}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Active">Active</SelectItem>
+                                    <SelectItem value="Inactive">Inactive</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        }
+                        description="The current status of the skill."
                     />}
                 />
                 <ToruGridFooter>
@@ -226,11 +267,12 @@ function UpdateSkillGroupForm({ onClose, organization, skillGroup, skillPackage 
 }
 
 /**
- * Dialog component to delete a skill group.
- * It requires the user to confirm by entering the skill group name.
- * @param skillGroup The skill group to delete.
+ * Dialog component to delete a skill.
+ * It requires the user to confirm by entering the skill name.
+ * @param skill The skill to delete.
+ * @param skillPackageId The ID of the skill package that the skill belongs to.
  */
-function DeleteSkillGroupDialog({ organization, skillGroup }: { organization: OrganizationData, skillGroup: SkillGroupData }) {
+function DeleteSkillDialog({ organization, skill }: { organization: OrganizationData, skill: SkillData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -240,18 +282,18 @@ function DeleteSkillGroupDialog({ organization, skillGroup }: { organization: Or
 
     const form = useForm({
         resolver: zodResolver(z.object({
+            skillId: zodNanoId8,
             skillPackageId: zodNanoId8,
-            skillGroupId: zodNanoId8,
-            skillGroupName: z.literal(skillGroup.name)
+            skillName: z.literal(skill.name)
         })),
         mode: 'onSubmit',
-        defaultValues: { skillPackageId: skillGroup.skillPackageId, skillGroupId: skillGroup.skillGroupId, skillGroupName: "" }
+        defaultValues: { skillId: skill.skillId, skillPackageId: skill.skillPackageId, skillName: "" }
     })
 
-    const mutation = useMutation(trpc.skills.deleteGroup.mutationOptions({
+    const mutation = useMutation(trpc.skills.deleteSkill.mutationOptions({
         onError(error) {
             toast({
-                title: 'Error deleting skill group',
+                title: 'Error deleting skill',
                 description: error.message,
                 variant: 'destructive'
             })
@@ -259,44 +301,44 @@ function DeleteSkillGroupDialog({ organization, skillGroup }: { organization: Or
         },
         onSuccess(result) {
             toast({
-                title: 'Skill Group deleted',
-                description: <>The skill group <ObjectName>{result.name}</ObjectName> has been deleted.</>,
+                title: 'Skill deleted',
+                description: <>The skill <ObjectName>{result.name}</ObjectName> has been deleted.</>,
             })
             setOpen(false)
 
-            queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter())
-            queryClient.invalidateQueries(trpc.skills.getGroup.queryFilter({ skillGroupId: skillGroup.skillGroupId }))
-            router.push(Paths.org(organization.slug).admin.skillPackage(skillGroup.skillPackageId).group(skillGroup.skillGroupId).href)
+            queryClient.invalidateQueries(trpc.skills.getSkills.queryFilter())
+            queryClient.invalidateQueries(trpc.skills.getSkill.queryFilter({ skillId: skill.skillId }))
+            router.push(Paths.org(organization.slug).spm.skillPackage(skill.skillPackageId).group(skill.skillGroupId).href)
         }
     }))
 
     return <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTriggerButton tooltip="Delete Skill Group">
+        <DialogTriggerButton tooltip="Delete Skill">
             <TrashIcon/>
         </DialogTriggerButton>
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>Delete Skill Group</DialogTitle>
-                <DialogDescription>This will remove the skill group from RT+ forever (which is a really long time). </DialogDescription>
+                <DialogTitle>Delete Skill</DialogTitle>
+                <DialogDescription>This will remove the skill from RT+ forever (which is a really long time). </DialogDescription>
             </DialogHeader>
             <DialogBody>
                 <FormProvider {...form}>
                     <Form onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData, orgId: organization.orgId }))}>
                         <FormItem>
-                            <FormLabel>Skill Group</FormLabel>
+                            <FormLabel>Skill</FormLabel>
                             <FormControl>
-                                <DisplayValue>{skillGroup.name}</DisplayValue>
+                                <DisplayValue>{skill.name}</DisplayValue>
                             </FormControl>
                         </FormItem>
                         <FormField
                             control={form.control}
-                            name="skillGroupName"
+                            name="skillName"
                             render={({ field }) => <FormItem>
                                 <FormLabel>Enter name</FormLabel>
                                 <FormControl>
                                     <Input 
                                         {...field} 
-                                        placeholder="Type the skill group name to confirm" 
+                                        placeholder="Type the skill name to confirm" 
                                         maxLength={100} 
                                         autoComplete="off" 
                                     />

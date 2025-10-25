@@ -49,7 +49,7 @@ export function AdminModule_SkillPackagesList({ organization }: { organization: 
         }),
         columnHelper.accessor('name', {
             header: 'Name',
-            cell: ctx => <TextLink to={Paths.org(organization.slug).admin.skillPackage(ctx.row.original.skillPackageId)}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.org(organization.slug).spm.skillPackage(ctx.row.original.skillPackageId)}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('_count.skillGroups', {
@@ -117,7 +117,7 @@ export function AdminModule_SkillPackagesList({ organization }: { organization: 
             <EmptyContent>
                 <Protect role="org:admin">
                     <Button asChild>
-                        <Link to={Paths.org(organization.slug).admin.skillPackages.create}>
+                        <Link to={Paths.org(organization.slug).spm.skillPackages.create}>
                             <PlusIcon className="mr-2 h-4 w-4"/>
                             Add Skill Package
                         </Link>
@@ -136,7 +136,7 @@ export function AdminModule_SkillPackagesList({ organization }: { organization: 
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button variant="ghost" size="icon" asChild>
-                                        <Link to={Paths.org(organization.slug).admin.skillPackages.create}>
+                                        <Link to={Paths.org(organization.slug).spm.skillPackages.create}>
                                             <PlusIcon />
                                         </Link>
                                     </Button>

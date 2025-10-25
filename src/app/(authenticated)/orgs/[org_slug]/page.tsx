@@ -68,6 +68,19 @@ export default async function OrganizationDashboard_Page(props: PageProps<'/orgs
                             </Link>
                         </Item>
                     </Show>
+                    <Show when={isModuleEnabled(organization, 'spm')}>
+                        <Item asChild>
+                            <Link to={Paths.org(orgSlug).spm}>
+                                <ItemContent>
+                                    <ItemTitle>Skill Package Manager</ItemTitle>
+                                    <ItemDescription>Create, edit, and manage skill packages.</ItemDescription>
+                                </ItemContent>
+                                <ItemActions>
+                                    <ChevronRightIcon className="size-4" />
+                                </ItemActions>
+                            </Link>
+                        </Item>
+                    </Show>
                     <Show when={isModuleEnabled(organization, 'skills')}>
                         <Item asChild>
                             <Link to={Paths.org(orgSlug).skills}>

@@ -5,7 +5,6 @@
 
 import { z } from 'zod'
 
-
 export const organizationSettingsSchema = z.object({
     modules: z.object({
         d4h: z.object({
@@ -17,8 +16,10 @@ export const organizationSettingsSchema = z.object({
         skills: z.object({
             enabled: z.boolean().default(true),
         }).default({ enabled: false }),
-        
-       
+        spm: z.object({
+            enabled: z.boolean().default(false),
+        }).default({ enabled: false }),
+
     }).default({}),
     
 })

@@ -1,7 +1,6 @@
 /*
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
- * 
  */
 'use client'
 
@@ -10,33 +9,35 @@ import { useMemo } from 'react'
 
 import { Protect } from '@clerk/nextjs'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { getCoreRowModel, getFilteredRowModel,  getSortedRowModel, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel,  getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
 import { Button, RefreshButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTableBody, DataTableHead, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
-import { TextLink } from '@/components/ui/link'
+import { Link, TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
-import { Table } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { Table } from '@/components/ui/table'
 
 import { OrganizationData } from '@/lib/schemas/organization'
-import { SkillData } from '@/lib/schemas/skill'
+import { SkillGroupData } from '@/lib/schemas/skill-group'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
-export function AdminModule_SkillGroup_SkillsList({ organization, skillGroupId, skillPackageId }: { organization: OrganizationData, skillGroupId: string, skillPackageId: string }) {
-    
 
-    const skillsQuery = useSuspenseQuery(trpc.skills.getSkills.queryOptions({ orgId: organization.orgId, skillGroupId }))
+
+
+export function AdminModule_SkillPackage_GroupsList({ organization, skillPackageId }: { organization: OrganizationData, skillPackageId: string }) {
+
+    const groupsQuery = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ orgId: organization.orgId, skillPackageId }))
 
     async function handleRefresh() {
-        await skillsQuery.refetch()
+        await groupsQuery.refetch()
     }
 
-    const columns = useMemo(() => defineColumns<SkillData>(columnHelper => [
-        columnHelper.accessor('skillId', {
+    const columns = useMemo(() => defineColumns<SkillGroupData>(columnHelper => [
+        columnHelper.accessor('skillGroupId', {
             header: 'ID',
             cell: ctx => ctx.getValue(),
             enableHiding: true,
@@ -45,9 +46,8 @@ export function AdminModule_SkillGroup_SkillsList({ organization, skillGroupId, 
             enableGrouping: false,
         }),
         columnHelper.accessor('name', {
-            header: 'Skill',
-            cell: ctx => <TextLink to={Paths.org(organization.slug).admin.skillPackage(skillPackageId).skill(ctx.row.original.skillId)}>{ctx.getValue()}</TextLink>,
-            enableGrouping: false,
+            header: 'Group',
+            cell: ctx => <TextLink to={Paths.org(organization.slug).spm.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId)}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('description', {
@@ -80,59 +80,62 @@ export function AdminModule_SkillGroup_SkillsList({ organization, skillGroupId, 
 
     const table = useReactTable({
         columns,
-        data: skillsQuery.data,
+        data: groupsQuery.data,
+        onSortingChange: () => {},
         getCoreRowModel: getCoreRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
-        enableGrouping: false,
+        getFilteredRowModel: getFilteredRowModel(),
+        getGroupedRowModel: getGroupedRowModel(),
+        getExpandedRowModel: getExpandedRowModel(),
         initialState: {
             columnVisibility: {
-                id: false, name: true, description: true, frequency: false, status: true
+                skillGroupId: false, name: true, description: true, status: true
             },
             columnFilters: [
                 { id: 'status', value: ['Active'] }
             ],
             globalFilter: '',
-            grouping: [],
-            sorting: [
-                { id: 'sequence', desc: false }
-            ],
+            sorting: [{ id: 'sequence', desc: false }],
         }
     })
 
     return <DataTableProvider value={table}>
         <Card>
             <CardHeader>
-                <CardTitle>Skills</CardTitle>
+                <CardTitle>Skill Groups</CardTitle>
                 <CardActions>
                     <Protect role="org:admin">
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" disabled>
-                                    <PlusIcon/>
+                                <Button variant="ghost" size="icon" asChild>
+                                    <Link to={Paths.org(organization.slug).spm.skillPackage(skillPackageId).groups.create}>
+                                        <PlusIcon/>
+                                    </Link>
                                 </Button>
                             </TooltipTrigger>
                             <TooltipContent>
-                                Add new skill to group.
+                                Add new group
                             </TooltipContent>
                         </Tooltip>
                     </Protect>
 
                     <RefreshButton onClick={handleRefresh}/>
-                    <TableOptionsDropdown/>
+                    <TableOptionsDropdown/> 
                     <Separator orientation="vertical"/>
                     <CardExplanation>
-                        Skills are the individual abilities or tasks that can be performed within a skill package. You can create, edit, and delete skills as needed.
+                        Groups are used to organize skills within a skill package. You can create, edit, and delete groups as needed.
                     </CardExplanation>
+
                 </CardActions>
+                
             </CardHeader>
             <CardContent>
-                <DataTableSearch className="mb-1"/>
                 <Table>
                     <DataTableHead />
                     <DataTableBody />
                 </Table>
             </CardContent>
+            
         </Card>
     </DataTableProvider>
 }

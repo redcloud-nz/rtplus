@@ -102,3 +102,21 @@ export function UnknownError({ error, ...props }: AppPageContentProps & { error:
 
     </AppPageContent>
 }
+
+export function ModuleNotAvailable({ moduleName, ...props}: AppPageContentProps & { moduleName: string }) {
+
+    return <AppPageContent variant="centered" {...props}>
+        <Empty>
+            <EmptyHeader>
+                <EmptyMedia>
+                    <Artie pose="NotAllowed"/>
+                </EmptyMedia>
+                <EmptyTitle>Module Not Available</EmptyTitle>
+                <EmptyDescription>
+                    The {moduleName} module is not enabled for your organization.
+                </EmptyDescription>
+            </EmptyHeader>
+        </Empty>
+        
+    </AppPageContent>
+}

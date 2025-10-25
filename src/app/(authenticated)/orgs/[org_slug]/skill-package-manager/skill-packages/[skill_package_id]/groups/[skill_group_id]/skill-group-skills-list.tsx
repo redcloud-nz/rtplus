@@ -1,6 +1,7 @@
 /*
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
+ * 
  */
 'use client'
 
@@ -9,39 +10,32 @@ import { useMemo } from 'react'
 
 import { Protect } from '@clerk/nextjs'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel,  getSortedRowModel, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel, getFilteredRowModel,  getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
 import { Button, RefreshButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
 import { DataTableBody, DataTableHead, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
-import { Link, TextLink } from '@/components/ui/link'
+import { TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Table } from '@/components/ui/table'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { OrganizationData } from '@/lib/schemas/organization'
 import { SkillData } from '@/lib/schemas/skill'
-import { SkillGroupData } from '@/lib/schemas/skill-group'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
+export function AdminModule_SkillGroup_SkillsList({ organization, skillGroupId, skillPackageId }: { organization: OrganizationData, skillGroupId: string, skillPackageId: string }) {
+    
 
-export function AdminModule_SkillPackage_SkillsList({ organization, skillPackageId }: { organization: OrganizationData, skillPackageId: string }) {
-
-    const skillGroupsQuery = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ orgId: organization.orgId, skillPackageId }))
-    const skillsQuery = useSuspenseQuery(trpc.skills.getSkills.queryOptions({ orgId: organization.orgId, skillPackageId }))
+    const skillsQuery = useSuspenseQuery(trpc.skills.getSkills.queryOptions({ orgId: organization.orgId, skillGroupId }))
 
     async function handleRefresh() {
-        await Promise.all([skillsQuery.refetch(), skillGroupsQuery.refetch()])
+        await skillsQuery.refetch()
     }
 
-    const rowData = useMemo(() => skillsQuery.data.map(skill => ({
-        ...skill,
-        skillGroup: skillGroupsQuery.data.find(group => group.skillGroupId === skill.skillGroupId)!
-    })), [skillsQuery.data, skillGroupsQuery.data])
-
-    const columns = useMemo(() => defineColumns<SkillData & { skillGroup: SkillGroupData }>(columnHelper => [
+    const columns = useMemo(() => defineColumns<SkillData>(columnHelper => [
         columnHelper.accessor('skillId', {
             header: 'ID',
             cell: ctx => ctx.getValue(),
@@ -52,13 +46,8 @@ export function AdminModule_SkillPackage_SkillsList({ organization, skillPackage
         }),
         columnHelper.accessor('name', {
             header: 'Skill',
-            cell: ctx => <TextLink to={Paths.org(organization.slug).admin.skillPackage(skillPackageId).skill(ctx.row.original.skillId)}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.org(organization.slug).spm.skillPackage(skillPackageId).skill(ctx.row.original.skillId)}>{ctx.getValue()}</TextLink>,
             enableGrouping: false,
-            enableHiding: false
-        }),
-         columnHelper.accessor('skillGroup.name', {
-            header: 'Group',
-            cell: ctx => <TextLink to={Paths.org(organization.slug).admin.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId)}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('description', {
@@ -79,19 +68,26 @@ export function AdminModule_SkillPackage_SkillsList({ organization, skillPackage
                 enumOptions: { Active: 'Active', Inactive: 'Inactive' },
             }
         }),
+        columnHelper.accessor('sequence', {
+            header: 'Sequence',
+            cell: ctx => ctx.getValue(),
+            enableHiding: true,
+            enableSorting: true,
+            enableGlobalFilter: false,
+            enableGrouping: false,
+        }),
     ]), [skillPackageId])
 
-    const table = useReactTable<SkillData & { skillGroup: SkillGroupData }>({
+    const table = useReactTable({
         columns,
-        data: rowData,
+        data: skillsQuery.data,
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
-        getGroupedRowModel: getGroupedRowModel(),
-        getExpandedRowModel: getExpandedRowModel(),
+        enableGrouping: false,
         initialState: {
             columnVisibility: {
-                id: false, 'skillGroupId': true, name: true, description: true, frequency: false, status: true
+                id: false, name: true, description: true, frequency: false, status: true
             },
             columnFilters: [
                 { id: 'status', value: ['Active'] }
@@ -99,7 +95,7 @@ export function AdminModule_SkillPackage_SkillsList({ organization, skillPackage
             globalFilter: '',
             grouping: [],
             sorting: [
-                { id: 'name', desc: false }
+                { id: 'sequence', desc: false }
             ],
         }
     })
@@ -112,19 +108,15 @@ export function AdminModule_SkillPackage_SkillsList({ organization, skillPackage
                     <Protect role="org:admin">
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" asChild>
-                                    <Link to={Paths.org(organization.slug).admin.skillPackage(skillPackageId).skills.create}>
-                                        <PlusIcon/>
-                                    </Link>
-                                    
+                                <Button variant="ghost" size="icon" disabled>
+                                    <PlusIcon/>
                                 </Button>
                             </TooltipTrigger>
                             <TooltipContent>
-                                Add new skill
+                                Add new skill to group.
                             </TooltipContent>
                         </Tooltip>
                     </Protect>
-                    
 
                     <RefreshButton onClick={handleRefresh}/>
                     <TableOptionsDropdown/>
@@ -132,7 +124,6 @@ export function AdminModule_SkillPackage_SkillsList({ organization, skillPackage
                     <CardExplanation>
                         Skills are the individual abilities or tasks that can be performed within a skill package. You can create, edit, and delete skills as needed.
                     </CardExplanation>
-                    
                 </CardActions>
             </CardHeader>
             <CardContent>

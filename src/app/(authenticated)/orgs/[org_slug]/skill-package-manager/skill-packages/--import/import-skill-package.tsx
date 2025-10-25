@@ -20,7 +20,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 
 
 import { SkillGroupDef } from '@/data/skills'
 import { assertNonNull } from '@/lib/utils'
-import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 import { useSkillPackageImportStore } from './skill-package-import-store'

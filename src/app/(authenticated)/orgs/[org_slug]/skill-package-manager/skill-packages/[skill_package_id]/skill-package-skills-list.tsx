@@ -20,24 +20,29 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { Table } from '@/components/ui/table'
 
 import { OrganizationData } from '@/lib/schemas/organization'
+import { SkillData } from '@/lib/schemas/skill'
 import { SkillGroupData } from '@/lib/schemas/skill-group'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
 
+export function AdminModule_SkillPackage_SkillsList({ organization, skillPackageId }: { organization: OrganizationData, skillPackageId: string }) {
 
-
-export function AdminModule_SkillPackage_GroupsList({ organization, skillPackageId }: { organization: OrganizationData, skillPackageId: string }) {
-
-    const groupsQuery = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ orgId: organization.orgId, skillPackageId }))
+    const skillGroupsQuery = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ orgId: organization.orgId, skillPackageId }))
+    const skillsQuery = useSuspenseQuery(trpc.skills.getSkills.queryOptions({ orgId: organization.orgId, skillPackageId }))
 
     async function handleRefresh() {
-        await groupsQuery.refetch()
+        await Promise.all([skillsQuery.refetch(), skillGroupsQuery.refetch()])
     }
 
-    const columns = useMemo(() => defineColumns<SkillGroupData>(columnHelper => [
-        columnHelper.accessor('skillGroupId', {
+    const rowData = useMemo(() => skillsQuery.data.map(skill => ({
+        ...skill,
+        skillGroup: skillGroupsQuery.data.find(group => group.skillGroupId === skill.skillGroupId)!
+    })), [skillsQuery.data, skillGroupsQuery.data])
+
+    const columns = useMemo(() => defineColumns<SkillData & { skillGroup: SkillGroupData }>(columnHelper => [
+        columnHelper.accessor('skillId', {
             header: 'ID',
             cell: ctx => ctx.getValue(),
             enableHiding: true,
@@ -46,8 +51,14 @@ export function AdminModule_SkillPackage_GroupsList({ organization, skillPackage
             enableGrouping: false,
         }),
         columnHelper.accessor('name', {
+            header: 'Skill',
+            cell: ctx => <TextLink to={Paths.org(organization.slug).spm.skillPackage(skillPackageId).skill(ctx.row.original.skillId)}>{ctx.getValue()}</TextLink>,
+            enableGrouping: false,
+            enableHiding: false
+        }),
+         columnHelper.accessor('skillGroup.name', {
             header: 'Group',
-            cell: ctx => <TextLink to={Paths.org(organization.slug).admin.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId)}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.org(organization.slug).spm.skillPackage(skillPackageId).group(ctx.row.original.skillGroupId)}>{ctx.getValue()}</TextLink>,
             enableHiding: false
         }),
         columnHelper.accessor('description', {
@@ -68,75 +79,68 @@ export function AdminModule_SkillPackage_GroupsList({ organization, skillPackage
                 enumOptions: { Active: 'Active', Inactive: 'Inactive' },
             }
         }),
-        columnHelper.accessor('sequence', {
-            header: 'Sequence',
-            cell: ctx => ctx.getValue(),
-            enableHiding: true,
-            enableSorting: true,
-            enableGlobalFilter: false,
-            enableGrouping: false,
-        }),
     ]), [skillPackageId])
 
-    const table = useReactTable({
+    const table = useReactTable<SkillData & { skillGroup: SkillGroupData }>({
         columns,
-        data: groupsQuery.data,
-        onSortingChange: () => {},
+        data: rowData,
         getCoreRowModel: getCoreRowModel(),
-        getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
+        getSortedRowModel: getSortedRowModel(),
         getGroupedRowModel: getGroupedRowModel(),
         getExpandedRowModel: getExpandedRowModel(),
         initialState: {
             columnVisibility: {
-                skillGroupId: false, name: true, description: true, status: true
+                id: false, 'skillGroupId': true, name: true, description: true, frequency: false, status: true
             },
             columnFilters: [
                 { id: 'status', value: ['Active'] }
             ],
             globalFilter: '',
-            sorting: [{ id: 'sequence', desc: false }],
+            grouping: [],
+            sorting: [
+                { id: 'name', desc: false }
+            ],
         }
     })
 
     return <DataTableProvider value={table}>
         <Card>
             <CardHeader>
-                <CardTitle>Skill Groups</CardTitle>
+                <CardTitle>Skills</CardTitle>
                 <CardActions>
                     <Protect role="org:admin">
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button variant="ghost" size="icon" asChild>
-                                    <Link to={Paths.org(organization.slug).admin.skillPackage(skillPackageId).groups.create}>
+                                    <Link to={Paths.org(organization.slug).spm.skillPackage(skillPackageId).skills.create}>
                                         <PlusIcon/>
                                     </Link>
+                                    
                                 </Button>
                             </TooltipTrigger>
                             <TooltipContent>
-                                Add new group
+                                Add new skill
                             </TooltipContent>
                         </Tooltip>
                     </Protect>
+                    
 
                     <RefreshButton onClick={handleRefresh}/>
-                    <TableOptionsDropdown/> 
+                    <TableOptionsDropdown/>
                     <Separator orientation="vertical"/>
                     <CardExplanation>
-                        Groups are used to organize skills within a skill package. You can create, edit, and delete groups as needed.
+                        Skills are the individual abilities or tasks that can be performed within a skill package. You can create, edit, and delete skills as needed.
                     </CardExplanation>
-
+                    
                 </CardActions>
-                
             </CardHeader>
             <CardContent>
-                <DataTableSearch />
                 <Table>
                     <DataTableHead />
                     <DataTableBody />
                 </Table>
             </CardContent>
-            
         </Card>
     </DataTableProvider>
 }

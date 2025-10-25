@@ -54,6 +54,7 @@ type OrgPaths = {
     fog: ReturnType<typeof fogModule>,
     notes: ReturnType<typeof notesModule>,
     skills: ReturnType<typeof skillsModule>,
+    spm: ReturnType<typeof skillPackageManagerModule>,
 }
 
 const orgPathCache = new Map<string, OrgPaths>()
@@ -73,6 +74,7 @@ export function org(orgSlug: string): OrgPaths  {
             fog: fogModule(orgSlug),
             notes: notesModule(orgSlug),
             skills: skillsModule(orgSlug),
+            spm: skillPackageManagerModule(orgSlug),
         } satisfies OrgPaths
         orgPathCache.set(orgSlug, paths)
     }
@@ -122,54 +124,6 @@ function adminModule(org_slug: string) {
             label: 'Settings',
             href: `${base}/settings`,
         },
-        skillPackage: (skillPackageId: string) => {
-            const packageBase = `${base}/skill-packages/${skillPackageId}` as const
-
-            return {
-                href: packageBase,
-                update: `${packageBase}/--update`,
-                delete: `${packageBase}/--delete`,
-
-                group: (skillGroupId: string) => ({
-                    href: `${packageBase}/groups/${skillGroupId}`,
-                    update: `${packageBase}/groups/${skillGroupId}/--update`,
-                    delete: `${packageBase}/groups/${skillGroupId}/--delete`,
-                } as const),
-                groups: {
-                    label: 'Groups',
-                    create: {
-                        label: 'Create',
-                        href: `${packageBase}/groups/--create`
-                    },
-                },
-
-                skill: (skillId: string) => ({
-                    href: `${packageBase}/skills/${skillId}`,
-                    update: `${packageBase}/skills/${skillId}/--update`,
-                    delete: `${packageBase}/skills/${skillId}/--delete`,
-                } as const),
-
-                skills: {
-                    label: 'Skills',
-                    create: {
-                        label: 'Create',
-                        href: `${packageBase}/skills/--create`
-                    },
-                },
-            } as const
-        },
-        skillPackages: {
-            label: 'Skill Packages',
-            href: `${base}/skill-packages`,
-            create: {
-                label: 'Create',
-                href: `${base}/skill-packages/--create`
-            },
-            import: {
-                label: 'Import Skill Package',
-                href: `${base}/skill-packages/--import`,
-            }
-        } as const,
         team: (teamId: string) => {
             const teamBase = `${base}/teams/${teamId}` as const
             return {
@@ -353,6 +307,63 @@ function skillsModule(orgSlug: string) {
     } as const
 }
 
+function skillPackageManagerModule(orgSlug: string) {
+    const base = `/orgs/${orgSlug}/skill-package-manager` as const
+    
+    return {
+        label: 'Skill Package Manager',
+        href: base,
+
+        skillPackage: (skillPackageId: string) => {
+            const packageBase = `${base}/skill-packages/${skillPackageId}` as const
+
+            return {
+                href: packageBase,
+                update: `${packageBase}/--update`,
+                delete: `${packageBase}/--delete`,
+
+                group: (skillGroupId: string) => ({
+                    href: `${packageBase}/groups/${skillGroupId}`,
+                    update: `${packageBase}/groups/${skillGroupId}/--update`,
+                    delete: `${packageBase}/groups/${skillGroupId}/--delete`,
+                } as const),
+                groups: {
+                    label: 'Groups',
+                    create: {
+                        label: 'Create',
+                        href: `${packageBase}/groups/--create`
+                    },
+                },
+
+                skill: (skillId: string) => ({
+                    href: `${packageBase}/skills/${skillId}`,
+                    update: `${packageBase}/skills/${skillId}/--update`,
+                    delete: `${packageBase}/skills/${skillId}/--delete`,
+                } as const),
+
+                skills: {
+                    label: 'Skills',
+                    create: {
+                        label: 'Create',
+                        href: `${packageBase}/skills/--create`
+                    },
+                },
+            } as const
+        },
+        skillPackages: {
+            label: 'Skill Packages',
+            href: `${base}/skill-packages`,
+            create: {
+                label: 'Create',
+                href: `${base}/skill-packages/--create`
+            },
+            import: {
+                label: 'Import Skill Package',
+                href: `${base}/skill-packages/--import`,
+            }
+        } as const,
+    }
+}
 
 //  /------------------------------\
 //  |           Account            |
