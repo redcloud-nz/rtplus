@@ -20,8 +20,8 @@ import { cn } from '@/lib/utils'
 
 
 
-export function MonthView({ personId }: { personId: string }) {
-    const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions(personId))
+export function MonthView({ userId }: { userId: string }) {
+    const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions(userId))
 
     //const d4hTeams = useMemo(() => extractUniqueTeams(accessTokens), [accessTokens])
     //const teamNameMap = useMemo(() => mapToObj(d4hTeams, ({ team }) => [team.id, team.name]), [d4hTeams])

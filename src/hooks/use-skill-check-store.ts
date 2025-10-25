@@ -92,16 +92,16 @@ interface SkillCheckStore {
 }
 
 
-export function useSkillCheckStore_experimental(sessionId: SkillCheckSessionId): SkillCheckStore {
+export function useSkillCheckStore_experimental(orgId: string, sessionId: SkillCheckSessionId): SkillCheckStore {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     
 
     const [{ data: assessor }, { data: session }, { data: savedChecksArray }] = useSuspenseQueries({
         queries: [
-            trpc.personnel.getCurrentPerson.queryOptions(),
-            trpc.skillChecks.getSession.queryOptions({ sessionId }),
-            trpc.skillChecks.getSessionChecks.queryOptions({ sessionId, assessorId: 'me' })
+            trpc.personnel.getCurrentPerson.queryOptions({ orgId }),
+            trpc.skillChecks.getSession.queryOptions({ orgId, sessionId }),
+            trpc.skillChecks.getSessionChecks.queryOptions({ orgId, sessionId, assessorId: 'me' })
         ]
     })
 
@@ -210,7 +210,7 @@ export function useSkillCheckStore_experimental(sessionId: SkillCheckSessionId):
             if(isEmpty(modifiedChecks)) throw new Error('No changes to save')
 
             await saveChecksMutation.mutateAsync({ 
-                sessionId, 
+                orgId, sessionId, 
                 checks: values(modifiedChecks)
             })
             setModifiedChecks({})

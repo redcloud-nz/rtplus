@@ -24,11 +24,13 @@ import { Paragraph } from '@/components/ui/typography'
 import { getAssignedSkills } from '@/hooks/use-assigned-skills'
 import { useToast } from '@/hooks/use-toast'
 import { CompetenceLevel, isPass } from '@/lib/competencies'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { PersonId } from '@/lib/schemas/person'
 import { SkillId } from '@/lib/schemas/skill'
 import { SkillCheckData, SkillCheckId, skillCheckSchema } from '@/lib/schemas/skill-check'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { trpc } from '@/trpc/client'
+
 
 
 
@@ -47,7 +49,7 @@ const EmptyRecordingState: RecordingState = {
     dirty: false
 }
 
-export function SkillRecorder_Session_RecordSingle({ session }: { session: SkillCheckSessionData }) {
+export function SkillRecorder_Session_RecordSingle({ organization, session }: { organization: OrganizationData, session: SkillCheckSessionData }) {
 
     const queryClient = useQueryClient()
     const { toast } = useToast()
@@ -60,11 +62,11 @@ export function SkillRecorder_Session_RecordSingle({ session }: { session: Skill
         { data: assignedSkillIds }
     ] = useSuspenseQueries({
         queries: [
-            trpc.personnel.getCurrentPerson.queryOptions(),
-            trpc.skills.getAvailablePackages.queryOptions({ }),
-            trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ sessionId: session.sessionId }),
-            trpc.skillChecks.getSessionChecks.queryOptions({ sessionId: session.sessionId, assessorId: 'me' }),
-            trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ sessionId: session.sessionId })
+            trpc.personnel.getCurrentPerson.queryOptions({ orgId: organization.orgId }),
+            trpc.skills.getAvailablePackages.queryOptions({ orgId: organization.orgId }),
+            trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId }),
+            trpc.skillChecks.getSessionChecks.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId, assessorId: 'me' }),
+            trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId })
         ]
     })
 
@@ -265,7 +267,7 @@ export function SkillRecorder_Session_RecordSingle({ session }: { session: Skill
             <Button
                 size="sm"
                 color="blue"
-                onClick={() => mutation.mutate({ sessionId: session.sessionId, skillId: state.target.skillId!, assesseeId: state.target.assesseeId!, ...state.data! })}
+                onClick={() => mutation.mutate({ orgId: organization.orgId, sessionId: session.sessionId, skillId: state.target.skillId!, assesseeId: state.target.assesseeId!, ...state.data! })}
                 disabled={!state.dirty}
             >Save</Button>
             <Button 

@@ -42,7 +42,7 @@ import { trpc } from '@/trpc/client'
 export function TeamMembership_Details_Card({ context, organization, personId, teamId }: { context: 'person' | 'team', organization: OrganizationData, personId: string, teamId: string }) {
     const router = useRouter()
 
-    const { data: { person, team, ...membership } } = useSuspenseQuery(trpc.teamMemberships.getTeamMembership.queryOptions({ personId, teamId }))
+    const { data: { person, team, ...membership } } = useSuspenseQuery(trpc.teamMemberships.getTeamMembership.queryOptions({ orgId: organization.orgId, personId, teamId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
 
@@ -61,9 +61,10 @@ export function TeamMembership_Details_Card({ context, organization, personId, t
                     </Tooltip>
                     <DeleteTeamMembershipDialog
                         onDelete={() => {
-                            if(context == 'person') router.push(Paths.adminModule(organization.slug).person(person.personId).href)
-                            else router.push(Paths.adminModule(organization.slug).team(team.teamId).href)
+                            if(context == 'person') router.push(Paths.org(organization.slug).admin.person(person.personId).href)
+                            else router.push(Paths.org(organization.slug).admin.team(team.teamId).href)
                         }}
+                        organization={organization.orgId}
                         personId={personId}
                         teamId={teamId}
                     />
@@ -81,11 +82,11 @@ export function TeamMembership_Details_Card({ context, organization, personId, t
                     <ToruGrid>
                         <ToruGridRow
                             label="Team"
-                            control={<DisplayValue><TextLink to={Paths.adminModule(organization.slug).team(teamId)}>{team.name}</TextLink></DisplayValue>}
+                            control={<DisplayValue><TextLink to={Paths.org(organization.slug).admin.team(teamId)}>{team.name}</TextLink></DisplayValue>}
                         />
                         <ToruGridRow
                             label="Person"
-                            control={<DisplayValue><TextLink to={Paths.adminModule(organization.slug).person(personId)}>{person.name}</TextLink></DisplayValue>}
+                            control={<DisplayValue><TextLink to={Paths.org(organization.slug).admin.person(personId)}>{person.name}</TextLink></DisplayValue>}
                         />
                         <ToruGridRow
                             label="Tags"
@@ -103,6 +104,7 @@ export function TeamMembership_Details_Card({ context, organization, personId, t
                     <UpdateTeamMembershipForm
                         membership={membership}
                         onClose={() => setMode('View')}
+                        organization={organization}
                         person={person}
                         team={team}
                     />
@@ -113,7 +115,7 @@ export function TeamMembership_Details_Card({ context, organization, personId, t
     </Card>
 }
 
-function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membership: TeamMembershipData, onClose: () => void, person: PersonRef, team: TeamRef }) {
+function UpdateTeamMembershipForm({ membership, onClose, organization, person, team }: { membership: TeamMembershipData, onClose: () => void, organization: OrganizationData, person: PersonRef, team: TeamRef }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
@@ -161,7 +163,7 @@ function UpdateTeamMembershipForm({ membership, onClose, person, team }: { membe
     }))
 
     return <FormProvider {...form}>
-        <Form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))}>
+        <Form onSubmit={form.handleSubmit(formData => mutation.mutateAsync({ ...formData, orgId: organization.orgId }))}>
             <ToruGrid mode="form">
                  <FormField
                     control={form.control}

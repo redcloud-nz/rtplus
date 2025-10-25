@@ -46,9 +46,7 @@ export function SkillsModule_NewCheck_Form({ organization }: { organization: Org
     const router = useRouter()
     const { toast } = useToast()
 
-    const { data: currentPerson } = useSuspenseQuery(trpc.personnel.getCurrentPerson.queryOptions())
-
-    
+    const { data: currentPerson } = useSuspenseQuery(trpc.personnel.getCurrentPerson.queryOptions({ orgId: organization.orgId }))
 
     const skillCheckId = useMemo(() => nanoId16(), [])
 
@@ -89,7 +87,7 @@ export function SkillsModule_NewCheck_Form({ organization }: { organization: Org
         </CardHeader>
         <CardContent>
             <FormProvider {...form}>
-                <Form onSubmit={form.handleSubmit((formData) => mutation.mutateAsync(formData))}>
+                <Form onSubmit={form.handleSubmit((formData) => mutation.mutateAsync({ ...formData, orgId: organization.orgId }))}>
                     <ToruGrid mode="form">
                         
                         <ToruGridRow

@@ -8,6 +8,7 @@
 import { Metadata } from 'next'
 
 import { AppSidebar } from '@/components/nav/app-sidebar'
+import { OrganizationProvider } from '@/hooks/use-organization'
 import { getOrganization } from '@/server/organization'
 
 
@@ -26,8 +27,10 @@ export async function generateMetadata(props: LayoutProps<'/orgs/[org_slug]'>): 
 
 export default async function Organization_Layout(props: LayoutProps<'/orgs/[org_slug]'>) {
     const { org_slug: orgSlug } = await props.params
+    const organization = await getOrganization(orgSlug)
 
-    return <>
-        <AppSidebar orgSlug={orgSlug}/>
-    {props.children}</>
+    return <OrganizationProvider initial={organization}>
+        <AppSidebar/>
+        {props.children}
+    </OrganizationProvider>
 }

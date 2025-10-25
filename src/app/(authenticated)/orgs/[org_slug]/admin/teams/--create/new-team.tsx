@@ -79,7 +79,7 @@ export function AdminModule_NewTeam_Form({ organization }: { organization: Organ
         </CardHeader>
         <CardContent>
             <FormProvider {...form}>
-                <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
+                <Form onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData, orgId: organization.orgId }))}>
                     <ToruGrid mode='form'>
                         <FormField
                             control={form.control}

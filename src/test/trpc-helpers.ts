@@ -26,6 +26,7 @@ export const createMockContext = () => {
 interface CreateAuthenticatedMockContextOverrides {
     activeTeam?: {
         orgId: OrganizationId,
+        orgSlug: string,
         role: 'org:admin' | 'org:member'
     } | null
     userId?: UserId
@@ -41,6 +42,7 @@ export const createAuthenticatedMockContext = ({ activeTeam, ...overrides }: Cre
             userId: UserId.schema.parse('user_test123'),
             activeOrg: activeTeam ?? {
                 orgId: OrganizationId.schema.parse('org_test123'),
+                orgSlug: 'test-organization',
                 role: 'org:member' as const,
             },
         },

@@ -29,8 +29,8 @@ import { trpc } from '@/trpc/client'
 
 
 export function AdminModule_SkillPackage_GroupsList({ organization, skillPackageId }: { organization: OrganizationData, skillPackageId: string }) {
-    
-    const groupsQuery = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ skillPackageId }))
+
+    const groupsQuery = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ orgId: organization.orgId, skillPackageId }))
 
     async function handleRefresh() {
         await groupsQuery.refetch()

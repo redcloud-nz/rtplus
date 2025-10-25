@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /cards
+ *  Path: /orgs/[org_slug]/cards
  */
 
 import { Metadata } from 'next'
@@ -19,12 +19,13 @@ import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = { title: "Cards | RT+" }
 
-export default async function CardsModule_Index_Page() {
+export default async function CardsModule_Index_Page(props: PageProps<'/orgs/[org_slug]/cards'>) {
+    const { org_slug: orgSlug } = await props.params
 
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.cardsModule
+                Paths.org(orgSlug).cards
             ]}
         />
         <AppPageContent>

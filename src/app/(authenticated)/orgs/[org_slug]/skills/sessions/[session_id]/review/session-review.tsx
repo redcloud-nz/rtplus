@@ -17,7 +17,7 @@ import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { trpc } from '@/trpc/client'
 
 
-export function SkillsModule_SessionReview_Card({ session }: { organization: OrganizationData, session: SkillCheckSessionData }) {
+export function SkillsModule_SessionReview_Card({ organization,session }: { organization: OrganizationData, session: SkillCheckSessionData }) {
 
     const [
         { data: assignedAssessees },
@@ -27,11 +27,11 @@ export function SkillsModule_SessionReview_Card({ session }: { organization: Org
         { data: checks },
     ] = useSuspenseQueries({
         queries: [
-            trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ sessionId: session.sessionId }),
-            trpc.skillChecks.getSessionDistinctAssessees.queryOptions({ sessionId: session.sessionId }),
-            trpc.skillChecks.getSessionDistinctAssessors.queryOptions({ sessionId: session.sessionId }),
-            trpc.skillChecks.getSessionDistinctSkills.queryOptions({ sessionId: session.sessionId }),
-            trpc.skillChecks.getSessionChecks.queryOptions({ sessionId: session.sessionId }),
+            trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId }),
+            trpc.skillChecks.getSessionDistinctAssessees.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId }),
+            trpc.skillChecks.getSessionDistinctAssessors.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId }),
+            trpc.skillChecks.getSessionDistinctSkills.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId }),
+            trpc.skillChecks.getSessionChecks.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId }),
         ]
     })
 

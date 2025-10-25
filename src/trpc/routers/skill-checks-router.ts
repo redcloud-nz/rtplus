@@ -259,8 +259,10 @@ export const skillChecksRouter = createTRPCRouter({
             const session = await ctx.prisma.skillCheckSession.create({
                 data: {
                     sessionId,
-                    orgId: ctx.auth.activeOrg.orgId,
-                    ...fields,
+                    orgId: fields.orgId,
+                    name: fields.name,
+                    notes: fields.notes,
+                    date: fields.date,
                     changeLogs: {
                         create: {
                             event: 'Create',

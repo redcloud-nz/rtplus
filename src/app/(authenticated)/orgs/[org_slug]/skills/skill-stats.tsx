@@ -9,8 +9,10 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Link } from '@/components/ui/link'
 
+import { OrganizationData } from '@/lib/schemas/organization'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
+
 
 
 
@@ -31,32 +33,32 @@ function Stat({ objectType: title, value, description, linksTo }: StatProps) {
     </Button>
 }
 
-export function SkillsCount_Card() {
+export function SkillsCount_Card({ organization }: { organization: OrganizationData }) {
 
-    const { data: skillPackages } = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions({ }))
+    const { data: skillPackages } = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions({ orgId: organization.orgId }))
     const skills = skillPackages.flatMap(pkg => pkg.skills)
 
-    return <Stat objectType="Skills" value={skills.length} description="Skills that can be checked" linksTo={Paths.skillsModule.catalogue}/>
+    return <Stat objectType="Skills" value={skills.length} description="Skills that can be checked" linksTo={Paths.org(organization.orgId).skills.catalogue}/>
 }
 
-export function PersonnelCount_Card() {
+export function PersonnelCount_Card({ organization }: { organization: OrganizationData }) {
 
-    const { data: personnel } = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({ }))
+    const { data: personnel } = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({ orgId: organization.orgId }))
 
-    return <Stat objectType="Team Members" value={personnel.length} description="that can be assessed"  linksTo={Paths.adminModule.personnel}/>
+    return <Stat objectType="Team Members" value={personnel.length} description="that can be assessed"  linksTo={Paths.org(organization.orgId).admin.personnel}/>
 }
 
-export function SessionsCount_Card() {
+export function SessionsCount_Card({ organization }: { organization: OrganizationData }) {
 
-    const { data: sessions } = useSuspenseQuery(trpc.skillChecks.getSessions.queryOptions({ }))
+    const { data: sessions } = useSuspenseQuery(trpc.skillChecks.getSessions.queryOptions({ orgId: organization.orgId }))
 
-    return <Stat objectType="Sessions" value={sessions.length} description="have been created"  linksTo={Paths.skillsModule.sessions}/>
+    return <Stat objectType="Sessions" value={sessions.length} description="have been created"  linksTo={Paths.org(organization.orgId).skills.sessions}/>
 }
 
 
-export function SkillChecksCount_Card() {
+export function SkillChecksCount_Card({ organization }: { organization: OrganizationData }) {
 
-    const { data: skillChecks } = useSuspenseQuery(trpc.skillChecks.getSkillChecks.queryOptions({ }))
+    const { data: skillChecks } = useSuspenseQuery(trpc.skillChecks.getSkillChecks.queryOptions({ orgId: organization.orgId }))
 
-    return <Stat objectType="Skill Checks" value={skillChecks.length} description="have been completed" linksTo={Paths.skillsModule.checks} />
+    return <Stat objectType="Skill Checks" value={skillChecks.length} description="have been completed" linksTo={Paths.org(organization.orgId).skills.checks} />
 }

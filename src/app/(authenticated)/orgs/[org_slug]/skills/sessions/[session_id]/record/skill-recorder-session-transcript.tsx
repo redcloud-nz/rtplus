@@ -14,12 +14,12 @@ import { Show } from '@/components/show'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Heading } from '@/components/ui/typography'
 
+import { OrganizationData } from '@/lib/schemas/organization'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { trpc } from '@/trpc/client'
 
 
-
-export function SkillRecorder_Session_Transcript({ session }: { session: SkillCheckSessionData }) {
+export function SkillRecorder_Session_Transcript({ organization, session }: { organization: OrganizationData, session: SkillCheckSessionData }) {
 
     const [
         { data: availablePackages }, 
@@ -27,9 +27,9 @@ export function SkillRecorder_Session_Transcript({ session }: { session: SkillCh
         { data: checks },
     ] = useSuspenseQueries({
         queries: [
-            trpc.skills.getAvailablePackages.queryOptions({ }),
-            trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ sessionId: session.sessionId }),
-            trpc.skillChecks.getSessionChecks.queryOptions({ sessionId: session.sessionId, assessorId: 'me' }),
+            trpc.skills.getAvailablePackages.queryOptions({ orgId: organization.orgId }),
+            trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId }),
+            trpc.skillChecks.getSessionChecks.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId, assessorId: 'me' }),
         ],
     })
 

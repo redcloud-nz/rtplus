@@ -8,13 +8,14 @@ import { AdminModuleIcon, D4HModuleIcon, DashboardIcon, SkillsModuleIcon } from 
 import { SidebarMenu } from '@/components/ui/sidebar'
 
 import * as Paths from '@/paths'
-import { getOrganization, isModuleEnabled } from '@/server/organization'
+import { isModuleEnabled } from '@/server/organization'
 
 import { NavCollapsible, NavItem, NavSubItem } from './nav-section'
+import { useOrganization } from '@/hooks/use-organization'
 
 
-export async function NavOrganizationMenu({ orgSlug }: { orgSlug: string }) {
-    const organization = await getOrganization(orgSlug)
+export async function NavOrganizationMenu() {
+    const organization = useOrganization()
 
     const prefix = Paths.org(organization.slug)
 

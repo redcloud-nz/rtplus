@@ -24,6 +24,7 @@ import { Paragraph } from '@/components/ui/typography'
 import { getAssignedSkills } from '@/hooks/use-assigned-skills'
 import { GetCheckReturn, useSkillCheckStore_experimental } from '@/hooks/use-skill-check-store'
 import { CompetenceLevel } from '@/lib/competencies'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { PersonRef } from '@/lib/schemas/person'
 import { SkillId } from '@/lib/schemas/skill'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
@@ -31,14 +32,13 @@ import { trpc } from '@/trpc/client'
 
 
 
-
-export function SkillRecorder_Session_RecordBySkill({ session }: { session: SkillCheckSessionData }) {
+export function SkillRecorder_Session_RecordBySkill({ organization, session }: { organization: OrganizationData, session: SkillCheckSessionData }) {
 
     const { assignedAssessees, assignedSkills } = useSuspenseQueries({
         queries: [
-            trpc.skills.getAvailablePackages.queryOptions({ }),
-            trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ sessionId: session.sessionId }),
-            trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ sessionId: session.sessionId })
+            trpc.skills.getAvailablePackages.queryOptions({ orgId: organization.orgId }),
+            trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId }),
+            trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId })
         ],
         combine: ([{ data: availablePackages }, { data: assignedAssessees }, { data: assignedSkillIds }]) => {
             return { assignedAssessees, assignedSkills: getAssignedSkills(availablePackages, assignedSkillIds) }
@@ -46,7 +46,7 @@ export function SkillRecorder_Session_RecordBySkill({ session }: { session: Skil
     })
 
     const [targetSkillId, setTargetSkillId] = useState<SkillId | null>(null)
-    const skillCheckStore = useSkillCheckStore_experimental(session.sessionId)
+    const skillCheckStore = useSkillCheckStore_experimental(organization.orgId, session.sessionId)
 
     return <>
         <Show 

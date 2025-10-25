@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /d4h
+ *  Path: /orgs/[org_slug]/d4h
  */
 
 import { Metadata } from 'next'
@@ -20,14 +20,15 @@ import { D4HAccessTokenCheck_Card } from './d4h-access-token-check'
 
 export const metadata: Metadata = { title: "D4H Integration" }
 
-export default async function D4HModike_Index_Page() {
+export default async function D4HModule_Index_Page(props: PageProps<'/orgs/[org_slug]/d4h'>) {
+    const { org_slug: orgSlug } = await props.params
 
-    const { sessionClaims: { rt_person_id: personId } } = await auth.protect()
+    const { userId } = await auth.protect()
+
+    const prefix = Paths.org(orgSlug).d4h
 
     return <AppPage>
-        <AppPageBreadcrumbs breadcrumbs={[
-                Paths.d4hModule,
-        ]}/>
+        <AppPageBreadcrumbs breadcrumbs={[prefix]}/>
         <AppPageContent variant="container">
             <PageHeader>
                 <PageTitle>D4H Integration</PageTitle>
@@ -38,14 +39,14 @@ export default async function D4HModike_Index_Page() {
             </Paragraph>
 
              <Boundary>
-                <D4HAccessTokenCheck_Card personId={personId} />
+                <D4HAccessTokenCheck_Card userId={userId} />
             </Boundary>
 
             <CardLinkList>
-                <CardLink to={Paths.d4hModule.activities}/>
-                <CardLink to={Paths.d4hModule.calendar}/>
-                <CardLink to={Paths.d4hModule.equipment}/>
-                <CardLink to={Paths.d4hModule.personnel}/>
+                <CardLink to={prefix.activities}/>
+                <CardLink to={prefix.calendar}/>
+                <CardLink to={prefix.equipment}/>
+                <CardLink to={prefix.personnel}/>
             </CardLinkList>
                 
 

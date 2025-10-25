@@ -56,7 +56,6 @@ export const personnelRouter = createTRPCRouter({
             const created = await ctx.prisma.person.create({
                 data: {
                     personId,
-                    orgId: ctx.auth.activeOrg.orgId,
                     ...fields,
                     changeLogs: {
                         create: {
@@ -163,6 +162,7 @@ export const personnelRouter = createTRPCRouter({
     getPersonnel: orgProcedure
         .input(z.object({
             status: recordStatusParameterSchema,
+            isUser: z.boolean().optional(),
         }))
         .output(z.array(personSchema))
         .query(async ({ ctx, input }) => {
@@ -170,6 +170,7 @@ export const personnelRouter = createTRPCRouter({
                 where: { 
                     orgId: ctx.auth.activeOrg.orgId,
                     status: { in: input.status },
+                    userId: input.isUser ? { not: null } : undefined,
                 },
                 orderBy: { name: 'asc' }
             })

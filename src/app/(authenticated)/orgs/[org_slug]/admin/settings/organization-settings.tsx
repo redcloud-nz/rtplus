@@ -27,11 +27,11 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function OrganizationSettings({ }: {organization: OrganizationData  }) {
+export function OrganizationSettings({ organization }: {organization: OrganizationData  }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
-    const { data: orgSettings } = useSuspenseQuery(trpc.settings.getOrganizationSettings.queryOptions())
+    const { data: orgSettings } = useSuspenseQuery(trpc.settings.getOrganizationSettings.queryOptions({ orgId: organization.orgId }))
 
     const form = useForm<OrganizationSettingsData>({
         resolver: zodResolver(organizationSettingsSchema),
@@ -56,7 +56,7 @@ export function OrganizationSettings({ }: {organization: OrganizationData  }) {
         }
     }))
 
-    return <form id="organization-settings-form" className="space-y-8" onSubmit={form.handleSubmit(data => mutation.mutate(data))}>
+    return <form id="organization-settings-form" className="space-y-8" onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData, orgId: organization.orgId }))}>
         <section className="space-y-4">
             <Heading level={2} id="modules">General Settings</Heading>
             <Paragraph>TODO</Paragraph>

@@ -29,7 +29,7 @@ import { getQueryClient, trpc } from '@/trpc/server'
  */
 export async function fetchPerson({ orgId, personId }: { orgId: OrganizationId, personId: string }): Promise<PersonData> {
     return getQueryClient()
-        .fetchQuery(trpc.personnel.getPerson.queryOptions({ personId }))
+        .fetchQuery(trpc.personnel.getPerson.queryOptions({ orgId, personId }))
         .catch(error => {
             if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
                 notFound()
@@ -48,7 +48,7 @@ export async function fetchPerson({ orgId, personId }: { orgId: OrganizationId, 
 export async function fetchSkill({ orgId, skillId, skillPackageId }: { orgId: OrganizationId, skillId: string, skillPackageId: string }): Promise<SkillData & { skillPackage: SkillPackageData, skillGroup: SkillGroupData }> {
     
     return getQueryClient()
-        .fetchQuery(trpc.skills.getSkill.queryOptions({ skillId, skillPackageId }))
+        .fetchQuery(trpc.skills.getSkill.queryOptions({ orgId, skillId, skillPackageId }))
         .catch(error => {
             if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
                 notFound()
@@ -60,7 +60,7 @@ export async function fetchSkill({ orgId, skillId, skillPackageId }: { orgId: Or
 export async function fetchSkillCheckSession({ orgId, sessionId }: { orgId: OrganizationId, sessionId: string }) : Promise<SkillCheckSessionData> {
     
     return getQueryClient()
-        .fetchQuery(trpc.skillChecks.getSession.queryOptions({ sessionId }))
+        .fetchQuery(trpc.skillChecks.getSession.queryOptions({ orgId, sessionId }))
         .catch(error => {
             if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
                 notFound()
@@ -78,7 +78,7 @@ export async function fetchSkillCheckSession({ orgId, sessionId }: { orgId: Orga
 export async function fetchSkillGroup({ orgId, skillGroupId, skillPackageId }: { orgId: OrganizationId, skillGroupId: string, skillPackageId: string }): Promise<SkillGroupData & { skillPackage: SkillPackageData }> {
     
     return getQueryClient()
-        .fetchQuery(trpc.skills.getGroup.queryOptions({ skillGroupId, skillPackageId }))
+        .fetchQuery(trpc.skills.getGroup.queryOptions({ orgId, skillGroupId, skillPackageId }))
         .catch(error => {
             if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
                 notFound()
@@ -97,7 +97,7 @@ export async function fetchSkillGroup({ orgId, skillGroupId, skillPackageId }: {
 export async function fetchSkillPackage({ orgId, skillPackageId }: { orgId: OrganizationId, skillPackageId: string }): Promise<SkillPackageData> {
     
     return getQueryClient()
-        .fetchQuery(trpc.skills.getPackage.queryOptions({ skillPackageId }))
+        .fetchQuery(trpc.skills.getPackage.queryOptions({ orgId, skillPackageId }))
         .catch(error => {
             if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
                 notFound()
@@ -116,7 +116,7 @@ export async function fetchSkillPackage({ orgId, skillPackageId }: { orgId: Orga
  */
 export async function fetchTeamMembership({ orgId, personId, teamId }: { orgId: string, personId: string, teamId: string }): Promise<TeamMembershipData & { person: PersonData, team: TeamData }> {
     return getQueryClient()
-        .fetchQuery(trpc.teamMemberships.getTeamMembership.queryOptions({ personId, teamId }))
+        .fetchQuery(trpc.teamMemberships.getTeamMembership.queryOptions({ orgId, personId, teamId }))
         .catch(error => {
             if (error instanceof TRPCError && error.code === 'NOT_FOUND') {
                 notFound()
@@ -126,7 +126,7 @@ export async function fetchTeamMembership({ orgId, personId, teamId }: { orgId: 
 }
 
 
-export async function fetchCurrentPerson(): Promise<PersonData | null> {
+export async function fetchCurrentPerson({ orgId }: { orgId: string }): Promise<PersonData | null> {
     return getQueryClient()
-        .fetchQuery(trpc.personnel.getCurrentPerson.queryOptions())
+        .fetchQuery(trpc.personnel.getCurrentPerson.queryOptions({ orgId }))
 }

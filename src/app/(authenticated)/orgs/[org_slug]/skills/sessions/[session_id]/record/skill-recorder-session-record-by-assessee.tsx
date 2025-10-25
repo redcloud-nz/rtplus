@@ -25,6 +25,7 @@ import { Paragraph } from '@/components/ui/typography'
 import { getAssignedSkills } from '@/hooks/use-assigned-skills'
 import { GetCheckReturn, useSkillCheckStore_experimental } from '@/hooks/use-skill-check-store'
 import { CompetenceLevel } from '@/lib/competencies'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { PersonId } from '@/lib/schemas/person'
 import { SkillData } from '@/lib/schemas/skill'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
@@ -34,20 +35,21 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function SkillRecorder_Session_RecordByAssessee({ session }: { session: SkillCheckSessionData }) {
+
+export function SkillRecorder_Session_RecordByAssessee({ organization, session }: { organization: OrganizationData, session: SkillCheckSessionData }) {
 
     const [{ data: availablePackages }, { data: assignedAssessees }, { data: assignedSkillIds }] = useSuspenseQueries({
         queries: [
-            trpc.skills.getAvailablePackages.queryOptions({ }),
-            trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ sessionId: session.sessionId }),
-            trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ sessionId: session.sessionId })
+            trpc.skills.getAvailablePackages.queryOptions({ orgId: organization.orgId }),
+            trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId }),
+            trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId })
         ]
     })
 
     const assignedSkills = useMemo(() => getAssignedSkills(availablePackages, assignedSkillIds), [availablePackages, assignedSkillIds])
 
     const [targetAssesseeId, setTargetAssesseeId] = useState<PersonId | null>(null)
-    const skillCheckStore = useSkillCheckStore_experimental(session.sessionId)
+    const skillCheckStore = useSkillCheckStore_experimental(organization.orgId, session.sessionId)
 
     return <>
         <Show 

@@ -41,8 +41,8 @@ import { trpc } from '@/trpc/client'
 
 
 export function AdminModule_TeamDetails({ organization, teamId }: { organization: OrganizationData, teamId: string }) {
-    
-    const { data: team } = useSuspenseQuery(trpc.teams.getTeam.queryOptions({ teamId }))
+
+    const { data: team } = useSuspenseQuery(trpc.teams.getTeam.queryOptions({ orgId: organization.orgId, teamId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
 
@@ -91,6 +91,7 @@ export function AdminModule_TeamDetails({ organization, teamId }: { organization
                 )
                 .with('Update', () => 
                     <UpdateTeamForm 
+                        organization={organization}
                         team={team} 
                         onClose={() => setMode('View')}
                     />
@@ -101,7 +102,7 @@ export function AdminModule_TeamDetails({ organization, teamId }: { organization
     </Card>
 }
 
-function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamData }) {
+function UpdateTeamForm({ onClose, organization, team }: { onClose: () => void, organization: OrganizationData, team: TeamData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     
@@ -139,7 +140,7 @@ function UpdateTeamForm({ onClose, team }: { onClose: () => void, team: TeamData
     }))
 
     return <FormProvider {...form}>
-        <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
+        <Form onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData, orgId: organization.orgId }))}>
             <ToruGrid mode='form'>
                 <FormField
                     control={form.control}
@@ -237,7 +238,7 @@ function DeleteTeamDialog({ organization, team }: { organization: OrganizationDa
             </DialogHeader>
             <DialogBody>
                 <FormProvider {...form}>
-                    <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
+                    <Form onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData, orgId: organization.orgId }))}>
                         <FormItem>
                             <FormLabel>Team</FormLabel>
                             <FormControl>

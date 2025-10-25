@@ -37,7 +37,6 @@ export const teamsRouter = createTRPCRouter({
             const createdTeam = await ctx.prisma.team.create({ 
                 data: { 
                     teamId,
-                    orgId: ctx.auth.activeOrg.orgId,
                     ...fields, 
                     changeLogs: { 
                         create: { 

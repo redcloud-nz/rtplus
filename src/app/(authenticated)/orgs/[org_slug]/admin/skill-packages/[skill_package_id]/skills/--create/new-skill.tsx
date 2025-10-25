@@ -40,10 +40,7 @@ export function AdminModule_NewSkill_Form({ organization, skillPackageId }: { or
     const skillId = useMemo(() => nanoId8(), [])
 
     // Get available skill groups for group selection
-    const { data: skillGroups } = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ 
-        skillPackageId,
-        status: ['Active', 'Inactive']
-    }))
+    const { data: skillGroups } = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ orgId: organization.orgId, skillPackageId, status: ['Active', 'Inactive'] }))
 
     const form = useForm<SkillData>({
         resolver: zodResolver(skillSchema),
@@ -88,7 +85,7 @@ export function AdminModule_NewSkill_Form({ organization, skillPackageId }: { or
         </CardHeader>
         <CardContent>
             <FormProvider {...form}>
-                <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
+                <Form onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData, orgId: organization.orgId }))}>
                     <ToruGrid mode="form">
                         <FormField
                             control={form.control}

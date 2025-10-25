@@ -17,6 +17,7 @@ import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 import { useToast } from '@/hooks/use-toast'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { SkillData, SkillId } from '@/lib/schemas/skill'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { SkillGroupData } from '@/lib/schemas/skill-group'
@@ -26,7 +27,8 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function SkillRecorder_Session_Skills({ session }: { session: SkillCheckSessionData }) {
+
+export function SkillRecorder_Session_Skills({ organization, session }: { organization: OrganizationData, session: SkillCheckSessionData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
@@ -35,8 +37,8 @@ export function SkillRecorder_Session_Skills({ session }: { session: SkillCheckS
 
     const [{ data: availablePackages }, { data: assignedSkillIds }] = useSuspenseQueries({
         queries: [
-            trpc.skills.getAvailablePackages.queryOptions({ }),
-            trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ sessionId: session.sessionId })
+            trpc.skills.getAvailablePackages.queryOptions({ orgId: organization.orgId }),
+            trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId })
         ]
     })
 
@@ -126,7 +128,7 @@ export function SkillRecorder_Session_Skills({ session }: { session: SkillCheckS
                     <Button 
                         size="sm"
                         color="blue"
-                        onClick={() => mutation.mutate({ sessionId: session.sessionId, additions: changes.added, removals: changes.removed })}
+                        onClick={() => mutation.mutate({ orgId: organization.orgId, sessionId: session.sessionId, additions: changes.added, removals: changes.removed })}
                         disabled={!isDirty}
                     >Save</Button>
                         

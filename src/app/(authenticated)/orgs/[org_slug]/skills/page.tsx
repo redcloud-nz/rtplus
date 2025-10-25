@@ -10,15 +10,16 @@ import { Boundary } from '@/components/boundary'
 import { Paragraph } from '@/components/ui/typography'
 
 import * as Paths from '@/paths'
+import { getOrganization } from '@/server/organization'
 
 import { SessionsCount_Card, SkillChecksCount_Card, SkillsCount_Card, PersonnelCount_Card } from './skill-stats'
-
 
 export const metadata = { title: 'Skills Dashboard' }
 
 
 export default async function SkillsModule_Index_Page(props: PageProps<'/orgs/[org_slug]/skills'>) {
     const { org_slug: orgSlug } = await props.params
+    const organization = await getOrganization(orgSlug)
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
@@ -31,16 +32,16 @@ export default async function SkillsModule_Index_Page(props: PageProps<'/orgs/[o
             </PageHeader>
             <div className="grid grid-cols-2 md:grid-col-3 lg:grid-cols-4 gap-4">
                 <Boundary>
-                    <SkillsCount_Card/>
+                    <SkillsCount_Card organization={organization} />
                 </Boundary>
                 <Boundary>
-                    <PersonnelCount_Card/>
+                    <PersonnelCount_Card organization={organization} />
                 </Boundary>
                 <Boundary>
-                    <SessionsCount_Card />
+                    <SessionsCount_Card organization={organization} />
                 </Boundary>
                 <Boundary>
-                    <SkillChecksCount_Card />
+                    <SkillChecksCount_Card organization={organization} />
                 </Boundary>
             </div>
             <Paragraph>

@@ -23,11 +23,11 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function DeleteTeamMembershipDialog({ onDelete, personId, teamId }: { onDelete: (membership: TeamMembershipData) => void , personId: string, teamId: string }) {
+export function DeleteTeamMembershipDialog({ onDelete, organization, personId, teamId }: { onDelete: (membership: TeamMembershipData) => void , organization: string, personId: string, teamId: string }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
-    const { data: { person, team } } = useSuspenseQuery(trpc.teamMemberships.getTeamMembership.queryOptions({ personId, teamId }))
+    const { data: { person, team } } = useSuspenseQuery(trpc.teamMemberships.getTeamMembership.queryOptions({ personId, teamId, orgId: organization }))
 
     const [open, setOpen] = useState(false)
 
@@ -72,7 +72,7 @@ export function DeleteTeamMembershipDialog({ onDelete, personId, teamId }: { onD
             </DialogHeader>
             <DialogBody>
                 <FormProvider {...form}>
-                    <Form onSubmit={form.handleSubmit(data => mutation.mutateAsync(data))}>
+                    <Form onSubmit={form.handleSubmit(formData => mutation.mutateAsync({ ...formData, orgId: organization } ))}>
                         <FormItem>
                             <FormLabel>Person</FormLabel>
                             <FormControl>

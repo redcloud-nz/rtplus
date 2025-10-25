@@ -26,12 +26,12 @@ export const settingsRouter = createTRPCRouter({
 
     getOrganizationSettings: orgProcedure
         .output(organizationSettingsSchema)
-        .query(async ({ ctx }) => {
+        .query(async ({ ctx, input }) => {
             const org = await ctx.prisma.organization.findUnique({
-                where: { orgId: ctx.auth.activeOrg.orgId },
+                where: { orgId: input.orgId },
             })
 
-            if(!org) logger.warn('Organization not found', { orgId: ctx.auth.activeOrg.orgId })
+            if(!org) logger.warn('Organization not found', { orgId: input.orgId })
 
             return organizationSettingsSchema.parse(org?.settings || {})
         }),
@@ -41,13 +41,13 @@ export const settingsRouter = createTRPCRouter({
         .mutation(async ({ ctx, input }) => {
 
             const org = await ctx.prisma.organization.update({
-                where: { orgId: ctx.auth.activeOrg.orgId },
+                where: { orgId: input.orgId },
                 data: { 
                     settings: { ...input }
                 },
             })
 
-            if(!org) logger.warn('Organization not found', { orgId: ctx.auth.activeOrg.orgId })
+            if(!org) logger.warn('Organization not found', { orgId: input.orgId })
 
             revalidateOrganization(ctx.auth.activeOrg.orgSlug)
 

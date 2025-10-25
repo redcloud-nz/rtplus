@@ -25,8 +25,8 @@ export default async function AdminModule_PersonnelList_Page(props: PageProps<'/
     return <AppPage>
         <AppPageBreadcrumbs 
             breadcrumbs={[
-                Paths.adminModule(org_slug), 
-                Paths.adminModule(org_slug).personnel
+                Paths.org(org_slug).admin, 
+                Paths.org(org_slug).admin.personnel
             ]}
         />
         <AppPageContent variant="container">

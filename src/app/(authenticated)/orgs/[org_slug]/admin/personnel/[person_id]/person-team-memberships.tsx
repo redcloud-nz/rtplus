@@ -45,7 +45,7 @@ export function AdminModule_Person_TeamMembershipList({ organization, person }: 
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
-    const teamMembershipsQuery = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ personId: person.personId }))
+    const teamMembershipsQuery = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ orgId: organization.orgId, personId: person.personId }))
 
     async function handleRefresh() {
         await teamMembershipsQuery.refetch()
@@ -253,13 +253,13 @@ export function AdminModule_Person_TeamMembershipList({ organization, person }: 
             }
         }),
         onUpdate: (rowData) => {
-            updateMutation.mutate(rowData)
+            updateMutation.mutate({ orgId: organization.orgId, ...rowData })
         },
         onCreate: (rowData) => {
-            createMutation.mutate(rowData)
+            createMutation.mutate({ orgId: organization.orgId, ...rowData })
         },
         onDelete: (rowData) => {
-            deleteMutation.mutate({ teamId: rowData.teamId, personId: person.personId })
+            deleteMutation.mutate({ orgId: organization.orgId, teamId: rowData.teamId, personId: person.personId })
         },
         initialState: {
             columnVisibility: {

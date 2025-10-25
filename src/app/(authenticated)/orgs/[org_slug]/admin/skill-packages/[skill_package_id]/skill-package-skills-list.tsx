@@ -29,8 +29,8 @@ import { trpc } from '@/trpc/client'
 
 export function AdminModule_SkillPackage_SkillsList({ organization, skillPackageId }: { organization: OrganizationData, skillPackageId: string }) {
 
-    const skillGroupsQuery = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ skillPackageId }))
-    const skillsQuery = useSuspenseQuery(trpc.skills.getSkills.queryOptions({ skillPackageId }))
+    const skillGroupsQuery = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ orgId: organization.orgId, skillPackageId }))
+    const skillsQuery = useSuspenseQuery(trpc.skills.getSkills.queryOptions({ orgId: organization.orgId, skillPackageId }))
 
     async function handleRefresh() {
         await Promise.all([skillsQuery.refetch(), skillGroupsQuery.refetch()])

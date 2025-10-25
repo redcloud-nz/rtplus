@@ -2,7 +2,7 @@
  *  Copyright (c) 2024 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /d4h/personnel
+ *  Path: /orgs/[org_slug]/d4h/personnel
  */
 
 import { Metadata } from 'next'
@@ -18,20 +18,22 @@ import { D4hPersonnelList_Card } from './d4h-personnel-list'
 
 export const metadata: Metadata = { title: "Personnel - D4H" }
 
-export default async function D4HPersonnel_Page() {
-    const { sessionClaims: { rt_person_id: personId } } = await auth.protect()
+export default async function D4HPersonnel_Page(props: PageProps<'/orgs/[org_slug]/d4h/personnel'>) {
+    const { org_slug: orgSlug } = await props.params
+
+    const { userId } = await auth.protect()
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
-                Paths.d4hModule,
-                Paths.d4hModule.personnel
+                Paths.org(orgSlug).d4h,
+                Paths.org(orgSlug).d4h.personnel
         ]}/>
         <AppPageContent>
             <PageHeader>
                 <PageTitle>Personnel</PageTitle>
             </PageHeader>
             <Boundary>
-                 <D4hPersonnelList_Card personId={personId} />
+                 <D4hPersonnelList_Card userId={userId} />
             </Boundary>
         </AppPageContent>
         

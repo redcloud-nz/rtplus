@@ -253,6 +253,11 @@ function d4hModule(orgSlug: string) {
     } as const
 }
 
+export const dashboard = {
+    label: 'Dashboard',
+    href: '/dashboard',
+} as const
+
 
 function fogModule(orgSlug: string) {
     return {

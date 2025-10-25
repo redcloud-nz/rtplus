@@ -9,6 +9,7 @@ import { Fragment, useState } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
 
+import { useOrganization } from '@/hooks/use-organization'
 import { SkillData } from '@/lib/schemas/skill'
 import { SkillGroupData } from '@/lib/schemas/skill-group'
 import { trpc } from '@/trpc/client'
@@ -37,7 +38,9 @@ interface SkillPickerProps {
 
 export function SkillPicker({ className, defaultValue = "", exclude = [], onValueChange, placeholder, size, value }: SkillPickerProps) {
 
-    const query = useQuery(trpc.skills.getAvailablePackages.queryOptions({  }))
+    const organization = useOrganization()
+
+    const query = useQuery(trpc.skills.getAvailablePackages.queryOptions({ orgId: organization.orgId }))
 
     const [internalValue, setInternalValue] = useState<string>(value ?? defaultValue)
 

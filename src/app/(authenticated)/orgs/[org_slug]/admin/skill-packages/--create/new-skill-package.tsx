@@ -77,7 +77,7 @@ export function AdminModile_NewSkillPackage_Form({ organization }: { organizatio
         </CardHeader>
         <CardContent>
             <FormProvider {...form}>
-                <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
+                <Form onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData, orgId: organization.orgId }))}>
                     <ToruGrid mode="form">
                         <FormField
                             control={form.control}

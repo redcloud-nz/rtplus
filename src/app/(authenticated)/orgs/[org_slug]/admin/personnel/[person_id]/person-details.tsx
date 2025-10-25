@@ -29,7 +29,7 @@ import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
-import { OrganizationData } from '@/lib/schemas/organization'
+import { OrganizationData, OrganizationId } from '@/lib/schemas/organization'
 import { PersonData, personSchema } from '@/lib/schemas/person'
 import { zodNanoId8 } from '@/lib/validation'
 import * as Paths from '@/paths'
@@ -44,7 +44,7 @@ import { trpc } from '@/trpc/client'
  */
 export function AdminModule_PersonDetails({ organization, personId }: { organization: OrganizationData, personId: string }) {
 
-    const { data: person } = useSuspenseQuery(trpc.personnel.getPerson.queryOptions({ personId }))
+    const { data: person } = useSuspenseQuery(trpc.personnel.getPerson.queryOptions({ orgId: organization.orgId, personId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
 
@@ -101,6 +101,7 @@ export function AdminModule_PersonDetails({ organization, personId }: { organiza
                 )
                 .with('Update', () => 
                     <UpdatePersonForm 
+                        organization={organization}
                         person={person}
                         onClose={() => setMode('View')}
                     />
@@ -111,7 +112,7 @@ export function AdminModule_PersonDetails({ organization, personId }: { organiza
     </Card>
 }   
 
-function UpdatePersonForm({ onClose, person }: { onClose: () => void, person: PersonData }) {
+function UpdatePersonForm({ onClose, organization, person }: { onClose: () => void, organization: OrganizationData, person: PersonData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
     
@@ -149,7 +150,7 @@ function UpdatePersonForm({ onClose, person }: { onClose: () => void, person: Pe
     }))
 
     return <FormProvider {...form}>
-        <Form onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData }))}>
+        <Form onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData, orgId: organization.orgId }))}>
             <ToruGrid mode="form">
                 <FormField
                     control={form.control}
@@ -215,10 +216,11 @@ function DeletePersonDialog({ organization, person }: { organization: Organizati
 
     const form = useForm({
         resolver: zodResolver(z.object({
+            orgId: OrganizationId.schema,
             personId: zodNanoId8,
             personName: z.literal(person.name)
         })),
-        defaultValues: { personId: person.personId, personName: "" }
+        defaultValues: { orgId: organization.orgId, personId: person.personId, personName: "" }
     })
 
     const mutation = useMutation(trpc.personnel.deletePerson.mutationOptions({

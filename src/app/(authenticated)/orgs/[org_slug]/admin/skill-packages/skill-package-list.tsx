@@ -33,8 +33,7 @@ import { trpc, WithCounts } from '@/trpc/client'
 
 export function AdminModule_SkillPackagesList({ organization }: { organization: OrganizationData }) {
     
-
-    const { data: skillPackages, refetch: skillPackagesRefetch } = useSuspenseQuery(trpc.skills.getPackages.queryOptions({ owner: 'org' }))
+    const { data: skillPackages, refetch: skillPackagesRefetch } = useSuspenseQuery(trpc.skills.getPackages.queryOptions({ orgId: organization.orgId, owner: 'org' }))
 
     async function handleRefresh() {
         await skillPackagesRefetch()

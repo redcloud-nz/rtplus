@@ -77,7 +77,7 @@ export function SkillsModule_NewSession_Form({ organization }: { organization: O
         </CardHeader>
         <CardContent>
             <FormProvider {...form}>
-                <form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
+                <form onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData, orgId: organization.orgId }))}>
                     <ToruGrid mode="form">
                         <FormField
                             control={form.control}

@@ -8,6 +8,7 @@ import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server'
 import { createTRPCRouter } from '../init'
 
 import { notesRouter } from './notes-router'
+import { organizationsRouter } from './organizations-router'
 import { personnelRouter } from './personnel-router'
 import { settingsRouter } from './settings-router'
 import { skillsRouter } from './skills-router'
@@ -16,9 +17,11 @@ import { teamsRouter } from './teams-router'
 import { teamMembershipsRouter } from './team-memberships-router'
 
 
+
 export const appRouter = createTRPCRouter({
 
     notes: notesRouter,
+    organizations: organizationsRouter,
     personnel: personnelRouter,
     settings: settingsRouter,
     skills: skillsRouter,

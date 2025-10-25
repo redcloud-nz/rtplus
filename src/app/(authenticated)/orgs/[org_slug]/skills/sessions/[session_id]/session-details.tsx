@@ -40,7 +40,7 @@ import { trpc } from '@/trpc/client'
 
 export function SkillsModule_SessionDetails({ organization, sessionId }: { organization: OrganizationData, sessionId: SkillCheckSessionId }) {
 
-    const { data: session } = useSuspenseQuery(trpc.skillChecks.getSession.queryOptions({ sessionId }))
+    const { data: session } = useSuspenseQuery(trpc.skillChecks.getSession.queryOptions({ orgId: organization.orgId, sessionId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
     
@@ -93,7 +93,7 @@ export function SkillsModule_SessionDetails({ organization, sessionId }: { organ
                     </ToruGrid>
                 )
                 .with('Update', () => 
-                    <UpdateSession_Form onClose={() => setMode('View')} session={session} />
+                    <UpdateSession_Form onClose={() => setMode('View')} organization={organization} session={session} />
                 )
                 .exhaustive()
             }
@@ -104,7 +104,7 @@ export function SkillsModule_SessionDetails({ organization, sessionId }: { organ
 const formSchema = skillCheckSessionSchema.pick({ sessionId: true, name: true, date: true, notes: true })
 type FormData = z.infer<typeof formSchema>
 
-function UpdateSession_Form({ onClose, session }: { onClose: () => void, session: SkillCheckSessionData}) {
+function UpdateSession_Form({ onClose, organization, session }: { onClose: () => void, organization: OrganizationData, session: SkillCheckSessionData}) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
@@ -158,7 +158,7 @@ function UpdateSession_Form({ onClose, session }: { onClose: () => void, session
     }))
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(formData => mutation.mutateAsync(formData))}>
+        <form onSubmit={form.handleSubmit(formData => mutation.mutateAsync({ ...formData, orgId: organization.orgId }))}>
             <ToruGrid mode="form">
                 <FormField
                     control={form.control}
@@ -248,7 +248,7 @@ function DeleteSessionDialog({ organization, session }: { organization: Organiza
             </DialogHeader>
             <DialogBody>
                 <FormProvider {...form}>
-                    <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
+                    <Form onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData, orgId: organization.orgId }))}>
                         <FormItem>
                             <FormLabel>Session</FormLabel>
                             <FormControl>

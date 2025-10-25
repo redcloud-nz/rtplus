@@ -14,8 +14,8 @@ import * as Paths from '@/paths'
 
 
 
-export function D4HAccessTokenCheck_Card({ personId }: { personId: string }) {
-    const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions(personId))
+export function D4HAccessTokenCheck_Card({ userId }: { userId: string }) {
+    const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions(userId))
 
     const hasAccessTokens = accessTokens.length > 0
     const uniqueTeams = extractUniqueTeams(accessTokens)

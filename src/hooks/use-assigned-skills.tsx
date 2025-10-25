@@ -10,6 +10,8 @@ import { SkillData } from '@/lib/schemas/skill'
 import { trpc } from '@/trpc/client'
 import type { RouterOutput } from '@/trpc/routers/_app'
 
+import { useOrganization } from './use-organization'
+
 
 /**
  * Hook to get the skills assigned to a competency recorder session.
@@ -18,10 +20,12 @@ import type { RouterOutput } from '@/trpc/routers/_app'
  */
 export function useAssignedSkillsQuery({ sessionId, teamId }: { sessionId: string, teamId: string }) {
 
+    const organization = useOrganization()
+
     return useSuspenseQueries({
         queries: [
-            trpc.skills.getAvailablePackages.queryOptions({ teamId }),
-            trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ sessionId })
+            trpc.skills.getAvailablePackages.queryOptions({ teamId, orgId: organization.orgId }),
+            trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ sessionId, orgId: organization.orgId })
         ],
         combine: ([availablePackagesQuery, assignedSkillIdsQuery]) => {
             return {

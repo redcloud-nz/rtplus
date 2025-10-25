@@ -21,7 +21,7 @@ import { AdminModule_TeamDetails } from './team-details'
 import { AdminModule_Team_Members } from './team-members'
 
 
-const fetchTeam = cache(async (orgId: string,teamId: string) => {
+const fetchTeam = cache(async (orgId: string, teamId: string) => {
 
     const team = await prisma.team.findUnique({
         where: { orgId, teamId }

@@ -30,7 +30,7 @@ import { trpc } from '@/trpc/client'
 
 export function SkillModule_SkillCheckSessionsList({ organization }: { organization: OrganizationData }) {
 
-    const sessionsQuery = useSuspenseQuery(trpc.skillChecks.getSessions.queryOptions({}))
+    const sessionsQuery = useSuspenseQuery(trpc.skillChecks.getSessions.queryOptions({ orgId: organization.orgId }))
 
     async function handleRefresh() {
         await sessionsQuery.refetch()

@@ -44,7 +44,7 @@ export function AdminModule_Team_Members({ organization, teamId }: { organizatio
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
-    const teamMembersQuery = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ teamId }))
+    const teamMembersQuery = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ orgId: organization.orgId, teamId }))
 
     async function handleRefresh() {
         await teamMembersQuery.refetch()
@@ -53,7 +53,7 @@ export function AdminModule_Team_Members({ organization, teamId }: { organizatio
     // Mutations for CRUD operations
     const createMutation = useMutation(trpc.teamMemberships.createTeamMembership.mutationOptions({
         onSuccess: () => {
-            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ teamId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ orgId: organization.orgId, teamId }))
             toast({
                 title: 'Team member added successfully',
                 variant: 'default'
@@ -70,7 +70,7 @@ export function AdminModule_Team_Members({ organization, teamId }: { organizatio
 
     const updateMutation = useMutation(trpc.teamMemberships.updateTeamMembership.mutationOptions({
         onSuccess: () => {
-            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ teamId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ orgId: organization.orgId, teamId }))
             toast({
                 title: 'Team member updated successfully',
                 variant: 'default'
@@ -87,7 +87,7 @@ export function AdminModule_Team_Members({ organization, teamId }: { organizatio
 
     const deleteMutation = useMutation(trpc.teamMemberships.deleteTeamMembership.mutationOptions({
         onSuccess: () => {
-            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ teamId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ orgId: organization.orgId, teamId }))
             toast({
                 title: 'Team member removed successfully',
                 variant: 'default'
@@ -256,13 +256,13 @@ export function AdminModule_Team_Members({ organization, teamId }: { organizatio
             }
         }),
         onUpdate: (rowData) => {
-            updateMutation.mutate(rowData)
+            updateMutation.mutate({ ...rowData, orgId: organization.orgId })
         },
         onCreate: (rowData) => {
-            createMutation.mutate({ ...rowData, personId: rowData.person.personId }) // Ensure personId is set correctly
+            createMutation.mutate({ ...rowData, personId: rowData.person.personId, orgId: organization.orgId }) // Ensure personId is set correctly
         },
         onDelete: (rowData) => {
-            deleteMutation.mutate({ teamId: teamId, personId: rowData.personId })
+            deleteMutation.mutate({ teamId: teamId, personId: rowData.personId, orgId: organization.orgId })
         },
         initialState: {
             columnVisibility: {

@@ -5,9 +5,8 @@
 
 'use client'
 
-import { ReactNode, useEffect, useRef } from 'react'
+import { ReactNode, useEffect } from 'react'
 
-import { useOrganization, useUser } from '@clerk/nextjs'
 import { QueryClientProvider } from '@tanstack/react-query'
 
 import { init, printConsoleMessage } from '@/cli/init'
@@ -16,8 +15,6 @@ import { SidebarProvider } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/toaster'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
-import { AppContextProvider } from '@/hooks/use-app-context'
-import { verifyUserConsistency } from '@/server/init-user'
 import { getQueryClient } from '@/trpc/client'
 
 
@@ -28,45 +25,16 @@ export type FrontendProviderProps = Readonly<{
 export function AppFrontendProvider({ children }: FrontendProviderProps) {
     const queryClient = getQueryClient()
 
-    const { isLoaded: isUserLoaded, user } = useUser()
-    const { isLoaded: isOrgLoaded, organization } = useOrganization()
-
-    const prevOrgRef = useRef<string | null>(null)
-
     useEffect(() => {
         printConsoleMessage()
 
         Object.assign(window, { init })
     }, [])
 
-    useEffect(() => {
-        if(isUserLoaded && isOrgLoaded && user) {
-            const orgId = organization?.id || null
-            if(prevOrgRef.current !== orgId) {
-                if(prevOrgRef.current !== null) {
-                    // Changed organizations - clear the query cache
-                    queryClient.clear()
-                }
-
-                prevOrgRef.current = orgId
-            }
-            verifyUserConsistency({ userId: user.id, orgId })
-                .then(() => {
-                    console.log("User initialization complete")
-                })
-                .catch((err) => {
-                    console.error("Error initializing user:", err)
-                })
-        }
-
-    }, [queryClient, isOrgLoaded, isUserLoaded, organization, user])
-
     return <QueryClientProvider client={queryClient}>
         <SidebarProvider>
             <TooltipProvider>
-                <AppContextProvider>
-                    {children}
-                </AppContextProvider>
+                {children}
             </TooltipProvider>
         </SidebarProvider>
         <Toaster/>

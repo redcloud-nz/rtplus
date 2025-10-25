@@ -328,7 +328,7 @@ export const skillsRouter = createTRPCRouter({
             return skillPackages.map(skillPackage => ({ ...toSkillPackageData(skillPackage), _count: skillPackage._count }))
         }),
 
-    getSkill: authenticatedProcedure
+    getSkill: orgProcedure
         .input(z.object({
             skillId: SkillId.schema,
             skillPackageId: SkillPackageId.schema
@@ -343,7 +343,7 @@ export const skillsRouter = createTRPCRouter({
             return { ...toSkillData(skill), skillGroup: toSkillGroupData(skillGroup), skillPackage: toSkillPackageData(skillPackage) }
         }),
 
-    getSkills: authenticatedProcedure
+    getSkills: orgProcedure
         .input(z.object({
             status: recordStatusParameterSchema,
             skillPackageId: SkillPackageId.schema.optional(),

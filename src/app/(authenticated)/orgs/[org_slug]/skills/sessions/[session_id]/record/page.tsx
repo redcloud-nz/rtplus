@@ -45,7 +45,7 @@ export default async function SkillsModule_SessionRecord_Page(props: PageProps<'
     const { org_slug: orgSlug, session_id: sessionId } = await props.params
     const organization = await getOrganization(orgSlug)
     const session = await fetchSkillCheckSession({ orgId: organization.orgId, sessionId})
-    const currentPerson = await fetchCurrentPerson()
+    const currentPerson = await fetchCurrentPerson({ orgId: organization.orgId })
 
     if(!currentPerson) {
         return <AppPage>
@@ -103,7 +103,7 @@ export default async function SkillsModule_SessionRecord_Page(props: PageProps<'
                     </TabsTrigger>
                 </TabsList>
 
-                <SkillRecorder_Session_Prefetch sessionId={session.sessionId}/>
+                <SkillRecorder_Session_Prefetch orgId={organization.orgId} sessionId={session.sessionId}/>
                 <Boundary
                     slotProps={{
                         loadingFallback: {
@@ -115,22 +115,22 @@ export default async function SkillsModule_SessionRecord_Page(props: PageProps<'
                         <SkillRecorder_Session_Details organization={organization} session={session} />
                     </TabsContent>
                     <TabsContent value="assessees">
-                        <SkillRecorder_Session_Assessees session={session}/>
+                        <SkillRecorder_Session_Assessees organization={organization} session={session}/>
                     </TabsContent>
                     <TabsContent value="skills">
-                        <SkillRecorder_Session_Skills session={session}/>
+                        <SkillRecorder_Session_Skills organization={organization} session={session}/>
                     </TabsContent>
                     <TabsContent value="record-single">
-                        <SkillRecorder_Session_RecordSingle session={session}/>
+                        <SkillRecorder_Session_RecordSingle organization={organization} session={session}/>
                     </TabsContent>
                     <TabsContent value="record-by-assessee">
-                        <SkillRecorder_Session_RecordByAssessee session={session}/>
+                        <SkillRecorder_Session_RecordByAssessee organization={organization} session={session}/>
                     </TabsContent>
                     <TabsContent value="record-by-skill">
-                        <SkillRecorder_Session_RecordBySkill session={session}/>
+                        <SkillRecorder_Session_RecordBySkill organization={organization} session={session}/>
                     </TabsContent>
                     <TabsContent value="transcript">
-                        <SkillRecorder_Session_Transcript session={session}/>
+                        <SkillRecorder_Session_Transcript organization={organization} session={session}/>
                     </TabsContent>
                 </Boundary>
                 

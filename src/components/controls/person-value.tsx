@@ -9,13 +9,17 @@ import { ComponentProps } from 'react'
 import { useQuery } from '@tanstack/react-query'
 
 import { DisplayValue } from '@/components/ui/display-value'
+import { useOrganization } from '@/hooks/use-organization'
 import { trpc } from '@/trpc/client'
+
 
 
 
 export function PersonValue({ personId, ...props }: Omit<ComponentProps<typeof DisplayValue>, 'children' |'loading'> &  { personId: string }) {
 
-    const query = useQuery(trpc.personnel.getPerson.queryOptions({ personId }))
+    const organization = useOrganization()
+
+    const query = useQuery(trpc.personnel.getPerson.queryOptions({ orgId: organization.orgId, personId }))
 
     return <DisplayValue 
         loading={query.isLoading}

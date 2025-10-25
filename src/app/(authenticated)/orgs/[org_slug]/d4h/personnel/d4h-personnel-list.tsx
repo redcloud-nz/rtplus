@@ -33,9 +33,9 @@ const StatusOptions: Record<D4hMember['status'], string> = {
 }
 
 
-export function D4hPersonnelList_Card({ personId }: { personId: string }) {
+export function D4hPersonnelList_Card({ userId }: { userId: string }) {
 
-    const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions(personId))
+    const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions(userId))
 
     const d4hTeams = useMemo(() => extractUniqueTeams(accessTokens), [accessTokens])
     const teamNameMap = useMemo(() => mapToObj(d4hTeams, ({ team }) => [team.id, team.name]), [d4hTeams])

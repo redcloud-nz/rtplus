@@ -38,7 +38,7 @@ export default async function Team_Skills_Report_Page(props: PageProps<'/orgs/[o
         />
         <AppPageContent variant="full">
             <Boundary>
-                <Team_Skills_Card/>
+                <Team_Skills_Card organization={organization} />
             </Boundary>
         </AppPageContent>
     </AppPage>

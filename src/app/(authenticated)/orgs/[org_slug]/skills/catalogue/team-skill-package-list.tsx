@@ -12,9 +12,9 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function SkillsModule_SkillPackages_List({  }: { organization: OrganizationData }) {
+export function SkillsModule_SkillPackages_List({ organization }: { organization: OrganizationData }) {
 
-    const { data: skillPackages } = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions({}))
+    const { data: skillPackages } = useSuspenseQuery(trpc.skills.getAvailablePackages.queryOptions({ orgId: organization.orgId }))
 
     return <>
         {skillPackages.map(pkg => <div key={pkg.skillPackageId}>

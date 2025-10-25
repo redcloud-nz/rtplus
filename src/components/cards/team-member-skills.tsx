@@ -21,21 +21,23 @@ import { Separator } from '@/components/ui/separator'
 
 import { createRandomDateGenerator, createRandomValueGenerator} from '@/lib/generate-values'
 import { CompetenceLevel } from '@/lib/competencies'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { trpc } from '@/trpc/client'
 
 import { SkillCheckGeneratorConfig_Card, SkillCheckGeneratorConfigData } from './skill-check-generator-config'
 
 
 
-export function Team_Member_Skills_Card({ personId }: { personId: string }) {
+
+export function Team_Member_Skills_Card({ organization, personId }: { organization: OrganizationData, personId: string }) {
 
     const [
         { data: availablePackages, refetch: refetchAvailablePackages }, 
         { data: teamMembers, refetch: refetchTeamMembers }
     ] = useSuspenseQueries({
         queries: [
-            trpc.skills.getAvailablePackages.queryOptions({  }),
-            trpc.teamMemberships.getTeamMemberships.queryOptions({ })
+            trpc.skills.getAvailablePackages.queryOptions({ orgId: organization.orgId }),
+            trpc.teamMemberships.getTeamMemberships.queryOptions({ orgId: organization.orgId })
         ]
     })
 

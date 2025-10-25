@@ -18,6 +18,7 @@ import { selectTriggerVariants } from '@/components/ui/select'
 import { TeamData } from '@/lib/schemas/team'
 import { cn } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
+import { useOrganization } from '@/hooks/use-organization'
 
 
 
@@ -64,7 +65,9 @@ interface TeamPickerProps {
  * It uses a popover to display the list of teams and allows filtering by name.
  */
 export function TeamPicker({ className, defaultValue = "", exclude = [], onValueChange, placeholder, size, value }: TeamPickerProps) {
-    const query = useQuery(trpc.teams.getTeams.queryOptions({}))
+    const organization = useOrganization()
+
+    const query = useQuery(trpc.teams.getTeams.queryOptions({ orgId: organization.orgId }))
 
     const [open, setOpen] = useState(false)
     const [internalValue, setInternalValue] = useState<string>(value ?? defaultValue)

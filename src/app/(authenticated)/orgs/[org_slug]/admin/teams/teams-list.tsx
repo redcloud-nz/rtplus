@@ -35,7 +35,7 @@ type RowData = TeamData & { _count: { teamMemberships: number } }
 
 export function AdminModule_TeamsList({ organization }: { organization: OrganizationData }) {
 
-    const teamsQuery = useQuery(trpc.teams.getTeams.queryOptions({}))
+    const teamsQuery = useQuery(trpc.teams.getTeams.queryOptions({ orgId: organization.orgId }))
 
     async function handleRefresh() {
         await teamsQuery.refetch()

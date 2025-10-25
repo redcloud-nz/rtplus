@@ -49,8 +49,7 @@ import { trpc } from '@/trpc/client'
  */
 export function AdminModule_SkillDetails({ organization, skillId, skillPackageId }: { organization: OrganizationData, skillId: string, skillPackageId: string }) {
 
-    
-    const { data: skill } = useSuspenseQuery(trpc.skills.getSkill.queryOptions({ skillId, skillPackageId }))
+    const { data: skill } = useSuspenseQuery(trpc.skills.getSkill.queryOptions({ orgId: organization.orgId, skillId, skillPackageId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
 
@@ -183,7 +182,7 @@ function UpdateSkillForm({ onClose, organization, skill, skillPackage, skillGrou
     }))
 
     return <FormProvider {...form}>
-        <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
+        <Form onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData, orgId: organization.orgId }))}>
             <ToruGrid mode="form">
                 <FormField
                     control={form.control}
@@ -324,7 +323,7 @@ function DeleteSkillDialog({ organization, skill }: { organization: Organization
             </DialogHeader>
             <DialogBody>
                 <FormProvider {...form}>
-                    <Form onSubmit={form.handleSubmit(formData => mutation.mutate(formData))}>
+                    <Form onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData, orgId: organization.orgId }))}>
                         <FormItem>
                             <FormLabel>Skill</FormLabel>
                             <FormControl>

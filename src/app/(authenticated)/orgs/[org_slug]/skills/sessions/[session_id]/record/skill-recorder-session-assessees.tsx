@@ -16,20 +16,22 @@ import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 import { useToast } from '@/hooks/use-toast'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { PersonId, PersonRef } from '@/lib/schemas/person'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { trpc } from '@/trpc/client'
 
 
 
-export function SkillRecorder_Session_Assessees({ session }: { session: SkillCheckSessionData }) {
+
+export function SkillRecorder_Session_Assessees({ organization, session }: { organization: OrganizationData, session: SkillCheckSessionData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
     const queryKey = trpc.skillChecks.getSessionAssignedAssessees.queryKey({ sessionId: session.sessionId })
     const queryFilter = trpc.skillChecks.getSessionAssignedAssessees.queryFilter({ sessionId: session.sessionId })
 
-    const { data: assignedAssessees } = useSuspenseQuery(trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ sessionId: session.sessionId }))
+    const { data: assignedAssessees } = useSuspenseQuery(trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId }))
 
     const [selectedAssessees, setSelectedAssessees] = useState<PersonId[]>(assignedAssessees.map(a => a.personId))
     const [changes, setChanges] = useState<{ added: PersonId[], removed: PersonId[] }>({ added: [], removed: [] })
@@ -100,6 +102,7 @@ export function SkillRecorder_Session_Assessees({ session }: { session: SkillChe
     return  <ScrollArea style={{ height: `calc(100vh - var(--header-height) - 56px)` }} className="[&>[data-slot=scroll-area-viewport]]:pb-8">
         <div className="flex flex-col divide-y divide-border">
             <AvailablePersonnel
+                organization={organization}
                 assignedAssessees={assignedAssessees.map(a => a.personId)}
                 selectedAssessees={selectedAssessees}
                 onSelectedChange={handleCheckedChange}
@@ -114,7 +117,7 @@ export function SkillRecorder_Session_Assessees({ session }: { session: SkillChe
                     <Button 
                         size="sm"
                         color="blue"
-                        onClick={() => mutation.mutate({ sessionId: session.sessionId, additions: changes.added, removals: changes.removed })}
+                        onClick={() => mutation.mutate({ orgId: organization.orgId, sessionId: session.sessionId, additions: changes.added, removals: changes.removed })}
                         disabled={!isDirty}
                     >Save</Button>
                         
@@ -138,14 +141,15 @@ export function SkillRecorder_Session_Assessees({ session }: { session: SkillChe
 
 
 interface TeamSectionProps {
+    organization: OrganizationData
     assignedAssessees: string[]
     selectedAssessees: string[]
     onSelectedChange: (assesseeId: PersonId) => (checked: boolean) => void
 }
 
-function AvailablePersonnel({ assignedAssessees, selectedAssessees, onSelectedChange }: TeamSectionProps) {
+function AvailablePersonnel({ organization, assignedAssessees, selectedAssessees, onSelectedChange }: TeamSectionProps) {
 
-    const { data: personnel } = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({ }))
+    const { data: personnel } = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({ orgId: organization.orgId }))
 
     const selected = personnel.filter(m => selectedAssessees.includes(m.personId))
 

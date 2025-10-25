@@ -5,6 +5,7 @@
 
 import { cache } from 'react'
 import superjson from 'superjson'
+import { z } from 'zod'
 
 import { auth, createClerkClient } from '@clerk/nextjs/server'
 
@@ -12,6 +13,7 @@ import { OrganizationId } from '@/lib/schemas/organization'
 import { UserId } from '@/lib/schemas/user'
 import {  initTRPC, TRPCError } from '@trpc/server'
 import prisma from '@/server/prisma'
+
 
 
 
@@ -172,11 +174,12 @@ export type AuthenticatedOrgContext = AuthenticatedContext & { auth: RTPlusAuthW
  */
 export const orgProcedure = publicProcedure
     .meta({ authRequired: true, activeTeamRequired: true })
+    .input(z.object({ orgId: OrganizationId.schema }))
     .use(async (opts) => {
         const { auth } = opts.ctx
 
         if(auth == null) throw new TRPCError({ code: 'UNAUTHORIZED', message: "No active session." })
-        if(auth.activeOrg == null) throw new TRPCError({ code: 'FORBIDDEN', message: "No active organization." })
+        if(auth.activeOrg?.orgId !== opts.input.orgId) throw new TRPCError({ code: 'FORBIDDEN', message: "No access to organization." })
 
         const authenticatedContext = createAuthenticatedContext(opts.ctx)
 
@@ -195,12 +198,13 @@ export const orgProcedure = publicProcedure
  */
 export const orgAdminProcedure = publicProcedure
     .meta({ authRequired: true, activeTeamRequired: true, teamAdminRequired: true })
-    .use(async (opts) => {
+    .input(z.object({ orgId: OrganizationId.schema }))
+    .use(async (opts,) => {
         const { auth } = opts.ctx
 
         if(auth == null) throw new TRPCError({ code: 'UNAUTHORIZED', message: "No active session." })
-        if(auth.activeOrg == null) throw new TRPCError({ code: 'FORBIDDEN', message: "No active organization." })
-        if(auth.activeOrg.role !== 'org:admin') throw new TRPCError({ code: 'FORBIDDEN', message: "Not an organization admin" })
+        if(auth.activeOrg?.orgId !== opts.input.orgId) throw new TRPCError({ code: 'FORBIDDEN', message: "No access to organization." })
+        if(auth.activeOrg?.role !== 'org:admin') throw new TRPCError({ code: 'FORBIDDEN', message: "Not an organization admin" })
 
         const authenticatedContext = createAuthenticatedContext(opts.ctx)
 

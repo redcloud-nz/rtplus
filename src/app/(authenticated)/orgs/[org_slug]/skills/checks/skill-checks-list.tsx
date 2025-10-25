@@ -36,7 +36,7 @@ type RowData = SkillCheckData & { assessee: PersonRef, assessor: PersonRef, skil
 
 export function SkillsModule_SkillChecks_List({ organization }: { organization: OrganizationData }) {
 
-    const { data: checks, refetch: checksRefetch } = useSuspenseQuery(trpc.skillChecks.getSkillChecks.queryOptions({}))
+    const { data: checks, refetch: checksRefetch } = useSuspenseQuery(trpc.skillChecks.getSkillChecks.queryOptions({ orgId: organization.orgId }))
 
     async function handleRefresh() {
         await checksRefetch()

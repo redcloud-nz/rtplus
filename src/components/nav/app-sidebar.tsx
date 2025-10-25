@@ -14,7 +14,7 @@ import { NavOrganizationMenu } from './nav-organization-menu'
 import { NavSkeleton } from './nav-skeleton'
 
 
-export function AppSidebar({ orgSlug }: { orgSlug: string }) {
+export function AppSidebar() {
     return <Sidebar>
         <SidebarHeader className="flex items-center justify-between">
             <div className="px-2">
@@ -46,7 +46,7 @@ export function AppSidebar({ orgSlug }: { orgSlug: string }) {
             <SidebarGroup>
                 <SidebarGroupLabel>Organization</SidebarGroupLabel>
                 <Suspense fallback={<NavSkeleton/>}>
-                    <NavOrganizationMenu orgSlug={orgSlug} />
+                    <NavOrganizationMenu/>
                 </Suspense>
             </SidebarGroup>
             

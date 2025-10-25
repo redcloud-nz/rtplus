@@ -34,7 +34,7 @@ import { trpc } from '@/trpc/client'
 
 export function AdminModule_PersonnelList({ organization }: { organization: OrganizationData }) {
     
-    const { data: personnel, refetch } = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({}))
+    const { data: personnel, refetch } = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({ orgId: organization.orgId }))
 
     async function handleRefresh() {
         await refetch()

@@ -15,9 +15,11 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { selectTriggerVariants } from '@/components/ui/select'
 
+import { useOrganization } from '@/hooks/use-organization'
 import { PersonData } from '@/lib/schemas/person'
 import { cn } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
+
 
 
 interface PersonPickerProps {
@@ -39,7 +41,6 @@ interface PersonPickerProps {
     filter?: {
         status?: ('Active' | 'Inactive')[]
         isUser?: boolean
-        type?: ('Normal' | 'Sandbox')[]
     }
 
     /**
@@ -70,9 +71,11 @@ interface PersonPickerProps {
  * It uses a popover to display the list of persons and allows filtering by name.
  */
 export function PersonPicker({ className, defaultValue = "", exclude = [], filter = {}, onValueChange, placeholder, size, value }: PersonPickerProps) {
-    filter = { status: ['Active'], type: ['Normal'], ...filter }
+    filter = { status: ['Active'], ...filter }
 
-    const query = useQuery(trpc.personnel.getPersonnel.queryOptions(filter))
+    const organization = useOrganization()
+
+    const query = useQuery(trpc.personnel.getPersonnel.queryOptions({ orgId: organization.orgId, ...filter }))
 
     const [open, setOpen] = useState(false)
     const [internalValue, setInternalValue] = useState<string>(value ?? defaultValue)

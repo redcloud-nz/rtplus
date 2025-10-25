@@ -13,15 +13,17 @@ import { Team_Member_Skills_Card } from '@/components/cards/team-member-skills'
 import * as Paths from '@/paths'
 
 import { IndividualReport_TeamMemberSelector } from './team-member-selector'
-
+import { getOrganization } from '@/server/organization'
 
 
 export const metadata = { title: 'Individual Skills' }
 
 
 export default async function Team_Member_Skills_Report_Page(props: PageProps<'/orgs/[org_slug]/skills/reports/individual'>) {
-    const { pid } = await props.searchParams
+    
     const { org_slug: orgSlug } = await props.params
+    const { pid } = await props.searchParams
+    const organization = await getOrganization(orgSlug)
 
     return <AppPage>
         <AppPageBreadcrumbs
@@ -39,7 +41,7 @@ export default async function Team_Member_Skills_Report_Page(props: PageProps<'/
                 </PageControls>
             </PageHeader>
             <Boundary>
-                { pid ? <Team_Member_Skills_Card personId={pid as string} /> : <p>No team member selected</p>}
+                { pid ? <Team_Member_Skills_Card organization={organization} personId={pid as string} /> : <p>No team member selected</p>}
             </Boundary>
         </AppPageContent>
     </AppPage>

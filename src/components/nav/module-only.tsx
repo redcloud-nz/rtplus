@@ -7,15 +7,16 @@
 
 import { ReactNode } from 'react'
 
-import { useAppContext } from '@/hooks/use-app-context'
+import { useOrganization } from '@/hooks/use-organization'
 import { type ModuleID } from '@/lib/modules'
+
 
 
 export function ModuleOnly({ children, fallback, module }: { children: ReactNode, fallback?: ReactNode, module: ModuleID }) {
 
-    const appContext = useAppContext()
+    const organization = useOrganization()
 
-    if (!appContext.organizationSettings.modules[module]?.enabled) {
+    if (!organization.settings.modules[module]?.enabled) {
         return fallback ?? null
     }
 

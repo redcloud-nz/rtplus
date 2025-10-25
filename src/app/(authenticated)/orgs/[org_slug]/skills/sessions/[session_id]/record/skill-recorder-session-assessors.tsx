@@ -17,6 +17,7 @@ import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 import { useToast } from '@/hooks/use-toast'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { PersonRef } from '@/lib/schemas/person'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { trpc } from '@/trpc/client'
@@ -24,13 +25,14 @@ import { trpc } from '@/trpc/client'
 
 
 
-export default function SkillRecorder_Session_Assessors({ session }: { session: SkillCheckSessionData }) {
+
+export default function SkillRecorder_Session_Assessors({ organization, session }: { organization: OrganizationData, session: SkillCheckSessionData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
     const queryKey = trpc.skillChecks.getSessionAssignedAssessors.queryKey({ sessionId: session.sessionId })
 
-    const { data: assignedAssessors } = useSuspenseQuery(trpc.skillChecks.getSessionAssignedAssessors.queryOptions({ sessionId: session.sessionId }))
+    const { data: assignedAssessors } = useSuspenseQuery(trpc.skillChecks.getSessionAssignedAssessors.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId }))
 
     const [selectedAssessors, setSelectedAssessors] = useState<string[]>(assignedAssessors.map(a => a.personId))
     const [changes, setChanges] = useState<{ added: string[], removed: string[] }>({ added: [], removed: [] })
@@ -59,7 +61,7 @@ export default function SkillRecorder_Session_Assessors({ session }: { session: 
             })
         },
         onSettled() {
-            queryClient.invalidateQueries(trpc.skillChecks.getSessionAssignedAssessors.queryFilter({ sessionId: session.sessionId }))
+            queryClient.invalidateQueries(trpc.skillChecks.getSessionAssignedAssessors.queryFilter({ orgId: organization.orgId, sessionId: session.sessionId }))
         }
     }))
 
@@ -95,6 +97,7 @@ export default function SkillRecorder_Session_Assessors({ session }: { session: 
         <div className="flex flex-col divide-y divide-border">
             <Boundary>
                 <AvailablePersonnel
+                    organization={organization}
                     sessionId={session.sessionId}
                     assignedAssessors={assignedAssessors.map(a => a.personId)}
                     selectedAssessors={selectedAssessors}
@@ -111,7 +114,7 @@ export default function SkillRecorder_Session_Assessors({ session }: { session: 
                     <Button 
                         size="sm"
                         color="blue"
-                        onClick={() => mutation.mutate({ sessionId: session.sessionId, additions: changes.added, removals: changes.removed })}
+                        onClick={() => mutation.mutate({ orgId: organization.orgId, sessionId: session.sessionId, additions: changes.added, removals: changes.removed })}
                         disabled={!isDirty}
                     >Save</Button>
                         
@@ -132,15 +135,16 @@ export default function SkillRecorder_Session_Assessors({ session }: { session: 
 }
 
 interface AvailablePersonnelProps {
+    organization: OrganizationData
     sessionId: string
     assignedAssessors: string[]
     selectedAssessors: string[]
     onSelectedChange: (assesseeId: string) => (checked: boolean) => void
 }
 
-function AvailablePersonnel({ assignedAssessors, selectedAssessors, onSelectedChange }: AvailablePersonnelProps) {
+function AvailablePersonnel({ organization, assignedAssessors, selectedAssessors, onSelectedChange }: AvailablePersonnelProps) {
 
-    const { data: personnel } = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({  }))
+    const { data: personnel } = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({ orgId: organization.orgId }))
 
     const users = personnel.filter(p => p.userId !== null)
 

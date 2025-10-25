@@ -13,8 +13,11 @@ import { Link } from '@/components/ui/link'
 
 import * as Paths from '@/paths'
 
+import { CopyrightNotice } from './copyright'
 
-export default function PublicLayout({ children }: { children: React.ReactNode }) {
+
+export default async function PublicLayout({ children }: { children: React.ReactNode }) {
+
     return <div className="flex flex-col min-h-screen [&>main]:flex-1">
         <header className="px-4 lg:px-6 h-16 flex items-center border-b">
             <Link className="flex items-center justify-center" to={Paths.marketing.index}>
@@ -66,7 +69,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
                     priority
                 />
             </div>
-            <p className="text-xs text-muted-foreground sm:ml-4">© {new Date().getFullYear()} Redcloud Development, Ltd.</p>
+            <CopyrightNotice/>
             <nav className="sm:ml-auto flex gap-4 sm:gap-6">
             <Link className="text-xs hover:underline underline-offset-4" to={Paths.marketing.termsOfService}>
                 Terms of Service

@@ -20,19 +20,21 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 
 import { createRandomDateGenerator, createRandomValueGenerator } from '@/lib/generate-values'
 import { CompetenceLevel } from '@/lib/competencies'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { trpc } from '@/trpc/client'
 
 
 
-export function Team_Skills_Card() {
+
+export function Team_Skills_Card({ organization }: { organization: OrganizationData }) {
 
     const [
         { data: availablePackages, refetch: refetchAvailablePackages }, 
         { data: teamMembers, refetch: refetchTeamMembers }
     ] = useSuspenseQueries({
         queries: [
-            trpc.skills.getAvailablePackages.queryOptions({}),
-            trpc.teamMemberships.getTeamMemberships.queryOptions({})
+            trpc.skills.getAvailablePackages.queryOptions({ orgId: organization.orgId }),
+            trpc.teamMemberships.getTeamMemberships.queryOptions({ orgId: organization.orgId })
         ]
     })
 

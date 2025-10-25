@@ -11,6 +11,7 @@ import { nanoId8 } from '../id'
 import { propertiesSchema, recordStatusSchema, tagsSchema } from '../validation'
 
 import { UserId } from './user'
+import { OrganizationId } from './organization'
 
 export type PersonId = string & z.BRAND<'PersonId'>
 
