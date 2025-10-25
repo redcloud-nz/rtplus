@@ -5,8 +5,8 @@
 
 import { z } from 'zod'
 
-import { Organization as ClerkOrganization } from '@clerk/nextjs/server'
-import { Organization as OrganizationRecord } from '@prisma/client'
+import { type Organization as ClerkOrganization } from '@clerk/nextjs/server'
+import { type Organization as OrganizationRecord } from '@prisma/client'
 
 import { organizationSettingsSchema } from './settings'
 
@@ -33,3 +33,9 @@ export function toOrganizationData(record: OrganizationRecord, clerkOrganization
 }
 
 export type OrganizationData = z.infer<typeof organizationSchema>
+
+
+export function isModuleEnabled(organization: OrganizationData, module: keyof OrganizationData['settings']['modules']): boolean {
+    const modules = organization.settings.modules || {}
+    return modules[module]?.enabled === true
+}

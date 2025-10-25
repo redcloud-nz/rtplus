@@ -2,6 +2,8 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
+import 'server-only'
+
 import { cacheTag, revalidateTag } from 'next/cache'
 import { notFound } from 'next/navigation'
 
@@ -40,9 +42,4 @@ export async function getOrganization(orgSlug: string): Promise<OrganizationData
 
 export async function revalidateOrganization(orgSlug: string) {
     revalidateTag(`organization-${orgSlug}`, { expire: 0})
-}
-
-export function isModuleEnabled(organization: OrganizationData, module: keyof OrganizationData['settings']['modules']): boolean {
-    const modules = organization.settings.modules || {}
-    return modules[module]?.enabled === true
 }

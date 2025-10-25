@@ -5,16 +5,20 @@
  *  Path: /orgs/[org_slug]
  */
 
+import { ChevronRightIcon } from 'lucide-react'
 import Image from 'next/image'
 
-
 import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
-import { D4HModuleIcon, AdminModuleIcon, SkillsModuleIcon } from '@/components/icons'
-import { DashboardCard, DashboardCardList } from '@/components/ui/dashboard-card'
-
-import * as Paths from '@/paths'
-import { getOrganization, isModuleEnabled } from '@/server/organization'
 import { Show } from '@/components/show'
+import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/items'
+import { Link } from '@/components/ui/link'
+
+import { isModuleEnabled } from '@/lib/schemas/organization'
+import * as Paths from '@/paths'
+import { getOrganization } from '@/server/organization'
+
+
+
 
 export const metadata = { title: 'Dashboard' }
 
@@ -39,27 +43,45 @@ export default async function OrganizationDashboard_Page(props: PageProps<'/orgs
                     />
                     <p>Response Team Management Tools.</p>
                 </div>
-                <DashboardCardList>
-                    <DashboardCard
-                        linksTo={Paths.org(orgSlug).admin}
-                        icon={<span className="text-emerald-700 bg-emerald-50"><AdminModuleIcon aria-hidden="true" className="size-6" /></span>}
-                        description="Administrative tools for managing your organization."
-                    />
+                <div className="flex w-full max-w-md flex-col gap-4">
+                    <Item asChild>
+                        <Link to={Paths.org(orgSlug).admin}>
+                            <ItemContent>
+                                <ItemTitle>Admin</ItemTitle>
+                                <ItemDescription>Manage personnel, teams, and organization settings.</ItemDescription>
+                            </ItemContent>
+                            <ItemActions>
+                                <ChevronRightIcon className="size-4" />
+                            </ItemActions>
+                        </Link>
+                    </Item>
                     <Show when={isModuleEnabled(organization, 'd4h')}>
-                        <DashboardCard
-                            linksTo={Paths.org(orgSlug).d4h}
-                            icon={<span className="text-indigo-700 bg-indigo-50"><D4HModuleIcon aria-hidden="true" className="size-6" /></span>}
-                            description="Alternate views of the data stored in D4H Team Manager. Unified across multiple teams."
-                        />
+                        <Item asChild>
+                            <Link to={Paths.org(orgSlug).d4h}>
+                                <ItemContent>
+                                    <ItemTitle>D4H</ItemTitle>
+                                    <ItemDescription>Alternate views of the data stored in D4H Team Manager.</ItemDescription>
+                                </ItemContent>
+                                <ItemActions>
+                                    <ChevronRightIcon className="size-4" />
+                                </ItemActions>
+                            </Link>
+                        </Item>
                     </Show>
                     <Show when={isModuleEnabled(organization, 'skills')}>
-                        <DashboardCard
-                            linksTo={Paths.org(orgSlug).skills}
-                            icon={<span className="text-sky-700 bg-sky-50"><SkillsModuleIcon aria-hidden="true" className="size-6" /></span>}
-                            description="Manage, assess, and report skills for your team."
-                        />
+                        <Item asChild>
+                            <Link to={Paths.org(orgSlug).skills}>
+                                <ItemContent>
+                                    <ItemTitle>Skills</ItemTitle>
+                                    <ItemDescription>Manage, assess, and report skills for your team.</ItemDescription>
+                                </ItemContent>
+                                <ItemActions>
+                                    <ChevronRightIcon className="size-4" />
+                                </ItemActions>
+                            </Link>
+                        </Item>
                     </Show>
-                </DashboardCardList>
+                </div>
             </AppPageContent>
         </AppPage>
 }

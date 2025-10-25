@@ -21,7 +21,7 @@ const tableVariants = tv({
     }
 })
 
-export type TableProps =  Omit<ComponentProps<'table'>, 'border'> & VariantProps<typeof tableVariants>
+export type TableProps = Omit<ComponentProps<'table'>, 'border'> & VariantProps<typeof tableVariants>
 
 
 export function Table({ className, border = false, width = 'full', ...props }: TableProps) {

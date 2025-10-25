@@ -9,13 +9,12 @@ import { createContext, ReactNode, useContext, useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 
 import { OrganizationData } from '@/lib/schemas/organization'
-
 import { trpc } from '@/trpc/client'
 
 
 const OrganizationContext = createContext<OrganizationData & { refresh: () => Promise<void> } | undefined>(undefined)
 
-export const OrganizationProvider = ({ children, initial }: { children: ReactNode, initial: OrganizationData }) => {
+export function OrganizationProvider({ children, initial }: { children: ReactNode, initial: OrganizationData }) {
     const queryClient = useQueryClient()
 
     const [organization, setOrganization] = useState<OrganizationData>(initial)

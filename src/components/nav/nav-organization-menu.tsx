@@ -2,19 +2,21 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
+'use client'
 
 import { Show } from '@/components/show'
 import { AdminModuleIcon, D4HModuleIcon, DashboardIcon, SkillsModuleIcon } from '@/components/icons'
 import { SidebarMenu } from '@/components/ui/sidebar'
 
+import { useOrganization } from '@/hooks/use-organization'
+import { isModuleEnabled } from '@/lib/schemas/organization'
 import * as Paths from '@/paths'
-import { isModuleEnabled } from '@/server/organization'
 
 import { NavCollapsible, NavItem, NavSubItem } from './nav-section'
-import { useOrganization } from '@/hooks/use-organization'
 
 
-export async function NavOrganizationMenu() {
+
+export function NavOrganizationMenu() {
     const organization = useOrganization()
 
     const prefix = Paths.org(organization.slug)

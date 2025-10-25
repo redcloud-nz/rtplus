@@ -36,8 +36,6 @@ import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
-
-
 /**
  * Card that displays the details of a person and allows the user to edit them.
  * @param personId The ID of the person to display.
