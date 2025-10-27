@@ -7,7 +7,7 @@
 
 import { Controller, useForm } from 'react-hook-form'
 
-import { Card2, Card2Content } from '@/components/ui/card2'
+import { S2_Card, S2_CardContent } from '@/components/ui/s2-card'
 import { Field, FieldContent, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Switch } from '@/components/ui/switch'
 
@@ -18,8 +18,8 @@ import { OrganizationSettingsData } from '@/lib/schemas/settings'
  */
 export function Settings_EnabledModules_Card({ form }: { form: ReturnType<typeof useForm<OrganizationSettingsData>> }) {
 
-    return <Card2>
-        <Card2Content>
+    return <S2_Card>
+        <S2_CardContent>
             <FieldGroup>
                 <Controller
                     name="modules.d4hViews.enabled"
@@ -86,6 +86,6 @@ export function Settings_EnabledModules_Card({ form }: { form: ReturnType<typeof
                     </Field>
                 }/>
             </FieldGroup>
-        </Card2Content>
-    </Card2>
+        </S2_CardContent>
+    </S2_Card>
 }

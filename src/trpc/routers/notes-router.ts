@@ -3,18 +3,18 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-/* eslint-disable */
 
+import { diffLines } from 'diff'
 import { z } from 'zod'
 
+import { Note as NoteRecord } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
-import { NoteId, noteSchema } from '@/lib/schemas/note'
+import { NoteData, NoteId, noteSchema, toNoteData } from '@/lib/schemas/note'
 
-import { PersonId } from '@/lib/schemas/person'
-import { TeamId } from '@/lib/schemas/team'
-
-import {  authenticatedProcedure, createTRPCRouter, orgProcedure } from '../init'
+import {  AuthenticatedOrgContext, createTRPCRouter, orgProcedure } from '../init'
+import { Messages } from '../messages'
+import { toUserRef, userRefSchema } from '@/lib/schemas/user'
 
 
 
@@ -25,35 +25,77 @@ export const notesRouter = createTRPCRouter({
 
     /**
      * Create a new note.
-     * @param input - Note data including personId or teamId.
+     * @param input - Note data
      * @returns The created note.
-     * @throws TRPCError(BAD_REQUEST) - If both personId and teamId are provided.
-     * @throws TRPCError(FORBIDDEN) - If the user does not have permission to create the note.
      */
-    createNote: authenticatedProcedure
+    createNote: orgProcedure
         .input(noteSchema)
         .output(noteSchema)
         .mutation(async ({ ctx, input }) => {
 
-            throw new TRPCError({ code: 'SERVICE_UNAVAILABLE', message: 'Notes feature is not available yet.' })
+            const changes = diffLines("---\n---\n", toDiffableFormat(input))
+
+            const createdNote = await ctx.prisma.note.create({
+                data: {
+                    noteId: input.noteId,
+                    orgId: ctx.auth.activeOrg.orgId,
+                    title: input.title,
+                    content: input.content,
+                    tags: input.tags,
+                    properties: input.properties,
+                    status: input.status,
+                    changeLogs: {
+                        create: {
+                            userId: ctx.auth.userId,
+                            event: 'Create',
+                            changes: changes as object[],
+                        }
+                    }
+                }
+            })
+
+            return toNoteData(createdNote)
         }),
 
     /**
-     * Delete an existing note.
+     * Mark a note as deleted.
      * @param input - The ID of the note to delete.
      * @returns The deleted note.
      * @throws TRPCError(NOT_FOUND) - If the note does not exist.
-     * @throws TRPCError(FORBIDDEN) - If the user does not have permission to delete the note.
      */
-    deleteNote: authenticatedProcedure
+    deleteNote: orgProcedure
         .input(z.object({
             noteId: NoteId.schema,
         }))
         .output(noteSchema)
         .mutation(async ({ input, ctx }) => {
 
-            throw new TRPCError({ code: 'SERVICE_UNAVAILABLE', message: 'Notes feature is not available yet.' })
+            const note = toNoteData(await getNoteById(ctx, input.noteId))
 
+            const noteWithStatusDeleted: NoteData = { ...note, status: 'Deleted' }
+
+            const changes = diffLines(toDiffableFormat(note), toDiffableFormat(noteWithStatusDeleted))
+
+            if(!note) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.noteNotFound(input.noteId) })
+
+            await ctx.prisma.note.update({
+                where: {
+                    orgId: ctx.auth.activeOrg.orgId,
+                    noteId: input.noteId,
+                },
+                data: {
+                    status: 'Deleted',
+                    changeLogs: {
+                        create: {
+                            userId: ctx.auth.userId,
+                            event: 'Delete',
+                            changes: changes as object[],
+                        }
+                    }
+                },
+
+            })
+            return noteWithStatusDeleted
         }),
 
     /**
@@ -62,37 +104,62 @@ export const notesRouter = createTRPCRouter({
      * @returns The requested note.
      * @throws TRPCError(NOT_FOUND) - If the note does not exist.
      */
-    getNote: authenticatedProcedure
+    getNote: orgProcedure
         .input(z.object({
             noteId: NoteId.schema,
-            personId: PersonId.schema.optional(),
-            teamId: TeamId.schema.optional(),
         }))
         .output(noteSchema)
         .query(async ({ input, ctx }) => {
-            throw new TRPCError({ code: 'SERVICE_UNAVAILABLE', message: 'Notes feature is not available yet.' })
+            const note = await getNoteById(ctx, input.noteId)
+
+            if(!note) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.noteNotFound(input.noteId) })
+
+            return toNoteData(note)
         }),
 
     /**
-     * Get personal notes for the current user.
-     * @returns An array of personal notes.
+     * Get all notes for the organization.
+     * @returns An array of notes.
      */
-    getPersonalNotes: authenticatedProcedure
-        .output(z.array(noteSchema))
+    getNotes: orgProcedure
+        .output(z.array(noteSchema
+            .pick({ noteId: true, title: true, status: true })
+            .extend({
+                createdAt: z.string().datetime().nullable(),
+                updatedAt: z.string().datetime().nullable(),
+                createdBy: userRefSchema.nullable(),
+                updatedBy: userRefSchema.nullable(),
+            })
+        ))
         .query(async ({ ctx }) => {
-            throw new TRPCError({ code: 'SERVICE_UNAVAILABLE', message: 'Notes feature is not available yet.' })
-        }),
+            const notes = await ctx.prisma.note.findMany({
+                where: {
+                    orgId: ctx.auth.activeOrg.orgId,
+                    status: { not: 'Deleted' },
+                },
+                include: {
+                    changeLogs: {
+                        include: {
+                            user: {
+                                select: { userId: true, name: true }
+                            }
+                        },
+                        orderBy: { timestamp: 'desc' },
+                    },
+                }
+            })
+            return notes.map(note => {
+                const createLog = note.changeLogs.find(log => log.event === 'Create')
+                const updateLog = note.changeLogs.find(log => log.event === 'Update')
 
-    /**
-     * Get team notes for a specific team.
-     * @param input - The ID of the team to retrieve notes for.
-     * @returns An array of team notes.
-     */
-    getTeamNotes: orgProcedure
-        .output(z.array(noteSchema))
-        .query(async ({ input, ctx }) => {
-            
-            throw new TRPCError({ code: 'SERVICE_UNAVAILABLE', message: 'Notes feature is not available yet.' })
+                return {
+                    ...toNoteData(note),
+                    createdAt: createLog ? createLog.timestamp.toISOString() : null,
+                    updatedAt: updateLog ? updateLog.timestamp.toISOString() : null,
+                    createdBy: createLog?.user ? toUserRef(createLog.user) : null,
+                    updatedBy: updateLog?.user ? toUserRef(updateLog.user) : null,
+                }
+            })
         }),
 
     /**
@@ -100,14 +167,83 @@ export const notesRouter = createTRPCRouter({
      * @param input - The updated note data.
      * @returns The updated note.
      * @throws TRPCError(NOT_FOUND) - If the note does not exist.
-     * @throws TRPCError(FORBIDDEN) - If the user does not have permission to update the note.
      */
-    updateNote: authenticatedProcedure
-        .input(noteSchema.pick({ noteId: true, title: true, content: true, date: true }))
+    updateNote: orgProcedure
+        .input(noteSchema.pick({ noteId: true, title: true, content: true, properties: true, tags: true, status: true }))
         .output(noteSchema)
         .mutation(async ({ input, ctx }) => {
-            throw new TRPCError({ code: 'SERVICE_UNAVAILABLE', message: 'Notes feature is not available yet.' })
+            const note = toNoteData(await getNoteById(ctx, input.noteId))
+
+            if(!note) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.noteNotFound(input.noteId) })
+
+            const changes = diffLines(toDiffableFormat(note), toDiffableFormat({ ...note, ...input }))
+
+            const updatedNote = await ctx.prisma.note.update({
+                where: {
+                    orgId: ctx.auth.activeOrg.orgId,
+                    noteId: input.noteId,
+                },
+                data: {
+                    title: input.title,
+                    content: input.content,
+                    properties: input.properties,
+                    tags: input.tags,
+                    status: input.status,
+                    changeLogs: {
+                        create: {
+                            userId: ctx.auth.userId,
+                            event: 'Update',
+                            changes: changes as object[],
+                        }
+                    }
+                }
+            })
+
+            return toNoteData(updatedNote)
         }),
 })
 
 
+/**
+ * Get a note by it's ID.
+ * @param ctx The authenticated context.
+ * @param noteId The ID of the note to retrieve.
+ * @returns The requested note if found.
+ * @throws TRPCError if the note is not found.
+ */
+export async function getNoteById(ctx: AuthenticatedOrgContext, noteId: NoteId): Promise<NoteRecord> {
+    const note = await ctx.prisma.note.findUnique({ 
+        where: { noteId, orgId: ctx.auth.activeOrg.orgId },
+    })
+    if(!note) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.noteNotFound(noteId) })
+    return note
+}
+
+
+function toDiffableFormat(note: NoteData): string {
+    let result = "---\n"
+
+    result += `title: ${note.title}\n`
+
+    result += `status: ${note.status}\n`
+
+    if(note.tags.length > 0) {
+        result += `tags:\n`
+        for(const tag of note.tags) {
+            result += ` - ${tag}\n`
+        }
+    }
+    
+    const propEntries = Object.entries(note.properties)
+    if(propEntries.length > 0) {
+
+        result += `properties:\n`
+        for(const [key, value] of propEntries) {
+            result += ` ${key}: ${value}\n`
+        }
+    }
+
+    result += "---\n\n"
+    result += note.content
+    return result
+}

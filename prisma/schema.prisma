@@ -15,16 +15,16 @@ datasource db {
 
 
 model Note {
-    noteId     String          @map("note_id") @id @db.VarChar(32)
-    orgId      String          @map("org_id") @db.VarChar(50)
-    title      String          @db.VarChar(100)
-    content    String          @db.Text
-    date       String          @db.Char(10)
-    tags       String[]        @default([])
-    properties Json            @default("{}")
+    noteId       String          @map("note_id") @id @db.VarChar(32)
+    orgId        String          @map("org_id") @db.VarChar(50)
+    title        String          @db.VarChar(100)
+    content      String          @db.Text
+    tags         String[]        @default([])
+    properties   Json            @default("{}")
+    status       NoteStatus      @default(Draft)
 
-    changeLogs NoteChangeLog[] @relation("note_change_log_to_note")
-    organization Organization  @relation("note_to_org", fields: [orgId], references: [orgId], onDelete: Cascade)
+    changeLogs   NoteChangeLog[] @relation("note_change_log_to_note")
+    organization Organization    @relation("note_to_org", fields: [orgId], references: [orgId], onDelete: Cascade)
 
     @@map("notes")
 }
@@ -49,6 +49,12 @@ enum NoteChangeEvent {
     Create
     Update
     Delete
+}
+
+enum NoteStatus {
+    Draft
+    Published
+    Deleted
 }
 
 model Organization {

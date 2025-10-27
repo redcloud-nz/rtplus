@@ -7,20 +7,25 @@
 import { ForwardedRef } from 'react'
 
 import {
-    headingsPlugin, listsPlugin, quotePlugin, markdownShortcutPlugin, linkPlugin, linkDialogPlugin, 
-    imagePlugin, tablePlugin, codeBlockPlugin, toolbarPlugin, UndoRedo, BoldItalicUnderlineToggles, 
-    CreateLink, InsertImage, InsertTable, ListsToggle, Separator,
+    headingsPlugin, listsPlugin, quotePlugin, markdownShortcutPlugin, linkPlugin,
+    tablePlugin, toolbarPlugin,Separator,
     MDXEditor, 
     type MDXEditorMethods,
     type MDXEditorProps,
+    linkDialogPlugin,
 } from '@mdxeditor/editor'
-
 import '@mdxeditor/editor/style.css'
+import './markdown.css'
+
+import { cn } from '@/lib/utils'
+
+import { CreateLinkButton, FormatTextToggleGroup, InsertTableButton, ListStyleToggleGroup } from './toolbar'
 
 
 
-export default function InitializedMDXEditor({ editorRef, ...props }: { editorRef: ForwardedRef<MDXEditorMethods> | null } & MDXEditorProps) {
+export default function InitializedMDXEditor({ className, editorRef, ...props }: { editorRef: ForwardedRef<MDXEditorMethods> | null } & MDXEditorProps) {
     return <MDXEditor
+        contentEditableClassName="markdown-content text-sm min-h-16"
         plugins={[
             headingsPlugin(),
             listsPlugin(),
@@ -28,23 +33,21 @@ export default function InitializedMDXEditor({ editorRef, ...props }: { editorRe
             markdownShortcutPlugin(),
             linkPlugin(),
             linkDialogPlugin(),
-            imagePlugin(),
+            // imagePlugin(),
             tablePlugin(),
-            codeBlockPlugin(),
             toolbarPlugin({
                 toolbarContents: () => <>
-                    <UndoRedo />
+                    <FormatTextToggleGroup options={['bold', 'italic', 'underline']} />
                     <Separator />
-                    <BoldItalicUnderlineToggles />
+                    <ListStyleToggleGroup/>
                     <Separator />
-                    <ListsToggle />
-                    <Separator />
-                    <CreateLink />
-                    <InsertImage />
-                    <Separator />
-                    <InsertTable />
+                    <CreateLinkButton />
+                    {/* <InsertImage /> */}
+                    {/* <Separator /> */}
+                    <InsertTableButton />
                 </>
-            })
+            }),
+            markdownShortcutPlugin()
         ]}
         {...props}
         ref={editorRef}

@@ -54,3 +54,20 @@ export const waitFor = async (fn: () => void | Promise<void>, timeout = 1000) =>
   }
   await fn() // Final attempt that will throw if it fails
 }
+
+
+type KeyMap<K extends string, R> = { readonly [Property in K]: R }
+type MutableKeyMap<K extends string, R> = { [Property in K]: R }
+type RemoveSpaces<S extends string> = S extends `${infer T} ${infer U}` ? RemoveSpaces<`${T}${U}`> : S
+
+export function createSampleObject<K extends string, R>(names: ReadonlyArray<K>, f: (key: K, index: number) => R): KeyMap<RemoveSpaces<K>, R> & { All: R[] } {
+    let map = {} as MutableKeyMap<RemoveSpaces<K>, R>
+    let list = [] as R[]
+
+    for (let i = 0; i < names.length; i++) {
+        const name = names[i]
+        const key = name.replace(/ /g, '') as RemoveSpaces<K>
+        list.push(map[key] = f(name, i))
+    }
+    return { ...map, All: list }
+}

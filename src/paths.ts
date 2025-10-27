@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
+import { NoteId } from './lib/schemas/note'
 import { type SkillCheckSessionId } from './lib/schemas/skill-check-session'
 
 export const about = {
@@ -238,14 +239,17 @@ function notesModule(orgSlug: string) {
         href: base,
 
         create: {
-            label: 'Create',
+            label: 'New Note',
             href: `${base}/--create`,
         },
 
         note: (noteId: string) => ({
             label: `Note ${noteId}`,
             href: `${base}/${noteId}`,
-        } as const),
+            update: {
+                href: `${base}/${noteId}/--update`,
+            },
+        } as const)
     } as const
 }
 

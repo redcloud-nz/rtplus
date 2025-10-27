@@ -7,7 +7,7 @@
 
 import { Controller, useForm, useWatch } from 'react-hook-form'
 
-import { Card2, Card2Content } from '@/components/ui/card2'
+import { S2_Card, S2_CardContent } from '@/components/ui/s2-card'
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -24,8 +24,8 @@ export function Settings_D4hIntegration_Card({ form }: { form: ReturnType<typeof
 
     const enabled = useWatch({ control: form.control, name: 'integrations.d4h.enabled' })
 
-    return <Card2>
-        <Card2Content>
+    return <S2_Card>
+        <S2_CardContent>
             <FieldGroup>
                 <Controller
                     name="integrations.d4h.enabled"
@@ -78,6 +78,6 @@ export function Settings_D4hIntegration_Card({ form }: { form: ReturnType<typeof
                 </CollapsibleContent>
                 
             </Collapsible>
-        </Card2Content>
-    </Card2>
+        </S2_CardContent>
+    </S2_Card>
 }

@@ -7,7 +7,7 @@ import { ComponentProps } from 'react'
 
 import { cn } from '@/lib/utils'
 
-export function Card2({ className, ...props }: ComponentProps<'div'>) {
+export function S2_Card({ className, ...props }: ComponentProps<'div'>) {
     return <div
         data-slot="card"
         className={cn(
@@ -18,7 +18,7 @@ export function Card2({ className, ...props }: ComponentProps<'div'>) {
     />
 }
 
-export function Card2Header({ className, ...props }: ComponentProps<'div'>) {
+export function S2_CardHeader({ className, ...props }: ComponentProps<'div'>) {
     return <div
         data-slot="card-header"
         className={cn(
@@ -29,7 +29,7 @@ export function Card2Header({ className, ...props }: ComponentProps<'div'>) {
     />
 }
 
-export function Card2Title({ className, ...props }: ComponentProps<'div'>) {
+export function S2_CardTitle({ className, ...props }: ComponentProps<'div'>) {
     return <div
         data-slot="card-title"
         className={cn('leading-none font-semibold', className)}
@@ -37,7 +37,7 @@ export function Card2Title({ className, ...props }: ComponentProps<'div'>) {
     />
 }
 
-export function Card2Description({ className, ...props }: ComponentProps<'div'>) {
+export function S2_CardDescription({ className, ...props }: ComponentProps<'div'>) {
     return <div
         data-slot="card-description"
         className={cn('text-muted-foreground text-sm', className)}
@@ -45,7 +45,7 @@ export function Card2Description({ className, ...props }: ComponentProps<'div'>)
     />
 }
 
-export function Card2Action({ className, ...props }: ComponentProps<'div'>) {
+export function S2_CardAction({ className, ...props }: ComponentProps<'div'>) {
     return <div
         data-slot="card-action"
         className={cn(
@@ -56,7 +56,7 @@ export function Card2Action({ className, ...props }: ComponentProps<'div'>) {
     />
 }
 
-export function Card2Content({ className, ...props }: ComponentProps<'div'>) {
+export function S2_CardContent({ className, ...props }: ComponentProps<'div'>) {
     return <div
         data-slot="card-content"
         className={cn('px-6', className)}
@@ -64,7 +64,7 @@ export function Card2Content({ className, ...props }: ComponentProps<'div'>) {
     />
 }
 
-export function Card2Footer({ className, ...props }: ComponentProps<'div'>) {
+export function S2_CardFooter({ className, ...props }: ComponentProps<'div'>) {
     return <div
         data-slot="card-footer"
         className={cn('flex items-center px-6 [.border-t]:pt-6', className)}

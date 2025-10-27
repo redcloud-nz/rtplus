@@ -3,15 +3,12 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
-import { Boundary } from '@/components/boundary'
-import { Show } from '@/components/show'
+import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
 import { NotImplemented } from '@/components/nav/errors'
 
 import { notesEnabledFlag } from '@/lib/flags'
 import * as Paths from '@/paths'
 
-import { Personal_NewNote_Card } from './personal-new-note'
 
 
 export const metadata = {
@@ -28,19 +25,7 @@ export default async function Personal_NewNote_Page() {
             Paths.personal.notes, 
             Paths.personal.notes.create
         ]}/>
-        <Show
-            when={notesEnabled}
-            fallback={<NotImplemented ghIssueNumber={24} />}    
-        >
-            <AppPageContent variant="container">
-                <PageHeader>
-                    <PageTitle>Create Personal Note</PageTitle>
-                </PageHeader>
-                <Boundary>
-                    <Personal_NewNote_Card />
-                </Boundary>
-            </AppPageContent>
-        </Show>
+        <NotImplemented ghIssueNumber={24} />
         
     </AppPage>
 }

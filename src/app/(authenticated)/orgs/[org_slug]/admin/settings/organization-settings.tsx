@@ -28,7 +28,7 @@ import { Settings_SkillPackageManagerModule_Card } from './skill-package-manager
 
 
 
-export function OrganizationSettings({ organization }: {organization: OrganizationData  }) {
+export function AdminModule_OrganizationSettings_Form({ organization }: {organization: OrganizationData  }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 

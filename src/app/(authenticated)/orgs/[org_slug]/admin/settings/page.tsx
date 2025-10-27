@@ -12,7 +12,7 @@ import * as Paths from '@/paths'
 
 import { getOrganization } from '@/server/organization'
 
-import { OrganizationSettings } from './organization-settings'
+import { AdminModule_OrganizationSettings_Form } from './organization-settings'
 import { clerkAuth } from '@/server/clerk'
 
 
@@ -34,7 +34,7 @@ export default async function AdminModule_OrganizationSettings_Page(props: PageP
             ]}
         />
         <div className="flex flex-1 flex-col gap-4 p-4">
-            <OrganizationSettings organization={organization} />
+            <AdminModule_OrganizationSettings_Form organization={organization} />
         </div>
     </SidebarInset>
 }

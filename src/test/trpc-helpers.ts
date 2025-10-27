@@ -24,26 +24,26 @@ export const createMockContext = () => {
 }
 
 interface CreateAuthenticatedMockContextOverrides {
-    activeTeam?: {
+    activeOrg?: Partial<{
         orgId: OrganizationId,
         orgSlug: string,
         role: 'org:admin' | 'org:member'
-    } | null
+    }> | null
     userId?: UserId
     
     getClerkClient?: () => ReturnType<typeof import('@clerk/nextjs/server').createClerkClient>
-    getTeamById?: (teamId: string) => Promise<TeamRecord | null>
     teams?: Array<TeamRecord>
 }
 
-export const createAuthenticatedMockContext = ({ activeTeam, ...overrides }: CreateAuthenticatedMockContextOverrides) => {
+export const createAuthenticatedMockContext = ({ activeOrg = {}, ...overrides }: CreateAuthenticatedMockContextOverrides) => {
     return createInnerTRPCContext({
         auth: {
             userId: UserId.schema.parse('user_test123'),
-            activeOrg: activeTeam ?? {
+            activeOrg: {
                 orgId: OrganizationId.schema.parse('org_test123'),
                 orgSlug: 'test-organization',
                 role: 'org:member' as const,
+                ...activeOrg
             },
         },
         getClerkClient: () => { 

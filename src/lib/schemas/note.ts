@@ -23,9 +23,9 @@ export const noteSchema = z.object({
     noteId: NoteId.schema,
     title: z.string().min(1).max(100), // Reasonable limit for note title
     content: z.string().min(1).max(10000), // Reasonable limit for note content
-    date: z.string().length(10), // Fixed length for date (YYYY-MM-DD)
     tags: tagsSchema,
     properties: propertiesSchema,
+    status: z.enum(['Draft', 'Published', 'Deleted']),
 })
 
 

@@ -7,7 +7,7 @@
 
 import { useForm } from 'react-hook-form'
 
-import { Card2, Card2Content } from '@/components/ui/card2'
+import { S2_Card, S2_CardContent } from '@/components/ui/s2-card'
 
 import { OrganizationSettingsData } from '@/lib/schemas/settings'
 
@@ -16,9 +16,9 @@ import { OrganizationSettingsData } from '@/lib/schemas/settings'
  */
 export function Settings_SkillsModule_Card({}: { form: ReturnType<typeof useForm<OrganizationSettingsData>> }) {
 
-    return <Card2>
-        <Card2Content>
+    return <S2_Card>
+        <S2_CardContent>
             <p className="text-sm text-muted-foreground">Settings for the Skills module will go here.</p>
-        </Card2Content>
-    </Card2>
+        </S2_CardContent>
+    </S2_Card>
 }

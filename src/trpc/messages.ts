@@ -5,6 +5,7 @@
 
 
 export const Messages = {
+    noteNotFound: (noteId: string) => `Note(${noteId}) not found.`,
     personNotAUser: (personId: string) => `Person(${personId}) is not configured as a user.`,
     personNotFound: (personId: string) => `Person(${personId}) not found.`,
     sessionNotFound: (sessionId: string) => `SkillCheckSession(${sessionId}) not found.`,

@@ -5,29 +5,37 @@
 
 'use client'
 
-import { useMemo, useState } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { MoreVerticalIcon } from 'lucide-react'
+import { useMemo } from 'react'
+import { Controller, FormProvider, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { MarkdownEditor } from '@/components/markdown/editor'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { FormCancelButton, FormControl, FormField, FormItem, FormMessage, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
+import { S2_Button } from '@/components/ui/s2-button'
+import { S2_Card, S2_CardAction, S2_CardContent, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
 
 import { useToast } from '@/hooks/use-toast'
 import { nanoId8 } from '@/lib/id'
 import { NoteData, noteSchema } from '@/lib/schemas/note'
+import { OrganizationData } from '@/lib/schemas/organization'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
+import { FloatingFooter } from '@/components/footer'
+import { Button } from '@/components/ui/button'
+import { DebugFormState } from '@/components/ui/form'
+import { Field, FieldError } from '@/components/ui/field'
+import { S2_Input } from '@/components/ui/s2-input'
 
 
-export function NotesModule_NewNote_Form() {
+
+
+
+
+export function NotesModule_NewNote_Form({ organization }: { organization: OrganizationData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()
-
-    const [content, setContent] = useState('')
 
     const noteId = useMemo(() => nanoId8(), [])
 
@@ -37,27 +45,17 @@ export function NotesModule_NewNote_Form() {
             noteId,
             title: '',
             content: '',
-            date: new Date().toISOString().split('T')[0],
+            tags: [],
+            properties: {},
+            status: 'Published',
         }
     })
 
-    const createNoteMutation = useMutation(trpc.notes.createNote.mutationOptions({
+    const mutation = useMutation(trpc.notes.createNote.mutationOptions({
         async onMutate(data) {
-            await queryClient.cancelQueries(trpc.notes.getPersonalNotes.queryFilter())
-
-            const previousNotes = queryClient.getQueryData(trpc.notes.getPersonalNotes.queryKey())
-
-            queryClient.setQueryData(trpc.notes.getPersonalNotes.queryKey(), (old: NoteData[] = []) => {
-                return [
-                    ...old,
-                    noteSchema.parse(data)
-                ]
-            })
-
-            return { previousNotes }
+            console.log("Creating note with data", data)
         },
         async onError(error, _data, context) {
-            queryClient.setQueryData(trpc.notes.getPersonalNotes.queryKey(), context?.previousNotes)
 
             toast({
                 title: 'Error creating note',
@@ -68,49 +66,68 @@ export function NotesModule_NewNote_Form() {
     }))
 
     return <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit((formData) => createNoteMutation.mutate(formData))}>
-            <Card>
-                <CardHeader>
-                    <FormField
-                        control={form.control}
-                        name="title"
-                        render={({ field }) => <FormItem>
-                            <FormControl>
-                                <Input
-                                    {...field}
-                                    size="sm"
-                                    variant="ghost"
+        <form 
+            id="new-note-form"
+            onSubmit={form.handleSubmit((formData) => mutation.mutate({ ...formData, orgId: organization.orgId }))}
+        >
+            <S2_Card className="gap-0 max-h-[calc(100vh-var(--header-height)-var(--spacing))] min-h-[220px] flex flex-col">
+                <S2_CardHeader>
+                    <S2_CardTitle>
+                        <Controller
+                            name="title"
+                            control={form.control}
+                            render={({ field, fieldState }) => <Field>
+                                <S2_Input
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    aria-invalid={fieldState.invalid}
+                                    autoFocus
+                                    id="note-title"
                                     placeholder="Note title..."
-                                    className="focus-visible:ring-0"
+                                    className="border-transparent shadow-none focus-visible:border-transparent focus-visible:ring-0"
                                 />
-                            </FormControl>
-                            <FormMessage/>
-                        </FormItem>}
-                    />
-                </CardHeader>
-                <CardContent>
-                    <FormField
-                        control={form.control}
+                                <FieldError>{fieldState.error?.message}</FieldError>
+                            </Field>}
+                        />
+                    </S2_CardTitle>
+                    {/* <S2_CardAction>
+                        <S2_Button variant="ghost">
+                            <MoreVerticalIcon/>
+                        </S2_Button>
+                    </S2_CardAction> */}
+                </S2_CardHeader>
+                <S2_CardContent>
+                    <Controller
                         name="content"
-                        render={({ field }) => <FormItem>
-                            <FormControl>
-                                <MarkdownEditor
-                                    {...field}
-                                    markdown={content}
-                                    onChange={setContent}
-                                    placeholder="Note content..."
-                                    contentEditableClassName='min-h-[100px]'
-                                />
-                            </FormControl>
-                            <FormMessage/>
-                        </FormItem>}
+                        control={form.control}
+                        render={({ field }) => (
+                            <MarkdownEditor markdown={field.value} onChange={field.onChange} placeholder="Write your note here..." />
+                        )}
                     />
-                </CardContent>
-                <CardFooter>
-                    <FormSubmitButton size="sm" labels={SubmitVerbs.save}/>
-                    <FormCancelButton size="sm" redirectTo={Paths.personal.notes}/>
-                </CardFooter>
-            </Card>
+                </S2_CardContent>
+            </S2_Card>
+            <FloatingFooter open={form.formState.isDirty || mutation.isPending}>
+                {mutation.isPending ?
+                    <div className="animate-pulse text-sm text-muted-foreground p-2">Saving changes...</div>
+                    : <>
+                        <div className="text-sm text-white p-2">Save changes?</div>
+                        <Button 
+                            type="submit"
+                            size="sm"
+                            color="blue"
+                            form="new-note-form"
+                            
+                        >Save</Button>
+                            
+                        <Button
+                            type="button"
+                            size="sm"
+                            color="red"
+                            onClick={() => form.reset()}
+                        >Reset</Button>
+                    </>
+                }
+            </FloatingFooter>
         </form>
     </FormProvider>
 }

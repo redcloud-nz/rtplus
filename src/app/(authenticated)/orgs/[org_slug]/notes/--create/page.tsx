@@ -7,13 +7,11 @@
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
-import { Show } from '@/components/show'
-import { NotImplemented } from '@/components/nav/errors'
 
-import { notesEnabledFlag } from '@/lib/flags'
 import * as Paths from '@/paths'
 
 import { NotesModule_NewNote_Form } from './new-note'
+import { getOrganization } from '@/server/organization'
 
 
 
@@ -23,27 +21,17 @@ export const metadata = {
 
 export default async function NotesModule_NewNote_Page(props: PageProps<'/orgs/[org_slug]/notes/--create'>) {
     const { org_slug: orgSlug } = await props.params
+    const organization = await getOrganization(orgSlug)
 
-    const notesEnabled = await notesEnabledFlag()
 
     return <AppPage>
         <AppPageBreadcrumbs breadcrumbs={[
             Paths.org(orgSlug).notes,
             Paths.org(orgSlug).notes.create
         ]}/>
-        <Show 
-            when={notesEnabled}
-            fallback={<NotImplemented ghIssueNumber={25} />}
-        >
-            <AppPageContent variant="container">
-                <PageHeader>
-                    <PageTitle>Create Team Note</PageTitle>
-                </PageHeader>
-                <Boundary>
-                    <NotesModule_NewNote_Form/>
-                </Boundary>
-            </AppPageContent>
-        </Show>        
+        <AppPageContent variant="container">
+            <NotesModule_NewNote_Form organization={organization} />
+        </AppPageContent>       
     </AppPage>
 }
 

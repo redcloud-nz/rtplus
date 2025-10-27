@@ -11,10 +11,10 @@ import { ComponentProps } from 'react'
 
 import { cn } from '@/lib/utils'
 
-export function Table2({ className, ...props }: ComponentProps<'table'>) {
+export function S2_Table({ border, className, ...props }: Omit<ComponentProps<'table'>, 'border'> & { border?: boolean }) {
     return <div
         data-slot="table-container"
-        className="relative w-full overflow-x-auto"
+        className={cn("relative w-full overflow-x-auto", border ? 'border-1 rounded-md shadow-md' : '')}
     >
         <table
             data-slot="table"
@@ -24,7 +24,7 @@ export function Table2({ className, ...props }: ComponentProps<'table'>) {
     </div>
 }
 
-export function Table2Header({ className, ...props }: ComponentProps<'thead'>) {
+export function S2_TableHeader({ className, ...props }: ComponentProps<'thead'>) {
     return <thead
         data-slot="table-header"
         className={cn('[&_tr]:border-b', className)}
@@ -32,7 +32,7 @@ export function Table2Header({ className, ...props }: ComponentProps<'thead'>) {
     />
 }
 
-export function Table2Body({ className, ...props }: ComponentProps<'tbody'>) {
+export function S2_TableBody({ className, ...props }: ComponentProps<'tbody'>) {
     return <tbody
         data-slot="table-body"
         className={cn('[&_tr:last-child]:border-0', className)}
@@ -40,7 +40,7 @@ export function Table2Body({ className, ...props }: ComponentProps<'tbody'>) {
     />
 }
 
-export function Table2Footer({ className, ...props }: ComponentProps<'tfoot'>) {
+export function S2_TableFooter({ className, ...props }: ComponentProps<'tfoot'>) {
     return <tfoot
         data-slot="table-footer"
         className={cn(
@@ -51,7 +51,7 @@ export function Table2Footer({ className, ...props }: ComponentProps<'tfoot'>) {
     />
 }
 
-export function Table2Row({ className, ...props }: ComponentProps<'tr'>) {
+export function S2_TableRow({ className, ...props }: ComponentProps<'tr'>) {
     return <tr
         data-slot="table-row"
         className={cn(
@@ -62,7 +62,7 @@ export function Table2Row({ className, ...props }: ComponentProps<'tr'>) {
     />
 }
 
-export function Table2HeadCell({ className, ...props }: ComponentProps<'th'>) {
+export function S2_TableHeadCell({ className, ...props }: ComponentProps<'th'>) {
     return <th
         data-slot="table-head"
         className={cn(
@@ -73,7 +73,7 @@ export function Table2HeadCell({ className, ...props }: ComponentProps<'th'>) {
     />
 }
 
-export function Table2Cell({ className, ...props }: ComponentProps<'td'>) {
+export function S2_TableCell({ className, ...props }: ComponentProps<'td'>) {
     return <td
         data-slot="table-cell"
         className={cn(
@@ -84,7 +84,7 @@ export function Table2Cell({ className, ...props }: ComponentProps<'td'>) {
     />
 }
 
-export function Table2Caption({ className, ...props }: ComponentProps<'caption'>) {
+export function S2_TableCaption({ className, ...props }: ComponentProps<'caption'>) {
     return <caption
         data-slot="table-caption"
         className={cn('text-muted-foreground mt-4 text-sm', className)}

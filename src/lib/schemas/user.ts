@@ -25,3 +25,18 @@ export function toUserData(record: UserRecord) {
 }
 
 export type UserData = z.infer<typeof userSchema>
+
+
+export const userRefSchema = z.object({
+    userId: UserId.schema,
+    name: z.string().nonempty().max(100),
+})
+
+export type UserRef = z.infer<typeof userRefSchema>
+
+export function toUserRef(record: Pick<UserRecord, 'userId' | 'name'>): UserRef {
+    return userRefSchema.parse({
+        userId: record.userId,
+        name: record.name,
+    })
+}

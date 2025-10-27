@@ -5,7 +5,7 @@
 'use client'
 
 import { Show } from '@/components/show'
-import { AdminModuleIcon, D4HModuleIcon, DashboardIcon, SkillsModuleIcon, SPMModuleIcon } from '@/components/icons'
+import { AdminModuleIcon, D4HModuleIcon, DashboardIcon, NotesModuleIcon, SkillsModuleIcon, SPMModuleIcon } from '@/components/icons'
 import { SidebarMenu } from '@/components/ui/sidebar'
 
 import { useOrganization } from '@/hooks/use-organization'
@@ -35,6 +35,11 @@ export function NavOrganizationMenu() {
                 <NavItem path={orgPrefix.d4hViews.calendar}/>
                 <NavItem path={orgPrefix.d4hViews.equipment}/>
                 <NavItem path={orgPrefix.d4hViews.personnel}/>
+            </NavCollapsible>
+        </Show>
+        <Show when={isModuleEnabled(organization, 'notes')}>
+            <NavCollapsible label="Notes" icon={<NotesModuleIcon/>} prefix={orgPrefix.notes.href}>
+                <NavItem path={orgPrefix.notes}/>
             </NavCollapsible>
         </Show>
         <Show when={isModuleEnabled(organization, 'skill-package-manager')}>
