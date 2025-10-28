@@ -34,7 +34,8 @@ export const notesRouter = createTRPCRouter({
         .output(noteSchema)
         .mutation(async ({ ctx, input }) => {
 
-            const changes = diffLines("---\n---\n", toDiffableFormat(input))
+            const withFrontmatter = toStringWithFrontmatter(input)
+            const changes = diffLines("", withFrontmatter)
 
             const createdNote = await ctx.prisma.note.create({
                 data: {
@@ -49,6 +50,7 @@ export const notesRouter = createTRPCRouter({
                         create: {
                             userId: ctx.auth.userId,
                             event: 'Create',
+                            content: withFrontmatter,
                             changes: changes as object[],
                         }
                     }
@@ -75,7 +77,7 @@ export const notesRouter = createTRPCRouter({
 
             const noteWithStatusDeleted: NoteData = { ...note, status: 'Deleted' }
 
-            const changes = diffLines(toDiffableFormat(note), toDiffableFormat(noteWithStatusDeleted))
+            const changes = diffLines(toStringWithFrontmatter(note), toStringWithFrontmatter(noteWithStatusDeleted))
 
             if(!note) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.noteNotFound(input.noteId) })
 
@@ -90,6 +92,7 @@ export const notesRouter = createTRPCRouter({
                         create: {
                             userId: ctx.auth.userId,
                             event: 'Delete',
+                            content: note.content,
                             changes: changes as object[],
                         }
                     }
@@ -168,11 +171,12 @@ export const notesRouter = createTRPCRouter({
         .input(noteSchema.pick({ noteId: true, title: true, content: true, properties: true, tags: true, status: true }))
         .output(noteSchema)
         .mutation(async ({ input, ctx }) => {
-            const note = toNoteData(await getNoteById(ctx, input.noteId))
+            const existingNote = toNoteData(await getNoteById(ctx, input.noteId))
 
-            if(!note) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.noteNotFound(input.noteId) })
+            if(!existingNote) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.noteNotFound(input.noteId) })
 
-            const changes = diffLines(toDiffableFormat(note), toDiffableFormat({ ...note, ...input }))
+            const withFrontmatter = toStringWithFrontmatter({ ...existingNote, ...input })
+            const changes = diffLines(toStringWithFrontmatter(existingNote), withFrontmatter)
 
             const updatedNote = await ctx.prisma.note.update({
                 where: {
@@ -189,6 +193,7 @@ export const notesRouter = createTRPCRouter({
                         create: {
                             userId: ctx.auth.userId,
                             event: 'Update',
+                            content: withFrontmatter,
                             changes: changes as object[],
                         }
                     }
@@ -216,7 +221,7 @@ export async function getNoteById(ctx: AuthenticatedOrgContext, noteId: NoteId):
 }
 
 
-function toDiffableFormat(note: NoteData): string {
+function toStringWithFrontmatter(note: NoteData): string {
     let result = "---\n"
 
     result += `title: ${note.title}\n`

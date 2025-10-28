@@ -45,7 +45,8 @@
   --card-padding: var(--spacing) * 6;
   --mdxeditor-toolbar-height: 45px;
   --page-padding: var(--spacing) * 4;
-
+  --scrollbar-thumb: var(--color-neutral-400);
+  --scrollbar-track: var(--color-neutral-100);
 }
  
 .dark {

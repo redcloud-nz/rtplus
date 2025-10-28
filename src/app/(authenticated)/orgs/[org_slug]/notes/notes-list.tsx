@@ -44,7 +44,7 @@ export function NotesModule_NotesList({ organization }: { organization: Organiza
                 </S2_Button>
             </EmptyContent>
         </Empty>
-    : <div className="flex flex-col gap-2">
+    : <div className="h-full flex flex-col gap-2 max-w-4xl mx-auto">
         <div className="flex w-full gap-2 justify-between">
             {/* <InputGroup className="max-w-sm">
                 <InputGroupInput placeholder="Search..." />
@@ -67,9 +67,9 @@ export function NotesModule_NotesList({ organization }: { organization: Organiza
             </Tooltip>
             
         </div>
-        <S2_Table border className="table-fixed">
+        <S2_Table border className="table-fixed" containerProps={{ className: "overflow-y-auto [scrollbar-gutter:stable] [scrollbar-color:var(--scrollbar-thumb)_transparent]" }}>
             <S2_TableHeader>
-                <S2_TableRow>
+                <S2_TableRow className="sticky top-0 bg-background/95 backdrop-blur-md z-10 border-b-2 border-border">
                     <S2_TableHeadCell>
                         Note ID
                     </S2_TableHeadCell>
@@ -119,6 +119,22 @@ export function NotesModule_NotesList({ organization }: { organization: Organiza
                         }
                     </S2_TableCell>
                 </S2_TableRow>)}
+                {Array.from({ length: 30}).map((_, i) => (
+                    <S2_TableRow key={i}>
+                        <S2_TableCell>
+                            SAMPLE
+                        </S2_TableCell>
+                        <S2_TableCell className="truncate">
+                            Sample Note Title
+                        </S2_TableCell>
+                        <S2_TableCell className="text-center hidden md:table-cell">
+                            
+                        </S2_TableCell>
+                        <S2_TableCell className="text-center hidden sm:table-cell">
+                            
+                        </S2_TableCell>
+                    </S2_TableRow>
+                ))}
             </S2_TableBody>
         </S2_Table>
         <div className="self-center mt-2 text-sm text-muted-foreground">{notes.length == 1 ? `${notes.length} note found` : `${notes.length} notes found`}</div>

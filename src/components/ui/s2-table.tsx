@@ -11,10 +11,13 @@ import { ComponentProps } from 'react'
 
 import { cn } from '@/lib/utils'
 
-export function S2_Table({ border, className, ...props }: Omit<ComponentProps<'table'>, 'border'> & { border?: boolean }) {
+type S2_TableProps = Omit<ComponentProps<'table'>, 'border'> & { border?: boolean, containerProps?: Omit<ComponentProps<'div'>, 'children'> }
+
+export function S2_Table({ border, className, containerProps: { className: containerClassName, ...containerProps } = {}, ...props }: S2_TableProps) {
     return <div
         data-slot="table-container"
-        className={cn("relative w-full overflow-x-auto", border ? 'border-1 rounded-md shadow-md' : '')}
+        className={cn("relative w-full overflow-x-auto", border ? 'border-1 rounded-md shadow-md' : '', containerClassName)}
+        {...containerProps}
     >
         <table
             data-slot="table"

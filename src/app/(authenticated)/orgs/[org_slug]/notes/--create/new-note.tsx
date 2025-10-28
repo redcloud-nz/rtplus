@@ -72,7 +72,7 @@ export function NotesModule_NewNote_Form({ organization }: { organization: Organ
         },
         async onSuccess(data) {
             toast({
-                title: `Note ${data.title} created`,
+                title: `Note created`,
             })
 
             queryClient.invalidateQueries(trpc.notes.getNotes.queryFilter({ orgId: organization.orgId }))

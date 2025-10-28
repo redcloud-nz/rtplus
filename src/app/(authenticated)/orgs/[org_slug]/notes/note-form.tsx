@@ -110,7 +110,7 @@ export function NotesModule_NoteForm({ cancelPath, className, id: formId = "note
                             markdown={field.value} 
                             onChange={field.onChange}
                             placeholder="Write your note here..."
-                            contentEditableClassName="max-h-[calc(100vh-var(--header-height)-var(--page-padding)-var(--button-height)-var(--spacing)*2-var(--card-padding)-36px-var(--mdxeditor-toolbar-height)-var(--spacing)-var(--page-padding)-2px)] [scrollbar-gutter:stable] [scrollbar-color:var(--color-neutral-500)_var(--color-neutral-50)] overflow-y-auto"
+                            contentEditableClassName="max-h-[calc(100vh-var(--header-height)-var(--page-padding)-var(--button-height)-var(--spacing)*2-var(--card-padding)-36px-var(--mdxeditor-toolbar-height)-var(--spacing)-var(--page-padding)-2px)] [scrollbar-gutter:stable] [scrollbar-color:var(--scrollbar-thumb)_var(--scrollbar-track)] overflow-y-auto"
                         />
                     )}
                 />

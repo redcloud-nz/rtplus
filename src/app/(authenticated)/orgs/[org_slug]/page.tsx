@@ -55,6 +55,19 @@ export default async function OrganizationDashboard_Page(props: PageProps<'/orgs
                             </ItemActions>
                         </Link>
                     </Item>
+                    <Show when={isModuleEnabled(organization, 'notes')}>
+                        <Item asChild>
+                            <Link to={Paths.org(orgSlug).notes}>
+                                <ItemContent>
+                                    <ItemTitle>Notes</ItemTitle>
+                                    <ItemDescription>Create and manage organizational notes.</ItemDescription>
+                                </ItemContent>
+                                <ItemActions>
+                                    <ChevronRightIcon className="size-4" />
+                                </ItemActions>
+                            </Link>
+                        </Item>
+                    </Show>
                     <Show when={isModuleEnabled(organization, 'd4h-views')}>
                         <Item asChild>
                             <Link to={Paths.org(orgSlug).d4hViews}>

@@ -55,7 +55,7 @@ export const appPageContentVariants = tv({
     base: 'col-span-full',
     variants: {
         variant: {
-            default: 'flex flex-1 flex-col gap-4 p-4 ',
+            default: 'flex flex-1 flex-col gap-4 p-4',
             full: 'w-full flex flex-col items-stretch',
             centered: 'w-full flex flex-col items-center justify-center',
             container: 'flex flex-col items-center gap-4 p-4 *:w-full xl:*:w-4xl overflow-y-auto relative',

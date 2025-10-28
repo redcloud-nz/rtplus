@@ -35,6 +35,7 @@ model NoteChangeLog {
     userId      String?           @map("user_id") @db.VarChar(50)
     event       NoteChangeEvent
     meta        Json              @default("{}")
+    content     String            @db.Text
     changes     Json[]            @default([])
     timestamp   DateTime          @default(now())
   
