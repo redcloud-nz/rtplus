@@ -5,8 +5,7 @@
  * Paths: /orgs/[org_slug]/notes
 */
 
-import { AppPageHeader } from '@/components/app-page'
-import { SidebarInset } from '@/components/ui/sidebar'
+import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
@@ -20,15 +19,15 @@ export default async function NotesModule_Index_Page(props: PageProps<'/orgs/[or
     const { org_slug: orgSlug } = await props.params
     const organization = await getOrganization(orgSlug)
 
-    return <SidebarInset>
-        <AppPageHeader
+    return <AppPage>
+        <AppPageBreadcrumbs
             breadcrumbs={[
                 Paths.org(orgSlug).notes
             ]}
         />
-        <div className="flex flex-1 flex-col items-center gap-4 p-4 xl:*:w-4xl">
+        <AppPageContent variant="container">
             <NotesModule_NotesList organization={organization} />
-        </div>
-    </SidebarInset>
+        </AppPageContent>
+    </AppPage>
 }
 

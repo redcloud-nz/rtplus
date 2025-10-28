@@ -9,16 +9,16 @@ import { PlusIcon } from 'lucide-react'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 
+import Artie from '@/components/art/artie'
 import { S2_Button } from '@/components/ui/s2-button'
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
+import { Link, TextLink } from '@/components/ui/link'
 import { S2_Table, S2_TableBody, S2_TableCell, S2_TableHeadCell, S2_TableHeader, S2_TableRow } from '@/components/ui/s2-table'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { OrganizationData } from '@/lib/schemas/organization'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
-import { Link, TextLink } from '@/components/ui/link'
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
-import Artie from '@/components/art/artie'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 
 export function NotesModule_NotesList({ organization }: { organization: OrganizationData }) {
@@ -44,28 +44,43 @@ export function NotesModule_NotesList({ organization }: { organization: Organiza
                 </S2_Button>
             </EmptyContent>
         </Empty>
-    : <div className="flex w-full flex-col gap-2">
-        <div className="flex w-full justify-end">
-            <S2_Button size="sm" asChild>
-                <Link to={Paths.org(organization.slug).notes.create}>
-                    <PlusIcon /> Add Note
-                </Link>
-            </S2_Button>
+    : <div className="flex flex-col gap-2">
+        <div className="flex w-full gap-2 justify-between">
+            {/* <InputGroup className="max-w-sm">
+                <InputGroupInput placeholder="Search..." />
+                <InputGroupAddon>
+                    <Search />
+                </InputGroupAddon>
+            </InputGroup> */}
+            <div></div>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <S2_Button asChild>
+                        <Link to={Paths.org(organization.slug).notes.create}>
+                            <PlusIcon /> New
+                        </Link>
+                    </S2_Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    Create a new note
+                </TooltipContent>
+            </Tooltip>
+            
         </div>
-        <S2_Table border>
+        <S2_Table border className="table-fixed">
             <S2_TableHeader>
                 <S2_TableRow>
                     <S2_TableHeadCell>
                         Note ID
                     </S2_TableHeadCell>
-                    <S2_TableHeadCell className="w-1/2">
+                    <S2_TableHeadCell className="w-2/3 sm:w-1/2">
                         Title
                     </S2_TableHeadCell>
-                    <S2_TableHeadCell className="text-center">
+                    <S2_TableHeadCell className="text-center hidden md:table-cell">
                         Created
                     </S2_TableHeadCell>
-                    <S2_TableHeadCell className="text-center">
-                        Last Update
+                    <S2_TableHeadCell className="text-center hidden sm:table-cell">
+                        Updated
                     </S2_TableHeadCell>
                 </S2_TableRow>
             </S2_TableHeader>
@@ -74,30 +89,30 @@ export function NotesModule_NotesList({ organization }: { organization: Organiza
                     <S2_TableCell>
                         {note.noteId}
                     </S2_TableCell>
-                    <S2_TableCell>
+                    <S2_TableCell className="truncate">
                        <TextLink to={Paths.org(organization.slug).notes.note(note.noteId)}>{note.title}</TextLink>
                     </S2_TableCell>
-                    <S2_TableCell className="text-center">
+                    <S2_TableCell className="text-center hidden md:table-cell">
                         {note.createdAt 
                             ? <Tooltip>
                                 <TooltipTrigger>
-                                    {format(note.createdAt, 'dd/MMM/yyyy')}
+                                    {format(note.createdAt, 'yyyy-MM-dd')}
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                    Created at {format(note.createdAt, 'HH:mm dd MMM yyyy ')} by {note.createdBy?.name || 'Unknown User'}
+                                    Created {format(note.createdAt, 'dd MMM yyyy')} at {format(note.createdAt, 'HH:mm')} by {note.createdBy?.name || 'Unknown User'}
                                 </TooltipContent>
                             </Tooltip>
                             : <span className="text-muted-foreground">Unknown</span>
                         }
                     </S2_TableCell>
-                    <S2_TableCell className="text-center">
+                    <S2_TableCell className="text-center hidden sm:table-cell">
                         {note.updatedAt 
                             ? <Tooltip>
                                 <TooltipTrigger>
-                                    {format(note.updatedAt, 'dd/MMM/yyyy')}
+                                    {format(note.updatedAt, 'yyyy-MM-dd')}
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                    Created at {format(note.updatedAt, 'HH:mm dd MMM yyyy ')} by {note.updatedBy?.name || 'Unknown User'}
+                                    Updated at {format(note.updatedAt, 'dd MMM yyyy')} at {format(note.updatedAt, 'HH:mm')} by {note.updatedBy?.name || 'Unknown User'}
                                 </TooltipContent>
                             </Tooltip>
                             : <span className="text-muted-foreground">N/A</span>

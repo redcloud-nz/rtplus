@@ -5,8 +5,7 @@
  * /orgs/[org_slug]/notes/--create
 */
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
-import { Boundary } from '@/components/boundary'
+import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 
 import * as Paths from '@/paths'
 

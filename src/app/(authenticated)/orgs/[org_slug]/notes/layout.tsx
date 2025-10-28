@@ -9,6 +9,9 @@ import { ModuleNotEnabled } from '@/components/nav/errors'
 import { isModuleEnabled } from '@/lib/modules'
 import { getOrganization } from '@/server/organization'
 
+
+export const metadata = { title: 'Notes' }
+
 export default async function NotesModule_Layout(props: LayoutProps<'/orgs/[org_slug]/notes'>) {
     const { org_slug: orgSlug } = await props.params
     const organization = await getOrganization(orgSlug)

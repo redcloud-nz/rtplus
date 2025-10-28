@@ -12,10 +12,11 @@ import { TRPCError } from '@trpc/server'
 
 import { NoteData, NoteId, noteSchema, toNoteData } from '@/lib/schemas/note'
 
+import { toUserRef } from '@/lib/schemas/user'
+import { updateMetaSchema } from '@/lib/schemas/update-meta'
+
 import {  AuthenticatedOrgContext, createTRPCRouter, orgProcedure } from '../init'
 import { Messages } from '../messages'
-import { toUserRef, userRefSchema } from '@/lib/schemas/user'
-
 
 
 /**
@@ -124,12 +125,7 @@ export const notesRouter = createTRPCRouter({
     getNotes: orgProcedure
         .output(z.array(noteSchema
             .pick({ noteId: true, title: true, status: true })
-            .extend({
-                createdAt: z.string().datetime().nullable(),
-                updatedAt: z.string().datetime().nullable(),
-                createdBy: userRefSchema.nullable(),
-                updatedBy: userRefSchema.nullable(),
-            })
+            .merge(updateMetaSchema)
         ))
         .query(async ({ ctx }) => {
             const notes = await ctx.prisma.note.findMany({
@@ -150,7 +146,7 @@ export const notesRouter = createTRPCRouter({
             })
             return notes.map(note => {
                 const createLog = note.changeLogs.find(log => log.event === 'Create')
-                const updateLog = note.changeLogs.find(log => log.event === 'Update')
+                const updateLog = note.changeLogs.find(log => log.event === 'Update') ?? createLog
 
                 return {
                     ...toNoteData(note),

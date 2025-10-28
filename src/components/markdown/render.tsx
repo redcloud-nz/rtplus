@@ -4,17 +4,29 @@
  *
  */
 
+import { type ComponentProps } from 'react'
 import Markdown from 'react-markdown'
 import remarkBreaks from 'remark-breaks'
 import remarkDirective from 'remark-directive'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 
-export function RenderMarkdown({ markdown}: { markdown: string }) {
-    return <Markdown
-        remarkPlugins={[remarkGfm, remarkBreaks, remarkDirective]}
-        rehypePlugins={[rehypeRaw]}
-    >
-        {markdown}
+import { cn } from '@/lib/utils'
+
+import './markdown.css'
+
+
+interface RenderMarkdownProps extends Omit<ComponentProps<'div'>, 'children'> {
+    markdown: string
+}
+
+export function RenderMarkdown({ className, markdown, ...props }: RenderMarkdownProps) {
+    return <div className={cn('markdown-content', className)} {...props}>
+        <Markdown
+            remarkPlugins={[remarkGfm, remarkBreaks, remarkDirective]}
+            rehypePlugins={[rehypeRaw]}
+        >
+            {markdown}
         </Markdown>
+    </div>
 }

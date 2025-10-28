@@ -39,8 +39,12 @@
 
   --table-frame: oklch(0.645 0.246 16.439);
 
+  --button-height: 36px;
   --header-height: 49px;
 
+  --card-padding: var(--spacing) * 6;
+  --mdxeditor-toolbar-height: 45px;
+  --page-padding: var(--spacing) * 4;
 
 }
  

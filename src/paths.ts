@@ -244,9 +244,14 @@ function notesModule(orgSlug: string) {
         },
 
         note: (noteId: string) => ({
-            label: `Note ${noteId}`,
+            labelled: (noteTitle: string) => ({ label: noteTitle, href: `${base}/${noteId}` }),
             href: `${base}/${noteId}`,
+            history: {
+                label: 'History',
+                href: `${base}/${noteId}/history`,
+            },
             update: {
+                label: 'Update',
                 href: `${base}/${noteId}/--update`,
             },
         } as const)

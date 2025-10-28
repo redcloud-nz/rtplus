@@ -23,9 +23,10 @@ import { CreateLinkButton, FormatTextToggleGroup, InsertTableButton, ListStyleTo
 
 
 
-export default function InitializedMDXEditor({ className, editorRef, ...props }: { editorRef: ForwardedRef<MDXEditorMethods> | null } & MDXEditorProps) {
+
+export default function InitializedMDXEditor({ className, contentEditableClassName, editorRef, ...props }: { editorRef: ForwardedRef<MDXEditorMethods> | null } & MDXEditorProps) {
     return <MDXEditor
-        contentEditableClassName="markdown-content text-sm min-h-16"
+        contentEditableClassName={cn("markdown-content min-h-16 overflow-y-auto", contentEditableClassName)}
         plugins={[
             headingsPlugin(),
             listsPlugin(),
@@ -36,6 +37,7 @@ export default function InitializedMDXEditor({ className, editorRef, ...props }:
             // imagePlugin(),
             tablePlugin(),
             toolbarPlugin({
+                toolbarPosition: 'bottom',
                 toolbarContents: () => <>
                     <FormatTextToggleGroup options={['bold', 'italic', 'underline']} />
                     <Separator />

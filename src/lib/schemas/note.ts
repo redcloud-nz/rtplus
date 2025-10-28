@@ -21,8 +21,8 @@ export const NoteId = {
 
 export const noteSchema = z.object({
     noteId: NoteId.schema,
-    title: z.string().min(1).max(100), // Reasonable limit for note title
-    content: z.string().min(1).max(10000), // Reasonable limit for note content
+    title: z.string().nonempty().max(100), // Reasonable limit for note title
+    content: z.string().max(10000), // Reasonable limit for note content
     tags: tagsSchema,
     properties: propertiesSchema,
     status: z.enum(['Draft', 'Published', 'Deleted']),
