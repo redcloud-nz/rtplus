@@ -5,7 +5,7 @@
  * Path: /orgs/[org_slug]/admin/settings
  */
 
-import { AppPageHeader } from '@/components/app-page'
+import { S2_AppPageHeader } from '@/components/app-page'
 import { SidebarInset } from '@/components/ui/sidebar'
 
 import * as Paths from '@/paths'
@@ -27,7 +27,7 @@ export default async function AdminModule_OrganizationSettings_Page(props: PageP
     await clerkAuth.protect({role: 'admin' })
 
     return <SidebarInset>
-        <AppPageHeader 
+        <S2_AppPageHeader 
             breadcrumbs={[
                 Paths.org(orgSlug).admin,
                 Paths.org(orgSlug).admin.settings

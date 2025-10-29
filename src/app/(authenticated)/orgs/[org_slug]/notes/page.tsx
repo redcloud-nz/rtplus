@@ -5,13 +5,15 @@
  * Paths: /orgs/[org_slug]/notes
 */
 
-import { AppPageHeader } from '@/components/app-page'
+import { Lexington } from '@/components/blocks/lexington'
+import { SidebarInset } from '@/components/ui/sidebar'
 
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
 
 import { NotesModule_NotesList } from './notes-list'
-import { SidebarInset } from '@/components/ui/sidebar'
+
+
 
 
 export const metadata = { title: 'Notes' }
@@ -20,15 +22,15 @@ export default async function NotesModule_Index_Page(props: PageProps<'/orgs/[or
     const { org_slug: orgSlug } = await props.params
     const organization = await getOrganization(orgSlug)
 
-    return <SidebarInset>
-        <AppPageHeader
+    return <Lexington.Root>
+        <Lexington.Header
             breadcrumbs={[
                 Paths.org(orgSlug).notes
             ]}
         />
-        <main className="h-[calc(100vh-var(--header-height))] p-4">
+        <Lexington.Main>
             <NotesModule_NotesList organization={organization} />
-        </main>
-    </SidebarInset>
+        </Lexington.Main>
+    </Lexington.Root>
 }
 

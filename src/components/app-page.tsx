@@ -141,12 +141,21 @@ interface AppPageHeaderProps {
     breadcrumbs?: (PageBreadcrumb | string)[]
 }
 
-export function AppPageHeader({ breadcrumbs }: AppPageHeaderProps) {
-    return <header className="bg-background sticky top-0 flex h-[var(--header-height)] shrink-0 items-center gap-2 border-b px-2">
+/**
+ * Page header for design System 2. To be used inside `SidebarInset` component.
+ */
+export function S2_AppPageHeader({ breadcrumbs }: AppPageHeaderProps) {
+    return <header className="bg-background sticky top-0 z-50 flex h-[var(--header-height)] shrink-0 items-center gap-1 border-b px-1">
         <SidebarTrigger side="left"/>
         <Separator orientation="vertical"/>
         { breadcrumbs && <AppPageBreadcrumbs_Inner breadcrumbs={breadcrumbs} /> }
     </header>
+}
+
+export function S2_AppPageMain({ children, ...props }: ComponentProps<'main'>) {
+    return <main className="h-[calc(100vh - var(--header-height))] p-4" {...props}>
+        {children}
+    </main>
 }
 
 export function AppPageControls({ children, className }: ComponentProps<'div'>) {

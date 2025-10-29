@@ -5,14 +5,14 @@
  * Path: /orgs/[org_slug]
  */
 
-import { AppPageHeader } from '@/components/app-page'
+import { S2_AppPageHeader } from '@/components/app-page'
 import { PageLoadingSpinner } from '@/components/ui/loading'
 import { SidebarInset } from '@/components/ui/sidebar'
 
 export default function Organization_Loading() {
 
     return <SidebarInset>
-        <AppPageHeader/>
+        <S2_AppPageHeader/>
         <PageLoadingSpinner message="Loading..."/>
     </SidebarInset>
 }

@@ -27,9 +27,9 @@ export function S2_Table({ border, className, containerProps: { className: conta
     </div>
 }
 
-export function S2_TableHeader({ className, ...props }: ComponentProps<'thead'>) {
+export function S2_TableHead({ className, ...props }: ComponentProps<'thead'>) {
     return <thead
-        data-slot="table-header"
+        data-slot="table-head"
         className={cn('[&_tr]:border-b', className)}
         {...props}
     />
@@ -43,9 +43,9 @@ export function S2_TableBody({ className, ...props }: ComponentProps<'tbody'>) {
     />
 }
 
-export function S2_TableFooter({ className, ...props }: ComponentProps<'tfoot'>) {
+export function S2_TableFoot({ className, ...props }: ComponentProps<'tfoot'>) {
     return <tfoot
-        data-slot="table-footer"
+        data-slot="table-foot"
         className={cn(
             'bg-muted/50 border-t font-medium [&>tr]:last:border-b-0',
             className
@@ -65,9 +65,9 @@ export function S2_TableRow({ className, ...props }: ComponentProps<'tr'>) {
     />
 }
 
-export function S2_TableHeadCell({ className, ...props }: ComponentProps<'th'>) {
+export function S2_TableHeader({ className, ...props }: ComponentProps<'th'>) {
     return <th
-        data-slot="table-head"
+        data-slot="table-header"
         className={cn(
             'text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
             className
