@@ -45,19 +45,19 @@ export function NotesModule_NotesList({ organization }: { organization: Organiza
             </Akagi.TableCell>,
         }),
         columnHelper.accessor('createdAt', {
-            header: ctx => <Akagi.TableHeader header={ctx.header} className="hidden md:table-cell">Created</Akagi.TableHeader>,
-            cell: ctx => <Akagi.TableCell cell={ctx.cell} className="hidden md:table-cell">
+            header: ctx => <Akagi.TableHeader header={ctx.header} align="center" showAbove="md">Created</Akagi.TableHeader>,
+            cell: ctx => <Akagi.TableCell cell={ctx.cell} align="center" showAbove="md">
                 {ctx.getValue() 
                     ? format(ctx.getValue()!, 'yyyy-MM-dd')
-                    : <span className="text-muted-foreground">Unknow</span>
+                    : <span className="text-muted-foreground">Unknown</span>
                 }
             </Akagi.TableCell>,
             enableSorting: true,
             enableGlobalFilter: false,
         }),
         columnHelper.accessor('updatedAt', {
-            header: ctx => <Akagi.TableHeader header={ctx.header} className="hidden sm:table-cell">Updated</Akagi.TableHeader>,
-            cell: ctx => <Akagi.TableCell cell={ctx.cell} className="hidden sm:table-cell">
+            header: ctx => <Akagi.TableHeader header={ctx.header} align="center" showAbove="sm">Updated</Akagi.TableHeader>,
+            cell: ctx => <Akagi.TableCell cell={ctx.cell} align="center" showAbove="sm">
                 {ctx.getValue() 
                     ? format(ctx.getValue()!, 'yyyy-MM-dd')
                     : <span className="text-muted-foreground">Unknown</span>
@@ -75,6 +75,7 @@ export function NotesModule_NotesList({ organization }: { organization: Organiza
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
         initialState: {
+            globalFilter: "",
             sorting: [
                 { id: 'updatedAt', desc: true }
             ]
@@ -98,7 +99,7 @@ export function NotesModule_NotesList({ organization }: { organization: Organiza
                     <TooltipTrigger asChild>
                         <S2_Button asChild>
                             <Link to={Paths.org(organization.slug).notes.create}>
-                                <PlusIcon /> New
+                                <PlusIcon /> Create
                             </Link>
                         </S2_Button>
                     </TooltipTrigger>

@@ -9,6 +9,7 @@
 
 import { ArrowDownAZIcon, ArrowDownZAIcon, EllipsisVerticalIcon, SearchIcon } from 'lucide-react'
 import { ComponentProps, Fragment } from 'react'
+import { match } from 'ts-pattern'
 
 import { CellContext, ColumnDef, ColumnHelper, createColumnHelper, flexRender, HeaderContext, RowData, Table as TanstackTable } from '@tanstack/react-table'
 
@@ -18,19 +19,41 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from '../ui/input-group'
 import { S2_Table, S2_TableBody, S2_TableCell, S2_TableHead, S2_TableHeader, S2_TableRow } from '@/components/ui/s2-table'
 
 import { cn } from '@/lib/utils'
-import { match } from 'ts-pattern'
 
 
-type AkagiTableHeaderProps<TData extends RowData> = Omit<ComponentProps<'th'>, 'align'> & Pick<HeaderContext<TData, unknown>, 'header'>
 
-function AkagiTableHeader<TData extends RowData>({  children, className, header, ...props }: AkagiTableHeaderProps<TData>) {
+type AkagiTableHeaderProps<TData extends RowData> = Omit<ComponentProps<'th'>, 'align'> & Pick<HeaderContext<TData, unknown>, 'header'> & {
+    align?: 'start' | 'center' | 'end'
+    showAbove?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+}
+
+function AkagiTableHeader<TData extends RowData>({ align = "start", children, className, header, showAbove: showAbove, ...props }: AkagiTableHeaderProps<TData>) {
     const canSort = header.column.getCanSort()
     const isSorted = header.column.getIsSorted()
 
-    return <S2_TableHeader className={className} {...props}>
-        <div className={cn("flex items-center gap-1")}>
-            <div>{children}</div>
-            {canSort && <>
+    return <S2_TableHeader 
+        className={cn("relative",
+            canSort && "pr-12",
+            align == "start", "text-start",
+            align == "center" && "text-center",
+            align == "end" && "text-end",
+            canSort && align == 'center' && "px-12",
+            showAbove == 'sm' && 'hidden sm:table-cell',
+            showAbove == 'md' && 'hidden md:table-cell',
+            showAbove == 'lg' && 'hidden lg:table-cell',
+            showAbove == 'xl' && 'hidden xl:table-cell',
+            showAbove == '2xl' && 'hidden 2xl:table-cell',
+            className
+        )} 
+        {...props}
+    > 
+        <div className="absolute h-5 right-0 top-1/2 -transform -translate-y-1/2 flex items-center border-r border-muted">
+            {canSort && <> 
+                {match(isSorted)
+                    .with('asc', () => <ArrowDownAZIcon className="size-4 text-muted-foreground"/>)
+                    .with('desc', () => <ArrowDownZAIcon className="size-4 text-muted-foreground"/>)
+                    .otherwise(() => <div className="size-4"/>)
+                }
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <S2_Button variant="ghost" size="icon-sm" className="text-muted-foreground">
@@ -50,23 +73,31 @@ function AkagiTableHeader<TData extends RowData>({  children, className, header,
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                     </DropdownMenuContent>
-                </DropdownMenu>
-                {match(isSorted)
-                    .with('asc', () => <ArrowDownAZIcon className="size-4"/>)
-                    .with('desc', () => <ArrowDownZAIcon className="size-4"/>)
-                    .otherwise(() => <div className="size-4"></div>)
-                }
+                </DropdownMenu>       
             </>}
         </div>
-         
+        {children}
     </S2_TableHeader>
 }
 
-type AkagiTableCellProps<TData extends RowData> = Omit<ComponentProps<'td'>, 'align'> & Pick<CellContext<TData, unknown>, 'cell'> 
+type AkagiTableCellProps<TData extends RowData> = Omit<ComponentProps<'td'>, 'align'> & Pick<CellContext<TData, unknown>, 'cell'> & {
+    align?: 'start' | 'center' | 'end'
+    showAbove?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+}
 
-function AkagiTableCell<TData extends RowData>({ children, className, ...props }: AkagiTableCellProps<TData>) {
+function AkagiTableCell<TData extends RowData>({ align = "start", children, className, showAbove, ...props }: AkagiTableCellProps<TData>) {
     return <S2_TableCell 
-        className={cn(className)}
+        className={cn(
+            align == 'start' && 'text-start',
+            align == 'center' && 'text-center',
+            align == 'end' && 'text-end',
+            showAbove == 'sm' && 'hidden sm:table-cell',
+            showAbove == 'md' && 'hidden md:table-cell',
+            showAbove == 'lg' && 'hidden lg:table-cell',
+            showAbove == 'xl' && 'hidden xl:table-cell',
+            showAbove == '2xl' && 'hidden 2xl:table-cell',
+            className
+        )}
         {...props}
     >
         {children}

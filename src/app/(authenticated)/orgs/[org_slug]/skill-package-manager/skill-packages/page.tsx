@@ -28,7 +28,9 @@ export default async function SkillPackageManagerModule_SkillPackagesList_Page(p
             ]}
         />
         <Lexington.Main>
-            <SkillPackageManagerModule_SkillPackagesList organization={organization} />
+            <Lexington.Container>
+                <SkillPackageManagerModule_SkillPackagesList organization={organization} />
+            </Lexington.Container>
         </Lexington.Main>
     </Lexington.Root>
 }

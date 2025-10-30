@@ -12,12 +12,11 @@ import { Protect } from '@clerk/nextjs'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import Artie from '@/components/art/artie'
+import { Lexington } from '@/components/blocks/lexington'
 import { Show } from '@/components/show'
 import { Button, RefreshButton } from '@/components/ui/button'
 import { Card, CardActions, CardContent, CardExplanation, CardHeader } from '@/components/ui/card'
 import { DataTableBody, DataTableHead, DataTableFooter, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
 import { Link, TextLink } from '@/components/ui/link'
 import { Separator } from '@/components/ui/separator'
 import { Table } from '@/components/ui/table'
@@ -103,19 +102,8 @@ export function SkillPackageManagerModule_SkillPackagesList({ organization }: { 
 
     return <Show 
         when={skillPackages.length > 0} 
-        fallback={<Empty>
-            <EmptyHeader>
-                <EmptyMedia>
-                    <Artie pose="Empty"/>
-                </EmptyMedia>
-                <EmptyTitle>No Skill Packages Defined</EmptyTitle>
-                <EmptyDescription>
-                    Your organization has not created any skill packages yet.
-                    <br/>
-                </EmptyDescription>
-            </EmptyHeader>
-            <EmptyContent>
-                <Protect role="org:admin">
+        fallback={<Lexington.Empty title="No Skill Packages Yet" description="There are no skill packages here yet. Get started by creating one.">
+            <Protect role="org:admin">
                     <Button asChild>
                         <Link to={Paths.org(organization.slug).spm.skillPackages.create}>
                             <PlusIcon className="mr-2 h-4 w-4"/>
@@ -123,49 +111,50 @@ export function SkillPackageManagerModule_SkillPackagesList({ organization }: { 
                         </Link>
                     </Button>
                 </Protect>
-            </EmptyContent>
-        </Empty>}
+        </Lexington.Empty>}
     >
-    
-        <DataTableProvider value={table}>
-            <Card>
-                <CardHeader>
-                    <DataTableSearch size="sm" variant="ghost"/>
-                    <CardActions>
-                        <Protect role="org:admin">
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" asChild>
-                                        <Link to={Paths.org(organization.slug).spm.skillPackages.create}>
-                                            <PlusIcon />
-                                        </Link>
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    Create new skill package
-                                </TooltipContent>
-                            </Tooltip>
-                        </Protect>
-                        
+        <Lexington.Container>
+            <DataTableProvider value={table}>
+                <Card>
+                    <CardHeader>
+                        <DataTableSearch size="sm" variant="ghost"/>
+                        <CardActions>
+                            <Protect role="org:admin">
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button variant="ghost" size="icon" asChild>
+                                            <Link to={Paths.org(organization.slug).spm.skillPackages.create}>
+                                                <PlusIcon />
+                                            </Link>
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        Create new skill package
+                                    </TooltipContent>
+                                </Tooltip>
+                            </Protect>
+                            
 
-                        <RefreshButton onClick={handleRefresh}/>
-                        <TableOptionsDropdown/>
-                        <Separator orientation="vertical"/>
-                        <CardExplanation>
-                            This is a list of all the available skill packages in the system.
-                        </CardExplanation>
-                    
-                    </CardActions>
-                    
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <DataTableHead/>
-                        <DataTableBody/>
-                        <DataTableFooter/>
-                    </Table>
-                </CardContent>
-            </Card>
-        </DataTableProvider>
+                            <RefreshButton onClick={handleRefresh}/>
+                            <TableOptionsDropdown/>
+                            <Separator orientation="vertical"/>
+                            <CardExplanation>
+                                This is a list of all the available skill packages in the system.
+                            </CardExplanation>
+                        
+                        </CardActions>
+                        
+                    </CardHeader>
+                    <CardContent>
+                        <Table>
+                            <DataTableHead/>
+                            <DataTableBody/>
+                            <DataTableFooter/>
+                        </Table>
+                    </CardContent>
+                </Card>
+            </DataTableProvider>
+        </Lexington.Container>
+        
     </Show>
 }
