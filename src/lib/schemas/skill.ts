@@ -38,3 +38,14 @@ export type SkillData = z.infer<typeof skillSchema>
 export function toSkillData(data: SkillRecord): SkillData {
     return skillSchema.parse(data)
 }
+
+export const skillRefSchema = z.object({
+    skillId: SkillId.schema,
+    name: z.string().nonempty().max(100),
+})
+
+export type SkillRef = z.infer<typeof skillRefSchema>
+
+export function toSkillRef(data: Pick<SkillRecord, 'skillId' | 'name'>): SkillRef {
+    return skillRefSchema.parse(data)
+}

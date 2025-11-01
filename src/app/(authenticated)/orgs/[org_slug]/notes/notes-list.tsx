@@ -92,23 +92,21 @@ export function NotesModule_NotesList({ organization }: { organization: Organiza
             </S2_Button>
         </Lexington.Empty>}
     >
-        <Lexington.Container>
-            <Lexington.TableControls>
-                <Akagi.TableSearch table={table}/>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <S2_Button asChild>
-                            <Link to={Paths.org(organization.slug).notes.create}>
-                                <PlusIcon /> Create
-                            </Link>
-                        </S2_Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        Create a new note
-                    </TooltipContent>
-                </Tooltip>
-            </Lexington.TableControls>
-            <Akagi.Table table={table}/>
-        </Lexington.Container>
+        <Lexington.TableControls>
+            <Akagi.TableSearch table={table}/>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <S2_Button asChild>
+                        <Link to={Paths.org(organization.slug).notes.create}>
+                            <PlusIcon /> Create
+                        </Link>
+                    </S2_Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    Create a new note
+                </TooltipContent>
+            </Tooltip>
+        </Lexington.TableControls>
+        <Akagi.Table table={table}/>
     </Show>
 }

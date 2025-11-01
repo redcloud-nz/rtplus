@@ -10,9 +10,9 @@ import { TRPCError } from '@trpc/server'
 
 import { CompetenceLevel, isPass } from '@/lib/competencies'
 import { diffObject } from '@/lib/diff'
-import { toPersonData, personSchema, personRefSchema, toPersonRef, PersonId } from '@/lib/schemas/person'
-import { toSkillData, skillSchema, SkillId } from '@/lib/schemas/skill'
-import { toSkillCheckData, skillCheckSchema, SkillCheckId } from '@/lib/schemas/skill-check'
+import { toPersonData, personSchema, personRefSchema, toPersonRef, PersonId, PersonRef } from '@/lib/schemas/person'
+import { toSkillData, skillSchema, SkillId, SkillData } from '@/lib/schemas/skill'
+import { toSkillCheckData, skillCheckSchema, SkillCheckId, SkillCheckData } from '@/lib/schemas/skill-check'
 import { toSkillCheckSessionData, skillCheckSessionSchema, SkillCheckSessionId } from '@/lib/schemas/skill-check-session'
 
 import { createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
@@ -211,10 +211,16 @@ export const skillChecksRouter = createTRPCRouter({
         .output(skillCheckSchema)
         .mutation(async ({ ctx, input }) => {
 
+            console.log("Creating independent skill check:", input)
+            console.log(`Assessor user ID: ${ctx.auth.userId}, orgId: ${ctx.auth.activeOrg.orgId}`)
+
             // Validate the assessor exists in the organization
             const assessor = await ctx.prisma.person.findFirst({
                 where: { userId: ctx.auth.userId, orgId: ctx.auth.activeOrg.orgId }
             })
+
+            console.log("Assessor record:", assessor)
+
             if(!assessor) throw new TRPCError({ code: 'FORBIDDEN', message: "Only users linked to a person can create skill checks." })
 
             const created = await ctx.prisma.skillCheck.create({
@@ -609,19 +615,28 @@ export const skillChecksRouter = createTRPCRouter({
      */
     getSkillChecks: orgProcedure
         .input(z.object({
-            assesseeIds: z.array(PersonId.schema).optional(),
-            assessorIds: z.array(PersonId.schema).optional(),
-            skillIds: z.array(SkillId.schema).optional(),
+            assesseeId: z.array(PersonId.schema).optional(),
+            assessorId: z.array(PersonId.schema).optional(),
+            skillId: z.array(SkillId.schema).optional(),
+            sessionId: z.array(SkillCheckSessionId.schema).optional(),
+            results: z.array(z.string()).optional(),
+            from :z.string().date().optional(),
+            to :z.string().date().optional(),
+            limit: z.number().min(1).max(1000).optional().default(1000),
+            offset: z.number().min(0).optional().default(0),
         }))
         .output(z.array(skillCheckSchema.extend({ assessee: personRefSchema, assessor: personRefSchema, skill: skillSchema })))
         .query(async ({ ctx, input }) => {
             
             const checks = await ctx.prisma.skillCheck.findMany({
+                take: input.limit,
+                skip: input.offset,
                 where: {
                     orgId: ctx.auth.activeOrg.orgId,
-                    assessee: { personId: input.assesseeIds ? { in: input.assesseeIds } : undefined },
-                    assessor: { personId: input.assessorIds ? { in: input.assessorIds } : undefined },
-                    skill: { skillId: input.skillIds ? { in: input.skillIds } : undefined }
+                    assessee: { personId: input.assesseeId ? { in: input.assesseeId } : undefined },
+                    assessor: { personId: input.assessorId ? { in: input.assessorId } : undefined },
+                    skill: { skillId: input.skillId ? { in: input.skillId } : undefined },
+                    sessionId: input.sessionId ? { in: input.sessionId } : undefined,
                 },
                 include: {
                     assessee: true,
@@ -641,6 +656,82 @@ export const skillChecksRouter = createTRPCRouter({
             }))
         }),
 
+    getRecentSkillChecksGrouped: orgProcedure
+        .output(z.array(
+            z.object({
+                assessor: personRefSchema,
+                date: z.string().date(),
+                checks: z.array(skillCheckSchema.extend({ assessee: personRefSchema, skill: skillSchema }))
+            })
+        ))
+        .query(async ({ ctx }) => {
+            
+            const checks = await ctx.prisma.skillCheck.findMany({
+                where: { orgId: ctx.auth.activeOrg.orgId },
+                include: {
+                    assessor: { select: { personId: true, name: true, email: true, status: true } },
+                    assessee: { select: { personId: true, name: true, email: true, status: true } },
+                    skill: true
+                },
+                orderBy: { date: 'desc' },
+                take: 100
+            })
+            if(checks.length == 0) return []
+
+            const result: { assessor: PersonRef; date: string; checks: (SkillCheckData & { assessee: PersonRef; skill: SkillData })[] }[] = []
+
+            let curDate = checks[0].date
+            let byAssessor: Record<string, { assessor: PersonRef; date: string; checks: (SkillCheckData & { assessee: PersonRef; skill: SkillData })[] }> = {
+                [checks[0].assessor.personId]: {
+                    assessor: toPersonRef(checks[0].assessor),
+                    date: curDate,
+                    checks: [{
+                        ...toSkillCheckData(checks[0]),
+                        assessee: toPersonRef(checks[0].assessee),
+                        skill: toSkillData(checks[0].skill)
+                    }]
+                }
+            }
+
+            for(const check of checks.slice(1)) {
+                const isSameDate = check.date == curDate
+
+                if(!isSameDate) {
+                    // End of date, push all current assessors to result and reset
+                    result.push(...Object.values(byAssessor).sort((a, b) => a.assessor.name.localeCompare(b.assessor.name)))
+                    
+                    // reset the assessor grouping for the new date
+                    curDate = check.date
+                    byAssessor = {}
+                }
+
+                const group = byAssessor[check.assessor.personId]
+                if(group) {
+                    // Existing assessor group for this date ands assessor
+                    group.checks.push({
+                        ...toSkillCheckData(check),
+                        assessee: toPersonRef(check.assessee),
+                        skill: toSkillData(check.skill)
+                    })
+                } else {
+                    // New assessor group for this date and assessor
+                    byAssessor[check.assessor.personId] = {
+                        assessor: toPersonRef(check.assessor),
+                        date: curDate,
+                        checks: [{
+                            ...toSkillCheckData(check),
+                            assessee: toPersonRef(check.assessee),
+                            skill: toSkillData(check.skill)
+                        }]
+                    }
+                }
+            }
+
+            // Push any remaining groups
+            result.push(...Object.values(byAssessor).sort((a, b) => a.assessor.name.localeCompare(b.assessor.name)))
+
+            return result
+        }),
 
     /**
      * Remove an assessee from a skill check session.

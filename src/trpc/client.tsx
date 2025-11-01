@@ -11,7 +11,8 @@ import { createTRPCClient, httpBatchLink } from '@trpc/client'
 import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query'
 
 import { makeQueryClient } from './query-client'
-import type { AppRouter } from './routers/_app'
+import type { AppRouter, RouterInput, RouterOutput } from './routers/_app'
+
 
 
 export * from './types'
@@ -52,3 +53,5 @@ export const trpc = createTRPCOptionsProxy<AppRouter>({
     client: trpcClient,
     queryClient: getQueryClient(),
 })
+
+export { RouterInput, RouterOutput}

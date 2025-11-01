@@ -11,9 +11,8 @@ import { QueryClientProvider } from '@tanstack/react-query'
 
 import { init, printConsoleMessage } from '@/cli/init'
 
-import { SidebarProvider } from '@/components/ui/sidebar'
+import { S2_SidebarProvider } from '@/components/ui/s2-sidebar'
 import { Toaster } from '@/components/ui/toaster'
-import { TooltipProvider } from '@/components/ui/tooltip'
 
 import { getQueryClient } from '@/trpc/client'
 
@@ -32,11 +31,9 @@ export function AppFrontendProvider({ children }: FrontendProviderProps) {
     }, [])
 
     return <QueryClientProvider client={queryClient}>
-        <SidebarProvider>
-            <TooltipProvider>
-                {children}
-            </TooltipProvider>
-        </SidebarProvider>
+        <S2_SidebarProvider>
+            {children}
+        </S2_SidebarProvider>
         <Toaster/>
     </QueryClientProvider>
 }

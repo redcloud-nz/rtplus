@@ -6,7 +6,7 @@
 
 import { Show } from '@/components/show'
 import { AdminModuleIcon, D4HModuleIcon, DashboardIcon, NotesModuleIcon, SkillsModuleIcon, SPMModuleIcon } from '@/components/icons'
-import { SidebarMenu } from '@/components/ui/sidebar'
+import { S2_SidebarMenu } from '@/components/ui/s2-sidebar'
 
 import { useOrganization } from '@/hooks/use-organization'
 import { isModuleEnabled } from '@/lib/modules'
@@ -21,7 +21,7 @@ export function NavOrganizationMenu() {
 
     const orgPrefix = Paths.org(organization.slug)
 
-    return <SidebarMenu>
+    return <S2_SidebarMenu>
         <NavItem path={orgPrefix.dashboard} icon={<DashboardIcon/>}/>
         <NavCollapsible label="Admin" icon={<AdminModuleIcon/>} prefix={orgPrefix.admin.href}>
             <NavSubItem path={orgPrefix.admin.personnel}/>
@@ -55,5 +55,5 @@ export function NavOrganizationMenu() {
                 <NavItem path={orgPrefix.skills.reports}/>
             </NavCollapsible>
         </Show>
-    </SidebarMenu>
+    </S2_SidebarMenu>
 }

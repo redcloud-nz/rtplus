@@ -5,13 +5,12 @@
  *  Path: /orgs/[org_slug]/competencies/skill-checks
  */
 
-
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
-import { Boundary } from '@/components/boundary'
+import { Lexington } from '@/components/blocks/lexington'
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
 
 import { SkillsModule_SkillChecks_List } from './skill-checks-list'
+
 
 
 export const metadata = {
@@ -22,22 +21,16 @@ export default async function SkillModule_SkillChecks_Page(props: PageProps<'/or
     const { org_slug: orgSlug } = await props.params
     const organization = await getOrganization(orgSlug)
 
-    return <AppPage>
-        <AppPageBreadcrumbs
+    return <Lexington.Root>
+        <Lexington.Header
             breadcrumbs={[
                 Paths.org(orgSlug).skills,
                 Paths.org(orgSlug).skills.checks
             ]}
         />
         
-        <AppPageContent variant="container">
-            <PageHeader>
-                <PageTitle>Skill Checks</PageTitle>
-            </PageHeader>
-
-            <Boundary>
-                <SkillsModule_SkillChecks_List organization={organization} />
-            </Boundary>
-        </AppPageContent>
-    </AppPage>
+        <Lexington.Page container>
+            <SkillsModule_SkillChecks_List organization={organization} />
+        </Lexington.Page>
+    </Lexington.Root>
 }

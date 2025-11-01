@@ -11,7 +11,7 @@ export function S2_Value({ className, value, ...props }: Omit<ComponentProps<'di
     return <div
         data-slot="value"
         className={cn(
-            "w-full min-w-0 h-9 px-3 py-1", // Sizing and padding
+            "w-fit min-w-0 h-9 px-3 py-1", // Sizing and padding
             "flex items-center",
             "border border-transparent rounded-md outline-none", // Border
             "text-base md:text-sm align-baseline overflow-clip", // Text size

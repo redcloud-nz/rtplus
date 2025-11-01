@@ -8,15 +8,15 @@ import { Suspense } from 'react'
 
 import { OrganizationSwitcher, UserButton } from '@clerk/nextjs'
 
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarRail } from '@/components/ui/sidebar'
+import { S2_Sidebar, S2_SidebarContent, S2_SidebarFooter, S2_SidebarGroup, S2_SidebarGroupLabel, S2_SidebarHeader, S2_SidebarRail } from '@/components/ui/s2-sidebar'
 
 import { NavOrganizationMenu } from './nav-organization-menu'
 import { NavSkeleton } from './nav-skeleton'
 
 
 export function AppSidebar() {
-    return <Sidebar>
-        <SidebarHeader className="flex items-center justify-between">
+    return <S2_Sidebar>
+        <S2_SidebarHeader className="flex items-center justify-between">
             <div className="px-2">
                 <Image
                     src="/logo.svg"
@@ -29,8 +29,8 @@ export function AppSidebar() {
             <div className="flex items-center gap-2 p-2">
                 <UserButton/>
             </div>
-        </SidebarHeader>
-        <SidebarContent>
+        </S2_SidebarHeader>
+        <S2_SidebarContent>
             <div className="h-10 flex items-center">
                 <OrganizationSwitcher
                     appearance={{
@@ -43,19 +43,19 @@ export function AppSidebar() {
                     afterSelectOrganizationUrl="/orgs/:slug"
                 />
             </div>
-            <SidebarGroup>
-                <SidebarGroupLabel>Organization</SidebarGroupLabel>
+            <S2_SidebarGroup>
+                <S2_SidebarGroupLabel>Organization</S2_SidebarGroupLabel>
                 <Suspense fallback={<NavSkeleton/>}>
                     <NavOrganizationMenu/>
                 </Suspense>
-            </SidebarGroup>
+            </S2_SidebarGroup>
             
-        </SidebarContent>
-        <SidebarFooter>
+        </S2_SidebarContent>
+        <S2_SidebarFooter>
             <AppVersion/>
-        </SidebarFooter>
-        <SidebarRail side="left" />
-    </Sidebar>
+        </S2_SidebarFooter>
+        <S2_SidebarRail/>
+    </S2_Sidebar>
 }
 
 function AppVersion() {

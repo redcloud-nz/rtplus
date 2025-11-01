@@ -25,7 +25,7 @@ export const SkillCheckId = {
 
 export const skillCheckSchema = z.object({
     skillCheckId: SkillCheckId.schema,
-    sessionId: SkillCheckSessionId.schema.optional(),
+    sessionId: SkillCheckSessionId.schema.nullable(),
     skillId: SkillId.schema,
     assesseeId: PersonId.schema,
     assessorId: PersonId.schema,
@@ -40,5 +40,8 @@ export const skillCheckSchema = z.object({
 export type SkillCheckData = z.infer<typeof skillCheckSchema>
 
 export function toSkillCheckData(record: SkillCheckRecord): SkillCheckData {
-    return skillCheckSchema.parse(record)
+    return skillCheckSchema.parse({
+        ...record,
+        timestamp: record.timestamp.toISOString(),
+    })
 }

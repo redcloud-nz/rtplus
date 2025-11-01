@@ -9,29 +9,40 @@
 
 import { ComponentProps, ReactNode } from 'react'
 
+import { Slot } from '@radix-ui/react-slot'
+
 import { S2_AppPageHeader } from '@/components/app-page'
 import Artie from '@/components/art/artie'
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
-import { SidebarInset } from '@/components/ui/sidebar'
+import { S2_SidebarInset } from '@/components/ui/s2-sidebar'
 
 import { cn } from '@/lib/utils'
 
 
 function LexingtonRoot({ children }: { children: ReactNode }) {
-    return <SidebarInset
+    return <S2_SidebarInset
         data-component="LexingtonPage"
-    >{children}</SidebarInset>
+    >{children}</S2_SidebarInset>
 }
 
-interface LexingtonPageMainProps extends ComponentProps<'main'> {}
+interface LexingtonPageProps extends ComponentProps<'div'> {
+    asChild?: boolean
+    container?: boolean
+}
 
-const LexingtonMain = function LexingtonPageMain({ children, ...props }: LexingtonPageMainProps) {
-    return <main 
-        className="h-[calc(100vh-var(--header-height))] p-4" {...props}
+function LexingtonPage({ asChild = false, children, className, container, ...props }: LexingtonPageProps) {
+    const Comp = asChild ? Slot : 'div'
+
+    return <Comp
+        className={cn(
+            "absolute top-[var(--header-height)] left-0 right-0 bottom-0 p-4 flex flex-col gap-2",
+            container && "[&>*]:w-full [&>*]:max-w-full xl:[&>*]:max-w-4xl [&>*]:mx-auto",
+            className)}
         data-component="LexingtonPageMain"
+         {...props}
     >
         {children}
-    </main>
+    </Comp>
 }
 
 interface LexingtonPageEmptyProps {
@@ -57,14 +68,6 @@ function LexingtonEmpty({ title, description, children }: LexingtonPageEmptyProp
     </Empty>
 }
 
-function LexingtonContainer({ className, ...props }: ComponentProps<'div'>) {
-    return <div 
-        className={cn("w-full h-full max-w-4xl mx-auto flex flex-col gap-2", className)}
-        data-component="LexingtonContainer"
-        {...props}
-    />
-}
-
 function LexingtonTableControls(props: ComponentProps<'div'>) {
     return <div 
         className={cn(" w-full flex gap-2 justify-between")}
@@ -76,8 +79,8 @@ function LexingtonTableControls(props: ComponentProps<'div'>) {
 export const Lexington = {
     Root: LexingtonRoot,
     Header: S2_AppPageHeader,
-    Main: LexingtonMain,
+    Page: LexingtonPage,
     Empty: LexingtonEmpty,
-    Container: LexingtonContainer,
+    //Container: LexingtonContainer,
     TableControls: LexingtonTableControls,
 }

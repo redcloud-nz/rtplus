@@ -12,55 +12,55 @@ import { Button } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleProps, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { ExternalLink, Link } from '@/components/ui/link'
 import {
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-} from '@/components/ui/sidebar'
+  S2_SidebarGroup,
+  S2_SidebarGroupLabel,
+  S2_SidebarMenu,
+  S2_SidebarMenuButton,
+  S2_SidebarMenuItem,
+  S2_SidebarMenuSub,
+  S2_SidebarMenuSubButton,
+  S2_SidebarMenuSubItem,
+} from '@/components/ui/s2-sidebar'
 import { cn } from '@/lib/utils'
 
 
 
-export type NavSectionProps = ComponentProps<typeof SidebarGroup> & { title?: string }
+export type NavSectionProps = ComponentProps<typeof S2_SidebarGroup> & { title?: string }
 
 export function NavSection({ title, children }: NavSectionProps) {
-    return <SidebarGroup>
-        { title ? <SidebarGroupLabel>{title}</SidebarGroupLabel> : null }
-        <SidebarMenu>
+    return <S2_SidebarGroup>
+        { title ? <S2_SidebarGroupLabel>{title}</S2_SidebarGroupLabel> : null }
+        <S2_SidebarMenu>
             {children}
-        </SidebarMenu>
-    </SidebarGroup>
+        </S2_SidebarMenu>
+    </S2_SidebarGroup>
 }
 
 type NavItemExternalProps = { external: true, href: string, path?: never, label: string }
 type NavItemInternalProps = { external?: never, href?: never, path: { label: string, href: string }, label?: string }
-type NavItemProps = (NavItemExternalProps | NavItemInternalProps) & Omit<ComponentProps<typeof SidebarMenuItem>, 'children'> & { icon?: ReactNode }
+type NavItemProps = (NavItemExternalProps | NavItemInternalProps) & Omit<ComponentProps<typeof S2_SidebarMenuItem>, 'children'> & { icon?: ReactNode }
 
 export function NavItem({ external, href, icon, label, path, ...props }: NavItemProps) {
     const pathname = usePathname()
 
     if(external) {
-        return <SidebarMenuItem {...props}>
-            <SidebarMenuButton asChild>
+        return <S2_SidebarMenuItem {...props}>
+            <S2_SidebarMenuButton asChild>
                 <ExternalLink href={href} noDecoration>
                     {icon}
                     <span>{label}</span>
                 </ExternalLink>
-            </SidebarMenuButton>
-        </SidebarMenuItem>
+            </S2_SidebarMenuButton>
+        </S2_SidebarMenuItem>
     } else {
-        return <SidebarMenuItem {...props}>
-            <SidebarMenuButton asChild isActive={pathname == path.href}>
+        return <S2_SidebarMenuItem {...props}>
+            <S2_SidebarMenuButton asChild isActive={pathname == path.href}>
                 <Link to={path}>
                     {icon}
                     <span>{label ?? path.label}</span>
                 </Link>
-            </SidebarMenuButton>
-        </SidebarMenuItem>
+            </S2_SidebarMenuButton>
+        </S2_SidebarMenuItem>
     }
 }
 
@@ -83,48 +83,48 @@ export function NavCollapsible({ children, className, icon, label, prefix, ...pr
         onOpenChange={setOpen}
         {...props}
     >
-        <SidebarMenuItem>
+        <S2_SidebarMenuItem>
             <CollapsibleTrigger asChild>
-                <SidebarMenuButton tooltip={label}>
+                <S2_SidebarMenuButton tooltip={label}>
                     {icon}
                     <span>{label}</span>
                     <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                </SidebarMenuButton>
+                </S2_SidebarMenuButton>
             </CollapsibleTrigger>
             <CollapsibleContent>
-                <SidebarMenuSub>
+                <S2_SidebarMenuSub>
                     {children}
-                </SidebarMenuSub>
+                </S2_SidebarMenuSub>
             </CollapsibleContent>
-        </SidebarMenuItem>
+        </S2_SidebarMenuItem>
     </Collapsible>
 }
 
 type NavSubItemExternalProps = { external: true, href: string, path?: never, label: string }
 type NavSubItemInternalProps = { external?: never, href?: never, path: { label: string, href: string }, label?: string }
-type NavSubItemProps = (NavSubItemExternalProps | NavSubItemInternalProps) & Omit<ComponentProps<typeof SidebarMenuSubItem>, 'children'> & { icon?: ReactNode }
+type NavSubItemProps = (NavSubItemExternalProps | NavSubItemInternalProps) & Omit<ComponentProps<typeof S2_SidebarMenuSubItem>, 'children'> & { icon?: ReactNode }
 
 export function NavSubItem({ external, href, icon, label, path, ...props }: NavSubItemProps) {
     const pathname = usePathname()
 
     if(external) {
-        return <SidebarMenuSubItem>
-            <SidebarMenuSubButton asChild>
+        return <S2_SidebarMenuSubItem>
+            <S2_SidebarMenuSubButton asChild>
                 <ExternalLink href={href} noDecoration>
                     {icon}
                     <span>{label}</span>
                 </ExternalLink>
-            </SidebarMenuSubButton>
-        </SidebarMenuSubItem>
+            </S2_SidebarMenuSubButton>
+        </S2_SidebarMenuSubItem>
     } else {
-        return <SidebarMenuSubItem>
-            <SidebarMenuSubButton asChild isActive={pathname == path.href}>
+        return <S2_SidebarMenuSubItem>
+            <S2_SidebarMenuSubButton asChild isActive={pathname == path.href}>
                 <Link to={path}>
                     {icon}
                     <span>{label ?? path.label}</span>
                 </Link>
-            </SidebarMenuSubButton>
-        </SidebarMenuSubItem>
+            </S2_SidebarMenuSubButton>
+        </S2_SidebarMenuSubItem>
     }
 }
 

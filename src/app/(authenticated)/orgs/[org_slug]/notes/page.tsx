@@ -6,7 +6,6 @@
 */
 
 import { Lexington } from '@/components/blocks/lexington'
-import { SidebarInset } from '@/components/ui/sidebar'
 
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
@@ -28,9 +27,9 @@ export default async function NotesModule_Index_Page(props: PageProps<'/orgs/[or
                 Paths.org(orgSlug).notes
             ]}
         />
-        <Lexington.Main>
+        <Lexington.Page container>
             <NotesModule_NotesList organization={organization} />
-        </Lexington.Main>
+        </Lexington.Page>
     </Lexington.Root>
 }
 

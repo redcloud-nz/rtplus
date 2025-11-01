@@ -6,13 +6,14 @@
  */
 
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
-import { Boundary } from '@/components/boundary'
+import { Lexington } from '@/components/blocks/lexington'
 
 import * as Paths from '@/paths'
-
-import { SkillsModule_NewCheck_Form } from './team-new-check'
 import { getOrganization } from '@/server/organization'
+
+import { SkillsModule_NewCheck_Form } from './new-check'
+
+
 
 
 export const metadata = { title: 'Create Skill Check' }
@@ -21,19 +22,17 @@ export default async function SkillsModule_NewCheck_Page(props: PageProps<'/orgs
     const { org_slug: orgSlug } = await props.params
         const organization = await getOrganization(orgSlug)
 
-    return <AppPage>
-        <AppPageBreadcrumbs breadcrumbs={[
+    return <Lexington.Root>
+        <Lexington.Header breadcrumbs={[
                 Paths.org(organization.slug).skills,
                 Paths.org(organization.slug).skills.checks,
                 Paths.org(organization.slug).skills.checks.create,
             ]}
         />
-        <AppPageContent variant="container">
-            <Boundary>
-                <SkillsModule_NewCheck_Form organization={organization} />
-            </Boundary>
-        </AppPageContent>
-    </AppPage>
+        <Lexington.Page container>
+            <SkillsModule_NewCheck_Form organization={organization} />
+        </Lexington.Page>
+    </Lexington.Root>
 }
 
 

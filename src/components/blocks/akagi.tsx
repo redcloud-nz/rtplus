@@ -80,6 +80,60 @@ function AkagiTableHeader<TData extends RowData>({ align = "start", children, cl
     </S2_TableHeader>
 }
 
+
+function AkagiTableHeader2<TData extends RowData>({ align = "start", children, className, header, showAbove: showAbove, ...props }: AkagiTableHeaderProps<TData>) {
+    const canSort = header.column.getCanSort()
+    const isSorted = header.column.getIsSorted()
+
+    return <S2_TableHeader 
+        className={cn("relative",
+            canSort && "pr-12",
+            align == "start", "text-start",
+            align == "center" && "text-center",
+            align == "end" && "text-end",
+            canSort && align == 'center' && "px-12",
+            showAbove == 'sm' && 'hidden sm:table-cell',
+            showAbove == 'md' && 'hidden md:table-cell',
+            showAbove == 'lg' && 'hidden lg:table-cell',
+            showAbove == 'xl' && 'hidden xl:table-cell',
+            showAbove == '2xl' && 'hidden 2xl:table-cell',
+            className
+        )} 
+        {...props}
+    > 
+        <div className="absolute h-5 right-0 top-1/2 -transform -translate-y-1/2 flex items-center border-r border-muted">
+            {canSort && <> 
+                {match(isSorted)
+                    .with('asc', () => <ArrowDownAZIcon className="size-4 text-muted-foreground"/>)
+                    .with('desc', () => <ArrowDownZAIcon className="size-4 text-muted-foreground"/>)
+                    .otherwise(() => <div className="size-4"/>)
+                }
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <S2_Button variant="ghost" size="icon-sm" className="text-muted-foreground">
+                            <EllipsisVerticalIcon className="size-4"/>
+                        </S2_Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-32">
+                        <DropdownMenuGroup>
+                            <DropdownMenuLabel>Sort</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => header.column.toggleSorting(false)} disabled={isSorted == 'asc'}>
+                                <ArrowDownAZIcon />
+                                <span>Ascending</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => header.column.toggleSorting(true)} disabled={isSorted == 'desc'}>
+                                <ArrowDownZAIcon/>
+                                <span>Descending</span>
+                            </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                </DropdownMenu>       
+            </>}
+        </div>
+        {children}
+    </S2_TableHeader>
+}
+
 type AkagiTableCellProps<TData extends RowData> = Omit<ComponentProps<'td'>, 'align'> & Pick<CellContext<TData, unknown>, 'cell'> & {
     align?: 'start' | 'center' | 'end'
     showAbove?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
@@ -107,9 +161,12 @@ function AkagiTableCell<TData extends RowData>({ align = "start", children, clas
 
 function AkagiTable<TData extends RowData>({ table }: { table: TanstackTable<TData> }) {
     return <S2_Table 
-        border 
-        className="border-collapse-separate border-spacing-0"
-        containerProps={ { className: "overflow-y-auto [scrollbar-gutter:stable] [scrollbar-color:var(--scrollbar-thumb)_transparent]" } }
+        className=""
+        slots={{ 
+            container: { 
+                className: "border-1 rounded-md shadow-md [scrollbar-gutter:stable] [scrollbar-color:var(--scrollbar-thumb)_transparent]"               
+            }
+        }}
     >
         <S2_TableHead className="sticky top-0 bg-background/90 backdrop-blur-md z-10">
             {table.getHeaderGroups().map(headerGroup =>
@@ -121,6 +178,9 @@ function AkagiTable<TData extends RowData>({ table }: { table: TanstackTable<TDa
                     )}
                 </S2_TableRow>
             )}
+            <S2_TableRow>
+                <th colSpan={table.getAllColumns().length} className="h-[1px] border-t"></th>
+            </S2_TableRow>
         </S2_TableHead>
         <S2_TableBody>
             {table.getRowModel().rows.map(row =>
@@ -161,7 +221,7 @@ function defineColumns<TData extends RowData>(factory: (columnHelper: ColumnHelp
 
 export const Akagi = {
     Table: AkagiTable,
-    TableHeader: AkagiTableHeader,
+    TableHeader: AkagiTableHeader2,
     TableCell: AkagiTableCell,
     TableSearch: AkagiTableSearch,
     defineColumns

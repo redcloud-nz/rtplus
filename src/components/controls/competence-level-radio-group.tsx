@@ -28,7 +28,7 @@ export function CompetenceLevelRadioGroup({ className, prevValue, value, ...prop
             value={lvl}
             diff={value == lvl ? (prevValue == lvl ? 'none' : 'add') : (prevValue == lvl ? 'remove' : 'none')}
         />)}
-        <div className="hidden sm:block w-32 text-muted-foreground text-sm">{CompetenceLevelTerms[value]}</div>
+        <div className="hidden sm:block w-28 text-muted-foreground text-sm">{CompetenceLevelTerms[value]}</div>
     </RadioGroupPrimitive.Root>
 }
 

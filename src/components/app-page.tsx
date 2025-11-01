@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import { SidebarTrigger } from '@/components/ui/sidebar'
+import { S2_SidebarTrigger } from '@/components/ui/s2-sidebar'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Heading } from '@/components/ui/typography'
 import { cn } from '@/lib/utils'
@@ -33,8 +33,8 @@ interface AppPageProps {
 
 export function AppPage({ children, rightControls, showLeftSidebarTrigger = true, showRightSidebarTrigger = false }: AppPageProps) {
     return <div className="h-screen flex-1 grid grid-rows-[48px_1px_1fr] grid-cols-[auto_1fr_auto] overflow-hidden">
-        { showLeftSidebarTrigger && <div className="row-1 col-1 flex justify-center items-center pl-1 gap-1">
-            <SidebarTrigger side="left"/>
+        { showLeftSidebarTrigger && <div className="row-1 col-1 flex justify-center items-center pl-2 gap-2">
+            <S2_SidebarTrigger/>
              <Separator orientation="vertical"/>
         </div>}
         
@@ -42,7 +42,7 @@ export function AppPage({ children, rightControls, showLeftSidebarTrigger = true
             {rightControls ? rightControls : null}
             { showRightSidebarTrigger ? <>
                 <Separator orientation="vertical"/>
-                <SidebarTrigger side="right"/>
+                {/* <S2_SidebarTrigger side="right"/> */}
             </> : null }
             
        </div>
@@ -145,9 +145,9 @@ interface AppPageHeaderProps {
  * Page header for design System 2. To be used inside `SidebarInset` component.
  */
 export function S2_AppPageHeader({ breadcrumbs }: AppPageHeaderProps) {
-    return <header className="bg-background sticky top-0 z-50 flex h-[var(--header-height)] shrink-0 items-center gap-1 border-b px-1">
-        <SidebarTrigger side="left"/>
-        <Separator orientation="vertical"/>
+    return <header className="bg-background sticky top-0 flex h-[var(--header-height)] shrink-0 items-center gap-1 border-b px-2">
+        <S2_SidebarTrigger/>
+        <Separator orientation="vertical" className="ml-1"/>
         { breadcrumbs && <AppPageBreadcrumbs_Inner breadcrumbs={breadcrumbs} /> }
     </header>
 }
