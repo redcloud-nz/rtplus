@@ -14,15 +14,15 @@ import { Slot } from '@radix-ui/react-slot'
 import { S2_AppPageHeader } from '@/components/app-page'
 import Artie from '@/components/art/artie'
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
-import { S2_SidebarInset } from '@/components/ui/s2-sidebar'
 
 import { cn } from '@/lib/utils'
 
 
 function LexingtonRoot({ children }: { children: ReactNode }) {
-    return <S2_SidebarInset
-        data-component="LexingtonPage"
-    >{children}</S2_SidebarInset>
+    return <main
+        data-component="LexingtonRoot"
+        className="relative flex min-h-svh flex-1 flex-col bg-background"
+    >{children}</main>
 }
 
 interface LexingtonPageProps extends ComponentProps<'div'> {
@@ -41,7 +41,7 @@ function LexingtonPage({ asChild = false, children, className, container, dual, 
             container && "[&>*]:w-full [&>*]:max-w-full xl:[&>*]:max-w-4xl [&>*]:mx-auto",
             dual && "grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-6xl",
             className)}
-        data-component="LexingtonPageMain"
+        data-component="LexingtonPage"
          {...props}
     >
         {children}

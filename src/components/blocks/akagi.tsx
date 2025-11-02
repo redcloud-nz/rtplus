@@ -7,18 +7,22 @@
  * A set of components for displaying and interacting with data tables.
  */
 
-import { ArrowDownAZIcon, ArrowDownZAIcon, ChevronsUpDownIcon, FunnelIcon, SearchIcon } from 'lucide-react'
+'use client'
+
+import { ArrowDownAZIcon, ArrowDownZAIcon, ChevronLeftIcon, ChevronRightIcon, ChevronsUpDownIcon, EllipsisIcon, FunnelIcon, SearchIcon } from 'lucide-react'
 import { ComponentProps, Fragment } from 'react'
 import { match } from 'ts-pattern'
 
 import { CellContext, ColumnDef, ColumnHelper, createColumnHelper, flexRender, HeaderContext, RowData, Table as TanstackTable } from '@tanstack/react-table'
 
 import { S2_Button } from '../ui/s2-button'
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '../ui/input-group'
-import { S2_Table, S2_TableBody, S2_TableCell, S2_TableHead, S2_TableHeader, S2_TableRow } from '@/components/ui/s2-table'
+import { S2_Table, S2_TableBody, S2_TableCell, S2_TableFoot, S2_TableHead, S2_TableHeader, S2_TableRow } from '@/components/ui/s2-table'
 
 import { cn } from '@/lib/utils'
+import { Table, TableFooter, TableRow } from '../ui/table'
+import { S2_Select, S2_SelectContent, S2_SelectItem, S2_SelectTrigger, S2_SelectValue } from '../ui/s2-select'
 
 
 
@@ -133,15 +137,35 @@ function AkagiTableCell<TData extends RowData>({ align = "start", children, clas
 
 
 function AkagiTable<TData extends RowData>({ table }: { table: TanstackTable<TData> }) {
+
+    const isEmpty = table.getRowCount() == 0
+
     return <S2_Table 
-        className=""
-        slots={{ 
+        slotProps={{ 
             container: { 
                 className: "border-1 border-border rounded-md shadow-md [scrollbar-gutter:stable] [scrollbar-color:var(--scrollbar-thumb)_transparent]"               
             }
         }}
     >
-        <S2_TableHead className="sticky top-0 bg-background/90 backdrop-blur-md z-10 shadow-xs">
+        <AkagiTableHead table={table} />
+        <S2_TableBody>
+            {table.getRowModel().rows.map(row =>
+                <S2_TableRow key={`${row.id}`}>
+                    {row.getVisibleCells().map(cell =>
+                        <Fragment key={cell.id}>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </Fragment>
+                    )}
+                </S2_TableRow>
+            )}
+            {isEmpty && <tr><td colSpan={table.getVisibleFlatColumns().length} className="text-center py-4">No results found</td></tr>}
+        </S2_TableBody>
+        { !isEmpty && <AkagiPagination table={table} />}
+    </S2_Table>
+}
+
+function AkagiTableHead<TData extends RowData>({ className, table, ...props }: ComponentProps<'thead'> & { table: TanstackTable<TData> }) {
+    return <S2_TableHead className={cn("sticky top-[var(--header-height)] bg-neutral-100/90 backdrop-blur-md z-10 rounded-t-md shadow-xs", className)} {...props}>
             {table.getHeaderGroups().map(headerGroup =>
                 <S2_TableRow key={headerGroup.id}>
                     {headerGroup.headers.map(header =>
@@ -155,20 +179,110 @@ function AkagiTable<TData extends RowData>({ table }: { table: TanstackTable<TDa
                 <th colSpan={table.getAllColumns().length} className="h-[1px] border-t"></th>
             </S2_TableRow>
         </S2_TableHead>
-        <S2_TableBody>
-            {table.getRowModel().rows.map(row =>
-                <S2_TableRow key={`${row.id}`}>
-                    {row.getVisibleCells().map(cell =>
-                        <Fragment key={cell.id}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </Fragment>
-                    )}
-                </S2_TableRow>
-            )}
-            {table.getRowCount() === 0 && <tr><td colSpan={table.getAllColumns().length} className="text-center py-4">No results found</td></tr>}
-        </S2_TableBody>
-    </S2_Table>
 }
+
+function AkagiPagination<TData extends RowData>({ className, table, ...props }: ComponentProps<'tfoot'> & { table: TanstackTable<TData> }) {
+    const pagination = table.getState().pagination
+    const rowCount = table.getRowCount()
+    const pageIndex = pagination.pageIndex
+    const pageCount = table.getPageCount()
+
+    const startRowIndex = pagination.pageSize * pagination.pageIndex
+    const endRowIndex = Math.min(startRowIndex + pagination.pageSize, rowCount)
+    
+
+    return <S2_TableFoot className={cn("sticky bottom-0 bg-neutral-100/90 backdrop-blur-md z-10", className)} {...props}>
+        <TableRow>
+            <td colSpan={table.getAllColumns().length}>
+                <div className="sticky bottom-0 bg-neutral-100/90 backdrop-blur-md z-10 grid grid-cols-3 items-center text-sm px-2 py-1">
+                    <div className="flex justify-start gap-1 lg:gap-1.5 text-muted-foreground">
+                        <span className="hidden lg:inline">{rowCount > 1 ? 'rows' : 'row'}</span>
+                        <span>{rowCount > 1 ? `${startRowIndex + 1} - ${endRowIndex}` : '1'}</span>
+                        <span>of</span>
+                        <span>{rowCount}</span>
+                    </div>
+                    <div className="flex justify-center">
+
+                        {/* Previous Button. Disabled on first page */}
+                        <S2_Button 
+                            variant="ghost"
+                            size="sm"
+                            disabled={!table.getCanPreviousPage()}
+                            onClick={() => table.previousPage()}
+                        >
+                            <ChevronLeftIcon/> <span className="hidden sm:block">Previous</span>
+                        </S2_Button>
+
+                        {/* Preceeding ellipsis. Shown if there are more than 2 preceeding pages. */}
+                        {pageIndex > 1 ? <div className="flex size-8 items-center justify-center">
+                            <EllipsisIcon className="size-4"/>
+                        </div> : null}
+
+                        {/* Previous page number button. Shown if not the first page */}
+                        { pageIndex > 0 ? <S2_Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => table.previousPage()}
+                        >{pageIndex}</S2_Button> : null}
+
+                        {/* Current page number button. Disabled */}
+                        <S2_Button
+                            variant="ghost"
+                            size="sm"
+                            className="border-1"
+                            disabled
+                        >{pageIndex + 1}</S2_Button>
+
+                        {/* Next page number button. Shown if not the last page */}
+                        { pageIndex + 1 < pageCount ? <S2_Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => table.nextPage()}
+                        >{pageIndex + 2}</S2_Button> : null}
+
+                        {/* Succeeding ellipsis. Shown if there are more than 2 succeeding pages. */}
+                        {pageIndex + 2 < pageCount && <div className="flex size-8 items-center justify-center">
+                            <EllipsisIcon className="size-4"/>
+                        </div>}
+
+                        {/* Next Button. Disabled on last page */}
+                        <S2_Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={!table.getCanNextPage()}
+                            onClick={() => table.nextPage()}
+                        >
+                            <span className="hidden sm:block">Next</span> <ChevronRightIcon/>
+                        </S2_Button>
+                    </div>
+                    <div className="flex items-center justify-end gap-2">
+                        <div className="text-muted-foreground">Rows per page:</div>
+                        <S2_Select
+                            value={pagination.pageSize.toString()}
+                            onValueChange={value => {
+                                table.setPageSize(Number(value))
+                            }}
+                        >
+                            <S2_SelectTrigger className="w-20" size="sm">
+                                <S2_SelectValue />
+                            </S2_SelectTrigger>
+                            <S2_SelectContent>
+                                {[10, 20, 50, 100, 200, 500].map(size => 
+                                    <S2_SelectItem key={size} value={size.toString()}>
+                                        {size}
+                                    </S2_SelectItem>
+                                )}
+                            </S2_SelectContent>
+                        </S2_Select>
+                    </div>
+                </div>
+            </td>
+        </TableRow>
+    </S2_TableFoot>
+
+    
+}
+
 
 function AkagiTableSearch<TData extends RowData>({ className, table, ...props }: ComponentProps<typeof InputGroup> & { table: TanstackTable<TData> }) {
     

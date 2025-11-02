@@ -67,6 +67,7 @@ type OrgPaths = {
     checklists: ReturnType<typeof checklistsModule>,
     dashboard: { label: string, href: string },
     d4hViews: ReturnType<typeof d4hViewsModule>,
+    dev: ReturnType<typeof devModule>,
     fog: ReturnType<typeof fogModule>,
     notes: ReturnType<typeof notesModule>,
     skills: ReturnType<typeof skillsModule>,
@@ -87,6 +88,7 @@ export function org(orgSlug: string): OrgPaths  {
             checklists: checklistsModule(orgSlug),
             dashboard: { label: 'Dashboard', href: `/orgs/${orgSlug}` },
             d4hViews: d4hViewsModule(orgSlug),
+            dev: devModule(orgSlug),
             fog: fogModule(orgSlug),
             notes: notesModule(orgSlug),
             skills: skillsModule(orgSlug),
@@ -221,6 +223,19 @@ function d4hViewsModule(orgSlug: string) {
             label: 'Personnel',
             href: `${base}/personnel`,
             bgColor: 'bg-blue-400'
+        },
+    } as const
+}
+
+function devModule(orgSlug: string) {
+    const base = `/orgs/${orgSlug}/dev` as const
+
+    return {
+        label: 'Dev',
+        href: base,
+        tableLayout: {
+            label: 'Table Layout',
+            href: `${base}/table-layout`,
         },
     } as const
 }

@@ -19,9 +19,8 @@ import { S2_Button } from '@/components/ui/s2-button'
 import { Link, TextLink } from '@/components/ui/link'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
-import { useIsMobile } from '@/hooks/use-mobile'
 import { OrganizationData } from '@/lib/schemas/organization'
-import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
+import { SkillCheckSessionData, SkillCheckSessionId } from '@/lib/schemas/skill-check-session'
 import * as Paths from '@/paths'
 import { trpc, WithCounts } from '@/trpc/client'
 
@@ -31,8 +30,6 @@ type RowData = WithCounts<SkillCheckSessionData, 'assessees' | 'assessors' | 'sk
 export function SkillModule_SkillCheckSessionsList({ organization }: { organization: OrganizationData }) {
 
     const { data: sessions } = useSuspenseQuery(trpc.skillChecks.getSessions.queryOptions({ orgId: organization.orgId }))
-
-    const isMobile = useIsMobile()
 
     const columns = useMemo(() => Akagi.defineColumns<RowData>(columnHelper => [
         columnHelper.accessor('name', {
@@ -89,13 +86,14 @@ export function SkillModule_SkillCheckSessionsList({ organization }: { organizat
         columns,
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        getRowId: (row) => row.sessionId,
         initialState: {
             columnFilters: [
                 { id: 'status', value: ['Draft', 'Include', 'Exclude'] }
             ],
-            pagination: { pageIndex: 0, pageSize: 50 },
+            pagination: { pageIndex: 0, pageSize: 10 },
             sorting: [{ id: 'date', desc: true }],
         },
     })

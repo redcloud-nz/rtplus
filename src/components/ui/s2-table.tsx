@@ -7,23 +7,24 @@
 
 'use client'
 
-import { ComponentProps } from 'react'
+import { ComponentProps, ReactNode } from 'react'
 
 import { cn } from '@/lib/utils'
 
 
 type S2_TableProps = ComponentProps<'table'> & { 
-    slots?: { 
+    footer?: ReactNode
+    slotProps?: { 
         container?: Omit<ComponentProps<'div'>, 'children'>
     }
 }
 
-export function S2_Table({ className, slots: { container = {} } = { }, ...props }: S2_TableProps) {
+export function S2_Table({ className, footer, slotProps: { container = {} } = { }, ...props }: S2_TableProps) {
     const { className: containerClassName, ...containerProps } = container
 
     return <div
         data-slot="table-container"
-        className={cn("relative w-full overflow-x-auto", containerClassName)}
+        className={cn("w-full", containerClassName)}
         {...containerProps}
     >
         <table
@@ -31,6 +32,7 @@ export function S2_Table({ className, slots: { container = {} } = { }, ...props 
             className={cn('w-full caption-bottom text-sm', className)}
             {...props}
         />
+        {footer}
     </div>
 }
 
