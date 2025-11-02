@@ -4,7 +4,7 @@
  */
 'use client'
 
-import { PencilIcon, TrashIcon } from 'lucide-react'
+import { MoveLeftIcon, PencilIcon, TrashIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -35,6 +35,11 @@ import { SkillCheckSessionData, SkillCheckSessionId, skillCheckSessionSchema } f
 import { formatDate } from '@/lib/utils'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
+import { S2_Card, S2_CardContent, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { S2_Value } from '@/components/ui/s2-value'
+import { Lexington } from '@/components/blocks/lexington'
+import { S2_Button } from '@/components/ui/s2-button'
 
 
 
@@ -43,6 +48,53 @@ export function SkillsModule_SessionDetails({ organization, sessionId }: { organ
     const { data: session } = useSuspenseQuery(trpc.skillChecks.getSession.queryOptions({ orgId: organization.orgId, sessionId }))
 
     const [mode, setMode] = useState<'View' | 'Update'>('View')
+
+    return <div className="flex flex-col gap-2">
+        <Lexington.TableControls>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <S2_Button variant="outline" asChild>
+                        <Link to={Paths.org(organization.slug).skills.sessions}>
+                            <MoveLeftIcon/> List
+                        </Link>
+                    </S2_Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    back to list
+                </TooltipContent>
+            </Tooltip>
+            <S2_Button variant="outline" asChild>
+                <Link to={Paths.org(organization.slug).skills.session(session.sessionId).update}>
+                    <PencilIcon/> Edit
+                </Link>
+            </S2_Button>
+        </Lexington.TableControls>
+        <S2_Card>
+            <S2_CardHeader>
+                <S2_CardTitle>Session Details</S2_CardTitle>
+            </S2_CardHeader>
+            <S2_CardContent>
+                <FieldGroup>
+                    <Field orientation='responsive'>
+                        <FieldLabel>SesionId</FieldLabel>
+                        <S2_Value value={session.sessionId}/>
+                    </Field>
+                    <Field orientation='responsive'>
+                        <FieldLabel>Name</FieldLabel>
+                        <S2_Value value={session.name}/>
+                    </Field>
+                    <Field orientation='responsive'>
+                        <FieldLabel>Date</FieldLabel>
+                        <S2_Value value={formatDate(session.date)}/>
+                    </Field>
+                    <Field orientation='responsive'>
+                        <FieldLabel>Status</FieldLabel>
+                        <S2_Value value={session.sessionStatus}/>
+                    </Field>
+                </FieldGroup>
+            </S2_CardContent>
+        </S2_Card>
+    </div>
     
     return <Card>
         <CardHeader>

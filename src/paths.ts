@@ -304,6 +304,10 @@ function skillsModule(orgSlug: string) {
                 review: {
                     href: `${base}/sessions/${sessionId}/review`,
                     label: 'Review',
+                },
+                update: {
+                    label: 'Update',
+                    href: `${base}/sessions/${sessionId}/--update`,
                 }
             } as const
         },

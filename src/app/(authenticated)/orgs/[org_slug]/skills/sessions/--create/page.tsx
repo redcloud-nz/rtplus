@@ -5,12 +5,13 @@
  *  Path: /orgs/[org_slug]/skills/sessions/--create
  */
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
-import { Boundary } from '@/components/boundary'
+import { Lexington } from '@/components/blocks/lexington'
 import * as Paths from '@/paths'
+import { getOrganization } from '@/server/organization'
 
 import { SkillsModule_NewSession_Form } from './new-session'
-import { getOrganization } from '@/server/organization'
+
+
 
 export const metadata = { title: `New Skill Check Session` }
 
@@ -18,22 +19,16 @@ export default async function SkillsModule_NewSession_Page(props: PageProps<'/or
     const { org_slug: orgSlug } = await props.params
     const organization = await getOrganization(orgSlug)
 
-    return <AppPage>
-        <AppPageBreadcrumbs
+    return <Lexington.Root>
+        <Lexington.Header
             breadcrumbs={[
                 Paths.org(organization.slug).skills,
                 Paths.org(organization.slug).skills.sessions,
                 Paths.org(organization.slug).skills.sessions.create,
             ]}
         />
-        <AppPageContent variant="container">
-            <PageHeader>
-                <PageTitle>New Skill Check Session</PageTitle>
-            </PageHeader>
-
-            <Boundary>
-                <SkillsModule_NewSession_Form organization={organization} />
-            </Boundary>
-        </AppPageContent>
-    </AppPage>
+        <Lexington.Page container>
+            <SkillsModule_NewSession_Form organization={organization} />
+        </Lexington.Page>
+    </Lexington.Root>
 }

@@ -28,15 +28,18 @@ function LexingtonRoot({ children }: { children: ReactNode }) {
 interface LexingtonPageProps extends ComponentProps<'div'> {
     asChild?: boolean
     container?: boolean
+    dual?: boolean
 }
 
-function LexingtonPage({ asChild = false, children, className, container, ...props }: LexingtonPageProps) {
+function LexingtonPage({ asChild = false, children, className, container, dual, ...props }: LexingtonPageProps) {
     const Comp = asChild ? Slot : 'div'
 
     return <Comp
         className={cn(
-            "absolute top-[var(--header-height)] left-0 right-0 bottom-0 p-4 flex flex-col gap-2",
+            //"absolute top-[var(--header-height)] left-0 right-0 bottom-1 ",
+            "p-4 flex flex-col gap-2",
             container && "[&>*]:w-full [&>*]:max-w-full xl:[&>*]:max-w-4xl [&>*]:mx-auto",
+            dual && "grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-6xl",
             className)}
         data-component="LexingtonPageMain"
          {...props}

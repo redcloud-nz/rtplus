@@ -7,14 +7,14 @@
  * A set of components for displaying and interacting with data tables.
  */
 
-import { ArrowDownAZIcon, ArrowDownZAIcon, EllipsisVerticalIcon, SearchIcon } from 'lucide-react'
+import { ArrowDownAZIcon, ArrowDownZAIcon, ChevronsUpDownIcon, FunnelIcon, SearchIcon } from 'lucide-react'
 import { ComponentProps, Fragment } from 'react'
 import { match } from 'ts-pattern'
 
 import { CellContext, ColumnDef, ColumnHelper, createColumnHelper, flexRender, HeaderContext, RowData, Table as TanstackTable } from '@tanstack/react-table'
 
 import { S2_Button } from '../ui/s2-button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '../ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '../ui/input-group'
 import { S2_Table, S2_TableBody, S2_TableCell, S2_TableHead, S2_TableHeader, S2_TableRow } from '@/components/ui/s2-table'
 
@@ -24,20 +24,17 @@ import { cn } from '@/lib/utils'
 
 type AkagiTableHeaderProps<TData extends RowData> = Omit<ComponentProps<'th'>, 'align'> & Pick<HeaderContext<TData, unknown>, 'header'> & {
     align?: 'start' | 'center' | 'end'
+    filterOptions?: string[]
     showAbove?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
 }
 
-function AkagiTableHeader<TData extends RowData>({ align = "start", children, className, header, showAbove: showAbove, ...props }: AkagiTableHeaderProps<TData>) {
+function AkagiTableHeader<TData extends RowData>({ align = "start", children, className, filterOptions, header, showAbove: showAbove, ...props }: AkagiTableHeaderProps<TData>) {
+    const canFilter = header.column.getCanFilter() && filterOptions && filterOptions.length > 0
     const canSort = header.column.getCanSort()
     const isSorted = header.column.getIsSorted()
 
     return <S2_TableHeader 
-        className={cn("relative",
-            canSort && "pr-12",
-            align == "start", "text-start",
-            align == "center" && "text-center",
-            align == "end" && "text-end",
-            canSort && align == 'center' && "px-12",
+        className={cn("",
             showAbove == 'sm' && 'hidden sm:table-cell',
             showAbove == 'md' && 'hidden md:table-cell',
             showAbove == 'lg' && 'hidden lg:table-cell',
@@ -46,91 +43,67 @@ function AkagiTableHeader<TData extends RowData>({ align = "start", children, cl
             className
         )} 
         {...props}
-    > 
-        <div className="absolute h-5 right-0 top-1/2 -transform -translate-y-1/2 flex items-center border-r border-muted">
-            {canSort && <> 
-                {match(isSorted)
-                    .with('asc', () => <ArrowDownAZIcon className="size-4 text-muted-foreground"/>)
-                    .with('desc', () => <ArrowDownZAIcon className="size-4 text-muted-foreground"/>)
-                    .otherwise(() => <div className="size-4"/>)
-                }
-                <DropdownMenu>
+    >
+        <div className={cn(
+            "flex items-center",
+            align == "start", "justify-start",
+            align == "center" && "justify-center" + ((canFilter || canSort) ? " pl-8" : ""),
+            align == "end" && "justify-end",
+        )}>
+            {children}
+            { canSort
+                ? <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <S2_Button variant="ghost" size="icon-sm" className="text-muted-foreground">
-                            <EllipsisVerticalIcon className="size-4"/>
+                            {match(isSorted)
+                                .with('asc', () => <ArrowDownAZIcon className="size-4"/>)
+                                .with('desc', () => <ArrowDownZAIcon className="size-4"/>)
+                                .otherwise(() => <ChevronsUpDownIcon className="size-4"/>)
+                            }
                         </S2_Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-32">
-                        <DropdownMenuGroup>
-                            <DropdownMenuLabel>Sort</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => header.column.toggleSorting(false)} disabled={isSorted == 'asc'}>
-                                <ArrowDownAZIcon />
-                                <span>Ascending</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => header.column.toggleSorting(true)} disabled={isSorted == 'desc'}>
-                                <ArrowDownZAIcon/>
-                                <span>Descending</span>
-                            </DropdownMenuItem>
-                        </DropdownMenuGroup>
+                        <DropdownMenuLabel>Sort</DropdownMenuLabel>
+                        <DropdownMenuSeparator/>
+                        <DropdownMenuItem onClick={() => header.column.toggleSorting(false)} disabled={isSorted == 'asc'}>
+                            <ArrowDownAZIcon />
+                            <span>Ascending</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => header.column.toggleSorting(true)} disabled={isSorted == 'desc'}>
+                            <ArrowDownZAIcon/>
+                            <span>Descending</span>
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
-                </DropdownMenu>       
-            </>}
-        </div>
-        {children}
-    </S2_TableHeader>
-}
-
-
-function AkagiTableHeader2<TData extends RowData>({ align = "start", children, className, header, showAbove: showAbove, ...props }: AkagiTableHeaderProps<TData>) {
-    const canSort = header.column.getCanSort()
-    const isSorted = header.column.getIsSorted()
-
-    return <S2_TableHeader 
-        className={cn("relative",
-            canSort && "pr-12",
-            align == "start", "text-start",
-            align == "center" && "text-center",
-            align == "end" && "text-end",
-            canSort && align == 'center' && "px-12",
-            showAbove == 'sm' && 'hidden sm:table-cell',
-            showAbove == 'md' && 'hidden md:table-cell',
-            showAbove == 'lg' && 'hidden lg:table-cell',
-            showAbove == 'xl' && 'hidden xl:table-cell',
-            showAbove == '2xl' && 'hidden 2xl:table-cell',
-            className
-        )} 
-        {...props}
-    > 
-        <div className="absolute h-5 right-0 top-1/2 -transform -translate-y-1/2 flex items-center border-r border-muted">
-            {canSort && <> 
-                {match(isSorted)
-                    .with('asc', () => <ArrowDownAZIcon className="size-4 text-muted-foreground"/>)
-                    .with('desc', () => <ArrowDownZAIcon className="size-4 text-muted-foreground"/>)
-                    .otherwise(() => <div className="size-4"/>)
-                }
-                <DropdownMenu>
+                </DropdownMenu>
+                : null
+            }
+            { canFilter
+                ? <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <S2_Button variant="ghost" size="icon-sm" className="text-muted-foreground">
-                            <EllipsisVerticalIcon className="size-4"/>
+                            <FunnelIcon className="size-4"/>
                         </S2_Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-32">
-                        <DropdownMenuGroup>
-                            <DropdownMenuLabel>Sort</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => header.column.toggleSorting(false)} disabled={isSorted == 'asc'}>
-                                <ArrowDownAZIcon />
-                                <span>Ascending</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => header.column.toggleSorting(true)} disabled={isSorted == 'desc'}>
-                                <ArrowDownZAIcon/>
-                                <span>Descending</span>
-                            </DropdownMenuItem>
-                        </DropdownMenuGroup>
+                        <DropdownMenuLabel>Filter</DropdownMenuLabel>
+                        <DropdownMenuSeparator/>
+                        {filterOptions.map(option => {
+                            const checked = (header.column.getFilterValue() as string[] ?? []).includes(option)
+                            return <DropdownMenuCheckboxItem
+                                key={option}
+                                checked={checked}
+                                onSelect={(ev) => {
+                                    ev.preventDefault()
+                                    if(checked) header.column.setFilterValue((header.column.getFilterValue() as string[] ?? []).filter(v => v !== option))
+                                    else header.column.setFilterValue([...(header.column.getFilterValue() as string[] ?? []), option])
+                                }}
+                            >{option}</DropdownMenuCheckboxItem>
+                        })}
                     </DropdownMenuContent>
-                </DropdownMenu>       
-            </>}
+                </DropdownMenu>
+                : null
+            }
         </div>
-        {children}
     </S2_TableHeader>
 }
 
@@ -164,11 +137,11 @@ function AkagiTable<TData extends RowData>({ table }: { table: TanstackTable<TDa
         className=""
         slots={{ 
             container: { 
-                className: "border-1 rounded-md shadow-md [scrollbar-gutter:stable] [scrollbar-color:var(--scrollbar-thumb)_transparent]"               
+                className: "border-1 border-border rounded-md shadow-md [scrollbar-gutter:stable] [scrollbar-color:var(--scrollbar-thumb)_transparent]"               
             }
         }}
     >
-        <S2_TableHead className="sticky top-0 bg-background/90 backdrop-blur-md z-10">
+        <S2_TableHead className="sticky top-0 bg-background/90 backdrop-blur-md z-10 shadow-xs">
             {table.getHeaderGroups().map(headerGroup =>
                 <S2_TableRow key={headerGroup.id}>
                     {headerGroup.headers.map(header =>
@@ -184,7 +157,7 @@ function AkagiTable<TData extends RowData>({ table }: { table: TanstackTable<TDa
         </S2_TableHead>
         <S2_TableBody>
             {table.getRowModel().rows.map(row =>
-                <S2_TableRow key={row.id}>
+                <S2_TableRow key={`${row.id}`}>
                     {row.getVisibleCells().map(cell =>
                         <Fragment key={cell.id}>
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -192,6 +165,7 @@ function AkagiTable<TData extends RowData>({ table }: { table: TanstackTable<TDa
                     )}
                 </S2_TableRow>
             )}
+            {table.getRowCount() === 0 && <tr><td colSpan={table.getAllColumns().length} className="text-center py-4">No results found</td></tr>}
         </S2_TableBody>
     </S2_Table>
 }
@@ -221,7 +195,7 @@ function defineColumns<TData extends RowData>(factory: (columnHelper: ColumnHelp
 
 export const Akagi = {
     Table: AkagiTable,
-    TableHeader: AkagiTableHeader2,
+    TableHeader: AkagiTableHeader,
     TableCell: AkagiTableCell,
     TableSearch: AkagiTableSearch,
     defineColumns

@@ -582,7 +582,14 @@ export const skillChecksRouter = createTRPCRouter({
         .input(z.object({
             status: z.enum(['Draft', 'Include', 'Exclude']).array().optional(),
         }))
-        .output(z.array(skillCheckSessionSchema))
+        .output(z.array(skillCheckSessionSchema.extend({
+            _count: z.object({
+                skills: z.number(),
+                assessees: z.number(),
+                assessors: z.number(),
+                checks: z.number()
+            })
+        })))
         .query(async ({ ctx, input }) => {
 
             const sessions = await ctx.prisma.skillCheckSession.findMany({
@@ -603,7 +610,10 @@ export const skillChecksRouter = createTRPCRouter({
                 orderBy: { date: 'desc' }
             })
 
-            return sessions.map(toSkillCheckSessionData)
+            return sessions.map((session) => ({
+                ...toSkillCheckSessionData(session),
+                _count: session._count
+            }))
         }),
 
     /**

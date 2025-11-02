@@ -145,7 +145,7 @@ interface AppPageHeaderProps {
  * Page header for design System 2. To be used inside `SidebarInset` component.
  */
 export function S2_AppPageHeader({ breadcrumbs }: AppPageHeaderProps) {
-    return <header className="bg-background sticky top-0 flex h-[var(--header-height)] shrink-0 items-center gap-1 border-b px-2">
+    return <header className="bg-background sticky top-0 flex h-[var(--header-height)] shrink-0 items-center gap-1 border-b px-2 z-20 backdrop-blur-md">
         <S2_SidebarTrigger/>
         <Separator orientation="vertical" className="ml-1"/>
         { breadcrumbs && <AppPageBreadcrumbs_Inner breadcrumbs={breadcrumbs} /> }

@@ -248,7 +248,7 @@ export function SkillsModule_NewCheck_Form({ organization }: { organization: Org
 
                     <FieldSeparator/>
 
-                    <FieldGroup className="flex flex-row justify-start gap-2">
+                    <Field orientation="horizontal">
                         <S2_Button type="submit" disabled={!form.formState.isDirty || mutation.isPending} form="record-skill-check-form">
                             Submit
                         </S2_Button>
@@ -258,7 +258,7 @@ export function SkillsModule_NewCheck_Form({ organization }: { organization: Org
                         }}>
                             Cancel
                         </S2_Button>
-                    </FieldGroup>
+                    </Field>
                 </FieldGroup>
                 </form>
             </S2_CardContent>
