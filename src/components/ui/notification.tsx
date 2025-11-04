@@ -36,7 +36,7 @@ export function Notification({ asChild, children, className, ...props }: Compone
 
     return <Component
         data-slot="notification"
-        className={cn("group/notification w-full flex flex-col items-stretch flex-wrap [a]:transition-colors duration-100 [a]:hover:bg-accent [a]:hover:text-accent-foreground px-4 py-2 gap-2", className)}
+        className={cn("group/notification w-full flex flex-col items-stretch flex-wrap [a]:transition-colors duration-100 [a]:hover:bg-accent [a]:hover:text-accent-foreground px-4 py-3 gap-2.5", className)}
         {...props}
     >{children}</Component>
 }

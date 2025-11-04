@@ -52,7 +52,7 @@ export function SkillsModule_SessionForm({ cancelPath, className, id: formId = "
     })
     
     return <>
-        <Lexington.TableControls>
+        <Lexington.ColumnControls>
             <Tooltip>
                 <TooltipTrigger asChild>
                     <S2_Button variant="outline" asChild>
@@ -65,7 +65,7 @@ export function SkillsModule_SessionForm({ cancelPath, className, id: formId = "
                     back to list
                 </TooltipContent>
             </Tooltip>
-        </Lexington.TableControls>
+        </Lexington.ColumnControls>
         <S2_Card>
             <S2_CardHeader>
                 <S2_CardTitle>Create New Skill Check Session</S2_CardTitle>

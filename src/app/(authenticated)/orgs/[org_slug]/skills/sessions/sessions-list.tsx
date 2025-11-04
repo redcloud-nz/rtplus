@@ -109,7 +109,7 @@ export function SkillModule_SkillCheckSessionsList({ organization }: { organizat
         </Lexington.Empty>}
     >
 
-        <Lexington.TableControls>
+        <Lexington.ColumnControls>
             <Akagi.TableSearch table={table} />
             <Tooltip>
                 <TooltipTrigger asChild>
@@ -123,7 +123,7 @@ export function SkillModule_SkillCheckSessionsList({ organization }: { organizat
                     Create a new skill check session for the team.
                 </TooltipContent>
             </Tooltip>
-        </Lexington.TableControls>
+        </Lexington.ColumnControls>
 
         <Akagi.Table table={table} />
     </Show>

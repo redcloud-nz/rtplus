@@ -50,7 +50,7 @@ export function SkillsModule_SessionDetails({ organization, sessionId }: { organ
     const [mode, setMode] = useState<'View' | 'Update'>('View')
 
     return <div className="flex flex-col gap-2">
-        <Lexington.TableControls>
+        <Lexington.ColumnControls>
             <Tooltip>
                 <TooltipTrigger asChild>
                     <S2_Button variant="outline" asChild>
@@ -68,7 +68,7 @@ export function SkillsModule_SessionDetails({ organization, sessionId }: { organ
                     <PencilIcon/> Edit
                 </Link>
             </S2_Button>
-        </Lexington.TableControls>
+        </Lexington.ColumnControls>
         <S2_Card>
             <S2_CardHeader>
                 <S2_CardTitle>Session Details</S2_CardTitle>

@@ -27,7 +27,7 @@ export default async function SkillsModule_SkillCheckSessions_Page(props: PagePr
                 Paths.org(orgSlug).skills.sessions,
             ]}
         />
-        <Lexington.Page container>
+        <Lexington.Page variant="container">
             <SkillModule_SkillCheckSessionsList organization={organization} />
         </Lexington.Page>
     </Lexington.Root>

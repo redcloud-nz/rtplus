@@ -27,7 +27,7 @@ export default async function SkillsModule_NewSession_Page(props: PageProps<'/or
                 Paths.org(organization.slug).skills.sessions.create,
             ]}
         />
-        <Lexington.Page container>
+        <Lexington.Page variant="container">
             <SkillsModule_NewSession_Form organization={organization} />
         </Lexington.Page>
     </Lexington.Root>

@@ -45,7 +45,7 @@ export function SkillsModule_SkillChecks_List({ organization }: { organization: 
             </S2_Button>
         </Lexington.Empty>}
     >
-        <Lexington.TableControls>
+        <Lexington.ColumnControls>
             <div></div>
             <div className="flex items-center gap-2">
                 <Tooltip>
@@ -62,7 +62,7 @@ export function SkillsModule_SkillChecks_List({ organization }: { organization: 
                     </TooltipContent>
                 </Tooltip>
             </div>
-        </Lexington.TableControls>
+        </Lexington.ColumnControls>
 
         <div className="flex flex-col gap-2">
             {groupedChecks.map(group => 

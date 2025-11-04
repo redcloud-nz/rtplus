@@ -42,7 +42,7 @@ export default async function SkillsModule_Session_Page(props: PageProps<'/orgs/
                 session.name,
             ]}
         />
-        <Lexington.Page dual>
+        <Lexington.Page variant="dual">
 
             <SkillsModule_SessionDetails organization={organization} sessionId={session.sessionId}/>
 

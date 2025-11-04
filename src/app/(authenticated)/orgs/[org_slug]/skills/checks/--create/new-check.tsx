@@ -93,7 +93,7 @@ export function SkillsModule_NewCheck_Form({ organization }: { organization: Org
     if(!currentPerson) return <PersonRequireMessage/>
 
     return <>
-        <Lexington.TableControls>
+        <Lexington.ColumnControls>
             <Tooltip>
                 <TooltipTrigger asChild>
                     <S2_Button variant="outline" asChild>
@@ -106,7 +106,7 @@ export function SkillsModule_NewCheck_Form({ organization }: { organization: Org
                     back to list
                 </TooltipContent>
             </Tooltip>
-        </Lexington.TableControls>
+        </Lexington.ColumnControls>
         <S2_Card>
             <S2_CardHeader>
                 <S2_CardTitle>Record Skill Check</S2_CardTitle>

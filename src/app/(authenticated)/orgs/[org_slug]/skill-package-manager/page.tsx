@@ -36,7 +36,7 @@ export default async function OrganizationDashboard_Page(props: PageProps<'/orgs
                         height={100}
                         priority
                     />
-                    <p>RT+ Skill Package Manager</p>
+                    <div className="font-semibold mt-4">Skill Package Manager Module</div>
                 </div>
                 <div className="flex w-full max-w-md flex-col gap-4">
                     <Item asChild>

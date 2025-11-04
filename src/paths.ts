@@ -114,7 +114,7 @@ function adminModule(org_slug: string) {
     return {
         label: 'Admin',
         href: base,
-
+        
         person: (personId: string) => {
             const personBase = `${base}/personnel/${personId}` as const
             return {

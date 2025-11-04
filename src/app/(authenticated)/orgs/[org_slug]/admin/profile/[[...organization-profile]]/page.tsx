@@ -7,22 +7,22 @@
 
 import { OrganizationProfile } from '@clerk/nextjs'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 import * as Paths from '@/paths'
+import { Lexington } from '@/components/blocks/lexington'
 
 export default async function Organization_Profile_Page(props: PageProps<'/orgs/[org_slug]/admin/profile/[[...organization-profile]]'>) {
     const { org_slug: orgSlug } = await props.params
 
-    return <AppPage>
-        <AppPageBreadcrumbs
+    return <Lexington.Root>
+        <Lexington.Header
             breadcrumbs={[Paths.org(orgSlug).admin, Paths.org(orgSlug).admin.profile]}
         />
-        <AppPageContent variant="centered">
+        <Lexington.Page variant="container">
             <OrganizationProfile
                 path={Paths.org(orgSlug).admin.profile.href}
             />
-        </AppPageContent>
+        </Lexington.Page>
 
-    </AppPage>
+    </Lexington.Root>
 
 }

@@ -19,14 +19,14 @@ export function DevModule_TableLayout() {
     const [rowCount, setRowCount] = useState(50)
 
     return <>
-        <Lexington.TableControls>
+        <Lexington.ColumnControls>
             <div></div>
             <InputGroup className="w-32">
                 <InputGroupInput type="number" value={rowCount} onChange={(e) => setRowCount(Number(e.target.value))}/>
                 <InputGroupAddon align="inline-end">rows</InputGroupAddon>
             </InputGroup>
             
-        </Lexington.TableControls>
+        </Lexington.ColumnControls>
         <S2_Table 
             className="border-collapse"
             slotProps={{

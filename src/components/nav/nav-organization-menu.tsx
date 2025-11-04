@@ -6,7 +6,7 @@
 
 import { Show } from '@/components/show'
 import { AdminModuleIcon, D4HModuleIcon, OrgDashboardIcon, NotesModuleIcon, SkillsModuleIcon, SPMModuleIcon } from '@/components/icons'
-import { S2_SidebarGroup, S2_SidebarGroupLabel, S2_SidebarMenu } from '@/components/ui/s2-sidebar'
+import { S2_SidebarGroup, S2_SidebarMenu } from '@/components/ui/s2-sidebar'
 
 import { useOrganization } from '@/hooks/use-organization'
 import { isModuleEnabled } from '@/lib/modules'
@@ -24,7 +24,7 @@ export function NavOrganizationMenu() {
     return <S2_SidebarGroup>
         <S2_SidebarMenu>
             <NavItem path={orgPrefix.dashboard} icon={<OrgDashboardIcon/>}/>
-            <NavCollapsible label="Admin" icon={<AdminModuleIcon/>} prefix={orgPrefix.admin.href}>
+            <NavCollapsible path={orgPrefix.admin} icon={<AdminModuleIcon/>} prefix={orgPrefix.admin.href}>
                 <NavSubItem path={orgPrefix.admin.profile}/>
                 <NavSubItem path={orgPrefix.admin.personnel}/>
                 <NavSubItem path={orgPrefix.admin.settings}/>
@@ -32,7 +32,7 @@ export function NavOrganizationMenu() {
                 <NavSubItem path={orgPrefix.admin.teams}/>
             </NavCollapsible>
             <Show when={isModuleEnabled(organization, 'd4h-views')}>
-                <NavCollapsible label="D4H" icon={<D4HModuleIcon/>} prefix={orgPrefix.d4hViews.href}>
+                <NavCollapsible path={orgPrefix.d4hViews} icon={<D4HModuleIcon/>} prefix={orgPrefix.d4hViews.href}>
                     <NavItem path={orgPrefix.d4hViews.activities}/>
                     <NavItem path={orgPrefix.d4hViews.calendar}/>
                     <NavItem path={orgPrefix.d4hViews.equipment}/>
@@ -40,17 +40,15 @@ export function NavOrganizationMenu() {
                 </NavCollapsible>
             </Show>
             <Show when={isModuleEnabled(organization, 'notes')}>
-                <NavCollapsible label="Notes" icon={<NotesModuleIcon/>} prefix={orgPrefix.notes.href}>
-                    <NavItem path={orgPrefix.notes}/>
-                </NavCollapsible>
+                <NavItem path={orgPrefix.notes} icon={<NotesModuleIcon/>}/>
             </Show>
             <Show when={isModuleEnabled(organization, 'skill-package-manager')}>
-                <NavCollapsible label="Skill Package Manager" icon={<SPMModuleIcon/>} prefix={orgPrefix.spm.href}>
+                <NavCollapsible path={orgPrefix.spm} icon={<SPMModuleIcon/>} prefix={orgPrefix.spm.href}>
                     <NavItem path={orgPrefix.spm.skillPackages}/>
                 </NavCollapsible>
             </Show>
             <Show when={isModuleEnabled(organization, 'skills')}>
-                <NavCollapsible label="Skills" icon={<SkillsModuleIcon/>} prefix={orgPrefix.skills.href}>
+                <NavCollapsible path={orgPrefix.skills} icon={<SkillsModuleIcon/>} prefix={orgPrefix.skills.href}>
                     <NavItem path={orgPrefix.skills.catalogue}/>
                     <NavItem path={orgPrefix.skills.checks}/>
                     <NavItem path={orgPrefix.skills.sessions}/>

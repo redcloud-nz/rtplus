@@ -23,7 +23,7 @@ export default async function DevModule_TableLayout_Page(props: PageProps<'/orgs
                 Paths.org(organization.slug).dev.tableLayout,
             ]}
         />
-        <Lexington.Page container>
+        <Lexington.Page variant="container">
             <DevModule_TableLayout/>
 
         </Lexington.Page>

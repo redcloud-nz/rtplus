@@ -27,7 +27,7 @@ export default async function NotesModule_Index_Page(props: PageProps<'/orgs/[or
                 Paths.org(orgSlug).notes
             ]}
         />
-        <Lexington.Page container>
+        <Lexington.Page variant="container">
             <NotesModule_NotesList organization={organization} />
         </Lexington.Page>
     </Lexington.Root>

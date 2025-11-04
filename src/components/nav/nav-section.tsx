@@ -15,6 +15,7 @@ import {
   S2_SidebarGroup,
   S2_SidebarGroupLabel,
   S2_SidebarMenu,
+  S2_SidebarMenuAction,
   S2_SidebarMenuButton,
   S2_SidebarMenuItem,
   S2_SidebarMenuSub,
@@ -67,29 +68,39 @@ export function NavItem({ external, href, icon, label, path, ...props }: NavItem
 
 type NavCollapsibleProps = Omit<CollapsibleProps, 'asChild' | 'open' | 'onOpenChange'> & {
     icon?: ReactNode
-    label: string
-    prefix?: string
+    path: { label: string, href: string }
 }
 
-export function NavCollapsible({ children, className, icon, label, prefix, ...props }: NavCollapsibleProps) {
+export function NavCollapsible({ children, className, icon, path, ...props }: NavCollapsibleProps) {
     const pathname = usePathname()
 
     const [open, setOpen] = useState<boolean>(false)
 
+    const isActive = pathname == path.href
+    const isChildActive = pathname.startsWith(path.href + '/') && !isActive
+
+    if(isActive && !open) {
+        setOpen(true)
+    }
+
     return <Collapsible
         asChild
         className={cn("group/collapsible", className)}
-        open={open || (!!prefix && pathname.startsWith(prefix))}
+        open={open || isActive}
         onOpenChange={setOpen}
         {...props}
     >
         <S2_SidebarMenuItem>
-            <CollapsibleTrigger asChild>
-                <S2_SidebarMenuButton tooltip={label}>
+            <S2_SidebarMenuButton tooltip={path.label} asChild>
+                <Link to={path}>
                     {icon}
-                    <span>{label}</span>
+                    <span>{path.label}</span>
+                </Link>
+            </S2_SidebarMenuButton>
+            <CollapsibleTrigger asChild>
+                <S2_SidebarMenuAction disabled={isChildActive}>
                     <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                </S2_SidebarMenuButton>
+                </S2_SidebarMenuAction>
             </CollapsibleTrigger>
             <CollapsibleContent>
                 <S2_SidebarMenuSub>

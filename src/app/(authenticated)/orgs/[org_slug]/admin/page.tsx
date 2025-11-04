@@ -8,13 +8,14 @@
 import { ChevronRightIcon } from 'lucide-react'
 import Image from 'next/image'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
-
-import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/items'
+import { Lexington } from '@/components/blocks/lexington'
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@/components/ui/items'
 import { Link } from '@/components/ui/link'
 
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
+import { Protect } from '@clerk/nextjs'
+
 
 
 export const metadata = { title: 'Admin Dashboard' }
@@ -23,13 +24,13 @@ export default async function AdminModule_Index_Page(props: PageProps<'/orgs/[or
     const { org_slug: orgSlug } = await props.params
     const organization = await getOrganization(orgSlug)
 
-    return <AppPage>
-        <AppPageBreadcrumbs
+    return <Lexington.Root>
+        <Lexington.Header
             breadcrumbs={[
                 Paths.org(orgSlug).admin
             ]}
         />
-        <AppPageContent variant="container">
+        <Lexington.Page variant="container-sm">
             
             <div className="flex flex-col items-center gap-4 my-4">
                 <Image
@@ -40,9 +41,23 @@ export default async function AdminModule_Index_Page(props: PageProps<'/orgs/[or
                     height={100}
                     priority
                 />
-                <div className="font-semibold">Admin Module</div>
+                <div className="font-semibold mt-4">Admin Module</div>
             </div>
-            <div className="flex w-full max-w-md flex-col gap-4">
+            <ItemGroup>
+                <Protect role="org_admin">
+                    <Item asChild>
+                        <Link to={Paths.org(orgSlug).admin.profile}>
+                            <ItemContent>
+                                <ItemTitle>Organization</ItemTitle>
+                                <ItemDescription>Manage your organization's profile, members, and invitations.</ItemDescription>
+                            </ItemContent>
+                            <ItemActions>
+                                <ChevronRightIcon className="size-4" />
+                            </ItemActions>
+                        </Link>
+                    </Item>
+                </Protect>
+                
                 <Item asChild>
                     <Link to={Paths.org(orgSlug).admin.personnel}>
                         <ItemContent>
@@ -89,7 +104,7 @@ export default async function AdminModule_Index_Page(props: PageProps<'/orgs/[or
                         </ItemActions>
                     </Link>
                 </Item>
-            </div>
-        </AppPageContent>
-    </AppPage>
+            </ItemGroup>
+        </Lexington.Page>
+    </Lexington.Root>
 }

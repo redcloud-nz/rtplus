@@ -29,7 +29,7 @@ export default async function SkillsModule_NewCheck_Page(props: PageProps<'/orgs
                 Paths.org(organization.slug).skills.checks.create,
             ]}
         />
-        <Lexington.Page container>
+        <Lexington.Page variant="container">
             <SkillsModule_NewCheck_Form organization={organization} />
         </Lexington.Page>
     </Lexington.Root>

@@ -92,7 +92,7 @@ export function NotesModule_NotesList({ organization }: { organization: Organiza
             </S2_Button>
         </Lexington.Empty>}
     >
-        <Lexington.TableControls>
+        <Lexington.ColumnControls>
             <Akagi.TableSearch table={table}/>
             <Tooltip>
                 <TooltipTrigger asChild>
@@ -106,7 +106,7 @@ export function NotesModule_NotesList({ organization }: { organization: Organiza
                     Create a new note
                 </TooltipContent>
             </Tooltip>
-        </Lexington.TableControls>
+        </Lexington.ColumnControls>
         <Akagi.Table table={table}/>
     </Show>
 }

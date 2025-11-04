@@ -25,8 +25,6 @@ import * as Paths from '@/paths'
 
 
 
-
-
 export default function SelectOrganization_Page() {
 
     const router = useRouter()
@@ -54,7 +52,7 @@ export default function SelectOrganization_Page() {
                 when={isLoaded}
                 fallback={<PageLoadingSpinner />}
             >
-                <Lexington.Page container>
+                <Lexington.Page variant="container-md">
                     <div className="flex-col gap-4 mt-12">
                         <div className="text-center">
                             <h3 className="text-md font-medium">Select an account</h3>

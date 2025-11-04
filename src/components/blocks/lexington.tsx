@@ -16,6 +16,7 @@ import Artie from '@/components/art/artie'
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
 
 import { cn } from '@/lib/utils'
+import { tv, VariantProps } from 'tailwind-variants'
 
 
 function LexingtonRoot({ children }: { children: ReactNode }) {
@@ -25,22 +26,23 @@ function LexingtonRoot({ children }: { children: ReactNode }) {
     >{children}</main>
 }
 
-interface LexingtonPageProps extends ComponentProps<'div'> {
-    asChild?: boolean
-    container?: boolean
-    dual?: boolean
-}
+const lexingtonPageVariants = tv({
+    base: 'p-4 flex flex-col gap-2',
+    variants: {
+        variant: {
+            container: "[&>*]:w-full [&>*]:max-w-full xl:[&>*]:max-w-4xl [&>*]:mx-auto",
+            'container-md': "[&>*]:w-full [&>*]:max-w-full md:[&>*]:max-w-xl [&>*]:mx-auto",
+            'container-sm': "[&>*]:w-full [&>*]:max-w-full sm:[&>*]:max-w-lg [&>*]:mx-auto",
+            dual: "grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-6xl",
+        }
+    }
+})
 
-function LexingtonPage({ asChild = false, children, className, container, dual, ...props }: LexingtonPageProps) {
+function LexingtonPage({ asChild = false, children, className, variant, ...props }: ComponentProps<'div'> & VariantProps<typeof lexingtonPageVariants> & { asChild?: boolean }) {
     const Comp = asChild ? Slot : 'div'
 
     return <Comp
-        className={cn(
-            //"absolute top-[var(--header-height)] left-0 right-0 bottom-1 ",
-            "p-4 flex flex-col gap-2",
-            container && "[&>*]:w-full [&>*]:max-w-full xl:[&>*]:max-w-4xl [&>*]:mx-auto",
-            dual && "grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-6xl",
-            className)}
+        className={lexingtonPageVariants({ variant, className})}
         data-component="LexingtonPage"
          {...props}
     >
@@ -85,5 +87,5 @@ export const Lexington = {
     Page: LexingtonPage,
     Empty: LexingtonEmpty,
     //Container: LexingtonContainer,
-    TableControls: LexingtonTableControls,
+    ColumnControls: LexingtonTableControls,
 }

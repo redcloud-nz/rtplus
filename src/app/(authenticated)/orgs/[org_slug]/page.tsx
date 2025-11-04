@@ -8,9 +8,9 @@
 import { ChevronRightIcon } from 'lucide-react'
 import Image from 'next/image'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
+import { Lexington } from '@/components/blocks/lexington'
 import { Show } from '@/components/show'
-import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/items'
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@/components/ui/items'
 import { Link } from '@/components/ui/link'
 
 import { isModuleEnabled } from '@/lib/modules'
@@ -19,18 +19,17 @@ import { getOrganization } from '@/server/organization'
 
 
 
-
-export const metadata = { title: 'Dashboard' }
+export const metadata = { title: 'Organisation Dashboard' }
 
 export default async function OrganizationDashboard_Page(props: PageProps<'/orgs/[org_slug]'>) {
     const { org_slug: orgSlug } = await props.params
     const organization = await getOrganization(orgSlug)
 
-    return <AppPage>
-            <AppPageBreadcrumbs
+    return <Lexington.Root>
+            <Lexington.Header
                 breadcrumbs={["Dashboard"]}
             />
-            <AppPageContent variant="container">
+            <Lexington.Page variant="container-sm">
                
                 <div className="flex flex-col items-center gap-4 my-4">
                     <Image
@@ -41,9 +40,8 @@ export default async function OrganizationDashboard_Page(props: PageProps<'/orgs
                         height={100}
                         priority
                     />
-                    <p>Response Team Management Tools.</p>
                 </div>
-                <div className="flex w-full max-w-md flex-col gap-4">
+                <ItemGroup>
                     <Item asChild>
                         <Link to={Paths.org(orgSlug).admin}>
                             <ItemContent>
@@ -107,7 +105,7 @@ export default async function OrganizationDashboard_Page(props: PageProps<'/orgs
                             </Link>
                         </Item>
                     </Show>
-                </div>
-            </AppPageContent>
-        </AppPage>
+                </ItemGroup>
+            </Lexington.Page>
+        </Lexington.Root>
 }

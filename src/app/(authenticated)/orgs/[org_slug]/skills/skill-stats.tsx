@@ -37,7 +37,7 @@ export function PersonnelCount_Card({ organization }: { organization: Organizati
     return <StatItem asChild>
         <Link to={Paths.org(organization.orgId).admin.personnel}>
             <StatItemValue>{personnel.length}</StatItemValue>
-            <StatItemTitle>Team Members</StatItemTitle>
+            <StatItemTitle>Personnel</StatItemTitle>
             <StatItemDescription>that can be assessed</StatItemDescription>
         </Link>
     </StatItem>
