@@ -3,11 +3,11 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-
-import { NextResponse } from 'next/server'
+import { redirect } from 'next/navigation'
 
 import * as Paths from '@/paths'
 import { clerkAuth } from '@/server/clerk'
+
 
 /**
  * GET /dashboard
@@ -17,10 +17,7 @@ import { clerkAuth } from '@/server/clerk'
 export async function GET(req: Request) {
     const { orgSlug } = await clerkAuth()
 
-    if (orgSlug) return NextResponse.redirect(Paths.org(orgSlug).dashboard.href)
+    if (orgSlug) redirect(Paths.org(orgSlug).dashboard.href)
 
-
-    // No organization found — let the caller handle rendering the dashboard/onboarding.
-    // Returning 204 keeps this route lightweight; change to a different redirect if desired.
-    return new Response(null, { status: 204 });
+    else redirect(Paths.orgs.select.href)
 }

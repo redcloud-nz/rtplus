@@ -6,50 +6,41 @@
 import Image from 'next/image'
 import { Suspense } from 'react'
 
-import { OrganizationSwitcher, UserButton } from '@clerk/nextjs'
+import { S2_Sidebar, S2_SidebarContent, S2_SidebarFooter, S2_SidebarHeader, S2_SidebarRail } from '@/components/ui/s2-sidebar'
 
-import { S2_Sidebar, S2_SidebarContent, S2_SidebarFooter, S2_SidebarGroup, S2_SidebarGroupLabel, S2_SidebarHeader, S2_SidebarRail } from '@/components/ui/s2-sidebar'
-
-import { NavOrganizationMenu } from './nav-organization-menu'
 import { NavSkeleton } from './nav-skeleton'
 
 
-export function AppSidebar() {
+export function AppSidebar({ children, name }: { children?: React.ReactNode, name: string }) {
     return <S2_Sidebar>
-        <S2_SidebarHeader className="flex items-center justify-between">
-            <div className="px-2">
+        <S2_SidebarHeader className="flex items-center justify-between border-b h-(--header-height)">
+            <div className="relative h-8 aspect-2/1">
                 <Image
                     src="/logo.svg"
                     alt="RT+ logo"
-                    width={48}
-                    height={24}
+                    width={400}
+                    height={200}
                     priority
                 />
             </div>
-            <div className="flex items-center gap-2 p-2">
-                <UserButton/>
-            </div>
         </S2_SidebarHeader>
         <S2_SidebarContent>
-            <div className="h-10 flex items-center">
-                <OrganizationSwitcher
+            <div className="w-full text-center font-semibold px-2 pt-2">
+                {/* <OrganizationSwitcher
                     appearance={{
                         elements: {
-                            organizationSwitcherTrigger: 'w-[var(--sidebar-internal-width)] py-2',
+                            organizationSwitcherTrigger: 'w-[calc(var(--sidebar-width)-1px)] py-2',
                         }
                     }}
-                    hidePersonal
                     afterCreateOrganizationUrl="/orgs/:slug"
                     afterSelectOrganizationUrl="/orgs/:slug"
-                />
+                    afterSelectPersonalUrl="/personal"
+                /> */}
+                {name}
             </div>
-            <S2_SidebarGroup>
-                <S2_SidebarGroupLabel>Organization</S2_SidebarGroupLabel>
-                <Suspense fallback={<NavSkeleton/>}>
-                    <NavOrganizationMenu/>
-                </Suspense>
-            </S2_SidebarGroup>
-            
+            <Suspense fallback={<NavSkeleton/>}>
+                {children}
+            </Suspense>
         </S2_SidebarContent>
         <S2_SidebarFooter>
             <AppVersion/>

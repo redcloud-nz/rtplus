@@ -139,15 +139,18 @@ function AppPageBreadcrumbs_Inner({ breadcrumbs = [] }: AppPageBreadcrumbsProps)
 
 interface AppPageHeaderProps {
     breadcrumbs?: (PageBreadcrumb | string)[]
+    sidebarTrigger?: boolean
 }
 
 /**
  * Page header for design System 2. To be used inside `SidebarInset` component.
  */
-export function S2_AppPageHeader({ breadcrumbs }: AppPageHeaderProps) {
+export function S2_AppPageHeader({ breadcrumbs, sidebarTrigger = true }: AppPageHeaderProps) {
     return <header className="bg-background sticky top-0 flex h-[var(--header-height)] shrink-0 items-center gap-1 border-b px-2 z-5 backdrop-blur-md">
-        <S2_SidebarTrigger/>
-        <Separator orientation="vertical" className="ml-1"/>
+        {sidebarTrigger && <>
+            <S2_SidebarTrigger/>
+            <Separator orientation="vertical" className="ml-1"/>
+        </>}
         { breadcrumbs && <AppPageBreadcrumbs_Inner breadcrumbs={breadcrumbs} /> }
     </header>
 }

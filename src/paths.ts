@@ -3,7 +3,6 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { NoteId } from './lib/schemas/note'
 import { type SkillCheckSessionId } from './lib/schemas/skill-check-session'
 
 export const about = {
@@ -57,10 +56,18 @@ export const onboarding = {
     },
 }
 
-
+export const orgs = {
+    create: {
+        label: 'Create Organization',
+        href: '/orgs/--create',
+    },
+    select: {
+        label: 'Select Organization',
+        href: '/orgs/--select',
+    },
+} as const 
 
 type OrgPaths = {
-    
     admin: ReturnType<typeof adminModule>,
     availability: ReturnType<typeof availabilityModule>,
     cards: ReturnType<typeof cardsModule>,
@@ -81,7 +88,6 @@ export function org(orgSlug: string): OrgPaths  {
     let paths = orgPathCache.get(orgSlug)
     if(!paths) {
         paths = {
-            
             admin: adminModule(orgSlug),
             availability: availabilityModule(orgSlug),
             cards: cardsModule(orgSlug),
@@ -139,7 +145,12 @@ function adminModule(org_slug: string) {
                 label: 'Import Personnel',
                 href: `${base}/personnel/--import`,
             }
-        } as const,
+        },
+        profile: { 
+            href: `${base}/profile`, 
+            label: 'Organization'
+        },
+
         settings: {
             label: 'Settings',
             href: `${base}/settings`,
@@ -403,38 +414,25 @@ export const personal = {
     index: '/personal',
     href: '/personal',
 
-    note: (noteId: string) => ({
-        label: `Note ${noteId}`,
-        href: `/personal/notes/${noteId}`,
-    } as const),
-    notes: {
-        label: 'Notes',
-        href: '/personal/notes',
-
-        create: {
-            label: 'Create',
-            href: '/personal/notes/--create',
-        },
-    },
-    organizationList: {
-        label: 'Organizations',
-        href: '/personal/organizations',
-    },
     d4hAccessTokens: {
         label: 'D4H Access Tokens',
         href: '/personal/d4h-access-tokens',
     },
+    dashboard: {
+        label: 'Dashboard',
+        href: '/personal',
+    },
     settings: {
-        label: "Personal Settings",
+        label: "Settings",
         href: '/personal/settings',
     },
     whoami: {
         label: 'Who Am I',
         href: '/personal/whoami',
     },
-    account: {
-        label: 'Manage Account',
-        href: '/personal/account',
+    profile: {
+        label: 'Profile',
+        href: '/personal/profile',
     },
 } as const
 

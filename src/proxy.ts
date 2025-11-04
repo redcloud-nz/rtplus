@@ -43,6 +43,10 @@ export default clerkMiddleware(
             organizationPatterns: [
                 '/orgs/:slug',
                 '/orgs/:slug/(.*)',
+            ],
+            personalAccountPatterns: [
+                '/personal',
+                '/personal/(.*)',
             ]
         }
     }

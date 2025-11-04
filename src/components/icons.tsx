@@ -4,12 +4,12 @@
  */
 
 
-import { BookOpenIcon, CableIcon, LayoutDashboardIcon, NotebookPenIcon, PackageIcon, PocketKnifeIcon, SettingsIcon, ShieldHalfIcon, UsersIcon, WrenchIcon } from 'lucide-react'
+import { ArrowRightLeftIcon, BellIcon, BookOpenIcon, CableIcon, CircleUserRoundIcon, KeyRoundIcon, LayoutDashboardIcon, NotebookPenIcon, PackageIcon, PocketKnifeIcon, SettingsIcon, ShieldHalfIcon, UsersIcon, WrenchIcon } from 'lucide-react'
 
 export { 
     WrenchIcon as AdminModuleIcon,
     CableIcon as D4HModuleIcon,
-    LayoutDashboardIcon as DashboardIcon,
+    LayoutDashboardIcon as OrgDashboardIcon,
     BookOpenIcon as DocumentationIcon,
     NotebookPenIcon as NotesModuleIcon,
     UsersIcon as PersonnelIcon,
@@ -17,5 +17,14 @@ export {
     PocketKnifeIcon as SkillsIcon,
     PocketKnifeIcon as SkillsModuleIcon,
     PackageIcon as SPMModuleIcon,
-    ShieldHalfIcon as TeamsIcon
+    ShieldHalfIcon as TeamsIcon,
+    ArrowRightLeftIcon as SwitchOrganizationIcon,
+    BellIcon as NotificationsIcon,
+
+    // Personal Icons
+    LayoutDashboardIcon as PersonalDashboardIcon,
+    CircleUserRoundIcon as PersonalProfileIcon,
+    KeyRoundIcon as PersonalD4HAccessTokensIcon,
+    SettingsIcon as PersonalSettingsIcon,
+    
 }

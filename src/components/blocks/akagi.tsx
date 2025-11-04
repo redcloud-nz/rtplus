@@ -21,7 +21,6 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from '../ui/input-group'
 import { S2_Table, S2_TableBody, S2_TableCell, S2_TableFoot, S2_TableHead, S2_TableHeader, S2_TableRow } from '@/components/ui/s2-table'
 
 import { cn } from '@/lib/utils'
-import { Table, TableFooter, TableRow } from '../ui/table'
 import { S2_Select, S2_SelectContent, S2_SelectItem, S2_SelectTrigger, S2_SelectValue } from '../ui/s2-select'
 
 
@@ -136,7 +135,7 @@ function AkagiTableCell<TData extends RowData>({ align = "start", children, clas
 }
 
 
-function AkagiTable<TData extends RowData>({ table }: { table: TanstackTable<TData> }) {
+function AkagiTable<TData extends RowData>({ table, paginated }: { table: TanstackTable<TData>, paginated?: boolean }) {
 
     const isEmpty = table.getRowCount() == 0
 
@@ -160,7 +159,7 @@ function AkagiTable<TData extends RowData>({ table }: { table: TanstackTable<TDa
             )}
             {isEmpty && <tr><td colSpan={table.getVisibleFlatColumns().length} className="text-center py-4">No results found</td></tr>}
         </S2_TableBody>
-        { !isEmpty && <AkagiPagination table={table} />}
+        { (!isEmpty && paginated) ? <AkagiPagination table={table} /> : null}
     </S2_Table>
 }
 
@@ -192,7 +191,7 @@ function AkagiPagination<TData extends RowData>({ className, table, ...props }: 
     
 
     return <S2_TableFoot className={cn("sticky bottom-0 bg-neutral-100/90 backdrop-blur-md z-10", className)} {...props}>
-        <TableRow>
+        <S2_TableRow>
             <td colSpan={table.getAllColumns().length}>
                 <div className="sticky bottom-0 bg-neutral-100/90 backdrop-blur-md z-10 grid grid-cols-3 items-center text-sm px-2 py-1">
                     <div className="flex justify-start gap-1 lg:gap-1.5 text-muted-foreground">
@@ -277,7 +276,7 @@ function AkagiPagination<TData extends RowData>({ className, table, ...props }: 
                     </div>
                 </div>
             </td>
-        </TableRow>
+        </S2_TableRow>
     </S2_TableFoot>
 
     

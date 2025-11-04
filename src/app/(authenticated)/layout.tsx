@@ -6,6 +6,7 @@
 import type { Metadata } from 'next'
 
 import { AppFrontendProvider } from '@/components/app-frontend-provider'
+import { ControlBar } from '@/components/nav/control-bar'
 
 export const metadata: Metadata = {
     applicationName: "RT+",
@@ -19,6 +20,7 @@ export const metadata: Metadata = {
 export default function Authenticated_Layout({ children }: LayoutProps<'/'>) {
 
     return <AppFrontendProvider>
+         <ControlBar />
         {children}
     </AppFrontendProvider>
 }

@@ -11,15 +11,15 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-pa
 
 import * as Paths from '@/paths'
 
-export default function Account_Page() {
+export default function Personal_Profile_Page() {
 
     return <AppPage>
         <AppPageBreadcrumbs
-            breadcrumbs={[Paths.personal, Paths.personal.account]}
+            breadcrumbs={[Paths.personal, Paths.personal.profile]}
         />
-        <AppPageContent variant="centered" >
+        <AppPageContent variant="centered">
             <UserProfile
-                path={Paths.personal.account.href}
+                path={Paths.personal.profile.href}
             />
         </AppPageContent>
         

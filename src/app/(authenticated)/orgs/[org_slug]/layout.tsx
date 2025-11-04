@@ -10,6 +10,7 @@ import { Metadata } from 'next'
 import { AppSidebar } from '@/components/nav/app-sidebar'
 import { OrganizationProvider } from '@/hooks/use-organization'
 import { getOrganization } from '@/server/organization'
+import { NavOrganizationMenu } from '@/components/nav/nav-organization-menu'
 
 
 export async function generateMetadata(props: LayoutProps<'/orgs/[org_slug]'>): Promise<Metadata> {
@@ -30,7 +31,9 @@ export default async function Organization_Layout(props: LayoutProps<'/orgs/[org
     const organization = await getOrganization(orgSlug)
 
     return <OrganizationProvider initial={organization}>
-        <AppSidebar/>
+        <AppSidebar name={organization.name}>
+            <NavOrganizationMenu/>
+        </AppSidebar>
         {props.children}
     </OrganizationProvider>
 }

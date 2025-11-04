@@ -40,7 +40,7 @@ export default async function AdminModule_Index_Page(props: PageProps<'/orgs/[or
                     height={100}
                     priority
                 />
-                <p>RT+ Admin Module</p>
+                <div className="font-semibold">Admin Module</div>
             </div>
             <div className="flex w-full max-w-md flex-col gap-4">
                 <Item asChild>
