@@ -32,21 +32,20 @@ export default async function SkillsModule_Index_Page(props: PageProps<'/orgs/[o
             Paths.org(orgSlug).skills
         ]}/>
 
-        <Lexington.Page variant="container">
-            <div className="flex flex-col items-center gap-4 my-4">
-                <Image
-                    className="dark:invert"
-                    src="/logo.svg"
-                    alt="RT+ logo"
-                    width={200}
-                    height={100}
-                    priority
-                />
-                <div className="font-semibold mt-4">Skills Module</div>
-            </div>
-
-            
-            <div className="flex flex-col items-center mb-8">
+        <Lexington.Page>
+            <Lexington.Column width="sm" className="gap-4">
+                <div className="flex flex-col items-center gap-4 mt-4">
+                    <Image
+                        className="dark:invert"
+                        src="/logo.svg"
+                        alt="RT+ logo"
+                        width={200}
+                        height={100}
+                        priority
+                    />
+                    <div className="font-semibold mt-4">Skills Module</div>
+                </div>
+                
                 <ItemGroup className="w-lg">
                     <Item asChild>
                         <Link to={Paths.org(orgSlug).skills.catalogue}>
@@ -60,7 +59,7 @@ export default async function SkillsModule_Index_Page(props: PageProps<'/orgs/[o
                         </Link>
                     </Item>
                     <Item asChild>
-                        <Link to={Paths.org(orgSlug).skills.catalogue}>
+                        <Link to={Paths.org(orgSlug).skills.checks}>
                             <ItemContent>
                                 <ItemTitle>Checks</ItemTitle>
                                 <ItemDescription>See the recent skill checks that have been performed.</ItemDescription>
@@ -71,7 +70,7 @@ export default async function SkillsModule_Index_Page(props: PageProps<'/orgs/[o
                         </Link>
                     </Item>
                     <Item asChild>
-                        <Link to={Paths.org(orgSlug).skills.catalogue}>
+                        <Link to={Paths.org(orgSlug).skills.sessions}>
                             <ItemContent>
                                 <ItemTitle>Sessions</ItemTitle>
                                 <ItemDescription>Use skill check sessions for bulk recording.</ItemDescription>
@@ -82,7 +81,7 @@ export default async function SkillsModule_Index_Page(props: PageProps<'/orgs/[o
                         </Link>
                     </Item>
                     <Item asChild>
-                        <Link to={Paths.org(orgSlug).skills.catalogue}>
+                        <Link to={Paths.org(orgSlug).skills.reports}>
                             <ItemContent>
                                 <ItemTitle>Reports</ItemTitle>
                                 <ItemDescription>See the reports generated from skill checks.</ItemDescription>
@@ -93,21 +92,15 @@ export default async function SkillsModule_Index_Page(props: PageProps<'/orgs/[o
                         </Link>
                     </Item>
                 </ItemGroup>
-            </div>
-            <div className="grid grid-cols-2 md:grid-col-3 lg:grid-cols-4 gap-4">
-                <Boundary>
+
+                <div className="grid grid-cols-2 gap-4 justify-center self-center mt-4">
                     <SkillsCount_Card organization={organization} />
-                </Boundary>
-                <Boundary>
                     <PersonnelCount_Card organization={organization} />
-                </Boundary>
-                <Boundary>
                     <SessionsCount_Card organization={organization} />
-                </Boundary>
-                <Boundary>
                     <SkillChecksCount_Card organization={organization} />
-                </Boundary>
-            </div>
+                </div>
+            </Lexington.Column>
+            
         </Lexington.Page>
     </Lexington.Root>
 }

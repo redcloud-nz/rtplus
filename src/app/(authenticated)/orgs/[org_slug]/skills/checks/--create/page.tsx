@@ -7,6 +7,10 @@
 
 
 import { Lexington } from '@/components/blocks/lexington'
+import { BackToListIcon } from '@/components/icons'
+import { S2_Button } from '@/components/ui/s2-button'
+import { Link } from '@/components/ui/link'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
@@ -29,8 +33,24 @@ export default async function SkillsModule_NewCheck_Page(props: PageProps<'/orgs
                 Paths.org(organization.slug).skills.checks.create,
             ]}
         />
-        <Lexington.Page variant="container">
-            <SkillsModule_NewCheck_Form organization={organization} />
+        <Lexington.Page>
+            <Lexington.Column width="lg">
+                <Lexington.ColumnControls>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <S2_Button variant="outline" asChild>
+                                <Link to={Paths.org(organization.slug).skills.checks}>
+                                    <BackToListIcon/> List
+                                </Link>
+                            </S2_Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            back to list
+                        </TooltipContent>
+                    </Tooltip>
+                        </Lexington.ColumnControls>
+                <SkillsModule_NewCheck_Form organization={organization} />
+            </Lexington.Column>
         </Lexington.Page>
     </Lexington.Root>
 }

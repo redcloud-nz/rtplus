@@ -5,20 +5,23 @@
  *  Path: /orgs/[org_slug]/skills/sessions/[session_id]
  */
 
-import { ChevronRightIcon } from 'lucide-react'
+import { ChevronRightIcon, EditIcon } from 'lucide-react'
 
+import { Lexington } from '@/components/blocks/lexington'
+import { BackToListIcon } from '@/components/icons'
+import { S2_Button } from '@/components/ui/s2-button'
+import { S2_Card, S2_CardContent, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@/components/ui/items'
+import { StatItem, StatItemDescription, StatItemTitle, StatItemValue } from '@/components/ui/stat-item'
 import { Link } from '@/components/ui/link'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { S2_Value } from '@/components/ui/s2-value'
 
+import { formatDate, TITLE_SEPARATOR } from '@/lib/utils'
 import * as Paths from '@/paths'
 import { fetchSkillCheckSession } from '@/server/fetch'
 import { getOrganization } from '@/server/organization'
-
-import { SkillsModule_SessionDetails } from './session-details'
-import { Lexington } from '@/components/blocks/lexington'
-import { Item, ItemActions, ItemContent, ItemDescription, ItemHeader, ItemTitle } from '@/components/ui/items'
-import { StatItem, StatItemDescription, StatItemTitle, StatItemValue } from '@/components/ui/stat-item'
-
-
 
 
 export async function generateMetadata(props: PageProps<'/orgs/[org_slug]/skills/sessions/[session_id]'>) {
@@ -26,7 +29,7 @@ export async function generateMetadata(props: PageProps<'/orgs/[org_slug]/skills
     const organization = await getOrganization(orgSlug)
     const session = await fetchSkillCheckSession({ orgId: organization.orgId, sessionId})
 
-    return { title: `${session.name} - Skill Check Sessions` }
+    return { title: `${session.name} ${TITLE_SEPARATOR} Skill Check Sessions` }
 }
 
 export default async function SkillsModule_Session_Page(props: PageProps<'/orgs/[org_slug]/skills/sessions/[session_id]'>) {
@@ -42,34 +45,78 @@ export default async function SkillsModule_Session_Page(props: PageProps<'/orgs/
                 session.name,
             ]}
         />
-        <Lexington.Page variant="dual">
+        <Lexington.Page>
+            <Lexington.Column width="md">
+                <Lexington.ColumnControls>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <S2_Button variant="outline" asChild>
+                                <Link to={Paths.org(organization.slug).skills.sessions}>
+                                    <BackToListIcon/> List
+                                </Link>
+                            </S2_Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            back to list
+                        </TooltipContent>
+                    </Tooltip>
+                    <S2_Button variant="outline" asChild>
+                        <Link to={Paths.org(organization.slug).skills.session(session.sessionId).update}>
+                            <EditIcon/> Edit
+                        </Link>
+                    </S2_Button>
+                </Lexington.ColumnControls>
+                <S2_Card>
+                    <S2_CardHeader>
+                        <S2_CardTitle>Session Details</S2_CardTitle>
+                    </S2_CardHeader>
+                    <S2_CardContent>
+                        <FieldGroup>
+                            <Field orientation='responsive'>
+                                <FieldLabel>SesionId</FieldLabel>
+                                <S2_Value value={session.sessionId}/>
+                            </Field>
+                            <Field orientation='responsive'>
+                                <FieldLabel>Name</FieldLabel>
+                                <S2_Value value={session.name}/>
+                            </Field>
+                            <Field orientation='responsive'>
+                                <FieldLabel>Date</FieldLabel>
+                                <S2_Value value={formatDate(session.date)}/>
+                            </Field>
+                            <Field orientation='responsive'>
+                                <FieldLabel>Status</FieldLabel>
+                                <S2_Value value={session.sessionStatus}/>
+                            </Field>
+                        </FieldGroup>
+                    </S2_CardContent>
+                </S2_Card>
 
-            <SkillsModule_SessionDetails organization={organization} sessionId={session.sessionId}/>
-
-            <div className="flex flex-col gap-4 lg:mt-11">
-                <Item variant="outline" asChild>
-                    <Link to={Paths.org(organization.slug).skills.session(session.sessionId).record}>
-                    <ItemContent>
-                        <ItemTitle>Configure and Record</ItemTitle>
-                        <ItemDescription>Select skills and assessors then bulk record your skill checks.</ItemDescription>
-                    </ItemContent>
-                    <ItemActions>
-                        <ChevronRightIcon className="size-4" />
-                    </ItemActions>
-                    </Link>
-                </Item>
-                <Item variant="outline" asChild>
-                    <Link to={Paths.org(organization.slug).skills.session(session.sessionId).review}>
-                    <ItemContent>
-                        <ItemTitle>Review</ItemTitle>
-                        <ItemDescription>Review and approve the recorded checks.</ItemDescription>
-                    </ItemContent>
-                    <ItemActions>
-                        <ChevronRightIcon className="size-4" />
-                    </ItemActions>
-                    </Link>
-                </Item>
-                <div className="flex gap-2">
+                <ItemGroup>
+                    <Item asChild>
+                        <Link to={Paths.org(organization.slug).skills.session(session.sessionId).record}>
+                        <ItemContent>
+                            <ItemTitle>Configure and Record</ItemTitle>
+                            <ItemDescription>Select skills and assessors then bulk record your skill checks.</ItemDescription>
+                        </ItemContent>
+                        <ItemActions>
+                            <ChevronRightIcon className="size-4" />
+                        </ItemActions>
+                        </Link>
+                    </Item>
+                    <Item asChild>
+                        <Link to={Paths.org(organization.slug).skills.session(session.sessionId).review}>
+                        <ItemContent>
+                            <ItemTitle>Review</ItemTitle>
+                            <ItemDescription>Review and approve the recorded checks.</ItemDescription>
+                        </ItemContent>
+                        <ItemActions>
+                            <ChevronRightIcon className="size-4" />
+                        </ItemActions>
+                        </Link>
+                    </Item>
+                </ItemGroup>
+                <div className="flex gap-2 justify-center">
                     <StatItem>  
                         <StatItemValue>{0}</StatItemValue>
                         <StatItemTitle>Assessees</StatItemTitle>
@@ -86,8 +133,8 @@ export default async function SkillsModule_Session_Page(props: PageProps<'/orgs/
                         <StatItemDescription>recorded in the session</StatItemDescription>
                     </StatItem>
                 </div>
-            </div>
-            
+            </Lexington.Column>
+                
         </Lexington.Page>
     </Lexington.Root>
 }

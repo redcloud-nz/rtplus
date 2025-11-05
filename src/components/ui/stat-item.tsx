@@ -9,6 +9,8 @@ import { Slot } from '@radix-ui/react-slot'
 
 import { cn } from '@/lib/utils'
 
+import { Skeleton } from './skeleton'
+
 
 export function StatItem({ asChild = false, className, ...props }: ComponentProps<'div'> &{ asChild?: boolean }) {
 
@@ -17,7 +19,7 @@ export function StatItem({ asChild = false, className, ...props }: ComponentProp
     return <Comp 
         data-slot="stat-item"
         className={cn(
-            "group/item flex flex-col items-center flex-wrap gap-2 p-4",
+            "group/item w-48 h-32 flex flex-col items-center justify-center flex-wrap gap-2 p-3",
             "border border-border rounded-md outline-none", 
             "text-sm transition-colors",
             "[a]:hover:bg-accent/50 [a]:transition-colors duration-100",
@@ -29,8 +31,11 @@ export function StatItem({ asChild = false, className, ...props }: ComponentProp
 }
 
 
-export function StatItemValue({ className, ...props }: ComponentProps<'div'>) {
-    return <div
+export function StatItemValue({ className, loading = false, ...props }: ComponentProps<'div'> & { loading?: boolean }) {
+
+    return loading
+        ? <Skeleton className="w-20 h-9"/>
+        : <div
         data-slot="stat-item-value"
         className={cn('text-4xl font-bold leading-none', className)}
         {...props}

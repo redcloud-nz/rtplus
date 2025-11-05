@@ -7,11 +7,12 @@ import type { Metadata } from 'next'
 
 import { AppFrontendProvider } from '@/components/app-frontend-provider'
 import { ControlBar } from '@/components/nav/control-bar'
+import { TITLE_SEPARATOR } from '@/lib/utils'
 
 export const metadata: Metadata = {
     applicationName: "RT+",
     title: {
-        template: "%s | RT+",
+        template: `%s ${TITLE_SEPARATOR} RT+`,
         default: "App",
     },
     description: "RT+ Web Application.",

@@ -27,23 +27,28 @@ function LexingtonRoot({ children }: { children: ReactNode }) {
 }
 
 const lexingtonPageVariants = tv({
-    base: 'p-4 flex flex-col gap-2',
+    base: 'flex flex-row justify-center items-stretch px-4 gap-4 overflow-auto h-[calc(100vh-var(--header-height))] [scrollbar-color:var(--scrollbar-thumb)_var(--scrollbar-track)] [scrollbar-gutter:stable_both-edges]',
     variants: {
-        variant: {
-            container: "[&>*]:w-full [&>*]:max-w-full xl:[&>*]:max-w-4xl [&>*]:mx-auto",
-            'container-md': "[&>*]:w-full [&>*]:max-w-full md:[&>*]:max-w-xl [&>*]:mx-auto",
-            'container-sm': "[&>*]:w-full [&>*]:max-w-full sm:[&>*]:max-w-lg [&>*]:mx-auto",
-            dual: "grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-6xl",
+        // variant: {
+        //     container: "[&>*]:w-full [&>*]:max-w-full xl:[&>*]:max-w-4xl [&>*]:mx-auto",
+        //     'container-lg': "[&>*]:w-full [&>*]:max-w-full lg:[&>*]:max-w-2xl [&>*]:mx-auto",
+        //     'container-md': "[&>*]:w-full [&>*]:max-w-full md:[&>*]:max-w-xl [&>*]:mx-auto",
+        //     'container-sm': "[&>*]:w-full [&>*]:max-w-full sm:[&>*]:max-w-lg [&>*]:mx-auto",
+        //     dual: "grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-6xl",
+        // },
+        scrollable: {
+            true: "overflow-y-auto",
         }
     }
 })
 
-function LexingtonPage({ asChild = false, children, className, variant, ...props }: ComponentProps<'div'> & VariantProps<typeof lexingtonPageVariants> & { asChild?: boolean }) {
+function LexingtonPage({ asChild = false, children, className, scrollable = true, ...props }: ComponentProps<'div'> & VariantProps<typeof lexingtonPageVariants> & { asChild?: boolean }) {
     const Comp = asChild ? Slot : 'div'
 
     return <Comp
-        className={lexingtonPageVariants({ variant, className})}
+        className={lexingtonPageVariants({ className, scrollable })}
         data-component="LexingtonPage"
+        data-slot="page"
          {...props}
     >
         {children}
@@ -73,10 +78,37 @@ function LexingtonEmpty({ title, description, children }: LexingtonPageEmptyProp
     </Empty>
 }
 
-function LexingtonTableControls(props: ComponentProps<'div'>) {
-    return <div 
-        className={cn(" w-full flex gap-2 justify-between")}
-        data-component="LexingtonTableControls"
+const lexingtonColumnVariants = tv({
+    base: "flex flex-col items-stretch py-4 gap-2",
+    variants: {
+        width: {
+            sm: "w-full max-w-full sm:max-w-lg",
+            md: "w-full max-w-full md:max-w-xl",
+            lg: "w-full max-w-full lg:max-w-2xl",
+            xl: "w-full max-w-full xl:max-w-4xl",
+            full: "w-full",
+        }
+    },
+    defaultVariants: {
+        width: "full",
+    }
+})
+
+function LexingtonColumn({ asChild = false, className, width = "full", ...props }: ComponentProps<'div'> & VariantProps<typeof lexingtonColumnVariants> & { asChild?: boolean }) {
+    const Comp = asChild ? Slot : 'div'
+
+    return <Comp
+        className={lexingtonColumnVariants({ className, width })}
+        data-component="LexingtonColumn"
+        data-slot="column"
+        {...props}
+    />
+}
+
+function LexingtonColumnControls({ className, ...props }: ComponentProps<'div'>) {
+    return <div
+        className={cn(" w-full flex gap-2 justify-between", className)}
+        data-component="LexingtonColumnControls"
         {...props}
     />
 }
@@ -86,6 +118,6 @@ export const Lexington = {
     Header: S2_AppPageHeader,
     Page: LexingtonPage,
     Empty: LexingtonEmpty,
-    //Container: LexingtonContainer,
-    ColumnControls: LexingtonTableControls,
+    Column: LexingtonColumn,
+    ColumnControls: LexingtonColumnControls,
 }

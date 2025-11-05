@@ -5,7 +5,7 @@
 'use client'
 
 import { Show } from '@/components/show'
-import { AdminModuleIcon, D4HModuleIcon, OrgDashboardIcon, NotesModuleIcon, SkillsModuleIcon, SPMModuleIcon } from '@/components/icons'
+import { AdminModuleIcon, D4HModuleIcon, OrgDashboardIcon, NotesModuleIcon, SkillsModuleIcon, SkillPackageManagerModuleIcon } from '@/components/icons'
 import { S2_SidebarGroup, S2_SidebarMenu } from '@/components/ui/s2-sidebar'
 
 import { useOrganization } from '@/hooks/use-organization'
@@ -43,7 +43,7 @@ export function NavOrganizationMenu() {
                 <NavItem path={orgPrefix.notes} icon={<NotesModuleIcon/>}/>
             </Show>
             <Show when={isModuleEnabled(organization, 'skill-package-manager')}>
-                <NavCollapsible path={orgPrefix.spm} icon={<SPMModuleIcon/>} prefix={orgPrefix.spm.href}>
+                <NavCollapsible path={orgPrefix.spm} icon={<SkillPackageManagerModuleIcon/>} prefix={orgPrefix.spm.href}>
                     <NavItem path={orgPrefix.spm.skillPackages}/>
                 </NavCollapsible>
             </Show>

@@ -1,41 +1,39 @@
 /*
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
- * 
+ *
  */
+
 'use client'
 
-import { formatISO } from 'date-fns'
 import { useRouter } from 'next/navigation'
-import { useMemo } from 'react'
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { useToast } from '@/hooks/use-toast'
 import { OrganizationData } from '@/lib/schemas/organization'
-import { SkillCheckSessionId, skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
+import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
+import { useToast } from '@/hooks/use-toast'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
-import { SkillsModule_SessionForm } from '../session-form'
+import { SkillsModule_SessionForm } from '../../session-form'
 
 
-export function SkillsModule_NewSession_Form({ organization }: { organization: OrganizationData }) {
+
+export function SkillsModule_UpdateSession_Form({ organization, session }: { organization: OrganizationData, session: SkillCheckSessionData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
 
-    const sessionId = useMemo(() => SkillCheckSessionId.create(), [])
+    const skillsPath = Paths.org(organization.slug).skills
 
-
-    const mutation = useMutation(trpc.skillChecks.createSession.mutationOptions({
+    const mutation = useMutation(trpc.skillChecks.updateSession.mutationOptions({
         async onMutate(data) {
 
-            const newSession = skillCheckSessionSchema.parse(data)
         },
         onError(error) {
              toast({
-                title: "Error creating session",
+                title: "Error updating session",
                 description: error.message,
                 variant: 'destructive',
             })
@@ -44,19 +42,18 @@ export function SkillsModule_NewSession_Form({ organization }: { organization: O
             queryClient.invalidateQueries(trpc.skillChecks.getSessions.queryFilter({ orgId: organization.orgId }))
             
             toast({
-                title: "Session created",
-                description: `The session ${result.name} has been created successfully.`,
+                title: "Session updated",
+                description: `The session ${result.name} has been updated successfully.`,
             })
-            router.push(Paths.org(organization.slug).skills.session(result.sessionId).href)
+            router.push(skillsPath.session(result.sessionId).href)
         }
     }))
 
     return <SkillsModule_SessionForm
-        cancelPath={Paths.org(organization.slug).skills.sessions}
-        session={{ sessionId, name: '', date: formatISO(new Date(), { representation: 'date' }), notes: "", sessionStatus: 'Draft' }}
+        cancelPath={skillsPath.session(session.sessionId)}
+        session={session}
         onSubmit={async (data) => {
             await mutation.mutateAsync({ ...data, orgId: organization.orgId })
-
-        }} 
+        }}
     />
 }

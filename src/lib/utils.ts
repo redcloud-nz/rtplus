@@ -76,3 +76,6 @@ export function patchById<T extends { id: string }>(array: T[] | undefined, id: 
         }
     })
 }
+
+
+export const TITLE_SEPARATOR = '•'

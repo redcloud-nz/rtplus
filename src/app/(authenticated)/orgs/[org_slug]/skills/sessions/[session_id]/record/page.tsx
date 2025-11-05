@@ -7,13 +7,13 @@
 
 import { CheckCheckIcon, CheckIcon, InfoIcon, PocketKnifeIcon, ScrollTextIcon, UserIcon, UsersIcon } from 'lucide-react'
 
-
-import { AppPage, AppPageBreadcrumbs, AppPageContent} from '@/components/app-page'
+import { Lexington } from '@/components/blocks/lexington'
 import { Boundary } from '@/components/boundary'
-import { Show } from '@/components/show'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
+import { TITLE_SEPARATOR } from '@/lib/utils'
+import * as Paths from '@/paths'
 import { fetchCurrentPerson, fetchSkillCheckSession } from '@/server/fetch'
 import { getOrganization } from '@/server/organization'
 
@@ -33,12 +33,14 @@ import { SkillRecorder_Session_Transcript } from './skill-recorder-session-trans
 
 
 
+
+
 export async function generateMetadata(props: PageProps<'/orgs/[org_slug]/skills/sessions/[session_id]/record'>) {
     const { org_slug: orgSlug, session_id: sessionId } = await props.params
     const organization = await getOrganization(orgSlug)
     const session = await fetchSkillCheckSession({ orgId: organization.orgId, sessionId})
 
-    return { title: `${session.name} - Skill Recorder` }
+    return { title: `Record ${TITLE_SEPARATOR} ${session.name}` }
 }
 
 export default async function SkillsModule_SessionRecord_Page(props: PageProps<'/orgs/[org_slug]/skills/sessions/[session_id]/record'>) {
@@ -47,97 +49,101 @@ export default async function SkillsModule_SessionRecord_Page(props: PageProps<'
     const session = await fetchSkillCheckSession({ orgId: organization.orgId, sessionId})
     const currentPerson = await fetchCurrentPerson({ orgId: organization.orgId })
 
-    if(!currentPerson) {
-        return <AppPage>
-            <AppPageBreadcrumbs
-                breadcrumbs={["Skill Recorder"]}
+    const breadcrumbs = [
+        Paths.org(organization.slug).skills,
+        Paths.org(organization.slug).skills.sessions,
+        { href: Paths.org(organization.slug).skills.session(session.sessionId).href, label: session.name },
+        Paths.org(organization.slug).skills.session(session.sessionId).record,
+    ]
+
+    if(!currentPerson || session.sessionStatus != 'Draft') {
+        return <Lexington.Root>
+            <Lexington.Header
+                breadcrumbs={breadcrumbs}
             />
-            <AppPageContent variant="container" className="p-4">
-                <PersonRequireMessage/>
-            </AppPageContent>
-        </AppPage>
+            <Lexington.Page>
+                <Lexington.Column width="md">
+                    {!currentPerson && <PersonRequireMessage/>}
+                    {session.sessionStatus != 'Draft' && <em>This session is {session.sessionStatus} and can no longer be edited.</em>}
+                </Lexington.Column>
+            </Lexington.Page>
+        </Lexington.Root>
     }
 
-    return <AppPage>
-        <AppPageBreadcrumbs
-            breadcrumbs={["Skill Recorder"]}
+    return <Lexington.Root>
+        <Lexington.Header
+            breadcrumbs={breadcrumbs}
         />
+        <Lexington.Page>
+            <Lexington.Column width="xl">
+                <Tabs defaultValue='details' className="">
+                    <TabsList variant="stretch" className="w-full h-[40px] sticky top-4 z-10">
+                        <TabsTrigger value="details">
+                            <span className="inline md:hidden"><InfoIcon className="size-4"/></span>
+                            <span className="hidden md:inline">Details</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="assessees">
+                            <span className="inline md:hidden"><UsersIcon className="size-4"/></span>
+                            <span className="hidden md:inline">Personnel</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="skills">
+                            <span className="inline md:hidden"><PocketKnifeIcon className="size-4"/></span>
+                            <span className="hidden md:inline">Skills</span>
+                        </TabsTrigger>
+                        <Separator orientation="vertical" className="mx-2"/>
+                        <TabsTrigger value="record-single">
+                            <span className="inline md:hidden"><CheckIcon className="size-4"/></span>
+                            <span className="hidden md:inline">Single</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="record-by-assessee">
+                            <span className="inline md:hidden relative"><UserIcon className="size-3 absolute -left-1 -top-1"/><CheckCheckIcon className="size-4 relative left-1 top-1"/></span>
+                            <span className="hidden md:inline">By Person</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="record-by-skill">
+                            <span className="inline md:hidden relative"><PocketKnifeIcon className="size-3 absolute -left-1 -top-1"/><CheckCheckIcon className="size-4 relative left-1 top-1"/></span>
+                            <span className="hidden md:inline">By Skill</span>
+                        </TabsTrigger>
+                        <Separator orientation="vertical" className="mx-2"/>
+                        <TabsTrigger value="transcript">
+                            <span className="inline md:hidden"><ScrollTextIcon className="size-4"/></span>
+                            <span className="hidden md:inline">Transcript</span>
+                        </TabsTrigger>
+                    </TabsList>
 
-        <Show 
-            when={session.sessionStatus == 'Draft'}
-            fallback={<AppPageContent variant="container" className="p-4">
-                <em>This session is {session.sessionStatus} and can no longer be edited.</em>
-            </AppPageContent>}
-        >
-            <Tabs defaultValue='details' className="col-span-full row-start-3 row-end-5 flex flex-col items-center *:w-full xl:*:w-4xl p-2">
-                <TabsList variant="stretch" className="w-full h-[40px]">
-                    <TabsTrigger value="details">
-                        <span className="inline md:hidden"><InfoIcon className="size-4"/></span>
-                        <span className="hidden md:inline">Details</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="assessees">
-                        <span className="inline md:hidden"><UsersIcon className="size-4"/></span>
-                        <span className="hidden md:inline">Personnel</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="skills">
-                        <span className="inline md:hidden"><PocketKnifeIcon className="size-4"/></span>
-                        <span className="hidden md:inline">Skills</span>
-                    </TabsTrigger>
-                    <Separator orientation="vertical" className="mx-2"/>
-                    <TabsTrigger value="record-single">
-                        <span className="inline md:hidden"><CheckIcon className="size-4"/></span>
-                        <span className="hidden md:inline">Single</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="record-by-assessee">
-                        <span className="inline md:hidden relative"><UserIcon className="size-3 absolute -left-1 -top-1"/><CheckCheckIcon className="size-4 relative left-1 top-1"/></span>
-                        <span className="hidden md:inline">By Person</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="record-by-skill">
-                        <span className="inline md:hidden relative"><PocketKnifeIcon className="size-3 absolute -left-1 -top-1"/><CheckCheckIcon className="size-4 relative left-1 top-1"/></span>
-                        <span className="hidden md:inline">By Skill</span>
-                    </TabsTrigger>
-                    <Separator orientation="vertical" className="mx-2"/>
-                    <TabsTrigger value="transcript">
-                        <span className="inline md:hidden"><ScrollTextIcon className="size-4"/></span>
-                        <span className="hidden md:inline">Transcript</span>
-                    </TabsTrigger>
-                </TabsList>
-
-                <SkillRecorder_Session_Prefetch orgId={organization.orgId} sessionId={session.sessionId}/>
-                <Boundary
-                    slotProps={{
-                        loadingFallback: {
-                            style: { height: 'calc(100vh - var(--header-height) - 56px)', marginTop: '8px' }
-                        }
-                    }}
-                >
-                    <TabsContent value="details">
-                        <SkillRecorder_Session_Details organization={organization} session={session} />
-                    </TabsContent>
-                    <TabsContent value="assessees">
-                        <SkillRecorder_Session_Assessees organization={organization} session={session}/>
-                    </TabsContent>
-                    <TabsContent value="skills">
-                        <SkillRecorder_Session_Skills organization={organization} session={session}/>
-                    </TabsContent>
-                    <TabsContent value="record-single">
-                        <SkillRecorder_Session_RecordSingle organization={organization} session={session}/>
-                    </TabsContent>
-                    <TabsContent value="record-by-assessee">
-                        <SkillRecorder_Session_RecordByAssessee organization={organization} session={session}/>
-                    </TabsContent>
-                    <TabsContent value="record-by-skill">
-                        <SkillRecorder_Session_RecordBySkill organization={organization} session={session}/>
-                    </TabsContent>
-                    <TabsContent value="transcript">
-                        <SkillRecorder_Session_Transcript organization={organization} session={session}/>
-                    </TabsContent>
-                </Boundary>
-                
-            </Tabs>
-        </Show>
-
-        
-    </AppPage>
+                    <SkillRecorder_Session_Prefetch orgId={organization.orgId} sessionId={session.sessionId}/>
+                    <Boundary
+                        slotProps={{
+                            loadingFallback: {
+                                style: { height: 'calc(100vh - var(--header-height) - 56px)', marginTop: '8px' }
+                            }
+                        }}
+                    >
+                        <TabsContent value="details">
+                            <SkillRecorder_Session_Details organization={organization} session={session} />
+                        </TabsContent>
+                        <TabsContent value="assessees">
+                            <SkillRecorder_Session_Assessees organization={organization} session={session}/>
+                        </TabsContent>
+                        <TabsContent value="skills">
+                            <SkillRecorder_Session_Skills organization={organization} session={session}/>
+                        </TabsContent>
+                        <TabsContent value="record-single">
+                            <SkillRecorder_Session_RecordSingle organization={organization} session={session}/>
+                        </TabsContent>
+                        <TabsContent value="record-by-assessee">
+                            <SkillRecorder_Session_RecordByAssessee organization={organization} session={session}/>
+                        </TabsContent>
+                        <TabsContent value="record-by-skill">
+                            <SkillRecorder_Session_RecordBySkill organization={organization} session={session}/>
+                        </TabsContent>
+                        <TabsContent value="transcript">
+                            <SkillRecorder_Session_Transcript organization={organization} session={session}/>
+                        </TabsContent>
+                    </Boundary>
+                    
+                </Tabs>
+            </Lexington.Column>
+        </Lexington.Page>
+    </Lexington.Root>
 }
 

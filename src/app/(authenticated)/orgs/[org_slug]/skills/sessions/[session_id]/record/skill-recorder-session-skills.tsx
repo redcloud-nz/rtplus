@@ -106,8 +106,8 @@ export function SkillRecorder_Session_Skills({ organization, session }: { organi
 
     const isDirty = changes.added.length > 0 || changes.removed.length > 0
 
-    return <ScrollArea style={{ height: `calc(100vh - var(--header-height) - 56px)` }} className="[&>[data-slot=scroll-area-viewport]]:pb-8">
-        <div className="flex flex-col divide-y divide-border ">
+    return <> {/*<ScrollArea style={{ height: `calc(100vh - var(--header-height) - 56px)` }} className="[&>[data-slot=scroll-area-viewport]]:pb-8">*/}
+        <div className="flex flex-col divide-y divide-border pb-8">
             {availablePackages
                 .filter(pkg => pkg.skills.length > 0)
                 .map(pkg => <SkillPackageSection
@@ -145,7 +145,7 @@ export function SkillRecorder_Session_Skills({ organization, session }: { organi
                 </>
             }
         </FloatingFooter>
-    </ScrollArea>
+    </>
 }
 
 interface SkillPackageSectionProps {

@@ -326,6 +326,7 @@ function skillsModule(orgSlug: string) {
 
                 record: {
                     href: `${base}/sessions/${sessionId}/record`,
+                    label: "Recorder",
                 },
                 review: {
                     href: `${base}/sessions/${sessionId}/review`,

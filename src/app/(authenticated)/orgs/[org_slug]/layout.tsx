@@ -11,6 +11,7 @@ import { AppSidebar } from '@/components/nav/app-sidebar'
 import { OrganizationProvider } from '@/hooks/use-organization'
 import { getOrganization } from '@/server/organization'
 import { NavOrganizationMenu } from '@/components/nav/nav-organization-menu'
+import { TITLE_SEPARATOR } from '@/lib/utils'
 
 
 export async function generateMetadata(props: LayoutProps<'/orgs/[org_slug]'>): Promise<Metadata> {
@@ -19,7 +20,7 @@ export async function generateMetadata(props: LayoutProps<'/orgs/[org_slug]'>): 
 
     return {
         title: {
-            template: `%s - ${organization.name} | RT+`,
+            template: `%s ${TITLE_SEPARATOR} ${organization.name} | RT+`,
             default: "RT+"
         },
         description: "RT+ Application",

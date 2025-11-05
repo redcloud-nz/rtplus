@@ -50,19 +50,19 @@ export function SkillModule_SkillCheckSessionsList({ organization }: { organizat
         }),
         columnHelper.accessor('_count.assessees', {
             id: 'assessees',
-            header: ctx => <Akagi.TableHeader header={ctx.header} align="center" showAbove="md">Assessees</Akagi.TableHeader>,
+            header: ctx => <Akagi.TableHeader header={ctx.header} showAbove="md" className="w-[100px]">Assessees</Akagi.TableHeader>,
             cell: ctx => <Akagi.TableCell cell={ctx.cell} align="center" showAbove="md">{ctx.getValue()}</Akagi.TableCell>,
             enableSorting: true,
         }),
         columnHelper.accessor('_count.skills', {
             id: 'skills',
-            header: ctx => <Akagi.TableHeader header={ctx.header} align="center" showAbove="md">Skills</Akagi.TableHeader>,
+            header: ctx => <Akagi.TableHeader header={ctx.header} showAbove="md" className='w-[100px]'>Skills</Akagi.TableHeader>,
             cell: ctx => <Akagi.TableCell cell={ctx.cell} align="center" showAbove="md">{ctx.getValue()}</Akagi.TableCell>,
             enableSorting: true,
         }),
         columnHelper.accessor('_count.checks', {
             id: 'checks',
-            header: ctx => <Akagi.TableHeader header={ctx.header} align="center" showAbove="md">Checks</Akagi.TableHeader>,
+            header: ctx => <Akagi.TableHeader header={ctx.header} showAbove="md" className='w-[100px]'>Checks</Akagi.TableHeader>,
             cell: ctx => <Akagi.TableCell cell={ctx.cell} align="center" showAbove="md">{ctx.getValue()}</Akagi.TableCell>,
             enableSorting: true,
         }),
@@ -70,11 +70,11 @@ export function SkillModule_SkillCheckSessionsList({ organization }: { organizat
             id: 'status',
             header: ctx => <Akagi.TableHeader 
                 header={ctx.header} 
-                align="center" 
                 showAbove="md"
                 filterOptions={["Draft", 'Include', 'Exclude']}
+                className="w-[100px]"
             >Status</Akagi.TableHeader>,
-            cell: ctx => <Akagi.TableCell cell={ctx.cell} align="center" showAbove="md">{ctx.getValue()}</Akagi.TableCell>,
+            cell: ctx => <Akagi.TableCell cell={ctx.cell} showAbove="md">{ctx.getValue()}</Akagi.TableCell>,
             enableColumnFilter: true,
             enableSorting: false,
             filterFn: 'arrIncludesSome',
@@ -93,7 +93,7 @@ export function SkillModule_SkillCheckSessionsList({ organization }: { organizat
             columnFilters: [
                 { id: 'status', value: ['Draft', 'Include', 'Exclude'] }
             ],
-            pagination: { pageIndex: 0, pageSize: 10 },
+            pagination: { pageIndex: 0, pageSize: 50 },
             sorting: [{ id: 'date', desc: true }],
         },
     })

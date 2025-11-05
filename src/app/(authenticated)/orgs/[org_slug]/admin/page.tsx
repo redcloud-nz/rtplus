@@ -30,81 +30,82 @@ export default async function AdminModule_Index_Page(props: PageProps<'/orgs/[or
                 Paths.org(orgSlug).admin
             ]}
         />
-        <Lexington.Page variant="container-sm">
-            
-            <div className="flex flex-col items-center gap-4 my-4">
-                <Image
-                    className="dark:invert"
-                    src="/logo.svg"
-                    alt="RT+ logo"
-                    width={200}
-                    height={100}
-                    priority
-                />
-                <div className="font-semibold mt-4">Admin Module</div>
-            </div>
-            <ItemGroup>
-                <Protect role="org_admin">
+        <Lexington.Page>
+            <Lexington.Column width="sm">
+                <div className="flex flex-col items-center gap-4 my-4">
+                    <Image
+                        className="dark:invert"
+                        src="/logo.svg"
+                        alt="RT+ logo"
+                        width={200}
+                        height={100}
+                        priority
+                    />
+                    <div className="font-semibold mt-4">Admin Module</div>
+                </div>
+                <ItemGroup>
+                    <Protect role="org_admin">
+                        <Item asChild>
+                            <Link to={Paths.org(orgSlug).admin.profile}>
+                                <ItemContent>
+                                    <ItemTitle>Organization</ItemTitle>
+                                    <ItemDescription>Manage your organization's profile, members, and invitations.</ItemDescription>
+                                </ItemContent>
+                                <ItemActions>
+                                    <ChevronRightIcon className="size-4" />
+                                </ItemActions>
+                            </Link>
+                        </Item>
+                    </Protect>
+                    
                     <Item asChild>
-                        <Link to={Paths.org(orgSlug).admin.profile}>
+                        <Link to={Paths.org(orgSlug).admin.personnel}>
                             <ItemContent>
-                                <ItemTitle>Organization</ItemTitle>
-                                <ItemDescription>Manage your organization's profile, members, and invitations.</ItemDescription>
+                                <ItemTitle>Personnel</ItemTitle>
+                                <ItemDescription>Manage your organization's personnel.</ItemDescription>
                             </ItemContent>
                             <ItemActions>
                                 <ChevronRightIcon className="size-4" />
                             </ItemActions>
                         </Link>
                     </Item>
-                </Protect>
-                
-                <Item asChild>
-                    <Link to={Paths.org(orgSlug).admin.personnel}>
-                        <ItemContent>
-                            <ItemTitle>Personnel</ItemTitle>
-                            <ItemDescription>Manage your organization's personnel.</ItemDescription>
-                        </ItemContent>
-                        <ItemActions>
-                            <ChevronRightIcon className="size-4" />
-                        </ItemActions>
-                    </Link>
-                </Item>
-                <Item asChild>
-                    <Link to={Paths.org(orgSlug).admin.settings}>
-                        <ItemContent>
-                            <ItemTitle>Settings</ItemTitle>
-                            <ItemDescription>Manage your organization's settings.</ItemDescription>
-                        </ItemContent>
-                        <ItemActions>
-                            <ChevronRightIcon className="size-4" />
-                        </ItemActions>
-                    </Link>
-                </Item>
-                {/* <Show when={isModuleEnabled(organization, 'skills')}>
                     <Item asChild>
-                        <Link to={Paths.org(orgSlug).admin.skillPackages}>
+                        <Link to={Paths.org(orgSlug).admin.settings}>
                             <ItemContent>
-                                <ItemTitle>Skill Packages</ItemTitle>
-                                <ItemDescription>Manage the skill-packages owned by your organisation.</ItemDescription>
+                                <ItemTitle>Settings</ItemTitle>
+                                <ItemDescription>Manage your organization's settings.</ItemDescription>
                             </ItemContent>
                             <ItemActions>
                                 <ChevronRightIcon className="size-4" />
                             </ItemActions>
                         </Link>
                     </Item>
-                </Show> */}
-                <Item asChild>
-                    <Link to={Paths.org(orgSlug).admin.teams}>
-                        <ItemContent>
-                            <ItemTitle>Teams</ItemTitle>
-                            <ItemDescription>Manage your organisation's teams.</ItemDescription>
-                        </ItemContent>
-                        <ItemActions>
-                            <ChevronRightIcon className="size-4" />
-                        </ItemActions>
-                    </Link>
-                </Item>
-            </ItemGroup>
+                    {/* <Show when={isModuleEnabled(organization, 'skills')}>
+                        <Item asChild>
+                            <Link to={Paths.org(orgSlug).admin.skillPackages}>
+                                <ItemContent>
+                                    <ItemTitle>Skill Packages</ItemTitle>
+                                    <ItemDescription>Manage the skill-packages owned by your organisation.</ItemDescription>
+                                </ItemContent>
+                                <ItemActions>
+                                    <ChevronRightIcon className="size-4" />
+                                </ItemActions>
+                            </Link>
+                        </Item>
+                    </Show> */}
+                    <Item asChild>
+                        <Link to={Paths.org(orgSlug).admin.teams}>
+                            <ItemContent>
+                                <ItemTitle>Teams</ItemTitle>
+                                <ItemDescription>Manage your organisation's teams.</ItemDescription>
+                            </ItemContent>
+                            <ItemActions>
+                                <ChevronRightIcon className="size-4" />
+                            </ItemActions>
+                        </Link>
+                    </Item>
+                </ItemGroup>
+            </Lexington.Column>
         </Lexington.Page>
     </Lexington.Root>
 }

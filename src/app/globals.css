@@ -46,7 +46,10 @@
   --mdxeditor-toolbar-height: 45px;
   --page-padding: var(--spacing) * 4;
   --scrollbar-thumb: var(--color-neutral-400);
-  --scrollbar-track: var(--color-neutral-100);
+  --scrollbar-track: var(--background);
+
+  --table-head: var(--color-stone-100);
+  --table-head-foreground: var(--foreground);
 }
  
 .dark {
@@ -118,6 +121,8 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   --color-table-frame: var(--table-frame);
+  --color-table-head: var(--table-head);
+  --color-table-head-foreground: var(--table-head-foreground);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);

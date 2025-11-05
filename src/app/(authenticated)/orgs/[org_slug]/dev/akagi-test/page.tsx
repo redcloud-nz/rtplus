@@ -10,9 +10,9 @@ import { Lexington } from '@/components/blocks/lexington'
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
 
-import { DevModule_TableLayout } from './table-layout'
+import { DevModule_AkagiTest } from './akagi-test'
 
-export default async function DevModule_TableLayout_Page(props: PageProps<'/orgs/[org_slug]/dev/table-layout'>) {
+export default async function DevModule_AkagiTest_Page(props: PageProps<'/orgs/[org_slug]/dev/akagi-test'>) {
     const { org_slug: orgSlug } = await props.params
     const organization = await getOrganization(orgSlug)
 
@@ -23,9 +23,10 @@ export default async function DevModule_TableLayout_Page(props: PageProps<'/orgs
                 Paths.org(organization.slug).dev.tableLayout,
             ]}
         />
-        <Lexington.Page variant="container">
-            <DevModule_TableLayout/>
-
+        <Lexington.Page>
+            <Lexington.Column width="xl">
+                <DevModule_AkagiTest/>
+            </Lexington.Column>
         </Lexington.Page>
     </Lexington.Root>
 }

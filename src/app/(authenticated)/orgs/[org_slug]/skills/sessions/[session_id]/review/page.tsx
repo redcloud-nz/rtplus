@@ -8,6 +8,7 @@
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 
+import { TITLE_SEPARATOR } from '@/lib/utils'
 import * as Paths from '@/paths'
 import { fetchSkillCheckSession } from '@/server/fetch'
 import { getOrganization } from '@/server/organization'
@@ -21,7 +22,7 @@ export async function generateMetadata(props: PageProps<'/orgs/[org_slug]/skills
     const organization = await getOrganization(orgSlug)
     const session = await fetchSkillCheckSession({ orgId: organization.orgId, sessionId})
 
-    return { title: `Review - ${session.name} - Skill Check Sessions` }
+    return { title: `Review ${TITLE_SEPARATOR} ${session.name}` }
 }
 
 

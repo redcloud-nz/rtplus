@@ -16,7 +16,7 @@ import * as Paths from '@/paths'
 
 export function SkillRecorder_Session_Details({ organization, session }: { organization: OrganizationData, session: SkillCheckSessionData }) {
     
-    return <ScrollArea style={{ height: `calc(100vh - var(--header-height) - 56px)` }}>
+    return <>
         <Heading level={4}>Session Details</Heading>
         <ToruGrid>
             <ToruGridRow 
@@ -40,6 +40,5 @@ export function SkillRecorder_Session_Details({ organization, session }: { organ
             />
             <ToruGridFooter/>
         </ToruGrid>
-    </ScrollArea>
-    
+    </>
 }

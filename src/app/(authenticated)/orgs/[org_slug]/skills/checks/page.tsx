@@ -29,8 +29,10 @@ export default async function SkillModule_SkillChecks_Page(props: PageProps<'/or
             ]}
         />
         
-        <Lexington.Page variant="container">
-            <SkillsModule_SkillChecks_List organization={organization} />
+        <Lexington.Page>
+            <Lexington.Column width="xl">
+                <SkillsModule_SkillChecks_List organization={organization} />
+            </Lexington.Column>
         </Lexington.Page>
     </Lexington.Root>
 }
