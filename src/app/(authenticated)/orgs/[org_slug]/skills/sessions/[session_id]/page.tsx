@@ -5,15 +5,13 @@
  *  Path: /orgs/[org_slug]/skills/sessions/[session_id]
  */
 
-import { ChevronRightIcon, EditIcon } from 'lucide-react'
 
 import { Lexington } from '@/components/blocks/lexington'
-import { BackToListIcon } from '@/components/icons'
+import { BackToListIcon, EditIcon, ItemLinkActionIcon, SessionRecordIcon, SessionReviewIcon } from '@/components/icons'
 import { S2_Button } from '@/components/ui/s2-button'
 import { S2_Card, S2_CardContent, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
-import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@/components/ui/items'
-import { StatItem, StatItemDescription, StatItemTitle, StatItemValue } from '@/components/ui/stat-item'
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from '@/components/ui/items'
 import { Link } from '@/components/ui/link'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { S2_Value } from '@/components/ui/s2-value'
@@ -22,6 +20,9 @@ import { formatDate, TITLE_SEPARATOR } from '@/lib/utils'
 import * as Paths from '@/paths'
 import { fetchSkillCheckSession } from '@/server/fetch'
 import { getOrganization } from '@/server/organization'
+
+
+import { AssignedAssesseesCount_Card, AssignedSkillsCount_Card, RecordedChecksCount_Card } from './session-stats'
 
 
 export async function generateMetadata(props: PageProps<'/orgs/[org_slug]/skills/sessions/[session_id]'>) {
@@ -35,7 +36,7 @@ export async function generateMetadata(props: PageProps<'/orgs/[org_slug]/skills
 export default async function SkillsModule_Session_Page(props: PageProps<'/orgs/[org_slug]/skills/sessions/[session_id]'>) {
     const { org_slug: orgSlug, session_id: sessionId } = await props.params
     const organization = await getOrganization(orgSlug)
-    const session = await fetchSkillCheckSession({ orgId: organization.orgId, sessionId})
+    const session = await fetchSkillCheckSession({ orgId: organization.orgId, sessionId })
 
     return <Lexington.Root>
         <Lexington.Header
@@ -46,7 +47,7 @@ export default async function SkillsModule_Session_Page(props: PageProps<'/orgs/
             ]}
         />
         <Lexington.Page>
-            <Lexington.Column width="md">
+            <Lexington.Column width="lg">
                 <Lexington.ColumnControls>
                     <Tooltip>
                         <TooltipTrigger asChild>
@@ -74,19 +75,19 @@ export default async function SkillsModule_Session_Page(props: PageProps<'/orgs/
                         <FieldGroup>
                             <Field orientation='responsive'>
                                 <FieldLabel>SesionId</FieldLabel>
-                                <S2_Value value={session.sessionId}/>
+                                <S2_Value value={session.sessionId} className="min-w-1/2"/>
                             </Field>
                             <Field orientation='responsive'>
                                 <FieldLabel>Name</FieldLabel>
-                                <S2_Value value={session.name}/>
+                                <S2_Value value={session.name} className="min-w-1/2"/>
                             </Field>
                             <Field orientation='responsive'>
                                 <FieldLabel>Date</FieldLabel>
-                                <S2_Value value={formatDate(session.date)}/>
+                                <S2_Value value={formatDate(session.date)} className="min-w-1/2"/>
                             </Field>
                             <Field orientation='responsive'>
                                 <FieldLabel>Status</FieldLabel>
-                                <S2_Value value={session.sessionStatus}/>
+                                <S2_Value value={session.sessionStatus} className="min-w-1/2"/>
                             </Field>
                         </FieldGroup>
                     </S2_CardContent>
@@ -95,43 +96,37 @@ export default async function SkillsModule_Session_Page(props: PageProps<'/orgs/
                 <ItemGroup>
                     <Item asChild>
                         <Link to={Paths.org(organization.slug).skills.session(session.sessionId).record}>
-                        <ItemContent>
-                            <ItemTitle>Configure and Record</ItemTitle>
-                            <ItemDescription>Select skills and assessors then bulk record your skill checks.</ItemDescription>
-                        </ItemContent>
-                        <ItemActions>
-                            <ChevronRightIcon className="size-4" />
-                        </ItemActions>
+                            <ItemMedia>
+                                <SessionRecordIcon/>
+                            </ItemMedia>
+                            <ItemContent>
+                                <ItemTitle>Configure and Record</ItemTitle>
+                                <ItemDescription>Select skills and assessors then bulk record your skill checks.</ItemDescription>
+                            </ItemContent>
+                            <ItemActions>
+                                <ItemLinkActionIcon className="size-4" />
+                            </ItemActions>
                         </Link>
                     </Item>
                     <Item asChild>
                         <Link to={Paths.org(organization.slug).skills.session(session.sessionId).review}>
-                        <ItemContent>
-                            <ItemTitle>Review</ItemTitle>
-                            <ItemDescription>Review and approve the recorded checks.</ItemDescription>
-                        </ItemContent>
-                        <ItemActions>
-                            <ChevronRightIcon className="size-4" />
-                        </ItemActions>
+                            <ItemMedia>
+                                <SessionReviewIcon/>
+                            </ItemMedia>
+                            <ItemContent>
+                                <ItemTitle>Review</ItemTitle>
+                                <ItemDescription>Review and approve the recorded checks.</ItemDescription>
+                            </ItemContent>
+                            <ItemActions>
+                                <ItemLinkActionIcon className="size-4" />
+                            </ItemActions>
                         </Link>
                     </Item>
                 </ItemGroup>
                 <div className="flex gap-2 justify-center">
-                    <StatItem>  
-                        <StatItemValue>{0}</StatItemValue>
-                        <StatItemTitle>Assessees</StatItemTitle>
-                        <StatItemDescription>assigned to the session</StatItemDescription>
-                    </StatItem>
-                    <StatItem>  
-                        <StatItemValue>{0}</StatItemValue>
-                        <StatItemTitle>Skills</StatItemTitle>
-                        <StatItemDescription>assigned to the session</StatItemDescription>
-                    </StatItem>
-                    <StatItem>  
-                        <StatItemValue>{0}</StatItemValue>
-                        <StatItemTitle>Checks</StatItemTitle>
-                        <StatItemDescription>recorded in the session</StatItemDescription>
-                    </StatItem>
+                    <AssignedAssesseesCount_Card organization={organization} sessionId={session.sessionId} />
+                    <AssignedSkillsCount_Card organization={organization} sessionId={session.sessionId} />
+                    <RecordedChecksCount_Card organization={organization} sessionId={session.sessionId} />
                 </div>
             </Lexington.Column>
                 

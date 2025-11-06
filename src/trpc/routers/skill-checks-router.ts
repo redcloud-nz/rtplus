@@ -552,17 +552,7 @@ export const skillChecksRouter = createTRPCRouter({
         .query(async ({ ctx, input: { sessionId } }) => {
 
             const session = await ctx.prisma.skillCheckSession.findUnique({
-                where: { sessionId },
-                include: {
-                    _count: {
-                        select: {
-                            skills: true,
-                            assessees: true,
-                            assessors: true,
-                            checks: true
-                        }
-                    },
-                }
+                where: { sessionId, orgId: ctx.auth.activeOrg.orgId },
             })
 
             if (!session) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.sessionNotFound(sessionId) })
@@ -582,14 +572,7 @@ export const skillChecksRouter = createTRPCRouter({
         .input(z.object({
             status: z.enum(['Draft', 'Include', 'Exclude']).array().optional(),
         }))
-        .output(z.array(skillCheckSessionSchema.extend({
-            _count: z.object({
-                skills: z.number(),
-                assessees: z.number(),
-                assessors: z.number(),
-                checks: z.number()
-            })
-        })))
+        .output(z.array(skillCheckSessionSchema))
         .query(async ({ ctx, input }) => {
 
             const sessions = await ctx.prisma.skillCheckSession.findMany({
@@ -597,23 +580,41 @@ export const skillChecksRouter = createTRPCRouter({
                     orgId: ctx.auth.activeOrg.orgId,
                     sessionStatus: input.status ? { in: input.status } : undefined
                 },
-                include: {
-                    _count: {
-                        select: {
-                            skills: true,
-                            assessees: true,
-                            assessors: true,
-                            checks: true
-                        }
-                    }
-                },
                 orderBy: { date: 'desc' }
             })
 
-            return sessions.map((session) => ({
-                ...toSkillCheckSessionData(session),
-                _count: session._count
-            }))
+            return sessions.map(toSkillCheckSessionData)
+        }),
+
+    getSessionStats: sessionProcedure
+        .output(z.object({
+            recordedChecksCount: z.number(),
+            assignedAssesseesCount: z.number(),
+            assignedAssessorsCount: z.number(),
+            assignedSkillsCount: z.number(),
+        }))
+        .query(async ({ ctx, input: { sessionId } }) => {
+
+           const session = await ctx.prisma.skillCheckSession.findUnique({
+                where: { sessionId, orgId: ctx.auth.activeOrg.orgId },
+                include: {
+                    _count: {
+                        select: {
+                            checks: true,
+                            assessees: true,
+                            assessors: true,
+                            skills: true
+                        }
+                    }
+                }
+            })
+
+            return {
+                recordedChecksCount: session?._count.checks ?? 0,
+                assignedAssesseesCount: session?._count.assessees ?? 0,
+                assignedAssessorsCount: session?._count.assessors ?? 0,
+                assignedSkillsCount: session?._count.skills ?? 0,
+            }
         }),
 
     /**

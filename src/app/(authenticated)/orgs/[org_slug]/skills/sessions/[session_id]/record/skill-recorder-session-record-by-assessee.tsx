@@ -5,20 +5,20 @@
 
 'use client'
 
-import { ArrowUpIcon, NotebookPenIcon } from 'lucide-react'
+import { ArrowUpIcon, MessageSquareIcon } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import { useSuspenseQueries } from '@tanstack/react-query'
 
 import { FloatingFooter } from '@/components/footer'
-import { Show } from '@/components/show'
-import { Alert } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+
+
 import { CompetenceLevelRadioGroup } from '@/components/controls/competence-level-radio-group'
-import { Label } from '@/components/ui/label'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { Button } from '@/components/ui/button'
+import { S2_Button } from '@/components/ui/s2-button'
+import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
+
 import { Textarea } from '@/components/ui/textarea'
 import { Paragraph } from '@/components/ui/typography'
 
@@ -29,7 +29,9 @@ import { OrganizationData } from '@/lib/schemas/organization'
 import { PersonId } from '@/lib/schemas/person'
 import { SkillData } from '@/lib/schemas/skill'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
+import { cn } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
+import { S2_Select, S2_SelectContent, S2_SelectItem, S2_SelectTrigger, S2_SelectValue } from '@/components/ui/s2-select'
 
 
 
@@ -51,75 +53,80 @@ export function SkillRecorder_Session_RecordByAssessee({ organization, session }
     const [targetAssesseeId, setTargetAssesseeId] = useState<PersonId | null>(null)
     const skillCheckStore = useSkillCheckStore_experimental(organization.orgId, session.sessionId)
 
-    return <>
-        <Show 
-            when={assignedAssessees.length > 0}
-            fallback={<Alert title="No assessees defined for this session." severity="warning" className="p-2.5"/>}
+    return <FieldGroup className="py-4">
+        <Field 
+            data-invalid={assignedAssessees.length == 0}
+            orientation="responsive"
         >
-            <Select
+            <FieldContent>
+                <FieldLabel>Assessee</FieldLabel>
+                <FieldDescription>Select the person being assessed</FieldDescription>
+                {assignedAssessees.length == 0 && <FieldError>No assessees configured in this session.</FieldError>}
+            </FieldContent>
+            
+            <S2_Select
                 value={targetAssesseeId || ''} 
                 onValueChange={(newValue) => setTargetAssesseeId(newValue ? newValue as PersonId : null)}
                 disabled={skillCheckStore.isDirty}
             >
-                <SelectTrigger autoFocus>
-                    <SelectValue placeholder="Select a person..."/>
-                </SelectTrigger>
-                <SelectContent>
+                <S2_SelectTrigger className="min-w-1/2">
+                    <S2_SelectValue placeholder="Select a person..."/>
+                </S2_SelectTrigger>
+                <S2_SelectContent>
                                                 
                     {assignedAssessees.map(assessee => (
-                        <SelectItem key={assessee.personId} value={assessee.personId}>
+                        <S2_SelectItem key={assessee.personId} value={assessee.personId}>
                             {assessee.name}
-                        </SelectItem>
+                        </S2_SelectItem>
                     ))}
-                </SelectContent>
-            </Select>
-        </Show>
-        <Separator orientation="horizontal" className="my-2"/>
-        <ScrollArea style={{ height: `calc(100vh - var(--header-height) - 115px)` }} className="px-4 [&>[data-slot=scroll-area-viewport]]:pb-12">
-            { targetAssesseeId 
-                ? <>
-                    <div className="grid grid-cols-[min(20%,--spacing(80))_1fr_1fr divide-y divide-zinc-950/5">
-                        {assignedSkills.map(skill => 
-                            <SkillRow
-                                key={skill.skillId}
-                                skill={skill}
-                                disabled={!targetAssesseeId}
-                                savedValue={skillCheckStore.getCheck({ skillId: skill.skillId, assesseeId: targetAssesseeId })}
-                                onValueChange={skillCheckStore.updateCheck({ skillId: skill.skillId, assesseeId: targetAssesseeId })}
-                            />
-                        )}
-                    </div>
+                </S2_SelectContent>
+            </S2_Select>
+        </Field>
 
-                    <FloatingFooter open={skillCheckStore.isDirty}>
-                        <Button 
-                            size="sm"
-                            color="blue"
-                            onClick={async () => {
-                                await skillCheckStore.saveChecks()
-                                setTargetAssesseeId(null)
-                            }}
-                            disabled={!skillCheckStore.isDirty}
-                        >Save</Button>
-                            
-                        <Button
-                            size="sm"
-                            color="red"
-                            disabled={!skillCheckStore.isDirty}
-                            onClick={() => skillCheckStore.reset()}
-                        >Reset</Button>
-                    </FloatingFooter>
-                </>
-                : <div className="flex flex-col items-center">
-                    <ArrowUpIcon className="size-8"/>
-                    <Paragraph>
-                        Select a person to start recording their skills.
-                    </Paragraph>
-                </div>
-            }
-        </ScrollArea>
+        <FieldSeparator />
 
-        
-    </>
+        { targetAssesseeId 
+            ? <>
+                <FieldGroup className="mb-8">
+
+                    {assignedSkills.map(skill => 
+                        <SkillRow
+                            key={skill.skillId}
+                            skill={skill}
+                            disabled={!targetAssesseeId}
+                            savedValue={skillCheckStore.getCheck({ skillId: skill.skillId, assesseeId: targetAssesseeId })}
+                            onValueChange={skillCheckStore.updateCheck({ skillId: skill.skillId, assesseeId: targetAssesseeId })}
+                        />
+                    )}
+                </FieldGroup>
+
+                <FloatingFooter open={skillCheckStore.isDirty}>
+                    <Button
+                        size="sm"
+                        color="blue"
+                        onClick={async () => {
+                            await skillCheckStore.saveChecks()
+                            setTargetAssesseeId(null)
+                        }}
+                        disabled={!skillCheckStore.isDirty}
+                    >Save</Button>
+                        
+                    <Button
+                        size="sm"
+                        color="red"
+                        disabled={!skillCheckStore.isDirty}
+                        onClick={() => skillCheckStore.reset()}
+                    >Reset</Button>
+                </FloatingFooter>
+            </>
+            : <div className="flex flex-col items-center">
+                <ArrowUpIcon className="size-8"/>
+                <Paragraph>
+                    Select a person to start recording their skills.
+                </Paragraph>
+            </div>
+        }
+    </FieldGroup>
 }
 
 
@@ -135,27 +142,39 @@ function SkillRow({ skill, disabled, savedValue: value, onValueChange }: SkillRo
 
     const [showNotes, setShowNotes] = useState(false)
 
-    return <div className="col-span-3 grid grid-cols-subgrid items-center py-1 gap-x-2 gap-y-1">
-        <Label className="pl-1">{skill.name}</Label>
-        
-        <CompetenceLevelRadioGroup 
-            value={value.result as CompetenceLevel}
-            prevValue={value.savedValue?.result as CompetenceLevel || null}
-            onValueChange={newValue => onValueChange({ ...value, result: newValue })} 
-            disabled={disabled}
-            className={resultChanged ? '' : ''}
-        />
+    
 
-        <Button variant="ghost" size="icon" onClick={() => setShowNotes(prev => !prev)} disabled={disabled}>
-            <NotebookPenIcon/>
-        </Button>
-        <div>
+    return <FieldGroup>
+        <Field orientation="horizontal">
+            <FieldLabel>{skill.name}</FieldLabel>
             
-        </div>
-        { showNotes ? <div className="col-span-3 mb-2">
+            <CompetenceLevelRadioGroup 
+                orientation="horizontal"
+                value={value.result as CompetenceLevel}
+                prevValue={value.savedValue?.result as CompetenceLevel || null}
+                onValueChange={newValue => onValueChange({ ...value, result: newValue })} 
+                disabled={disabled}
+            />
+
+            <S2_Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setShowNotes(prev => !prev)}
+                disabled={disabled}
+                className="text-muted-foreground"
+            >
+                <MessageSquareIcon className={cn(value.notes && "fill-neutral-300")}/>
+            </S2_Button>
+        </Field>
+
+        { showNotes ? <Field orientation="responsive">
+            <FieldContent>
+                <FieldLabel className="text-muted-foreground pl-8">Assessor Comments</FieldLabel>
+            </FieldContent>
             <Textarea
                 autoFocus
-                placeholder="Notes..."
+                className="min-w-1/2"
+                placeholder="Comment..."
                 maxLength={500}
                 value={value.notes}
                 onChange={ev => onValueChange({ ...value, notes: ev.target.value })}
@@ -166,6 +185,6 @@ function SkillRow({ skill, disabled, savedValue: value, onValueChange }: SkillRo
                 }}
                 disabled={disabled}
             />
-        </div> : null }
-    </div>
+        </Field> : null }
+    </FieldGroup>
 }

@@ -11,7 +11,6 @@ import { useMemo } from 'react'
 import { useSuspenseQueries } from '@tanstack/react-query'
 
 import { Show } from '@/components/show'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Heading } from '@/components/ui/typography'
 
 import { OrganizationData } from '@/lib/schemas/organization'
@@ -35,8 +34,8 @@ export function SkillRecorder_Session_Transcript({ organization, session }: { or
 
     const skills = useMemo(() => availablePackages.flatMap(pkg => pkg.skills), [availablePackages])
 
-    return <ScrollArea style={{ height: `calc(100vh - var(--header-height) - 56px)` }}>
-        <Heading level={4}>You have recorded:</Heading>
+    return <div className="max-w-2xl mx-auto mt-6">
+        <Heading level={4}>In this session, you have recorded:</Heading>
         <ul>
             {assignedAssessees.map(assessee => {
                 const assesseeChecks = checks
@@ -64,5 +63,5 @@ export function SkillRecorder_Session_Transcript({ organization, session }: { or
                 </li>
             })}
         </ul>
-    </ScrollArea>
+    </div>
 }

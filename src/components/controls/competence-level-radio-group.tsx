@@ -4,31 +4,45 @@
  */
 'use client'
 
-import { CheckCheckIcon, CheckIcon, SlashIcon, XIcon } from 'lucide-react'
-import { ComponentProps } from 'react'
+import { CheckCheckIcon, CheckIcon, CircleIcon, SlashIcon, XIcon } from 'lucide-react'
+import { ComponentProps, useId } from 'react'
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group'
 
 import { cn } from '@/lib/utils'
 import { CompetenceLevel, CompetenceLevels, CompetenceLevelTerms } from '@/lib/competencies'
+import { Label } from '../ui/label'
 
-export function CompetenceLevelRadioGroup({ className, prevValue, value, ...props }: Omit<ComponentProps<typeof RadioGroupPrimitive.Root>, 'children' | 'value'> & { value: CompetenceLevel, prevValue: CompetenceLevel | null }) {
+
+type CompetenceLevelRadioGroupProps = Omit<ComponentProps<typeof RadioGroupPrimitive.Root>, 'children' | 'value'> & {
+    value: CompetenceLevel,
+    prevValue: CompetenceLevel | null,
+    orientation?: 'horizontal' | 'vertical',
+}
+
+export function CompetenceLevelRadioGroup({ className, prevValue, orientation="vertical", value, ...props }: CompetenceLevelRadioGroupProps) {
+    const id = useId()
+    const idPrefix = `radio-group-${id}`
+
     return <RadioGroupPrimitive.Root
         data-component="CompetenceLevelRadioGroup"
         data-slot="radio-group"
         className={cn(
-            "flex items-center gap-2 sm:gap-3",
-
+            orientation === 'vertical' && "grid grid-cols-[auto_1fr] gap-2 items-center",
+            orientation === 'horizontal' && "grid grid-cols-5 w-40 px-1 gap-2 items-center md:w-50 md:gap-4 md:px-2",
             className
         )}
         value={value}
         {...props}
     >
-        {CompetenceLevels.map(lvl => <CompetenceLevelRadioGroupItem 
-            key={lvl} 
-            value={lvl}
-            diff={value == lvl ? (prevValue == lvl ? 'none' : 'add') : (prevValue == lvl ? 'remove' : 'none')}
-        />)}
-        <div className="hidden sm:block w-28 text-muted-foreground text-sm">{CompetenceLevelTerms[value]}</div>
+        {CompetenceLevels.map(level => <>
+            <CompetenceLevelRadioGroupItem 
+                key={level} 
+                id={`${idPrefix}-${level}`}
+                value={level}
+                diff={value == level ? (prevValue == level ? 'none' : 'add') : (prevValue == level ? 'remove' : 'none')}
+            />
+            { orientation === 'vertical' && <Label htmlFor={`${idPrefix}-${level}`} className="self-center">{CompetenceLevelTerms[level]}</Label>}
+        </>)}
     </RadioGroupPrimitive.Root>
 }
 
@@ -45,19 +59,20 @@ export function CompetenceLevelRadioGroupItem({ className, diff, value, ...props
             "disabled:cursor-not-allowed disabled:opacity-50",
             "data-[state=unchecked]:text-zinc-100",
             "data-[state=checked]:border-zinc-500/50",
-            value == 'NotTaught' && "data-[state=checked]:text-gray-600/50",
-            value == 'NotCompetent' && "data-[state=checked]:text-red-600/50",
-            value == 'Competent' && "data-[state=checked]:text-green-600/50",
-            value == 'HighlyConfident' && "data-[state=checked]:text-blue-600/50",
             diff == 'add' && "ring-2 ring-offset-1 ring-green-500/25",
             diff == 'remove' && "ring-2 ring-offset-1 ring-red-500/25",
             className
         )}
         {...props}
+        
 >
-        {value == 'NotTaught' && <SlashIcon className="size-5"/>}
-        {value == 'NotCompetent' && <XIcon className="size-5"/>}
-        {value == 'Competent' && <CheckIcon className="size-5"/>}
-        {value == 'HighlyConfident' && <CheckCheckIcon className="size-5"/>}
+        <RadioGroupPrimitive.Indicator className="relative flex items-center justify-center">
+            {value == 'NotAssessed' && <CircleIcon className="size-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-600/50"/>}
+            {value == 'NotTaught' && <SlashIcon className="size-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-600/50"/>}
+            {value == 'NotCompetent' && <XIcon className="size-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-red-600/50"/>}
+            {value == 'Competent' && <CheckIcon className="size-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-green-600/50"/>}
+            {value == 'HighlyConfident' && <CheckCheckIcon className="size-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-blue-600/50"/>}
+        </RadioGroupPrimitive.Indicator>
+        
     </RadioGroupPrimitive.Item>
 }

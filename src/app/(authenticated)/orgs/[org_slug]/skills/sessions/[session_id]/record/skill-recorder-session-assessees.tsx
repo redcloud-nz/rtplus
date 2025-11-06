@@ -13,7 +13,6 @@ import { FloatingFooter } from '@/components/footer'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { ScrollArea } from '@/components/ui/scroll-area'
 
 import { useToast } from '@/hooks/use-toast'
 import { OrganizationData } from '@/lib/schemas/organization'
@@ -53,6 +52,7 @@ export function SkillRecorder_Session_Assessees({ organization, session }: { org
             queryClient.setQueryData(queryKey, (old = []) => 
                 [...old.filter(a => !removals.includes(a.personId)), ...additions.map(personId => ({ personId, name: 'Loading...', email: "" } as PersonRef)) ]
             )
+            setChanges({ added: [], removed: [] })
             return { previousData }
         },
         onError(error, _data, context) {
@@ -99,8 +99,8 @@ export function SkillRecorder_Session_Assessees({ organization, session }: { org
 
     const isDirty = changes.added.length > 0 || changes.removed.length > 0
 
-    return  <ScrollArea style={{ height: `calc(100vh - var(--header-height) - 56px)` }} className="[&>[data-slot=scroll-area-viewport]]:pb-8">
-        <div className="flex flex-col divide-y divide-border">
+    return  <>
+        <div className="flex flex-col divide-y divide-border pb-8 mx-auto">
             <AvailablePersonnel
                 organization={organization}
                 assignedAssessees={assignedAssessees.map(a => a.personId)}
@@ -136,28 +136,29 @@ export function SkillRecorder_Session_Assessees({ organization, session }: { org
         </FloatingFooter>
         
         
-    </ScrollArea>
+    </>
 }
 
 
-interface TeamSectionProps {
+interface AvailablePersonnelProps {
     organization: OrganizationData
     assignedAssessees: string[]
     selectedAssessees: string[]
     onSelectedChange: (assesseeId: PersonId) => (checked: boolean) => void
 }
 
-function AvailablePersonnel({ organization, assignedAssessees, selectedAssessees, onSelectedChange }: TeamSectionProps) {
+function AvailablePersonnel({ organization, assignedAssessees, selectedAssessees, onSelectedChange }: AvailablePersonnelProps) {
 
-    const { data: personnel } = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({ orgId: organization.orgId }))
+    const { data: personnel } = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({ orgId: organization.orgId, status: 'Active' }))
 
     const selected = personnel.filter(m => selectedAssessees.includes(m.personId))
 
     return <div className="py-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-2">
+            <div className="text-md font-semibold">Active Personnel</div>
             <div className="text-sm text-muted-foreground">{selected.length} selected</div>
         </div>
-        <ul className="pl-4">
+        <ul>
             {personnel
                 .map(person => <PersonRow
                     key={person.personId}
@@ -179,7 +180,7 @@ interface PersonRowProps {
 }
 
 function PersonRow({ person, assigned, selected, onSelectedChange }: PersonRowProps) {
-    return <li className="flex items-center gap-2">
+    return <li className="pl-4 flex items-center gap-2 hover:bg-accent rounded-sm transition-colors">
         <Label htmlFor={`person-${person.personId}`} className="py-2 truncate grow">{person.name}</Label>
         <Checkbox
             id={`person-${person.personId}`}

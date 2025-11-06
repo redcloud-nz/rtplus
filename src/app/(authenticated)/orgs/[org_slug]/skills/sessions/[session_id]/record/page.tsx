@@ -31,10 +31,6 @@ import { SkillRecorder_Session_Transcript } from './skill-recorder-session-trans
 
 
 
-
-
-
-
 export async function generateMetadata(props: PageProps<'/orgs/[org_slug]/skills/sessions/[session_id]/record'>) {
     const { org_slug: orgSlug, session_id: sessionId } = await props.params
     const organization = await getOrganization(orgSlug)
@@ -75,46 +71,49 @@ export default async function SkillsModule_SessionRecord_Page(props: PageProps<'
             breadcrumbs={breadcrumbs}
         />
         <Lexington.Page>
-            <Lexington.Column width="xl">
-                <Tabs defaultValue='details' className="">
-                    <TabsList variant="stretch" className="w-full h-[40px] sticky top-4 z-10">
-                        <TabsTrigger value="details">
-                            <span className="inline md:hidden"><InfoIcon className="size-4"/></span>
-                            <span className="hidden md:inline">Details</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="assessees">
-                            <span className="inline md:hidden"><UsersIcon className="size-4"/></span>
-                            <span className="hidden md:inline">Personnel</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="skills">
-                            <span className="inline md:hidden"><PocketKnifeIcon className="size-4"/></span>
-                            <span className="hidden md:inline">Skills</span>
-                        </TabsTrigger>
-                        <Separator orientation="vertical" className="mx-2"/>
-                        <TabsTrigger value="record-single">
-                            <span className="inline md:hidden"><CheckIcon className="size-4"/></span>
-                            <span className="hidden md:inline">Single</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="record-by-assessee">
-                            <span className="inline md:hidden relative"><UserIcon className="size-3 absolute -left-1 -top-1"/><CheckCheckIcon className="size-4 relative left-1 top-1"/></span>
-                            <span className="hidden md:inline">By Person</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="record-by-skill">
-                            <span className="inline md:hidden relative"><PocketKnifeIcon className="size-3 absolute -left-1 -top-1"/><CheckCheckIcon className="size-4 relative left-1 top-1"/></span>
-                            <span className="hidden md:inline">By Skill</span>
-                        </TabsTrigger>
-                        <Separator orientation="vertical" className="mx-2"/>
-                        <TabsTrigger value="transcript">
-                            <span className="inline md:hidden"><ScrollTextIcon className="size-4"/></span>
-                            <span className="hidden md:inline">Transcript</span>
-                        </TabsTrigger>
-                    </TabsList>
+            <Lexington.Column width="md" className="pt-0">
+                <Tabs defaultValue='details'>
+                    <div className="sticky top-0 z-10 bg-background/90 pt-4 flex justify-center">
+                        <TabsList className="h-[40px] ">
+                            <TabsTrigger value="details">
+                                <span className="inline lg:hidden"><InfoIcon className="size-4"/></span>
+                                <span className="hidden lg:inline">Details</span>
+                            </TabsTrigger>
+                            <TabsTrigger value="assessees">
+                                <span className="inline lg:hidden"><UsersIcon className="size-4"/></span>
+                                <span className="hidden lg:inline">Personnel</span>
+                            </TabsTrigger>
+                            <TabsTrigger value="skills">
+                                <span className="inline lg:hidden"><PocketKnifeIcon className="size-4"/></span>
+                                <span className="hidden lg:inline">Skills</span>
+                            </TabsTrigger>
+                            <Separator orientation="vertical" className="mx-2"/>
+                            <TabsTrigger value="record-single">
+                                <span className="inline lg:hidden"><CheckIcon className="size-4"/></span>
+                                <span className="hidden lg:inline">Single</span>
+                            </TabsTrigger>
+                            <TabsTrigger value="record-by-assessee">
+                                <span className="inline lg:hidden relative"><UserIcon className="size-3 absolute -left-1 -top-1"/><CheckCheckIcon className="size-4 relative left-1 top-1"/></span>
+                                <span className="hidden lg:inline">By Person</span>
+                            </TabsTrigger>
+                            <TabsTrigger value="record-by-skill">
+                                <span className="inline lg:hidden relative"><PocketKnifeIcon className="size-3 absolute -left-1 -top-1"/><CheckCheckIcon className="size-4 relative left-1 top-1"/></span>
+                                <span className="hidden lg:inline">By Skill</span>
+                            </TabsTrigger>
+                            <Separator orientation="vertical" className="mx-2"/>
+                            <TabsTrigger value="transcript">
+                                <span className="inline lg:hidden"><ScrollTextIcon className="size-4"/></span>
+                                <span className="hidden lg:inline">Transcript</span>
+                            </TabsTrigger>
+                        </TabsList>
+                    </div>
+                    
 
                     <SkillRecorder_Session_Prefetch orgId={organization.orgId} sessionId={session.sessionId}/>
                     <Boundary
                         slotProps={{
-                            loadingFallback: {
-                                style: { height: 'calc(100vh - var(--header-height) - 56px)', marginTop: '8px' }
+                            loadingFallback: { 
+                                className: "mt-8 aspect-square"
                             }
                         }}
                     >
@@ -143,6 +142,9 @@ export default async function SkillsModule_SessionRecord_Page(props: PageProps<'
                     
                 </Tabs>
             </Lexington.Column>
+            {/* <Lexington.Column width="xs">
+                Side Column
+            </Lexington.Column> */}
         </Lexington.Page>
     </Lexington.Root>
 }

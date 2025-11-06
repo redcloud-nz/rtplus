@@ -6,7 +6,7 @@
 'use client'
 
 import { formatISO } from 'date-fns'
-import { PlusIcon } from 'lucide-react'
+import { PlusIcon} from 'lucide-react'
 import { useMemo } from 'react'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
@@ -20,18 +20,25 @@ import { Link, TextLink } from '@/components/ui/link'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { OrganizationData } from '@/lib/schemas/organization'
-import { SkillCheckSessionData, SkillCheckSessionId } from '@/lib/schemas/skill-check-session'
+import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import * as Paths from '@/paths'
-import { trpc, WithCounts } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
-
-type RowData = WithCounts<SkillCheckSessionData, 'assessees' | 'assessors' | 'skills' | 'checks'>
 
 export function SkillModule_SkillCheckSessionsList({ organization }: { organization: OrganizationData }) {
 
     const { data: sessions } = useSuspenseQuery(trpc.skillChecks.getSessions.queryOptions({ orgId: organization.orgId }))
 
-    const columns = useMemo(() => Akagi.defineColumns<RowData>(columnHelper => [
+    const columns = useMemo(() => Akagi.defineColumns<SkillCheckSessionData>(columnHelper => [
+        columnHelper.accessor('sessionId', {
+            id: 'sessionId',
+            header: ctx => <Akagi.TableHeader header={ctx.header} className="w-[0px] min-w-0">ID</Akagi.TableHeader>,
+            cell: ctx => <Akagi.TableCell cell={ctx.cell} className="w-[0px] min-w-0">
+                <TextLink to={Paths.org(organization.slug).skills.session(ctx.row.original.sessionId)}>{ctx.getValue()}</TextLink>
+                </Akagi.TableCell>,
+            enableSorting: false,
+            enableGlobalFilter: false,
+        }),
         columnHelper.accessor('name', {
             header: ctx => <Akagi.TableHeader header={ctx.header} className="min-w-1/3">Name</Akagi.TableHeader>,
             cell: ctx => <Akagi.TableCell cell={ctx.cell} className="min-w-1/3">
@@ -48,24 +55,6 @@ export function SkillModule_SkillCheckSessionsList({ organization }: { organizat
             enableSorting: true,
             enableGlobalFilter: false,
         }),
-        columnHelper.accessor('_count.assessees', {
-            id: 'assessees',
-            header: ctx => <Akagi.TableHeader header={ctx.header} showAbove="md" className="w-[100px]">Assessees</Akagi.TableHeader>,
-            cell: ctx => <Akagi.TableCell cell={ctx.cell} align="center" showAbove="md">{ctx.getValue()}</Akagi.TableCell>,
-            enableSorting: true,
-        }),
-        columnHelper.accessor('_count.skills', {
-            id: 'skills',
-            header: ctx => <Akagi.TableHeader header={ctx.header} showAbove="md" className='w-[100px]'>Skills</Akagi.TableHeader>,
-            cell: ctx => <Akagi.TableCell cell={ctx.cell} align="center" showAbove="md">{ctx.getValue()}</Akagi.TableCell>,
-            enableSorting: true,
-        }),
-        columnHelper.accessor('_count.checks', {
-            id: 'checks',
-            header: ctx => <Akagi.TableHeader header={ctx.header} showAbove="md" className='w-[100px]'>Checks</Akagi.TableHeader>,
-            cell: ctx => <Akagi.TableCell cell={ctx.cell} align="center" showAbove="md">{ctx.getValue()}</Akagi.TableCell>,
-            enableSorting: true,
-        }),
         columnHelper.accessor('sessionStatus', {
             id: 'status',
             header: ctx => <Akagi.TableHeader 
@@ -79,6 +68,50 @@ export function SkillModule_SkillCheckSessionsList({ organization }: { organizat
             enableSorting: false,
             filterFn: 'arrIncludesSome',
         }),
+        // columnHelper.display({
+        //     id: 'actions',
+        //     header: ctx => <Akagi.TableHeader header={ctx.header} showAbove="md">Actions</Akagi.TableHeader>,
+        //     cell: ctx => <Akagi.TableCell cell={ctx.cell} showAbove="md" className="p-0 [&>[data-slot=button]]:ml-2 w-30">
+        //         <Tooltip>
+        //             <TooltipTrigger asChild>
+        //                  <S2_Button variant="ghost" size="icon-sm" asChild>
+        //                     <Link to={Paths.org(organization.slug).skills.session(ctx.row.original.sessionId).update}>
+        //                         <EditIcon/>
+        //                     </Link>
+        //                 </S2_Button>
+        //             </TooltipTrigger>
+        //             <TooltipContent>
+        //                 Edit session details
+        //             </TooltipContent>
+        //         </Tooltip>
+               
+        //        <Tooltip>
+        //             <TooltipTrigger asChild>
+        //                 <S2_Button variant="ghost" size="icon-sm" asChild>
+        //                     <Link to={Paths.org(organization.slug).skills.session(ctx.row.original.sessionId)}>
+        //                         <PencilRulerIcon/>
+        //                     </Link>
+        //                 </S2_Button>
+        //             </TooltipTrigger>
+        //             <TooltipContent>
+        //                 Configure and record skill checks
+        //             </TooltipContent>
+        //        </Tooltip>
+        //        <Tooltip>
+        //             <TooltipTrigger asChild>
+        //                 <S2_Button variant="ghost" size="icon-sm" asChild>
+        //                     <Link to={Paths.org(organization.slug).skills.session(ctx.row.original.sessionId).review}>
+        //                         <ScanEyeIcon/>
+        //                     </Link>
+        //                 </S2_Button>
+        //             </TooltipTrigger>
+        //             <TooltipContent>
+        //                 Review session results
+        //             </TooltipContent>
+        //        </Tooltip>
+                
+        //     </Akagi.TableCell>,
+        // })
     ]), [])
 
     const table = useReactTable({
@@ -93,7 +126,7 @@ export function SkillModule_SkillCheckSessionsList({ organization }: { organizat
             columnFilters: [
                 { id: 'status', value: ['Draft', 'Include', 'Exclude'] }
             ],
-            pagination: { pageIndex: 0, pageSize: 50 },
+            pagination: { pageIndex: 0, pageSize: Akagi.DEFAULT_PAGE_SIZE },
             sorting: [{ id: 'date', desc: true }],
         },
     })

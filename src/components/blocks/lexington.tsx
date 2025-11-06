@@ -27,15 +27,8 @@ function LexingtonRoot({ children }: { children: ReactNode }) {
 }
 
 const lexingtonPageVariants = tv({
-    base: 'flex flex-row justify-center items-stretch px-4 gap-4 overflow-auto h-[calc(100vh-var(--header-height))] [scrollbar-color:var(--scrollbar-thumb)_var(--scrollbar-track)] [scrollbar-gutter:stable_both-edges]',
+    base: 'flex flex-row justify-center items-stretch divide-x h-[calc(100vh-var(--header-height))] [scrollbar-color:var(--scrollbar-thumb)_var(--scrollbar-track)] [scrollbar-gutter:stable_both-edges]',
     variants: {
-        // variant: {
-        //     container: "[&>*]:w-full [&>*]:max-w-full xl:[&>*]:max-w-4xl [&>*]:mx-auto",
-        //     'container-lg': "[&>*]:w-full [&>*]:max-w-full lg:[&>*]:max-w-2xl [&>*]:mx-auto",
-        //     'container-md': "[&>*]:w-full [&>*]:max-w-full md:[&>*]:max-w-xl [&>*]:mx-auto",
-        //     'container-sm': "[&>*]:w-full [&>*]:max-w-full sm:[&>*]:max-w-lg [&>*]:mx-auto",
-        //     dual: "grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-6xl",
-        // },
         scrollable: {
             true: "overflow-y-auto",
         }
@@ -79,13 +72,14 @@ function LexingtonEmpty({ title, description, children }: LexingtonPageEmptyProp
 }
 
 const lexingtonColumnVariants = tv({
-    base: "flex flex-col items-stretch py-4 gap-2",
+    base: "relative flex flex-col items-stretch py-4 gap-2 peer",
     variants: {
         width: {
-            sm: "w-full max-w-full sm:max-w-lg",
-            md: "w-full max-w-full md:max-w-xl",
-            lg: "w-full max-w-full lg:max-w-2xl",
-            xl: "w-full max-w-full xl:max-w-4xl",
+            xs: "w-full sm:w-md xs:mx-auto",
+            sm: "w-full md:w-xl sm:mx-auto",
+            md: "w-full lg:w-2xl md:mx-auto",
+            lg: "w-full xl:w-3xl lg:mx-auto",
+            xl: "w-full 2xl:w-4xl xl:mx-auto",
             full: "w-full",
         }
     },

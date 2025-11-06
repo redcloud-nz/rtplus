@@ -14,7 +14,6 @@ import { FloatingFooter } from '@/components/footer'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { ScrollArea } from '@/components/ui/scroll-area'
 
 import { useToast } from '@/hooks/use-toast'
 import { OrganizationData } from '@/lib/schemas/organization'
@@ -106,7 +105,7 @@ export function SkillRecorder_Session_Skills({ organization, session }: { organi
 
     const isDirty = changes.added.length > 0 || changes.removed.length > 0
 
-    return <> {/*<ScrollArea style={{ height: `calc(100vh - var(--header-height) - 56px)` }} className="[&>[data-slot=scroll-area-viewport]]:pb-8">*/}
+    return <>
         <div className="flex flex-col divide-y divide-border pb-8">
             {availablePackages
                 .filter(pkg => pkg.skills.length > 0)
@@ -157,11 +156,20 @@ interface SkillPackageSectionProps {
 
 function SkillPackageSection({ pkg, assignedSkills, selectedSkills, onSelectedChange }: SkillPackageSectionProps) {
 
+    const selected = pkg.skills.filter(skill => selectedSkills.includes(skill.skillId))
+
     return <div className="py-4">
-        <div className="font-semibold text-xl">{pkg.name}</div>
-        <ul className="pl-2">
-            {pkg.skillGroups.map(group => <li key={group.skillGroupId} className="py-1">
-                <div className="font-semibold">{group.name}</div>
+        <div className="grid items-center grid-cols-[1fr_auto_1fr]">
+            <div/>
+            <div className="font-semibold text-xl text-center">{pkg.name}</div>
+            <div className="text-sm text-right text-muted-foreground">{selected.length > 0 ? `${selected.length} selected` : ""}</div>
+        </div>
+        
+        
+        <ul>
+            {pkg.skillGroups.map(group => <li key={group.skillGroupId} className="py-2">
+                <div className="text-md font-semibold pl-4">{group.name}</div>
+                
                 <ul className="pl-4">
                     {pkg.skills
                         .filter(skill => skill.skillGroupId === group.skillGroupId)
@@ -174,6 +182,7 @@ function SkillPackageSection({ pkg, assignedSkills, selectedSkills, onSelectedCh
                         />)
                     }
                 </ul>
+                
             </li>)}
         </ul>
     </div>
@@ -187,7 +196,7 @@ interface SkillRowProps {
 }
 
 function SkillRow({ skill, assigned, selected, onSelectedChange }: SkillRowProps) {
-    return <li className="flex items-center gap-2">
+    return <li className="pl-4 flex items-center gap-2 text-sm hover:bg-accent rounded-sm transition-colors">
         <Label htmlFor={`skill-${skill.skillId}`} className="py-2 truncate grow">{skill.name}</Label>
         <Checkbox
             id={`skill-${skill.skillId}`}

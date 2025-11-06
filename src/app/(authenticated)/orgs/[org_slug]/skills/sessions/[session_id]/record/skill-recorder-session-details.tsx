@@ -4,10 +4,9 @@
  */
 
 import { DisplayValue } from '@/components/ui/display-value'
+import { Field, FieldGroup } from '@/components/ui/field'
 import { TextLink } from '@/components/ui/link'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
-import { Heading } from '@/components/ui/typography'
 
 import { OrganizationData } from '@/lib/schemas/organization'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
@@ -16,8 +15,12 @@ import * as Paths from '@/paths'
 
 export function SkillRecorder_Session_Details({ organization, session }: { organization: OrganizationData, session: SkillCheckSessionData }) {
     
-    return <>
-        <Heading level={4}>Session Details</Heading>
+    return <div className="max-w-xl mx-auto">
+        <FieldGroup>
+            <Field orientation="responsive">
+
+            </Field>
+        </FieldGroup>
         <ToruGrid>
             <ToruGridRow 
                 label="Session ID" 
@@ -40,5 +43,5 @@ export function SkillRecorder_Session_Details({ organization, session }: { organ
             />
             <ToruGridFooter/>
         </ToruGrid>
-    </>
+    </div>
 }

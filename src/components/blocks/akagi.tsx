@@ -317,6 +317,7 @@ function defineColumns<TData extends RowData>(factory: (columnHelper: ColumnHelp
 }
 
 export const Akagi = {
+    DEFAULT_PAGE_SIZE: 50,
     Table: AkagiTable,
     TableHeader: AkagiTableHeader,
     TableCell: AkagiTableCell,

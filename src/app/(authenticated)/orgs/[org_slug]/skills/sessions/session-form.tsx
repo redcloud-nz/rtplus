@@ -56,7 +56,7 @@ export function SkillsModule_SessionForm({ cancelPath, onSubmit, session,...prop
                         <FieldLabel htmlFor="session-id">Session ID</FieldLabel>
                         <FieldDescription>The unique identifier for this session.</FieldDescription>
                     </FieldContent>
-                    <S2_Value id="session-id" className='min-w-2xs' value={field.value} />
+                    <S2_Value id="session-id" className='min-w-1/2' value={field.value} />
                 </Field>}
             />
             <Controller
@@ -75,7 +75,7 @@ export function SkillsModule_SessionForm({ cancelPath, onSubmit, session,...prop
                         <S2_Input
                             aria-invalid={fieldState.invalid}
                             id="session-name"
-                            className='min-w-2xs'
+                            className='min-w-1/2'
                             maxLength={100}
                             value={field.value}
                             onChange={field.onChange}
@@ -100,7 +100,7 @@ export function SkillsModule_SessionForm({ cancelPath, onSubmit, session,...prop
                         <S2_DatePicker
                             aria-invalid={fieldState.invalid}
                             id="session-date"
-                            className='min-w-2xs'
+                            className='min-w-1/2'
                             value={field.value}
                             onValueChange={field.onChange}
                         />
@@ -123,7 +123,7 @@ export function SkillsModule_SessionForm({ cancelPath, onSubmit, session,...prop
                         <S2_Textarea
                             aria-invalid={fieldState.invalid}
                             id="session-notes"
-                            className='min-w-2xs'
+                            className='min-w-1/2'
                             maxLength={500} {...field}
                         />
                     </Field>
