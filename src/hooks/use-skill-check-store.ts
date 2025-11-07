@@ -26,9 +26,11 @@ import { z } from 'zod'
 const DEFAULT_RESULT_VALUE = ''
 const DEFAULT_NOTES_VALUES = ''
 
-type CheckState = Pick<SkillCheckData, 'assesseeId' | 'skillId' | 'skillCheckId' | 'result' | 'notes'>
+const checkSaveSchema = skillCheckSchema.pick({ skillCheckId: true, assesseeId: true, skillId: true, result: true, notes: true })
 
-function createEmptyCheck(assesseeId: PersonId, skillId: SkillId): CheckState {
+type CheckSaveData = z.infer<typeof checkSaveSchema>
+
+function createEmptyCheck(assesseeId: PersonId, skillId: SkillId): CheckSaveData {
     return {
         assesseeId,
         skillId,
@@ -41,7 +43,7 @@ function createEmptyCheck(assesseeId: PersonId, skillId: SkillId): CheckState {
 /**
  * The return type of getCheck method in SkillCheckStore.
  */
-export type GetCheckReturn = Omit<CheckState, 'skillCheckId'> & { isDirty: boolean, savedValue: SkillCheckData | null }
+export type GetCheckReturn = Omit<CheckSaveData, 'skillCheckId'> & { isDirty: boolean, savedValue: SkillCheckData | null }
 
 /**
  * A hook to manage the state of skill checks for a given session.
@@ -95,6 +97,9 @@ interface SkillCheckStore {
 export function useSkillCheckStore_experimental(orgId: string, sessionId: SkillCheckSessionId): SkillCheckStore {
     const queryClient = useQueryClient()
     const { toast } = useToast()
+
+    const queryKey = trpc.skillChecks.getSessionChecks.queryKey({ orgId, sessionId, assessorId: 'me' })
+    const queryFilter = trpc.skillChecks.getSessionChecks.queryFilter({ orgId, sessionId, assessorId: 'me' })
     
 
     const [{ data: assessor }, { data: session }, { data: savedChecksArray }] = useSuspenseQueries({
@@ -107,19 +112,24 @@ export function useSkillCheckStore_experimental(orgId: string, sessionId: SkillC
 
     if(assessor == null) throw new Error('Current user must have an associated person to use skill check store')
 
-    const savedChecks = useMemo(() => fromEntries(savedChecksArray.map(check => [`${check.assesseeId}|${check.skillId}`, check])), [savedChecksArray])
-    const [modifiedChecks, setModifiedChecks] = useState<Record<`${string}|${string}`, CheckState>>({})
+    // A map of already saved checks for quick lookup
+    const savedChecks = useMemo(() => 
+        fromEntries(savedChecksArray.map(check => [`${check.assesseeId}|${check.skillId}`, check])), 
+    [savedChecksArray])
+
+    // Local state for modified checks
+    const [modifiedChecks, setModifiedChecks] = useState<Record<`${string}|${string}`, CheckSaveData>>({})
 
     const saveChecksMutation = useMutation(trpc.skillChecks.saveSessionChecks.mutationOptions({
         async onMutate(data) {
-            const checkUpdates = z.array(skillCheckSchema.pick({ skillCheckId: true, skillId: true, assesseeId: true, result: true, notes: true })).parse(data.checks)
+            const checkUpdates = z.array(checkSaveSchema).parse(data.checks)
 
             // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-            await queryClient.cancelQueries(trpc.skillChecks.getSessionChecks.queryFilter({ sessionId, assessorId: 'me' }))
+            await queryClient.cancelQueries(queryFilter)
 
-            const prevData = queryClient.getQueryData(trpc.skillChecks.getSessionChecks.queryKey({ sessionId, assessorId: 'me' }))
+            const prevData = queryClient.getQueryData(queryKey)
 
-            queryClient.setQueryData(trpc.skillChecks.getSessionChecks.queryKey({ sessionId, assessorId: 'me' }), (oldData: SkillCheckData[] = []) => {
+            queryClient.setQueryData(queryKey, (oldData: SkillCheckData[] = []) => {
                 // Checks that were previously saved need to be updated.
                 const updatedSkillChecks = oldData.map(check => {
                     const update = checkUpdates.find(c => c.skillCheckId === check.skillCheckId)
@@ -129,7 +139,7 @@ export function useSkillCheckStore_experimental(orgId: string, sessionId: SkillC
                 // New checks that need to be added.
                 const newSkillChecks = checkUpdates
                     .filter(update => !oldData.some(check => check.skillCheckId === update.skillCheckId))
-                    .map(update => ({ ...update, sessionId, assessorId: assessor?.personId, date: session!.date, passed: isPass(update.result as CompetenceLevel), timestamp: new Date().toISOString(), checkStatus: 'Draft' } satisfies SkillCheckData))
+                    .map(update => ({ ...update, sessionId, assessorId: assessor.personId, date: session.date, passed: isPass(update.result as CompetenceLevel), timestamp: new Date().toISOString(), checkStatus: 'Draft' } satisfies SkillCheckData))
 
                 return [...updatedSkillChecks, ...newSkillChecks]
             })
@@ -137,7 +147,7 @@ export function useSkillCheckStore_experimental(orgId: string, sessionId: SkillC
             return { prevData }
         },
         onError(error, _data, context) {
-            queryClient.setQueryData(trpc.skillChecks.getSessionChecks.queryKey({ sessionId, assessorId: 'me' }), context?.prevData)
+            queryClient.setQueryData(queryKey, context?.prevData)
 
             toast({
                 title: 'Error saving skill checks',
@@ -200,7 +210,7 @@ export function useSkillCheckStore_experimental(orgId: string, sessionId: SkillC
                     }
 
                     // Create a new modified state
-                    return { ...prevChecks, [`${assesseeId}|${skillId}`]: { ...createEmptyCheck(assesseeId, skillId), ...update } satisfies CheckState }
+                    return { ...prevChecks, [`${assesseeId}|${skillId}`]: { ...createEmptyCheck(assesseeId, skillId), ...update } satisfies CheckSaveData }
                 })
             }
         },

@@ -11,6 +11,7 @@ import * as RadioGroupPrimitive from '@radix-ui/react-radio-group'
 import { cn } from '@/lib/utils'
 import { CompetenceLevel, CompetenceLevels, CompetenceLevelTerms } from '@/lib/competencies'
 import { Label } from '../ui/label'
+import { SkillCheckCompetentIcon, SkillCheckHighlyConfidentIcon, SkillCheckNotAssessedIcon, SkillCheckNotCompetentIcon, SkillCheckNotTaughtIcon } from '../icons'
 
 
 type CompetenceLevelRadioGroupProps = Omit<ComponentProps<typeof RadioGroupPrimitive.Root>, 'children' | 'value'> & {
@@ -67,11 +68,11 @@ export function CompetenceLevelRadioGroupItem({ className, diff, value, ...props
         
 >
         <RadioGroupPrimitive.Indicator className="relative flex items-center justify-center">
-            {value == 'NotAssessed' && <CircleIcon className="size-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-600/50"/>}
-            {value == 'NotTaught' && <SlashIcon className="size-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-600/50"/>}
-            {value == 'NotCompetent' && <XIcon className="size-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-red-600/50"/>}
-            {value == 'Competent' && <CheckIcon className="size-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-green-600/50"/>}
-            {value == 'HighlyConfident' && <CheckCheckIcon className="size-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-blue-600/50"/>}
+            {value == 'NotAssessed' && <SkillCheckNotAssessedIcon className="size-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-600/50"/>}
+            {value == 'NotTaught' && <SkillCheckNotTaughtIcon className="size-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-600/50"/>}
+            {value == 'NotCompetent' && <SkillCheckNotCompetentIcon className="size-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-red-600/50"/>}
+            {value == 'Competent' && <SkillCheckCompetentIcon className="size-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-green-600/50"/>}
+            {value == 'HighlyConfident' && <SkillCheckHighlyConfidentIcon className="size-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-blue-600/50"/>}
         </RadioGroupPrimitive.Indicator>
         
     </RadioGroupPrimitive.Item>

@@ -4,7 +4,7 @@
  */
 
 
-import { ArrowRightLeftIcon, BellIcon, BookOpenIcon, CableIcon, ChevronRightIcon, CircleUserRoundIcon, KeyRoundIcon, LayoutDashboardIcon, MoveLeftIcon, NotebookPenIcon, PackageIcon, PencilIcon, PencilRulerIcon, PlusIcon, PocketKnifeIcon, ScanEyeIcon, SettingsIcon, ShieldHalfIcon, UsersIcon, WrenchIcon } from 'lucide-react'
+import { ArrowRightLeftIcon, BellIcon, BookOpenIcon, CableIcon, CheckCheckIcon, CheckIcon, ChevronRightIcon, CircleIcon, CircleUserRoundIcon, KeyRoundIcon, LayoutDashboardIcon, MoveLeftIcon, NotebookPenIcon, PackageIcon, PencilIcon, PencilRulerIcon, PlusIcon, PocketKnifeIcon, ScanEyeIcon, SettingsIcon, ShieldHalfIcon, SlashIcon, UsersIcon, WrenchIcon, XIcon } from 'lucide-react'
 
 export { 
     WrenchIcon as AdminModuleIcon,
@@ -28,6 +28,14 @@ export {
     PencilRulerIcon as SessionRecordIcon,
     ScanEyeIcon as SessionReviewIcon,
     SettingsIcon as SettingsIcon,
+
+    CheckIcon as SkillCheckCompetentIcon,
+    CheckCheckIcon as SkillCheckHighlyConfidentIcon,
+    CircleIcon as SkillCheckNotAssessedIcon,
+    XIcon as SkillCheckNotCompetentIcon,
+    SlashIcon as SkillCheckNotTaughtIcon,
+
+
     PocketKnifeIcon as SkillsModuleIcon,
     PackageIcon as SkillPackageManagerModuleIcon,
     ArrowRightLeftIcon as SwitchOrganizationIcon,

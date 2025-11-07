@@ -5,17 +5,27 @@
 'use client'
 
 import { formatDistanceToNow } from 'date-fns'
-import { CheckIcon, XIcon } from 'lucide-react'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
+import { partition } from 'remeda'
+import { match } from 'ts-pattern'
 
 import { useSuspenseQueries } from '@tanstack/react-query'
 
 import { Show } from '@/components/show'
-import { Heading } from '@/components/ui/typography'
+import { Label } from '@/components/ui/label'
+import { S2_Select, S2_SelectContent, S2_SelectItem, S2_SelectTrigger, S2_SelectValue } from '@/components/ui/s2-select'
 
+import { CompetenceLevel, CompetenceLevelIndicator, CompetenceLevelTerms } from '@/lib/competencies'
 import { OrganizationData } from '@/lib/schemas/organization'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { trpc } from '@/trpc/client'
+
+
+
+
+
+
+
 
 
 export function SkillRecorder_Session_Transcript({ organization, session }: { organization: OrganizationData, session: SkillCheckSessionData }) {
@@ -23,45 +33,133 @@ export function SkillRecorder_Session_Transcript({ organization, session }: { or
     const [
         { data: availablePackages }, 
         { data: assignedAssessees }, 
+        { data: assignedSkillIds },
         { data: checks },
     ] = useSuspenseQueries({
         queries: [
             trpc.skills.getAvailablePackages.queryOptions({ orgId: organization.orgId }),
             trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId }),
+            trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId }),
             trpc.skillChecks.getSessionChecks.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId, assessorId: 'me' }),
         ],
     })
 
     const skills = useMemo(() => availablePackages.flatMap(pkg => pkg.skills), [availablePackages])
+    const assignedSkills = useMemo(() => skills.filter(skill => assignedSkillIds.includes(skill.skillId)), [skills, assignedSkillIds])
 
-    return <div className="max-w-2xl mx-auto mt-6">
-        <Heading level={4}>In this session, you have recorded:</Heading>
-        <ul>
-            {assignedAssessees.map(assessee => {
-                const assesseeChecks = checks
-                    .filter(c => c.assesseeId === assessee.personId)
-                    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    const [usedAssessees, unusedAssessees] = useMemo(() => partition(assignedAssessees, assessee => checks.some(check => check.assesseeId === assessee.personId)), [assignedAssessees, checks])
+    const [usedSkills, unusedSkills] = useMemo(() => partition(assignedSkills, skill => checks.some(check => check.skillId === skill.skillId)), [assignedSkills, checks])
 
-                return <li key={assessee.personId}>
-                    <div className="font-semibold py-2">{assessee.name}</div>
+    const [displayMode, setDisplayMode] = useState<{ assessor: 'all' | 'me', groupBy: 'assessee' | 'skill' }>({ assessor: 'me', groupBy: 'assessee' })
 
-                    <Show 
-                        when={assesseeChecks.length > 0}
-                        fallback={<div className="text-muted-foreground">You have not recorded any checks for {assessee.name} in this session.</div>}
-                    >
-                        <ul className="pl-4 list-disc space-y-1">
-                            {assesseeChecks.map(check => {
-                                const skill = skills.find(s => s.skillId === check.skillId)
+    return <div className="my-4 flex flex-col gap-4">
 
-                                return <li key={check.skillCheckId} className="flex items-center gap-2">
-                                    <span>{skill?.name}</span> <span>{check.passed ? <CheckIcon className="size-5 text-green-500"/> : <XIcon className="size-5 text-red-500"/>}</span>
-                                    <span className="text-muted-foreground pl-2">{formatDistanceToNow(check.timestamp, { addSuffix: true })}</span>
-                                </li>
-                            })}
-                        </ul>
-                    </Show>
-                </li>
-            })}
-        </ul>
+        <div className="grid grid-cols-2 gap-4">
+            <div className="flex justify-center items-center gap-4">
+                <Label htmlFor="transcript-assessor-filter">Showing:</Label>
+                <S2_Select value={displayMode.assessor} onValueChange={value => setDisplayMode(prev => ({ ...prev, assessor: value as 'all' | 'me' }))}>
+                    <S2_SelectTrigger className="w-40" id="transcript-assessor-filter">
+                        <S2_SelectValue placeholder="Select Assessors"/>
+                    </S2_SelectTrigger>
+                    <S2_SelectContent>
+                        <S2_SelectItem value="all">All Assessors</S2_SelectItem>
+                        <S2_SelectItem value="me">Only Me</S2_SelectItem>
+                    </S2_SelectContent>
+                </S2_Select>
+            </div>
+            
+            <div className="flex justify-center items-center gap-4">
+                <Label htmlFor="transcript-group-by-filter">Grouped By:</Label>
+                <S2_Select value={displayMode.groupBy} onValueChange={value => setDisplayMode(prev => ({ ...prev, groupBy: value as 'assessee' | 'skill' }))}>
+                    <S2_SelectTrigger className="w-40" id="transcript-group-by-filter">
+                        <S2_SelectValue placeholder="Select Grouping"/>
+                    </S2_SelectTrigger>
+                    <S2_SelectContent>
+                        <S2_SelectItem value="assessee">Assessee</S2_SelectItem>
+                        <S2_SelectItem value="skill">Skill</S2_SelectItem>
+                    </S2_SelectContent>
+                </S2_Select>
+            </div>
+        </div>
+
+        {match(displayMode)
+            .with({ groupBy: 'assessee' }, () => <>
+                <ul className="flex flex-col gap-2">
+                    {usedAssessees.map(assessee => {
+                        const checksForAssessee = checks
+                            .filter(c => c.assesseeId === assessee.personId)
+                            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+
+                        return <li key={assessee.personId} className="border border-border text-sm rounded-md p-4 flex flex-col gap-1">
+                            <div className="font-semibold ">{assessee.name}</div>
+
+                            <ul className="space-y-1">
+                                {checksForAssessee.map(check => {
+                                    const skill = skills.find(s => s.skillId === check.skillId)
+
+                                    return <li key={check.skillCheckId} className="flex items-center gap-2 flex-wrap pl-2">
+                                        <CompetenceLevelIndicator level={check.result as CompetenceLevel} />
+                                        {/* <span>{CompetenceLevelTerms[check.result as CompetenceLevel] || check.result}</span>
+                                        <span>for skill</span> */}
+                                        <span>{skill?.name}</span>
+                                        <span className="text-xs text-muted-foreground pl-2">{formatDistanceToNow(check.timestamp, { addSuffix: true })}</span>
+                                    </li>
+                                })}
+                            </ul>
+                        </li>
+                    })}
+                </ul>
+                <Show when={unusedAssessees.length > 0}>
+                    <div className="text-sm font-semibold mt-4">Assigned assessees without recorded checks:</div>
+                    <ul className="flex flex-col gap-1 text-sm">
+                        {unusedAssessees.map(assessee => 
+                            <li key={assessee.personId} className="pl-2">
+                                {assessee.name}
+                            </li>
+                        )}
+                    </ul>
+                </Show>
+            </>)
+            .with({ groupBy: 'skill' }, () => <>
+                <ul className="flex flex-col gap-2">
+                    {usedSkills.map(skill => {
+                        const checksForSkill = checks
+                            .filter(c => c.skillId === skill.skillId)
+                            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+
+                        return <li key={skill.skillId} className="border border-border text-sm rounded-md p-4 flex flex-col gap-1">
+                            <div className="flex items-center justify-between">
+                                <div className="font-semibold ">{skill.name}</div>
+                                <div className="text-xs text-muted-foreground">{checksForSkill.length / assignedAssessees.length * 100}% coverage</div>
+                            </div>
+
+                            <ul className="list-disc space-y-1">
+                                {checksForSkill.map(check => {
+                                    const assessee = assignedAssessees.find(a => a.personId === check.assesseeId)
+
+                                    return <li key={check.skillCheckId} className="flex items-center gap-2 flex-wrap pl-2">
+                                        <CompetenceLevelIndicator level={check.result as CompetenceLevel} />
+                                        <span>{assessee?.name}</span>
+                                        
+                                        <span className="text-muted-foreground pl-2">{formatDistanceToNow(check.timestamp, { addSuffix: true })}</span>
+                                    </li>
+                                })}
+                                </ul>
+                        </li>
+                    })}
+                </ul>
+                <Show when={unusedSkills.length > 0}>
+                    <div className="text-sm font-semibold mt-4">Assigned skills without recorded checks:</div>
+                    <ul className="flex flex-col gap-1 text-sm">
+                        {unusedSkills.map(skill => 
+                            <li key={skill.skillId} className="pl-2">
+                                {skill.name}
+                            </li>
+                        )}
+                    </ul>
+                </Show>
+            </>)
+            .exhaustive()
+        }
     </div>
 }

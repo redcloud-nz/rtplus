@@ -3,10 +3,19 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
+import { ComponentProps } from 'react'
+import { match } from 'ts-pattern'
+
+import { SkillCheckCompetentIcon, SkillCheckHighlyConfidentIcon, SkillCheckNotAssessedIcon, SkillCheckNotCompetentIcon, SkillCheckNotTaughtIcon } from '@/components/icons'
+
 import { SkillData } from './schemas/skill'
 import { SkillCheckData } from '@/lib/schemas/skill-check'
 import { SkillGroupData } from './schemas/skill-group'
 import { SkillPackageData } from './schemas/skill-package'
+import { cn } from './utils'
+
+
+
 
 
 export type CompetenceLevel = 'NotAssessed' | 'NotTaught' | 'NotCompetent' | 'Competent' | 'HighlyConfident'
@@ -29,7 +38,6 @@ export const CompetenceLevelDescriptions: Record<CompetenceLevel, string> = {
     'HighlyConfident': 'Able to complete unassisted and teach others.',
 }
 
-
 export type CompetenceStatus = 'None' | 'NotCompetent' | 'Competent' | 'Expired'
 
 
@@ -51,4 +59,16 @@ export class CurrentCompetencyCalculator {
 
 export function isPass(level: CompetenceLevel): boolean {
     return level === 'Competent' || level === 'HighlyConfident'
+}
+
+
+export function CompetenceLevelIndicator({ className, level, ...props }: ComponentProps<typeof SkillCheckNotAssessedIcon> & { level: CompetenceLevel }) {
+    return match(level)
+        .with('NotAssessed', () => <SkillCheckNotAssessedIcon className={cn("size-4 text-gray-600/50", className)} {...props}/>)
+        .with('NotTaught', () => <SkillCheckNotTaughtIcon className={cn("size-4 text-gray-600/50", className)} {...props}/>)
+        .with('NotCompetent', () => <SkillCheckNotCompetentIcon className={cn("size-4 text-red-600/50", className)} {...props}/>)
+        .with('Competent', () => <SkillCheckCompetentIcon className={cn("size-4 text-green-600/50", className)} {...props}/>)
+        .with('HighlyConfident', () => <SkillCheckHighlyConfidentIcon className={cn("size-4 text-blue-600/50", className)} {...props}/>)
+        .exhaustive()
+    
 }

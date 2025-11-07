@@ -527,17 +527,15 @@ export const skillChecksRouter = createTRPCRouter({
                 assessorId = assessor.personId as PersonId
             }
 
-            const session = await ctx.prisma.skillCheckSession.findUnique({
-                where: {
-                    sessionId,
-                    assessors: assessorId ? { some: { personId: assessorId } } : undefined
+            const checks = await ctx.prisma.skillCheck.findMany({
+                where: { 
+                    orgId: ctx.auth.activeOrg.orgId, 
+                    sessionId, 
+                    assessorId: assessorId
                 },
-                include: {
-                    checks: true,
-                }
             })
 
-            return (session?.checks ?? []).map(toSkillCheckData)
+            return checks.map(toSkillCheckData)
         }),
 
     /**

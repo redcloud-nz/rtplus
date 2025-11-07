@@ -41,9 +41,7 @@ export function SkillModule_SkillCheckSessionsList({ organization }: { organizat
         }),
         columnHelper.accessor('name', {
             header: ctx => <Akagi.TableHeader header={ctx.header} className="min-w-1/3">Name</Akagi.TableHeader>,
-            cell: ctx => <Akagi.TableCell cell={ctx.cell} className="min-w-1/3">
-                <TextLink to={Paths.org(organization.slug).skills.session(ctx.row.original.sessionId)}>{ctx.getValue()}</TextLink>
-            </Akagi.TableCell>,
+            cell: ctx => <Akagi.TableCell cell={ctx.cell} className="min-w-1/3">{ctx.getValue()}</Akagi.TableCell>,
             enableSorting: true,
             enableGlobalFilter: true,
         }),

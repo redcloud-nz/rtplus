@@ -231,11 +231,11 @@ export function SkillRecorder_Session_RecordSingle({ organization, session }: { 
                             <FieldLabel>Competency Level</FieldLabel>
                         </FieldContent>
                         <CompetenceLevelRadioGroup
-                                className="min-w-1/2"
-                                value={state.data?.result as CompetenceLevel}
-                                prevValue={state.prevData?.result as CompetenceLevel || null}
-                                onValueChange={newValue => handleUpdateFormData({ result: newValue, notes: state.data?.notes || '' })}
-                            />
+                            className="min-w-1/2"
+                            value={state.data?.result as CompetenceLevel}
+                            prevValue={state.prevData?.result as CompetenceLevel || null}
+                            onValueChange={newValue => handleUpdateFormData({ result: newValue, notes: state.data?.notes || '' })}
+                        />
                     </Field>
                     <Field orientation="responsive">
                         <FieldContent>

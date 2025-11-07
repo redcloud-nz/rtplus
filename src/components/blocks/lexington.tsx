@@ -75,11 +75,11 @@ const lexingtonColumnVariants = tv({
     base: "relative flex flex-col items-stretch py-4 gap-2 peer",
     variants: {
         width: {
-            xs: "w-full sm:w-md xs:mx-auto",
-            sm: "w-full md:w-xl sm:mx-auto",
-            md: "w-full lg:w-2xl md:mx-auto",
-            lg: "w-full xl:w-3xl lg:mx-auto",
-            xl: "w-full 2xl:w-4xl xl:mx-auto",
+            xs: "w-full xs:w-md xs:mx-auto",
+            sm: "w-full sm:w-lg sm:mx-auto",
+            md: "w-full md:w-xl md:mx-auto",
+            lg: "w-full lg:w-2xl lg:mx-auto",
+            xl: "w-full xl:w-3xl xl:mx-auto",
             full: "w-full",
         }
     },

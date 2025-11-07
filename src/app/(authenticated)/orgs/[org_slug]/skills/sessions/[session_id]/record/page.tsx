@@ -71,7 +71,7 @@ export default async function SkillsModule_SessionRecord_Page(props: PageProps<'
             breadcrumbs={breadcrumbs}
         />
         <Lexington.Page>
-            <Lexington.Column width="md" className="pt-0">
+            <Lexington.Column width="lg" className="pt-0">
                 <Tabs defaultValue='details'>
                     <div className="sticky top-0 z-10 bg-background/90 pt-4 flex justify-center">
                         <TabsList className="h-[40px] ">
