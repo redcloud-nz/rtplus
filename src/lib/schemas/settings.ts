@@ -8,6 +8,7 @@ import { z } from 'zod'
 import { D4hServerCode } from '@/lib/d4h-api/servers'
 
 export const organizationSettingsSchema = z.object({
+    defaultPageSize: z.number().min(1).max(100).default(50),
     integrations: z.object({
         d4h: z.object({
             enabled: z.boolean().default(false),

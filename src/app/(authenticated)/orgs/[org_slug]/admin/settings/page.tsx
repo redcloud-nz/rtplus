@@ -5,15 +5,18 @@
  * Path: /orgs/[org_slug]/admin/settings
  */
 
+import { Lexington } from '@/components/blocks/lexington'
 import { S2_AppPageHeader } from '@/components/app-page'
 import { SidebarInset } from '@/components/ui/sidebar'
 
 import * as Paths from '@/paths'
 
+import { clerkAuth } from '@/server/clerk'
 import { getOrganization } from '@/server/organization'
 
 import { AdminModule_OrganizationSettings_Form } from './organization-settings'
-import { clerkAuth } from '@/server/clerk'
+
+
 
 
 
@@ -26,15 +29,18 @@ export default async function AdminModule_OrganizationSettings_Page(props: PageP
 
     await clerkAuth.protect({role: 'admin' })
 
-    return <SidebarInset>
-        <S2_AppPageHeader 
+    return <Lexington.Root>
+        <Lexington.Header
             breadcrumbs={[
                 Paths.org(orgSlug).admin,
                 Paths.org(orgSlug).admin.settings
             ]}
         />
-        <div className="flex flex-1 flex-col gap-4 p-4">
-            <AdminModule_OrganizationSettings_Form organization={organization} />
-        </div>
-    </SidebarInset>
+        <Lexington.Page>
+            <Lexington.Column width="lg">
+                <AdminModule_OrganizationSettings_Form organization={organization} />
+            </Lexington.Column>
+            
+        </Lexington.Page>
+    </Lexington.Root>
 }

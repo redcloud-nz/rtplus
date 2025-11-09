@@ -21,10 +21,12 @@ import { OrganizationSettingsData, organizationSettingsSchema } from '@/lib/sche
 import { trpc } from '@/trpc/client'
 
 import { Settings_D4hIntegration_Card } from './d4h-integration'
+import { Settings_DefaultValues_Card } from './default-values'
 import { Settings_EnabledModules_Card } from './enabled-modules'
 import { Settings_NotesModule_Card } from './notes-module'
 import { Settings_SkillsModule_Card } from './skills-module'
 import { Settings_SkillPackageManagerModule_Card } from './skill-package-manager-module'
+
 
 
 
@@ -57,41 +59,29 @@ export function AdminModule_OrganizationSettings_Form({ organization }: {organiz
         }
     }))
 
-    return <form id="organization-settings-form" className="max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-4" onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData, orgId: organization.orgId }))}>
+    return <form id="organization-settings-form" className="space-y-8" onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData, orgId: organization.orgId }))}>
+        <section className="space-y-4">
+            <Heading level={2}>General Settings</Heading>
+
+            <Settings_DefaultValues_Card form={form} />
+        </section>
         
-        <Heading level={2} className="col-span-full mt-4">General Settings</Heading>
 
-        <div>
-            <Heading level={3}>D4H Integration</Heading>
-            <Paragraph>Configure the D4H integration settings for your organization.</Paragraph>
-        </div>
-        <Settings_D4hIntegration_Card form={form} />
+        <section className="space-y-4">
+            <Heading level={2}>Modules</Heading>
 
-        <Heading level={2} className="col-span-full mt-4">Modules</Heading>
+            <Settings_EnabledModules_Card form={form} />
 
-         <div>
-            <Heading level={3}>Enabled Modules</Heading>
-            <Paragraph>Manage the modules enabled for your organization.</Paragraph>
-        </div>
-        <Settings_EnabledModules_Card form={form} />
+             <Settings_NotesModule_Card form={form} />
+            <Settings_SkillPackageManagerModule_Card form={form} />
+            <Settings_SkillsModule_Card form={form} />
+        </section>
 
-        <div>
-            <Heading level={3}>Notes Module</Heading>
-            <Paragraph></Paragraph>
-        </div>
-        <Settings_NotesModule_Card form={form} />
+        <section className="space-y-4">
+            <Heading level={2}>Integrations</Heading>
+            <Settings_D4hIntegration_Card form={form} />
+        </section>
 
-        <div>
-            <Heading level={3}>Skill Package Manager Module</Heading>
-            <Paragraph></Paragraph>
-        </div>
-        <Settings_SkillPackageManagerModule_Card form={form} />
-
-        <div>
-            <Heading level={3}>Skills Module</Heading>
-            <Paragraph></Paragraph>
-        </div>
-        <Settings_SkillsModule_Card form={form} />
 
         <FloatingFooter open={form.formState.isDirty || mutation.isPending}>
             {mutation.isPending ?

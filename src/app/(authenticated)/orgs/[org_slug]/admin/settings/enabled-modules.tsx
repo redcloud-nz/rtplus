@@ -7,7 +7,7 @@
 
 import { Controller, useForm } from 'react-hook-form'
 
-import { S2_Card, S2_CardContent } from '@/components/ui/s2-card'
+import { S2_Card, S2_CardContent, S2_CardDescription, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
 import { Field, FieldContent, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Switch } from '@/components/ui/switch'
 
@@ -19,6 +19,10 @@ import { OrganizationSettingsData } from '@/lib/schemas/settings'
 export function Settings_EnabledModules_Card({ form }: { form: ReturnType<typeof useForm<OrganizationSettingsData>> }) {
 
     return <S2_Card>
+        <S2_CardHeader>
+            <S2_CardTitle>Enabled Modules</S2_CardTitle>
+            <S2_CardDescription>Manage which modules are enabled for your organization.</S2_CardDescription>
+        </S2_CardHeader>
         <S2_CardContent>
             <FieldGroup>
                 <Controller
