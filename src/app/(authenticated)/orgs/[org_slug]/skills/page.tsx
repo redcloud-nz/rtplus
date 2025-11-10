@@ -6,19 +6,17 @@
  */
 
 import { ChevronRightIcon } from 'lucide-react'
-import Image from 'next/image'
 
+import { RTPlusLogo } from '@/components/art/rtplus-logo'
 import { Lexington } from '@/components/blocks/lexington'
-import { Boundary } from '@/components/boundary'
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@/components/ui/items'
 import { Link } from '@/components/ui/link'
 
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
 
-
-
 import { SessionsCount_Card, SkillChecksCount_Card, SkillsCount_Card, PersonnelCount_Card } from './skill-stats'
+
 
 export const metadata = { title: 'Skills Dashboard' }
 
@@ -35,14 +33,7 @@ export default async function SkillsModule_Index_Page(props: PageProps<'/orgs/[o
         <Lexington.Page>
             <Lexington.Column width="sm" className="gap-4">
                 <div className="flex flex-col items-center gap-4 mt-4">
-                    <Image
-                        className="dark:invert"
-                        src="/logo.svg"
-                        alt="RT+ logo"
-                        width={200}
-                        height={100}
-                        priority
-                    />
+                    <RTPlusLogo className="w-50 h-25"/>
                     <div className="font-semibold mt-4">Skills Module</div>
                 </div>
                 

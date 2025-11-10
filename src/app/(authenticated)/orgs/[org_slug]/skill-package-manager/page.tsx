@@ -6,13 +6,14 @@
  */
 
 import { ChevronRightIcon } from 'lucide-react'
-import Image from 'next/image'
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
+import { RTPlusLogo } from '@/components/art/rtplus-logo'
 import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/items'
 import { Link } from '@/components/ui/link'
 
 import * as Paths from '@/paths'
+
 
 export const metadata = { title: 'Skill Package Manager' }
 
@@ -28,14 +29,7 @@ export default async function OrganizationDashboard_Page(props: PageProps<'/orgs
             <AppPageContent variant="container">
                
                 <div className="flex flex-col items-center gap-4 my-4">
-                    <Image
-                        className="dark:invert"
-                        src="/logo.svg"
-                        alt="RT+ logo"
-                        width={200}
-                        height={100}
-                        priority
-                    />
+                    <RTPlusLogo className="w-50 h-25"/>
                     <div className="font-semibold mt-4">Skill Package Manager Module</div>
                 </div>
                 <div className="flex w-full max-w-md flex-col gap-4">

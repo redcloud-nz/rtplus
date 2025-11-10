@@ -6,8 +6,8 @@
  */
 
 import { ChevronRightIcon } from 'lucide-react'
-import Image from 'next/image'
 
+import { RTPlusLogo } from '@/components/art/rtplus-logo'
 import { Lexington } from '@/components/blocks/lexington'
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@/components/ui/items'
 import { Link } from '@/components/ui/link'
@@ -15,6 +15,7 @@ import { Link } from '@/components/ui/link'
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
 import { Protect } from '@clerk/nextjs'
+
 
 
 
@@ -33,14 +34,7 @@ export default async function AdminModule_Index_Page(props: PageProps<'/orgs/[or
         <Lexington.Page>
             <Lexington.Column width="sm">
                 <div className="flex flex-col items-center gap-4 my-4">
-                    <Image
-                        className="dark:invert"
-                        src="/logo.svg"
-                        alt="RT+ logo"
-                        width={200}
-                        height={100}
-                        priority
-                    />
+                    <RTPlusLogo className="w-50 h-25"/>
                     <div className="font-semibold mt-4">Admin Module</div>
                 </div>
                 <ItemGroup>
@@ -80,19 +74,6 @@ export default async function AdminModule_Index_Page(props: PageProps<'/orgs/[or
                             </ItemActions>
                         </Link>
                     </Item>
-                    {/* <Show when={isModuleEnabled(organization, 'skills')}>
-                        <Item asChild>
-                            <Link to={Paths.org(orgSlug).admin.skillPackages}>
-                                <ItemContent>
-                                    <ItemTitle>Skill Packages</ItemTitle>
-                                    <ItemDescription>Manage the skill-packages owned by your organisation.</ItemDescription>
-                                </ItemContent>
-                                <ItemActions>
-                                    <ChevronRightIcon className="size-4" />
-                                </ItemActions>
-                            </Link>
-                        </Item>
-                    </Show> */}
                     <Item asChild>
                         <Link to={Paths.org(orgSlug).admin.teams}>
                             <ItemContent>

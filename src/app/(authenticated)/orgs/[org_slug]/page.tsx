@@ -6,24 +6,29 @@
  */
 
 import { ChevronRightIcon } from 'lucide-react'
-import Image from 'next/image'
 
+import { RTPlusLogo } from '@/components/art/rtplus-logo'
 import { Lexington } from '@/components/blocks/lexington'
 import { Show } from '@/components/show'
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@/components/ui/items'
 import { Link } from '@/components/ui/link'
 
+import { d4hViewsModuleFlag, notesModuleFlag } from '@/lib/flags'
 import { isModuleEnabled } from '@/lib/modules'
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
-
 
 
 export const metadata = { title: 'Organisation Dashboard' }
 
 export default async function OrganizationDashboard_Page(props: PageProps<'/orgs/[org_slug]'>) {
     const { org_slug: orgSlug } = await props.params
-    const organization = await getOrganization(orgSlug)
+
+    const [organization, notesModuleAllowed] = await Promise.all([
+        getOrganization(orgSlug),
+        notesModuleFlag(),
+        d4hViewsModuleFlag(),
+    ])
 
     return <Lexington.Root>
             <Lexington.Header
@@ -32,14 +37,7 @@ export default async function OrganizationDashboard_Page(props: PageProps<'/orgs
             <Lexington.Page>
                 <Lexington.Column width="sm">
                     <div className="flex flex-col items-center gap-4 my-4">
-                        <Image
-                            className="dark:invert"
-                            src="/logo.svg"
-                            alt="RT+ logo"
-                            width={200}
-                            height={100}
-                            priority
-                        />
+                        <RTPlusLogo className="w-50 h-25"/>
                     </div>
                     <ItemGroup>
                         <Item asChild>
@@ -53,7 +51,7 @@ export default async function OrganizationDashboard_Page(props: PageProps<'/orgs
                                 </ItemActions>
                             </Link>
                         </Item>
-                        <Show when={isModuleEnabled(organization, 'notes')}>
+                        <Show when={notesModuleAllowed && isModuleEnabled(organization, 'notes')}>
                             <Item asChild>
                                 <Link to={Paths.org(orgSlug).notes}>
                                     <ItemContent>

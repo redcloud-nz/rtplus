@@ -6,14 +6,41 @@
 import { flag } from 'flags/next'
 import { edgeConfigAdapter } from '@flags-sdk/edge-config'
 
-export const teamMemberTagsEnabledFlag = flag({
-    key: 'team-member-tags-enabled',
+export const objectTagsFeatureFlag = flag({
+    key: 'object-tags-enabled',
     defaultValue: false,
     adapter: edgeConfigAdapter()
 })
 
-export const notesEnabledFlag = flag({
-    key: 'notes-enabled',
+
+// Module availability flags
+
+export const availabilityModuleFlag = flag({
+    key: 'availability-module',
+    defaultValue: false,
+    adapter: edgeConfigAdapter()
+})
+
+export const checklistsModuleFlag = flag({
+    key: 'checklists-module',
+    defaultValue: false,
+    adapter: edgeConfigAdapter()
+})
+
+export const d4hViewsModuleFlag = flag({
+    key: 'd4h-views-module',
+    defaultValue: false,
+    adapter: edgeConfigAdapter()
+})
+
+export const fogModuleFlag = flag({
+    key: 'fog-module',
+    defaultValue: false,
+    adapter: edgeConfigAdapter()
+})
+
+export const notesModuleFlag = flag({
+    key: 'notes-module',
     defaultValue: false,
     adapter: edgeConfigAdapter()
 })
