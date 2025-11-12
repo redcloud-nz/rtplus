@@ -1034,6 +1034,84 @@ export const skillChecksRouter = createTRPCRouter({
         }),
 
     /**
+     * Save the review of a skill check session, updating session status and included/excluded checks.
+     * @param ctx The authenticated context.
+     * @param input The input containing the session ID, session status, included check IDs, and excluded check IDs.
+     * @returns The updated skill check session data.
+     * @throws TRPCError(FORBIDDEN) if the user does not have access to the session.
+     * @throws TRPCError(NOT_FOUND) if the session with the given ID does not exist.
+     */
+    saveSessionReview: sessionProcedure
+        .input(z.object({
+            
+            sessionStatus: z.enum(['Draft', 'Include', 'Exclude']),
+            includedCheckIds: z.array(SkillCheckId.schema),
+            excludedCheckIds: z.array(SkillCheckId.schema),
+        }))
+        .output(skillCheckSessionSchema)
+        .mutation(async ({ ctx, input: { sessionId, sessionStatus, includedCheckIds, excludedCheckIds } }) => {
+            
+            const session = ctx.skillCheckSession
+
+            const updatedSession = { ...session, sessionStatus }
+
+            const existingChecks = await ctx.prisma.skillCheck.findMany({ where: { sessionId } })
+
+            const checksToMarkExclude = existingChecks.filter(c => c.checkStatus != 'Exclude' && excludedCheckIds.includes(c.skillCheckId as SkillCheckId))
+            const checksToMarkInclude = existingChecks.filter(c => c.checkStatus != 'Include' && includedCheckIds.includes(c.skillCheckId as SkillCheckId))
+
+            const changes = diffObject(session, updatedSession)
+            if(changes.length == 0 && checksToMarkExclude.length == 0 && checksToMarkInclude.length == 0) {
+                return toSkillCheckSessionData(session) // No changes
+            }
+
+            // Update session status if changed
+            if(sessionStatus !== session.sessionStatus) {
+                await ctx.prisma.skillCheckSession.update({
+                    where: { sessionId, orgId: ctx.auth.activeOrg.orgId },
+                    data: {
+                        sessionStatus,
+                        changeLogs: {
+                            create: {
+                                event: 'Update',
+                                userId: ctx.auth.userId,
+                                changes: changes as object[],
+                            }
+                        },
+                    }
+                })
+            }
+
+            // Update included checks
+            if(checksToMarkInclude.length > 0) {
+                await ctx.prisma.skillCheck.updateMany({
+                    where: {
+                        skillCheckId: { in: checksToMarkInclude.map(c => c.skillCheckId) },
+                        sessionId,
+                    },
+                    data: {
+                        checkStatus: 'Include',
+                    }
+                })
+            }
+
+            // Update excluded checks
+            if(checksToMarkExclude.length > 0) {
+                await ctx.prisma.skillCheck.updateMany({
+                    where: {
+                        skillCheckId: { in: checksToMarkExclude.map(c => c.skillCheckId) },
+                        sessionId,
+                    },
+                    data: {
+                        checkStatus: 'Exclude',
+                    }
+                })
+            }
+
+            return toSkillCheckSessionData(updatedSession)
+        }),
+
+    /**
      * Update an existing skill check session.
      * @param ctx The authenticated team context.
      * @param input The input containing the session ID and updated data.

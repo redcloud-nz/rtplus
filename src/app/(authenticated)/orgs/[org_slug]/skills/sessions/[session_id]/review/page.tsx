@@ -6,6 +6,7 @@
  */
 
 import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
+import { Lexington } from '@/components/blocks/lexington'
 import { Boundary } from '@/components/boundary'
 
 import { TITLE_SEPARATOR } from '@/lib/utils'
@@ -13,7 +14,8 @@ import * as Paths from '@/paths'
 import { fetchSkillCheckSession } from '@/server/fetch'
 import { getOrganization } from '@/server/organization'
 
-import { SkillsModule_SessionReview_Card } from './session-review'
+import { SkillsModule_SessionReview } from './session-review'
+
 
 
 
@@ -31,8 +33,8 @@ export default async function SkillsModule_SessionReview_Page(props: PageProps<'
     const organization = await getOrganization(orgSlug)
     const session = await fetchSkillCheckSession({ orgId: organization.orgId, sessionId})
 
-    return <AppPage>
-        <AppPageBreadcrumbs
+    return <Lexington.Root>
+        <Lexington.Header
             breadcrumbs={[
                 Paths.org(organization.slug).skills,
                 Paths.org(organization.slug).skills.sessions,
@@ -41,13 +43,10 @@ export default async function SkillsModule_SessionReview_Page(props: PageProps<'
             ]}
         />
 
-        <AppPageContent variant="container">
-            <PageHeader>
-                <PageTitle objectType="Skill Check Session">{session.name}</PageTitle>
-            </PageHeader>
-            <Boundary>
-                <SkillsModule_SessionReview_Card organization={organization} session={session} />
-            </Boundary>
-        </AppPageContent>
-    </AppPage>
+        <Lexington.Page>
+            <Lexington.Column width="xl">
+                <SkillsModule_SessionReview organization={organization} session={session} />
+            </Lexington.Column>
+        </Lexington.Page>
+    </Lexington.Root>
 }

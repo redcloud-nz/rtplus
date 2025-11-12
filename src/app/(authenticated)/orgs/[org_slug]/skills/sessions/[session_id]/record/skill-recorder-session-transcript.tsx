@@ -15,10 +15,11 @@ import { Show } from '@/components/show'
 import { Label } from '@/components/ui/label'
 import { S2_Select, S2_SelectContent, S2_SelectItem, S2_SelectTrigger, S2_SelectValue } from '@/components/ui/s2-select'
 
-import { CompetenceLevel, CompetenceLevelIndicator, CompetenceLevelTerms } from '@/lib/competencies'
+import { CompetenceLevel, CompetenceLevelIndicator, CompetenceLevels, CompetenceLevelTerms } from '@/lib/competencies'
 import { OrganizationData } from '@/lib/schemas/organization'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { trpc } from '@/trpc/client'
+import { toPercentage } from '@/lib/utils'
 
 
 
@@ -55,10 +56,10 @@ export function SkillRecorder_Session_Transcript({ organization, session }: { or
     return <div className="my-4 flex flex-col gap-4">
 
         <div className="grid grid-cols-2 gap-4">
-            <div className="flex justify-center items-center gap-4">
+            {/* <div className="flex justify-center items-center gap-4">
                 <Label htmlFor="transcript-assessor-filter">Showing:</Label>
-                <S2_Select value={displayMode.assessor} onValueChange={value => setDisplayMode(prev => ({ ...prev, assessor: value as 'all' | 'me' }))}>
-                    <S2_SelectTrigger className="w-40" id="transcript-assessor-filter">
+                <S2_Select value={displayMode.assessor} onValueChange={value => setDisplayMode(prev => ({ ...prev, assessor: value as 'all' | 'me' }))} disabled>
+                    <S2_SelectTrigger className="w-auto sm:w-40" id="transcript-assessor-filter">
                         <S2_SelectValue placeholder="Select Assessors"/>
                     </S2_SelectTrigger>
                     <S2_SelectContent>
@@ -66,12 +67,12 @@ export function SkillRecorder_Session_Transcript({ organization, session }: { or
                         <S2_SelectItem value="me">Only Me</S2_SelectItem>
                     </S2_SelectContent>
                 </S2_Select>
-            </div>
+            </div> */}
             
             <div className="flex justify-center items-center gap-4">
                 <Label htmlFor="transcript-group-by-filter">Grouped By:</Label>
                 <S2_Select value={displayMode.groupBy} onValueChange={value => setDisplayMode(prev => ({ ...prev, groupBy: value as 'assessee' | 'skill' }))}>
-                    <S2_SelectTrigger className="w-40" id="transcript-group-by-filter">
+                    <S2_SelectTrigger className="w-auto sm:w-40" id="transcript-group-by-filter">
                         <S2_SelectValue placeholder="Select Grouping"/>
                     </S2_SelectTrigger>
                     <S2_SelectContent>
@@ -79,6 +80,14 @@ export function SkillRecorder_Session_Transcript({ organization, session }: { or
                         <S2_SelectItem value="skill">Skill</S2_SelectItem>
                     </S2_SelectContent>
                 </S2_Select>
+            </div>
+            <div className="col-span-full flex flex-wrap justify-center items-center gap-4 text-xs text-muted-foreground">
+                <div className="font-semibold">Legend:</div>
+                {CompetenceLevels.map(level => (
+                    <div key={level} className="flex items-center gap-1">
+                        <CompetenceLevelIndicator level={level}/> {CompetenceLevelTerms[level]}
+                    </div>
+                ))}
             </div>
         </div>
 
@@ -91,7 +100,11 @@ export function SkillRecorder_Session_Transcript({ organization, session }: { or
                             .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
 
                         return <li key={assessee.personId} className="border border-border text-sm rounded-md p-4 flex flex-col gap-1">
-                            <div className="font-semibold ">{assessee.name}</div>
+                            <div className="flex items-center justify-between">
+                                <div className="font-semibold ">{assessee.name}</div>
+                                <div className="text-xs text-muted-foreground">{toPercentage(checksForAssessee.length / assignedSkills.length, { clamp: true })} coverage</div>
+                            </div>
+                            
 
                             <ul className="space-y-1">
                                 {checksForAssessee.map(check => {
@@ -130,7 +143,7 @@ export function SkillRecorder_Session_Transcript({ organization, session }: { or
                         return <li key={skill.skillId} className="border border-border text-sm rounded-md p-4 flex flex-col gap-1">
                             <div className="flex items-center justify-between">
                                 <div className="font-semibold ">{skill.name}</div>
-                                <div className="text-xs text-muted-foreground">{checksForSkill.length / assignedAssessees.length * 100}% coverage</div>
+                                <div className="text-xs text-muted-foreground">{toPercentage(checksForSkill.length / assignedAssessees.length, { clamp: true })} coverage</div>
                             </div>
 
                             <ul className="list-disc space-y-1">

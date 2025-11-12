@@ -4,7 +4,9 @@
  * 
  */
 
+import { Paragraph } from "@/components/ui/typography"
+
 
 export function PersonRequireMessage() {
-    return <>A person is required to perform this action.</>
+    return <Paragraph>A person is required to perform this action.</Paragraph>
 }

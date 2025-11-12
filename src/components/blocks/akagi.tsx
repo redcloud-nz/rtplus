@@ -169,7 +169,7 @@ function AkagiTable<TData extends RowData>({ table }: { table: TanstackTable<TDa
 function AkagiTableHead<TData extends RowData>({ className, table, ...props }: ComponentProps<'thead'> & { table: TanstackTable<TData> }) {
     return <S2_TableHead className={cn("w-full sticky top-0 bg-table-head z-5 rounded-t-md shadow-xs", className)} {...props}>
             {table.getHeaderGroups().map(headerGroup =>
-                <tr key={headerGroup.id} className="tr rounded-md">
+                <tr key={headerGroup.id} className="rounded-md">
                     {headerGroup.headers.map(header =>
                         <Fragment key={header.id}>
                             {flexRender(header.column.columnDef.header, header.getContext())}

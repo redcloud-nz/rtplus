@@ -92,22 +92,25 @@ export default async function SkillsModule_Session_Page(props: PageProps<'/orgs/
                         </FieldGroup>
                     </S2_CardContent>
                 </S2_Card>
-
+                
                 <ItemGroup>
-                    <Item asChild>
-                        <Link to={Paths.org(organization.slug).skills.session(session.sessionId).record}>
-                            <ItemMedia>
-                                <SessionRecordIcon/>
-                            </ItemMedia>
-                            <ItemContent>
-                                <ItemTitle>Configure and Record</ItemTitle>
-                                <ItemDescription>Select skills and assessors then bulk record your skill checks.</ItemDescription>
-                            </ItemContent>
-                            <ItemActions>
-                                <ItemLinkActionIcon className="size-4" />
-                            </ItemActions>
-                        </Link>
-                    </Item>
+                    { session.sessionStatus == 'Draft' 
+                        ? <Item asChild>
+                            <Link to={Paths.org(organization.slug).skills.session(session.sessionId).record}>
+                                <ItemMedia>
+                                    <SessionRecordIcon/>
+                                </ItemMedia>
+                                <ItemContent>
+                                    <ItemTitle>Configure and Record</ItemTitle>
+                                    <ItemDescription>Select skills and assessors then bulk record your skill checks.</ItemDescription>
+                                </ItemContent>
+                                <ItemActions>
+                                    <ItemLinkActionIcon className="size-4" />
+                                </ItemActions>
+                            </Link>
+                        </Item>
+                        : null
+                    }
                     <Item asChild>
                         <Link to={Paths.org(organization.slug).skills.session(session.sessionId).review}>
                             <ItemMedia>
@@ -115,7 +118,7 @@ export default async function SkillsModule_Session_Page(props: PageProps<'/orgs/
                             </ItemMedia>
                             <ItemContent>
                                 <ItemTitle>Review</ItemTitle>
-                                <ItemDescription>Review and approve the recorded checks.</ItemDescription>
+                                <ItemDescription>Review skill checks and select which should be included in reporting.</ItemDescription>
                             </ItemContent>
                             <ItemActions>
                                 <ItemLinkActionIcon className="size-4" />

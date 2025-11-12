@@ -30,6 +30,12 @@ export function formatDateTime(stringOrDate: string | Date) {
     return format(date, 'HH:mm d MMM yyyy')
 }
 
+export function toPercentage(value: number, { fractionDigits = 0, clamp = false }: { fractionDigits?: number, clamp?: boolean } = {}): string {
+    if(clamp) value = Math.min(1, Math.max(0, value))
+
+    return (value * 100).toFixed(fractionDigits) + '%'
+}
+
 export function resolveAfter<R>(valueOrLazy: R | (() => R), delay: number): Promise<R> {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
