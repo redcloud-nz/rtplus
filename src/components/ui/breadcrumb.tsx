@@ -6,8 +6,7 @@
 import { ChevronRightIcon, MoreHorizontalIcon } from 'lucide-react'
 import * as React from 'react'
 
-import { Slot } from '@radix-ui/react-slot'
-
+import { Slot as SlotPrimitive } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
 
@@ -33,14 +32,13 @@ export function BreadcrumbItem({ className, ...props }: React.ComponentPropsWith
 }
 
 export function BreadcrumbLink({ asChild, className, ...props }: React.ComponentPropsWithRef<'a'> & { asChild?: boolean }) {
-    const Comp = asChild ? Slot : "a"
+    const Comp = asChild ? SlotPrimitive.Slot : "a"
 
     return <Comp
         className={cn("transition-colors hover:text-foreground", className)}
         {...props}
     />
 }
-
 
 export function BreadcrumbPage({ className, ...props }: React.ComponentPropsWithRef<'span'>) {
     return <span
@@ -51,7 +49,6 @@ export function BreadcrumbPage({ className, ...props }: React.ComponentPropsWith
         {...props}
     />
 }
-
 
 export function BreadcrumbSeparator({ children, className, ...props }: React.ComponentPropsWithRef<'li'>) {
     return <li

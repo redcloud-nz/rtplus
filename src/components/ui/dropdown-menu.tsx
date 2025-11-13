@@ -6,12 +6,11 @@
 import { CheckIcon, ChevronRightIcon, CircleIcon } from 'lucide-react'
 import { ComponentProps, ReactNode } from 'react'
 
-import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
+import { DropdownMenu as DropdownMenuPrimitive } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
 import { Button } from './button'
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
-
 
 export const DropdownMenu = DropdownMenuPrimitive.Root
 
@@ -136,14 +135,12 @@ export function DropdownMenuSeparator({ className, ...props }: ComponentProps<ty
     />
 }
 
-
 export function DropdownMenuShortcut({ className, ...props }: ComponentProps<'span'>) {
     return <span
         className={cn("ml-auto text-xs tracking-widest opacity-60", className)}
         {...props}
     />
 }
-
 
 export function DropdownMenuTriggerButton({ tooltip, ...props }: ComponentProps<typeof Button> & { tooltip?: ReactNode }) {
     return <Tooltip>

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { Slot } from '@radix-ui/react-slot'
+import { Slot as SlotPrimitive } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
 
@@ -20,7 +20,7 @@ export function GridList({ className, role = 'list', ...props }: GridListProps) 
 export type GridListItemProps = React.ComponentProps<'li'> & { asChild?: boolean}
 
 export function GridListItem({ className, asChild = false, ...props }: GridListItemProps) {
-    const Comp = asChild ? Slot : 'li'
+    const Comp = asChild ? SlotPrimitive.Slot : 'li'
 
     return <Comp
         className={cn(className, 'col-span-1 divide-y divide-gray-200 rounded-lg border bg-card text-card-foreground shadow-xs p-6 hover:bg-gray-50 active:bg-gray-100')}

@@ -5,16 +5,15 @@
 
 import { ComponentProps } from 'react'
 
-import { Slot } from '@radix-ui/react-slot'
+import { Slot as SlotPrimitive } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
 
 import { Skeleton } from './skeleton'
 
-
 export function StatItem({ asChild = false, className, ...props }: ComponentProps<'div'> &{ asChild?: boolean }) {
 
-    const Comp = asChild ? Slot : 'div'
+    const Comp = asChild ? SlotPrimitive.Slot : 'div'
 
     return <Comp 
         data-slot="stat-item"
@@ -30,7 +29,6 @@ export function StatItem({ asChild = false, className, ...props }: ComponentProp
     />
 }
 
-
 export function StatItemValue({ className, loading = false, ...props }: ComponentProps<'div'> & { loading?: boolean }) {
 
     return loading
@@ -41,7 +39,6 @@ export function StatItemValue({ className, loading = false, ...props }: Componen
         {...props}
     />
 }
-
 
 export function StatItemTitle({ className, ...props }: ComponentProps<'div'>) {
     return <div

@@ -9,7 +9,7 @@ import * as React from 'react'
 
 import { tv, type VariantProps } from 'tailwind-variants'
 
-import * as TogglePrimitive from '@radix-ui/react-toggle'
+import { Toggle as TogglePrimitive } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
 

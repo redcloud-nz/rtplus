@@ -4,9 +4,8 @@
  */
 'use client'
 
-import { CheckCheckIcon, CheckIcon, CircleIcon, SlashIcon, XIcon } from 'lucide-react'
 import { ComponentProps, useId } from 'react'
-import * as RadioGroupPrimitive from '@radix-ui/react-radio-group'
+import { RadioGroup as RadioGroupPrimitive } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
 import { CompetenceLevel, CompetenceLevels, CompetenceLevelTerms } from '@/lib/competencies'

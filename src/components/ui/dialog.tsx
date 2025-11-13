@@ -7,16 +7,13 @@ import { LoaderCircleIcon, XIcon } from 'lucide-react'
 import { type ComponentProps, ComponentPropsWithoutRef, type ReactNode, Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 
-import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { Tooltip } from '@radix-ui/react-tooltip'
+import { Dialog as DialogPrimitive } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
 
 import { Alert } from './alert'
 import { Button } from './button'
-import { TooltipContent, TooltipTrigger } from './tooltip'
-
-
+import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
 
 export const Dialog = DialogPrimitive.Root
 
@@ -25,7 +22,6 @@ export const DialogTrigger = DialogPrimitive.Trigger
 export const DialogPortal = DialogPrimitive.Portal
 
 export const DialogClose = DialogPrimitive.Close
-
 
 export function DialogOverlay({ className, ...props }: ComponentProps<typeof DialogPrimitive.Overlay>) {
     return <DialogPrimitive.Overlay
@@ -38,7 +34,6 @@ export function DialogOverlay({ className, ...props }: ComponentProps<typeof Dia
         {...props}
     />
 }
-
 
 type DialogContentProps = ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
     blockInteractOutside?: boolean
@@ -78,7 +73,6 @@ export function DialogContent({ blockInteractOutside, children, className, ...pr
     </DialogPortal>
 }
 
-
 export function DialogHeader({ className, ...props }: ComponentProps<'div'>) {
     return <div className={cn('flex flex-col space-y-1.5 text-center sm:text-left', className)} {...props}/>
 }
@@ -106,7 +100,6 @@ export function DialogFooter({ className, ...props }: ComponentProps<'div'>) {
     return <div className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2', className)} {...props}/>
 }
 
-
 export function DialogTitle({ className, ...props }: ComponentProps<typeof DialogPrimitive.Title>) {
     return <DialogPrimitive.Title
         className={cn('text-lg font-semibold leading-none tracking-tight', className)}
@@ -114,14 +107,12 @@ export function DialogTitle({ className, ...props }: ComponentProps<typeof Dialo
     />
 }
 
-
 export function DialogDescription({ className, ...props }: ComponentProps<typeof DialogPrimitive.Description>) {
     return <DialogPrimitive.Description
         className={cn("text-sm text-muted-foreground", className)}
         {...props}
     />
 }
-
 
 /**
  * A {@link Button} that triggers a dialog when clicked. It also displays a tooltip with the provided text.

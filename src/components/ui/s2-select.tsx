@@ -5,13 +5,11 @@
 'use client'
 
 import { ComponentProps } from 'react'
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon, XIcon } from 'lucide-react'
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
 
-import * as SelectPrimitive from '@radix-ui/react-select'
+import { Select as SelectPrimitive } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
-import { Button } from './button'
-
 
 export function S2_Select({ ...props }: ComponentProps<typeof SelectPrimitive.Root>) {
     return <SelectPrimitive.Root data-slot="select" {...props} />

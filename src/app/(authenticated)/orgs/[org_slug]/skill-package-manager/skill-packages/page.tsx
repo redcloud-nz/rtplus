@@ -27,8 +27,10 @@ export default async function SkillPackageManagerModule_SkillPackagesList_Page(p
                 Paths.org(orgSlug).spm.skillPackages,
             ]}
         />
-        <Lexington.Page variant="container">
-            <SkillPackageManagerModule_SkillPackagesList organization={organization} />
+        <Lexington.Page>
+            <Lexington.Column>
+                 <SkillPackageManagerModule_SkillPackagesList organization={organization} />
+            </Lexington.Column>
         </Lexington.Page>
     </Lexington.Root>
 }

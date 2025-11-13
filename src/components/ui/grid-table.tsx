@@ -3,20 +3,16 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-
 import { TrashIcon } from 'lucide-react'
 import { ComponentProps } from 'react'
 
-import { Slot } from '@radix-ui/react-slot'
+import { Slot as SlotPrimitive } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
 
 import { Button } from './button'
 import { Popover, PopoverArrow, PopoverClose, PopoverContent, PopoverTrigger } from './popover'
 import { DisplayValue } from './display-value'
-
-
-
 
 export function GridTable({ className, ...props }: ComponentProps<'div'>) {
     return <div 
@@ -34,7 +30,6 @@ export function GridTableHead({ className, ...props }: ComponentProps<'div'>) {
         {...props}    
     />
 }
-
 
 export function GridTableBody({ className, ...props }: ComponentProps<'div'>) {
     return <div
@@ -62,7 +57,7 @@ export function GridTableHeadCell({ className, ...props }: ComponentProps<'div'>
 }
 
 export function GridTableRow({ asChild = false, className, ...props }: ComponentProps<'div'> & { asChild?: boolean }) {
-    const Comp = asChild ? Slot : 'div'
+    const Comp = asChild ? SlotPrimitive.Slot : 'div'
     return <Comp
         className={cn("grid col-span-full grid-cols-subgrid items-center gap-2 transition-colors hover:bg-muted/50", className)}
         data-component="GridTableRow"
@@ -70,10 +65,9 @@ export function GridTableRow({ asChild = false, className, ...props }: Component
     />
 }
 
-
 export function GridTableCell({ asChild = false, ...props }: ComponentProps<'div'> & { asChild?: boolean}) {
     return asChild
-        ? <Slot 
+        ? <SlotPrimitive.Slot 
              role="gridcell"
             {...props}
         />
@@ -91,7 +85,6 @@ export function GridTableRowActions({ className, ...props }: ComponentProps<'div
         {...props}
     />
 }
-
 
 export function GridTableDeleteRowButton({ onDelete, ...props }: Omit<ComponentProps<typeof Button>, 'onClick'> & { onDelete: () => void }) {
 

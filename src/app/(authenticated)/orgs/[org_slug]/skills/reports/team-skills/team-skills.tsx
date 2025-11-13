@@ -11,7 +11,7 @@ import { Fragment, useMemo, useState } from 'react'
 import { randomInteger, sumBy } from 'remeda'
 import { match } from 'ts-pattern'
 
-import * as AccordionPrimitive from '@radix-ui/react-accordion'
+import { Accordion as AccordionPrimitive } from 'radix-ui'
 import { useSuspenseQueries } from '@tanstack/react-query'
 
 import { SkillCheckGeneratorConfigData } from '@/components/cards/skill-check-generator-config'

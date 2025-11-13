@@ -17,11 +17,13 @@ export default async function CreateOrganization_Page(props: PageProps<'/orgs/--
         <Lexington.Header
             breadcrumbs={[Paths.orgs.create]}
         />
-        <Lexington.Page variant="container">
-            <CreateOrganization
-                afterCreateOrganizationUrl="/orgs/:slug"
-                path="/orgs/--create"
-            />
+        <Lexington.Page>
+            <Lexington.Column>
+                <CreateOrganization
+                    afterCreateOrganizationUrl="/orgs/:slug"
+                    path="/orgs/--create"
+                />
+            </Lexington.Column>
         </Lexington.Page>
     </Lexington.Root>
 }

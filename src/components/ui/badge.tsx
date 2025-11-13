@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
+import { Slot as SlotPrimitive } from "radix-ui"
 import { tv, type VariantProps } from "tailwind-variants"
 
 import { cn } from "@/lib/utils"
@@ -23,7 +23,7 @@ export const badgeVariants = tv({
 type BadgeProps = React.ComponentProps<'span'> & VariantProps<typeof badgeVariants> & { asChild?: boolean }
 
 export function Badge({ className, variant, asChild = false, ...props }: BadgeProps) {
-    const Comp = asChild ? Slot : "span"
+    const Comp = asChild ? SlotPrimitive.Slot : "span"
 
     return <Comp
         data-slot="badge"

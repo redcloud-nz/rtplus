@@ -10,10 +10,9 @@ import { ComponentProps, ComponentPropsWithRef, ReactNode, Suspense } from 'reac
 import { ErrorBoundary } from 'react-error-boundary'
 import { tv, type VariantProps } from 'tailwind-variants'
 
-import * as SheetPrimitive from '@radix-ui/react-dialog'
+import { Dialog as SheetPrimitive } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
-
 
 import { Alert } from './alert'
 import { Button } from './button'

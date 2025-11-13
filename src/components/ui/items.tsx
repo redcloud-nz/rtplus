@@ -6,11 +6,10 @@
 import { ComponentProps } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
-import { Slot } from '@radix-ui/react-slot'
+import { Slot as SlotPrimitive } from 'radix-ui'
 
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
-
 
 export function ItemGroup({ className, ...props }: ComponentProps<'div'>) {
     return <div
@@ -50,7 +49,7 @@ export const itemVariants = tv({
 })
 
 export function Item({ className, variant = 'default', size = 'default', asChild = false, ...props }: ComponentProps<'div'> & VariantProps<typeof itemVariants> & { asChild?: boolean }) {
-    const Comp = asChild ? Slot : 'div'
+    const Comp = asChild ? SlotPrimitive.Slot : 'div'
     return <Comp
         data-slot="item"
         data-variant={variant}

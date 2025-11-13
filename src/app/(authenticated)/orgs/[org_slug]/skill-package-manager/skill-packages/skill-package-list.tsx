@@ -113,48 +113,45 @@ export function SkillPackageManagerModule_SkillPackagesList({ organization }: { 
                 </Protect>
         </Lexington.Empty>}
     >
-        <Lexington.Container>
-            <DataTableProvider value={table}>
-                <Card>
-                    <CardHeader>
-                        <DataTableSearch size="sm" variant="ghost"/>
-                        <CardActions>
-                            <Protect role="org:admin">
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Button variant="ghost" size="icon" asChild>
-                                            <Link to={Paths.org(organization.slug).spm.skillPackages.create}>
-                                                <PlusIcon />
-                                            </Link>
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        Create new skill package
-                                    </TooltipContent>
-                                </Tooltip>
-                            </Protect>
-                            
+        <DataTableProvider value={table}>
+            <Card>
+                <CardHeader>
+                    <DataTableSearch size="sm" variant="ghost"/>
+                    <CardActions>
+                        <Protect role="org:admin">
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" asChild>
+                                        <Link to={Paths.org(organization.slug).spm.skillPackages.create}>
+                                            <PlusIcon />
+                                        </Link>
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    Create new skill package
+                                </TooltipContent>
+                            </Tooltip>
+                        </Protect>
+                        
 
-                            <RefreshButton onClick={handleRefresh}/>
-                            <TableOptionsDropdown/>
-                            <Separator orientation="vertical"/>
-                            <CardExplanation>
-                                This is a list of all the available skill packages in the system.
-                            </CardExplanation>
-                        
-                        </CardActions>
-                        
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <DataTableHead/>
-                            <DataTableBody/>
-                            <DataTableFooter/>
-                        </Table>
-                    </CardContent>
-                </Card>
-            </DataTableProvider>
-        </Lexington.Container>
-        
+                        <RefreshButton onClick={handleRefresh}/>
+                        <TableOptionsDropdown/>
+                        <Separator orientation="vertical"/>
+                        <CardExplanation>
+                            This is a list of all the available skill packages in the system.
+                        </CardExplanation>
+                    
+                    </CardActions>
+                    
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <DataTableHead/>
+                        <DataTableBody/>
+                        <DataTableFooter/>
+                    </Table>
+                </CardContent>
+            </Card>
+        </DataTableProvider>
     </Show>
 }

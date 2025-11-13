@@ -6,7 +6,7 @@
 
 import { ComponentProps, ReactNode} from 'react'
 
-import * as PopoverPrimitive from '@radix-ui/react-popover'
+import { Popover as PopoverPrimitive } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
 
@@ -22,7 +22,6 @@ export const PopoverClose = PopoverPrimitive.Close
 export const PopoverArrow = PopoverPrimitive.Arrow
 
 export function PopoverContent({ children, className, align = "center", portal = true, sideOffset = 4, ...props }: ComponentProps<typeof PopoverPrimitive.Content> & { portal?: boolean }) {
-
 
     const content = <PopoverPrimitive.Content
         align={align}
@@ -42,7 +41,6 @@ export function PopoverContent({ children, className, align = "center", portal =
         ? <PopoverPrimitive.Portal>{content}</PopoverPrimitive.Portal>
         : content
 }
-
 
 interface PopoverTriggerButtonProps extends ComponentProps<typeof Button> {
     children: ReactNode

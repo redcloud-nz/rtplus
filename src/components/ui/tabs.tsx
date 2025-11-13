@@ -5,7 +5,7 @@
 'use client'
 
 import * as React from 'react'
-import * as TabsPrimitive from '@radix-ui/react-tabs'
+import { Tabs as TabsPrimitive } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
 import { tv } from 'tailwind-variants'
@@ -24,7 +24,6 @@ const tabsListVariants = tv({
         variant: "default"
     },
 })
-
 
 export function TabsList({ className, variant, ...props }: React.ComponentPropsWithRef<typeof TabsPrimitive.List> & { variant?: 'default' | 'stretch' }) {
     return <TabsPrimitive.List

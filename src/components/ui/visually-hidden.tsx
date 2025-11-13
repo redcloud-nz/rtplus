@@ -3,6 +3,6 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import * as VisuallyHiddenPrimitive from '@radix-ui/react-visually-hidden'
+import { VisuallyHidden as VisuallyHiddenPrimitive } from 'radix-ui'
 
 export const VisuallyHidden = VisuallyHiddenPrimitive.Root

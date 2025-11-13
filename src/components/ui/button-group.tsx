@@ -5,7 +5,7 @@
 
 import { ComponentProps } from 'react'
 
-import { Slot } from '@radix-ui/react-slot'
+import { Slot as SlotPrimitive } from 'radix-ui'
 import { tv, type VariantProps } from 'tailwind-variants'
 
 import { cn } from '@/lib/utils'
@@ -37,7 +37,7 @@ export function ButtonGroup({ className, orientation, ...props}: ComponentProps<
 }
 
 export function ButtonGroupText({ className, asChild = false, ...props }: ComponentProps<'div'> & { asChild?: boolean }) {
-    const Comp = asChild ? Slot : 'div'
+    const Comp = asChild ? SlotPrimitive.Slot : 'div'
 
     return <Comp
         className={cn(

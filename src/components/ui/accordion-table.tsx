@@ -3,15 +3,13 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-
 import { ChevronDownIcon } from 'lucide-react'
 import { ComponentProps } from 'react'
 
-import * as AccordionPrimitive from '@radix-ui/react-accordion'
+import { Accordion as AccordionPrimitive } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
 import { Button } from './button'
-
 
 /**
  * A table-like component with accordion (expand/collapse) functionality.
@@ -49,7 +47,6 @@ export function ATableHead({ className, ...props }: ComponentProps<'div'>) {
         {...props}    
     />
 }
-
 
 export function ATableBody({ children, className, type = 'single' }: Pick<ComponentProps<typeof AccordionPrimitive.Root>, 'className' | 'children' | 'type'>) {
     return <AccordionPrimitive.Root 
@@ -121,10 +118,6 @@ export function ATableRow({ className, ...props }: ComponentProps<'div'>) {
         {...props}
     />
 }
-
-
-
-
 
 export function ATableCell({ className, ...props }: ComponentProps<'div'>) {
     return <div 

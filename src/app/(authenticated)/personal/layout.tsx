@@ -11,7 +11,7 @@ import { AppSidebar } from '@/components/nav/app-sidebar'
 export default async function Organization_Layout(props: LayoutProps<'/personal'>) {
 
     return <>
-        <AppSidebar>
+        <AppSidebar name="Personal">
             <NavPersonalMenu/>
         </AppSidebar>
         {props.children}

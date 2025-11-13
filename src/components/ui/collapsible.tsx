@@ -3,8 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import * as CollapsiblePrimitive from '@radix-ui/react-collapsible'
-
+import { Collapsible as CollapsiblePrimitive } from 'radix-ui'
 
 export type CollapsibleProps = CollapsiblePrimitive.CollapsibleProps & React.RefAttributes<HTMLDivElement>
 

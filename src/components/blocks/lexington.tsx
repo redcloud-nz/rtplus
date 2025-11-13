@@ -9,7 +9,7 @@
 
 import { ComponentProps, ReactNode } from 'react'
 
-import { Slot } from '@radix-ui/react-slot'
+import { Slot } from 'radix-ui'
 
 import { S2_AppPageHeader } from '@/components/app-page'
 import Artie from '@/components/art/artie'
@@ -36,7 +36,7 @@ const lexingtonPageVariants = tv({
 })
 
 function LexingtonPage({ asChild = false, children, className, scrollable = true, ...props }: ComponentProps<'div'> & VariantProps<typeof lexingtonPageVariants> & { asChild?: boolean }) {
-    const Comp = asChild ? Slot : 'div'
+    const Comp = asChild ? Slot.Root : 'div'
 
     return <Comp
         className={lexingtonPageVariants({ className, scrollable })}
@@ -89,7 +89,7 @@ const lexingtonColumnVariants = tv({
 })
 
 function LexingtonColumn({ asChild = false, className, width = "full", ...props }: ComponentProps<'div'> & VariantProps<typeof lexingtonColumnVariants> & { asChild?: boolean }) {
-    const Comp = asChild ? Slot : 'div'
+    const Comp = asChild ? Slot.Root : 'div'
 
     return <Comp
         className={lexingtonColumnVariants({ className, width })}

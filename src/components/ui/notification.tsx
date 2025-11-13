@@ -5,12 +5,10 @@
 import { formatDistanceToNow } from 'date-fns'
 import { ComponentProps } from 'react'
 
-import { Slot } from '@radix-ui/react-slot'
+import { Slot as SlotPrimitive } from 'radix-ui'
 
 import { NotificationsIcon } from '@/components/icons'
 import { cn } from '@/lib/utils'
-
-
 
 export function Notifications({ children, className, ...props }: ComponentProps<'div'>) {
     return <div 
@@ -32,7 +30,7 @@ export function NotificationsEmpty({ className, ...props }: Omit<ComponentProps<
 }
 
 export function Notification({ asChild, children, className, ...props }: ComponentProps<'div'> & { asChild?: boolean }) {
-    const Component = asChild ? Slot : 'div'
+    const Component = asChild ? SlotPrimitive.Slot : 'div'
 
     return <Component
         data-slot="notification"
@@ -41,7 +39,6 @@ export function Notification({ asChild, children, className, ...props }: Compone
     >{children}</Component>
 }
 
-
 export function NotificationHeader({ children, className, ...props }: ComponentProps<'div'>) {
     return <div 
         data-slot="notification-header"
@@ -49,7 +46,6 @@ export function NotificationHeader({ children, className, ...props }: ComponentP
         {...props}
     >{children}</div>
 }
-
 
 export function NotificationContent({ children, className, ...props }: ComponentProps<'div'>) {
     return <div

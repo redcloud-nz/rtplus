@@ -7,10 +7,9 @@ import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
 import * as React from 'react'
 import { tv, VariantProps } from 'tailwind-variants'
 
-import * as SelectPrimitive from '@radix-ui/react-select'
+import { Select as SelectPrimitive } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
-
 
 export const Select = SelectPrimitive.Root
 
@@ -57,7 +56,6 @@ export function SelectScrollUpButton({ className, ...props }: React.ComponentPro
     </SelectPrimitive.ScrollUpButton>
 }
 
-
 export function SelectScrollDownButton({ className, ...props }: React.ComponentPropsWithRef<typeof SelectPrimitive.ScrollDownButton>) {
     return <SelectPrimitive.ScrollDownButton
         className={cn(
@@ -97,7 +95,6 @@ export function SelectContent({ className, children, position = "popper", ...pro
     </SelectPrimitive.Portal>
 }
 
-
 export function SelectLabel({ className, ...props }: React.ComponentPropsWithRef<typeof SelectPrimitive.Label>) {
     return <SelectPrimitive.Label
         className={cn("py-1.5 pl-8 pr-2 text-sm font-semibold", className)}
@@ -124,7 +121,6 @@ export function SelectItem({ className, children, ...props }: React.ComponentPro
         <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
     </SelectPrimitive.Item>
 }
-
 
 export function SelectSeparator({ className, ...props }: React.ComponentPropsWithRef<typeof SelectPrimitive.Separator>) {
     return <SelectPrimitive.Separator

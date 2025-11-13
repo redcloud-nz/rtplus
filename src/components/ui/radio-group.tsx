@@ -6,11 +6,9 @@
 
 import { CircleIcon } from 'lucide-react'
 import { ComponentProps } from 'react'
-import * as RadioGroupPrimitive from '@radix-ui/react-radio-group'
+import { RadioGroup as RadioGroupPrimitive } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
-
-
 
 export function RadioGroup({ className, ...props }: ComponentProps<typeof RadioGroupPrimitive.Root>) {
     return <RadioGroupPrimitive.Root

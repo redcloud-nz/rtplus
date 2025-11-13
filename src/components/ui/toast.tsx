@@ -9,7 +9,7 @@ import { X } from 'lucide-react'
 import * as React from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
-import * as ToastPrimitives from '@radix-ui/react-toast'
+import { Toast as ToastPrimitives } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
 
@@ -40,7 +40,6 @@ const toastVariants = tv({
     },
 })
 
-
 export function Toast({ className, variant, ...props }: React.ComponentPropsWithRef<typeof ToastPrimitives.Root> & VariantProps<typeof toastVariants>) {
     return <ToastPrimitives.Root
         className={cn(toastVariants({ variant }), className)}
@@ -58,7 +57,6 @@ export function ToastAction({ className, ...props }: React.ComponentPropsWithRef
     />
 }
 
-
 export function ToastClose({ className, ...props }: React.ComponentPropsWithRef<typeof ToastPrimitives.Close>) {
     return <ToastPrimitives.Close
         className={cn(
@@ -72,7 +70,6 @@ export function ToastClose({ className, ...props }: React.ComponentPropsWithRef<
         <X className="h-4 w-4" />
     </ToastPrimitives.Close>
 }
-
 
 export function ToastTitle({ className, ...props }: React.ComponentPropsWithRef<typeof ToastPrimitives.Title>) {
     return <ToastPrimitives.Title

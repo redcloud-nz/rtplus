@@ -9,8 +9,7 @@ import { ComponentProps, createContext, ReactNode, useContext, useId } from 'rea
 import { Controller, ControllerProps, FieldPath, FieldValues, useFormContext, useFormState } from 'react-hook-form'
 import { pick } from 'remeda'
 
-import * as LabelPrimitive from '@radix-ui/react-label'
-import { Slot } from '@radix-ui/react-slot'
+import { Label as LabelPrimitive, Slot as SlotPrimitive } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
 
@@ -18,12 +17,10 @@ import { Button, ButtonProps, buttonVariants } from './button'
 import { Label } from './label'
 import { Link } from './link'
 
-
 export function Form({ className, ...props }: ComponentProps<'form'>) {
 
     return <form className={cn("space-y-4", className)} {...props}/>
 }
-
 
 type FormFieldContextValue<TFieldValues extends FieldValues = FieldValues, TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>> = {
     name: TName
@@ -68,8 +65,6 @@ const FormItemContext = createContext<FormItemContextValue>(
     {} as FormItemContextValue
 )
 
-
-
 export function FormItem({ className, ...props }: ComponentProps<'div'>) {
     const id = useId()
 
@@ -77,7 +72,6 @@ export function FormItem({ className, ...props }: ComponentProps<'div'>) {
         <div className={cn("flex flex-col gap-2", className)} {...props} />
     </FormItemContext.Provider>
 }
-
 
 export function FormLabel({ className, ...props }: React.ComponentPropsWithRef<typeof LabelPrimitive.Root>) {
     const { error, formItemId } = useFormField()
@@ -90,10 +84,10 @@ export function FormLabel({ className, ...props }: React.ComponentPropsWithRef<t
     />
 }
 
-export function FormControl({ ...props }:  React.ComponentPropsWithoutRef<typeof Slot>) {
+export function FormControl({ ...props }:  React.ComponentPropsWithoutRef<typeof SlotPrimitive.Slot>) {
     const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
 
-    return <Slot
+    return <SlotPrimitive.Slot
         id={formItemId}
         aria-describedby={
             !error
@@ -132,7 +126,6 @@ export function FormMessage({ className, children, ...props }: React.ComponentPr
         {body}
     </p>
 }
-
 
 export type FormSubmitButtonProps = ButtonProps & {
     labels?: {
@@ -228,12 +221,10 @@ export const SubmitVerbs = {
     },
 } as const
 
-
 export type FormCancelButtonProps = Omit<ComponentProps<typeof Button>, 'onClick'> & (
     | { onClick: React.MouseEventHandler<HTMLButtonElement>, redirectTo?: never }
     | { onClick?: never, redirectTo: { href: string } }
 )
-
 
 /**
  * A customizable cancel button component for forms. It supports either an `onClick` handler
@@ -283,7 +274,6 @@ export function FormActions({ children, className, right, ...props }: ComponentP
     </div>
 
 }
-
 
 export function DebugFormState() {
     const { formState } = useFormContext()

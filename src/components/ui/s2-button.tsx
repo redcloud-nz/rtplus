@@ -6,7 +6,7 @@
 import { ComponentProps } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
-import { Slot } from '@radix-ui/react-slot'
+import { Slot as SlotPrimitive } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
 
@@ -40,7 +40,7 @@ export const s2_buttonVariants = tv({
 })
 
 export function S2_Button({ className, variant, size, asChild = false, ...props }: ComponentProps<"button"> & VariantProps<typeof s2_buttonVariants> & { asChild?: boolean }) {
-  const Comp = asChild ? Slot : "button"
+  const Comp = asChild ? SlotPrimitive.Slot : "button"
 
   return <Comp
       data-slot="button"

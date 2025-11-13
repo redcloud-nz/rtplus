@@ -9,7 +9,7 @@ import { ComponentProps, Fragment, ReactNode } from 'react'
 import { omit } from 'remeda'
 import { tv, type VariantProps } from 'tailwind-variants'
 
-import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area'
+import { ScrollArea as ScrollAreaPrimitive } from 'radix-ui'
 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'

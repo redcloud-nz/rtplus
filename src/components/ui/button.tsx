@@ -8,14 +8,12 @@ import { Loader2Icon, RefreshCcw, TrashIcon } from 'lucide-react'
 import React, { ComponentProps } from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
-import { Slot } from '@radix-ui/react-slot'
+import { Slot as SlotPrimitive } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
 
 import { Popover, PopoverArrow, PopoverClose, PopoverContent, PopoverTrigger } from './popover'
-import { Tooltip, TooltipContent } from './tooltip'
-import { TooltipTrigger } from '@radix-ui/react-tooltip'
-
+import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
 
 export const buttonVariants = tv({
     base: "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
@@ -78,18 +76,17 @@ export type ButtonProps = ComponentProps<'button'> & VariantProps<typeof buttonV
  * @param className Additional class names to apply to the button.
  * @param variant The variant of the button. Can be one of 'default', 'destructive', 'outline-solid', 'secondary', 'ghost', or 'link'.
  * @param size The size of the button. Can be one of 'default', 'sm', 'lg', or 'icon'.
- * @param asChild If true, the button will be rendered using the Slot component. 
+ * @param asChild If true, the button will be rendered using the SlotPrimitive.Slot component. 
  * 
  * @see https://ui.shadcn.com/docs/components/button
  */
 export function Button({ className, variant, color, size, asChild = false, ...props }: ButtonProps) {
-    const Comp = asChild ? Slot : 'button'
+    const Comp = asChild ? SlotPrimitive.Slot : 'button'
     return <Comp
         className={cn(buttonVariants({ className, color, size, variant }))}
         {...props}
     />
 }
-
 
 export type AsyncButtonProps = ButtonProps & {
 
@@ -151,7 +148,6 @@ export function SubmitButton({ children, className, disabled, variant, size, sta
     </button>
 }
 
-
 export type SubmitButtonLabelProps = ComponentProps<'span'> & {
     activeState: 'ready' | 'pending' | 'done'
 }
@@ -188,7 +184,6 @@ export function DeleteConfirmButton({ onDelete, ...props }: Omit<ComponentProps<
         </PopoverContent>
     </Popover>
 }
-
 
 type ConfirmPopupButtonProps = Omit<ComponentProps<typeof Button>, 'onClick'> & {
     message?: React.ReactNode

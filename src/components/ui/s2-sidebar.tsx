@@ -6,7 +6,7 @@
 
 import { ComponentProps, CSSProperties, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
-import { Slot } from '@radix-ui/react-slot'
+import { Slot as SlotPrimitive } from 'radix-ui'
 import { PanelLeftIcon } from 'lucide-react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
@@ -379,7 +379,7 @@ export function S2_SidebarGroupLabel({
     asChild = false,
     ...props
 }: ComponentProps<'div'> & { asChild?: boolean }) {
-    const Comp = asChild ? Slot : 'div'
+    const Comp = asChild ? SlotPrimitive.Slot : 'div'
 
     return <Comp
         data-slot="sidebar-group-label"
@@ -398,7 +398,7 @@ export function S2_SidebarGroupAction({
     asChild = false,
     ...props
 }: ComponentProps<'button'> & { asChild?: boolean }) {
-    const Comp = asChild ? Slot : 'button'
+    const Comp = asChild ? SlotPrimitive.Slot : 'button'
 
     return <Comp
         data-slot="sidebar-group-action"
@@ -477,7 +477,7 @@ export function S2_SidebarMenuButton({
     isActive?: boolean
     tooltip?: string | ComponentProps<typeof TooltipContent>
 } & VariantProps<typeof sidebarMenuButtonVariants>) {
-    const Comp = asChild ? Slot : 'button'
+    const Comp = asChild ? SlotPrimitive.Slot : 'button'
     const { isMobile, state } = useSidebar()
 
     const button = <Comp
@@ -519,7 +519,7 @@ export function S2_SidebarMenuAction({
     asChild?: boolean
     showOnHover?: boolean
 }) {
-    const Comp = asChild ? Slot : 'button'
+    const Comp = asChild ? SlotPrimitive.Slot : 'button'
 
     return <Comp
         data-slot="sidebar-menu-action"
@@ -632,7 +632,7 @@ export function S2_SidebarMenuSubButton({
     size?: 'sm' | 'md'
     isActive?: boolean
 }) {
-    const Comp = asChild ? Slot : 'a'
+    const Comp = asChild ? SlotPrimitive.Slot : 'a'
 
     return <Comp
         data-slot="sidebar-menu-sub-button"

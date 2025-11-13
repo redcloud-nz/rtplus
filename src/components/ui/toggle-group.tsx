@@ -8,13 +8,10 @@
 import { ComponentProps, createContext, useContext } from 'react'
 import { type VariantProps } from 'tailwind-variants'
 
-import * as ToggleGroupPrimitive from '@radix-ui/react-toggle-group'
+import { ToggleGroup as ToggleGroupPrimitive } from 'radix-ui'
 
 import { toggleVariants } from '@/components/ui/toggle'
 import { cn } from '@/lib/utils'
-
-
-
 
 const ToggleGroupContext = createContext<VariantProps<typeof toggleVariants>>({
     size: "default",
