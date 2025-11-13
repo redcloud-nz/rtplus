@@ -32,8 +32,8 @@ export function SkillModule_SkillCheckSessionsList({ organization }: { organizat
     const columns = useMemo(() => Akagi.defineColumns<SkillCheckSessionData>(columnHelper => [
         columnHelper.accessor('sessionId', {
             id: 'sessionId',
-            header: ctx => <Akagi.TableHeader header={ctx.header} className="w-[0px] min-w-0">ID</Akagi.TableHeader>,
-            cell: ctx => <Akagi.TableCell cell={ctx.cell} className="w-[0px] min-w-0">
+            header: ctx => <Akagi.TableHeader header={ctx.header} className="w-20">ID</Akagi.TableHeader>,
+            cell: ctx => <Akagi.TableCell cell={ctx.cell} className="w-20">
                 <TextLink to={Paths.org(organization.slug).skills.session(ctx.row.original.sessionId)}>{ctx.getValue()}</TextLink>
                 </Akagi.TableCell>,
             enableSorting: false,
@@ -144,7 +144,7 @@ export function SkillModule_SkillCheckSessionsList({ organization }: { organizat
             <Akagi.TableSearch table={table} />
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <S2_Button asChild>
+                    <S2_Button variant="outline" asChild>
                         <Link to={Paths.org(organization.slug).skills.sessions.create}>
                             <PlusIcon/> <span className="hidden md:inline">New Session</span>
                         </Link>

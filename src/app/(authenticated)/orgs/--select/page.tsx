@@ -8,7 +8,7 @@
 
 import { ChevronRightIcon, PlusIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 
 import { useOrganizationList, useUser } from '@clerk/nextjs'
 
@@ -22,6 +22,7 @@ import { PageLoadingSpinner } from '@/components/ui/loading'
 
 import { getUserInitials } from '@/lib/utils'
 import * as Paths from '@/paths'
+import { Spinner } from '@/components/ui/spinner'
 
 
 
@@ -30,7 +31,9 @@ export default function SelectOrganization_Page() {
     const router = useRouter()
 
     const { user } = useUser()
-    const { isLoaded, userInvitations, userMemberships } = useOrganizationList({ userInvitations: { pageSize: 100, status: 'pending' }, userMemberships: { pageSize: 100 }})
+    const { isLoaded, setActive, userInvitations, userMemberships } = useOrganizationList({ userInvitations: { pageSize: 100, status: 'pending' }, userMemberships: { pageSize: 100 }})
+
+    const [switchingTo, setSwitchingTo] = useState<string | null>(null)
 
     const fullName = user?.fullName || ""
     const initials = getUserInitials(fullName)
@@ -43,95 +46,109 @@ export default function SelectOrganization_Page() {
         router.push(Paths.org(invitation.publicOrganizationData.slug!).dashboard.href)
     }
 
+    async function handleChangeOrganization(membership: typeof memberships[number]) {
+        if(switchingTo === membership.organization.id) return
+        setSwitchingTo(membership.organization.id)
+        await setActive!({ organization: membership.organization.id })
+        setSwitchingTo(null)
+        router.push(Paths.org(membership.organization.slug!).dashboard.href)
+    }
+
     return <Lexington.Root>
-            <Lexington.Header
-                breadcrumbs={["Select Organization"]}
-                sidebarTrigger={false}
-            />
-            <Show 
-                when={isLoaded}
-                fallback={<PageLoadingSpinner />}
-            >
-                <Lexington.Page variant="container-md">
-                    <div className="flex-col gap-4 mt-12">
-                        <div className="text-center">
-                            <h3 className="text-md font-medium">Select an account</h3>
-                            <p className="text-sm text-muted-foreground">to continue to RT+</p>
-                        </div>
+        <Lexington.Header
+            breadcrumbs={["Select Organization"]}
+            sidebarTrigger={false}
+        />
+        <Show 
+            when={isLoaded}
+            fallback={<PageLoadingSpinner />}
+        >
+            <Lexington.Page>
+                <Lexington.Column width="md">
+                    <div className="text-center">
+                        <h3 className="text-md font-medium">Select an account</h3>
+                        <p className="text-sm text-muted-foreground">to continue to RT+</p>
+                    </div>
+                    
+                    <ItemGroup>
+                        <Item asChild>
+                            <Link to={Paths.personal.dashboard}>
+                                <ItemMedia>
+                                    <Avatar className="rounded-full">
+                                        <AvatarImage src={user?.imageUrl} alt={fullName} />
+                                        <AvatarFallback className="rounded-full">{initials}</AvatarFallback>
+                                    </Avatar>
+                                </ItemMedia>
+                                <ItemContent className="gap-1">
+                                    <ItemTitle>Personal Account</ItemTitle>
+                                </ItemContent>
+                                <ItemActions>
+                                    <ChevronRightIcon className="size-4" />
+                                </ItemActions>
+                            </Link>
+                        </Item>
+                        <ItemSeparator />
                         
-                        <ItemGroup>
+                        {memberships.map((membership) => <Fragment key={membership.id}>
                             <Item asChild>
-                                <Link to={Paths.personal.dashboard}>
+                                <a onClick={() => handleChangeOrganization(membership)}>
                                     <ItemMedia>
-                                        <Avatar className="rounded-full">
-                                            <AvatarImage src={user?.imageUrl} alt={fullName} />
-                                            <AvatarFallback className="rounded-full">{initials}</AvatarFallback>
+                                        <Avatar>
+                                            <AvatarImage src={membership.organization.imageUrl} alt={membership.organization.name || 'Organization Avatar'} />
+                                            <AvatarFallback>{membership.organization.name[0].toUpperCase()}</AvatarFallback>
                                         </Avatar>
                                     </ItemMedia>
                                     <ItemContent className="gap-1">
-                                        <ItemTitle>Personal Account</ItemTitle>
+                                        <ItemTitle>{membership.organization.name}</ItemTitle>
                                     </ItemContent>
                                     <ItemActions>
-                                        <ChevronRightIcon className="size-4" />
+                                        { switchingTo == null 
+                                            ? <ChevronRightIcon className="size-4" />
+                                            : switchingTo == membership.organization.id
+                                                ? <Spinner className="size-4"/>
+                                                : null
+                                        }
                                     </ItemActions>
-                                </Link>
+                                </a>
                             </Item>
                             <ItemSeparator />
-                            
-                            {memberships.map((membership) => <Fragment key={membership.id}>
-                                <Item asChild>
-                                    <Link to={Paths.org(membership.organization.slug!).dashboard}>
-                                        <ItemMedia>
-                                            <Avatar>
-                                                <AvatarImage src={membership.organization.imageUrl} alt={membership.organization.name || 'Organization Avatar'} />
-                                                <AvatarFallback>{membership.organization.name[0].toUpperCase()}</AvatarFallback>
-                                            </Avatar>
-                                        </ItemMedia>
-                                        <ItemContent className="gap-1">
-                                            <ItemTitle>{membership.organization.name}</ItemTitle>
-                                        </ItemContent>
-                                        <ItemActions>
-                                            <ChevronRightIcon className="size-4" />
-                                        </ItemActions>
-                                    </Link>
-                                </Item>
-                                <ItemSeparator />
-                            </Fragment>)}
-                            {invitations.map((invitation) => <Fragment key={invitation.id}>
-                                <Item>
-                                    <ItemMedia>
-                                        <Avatar>
-                                            <AvatarImage src={invitation.publicOrganizationData.imageUrl} alt={invitation.publicOrganizationData.name || 'Organization Avatar'} />
-                                            <AvatarFallback>{invitation.publicOrganizationData.name[0].toUpperCase()}</AvatarFallback>
-                                        </Avatar>
-                                    </ItemMedia>
-                                    <ItemContent className="gap-1">
-                                        <ItemTitle>{invitation.publicOrganizationData.name}</ItemTitle>
-                                        <ItemDescription>You have been invited to join this organization.</ItemDescription>
-                                    </ItemContent>
-                                    <ItemActions>
-                                        <S2_Button variant="outline" onClick={() => handleAcceptInvitation(invitation)}>Join</S2_Button>
-                                    </ItemActions>
-                                </Item>
-                                <ItemSeparator />
-                            </Fragment>)}
-                            <Item asChild>
-                                <Link to={Paths.orgs.create}>
-                                    <ItemMedia>
-                                        <Avatar>
-                                            <AvatarImage src={undefined} alt="Organization Avatar" />
-                                            <AvatarFallback><PlusIcon/></AvatarFallback>
-                                        </Avatar>
-                                    </ItemMedia>
-                                    <ItemContent className="gap-1">
-                                        <ItemTitle className="text-foreground/80">Create organization</ItemTitle>
-                                    </ItemContent>
-                                </Link>
+                        </Fragment>)}
+                        {invitations.map((invitation) => <Fragment key={invitation.id}>
+                            <Item>
+                                <ItemMedia>
+                                    <Avatar>
+                                        <AvatarImage src={invitation.publicOrganizationData.imageUrl} alt={invitation.publicOrganizationData.name || 'Organization Avatar'} />
+                                        <AvatarFallback>{invitation.publicOrganizationData.name[0].toUpperCase()}</AvatarFallback>
+                                    </Avatar>
+                                </ItemMedia>
+                                <ItemContent className="gap-1">
+                                    <ItemTitle>{invitation.publicOrganizationData.name}</ItemTitle>
+                                    <ItemDescription>You have been invited to join this organization.</ItemDescription>
+                                </ItemContent>
+                                <ItemActions>
+                                    <S2_Button variant="outline" onClick={() => handleAcceptInvitation(invitation)}>Join</S2_Button>
+                                </ItemActions>
                             </Item>
-                        </ItemGroup>
-                    </div>
-                </Lexington.Page>
-            </Show>
-            
-        </Lexington.Root>
+                            <ItemSeparator />
+                        </Fragment>)}
+                        <Item asChild>
+                            <Link to={Paths.orgs.create}>
+                                <ItemMedia>
+                                    <Avatar>
+                                        <AvatarImage src={undefined} alt="Organization Avatar" />
+                                        <AvatarFallback><PlusIcon/></AvatarFallback>
+                                    </Avatar>
+                                </ItemMedia>
+                                <ItemContent className="gap-1">
+                                    <ItemTitle className="text-foreground/80">Create organization</ItemTitle>
+                                </ItemContent>
+                            </Link>
+                        </Item>
+                    </ItemGroup>
+                </Lexington.Column>
+                
+            </Lexington.Page>
+        </Show>
+        
+    </Lexington.Root>
 }

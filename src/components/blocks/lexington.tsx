@@ -22,7 +22,7 @@ import { tv, VariantProps } from 'tailwind-variants'
 function LexingtonRoot({ children }: { children: ReactNode }) {
     return <main
         data-component="LexingtonRoot"
-        className="relative flex min-h-svh flex-1 flex-col bg-background"
+        className="relative flex h-svh flex-1 flex-col bg-background"
     >{children}</main>
 }
 

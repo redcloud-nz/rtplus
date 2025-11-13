@@ -145,7 +145,7 @@ function AkagiTable<TData extends RowData>({ table }: { table: TanstackTable<TDa
     return <S2_Table 
         slotProps={{ 
             container: { 
-                className: "border-1 border-border rounded-md shadow-md"               
+                className: ""               
             }
         }}
     >
@@ -167,7 +167,7 @@ function AkagiTable<TData extends RowData>({ table }: { table: TanstackTable<TDa
 }
 
 function AkagiTableHead<TData extends RowData>({ className, table, ...props }: ComponentProps<'thead'> & { table: TanstackTable<TData> }) {
-    return <S2_TableHead className={cn("w-full sticky top-0 bg-table-head z-5 rounded-t-md shadow-xs", className)} {...props}>
+    return <S2_TableHead className={cn("w-full sticky top-0 bg-background z-5", className)} {...props}>
             {table.getHeaderGroups().map(headerGroup =>
                 <tr key={headerGroup.id} className="rounded-md">
                     {headerGroup.headers.map(header =>
@@ -190,7 +190,7 @@ function AkagiPagination<TData extends RowData>({ className, tableId, table, ...
     const endRowIndex = Math.min(startRowIndex + pagination.pageSize, rowCount)
     
 
-    return <S2_TableFoot className={cn("sticky bottom-0 bg-table-head color-table-head-foreground z-5", className)} {...props}>
+    return <S2_TableFoot className={cn("sticky bottom-0 bg-background z-5", className)} {...props}>
         <tr>
             <td colSpan={table.getAllColumns().length}>
                 <div className="grid grid-cols-3 items-center text-sm px-2 py-1">

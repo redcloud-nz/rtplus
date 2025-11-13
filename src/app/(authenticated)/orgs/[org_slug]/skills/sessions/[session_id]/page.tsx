@@ -7,9 +7,11 @@
 
 
 import { Lexington } from '@/components/blocks/lexington'
-import { BackToListIcon, EditIcon, ItemLinkActionIcon, SessionRecordIcon, SessionReviewIcon } from '@/components/icons'
+import { BackToListIcon, DeleteObjectIcon, DropdownMenuTriggerIcon, DuplicateObjectIcon, EditIcon, ItemLinkActionIcon, SessionRecordIcon, SessionReviewIcon } from '@/components/icons'
 import { S2_Button } from '@/components/ui/s2-button'
+import { ButtonGroup } from '@/components/ui/button-group'
 import { S2_Card, S2_CardContent, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from '@/components/ui/items'
 import { Link } from '@/components/ui/link'
@@ -23,6 +25,9 @@ import { getOrganization } from '@/server/organization'
 
 
 import { AssignedAssesseesCount_Card, AssignedSkillsCount_Card, RecordedChecksCount_Card } from './session-stats'
+import { SkillModule_SessionDropdownMenu } from './session-dropdown-menu'
+
+
 
 
 export async function generateMetadata(props: PageProps<'/orgs/[org_slug]/skills/sessions/[session_id]'>) {
@@ -61,11 +66,15 @@ export default async function SkillsModule_Session_Page(props: PageProps<'/orgs/
                             back to list
                         </TooltipContent>
                     </Tooltip>
-                    <S2_Button variant="outline" asChild>
-                        <Link to={Paths.org(organization.slug).skills.session(session.sessionId).update}>
-                            <EditIcon/> Edit
-                        </Link>
-                    </S2_Button>
+                    <ButtonGroup>
+                        <S2_Button variant="outline" asChild>
+                            <Link to={Paths.org(organization.slug).skills.session(session.sessionId).update}>
+                                <EditIcon/> Edit
+                            </Link>
+                        </S2_Button>
+                        <SkillModule_SessionDropdownMenu organization={organization} session={session} />
+                    </ButtonGroup>
+                    
                 </Lexington.ColumnControls>
                 <S2_Card>
                     <S2_CardHeader>
@@ -126,7 +135,7 @@ export default async function SkillsModule_Session_Page(props: PageProps<'/orgs/
                         </Link>
                     </Item>
                 </ItemGroup>
-                <div className="flex gap-2 justify-center">
+                <div className="flex gap-2 justify-center flex-wrap">
                     <AssignedAssesseesCount_Card organization={organization} sessionId={session.sessionId} />
                     <AssignedSkillsCount_Card organization={organization} sessionId={session.sessionId} />
                     <RecordedChecksCount_Card organization={organization} sessionId={session.sessionId} />

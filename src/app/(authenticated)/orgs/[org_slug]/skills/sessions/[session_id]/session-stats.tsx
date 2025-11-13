@@ -41,7 +41,7 @@ export function RecordedChecksCount_Card({ organization, sessionId }: { organiza
 
     return <StatItem>
         <StatItemValue loading={isLoading}>{data?.recordedChecksCount}</StatItemValue>
-        <StatItemTitle>Completed Checks</StatItemTitle>
-        <StatItemDescription>in this session</StatItemDescription>
+        <StatItemTitle>Checks</StatItemTitle>
+        <StatItemDescription>recorded in this session</StatItemDescription>
     </StatItem>
 }

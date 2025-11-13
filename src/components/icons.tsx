@@ -4,14 +4,17 @@
  */
 
 
-import { ArrowRightLeftIcon, BellIcon, BookOpenIcon, CableIcon, CheckCheckIcon, CheckIcon, ChevronRightIcon, CircleIcon, CircleUserRoundIcon, KeyRoundIcon, LayoutDashboardIcon, MoveLeftIcon, NotebookPenIcon, PackageIcon, PencilIcon, PencilRulerIcon, PlusIcon, PocketKnifeIcon, ScanEyeIcon, SettingsIcon, ShieldHalfIcon, SlashIcon, UsersIcon, WrenchIcon, XIcon } from 'lucide-react'
+import { ArrowRightLeftIcon, BellIcon, BookOpenIcon, CableIcon, CheckCheckIcon, CheckIcon, ChevronRightIcon, CircleIcon, CircleUserRoundIcon, CopyIcon, KeyRoundIcon, LayoutDashboardIcon, MoreVerticalIcon, MoveLeftIcon, NotebookPenIcon, PackageIcon, PencilIcon, PencilRulerIcon, PlusIcon, PocketKnifeIcon, ScanEyeIcon, SettingsIcon, ShieldHalfIcon, SlashIcon, TrashIcon, UsersIcon, WrenchIcon, XIcon } from 'lucide-react'
 
 export { 
     WrenchIcon as AdminModuleIcon,
     MoveLeftIcon as BackToListIcon,
     PlusIcon as CreateNewIcon,
     CableIcon as D4HModuleIcon,
+    TrashIcon as DeleteObjectIcon,
     BookOpenIcon as DocumentationIcon,
+    MoreVerticalIcon as DropdownMenuTriggerIcon,
+    CopyIcon as DuplicateObjectIcon,
     PencilIcon as EditIcon,
     ChevronRightIcon as ItemLinkActionIcon,
     NotebookPenIcon as NotesModuleIcon,

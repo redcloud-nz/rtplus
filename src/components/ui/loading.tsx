@@ -39,11 +39,17 @@ export function LoadingFallback({ className, ...props }: Omit<ComponentProps<'di
 
 export function PageLoadingSpinner({ className, message, ...props }: ComponentProps<'div'> & { message?: string }) {
     return <div className={cn("w-full h-[calc(100vh-var(--header-height))] flex items-center justify-center", className)} {...props}>
-        <div className="relative size-48 sm:size-80">
+        <RainbowSpinner className="size-48 sm:size-80" message={message}/>
+    </div>
+}
+
+
+export function RainbowSpinner({ className, message, ...props }: Omit<ComponentProps<'div'>, 'children'> & { message?: string }) {
+
+    return <div className={cn("relative size-48", className)} {...props}>
             <div className="absolute w-full aspect-square transform translate-x-[-50%] translate-y-[-50%] left-1/2 top-1/2 rounded-full animate-[spin_2s_linear_infinite] border-t-4 border-l-2 border-red-500" />
             <div className="absolute w-[95%] aspect-square transform translate-x-[-50%] translate-y-[-50%] left-1/2 top-1/2 rounded-full animate-[spin_4s_linear_infinite] border-t-4 border-l-2 border-green-500" />
             <div className="absolute w-[90%] aspect-square transform translate-x-[-50%] translate-y-[-50%] left-1/2 top-1/2 rounded-full animate-[spin_8s_linear_infinite] border-t-4 border-l-2 border-blue-500" />
             <div className="absolute w-[80%] transform translate-x-[-50%] translate-y-[-50%] left-1/2 top-1/2 text-lg text-center font-medium tracking-tight animate-pulse">{message}</div>
         </div>
-    </div>
 }
