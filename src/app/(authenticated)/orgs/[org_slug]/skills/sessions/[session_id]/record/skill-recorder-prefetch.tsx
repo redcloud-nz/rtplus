@@ -21,6 +21,7 @@ export function SkillRecorder_Session_Prefetch({ orgId, sessionId }: { orgId: Or
             queryClient.prefetchQuery(trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ orgId, sessionId })),
             queryClient.prefetchQuery(trpc.skillChecks.getSessionAssignedAssessors.queryOptions({ orgId, sessionId })),
             queryClient.prefetchQuery(trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ orgId, sessionId })),
+            queryClient.prefetchQuery(trpc.skillChecks.getSessionChecks.queryOptions({ orgId, sessionId })),
         ])
     }, [queryClient, orgId, sessionId])
 

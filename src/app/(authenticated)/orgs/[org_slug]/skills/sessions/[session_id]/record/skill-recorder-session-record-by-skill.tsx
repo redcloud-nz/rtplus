@@ -20,7 +20,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Paragraph } from '@/components/ui/typography'
 
 import { getAssignedSkills } from '@/hooks/use-assigned-skills'
-import { GetCheckReturn, useSkillCheckStore_experimental } from '@/hooks/use-skill-check-store'
+import { GetCheckReturn, useSkillCheckStore } from '@/hooks/use-skill-check-store'
 import { CompetenceLevel } from '@/lib/competencies'
 import { OrganizationData } from '@/lib/schemas/organization'
 import { PersonRef } from '@/lib/schemas/person'
@@ -31,10 +31,9 @@ import { trpc } from '@/trpc/client'
 
 
 
-
-
-
-
+/**
+ * Skill Recorder Tab that allows recording multiple skill checks by selecting a skill and then assessing all assessees for that skill.
+ */
 export function SkillRecorder_Session_RecordBySkill({ organization, session }: { organization: OrganizationData, session: SkillCheckSessionData }) {
 
     const { assignedAssessees, assignedSkills } = useSuspenseQueries({
@@ -49,7 +48,7 @@ export function SkillRecorder_Session_RecordBySkill({ organization, session }: {
     })
 
     const [targetSkillId, setTargetSkillId] = useState<SkillId | null>(null)
-    const skillCheckStore = useSkillCheckStore_experimental(organization.orgId, session.sessionId)
+    const skillCheckStore = useSkillCheckStore(organization.orgId, session.sessionId)
 
     return <FieldGroup className="py-4">
         <Field 
@@ -133,13 +132,14 @@ interface AssesseeRowProps {
     onValueChange: (value: { result: string, notes: string }) => void
 }
 
+/**
+ * Row for a single assessee in the by-skill recording view.
+ */
 function AssesseeRow({ assessee, disabled, check: value, onValueChange }: AssesseeRowProps) {
-    const resultChanged = value.savedValue ? value.result !== value.savedValue.result : true
     
     const [showNotes, setShowNotes] = useState(false)
 
     return <FieldGroup>
-    
         <Field orientation="horizontal">
             <FieldLabel>{assessee.name}</FieldLabel>
 
@@ -149,7 +149,6 @@ function AssesseeRow({ assessee, disabled, check: value, onValueChange }: Assess
                 prevValue={value.savedValue?.result as CompetenceLevel || null}
                 onValueChange={newValue => onValueChange({ ...value, result: newValue })} 
                 disabled={disabled}
-                
             />
 
             <S2_Button 

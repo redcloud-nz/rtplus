@@ -8,6 +8,7 @@
 
 import { useMemo, useState } from 'react'
 import { fromEntries, isEmpty, omit, pick, values } from 'remeda'
+import { z } from 'zod'
 
 import { useMutation, useQueryClient, useSuspenseQueries } from '@tanstack/react-query'
 
@@ -19,7 +20,7 @@ import { SkillCheckData, SkillCheckId, skillCheckSchema } from '@/lib/schemas/sk
 import { SkillCheckSessionId } from '@/lib/schemas/skill-check-session'
 
 import { trpc } from '@/trpc/client'
-import { z } from 'zod'
+
 
 
 
@@ -94,19 +95,23 @@ interface SkillCheckStore {
 }
 
 
-export function useSkillCheckStore_experimental(orgId: string, sessionId: SkillCheckSessionId): SkillCheckStore {
+export function useSkillCheckStore(orgId: string, sessionId: SkillCheckSessionId): SkillCheckStore {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
-    const queryKey = trpc.skillChecks.getSessionChecks.queryKey({ orgId, sessionId, assessorId: 'me' })
-    const queryFilter = trpc.skillChecks.getSessionChecks.queryFilter({ orgId, sessionId, assessorId: 'me' })
+    const queryKey = trpc.skillChecks.getSessionChecks.queryKey({ orgId, sessionId })
+    const queryFilter = trpc.skillChecks.getSessionChecks.queryFilter({ orgId, sessionId })
     
 
-    const [{ data: assessor }, { data: session }, { data: savedChecksArray }] = useSuspenseQueries({
+    const [
+        { data: assessor }, 
+        { data: session }, 
+        { data: savedChecksArray }
+    ] = useSuspenseQueries({
         queries: [
             trpc.personnel.getCurrentPerson.queryOptions({ orgId }),
             trpc.skillChecks.getSession.queryOptions({ orgId, sessionId }),
-            trpc.skillChecks.getSessionChecks.queryOptions({ orgId, sessionId, assessorId: 'me' })
+            trpc.skillChecks.getSessionChecks.queryOptions({ orgId, sessionId })
         ]
     })
 
@@ -114,8 +119,8 @@ export function useSkillCheckStore_experimental(orgId: string, sessionId: SkillC
 
     // A map of already saved checks for quick lookup
     const savedChecks = useMemo(() => 
-        fromEntries(savedChecksArray.map(check => [`${check.assesseeId}|${check.skillId}`, check])), 
-    [savedChecksArray])
+        fromEntries(savedChecksArray.filter(check => check.assessorId === assessor!.personId).map(check => [`${check.assesseeId}|${check.skillId}`, check])), 
+    [savedChecksArray, assessor])
 
     // Local state for modified checks
     const [modifiedChecks, setModifiedChecks] = useState<Record<`${string}|${string}`, CheckSaveData>>({})

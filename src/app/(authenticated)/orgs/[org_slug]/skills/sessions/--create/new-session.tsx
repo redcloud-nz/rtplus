@@ -52,7 +52,8 @@ export function SkillsModule_NewSession_Form({ organization }: { organization: O
     }))
 
     return <SkillsModule_SessionForm
-        cancelPath={Paths.org(organization.slug).skills.sessions}
+        mode="Create"
+        organization={organization}
         session={{ sessionId, name: '', date: formatISO(new Date(), { representation: 'date' }), notes: "", sessionStatus: 'Draft' }}
         onSubmit={async (data) => {
             await mutation.mutateAsync({ ...data, orgId: organization.orgId })

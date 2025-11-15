@@ -3,12 +3,12 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { CheckIcon } from 'lucide-react'
+import { CheckIcon, MinusIcon } from 'lucide-react'
+import { Checkbox as CheckboxPrimitive } from 'radix-ui'
 import * as React from 'react'
 
-import { Checkbox as CheckboxPrimitive } from 'radix-ui'
-
 import { cn } from '@/lib/utils'
+
 
 export function Checkbox({ className, ...props }:  React.ComponentPropsWithRef<typeof CheckboxPrimitive.Root>) {
     return <CheckboxPrimitive.Root
@@ -24,7 +24,10 @@ export function Checkbox({ className, ...props }:  React.ComponentPropsWithRef<t
         <CheckboxPrimitive.Indicator
             className={cn("flex items-center justify-center text-current")}
         >
-            <CheckIcon className="h-4 w-4" />
+            {props.checked == 'indeterminate'
+                ? <MinusIcon className="h-4 w-4" />
+                : <CheckIcon className="h-4 w-4" />
+            }
         </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
 }

@@ -7,11 +7,10 @@
 
 
 import { Lexington } from '@/components/blocks/lexington'
-import { BackToListIcon, DeleteObjectIcon, DropdownMenuTriggerIcon, DuplicateObjectIcon, EditIcon, ItemLinkActionIcon, SessionRecordIcon, SessionReviewIcon } from '@/components/icons'
+import { BackToListIcon, EditIcon, ItemLinkActionIcon, SessionRecordIcon, SessionReviewIcon } from '@/components/icons'
 import { S2_Button } from '@/components/ui/s2-button'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { S2_Card, S2_CardContent, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from '@/components/ui/items'
 import { Link } from '@/components/ui/link'
@@ -26,8 +25,6 @@ import { getOrganization } from '@/server/organization'
 
 import { AssignedAssesseesCount_Card, AssignedSkillsCount_Card, RecordedChecksCount_Card } from './session-stats'
 import { SkillModule_SessionDropdownMenu } from './session-dropdown-menu'
-
-
 
 
 export async function generateMetadata(props: PageProps<'/orgs/[org_slug]/skills/sessions/[session_id]'>) {
@@ -93,6 +90,10 @@ export default async function SkillsModule_Session_Page(props: PageProps<'/orgs/
                             <Field orientation='responsive'>
                                 <FieldLabel>Date</FieldLabel>
                                 <S2_Value value={formatDate(session.date)} className="min-w-1/2"/>
+                            </Field>
+                            <Field orientation="responsive">
+                                <FieldLabel>Notes</FieldLabel>
+                                <S2_Value value={session.notes} className="min-w-1/2"/>
                             </Field>
                             <Field orientation='responsive'>
                                 <FieldLabel>Status</FieldLabel>

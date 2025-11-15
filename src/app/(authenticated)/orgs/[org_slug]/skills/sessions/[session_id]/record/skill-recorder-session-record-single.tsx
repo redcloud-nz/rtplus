@@ -9,9 +9,6 @@ import { pick } from 'remeda'
 
 import { useMutation, useQueryClient, useSuspenseQueries } from '@tanstack/react-query'
 
-import { Show } from '@/components/show'
-
-
 import { CompetenceLevelRadioGroup } from '@/components/controls/competence-level-radio-group'
 import { S2_Button } from '@/components/ui/s2-button'
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field'
@@ -31,7 +28,6 @@ import { trpc } from '@/trpc/client'
 
 
 
-
 type RecordingState = {
     prevData: SkillCheckData | null
     target: { assesseeId: PersonId | null, skillId: SkillId | null }
@@ -48,6 +44,9 @@ const EmptyRecordingState: RecordingState = {
     reset: false
 }
 
+/**
+ * Skill Recorder Tab that allows recording a single skill check at a time by selecting both assessee and skill.
+ */
 export function SkillRecorder_Session_RecordSingle({ organization, session }: { organization: OrganizationData, session: SkillCheckSessionData }) {
 
     const queryClient = useQueryClient()
@@ -64,7 +63,7 @@ export function SkillRecorder_Session_RecordSingle({ organization, session }: { 
             trpc.personnel.getCurrentPerson.queryOptions({ orgId: organization.orgId }),
             trpc.skills.getAvailablePackages.queryOptions({ orgId: organization.orgId }),
             trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId }),
-            trpc.skillChecks.getSessionChecks.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId, assessorId: 'me' }),
+            trpc.skillChecks.getSessionChecks.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId }),
             trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId })
         ]
     })
@@ -79,7 +78,7 @@ export function SkillRecorder_Session_RecordSingle({ organization, session }: { 
 
         if (assesseeId && skillId) {
             // Both assessee and skill are selected
-            const existingCheck = existingChecks.find(c => c.assesseeId === assesseeId && c.skillId === skillId)
+            const existingCheck = existingChecks.find(c => c.assesseeId === assesseeId && c.skillId === skillId && c.assessorId === assessor!.personId)
             if(existingCheck) {
                 // We have an existing check for this combination
                 setState(({ 
@@ -117,7 +116,7 @@ export function SkillRecorder_Session_RecordSingle({ organization, session }: { 
     }
 
     const queryKey = trpc.skillChecks.getSessionChecks.queryKey({ sessionId: session.sessionId, assessorId: 'me' })
-    const queryFilter = trpc.skillChecks.getSessionChecks.queryFilter({ sessionId: session.sessionId, assessorId: 'me' })
+    const queryFilter = trpc.skillChecks.getSessionChecks.queryFilter({ sessionId: session.sessionId })
 
 
     const mutation = useMutation(trpc.skillChecks.saveSessionCheck.mutationOptions({
@@ -212,18 +211,20 @@ export function SkillRecorder_Session_RecordSingle({ organization, session }: { 
             
             {state.data != null && (
                 state.reset 
-                ? <>
+                ? <> {/* After saving a check, the form goes to a reset state to shortcut the next entry. */}
                     <Field orientation="horizontal" className="justify-center">
                         <S2_Button onClick={() => handleReset({ target: { skillId: state.target.skillId } })}>Next Assessee</S2_Button>
                         <S2_Button onClick={() => handleReset({ target: { assesseeId: state.target.assesseeId } })}>Next Skill</S2_Button>
                         <S2_Button variant="outline" onClick={() => handleReset()}>Clear</S2_Button>
                     </Field>
                 </>
-                : <>
+                : <FieldGroup> {/* Show the competency level and comment inputs only if an assessee and skill are selected. */}
+                   
                      <Field orientation="responsive">
                         <FieldLabel>Skill Description</FieldLabel>
                         <Paragraph className='min-w-1/2'>{skill?.description}</Paragraph>
                     </Field>
+
                     <FieldSeparator />
                     
                     <Field orientation="responsive">
@@ -237,6 +238,7 @@ export function SkillRecorder_Session_RecordSingle({ organization, session }: { 
                             onValueChange={newValue => handleUpdateFormData({ result: newValue, notes: state.data?.notes || '' })}
                         />
                     </Field>
+
                     <Field orientation="responsive">
                         <FieldContent>
                             <FieldLabel>Assessor Comments</FieldLabel>
@@ -261,7 +263,7 @@ export function SkillRecorder_Session_RecordSingle({ organization, session }: { 
                             onClick={() => handleReset()}
                         >Clear</S2_Button>
                     </Field>
-                </>
+                </FieldGroup>
             )}
         </FieldGroup>
     </form>

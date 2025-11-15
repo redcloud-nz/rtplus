@@ -17,13 +17,12 @@ import { CompetenceLevelRadioGroup } from '@/components/controls/competence-leve
 import { Button } from '@/components/ui/button'
 import { S2_Button } from '@/components/ui/s2-button'
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-
+import { S2_Select, S2_SelectContent, S2_SelectItem, S2_SelectTrigger, S2_SelectValue } from '@/components/ui/s2-select'
 import { Textarea } from '@/components/ui/textarea'
 import { Paragraph } from '@/components/ui/typography'
 
 import { getAssignedSkills } from '@/hooks/use-assigned-skills'
-import { GetCheckReturn, useSkillCheckStore_experimental } from '@/hooks/use-skill-check-store'
+import { GetCheckReturn, useSkillCheckStore } from '@/hooks/use-skill-check-store'
 import { CompetenceLevel } from '@/lib/competencies'
 import { OrganizationData } from '@/lib/schemas/organization'
 import { PersonId } from '@/lib/schemas/person'
@@ -31,13 +30,12 @@ import { SkillData } from '@/lib/schemas/skill'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
 import { cn } from '@/lib/utils'
 import { trpc } from '@/trpc/client'
-import { S2_Select, S2_SelectContent, S2_SelectItem, S2_SelectTrigger, S2_SelectValue } from '@/components/ui/s2-select'
 
 
 
-
-
-
+/**
+ * Skill Recorder Tab that allows recording multiple skill checks by selecting an assessee and then assessing all skills for that assessee.
+ */
 export function SkillRecorder_Session_RecordByAssessee({ organization, session }: { organization: OrganizationData, session: SkillCheckSessionData }) {
 
     const [{ data: availablePackages }, { data: assignedAssessees }, { data: assignedSkillIds }] = useSuspenseQueries({
@@ -51,7 +49,7 @@ export function SkillRecorder_Session_RecordByAssessee({ organization, session }
     const assignedSkills = useMemo(() => getAssignedSkills(availablePackages, assignedSkillIds), [availablePackages, assignedSkillIds])
 
     const [targetAssesseeId, setTargetAssesseeId] = useState<PersonId | null>(null)
-    const skillCheckStore = useSkillCheckStore_experimental(organization.orgId, session.sessionId)
+    const skillCheckStore = useSkillCheckStore(organization.orgId, session.sessionId)
 
     return <FieldGroup className="py-4">
         <Field 
@@ -137,12 +135,12 @@ interface SkillRowProps {
     onValueChange: (value: { result: string, notes: string }) => void
 }
 
+/**
+ * Row for a single skill in the by-assessee recording view.
+ */
 function SkillRow({ skill, disabled, savedValue: value, onValueChange }: SkillRowProps) {
-    const resultChanged = value.savedValue ? value.result !== value.savedValue.result : true
 
     const [showNotes, setShowNotes] = useState(false)
-
-    
 
     return <FieldGroup>
         <Field orientation="horizontal">

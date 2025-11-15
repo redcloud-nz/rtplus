@@ -25,8 +25,9 @@ import { trpc } from '@/trpc/client'
 
 
 
-
-
+/**
+ * Skill Recorder Tab that allows managing the skills assigned to a skill check session.
+ */
 export function SkillRecorder_Session_Skills({ organization, session }: { organization: OrganizationData, session: SkillCheckSessionData }) {
     const queryClient = useQueryClient()
     const { toast } = useToast()

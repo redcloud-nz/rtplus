@@ -50,7 +50,8 @@ export function SkillsModule_UpdateSession_Form({ organization, session }: { org
     }))
 
     return <SkillsModule_SessionForm
-        cancelPath={skillsPath.session(session.sessionId)}
+        mode="Update"
+        organization={organization}
         session={session}
         onSubmit={async (data) => {
             await mutation.mutateAsync({ ...data, orgId: organization.orgId })

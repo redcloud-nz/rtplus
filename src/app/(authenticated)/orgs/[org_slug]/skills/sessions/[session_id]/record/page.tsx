@@ -11,6 +11,7 @@ import { Lexington } from '@/components/blocks/lexington'
 import { Boundary } from '@/components/boundary'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Paragraph } from '@/components/ui/typography'
 
 import { TITLE_SEPARATOR } from '@/lib/utils'
 import * as Paths from '@/paths'
@@ -27,7 +28,7 @@ import { SkillRecorder_Session_Prefetch } from './skill-recorder-prefetch'
 import { SkillRecorder_Session_RecordSingle } from './skill-recorder-session-record-single'
 import { SkillRecorder_Session_Skills } from './skill-recorder-session-skills'
 import { SkillRecorder_Session_Transcript } from './skill-recorder-session-transcript'
-import { Paragraph } from '@/components/ui/typography'
+
 
 
 
@@ -143,9 +144,6 @@ export default async function SkillsModule_SessionRecord_Page(props: PageProps<'
                     
                 </Tabs>
             </Lexington.Column>
-            {/* <Lexington.Column width="xs">
-                Side Column
-            </Lexington.Column> */}
         </Lexington.Page>
     </Lexington.Root>
 }

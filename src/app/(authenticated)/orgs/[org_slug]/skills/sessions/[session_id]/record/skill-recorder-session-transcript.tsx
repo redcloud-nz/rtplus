@@ -18,38 +18,39 @@ import { S2_Select, S2_SelectContent, S2_SelectItem, S2_SelectTrigger, S2_Select
 import { CompetenceLevel, CompetenceLevelIndicator, CompetenceLevels, CompetenceLevelTerms } from '@/lib/competencies'
 import { OrganizationData } from '@/lib/schemas/organization'
 import { SkillCheckSessionData } from '@/lib/schemas/skill-check-session'
-import { trpc } from '@/trpc/client'
 import { toPercentage } from '@/lib/utils'
 
+import { trpc } from '@/trpc/client'
 
 
 
-
-
-
-
-
+/**
+ * Skill Recorder Tab that shows a transcript of recorded skill checks for a session.
+ */
 export function SkillRecorder_Session_Transcript({ organization, session }: { organization: OrganizationData, session: SkillCheckSessionData }) {
 
     const [
+        { data: currentPerson },
         { data: availablePackages }, 
         { data: assignedAssessees }, 
         { data: assignedSkillIds },
         { data: checks },
     ] = useSuspenseQueries({
         queries: [
+            trpc.personnel.getCurrentPerson.queryOptions({ orgId: organization.orgId }),
             trpc.skills.getAvailablePackages.queryOptions({ orgId: organization.orgId }),
             trpc.skillChecks.getSessionAssignedAssessees.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId }),
             trpc.skillChecks.getSessionAssignedSkillIds.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId }),
-            trpc.skillChecks.getSessionChecks.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId, assessorId: 'me' }),
+            trpc.skillChecks.getSessionChecks.queryOptions({ orgId: organization.orgId, sessionId: session.sessionId }),
         ],
     })
 
     const skills = useMemo(() => availablePackages.flatMap(pkg => pkg.skills), [availablePackages])
     const assignedSkills = useMemo(() => skills.filter(skill => assignedSkillIds.includes(skill.skillId)), [skills, assignedSkillIds])
+    const checksByUser = useMemo(() => checks.filter(check => check.assessorId === currentPerson!.personId), [checks, currentPerson])
 
-    const [usedAssessees, unusedAssessees] = useMemo(() => partition(assignedAssessees, assessee => checks.some(check => check.assesseeId === assessee.personId)), [assignedAssessees, checks])
-    const [usedSkills, unusedSkills] = useMemo(() => partition(assignedSkills, skill => checks.some(check => check.skillId === skill.skillId)), [assignedSkills, checks])
+    const [usedAssessees, unusedAssessees] = useMemo(() => partition(assignedAssessees, assessee => checksByUser.some(check => check.assesseeId === assessee.personId)), [assignedAssessees, checksByUser])
+    const [usedSkills, unusedSkills] = useMemo(() => partition(assignedSkills, skill => checksByUser.some(check => check.skillId === skill.skillId)), [assignedSkills, checksByUser])
 
     const [displayMode, setDisplayMode] = useState<{ assessor: 'all' | 'me', groupBy: 'assessee' | 'skill' }>({ assessor: 'me', groupBy: 'assessee' })
 
@@ -95,7 +96,7 @@ export function SkillRecorder_Session_Transcript({ organization, session }: { or
             .with({ groupBy: 'assessee' }, () => <>
                 <ul className="flex flex-col gap-2">
                     {usedAssessees.map(assessee => {
-                        const checksForAssessee = checks
+                        const checksForAssessee = checksByUser
                             .filter(c => c.assesseeId === assessee.personId)
                             .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
 
@@ -136,7 +137,7 @@ export function SkillRecorder_Session_Transcript({ organization, session }: { or
             .with({ groupBy: 'skill' }, () => <>
                 <ul className="flex flex-col gap-2">
                     {usedSkills.map(skill => {
-                        const checksForSkill = checks
+                        const checksForSkill = checksByUser
                             .filter(c => c.skillId === skill.skillId)
                             .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
 

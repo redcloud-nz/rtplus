@@ -10,7 +10,6 @@ import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
 
 import { BackToListIcon } from '@/components/icons'
-import { S2_Card, S2_CardContent, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { S2_Button } from '@/components/ui/s2-button'
 import { Link } from '@/components/ui/link'
@@ -51,16 +50,7 @@ export default async function SkillsModule_NewSession_Page(props: PageProps<'/or
                         </TooltipContent>
                     </Tooltip>
                 </Lexington.ColumnControls>
-                <S2_Card>
-                    <S2_CardHeader>
-                        <S2_CardTitle>
-                            New Skill Check Session
-                        </S2_CardTitle>
-                    </S2_CardHeader>
-                    <S2_CardContent>
-                        <SkillsModule_NewSession_Form organization={organization} />
-                    </S2_CardContent>
-                </S2_Card>
+                <SkillsModule_NewSession_Form organization={organization} />
             </Lexington.Column>
         </Lexington.Page>
     </Lexington.Root>

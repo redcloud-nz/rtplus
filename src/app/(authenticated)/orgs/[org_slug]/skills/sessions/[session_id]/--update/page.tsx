@@ -17,7 +17,7 @@ import { fetchSkillCheckSession } from '@/server/fetch'
 import { getOrganization } from '@/server/organization'
 
 import { SkillsModule_UpdateSession_Form } from './update-session'
-import { S2_Card, S2_CardContent, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
+
 
 export async function generateMetadata(props: PageProps<'/orgs/[org_slug]/skills/sessions/[session_id]/--update'>) {
     const { org_slug: orgSlug, session_id: sessionId } = await props.params
@@ -47,24 +47,17 @@ export default async function SkillsModule_SessionUpdate_Page(props: PageProps<'
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <S2_Button variant="outline" asChild>
-                                <Link to={skillsPath.sessions}>
-                                    <BackToListIcon/> List
+                                <Link to={skillsPath.session(session.sessionId)}>
+                                    <BackToListIcon/> Session
                                 </Link>
                             </S2_Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                            back to sessions list
+                            back to session
                         </TooltipContent>
                     </Tooltip>
                 </Lexington.ColumnControls>
-                <S2_Card>
-                    <S2_CardHeader>
-                        <S2_CardTitle>Update Skill Check Session</S2_CardTitle>
-                    </S2_CardHeader>
-                    <S2_CardContent>
-                        <SkillsModule_UpdateSession_Form organization={organization} session={session} />
-                    </S2_CardContent>
-                </S2_Card>
+                <SkillsModule_UpdateSession_Form organization={organization} session={session} />
             </Lexington.Column>
         </Lexington.Page>
     </Lexington.Root>
