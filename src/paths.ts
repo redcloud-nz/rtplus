@@ -129,8 +129,17 @@ function adminModule(org_slug: string) {
                 teamMemberships: {
                     label: 'Team Memberships',
                     href: `${personBase}/team-memberships`,
-                    create: `${personBase}/team-memberships/--create`,
+                    
+                    create: {
+                        label: 'Add Team Membership',
+                        href: `${personBase}/team-memberships/--create`,
+                    },
                 },
+
+                update: {
+                    label: 'Update',
+                    href: `${personBase}/--update`,
+                }
             } as const
         },
         personnel: {
@@ -166,6 +175,15 @@ function adminModule(org_slug: string) {
                 members: {
                     label: 'Members',
                     href: `${teamBase}/members`,
+
+                    create: {
+                        label: 'Add Member',
+                        href: `${teamBase}/members/--create`,
+                    },
+                },
+                update: {
+                    label: 'Update',
+                    href: `${teamBase}/--update`,    
                 }
             } as const
         },

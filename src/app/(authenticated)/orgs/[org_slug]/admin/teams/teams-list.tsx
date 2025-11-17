@@ -8,25 +8,21 @@ import { PlusIcon } from 'lucide-react'
 import { useMemo } from 'react'
 
 import { Protect } from '@clerk/nextjs'
-import { useQuery} from '@tanstack/react-query'
-import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import Artie from '@/components/art/artie'
-import { Button, RefreshButton } from '@/components/ui/button'
-import { Card, CardActions, CardContent, CardExplanation, CardHeader } from '@/components/ui/card'
-import { DataTableBody, DataTableHead, DataTableFooter, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
+import { Akagi } from '@/components/blocks/akagi'
+import { Lexington } from '@/components/blocks/lexington'
+import { Show } from '@/components/show'
+import { Button } from '@/components/ui/button'
 import { Link, TextLink } from '@/components/ui/link'
-import { PageLoadingSpinner } from '@/components/ui/loading'
-import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { Table } from '@/components/ui/table'
-import { Paragraph } from '@/components/ui/typography'
 
 import { OrganizationData } from '@/lib/schemas/organization'
 import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
+import { S2_Button } from '@/components/ui/s2-button'
 
 
 
@@ -35,58 +31,53 @@ type RowData = TeamData & { _count: { teamMemberships: number } }
 
 export function AdminModule_TeamsList({ organization }: { organization: OrganizationData }) {
 
-    const teamsQuery = useQuery(trpc.teams.getTeams.queryOptions({ orgId: organization.orgId }))
+    const { data: teams} = useSuspenseQuery(trpc.teams.getTeams.queryOptions({ orgId: organization.orgId }))
 
-    async function handleRefresh() {
-        await teamsQuery.refetch()
-    }
 
-    const columns = useMemo(() => defineColumns<RowData>(columnHelper => [
+    const columns = useMemo(() => Akagi.defineColumns<RowData>(columnHelper => [
     columnHelper.accessor('teamId', {
-        header: 'ID',
-        cell: ctx => ctx.getValue(),
-        enableHiding: true,
+        header: ctx => <Akagi.TableHeader header={ctx.header} className="w-20">ID</Akagi.TableHeader>,
+        cell: ctx => <Akagi.TableCell cell={ctx.cell} className="w-20">
+            <TextLink to={Paths.org(organization.slug).admin.team(ctx.row.original.teamId)}>{ctx.getValue()}</TextLink>
+        </Akagi.TableCell>,
         enableSorting: false,
         enableGlobalFilter: false,
     }),
     columnHelper.accessor('name', {
-        header: 'Name',
-        cell: ctx => <TextLink to={Paths.org(organization.slug).admin.team(ctx.row.original.teamId)}>{ctx.getValue()}</TextLink>,
-        enableHiding: false
+        header: ctx => <Akagi.TableHeader header={ctx.header} className="min-w-1/3">Name</Akagi.TableHeader>,
+        cell: ctx => <Akagi.TableCell cell={ctx.cell} className="min-w-1/3">{ctx.getValue()}</Akagi.TableCell>,
+        enableSorting: true,
+        enableGlobalFilter: true,
     }),
     columnHelper.accessor('_count.teamMemberships', {
         id: 'teamMemberCount',
-        header: 'Members',
-        cell: ctx => ctx.getValue(),
+        header: ctx => <Akagi.TableHeader header={ctx.header}>Members</Akagi.TableHeader>,
+        cell: ctx => <Akagi.TableCell cell={ctx.cell}>{ctx.getValue()}</Akagi.TableCell>,
         enableSorting: true,
         enableGlobalFilter: false,
     }),
     columnHelper.accessor('status', {
         id: 'status',
-        header: 'Status',
-        cell: ctx => ctx.getValue(),
-        enableSorting: false,
+        header: ctx => <Akagi.TableHeader 
+            header={ctx.header}
+            filterOptions={['Active', 'Inactive']}
+            className="w-[100px]"
+        >Status</Akagi.TableHeader>,
+        cell: ctx => <Akagi.TableCell cell={ctx.cell}>{ctx.getValue()}</Akagi.TableCell>,
+        enableColumnFilter: true,
         enableGlobalFilter: false,
         filterFn: 'arrIncludesSome',
-        meta: {
-            enumOptions: { Active: 'Active', Inactive: 'Inactive' },
-        }
     }),
 ]), [])
 
     const table = useReactTable<RowData>({
         columns,
-        data: teamsQuery.data ?? [],
+        data: teams,
         getCoreRowModel: getCoreRowModel(),
-        getExpandedRowModel: getExpandedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
-        getGroupedRowModel: getGroupedRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         initialState: {
-            columnVisibility: {
-                teamId: false, name: true, shortName: true, teamMemberCount: true, status: true
-            },
             columnFilters: [
                 { id: 'status', value: ['Active'] }
             ],
@@ -95,77 +86,41 @@ export function AdminModule_TeamsList({ organization }: { organization: Organiza
             sorting: [
                 { id: 'name', desc: false }
             ],
-            pagination: {
-                pageIndex: 0,
-                pageSize: 20
-            },
+            pagination: { pageIndex: 0, pageSize: 20 },
         }
     })
 
-    if(teamsQuery.isLoading) return <PageLoadingSpinner message="Loading Teams"/>
+    return <Show
+        when={teams.length > 0}
+        fallback={<Lexington.Empty title="No Teams Yet" description="There are no teams defined for your organisation. Get started by adding one.">
+            <Protect role="org:admin">
+                <S2_Button asChild>
+                    <Link to={Paths.org(organization.slug).admin.teams.create}>
+                        <PlusIcon/>
+                        New Team
+                    </Link>
+                </S2_Button>
+            </Protect>
+        </Lexington.Empty>}
+    >
+        <Lexington.ColumnControls>
+            <Akagi.TableSearch table={table} />
+            <Protect role="org:admin">
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <S2_Button asChild>
+                            <Link to={Paths.org(organization.slug).admin.teams.create}>
+                                <PlusIcon/> <span className="hidden md:inline">New Team</span>
+                            </Link>
+                        </S2_Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        Create a new team
+                    </TooltipContent>
+                </Tooltip>
+            </Protect>
+        </Lexington.ColumnControls>
 
-    if(teamsQuery.data && teamsQuery.data.length == 0) return <Empty>
-            <EmptyHeader>
-                <EmptyMedia>
-                    <Artie pose="Empty"/>
-                </EmptyMedia>
-                <EmptyTitle>No Teams Yet</EmptyTitle>
-                <EmptyDescription>
-                    There are no teams defined for your organisation.
-                    <Protect role="org:admin" fallback=" Ask your administrator to add one."> Get started by adding one.</Protect>
-                </EmptyDescription>
-            </EmptyHeader>
-            <EmptyContent>
-                <Protect role="org:admin">
-                    <Button asChild>
-                        <Link to={Paths.org(organization.slug).admin.teams.create}>
-                            <PlusIcon/>
-                            Add Team
-                        </Link>
-                    </Button>
-                </Protect>
-            </EmptyContent>
-        </Empty>
-
-    return <DataTableProvider value={table}>
-        <Card>
-            <CardHeader>
-                <DataTableSearch size="sm" variant="ghost"/>
-                <CardActions>
-                    <Protect role="org:admin">
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" asChild>
-                                    <Link to={Paths.org(organization.slug).admin.teams.create}>
-                                        <PlusIcon />
-                                    </Link>
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                Create New Team
-                            </TooltipContent>
-                        </Tooltip>
-                    </Protect>
-                    
-
-                    <RefreshButton onClick={handleRefresh}/>
-                    <TableOptionsDropdown/>
-                    <Separator orientation="vertical"/>
-
-                    <CardExplanation>
-                        <Paragraph>This is a list of all the teams in your organisation.</Paragraph>
-                    </CardExplanation>
-                </CardActions>
-                
-            </CardHeader>
-            <CardContent>
-                <Table>
-                    <DataTableHead/>
-                    <DataTableBody/>
-                    <DataTableFooter variant="pagination"/>
-                </Table>
-            </CardContent>
-        </Card>
-    </DataTableProvider>
-    
+        <Akagi.Table table={table} />
+    </Show>
 }

@@ -66,50 +66,6 @@ export function SkillModule_SkillCheckSessionsList({ organization }: { organizat
             enableSorting: false,
             filterFn: 'arrIncludesSome',
         }),
-        // columnHelper.display({
-        //     id: 'actions',
-        //     header: ctx => <Akagi.TableHeader header={ctx.header} showAbove="md">Actions</Akagi.TableHeader>,
-        //     cell: ctx => <Akagi.TableCell cell={ctx.cell} showAbove="md" className="p-0 [&>[data-slot=button]]:ml-2 w-30">
-        //         <Tooltip>
-        //             <TooltipTrigger asChild>
-        //                  <S2_Button variant="ghost" size="icon-sm" asChild>
-        //                     <Link to={Paths.org(organization.slug).skills.session(ctx.row.original.sessionId).update}>
-        //                         <EditIcon/>
-        //                     </Link>
-        //                 </S2_Button>
-        //             </TooltipTrigger>
-        //             <TooltipContent>
-        //                 Edit session details
-        //             </TooltipContent>
-        //         </Tooltip>
-               
-        //        <Tooltip>
-        //             <TooltipTrigger asChild>
-        //                 <S2_Button variant="ghost" size="icon-sm" asChild>
-        //                     <Link to={Paths.org(organization.slug).skills.session(ctx.row.original.sessionId)}>
-        //                         <PencilRulerIcon/>
-        //                     </Link>
-        //                 </S2_Button>
-        //             </TooltipTrigger>
-        //             <TooltipContent>
-        //                 Configure and record skill checks
-        //             </TooltipContent>
-        //        </Tooltip>
-        //        <Tooltip>
-        //             <TooltipTrigger asChild>
-        //                 <S2_Button variant="ghost" size="icon-sm" asChild>
-        //                     <Link to={Paths.org(organization.slug).skills.session(ctx.row.original.sessionId).review}>
-        //                         <ScanEyeIcon/>
-        //                     </Link>
-        //                 </S2_Button>
-        //             </TooltipTrigger>
-        //             <TooltipContent>
-        //                 Review session results
-        //             </TooltipContent>
-        //        </Tooltip>
-                
-        //     </Akagi.TableCell>,
-        // })
     ]), [])
 
     const table = useReactTable({

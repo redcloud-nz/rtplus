@@ -13,7 +13,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { useToast } from '@/hooks/use-toast'
 import { OrganizationData } from '@/lib/schemas/organization'
-import { SkillCheckSessionId, skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
+import { SkillCheckSessionId} from '@/lib/schemas/skill-check-session'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
@@ -29,10 +29,6 @@ export function SkillsModule_NewSession_Form({ organization }: { organization: O
 
 
     const mutation = useMutation(trpc.skillChecks.createSession.mutationOptions({
-        async onMutate(data) {
-
-            const newSession = skillCheckSessionSchema.parse(data)
-        },
         onError(error) {
              toast({
                 title: "Error creating session",

@@ -11,6 +11,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { S2_DatePicker } from '@/components/controls/s2-date-picker'
+import { S2_Card, S2_CardContent, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
 import { S2_Textarea } from '@/components/ui/s2-textarea'
 import { S2_Input } from '@/components/ui/s2-input'
 
@@ -22,7 +23,7 @@ import { S2_Value } from '@/components/ui/s2-value'
 import { OrganizationData } from '@/lib/schemas/organization'
 import { SkillCheckSessionData, skillCheckSessionSchema } from '@/lib/schemas/skill-check-session'
 import * as Paths from '@/paths'
-import { S2_Card, S2_CardContent, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
+
 
 
 
@@ -140,10 +141,20 @@ export function SkillsModule_SessionForm({ mode, organization, onSubmit, session
                     />
 
                     <Field orientation="horizontal">
-                        <S2_Button type="submit" disabled={!form.formState.isDirty || isPending} form="skill-check-session-form">
+                        <S2_Button 
+                            type="submit"
+                            disabled={!form.formState.isDirty || isPending} 
+                            form="skill-check-session-form"
+                        >
                             {mode === 'Create' ? 'Create' : 'Save'}
                         </S2_Button>
-                        <S2_Button type="button" variant="outline" disabled={isPending} onClick={() => form.reset() } asChild>
+                        <S2_Button 
+                            type="button"
+                            variant="outline"
+                            disabled={isPending} 
+                            onClick={() => form.reset() } 
+                            asChild
+                        >
                             <Link to={mode === 'Create' ? Paths.org(organization.slug).skills.sessions : Paths.org(organization.slug).skills.session(session.sessionId)}>
                                 Cancel
                             </Link>

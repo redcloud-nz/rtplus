@@ -7,13 +7,11 @@
 
 import { Metadata } from 'next'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
-import { Boundary } from '@/components/boundary'
+import { Lexington } from '@/components/blocks/lexington'
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
 
 import { AdminModule_TeamsList } from './teams-list'
-
 
 
 export const metadata: Metadata = { title: "Teams" }
@@ -23,16 +21,16 @@ export default async function AdminModule_TeamsList_Page(props: PageProps<'/orgs
     const { org_slug: orgSlug } = await props.params
     const organization = await getOrganization(orgSlug)
 
-    return <AppPage>
-            <AppPageBreadcrumbs breadcrumbs={[
+    return <Lexington.Root>
+            <Lexington.Header breadcrumbs={[
                 Paths.org(orgSlug).admin, 
                 Paths.org(orgSlug).admin.teams
             ]}/>
-            <AppPageContent variant="container">
-                <Boundary>
+            <Lexington.Page>
+                <Lexington.Column width="xl">
                     <AdminModule_TeamsList organization={organization}/>
-                </Boundary>
-            </AppPageContent>
+                </Lexington.Column>
+            </Lexington.Page>
            
-        </AppPage>
+        </Lexington.Root>
 }

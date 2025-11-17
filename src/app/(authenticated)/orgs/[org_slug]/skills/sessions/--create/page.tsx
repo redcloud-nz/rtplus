@@ -9,7 +9,7 @@ import { Lexington } from '@/components/blocks/lexington'
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
 
-import { BackToListIcon } from '@/components/icons'
+import { ToParentPageIcon } from '@/components/icons'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { S2_Button } from '@/components/ui/s2-button'
 import { Link } from '@/components/ui/link'
@@ -41,7 +41,7 @@ export default async function SkillsModule_NewSession_Page(props: PageProps<'/or
                         <TooltipTrigger asChild>
                             <S2_Button variant="outline" asChild>
                                 <Link to={skillsPath.sessions}>
-                                    <BackToListIcon/> List
+                                    <ToParentPageIcon/> List
                                 </Link>
                             </S2_Button>
                         </TooltipTrigger>

@@ -7,12 +7,12 @@
 
 import { Metadata } from 'next'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
-import { Boundary } from '@/components/boundary'
+import { Lexington } from '@/components/blocks/lexington'
 import * as Paths from '@/paths'
 
-import { AdminModule_PersonnelList } from './personnel-list' 
 import { getOrganization } from '@/server/organization'
+
+import { AdminModule_PersonnelList } from './personnel-list' 
 
 
 export const metadata: Metadata = { title: "Personnel" }
@@ -22,18 +22,17 @@ export default async function AdminModule_PersonnelList_Page(props: PageProps<'/
     const { org_slug } = await props.params
     const organization = await getOrganization(org_slug)
 
-    return <AppPage>
-        <AppPageBreadcrumbs 
+    return <Lexington.Root>
+        <Lexington.Header
             breadcrumbs={[
                 Paths.org(org_slug).admin, 
                 Paths.org(org_slug).admin.personnel
             ]}
         />
-        <AppPageContent variant="container">
-            <Boundary>
+        <Lexington.Page>
+            <Lexington.Column width="xl">
                 <AdminModule_PersonnelList organization={organization}/>
-            </Boundary>
-            
-        </AppPageContent>
-    </AppPage>
+            </Lexington.Column>
+        </Lexington.Page>
+    </Lexington.Root>
 }

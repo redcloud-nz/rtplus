@@ -13,10 +13,12 @@ import { diffObject } from '@/lib/diff'
 import { PersonId, personSchema, toPersonData } from '@/lib/schemas/person'
 import { UserId } from '@/lib/schemas/user'
 import { recordStatusParameterSchema } from '@/lib/validation'
+import { revalidatePerson } from '@/server/person'
 
 import { AuthenticatedOrgContext, createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
 import { Messages } from '../messages'
 import { FieldConflictError } from '../types'
+
 
 
 
@@ -220,6 +222,8 @@ export const personnelRouter = createTRPCRouter({
                     }
                 }
             })
+
+            revalidatePerson(personId)
 
             return toPersonData(updated)
         }),

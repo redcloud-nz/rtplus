@@ -106,6 +106,7 @@ export async function fetchSkillPackage({ orgId, skillPackageId }: { orgId: Orga
         })
 }
 
+
 /**
  * Fetch a team membership by its person ID and team ID through the TRPC query client to ensure the data is available for both server and client components.
  * 

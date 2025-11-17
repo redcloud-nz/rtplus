@@ -7,7 +7,7 @@
 
 
 import { Lexington } from '@/components/blocks/lexington'
-import { BackToListIcon, EditIcon, ItemLinkActionIcon, SessionRecordIcon, SessionReviewIcon } from '@/components/icons'
+import { ToParentPageIcon, EditIcon, ItemLinkActionIcon, SessionRecordIcon, SessionReviewIcon } from '@/components/icons'
 import { S2_Button } from '@/components/ui/s2-button'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { S2_Card, S2_CardContent, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
@@ -21,7 +21,6 @@ import { formatDate, TITLE_SEPARATOR } from '@/lib/utils'
 import * as Paths from '@/paths'
 import { fetchSkillCheckSession } from '@/server/fetch'
 import { getOrganization } from '@/server/organization'
-
 
 import { AssignedAssesseesCount_Card, AssignedSkillsCount_Card, RecordedChecksCount_Card } from './session-stats'
 import { SkillModule_SessionDropdownMenu } from './session-dropdown-menu'
@@ -55,12 +54,12 @@ export default async function SkillsModule_Session_Page(props: PageProps<'/orgs/
                         <TooltipTrigger asChild>
                             <S2_Button variant="outline" asChild>
                                 <Link to={Paths.org(organization.slug).skills.sessions}>
-                                    <BackToListIcon/> List
+                                    <ToParentPageIcon/> List
                                 </Link>
                             </S2_Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                            back to list
+                            Session List
                         </TooltipContent>
                     </Tooltip>
                     <ButtonGroup>

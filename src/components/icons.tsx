@@ -4,11 +4,15 @@
  */
 
 
-import { ArrowRightLeftIcon, BellIcon, BookOpenIcon, CableIcon, CheckCheckIcon, CheckIcon, ChevronRightIcon, CircleIcon, CircleUserRoundIcon, CopyIcon, KeyRoundIcon, LayoutDashboardIcon, MoreVerticalIcon, MoveLeftIcon, NotebookPenIcon, PackageIcon, PencilIcon, PencilRulerIcon, PlusIcon, PocketKnifeIcon, ScanEyeIcon, SettingsIcon, ShieldHalfIcon, SlashIcon, TrashIcon, UsersIcon, WrenchIcon, XIcon } from 'lucide-react'
+import { ArrowRightLeftIcon, BellIcon, BookOpenIcon, CableIcon, CheckCheckIcon, CheckIcon, ChevronRightIcon, CircleCheckIcon, CircleIcon, CircleUserRoundIcon, CircleXIcon, CopyIcon, FlaskConicalIcon, InfoIcon, KeyRoundIcon, LayoutDashboardIcon, MoreVerticalIcon, MoveLeftIcon, NotebookPenIcon, PackageIcon, PencilIcon, PencilRulerIcon, PlusIcon, PocketKnifeIcon, ScanEyeIcon, SettingsIcon, ShieldHalfIcon, SlashIcon, TrashIcon, TriangleAlertIcon, UsersIcon, WrenchIcon, XIcon } from 'lucide-react'
 
 export { 
     WrenchIcon as AdminModuleIcon,
-    MoveLeftIcon as BackToListIcon,
+    InfoIcon as AlertInfoIcon,
+    CircleCheckIcon as AlertSuccessIcon,
+    TriangleAlertIcon as AlertWarningIcon,
+    CircleXIcon as AlertErrorIcon,
+    FlaskConicalIcon as AlertMockupIcon,
     PlusIcon as CreateNewIcon,
     CableIcon as D4HModuleIcon,
     TrashIcon as DeleteObjectIcon,
@@ -20,6 +24,7 @@ export {
     NotebookPenIcon as NotesModuleIcon,
     BellIcon as NotificationsIcon,
     LayoutDashboardIcon as OrgDashboardIcon,
+    MoveLeftIcon as ToParentPageIcon,
 
     // Personal Icons
     LayoutDashboardIcon as PersonalDashboardIcon,

@@ -13,11 +13,11 @@ import { diffObject } from '@/lib/diff'
 import { TeamId, teamSchema, toTeamData } from '@/lib/schemas/team'
 import { RTPlusLogger } from '@/lib/logger'
 import { recordStatusParameterSchema } from '@/lib/validation'
+import { revalidateTeam } from '@/server/team'
 
 import { AuthenticatedOrgContext, createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
 import { FieldConflictError } from '../types'
 import { Messages } from '../messages'
-
 
 
 const logger = new RTPlusLogger('trpc/teams')
@@ -134,6 +134,8 @@ export const teamsRouter = createTRPCRouter({
                     }
                 }
             })
+
+            revalidateTeam(teamId)
 
             return toTeamData(updated)
         }),

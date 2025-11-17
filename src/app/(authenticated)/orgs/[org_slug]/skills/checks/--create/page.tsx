@@ -7,7 +7,7 @@
 
 
 import { Lexington } from '@/components/blocks/lexington'
-import { BackToListIcon } from '@/components/icons'
+import { ToParentPageIcon } from '@/components/icons'
 import { S2_Button } from '@/components/ui/s2-button'
 import { Link } from '@/components/ui/link'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -40,7 +40,7 @@ export default async function SkillsModule_NewCheck_Page(props: PageProps<'/orgs
                         <TooltipTrigger asChild>
                             <S2_Button variant="outline" asChild>
                                 <Link to={Paths.org(organization.slug).skills.checks}>
-                                    <BackToListIcon/> List
+                                    <ToParentPageIcon/> List
                                 </Link>
                             </S2_Button>
                         </TooltipTrigger>
