@@ -136,7 +136,11 @@ function AkagiTableCell<TData extends RowData>({ align = "start", children, clas
 }
 
 
-function AkagiTable<TData extends RowData>({ table }: { table: TanstackTable<TData> }) {
+interface AkagiTableProps<TData extends RowData> {
+    table: TanstackTable<TData>
+}
+
+function AkagiTable<TData extends RowData>({ table }: AkagiTableProps<TData>) {
 
     const tableId = useId()
 
@@ -162,7 +166,7 @@ function AkagiTable<TData extends RowData>({ table }: { table: TanstackTable<TDa
             )}
             {isEmpty && <tr><td colSpan={table.getVisibleFlatColumns().length} className="text-center py-4">No results found</td></tr>}
         </S2_TableBody>
-        { (!isEmpty ) ? <AkagiPagination tableId={tableId} table={table} /> : null}
+        { (!isEmpty) ? <AkagiPagination tableId={tableId} table={table} /> : null}
     </S2_Table>
 }
 
@@ -193,8 +197,8 @@ function AkagiPagination<TData extends RowData>({ className, tableId, table, ...
     return <S2_TableFoot className={cn("sticky bottom-0 bg-background z-5", className)} {...props}>
         <tr>
             <td colSpan={table.getAllColumns().length}>
-                <div className="grid grid-cols-3 items-center text-sm px-2 py-1">
-                    <div className="flex justify-start gap-1 lg:gap-1.5 text-muted-foreground">
+                <div className="h-8 grid grid-cols-3 items-center text-sm px-2 py-1">
+                    <div className={cn("flex gap-1 lg:gap-1.5 text-muted-foreground", rowCount > 10 ? "justify-start" : "col-span-full justify-center")}>
                         {pageCount > 1
                             ? <>
                                 <span className="hidden lg:inline">{rowCount > 1 ? 'rows' : 'row'}</span>
@@ -263,7 +267,7 @@ function AkagiPagination<TData extends RowData>({ className, tableId, table, ...
                         </div>
                         : <div/* Empty center div to maintain grid structure */></div>
                     }
-                    <div className="flex items-center justify-end gap-2">
+                    { rowCount > 10 ? <div className="flex items-center justify-end gap-2">
                         <Label className="text-muted-foreground" htmlFor={`${tableId}-page-size`}>per page</Label>
                         <S2_Select
                             
@@ -283,7 +287,7 @@ function AkagiPagination<TData extends RowData>({ className, tableId, table, ...
                                 )}
                             </S2_SelectContent>
                         </S2_Select>
-                    </div>
+                    </div> : null }
                 </div>
             </td>
         </tr>

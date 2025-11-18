@@ -37,6 +37,7 @@ export function AdminModule_CreateTeam_Form({ organization }: { organization: Or
             defaultValues: {
                 teamId,
                 name: '',
+                color: '',
                 status: 'Active',
                 tags: [],
                 properties: {}
@@ -87,5 +88,6 @@ export function AdminModule_CreateTeam_Form({ organization }: { organization: Or
         teamId={teamId}
         onSubmit={async (data) => {
             await mutation.mutateAsync({ ...data, orgId: organization.orgId })
+            form.reset()
         }}  />
 }

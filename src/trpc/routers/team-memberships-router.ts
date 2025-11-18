@@ -7,6 +7,7 @@ import { z } from 'zod'
 
 import { TRPCError } from '@trpc/server'
 
+import { diffObject } from '@/lib/diff'
 import { PersonId, personRefSchema, toPersonRef } from '@/lib/schemas/person'
 import { TeamId, teamRefSchema, toTeamRef } from '@/lib/schemas/team'
 import { teamMembershipSchema, toTeamMembershipData } from '@/lib/schemas/team-membership'
@@ -16,9 +17,6 @@ import { createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
 import { Messages} from '../messages'
 import { getPersonById } from './personnel-router'
 import { getTeamById } from './teams-router'
-import { diffObject } from '@/lib/diff'
-
-
 
 
 export const teamMembershipsRouter = createTRPCRouter({
@@ -38,16 +36,13 @@ export const teamMembershipsRouter = createTRPCRouter({
             person: personRefSchema,
             team: teamRefSchema
         }))
-        .mutation(async ({ ctx, input: { personId, teamId, ...fields } }) => {
+        .mutation(async ({ ctx, input: { orgId, personId, teamId, ...fields } }) => {
 
             // Check if the person and team exist
             const [person, team] = await Promise.all([
                 getPersonById(ctx, personId),
                 getTeamById(ctx, teamId)
             ])
-
-            if(!person) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.personNotFound(personId) })
-            if(!team) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.teamNotFound(teamId) })
 
             const existing = await ctx.prisma.teamMembership.findUnique({
                 where: { personId_teamId: { personId, teamId } }
@@ -201,7 +196,7 @@ export const teamMembershipsRouter = createTRPCRouter({
     updateTeamMembership: orgAdminProcedure
         .input(teamMembershipSchema)
         .output(teamMembershipSchema)
-        .mutation(async ({ ctx, input: { personId, teamId, ...fields } }) => {
+        .mutation(async ({ ctx, input: { orgId, personId, teamId, ...fields } }) => {
 
             const existing = await ctx.prisma.teamMembership.findUnique({
                 where: { personId_teamId: { personId, teamId } }

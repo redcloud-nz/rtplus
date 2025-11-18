@@ -7,7 +7,7 @@
 
 
 import { Lexington } from '@/components/blocks/lexington'
-import { ToParentPageIcon, EditIcon, ItemLinkActionIcon, SessionRecordIcon, SessionReviewIcon } from '@/components/icons'
+import { ToParentPageIcon, EditObjectIcon, ItemLinkActionIcon, SessionRecordIcon, SessionReviewIcon } from '@/components/icons'
 import { S2_Button } from '@/components/ui/s2-button'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { S2_Card, S2_CardContent, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
@@ -65,7 +65,7 @@ export default async function SkillsModule_Session_Page(props: PageProps<'/orgs/
                     <ButtonGroup>
                         <S2_Button variant="outline" asChild>
                             <Link to={Paths.org(organization.slug).skills.session(session.sessionId).update}>
-                                <EditIcon/> Edit
+                                <EditObjectIcon/> Edit
                             </Link>
                         </S2_Button>
                         <SkillModule_SessionDropdownMenu organization={organization} session={session} />

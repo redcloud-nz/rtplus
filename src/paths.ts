@@ -122,8 +122,11 @@ function adminModule(org_slug: string) {
 
                 teamMembership: (teamId: string) => ({
                     href: `${personBase}/team-memberships/${teamId}`,
-                    update: `${personBase}/team-memberships/${teamId}/--update`,
-                    delete: `${personBase}/team-memberships/${teamId}/--delete`,
+                    
+                    update: {
+                        label: 'Update',
+                        href: `${personBase}/team-memberships/${teamId}/--update`,
+                    }
                 } as const),
 
                 teamMemberships: {
@@ -134,6 +137,7 @@ function adminModule(org_slug: string) {
                         label: 'Add Team Membership',
                         href: `${personBase}/team-memberships/--create`,
                     },
+
                 },
 
                 update: {
@@ -171,6 +175,11 @@ function adminModule(org_slug: string) {
 
                 member: (personId: string) => ({
                     href: `${teamBase}/members/${personId}`,
+
+                    update: {
+                        label: 'Update',
+                        href: `${teamBase}/members/${personId}/--update`,
+                    }
                 } as const),
                 members: {
                     label: 'Members',

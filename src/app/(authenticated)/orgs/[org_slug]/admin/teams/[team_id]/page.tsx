@@ -4,69 +4,116 @@
  * 
  *  Path: /orgs/[org_slug]/admin/teams/[team_id]
  */
+'use client'
 
+import { use, useState } from 'react'
+
+import { Protect } from '@clerk/clerk-react'
+import { useSuspenseQuery } from '@tanstack/react-query'
+
+import { Hermes } from '@/components/blocks/hermes'
 import { Lexington } from '@/components/blocks/lexington'
-import { EditIcon, ToParentPageIcon } from '@/components/icons'
+import { CreateNewIcon, DeleteObjectIcon, DropdownMenuTriggerIcon, DuplicateObjectIcon, EditObjectIcon, ToParentPageIcon } from '@/components/icons'
 import { S2_Button } from '@/components/ui/s2-button'
 import { ButtonGroup } from '@/components/ui/button-group'
+import { S2_Card, S2_CardContent, S2_CardDescription, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Link } from '@/components/ui/link'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Heading } from '@/components/ui/typography'
-
+import { S2_Value } from '@/components/ui/s2-value'
+import { useOrganization } from '@/hooks/use-organization'
 import * as Paths from '@/paths'
-import { getOrganization } from '@/server/organization'
-import { getTeam } from '@/server/team'
-
-import { AdminModule_TeamDetails } from './team-details'
-import { TeamDropdownMenu } from './team-dropdown-menu'
-import { AdminModule_TeamMembers } from './team-members-2'
+import { trpc } from '@/trpc/client'
 
 
-export default async function AdminModule_Team_Page(props: PageProps<'/orgs/[org_slug]/admin/teams/[team_id]'>) {
-    const { org_slug: orgSlug, team_id: teamId } = await props.params
-    const organization = await getOrganization(orgSlug)
-    const team = await getTeam(organization.orgId, teamId)
+import { AdminModule_DeleteTeam_Dialog } from './delete-team'
+import { AdminModule_TeamMembers } from './team-members'
+
+
+
+
+export default function AdminModule_Team_Page(props: PageProps<'/orgs/[org_slug]/admin/teams/[team_id]'>) {
+    const { org_slug: orgSlug, team_id: teamId } = use(props.params)
     
-    return <Lexington.Root>
-        <Lexington.Header
-            breadcrumbs={[
-                Paths.org(orgSlug).admin,
-                Paths.org(orgSlug).admin.teams,
-                team.name
-            ]}
-        />
-        <Lexington.Page>
+    const organization = useOrganization()
 
-            <Lexington.Column width="lg">
-                <Lexington.ColumnControls>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <S2_Button variant="outline" asChild>
-                                <Link to={Paths.org(orgSlug).admin.teams}>
-                                    <ToParentPageIcon/> List
-                                </Link>
-                            </S2_Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            Teams List
-                        </TooltipContent>
-                    </Tooltip>
+    const { data: team } = useSuspenseQuery(trpc.teams.getTeam.queryOptions({ orgId: organization.orgId, teamId }))
+
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+    
+    return <Lexington.Column width="lg">
+        <Hermes.Section>
+            <Hermes.SectionHeader>
+                <S2_Button variant="outline" asChild>
+                    <Link to={Paths.org(orgSlug).admin.teams}>
+                        <ToParentPageIcon/> Team List
+                    </Link>
+                </S2_Button>
+                <Protect role="org:admin">
                     <ButtonGroup>
                         <S2_Button variant="outline" asChild>
                             <Link to={Paths.org(orgSlug).admin.team(team.teamId).update}>
-                                <EditIcon/> Edit
+                                <EditObjectIcon/> Edit
                             </Link>
                         </S2_Button>
-                        <TeamDropdownMenu organization={organization} team={team}/>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <S2_Button variant="outline" size="icon">
+                                    <DropdownMenuTriggerIcon/>
+                                </S2_Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuLabel>Team</DropdownMenuLabel>
+                                <DropdownMenuGroup>
+                                    <DropdownMenuItem disabled>
+                                        <DuplicateObjectIcon/> Duplicate
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="text-destructive" onSelect={() => setDeleteDialogOpen(true)}>
+                                        <DeleteObjectIcon/> Delete
+                                    </DropdownMenuItem>
+                                </DropdownMenuGroup>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        <AdminModule_DeleteTeam_Dialog
+                            organization={organization}
+                            team={team}
+                            open={deleteDialogOpen}
+                            onOpenChange={setDeleteDialogOpen}
+                        />
                     </ButtonGroup>
-                </Lexington.ColumnControls>
+                </Protect>
+            </Hermes.SectionHeader>
+            <S2_Card>
+                <S2_CardHeader>
+                    <S2_CardTitle>{team.name}</S2_CardTitle>
+                    <S2_CardDescription>ID: {team.teamId}</S2_CardDescription>
+                </S2_CardHeader>
+                <S2_CardContent>
+                    <FieldGroup>
+                        <Field orientation="responsive">
+                            <FieldLabel>Status</FieldLabel>
+                            <S2_Value value={team.status} className="min-w-1/2"/>
+                        </Field>
+                    </FieldGroup>
+                </S2_CardContent>
+            </S2_Card>
+        </Hermes.Section>
 
-                <AdminModule_TeamDetails organization={organization} teamId={team.teamId}/>
+        <Hermes.Section>
+            <Hermes.SectionHeader>
+                <Hermes.SectionTitle>Team Members</Hermes.SectionTitle>
+                <S2_Button variant="outline" asChild>
+                    <Link to={Paths.org(organization.slug).admin.team(team.teamId).members.create}>
+                        <CreateNewIcon/> Member
+                    </Link>
+                </S2_Button>
+            </Hermes.SectionHeader>
 
-                <Heading level={3} className="mt-6">Team Members</Heading>
-                <AdminModule_TeamMembers organization={organization} teamId={team.teamId}/>
-            </Lexington.Column>
-        </Lexington.Page>
+            <AdminModule_TeamMembers organization={organization} teamId={team.teamId}/>
+        </Hermes.Section>
+
         
-    </Lexington.Root>
+        
+    </Lexington.Column>
  }

@@ -27,7 +27,7 @@ function LexingtonRoot({ children }: { children: ReactNode }) {
 }
 
 const lexingtonPageVariants = tv({
-    base: 'flex flex-row justify-center items-stretch divide-x h-[calc(100vh-var(--header-height))] [scrollbar-color:var(--scrollbar-thumb)_var(--scrollbar-track)] [scrollbar-gutter:stable_both-edges]',
+    base: 'flex flex-row justify-center items-stretch h-[calc(100vh-var(--header-height))] [scrollbar-color:var(--scrollbar-thumb)_var(--scrollbar-track)] [scrollbar-gutter:stable_both-edges]',
     variants: {
         scrollable: {
             true: "overflow-y-auto",
@@ -72,7 +72,7 @@ function LexingtonEmpty({ title, description, children }: LexingtonPageEmptyProp
 }
 
 const lexingtonColumnVariants = tv({
-    base: "relative flex flex-col items-stretch py-4 gap-2 peer",
+    base: "relative flex flex-col items-stretch p-4 gap-2 peer",
     variants: {
         width: {
             xs: "w-full xs:w-md xs:mx-auto",

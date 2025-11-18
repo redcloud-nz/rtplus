@@ -5,7 +5,9 @@
  *  Path: /orgs/[org_slug]/admin/teams/[team_id]
  */
 
+import { Lexington } from '@/components/blocks/lexington'
 import { TITLE_SEPARATOR } from '@/lib/utils'
+import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
 import { getTeam } from '@/server/team'
 
@@ -19,6 +21,21 @@ export async function generateMetadata(props: LayoutProps<'/orgs/[org_slug]/admi
 }
 
 export default async function AdminModule_Team_Layout(props: LayoutProps<'/orgs/[org_slug]/admin/teams/[team_id]'>) {
+    const { org_slug: orgSlug, team_id: teamId } = await props.params
+    const organization = await getOrganization(orgSlug)
+    
+    const team = await getTeam(organization.orgId, teamId)
 
-    return props.children
+    return <Lexington.Root>
+        <Lexington.Header
+            breadcrumbs={[
+                Paths.org(orgSlug).admin,
+                Paths.org(orgSlug).admin.teams,
+                team.name
+            ]}
+        />
+        <Lexington.Page>
+            {props.children}
+        </Lexington.Page>
+    </Lexington.Root>
 }

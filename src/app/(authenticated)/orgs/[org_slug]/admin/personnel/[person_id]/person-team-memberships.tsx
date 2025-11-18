@@ -5,310 +5,91 @@
  */
 'use client'
 
-import { PencilIcon, PlusIcon, SaveIcon, XIcon } from 'lucide-react'
 import { useMemo } from 'react'
-import { match } from 'ts-pattern'
 
-import { Protect } from '@clerk/nextjs'
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
+import { useSuspenseQueries } from '@tanstack/react-query'
+import { getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { TeamPicker } from '@/components/controls/team-picker'
-import { Button, DeleteConfirmButton, RefreshButton } from '@/components/ui/button'
-import { Card, CardActions, CardContent, CardExplanation, CardHeader, CardTitle } from '@/components/ui/card'
-import { DataTableBody, DataTableHead, DataTableFooter, DataTableProvider, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
-import { TagsInput } from '@/components/ui/input'
+import { Akagi } from '@/components/blocks/akagi'
+import { AlertInfoIcon } from '@/components/icons'
+import { Show } from '@/components/show'
+import { Item,  ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/items'
 import { TextLink } from '@/components/ui/link'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
-import { Table } from '@/components/ui/table'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
-import { useToast } from '@/hooks/use-toast'
-import { EditableFeature } from '@/lib/editable-feature'
 import { OrganizationData } from '@/lib/schemas/organization'
-import { PersonData } from '@/lib/schemas/person'
-import { TeamMembershipData } from '@/lib/schemas/team-membership'
-import { TeamId, TeamRef } from '@/lib/schemas/team'
+import { PersonId } from '@/lib/schemas/person'
 import * as Paths from '@/paths'
+
 import { trpc } from '@/trpc/client'
 
 
+export function AdminModule_Person_TeamMembershipList({ organization, personId }: { organization: OrganizationData, personId: PersonId }) {
 
-/**
- * Card that displays the team memberships for a specific person.
- * It allows adding, editing, and deleting team memberships.
- * @param personId The ID of the person for whom to display team memberships.
- */
-export function AdminModule_Person_TeamMembershipList({ organization, person }: { organization: OrganizationData, person: PersonData }) {
-    
-    const queryClient = useQueryClient()
-    const { toast } = useToast()
+    const [
+        { data: person},
+        { data: teamMemberships }
+    ] = useSuspenseQueries({
+       queries: [
+            trpc.personnel.getPerson.queryOptions({ orgId: organization.orgId, personId }),
+            trpc.teamMemberships.getTeamMemberships.queryOptions({ orgId: organization.orgId, personId })
+        ]
+    })
 
-    const teamMembershipsQuery = useSuspenseQuery(trpc.teamMemberships.getTeamMemberships.queryOptions({ orgId: organization.orgId, personId: person.personId }))
-
-    async function handleRefresh() {
-        await teamMembershipsQuery.refetch()
-    }
-
-    // Mutations for CRUD operations
-    const createMutation = useMutation(trpc.teamMemberships.createTeamMembership.mutationOptions({
-        onSuccess: () => {
-            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ personId: person.personId }))
-            toast({
-                title: 'Team membership added successfully',
-                variant: 'default'
-            })
-        },
-        onError: (error) => {
-            toast({
-                title: 'Error adding team membership',
-                description: error.message,
-                variant: 'destructive'
-            })
-        }
-    }))
-
-    const updateMutation = useMutation(trpc.teamMemberships.updateTeamMembership.mutationOptions({
-        onSuccess: () => {
-            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ personId: person.personId }))
-            toast({
-                title: 'Team membership updated successfully',
-                variant: 'default'
-            })
-        },
-        onError: (error) => {
-            toast({
-                title: 'Error updating team membership',
-                description: error.message,
-                variant: 'destructive'
-            })
-        }
-    }))
-
-    const deleteMutation = useMutation(trpc.teamMemberships.deleteTeamMembership.mutationOptions({
-        onSuccess: () => {
-            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ personId: person.personId }))
-            toast({
-                title: 'Team membership removed successfully',
-                variant: 'default'
-            })
-        },
-        onError: (error) => {
-            toast({
-                title: 'Error removing team membership',
-                description: error.message,
-                variant: 'destructive'
-            })
-        }
-    }))
-
-    const columns = useMemo(() => defineColumns<TeamMembershipData & { team: TeamRef }>(columnHelper => [
-        columnHelper.accessor('teamId', {
-            header: 'Team ID',
-            cell: ctx => ctx.getValue(),
-            enableGrouping: false,
-            enableHiding: true,
-            enableSorting: false,
-            enableGlobalFilter: false,
-        }),
+    const columns = useMemo(() => Akagi.defineColumns<typeof teamMemberships[number]>(columnHelper => [
+        // columnHelper.accessor('teamId', {
+        //     header: ctx => <Akagi.TableHeader header={ctx.header} className="w-20">Team ID</Akagi.TableHeader>,
+        //     cell: ctx => <Akagi.TableCell cell={ctx.cell} className="w-20">{ctx.getValue()}</Akagi.TableCell>,
+        //     enableSorting: false,
+        // }),
         columnHelper.accessor('team.name', {
             id: 'teamName',
-            header: 'Team',
-            cell: ctx => (match(ctx.row.getEditMode())
-                .with('Create', () => {
-                    const existingTeamIds = teamMembershipsQuery.data.map(m => m.teamId)
-                    return (
-                        <TeamPicker
-                            size="sm"
-                            className="-m-2"
-                            value={ctx.row.getModifiedRowData().team.teamId}
-                            onValueChange={(team) => ctx.row.setModifiedRowData({ team })}
-                            placeholder="Select a team"
-                            exclude={existingTeamIds}
-                        />
-                    )
-                })
-                .otherwise(() => 
-                    <TextLink to={Paths.org(organization.slug).admin.person(person.personId).teamMembership(ctx.row.original.teamId)}>{ctx.getValue()}</TextLink>
-                )
-            ),
-            enableGrouping: false,
-            enableHiding: false
-        }),
-        columnHelper.accessor('tags', {
-            header: 'Tags',
-            cell: ctx => (match(ctx.row.getEditMode())
-                .with('Create', 'Update', () => 
-                    <TagsInput
-                        size="sm"
-                        className="-m-2"
-                        value={ctx.row.getModifiedRowData().tags}
-                        onValueChange={(value) => ctx.row.setModifiedRowData({ tags: value })}
-                        placeholder="Add tags"
-                    />    
-                )
-                .otherwise(() => ctx.getValue().join(' '))
-                
-            ),
-            enableGrouping: false,
-            enableHiding: true,
-            enableSorting: false,
+            header: ctx => <Akagi.TableHeader header={ctx.header} className="min-w-1/3">Team Name</Akagi.TableHeader>,
+            cell: ctx => <Akagi.TableCell cell={ctx.cell} className="min-w-1/3">
+                <TextLink to={Paths.org(organization.slug).admin.person(personId).teamMembership(ctx.row.original.teamId)}>
+                    {ctx.getValue()}
+                </TextLink>
+            </Akagi.TableCell>,
+            enableSorting: true,
         }),
         columnHelper.accessor('status', {
-            id: 'status',
-            header: 'Status',
-            cell: ctx => (match(ctx.row.getEditMode())
-                .with('Create', 'Update', () => 
-                    <Select
-                        value={ctx.row.getModifiedRowData().status}
-                        onValueChange={(value) => ctx.row.setModifiedRowData({ status: value as 'Active' | 'Inactive' })}
-                    >
-                        <SelectTrigger size="sm" className="-m-2">
-                            <SelectValue placeholder="Select status"/>
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="Active">Active</SelectItem>
-                            <SelectItem value="Inactive">Inactive</SelectItem>
-                        </SelectContent>
-                    </Select>
-                )
-                .otherwise(() => ctx.getValue())
-            ),
+            header: ctx => <Akagi.TableHeader 
+                header={ctx.header}
+                filterOptions={['Active', 'Inactive']}
+                className="w-[100px]"
+            >Status</Akagi.TableHeader>,
+            cell: ctx => <Akagi.TableCell cell={ctx.cell}>{ctx.getValue()}</Akagi.TableCell>,
+            enableColumnFilter: true,
             enableSorting: false,
-            enableGlobalFilter: false,
-            filterFn: 'arrIncludesSome',
-            meta: {
-                enumOptions: { Active: 'Active', Inactive: 'Inactive' },
-                slotProps: {
-                    th: {
-                        className: 'w-32'
-                    }
-                }
-            }
+            filterFn: 'arrIncludesSome'
         }),
-        columnHelper.display({
-            id: 'actions',
-            header: 'Actions',
-            cell: ctx => <div className="-m-2 flex items-center justify-end">
-                <Protect role="org:admin">
-                    {match(ctx.row.getEditMode())
-                        .with('Create', 'Update', () => <>
-                            <Button variant="ghost" size="icon" onClick={() => ctx.row.saveEdit()}>
-                                <SaveIcon/>
-                                <span className="sr-only">Save</span>
-                            </Button>
-                            <Button variant="ghost" size="icon" onClick={() => {
-                                ctx.row.cancelEdit()
-                            }}>
-                                <XIcon/>
-                                <span className="sr-only">Cancel</span>
-                            </Button>
-                        </>)
-                        .with('View', () => <>
-                            <Button variant="ghost" size="icon" onClick={() => ctx.row.startEdit()}>
-                                <PencilIcon/>
-                                <span className="sr-only">Edit</span>
-                            </Button>
-                            <DeleteConfirmButton onDelete={() => ctx.row.delete()}/>
-                        
-                        </>)
-                        .exhaustive()
-                    }
-                </Protect>
-                
-            </div>,
-            enableHiding: false,
-            enableSorting: false,
-            meta: {
-                slotProps: {
-                    th: {
-                        className: 'w-20'
-                    }
-                }
-            }
-        })
-    ]), [teamMembershipsQuery.data, person.personId])
+    ]), [])
 
-    const table = useReactTable<TeamMembershipData & { team: TeamRef }>({
-        _features: [EditableFeature()],
-        columns: columns,
-        data: teamMembershipsQuery.data,
+    const table = useReactTable({
+        data: teamMemberships,
+        columns,
         getCoreRowModel: getCoreRowModel(),
-        getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
-        getGroupedRowModel: getGroupedRowModel(),
-        getExpandedRowModel: getExpandedRowModel(),
-        getRowId: (row) => row.teamId,
-        createEmptyRow: () => ({
-            teamId: '' as TeamId,
-            personId: person.personId,
-            properties: {},
-            tags: [],
-            status: 'Active',
-            team: {
-                teamId: '' as TeamId,
-                name: '',
-                status: 'Active'
-            }
-        }),
-        onUpdate: (rowData) => {
-            updateMutation.mutate({ orgId: organization.orgId, ...rowData })
-        },
-        onCreate: (rowData) => {
-            createMutation.mutate({ orgId: organization.orgId, ...rowData })
-        },
-        onDelete: (rowData) => {
-            deleteMutation.mutate({ orgId: organization.orgId, teamId: rowData.teamId, personId: person.personId })
-        },
+        getSortedRowModel: getSortedRowModel(),
         initialState: {
-            columnVisibility: {
-                teamId: false, teamName: true, tags: true, status: true, actions: true
-            },
             columnFilters: [
                 { id: 'status', value: ['Active'] }
-            ],
-            globalFilter: "",
-            grouping: [],
-            sorting: [
-                { id: 'teamName', desc: false }
-            ],
+            ]
         },
     })
 
-    return <DataTableProvider value={table}>
-        <Card>
-            <CardHeader>
-                <CardTitle>Team Memberships</CardTitle>
-                <CardActions>
-                    <Protect role="org:admin">
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" onClick={() => table.startCreating()}>
-                                    <PlusIcon/>
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Add a new team membership</TooltipContent>
-                        </Tooltip>
-                    </Protect>
-                    
-                    <RefreshButton onClick={handleRefresh}/>
-                    <TableOptionsDropdown/>
-                    <Separator orientation='vertical'/>
+    return <Show 
+        when={teamMemberships.length > 0}
+        fallback={<Item variant="outline">
+            <ItemMedia>
+                <AlertInfoIcon/>
+            </ItemMedia>
+           <ItemContent>
+                <ItemTitle>No Team Memberships</ItemTitle>
+                <ItemDescription>{person.name} is not a member of any teams.</ItemDescription>
+           </ItemContent>
+        </Item>}
+    >
+        <Akagi.Table table={table}/>
+    </Show>
 
-                    <CardExplanation>
-                        This card displays all team memberships for the person. You can add, edit, or delete team memberships.
-                    </CardExplanation>
-
-                </CardActions>
-            </CardHeader>
-            <CardContent>
-                <Table className="table-fixed">
-                    <DataTableHead/>
-                    <DataTableBody/>
-                    <DataTableFooter/>
-                </Table>
-            </CardContent>
-        </Card>
-    </DataTableProvider>
 }

@@ -19,7 +19,7 @@ export {
     BookOpenIcon as DocumentationIcon,
     MoreVerticalIcon as DropdownMenuTriggerIcon,
     CopyIcon as DuplicateObjectIcon,
-    PencilIcon as EditIcon,
+    PencilIcon as EditObjectIcon,
     ChevronRightIcon as ItemLinkActionIcon,
     NotebookPenIcon as NotesModuleIcon,
     BellIcon as NotificationsIcon,

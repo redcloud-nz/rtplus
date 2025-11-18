@@ -37,8 +37,8 @@ export function TeamForm({ form, mode, organization, onSubmit, teamId, ...props 
     const handleSubmit = form.handleSubmit(async (data) => {
         setIsPending(true)
         await onSubmit(data)
-        form.reset(data)
         setIsPending(false)
+        form.reset()
     })
     
      return <S2_Card>
@@ -113,7 +113,8 @@ export function TeamForm({ form, mode, organization, onSubmit, teamId, ...props 
                         <S2_Button 
                             type="button"
                             variant="outline" 
-                            disabled={isPending} onClick={() => form.reset() } 
+                            disabled={isPending} 
+                            onClick={() => form.reset() } 
                             asChild
                         >
                             <Link to={mode === 'Create' ? Paths.org(organization.slug).admin.teams : Paths.org(organization.slug).admin.team(teamId)}>
@@ -121,6 +122,7 @@ export function TeamForm({ form, mode, organization, onSubmit, teamId, ...props 
                             </Link>
                         </S2_Button>
                     </Field>
+                    {!form.formState.isValid && <FieldError errors={Object.values(form.formState.errors)}/>}
                 </FieldGroup>
             </form>
         </S2_CardContent>

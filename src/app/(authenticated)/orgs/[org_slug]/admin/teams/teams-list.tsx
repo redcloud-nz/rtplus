@@ -9,12 +9,13 @@ import { useMemo } from 'react'
 
 import { Protect } from '@clerk/nextjs'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
 import { Akagi } from '@/components/blocks/akagi'
 import { Lexington } from '@/components/blocks/lexington'
+import { CreateNewIcon } from '@/components/icons'
 import { Show } from '@/components/show'
-import { Button } from '@/components/ui/button'
+import { S2_Button } from '@/components/ui/s2-button'
 import { Link, TextLink } from '@/components/ui/link'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
@@ -22,7 +23,6 @@ import { OrganizationData } from '@/lib/schemas/organization'
 import { TeamData } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
-import { S2_Button } from '@/components/ui/s2-button'
 
 
 
@@ -33,26 +33,27 @@ export function AdminModule_TeamsList({ organization }: { organization: Organiza
 
     const { data: teams} = useSuspenseQuery(trpc.teams.getTeams.queryOptions({ orgId: organization.orgId }))
 
-
     const columns = useMemo(() => Akagi.defineColumns<RowData>(columnHelper => [
-    columnHelper.accessor('teamId', {
-        header: ctx => <Akagi.TableHeader header={ctx.header} className="w-20">ID</Akagi.TableHeader>,
-        cell: ctx => <Akagi.TableCell cell={ctx.cell} className="w-20">
-            <TextLink to={Paths.org(organization.slug).admin.team(ctx.row.original.teamId)}>{ctx.getValue()}</TextLink>
-        </Akagi.TableCell>,
-        enableSorting: false,
-        enableGlobalFilter: false,
-    }),
+    // columnHelper.accessor('teamId', {
+    //     header: ctx => <Akagi.TableHeader header={ctx.header} className="w-20">ID</Akagi.TableHeader>,
+    //     cell: ctx => <Akagi.TableCell cell={ctx.cell} className="w-20">
+    //         <TextLink to={Paths.org(organization.slug).admin.team(ctx.row.original.teamId)}>{ctx.getValue()}</TextLink>
+    //     </Akagi.TableCell>,
+    //     enableSorting: false,
+    //     enableGlobalFilter: false,
+    // }),
     columnHelper.accessor('name', {
         header: ctx => <Akagi.TableHeader header={ctx.header} className="min-w-1/3">Name</Akagi.TableHeader>,
-        cell: ctx => <Akagi.TableCell cell={ctx.cell} className="min-w-1/3">{ctx.getValue()}</Akagi.TableCell>,
+        cell: ctx => <Akagi.TableCell cell={ctx.cell} className="min-w-1/3">
+            <TextLink to={Paths.org(organization.slug).admin.team(ctx.row.original.teamId)}>{ctx.getValue()}</TextLink>
+        </Akagi.TableCell>,
         enableSorting: true,
         enableGlobalFilter: true,
     }),
     columnHelper.accessor('_count.teamMemberships', {
         id: 'teamMemberCount',
-        header: ctx => <Akagi.TableHeader header={ctx.header}>Members</Akagi.TableHeader>,
-        cell: ctx => <Akagi.TableCell cell={ctx.cell}>{ctx.getValue()}</Akagi.TableCell>,
+        header: ctx => <Akagi.TableHeader header={ctx.header} align="center">Members</Akagi.TableHeader>,
+        cell: ctx => <Akagi.TableCell cell={ctx.cell} align="center">{ctx.getValue()}</Akagi.TableCell>,
         enableSorting: true,
         enableGlobalFilter: false,
     }),
@@ -66,6 +67,7 @@ export function AdminModule_TeamsList({ organization }: { organization: Organiza
         cell: ctx => <Akagi.TableCell cell={ctx.cell}>{ctx.getValue()}</Akagi.TableCell>,
         enableColumnFilter: true,
         enableGlobalFilter: false,
+        enableSorting: false,
         filterFn: 'arrIncludesSome',
     }),
 ]), [])
@@ -76,7 +78,6 @@ export function AdminModule_TeamsList({ organization }: { organization: Organiza
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
         initialState: {
             columnFilters: [
                 { id: 'status', value: ['Active'] }
@@ -86,7 +87,6 @@ export function AdminModule_TeamsList({ organization }: { organization: Organiza
             sorting: [
                 { id: 'name', desc: false }
             ],
-            pagination: { pageIndex: 0, pageSize: 20 },
         }
     })
 
@@ -108,9 +108,9 @@ export function AdminModule_TeamsList({ organization }: { organization: Organiza
             <Protect role="org:admin">
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <S2_Button asChild>
+                        <S2_Button variant="outline" asChild>
                             <Link to={Paths.org(organization.slug).admin.teams.create}>
-                                <PlusIcon/> <span className="hidden md:inline">New Team</span>
+                                <CreateNewIcon/> <span className="hidden md:inline">New Team</span>
                             </Link>
                         </S2_Button>
                     </TooltipTrigger>
@@ -121,6 +121,6 @@ export function AdminModule_TeamsList({ organization }: { organization: Organiza
             </Protect>
         </Lexington.ColumnControls>
 
-        <Akagi.Table table={table} />
+        <Akagi.Table table={table} pagination={false}/>
     </Show>
 }

@@ -3,11 +3,11 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
-import { ComponentProps } from 'react'
+import { ComponentProps, ReactNode } from 'react'
 
 import { cn } from '@/lib/utils'
 
-export function S2_Value({ className, value, ...props }: Omit<ComponentProps<'div'>, 'children'> & { value: string}) {
+export function S2_Value({ children, className, value, ...props }: Omit<ComponentProps<'div'>, 'children'> & ({ children?: never, value: string | number} | { children: ReactNode, value?: never })) {
     return <div
         data-slot="value"
         className={cn(
@@ -20,7 +20,7 @@ export function S2_Value({ className, value, ...props }: Omit<ComponentProps<'di
         {...props}
     >
         <span>
-             {value}
+             {value !== undefined ? value : children}
         </span>
     </div>
 }

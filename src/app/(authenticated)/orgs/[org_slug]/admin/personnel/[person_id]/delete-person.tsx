@@ -61,11 +61,12 @@ export function AdminModule_DeletePerson_Dialog({ organization, personId, ...pro
                 title: 'Person deleted',
                 description: <>The person <ObjectName>{person.name}</ObjectName> has been deleted.</>,
             })
-            props.onOpenChange?.(false)
-            router.push(Paths.org(organization.slug).admin.personnel.href)
 
             queryClient.invalidateQueries(trpc.personnel.getPersonnel.queryFilter({ orgId: organization.orgId }))
-            queryClient.setQueryData(trpc.personnel.getPerson.queryKey({ orgId: organization.orgId, personId: person.personId }), undefined)
+            queryClient.removeQueries(trpc.personnel.getPerson.queryFilter({ orgId: organization.orgId, personId: person.personId }))
+
+            props.onOpenChange?.(false)
+            router.push(Paths.org(organization.slug).admin.personnel.href)
         }
     }))
 

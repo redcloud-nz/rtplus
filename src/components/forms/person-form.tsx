@@ -10,7 +10,7 @@ import { Controller, useForm } from 'react-hook-form'
 
 import { S2_Button } from '@/components/ui/s2-button'
 import { S2_Card, S2_CardContent, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
-import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { S2_Input } from '@/components/ui/s2-input'
 import { Link } from '@/components/ui/link'
 import { S2_Select, S2_SelectContent, S2_SelectItem, S2_SelectTrigger, S2_SelectValue } from '@/components/ui/s2-select'
@@ -55,9 +55,10 @@ export function PersonForm({ form, mode, organization, onSubmit, personId, ...pr
                             <Field 
                                 data-invalid={fieldState.invalid}
                                 orientation="responsive"
-                                >
+                            >
                                 <FieldContent>
                                     <FieldLabel htmlFor="person-name">Name</FieldLabel>
+                                    <FieldDescription>The full name of the person.</FieldDescription>
                                     {fieldState.invalid && <FieldError errors={[fieldState.error]}/>}
                                 </FieldContent>
                                 <S2_Input
@@ -81,6 +82,7 @@ export function PersonForm({ form, mode, organization, onSubmit, personId, ...pr
                                 >
                                 <FieldContent>
                                     <FieldLabel htmlFor="person-email">Email</FieldLabel>
+                                    <FieldDescription>The unique email address of the person.</FieldDescription>
                                     {fieldState.invalid && <FieldError errors={[fieldState.error]}/>}
                                 </FieldContent>
                                 <S2_Input
@@ -105,6 +107,7 @@ export function PersonForm({ form, mode, organization, onSubmit, personId, ...pr
                                 >
                                 <FieldContent>
                                     <FieldLabel htmlFor="person-status">Status</FieldLabel>
+                                    <FieldDescription>The current record status.</FieldDescription>
                                     {fieldState.invalid && <FieldError errors={[fieldState.error]}/>}
                                 </FieldContent>
                                 <S2_Select value={field.value} onValueChange={field.onChange}>

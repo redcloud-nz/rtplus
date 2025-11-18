@@ -15,7 +15,7 @@ import { getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedR
 import { Akagi } from '@/components/blocks/akagi'
 import { Lexington } from '@/components/blocks/lexington'
 import { Show } from '@/components/show'
-import { Button } from '@/components/ui/button'
+import { S2_Button } from '@/components/ui/s2-button'
 import { Link, TextLink } from '@/components/ui/link'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
@@ -23,7 +23,6 @@ import { OrganizationData } from '@/lib/schemas/organization'
 import { PersonData } from '@/lib/schemas/person'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
-import { S2_Button } from '@/components/ui/s2-button'
 
 
 
@@ -31,22 +30,21 @@ export function AdminModule_PersonnelList({ organization }: { organization: Orga
     
     const { data: personnel, refetch } = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({ orgId: organization.orgId }))
 
-    async function handleRefresh() {
-        await refetch()
-    }
 
     const columns = useMemo(() => Akagi.defineColumns<PersonData>(columnHelper => [
-        columnHelper.accessor('personId', {
-            header: ctx => <Akagi.TableHeader header={ctx.header} className="w-20">ID</Akagi.TableHeader>,
-            cell: ctx => <Akagi.TableCell cell={ctx.cell} className="w-20">
-                <TextLink to={Paths.org(organization.slug).admin.person(ctx.row.original.personId)}>{ctx.getValue()}</TextLink>
-            </Akagi.TableCell>,
-            enableSorting: false,
-            enableGlobalFilter: false,
-        }),
+        // columnHelper.accessor('personId', {
+        //     header: ctx => <Akagi.TableHeader header={ctx.header} className="w-20">ID</Akagi.TableHeader>,
+        //     cell: ctx => <Akagi.TableCell cell={ctx.cell} className="w-20">
+        //         <TextLink to={Paths.org(organization.slug).admin.person(ctx.row.original.personId)}>{ctx.getValue()}</TextLink>
+        //     </Akagi.TableCell>,
+        //     enableSorting: false,
+        //     enableGlobalFilter: false,
+        // }),
         columnHelper.accessor('name', {
             header: ctx => <Akagi.TableHeader header={ctx.header} className="min-w-1/3">Name</Akagi.TableHeader>,
-            cell : ctx => <Akagi.TableCell cell={ctx.cell} className="min-w-1/3">{ctx.getValue()}</Akagi.TableCell>,
+            cell : ctx => <Akagi.TableCell cell={ctx.cell} className="min-w-1/3">
+                <TextLink to={Paths.org(organization.slug).admin.person(ctx.row.original.personId)}>{ctx.getValue()}</TextLink>
+            </Akagi.TableCell>,
             enableSorting: true,
             enableGlobalFilter: true,
         }),

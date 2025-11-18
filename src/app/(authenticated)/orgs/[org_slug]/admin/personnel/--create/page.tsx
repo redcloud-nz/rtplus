@@ -10,7 +10,6 @@ import { Lexington } from '@/components/blocks/lexington'
 import { ToParentPageIcon } from '@/components/icons'
 import { S2_Button } from '@/components/ui/s2-button'
 import { Link } from '@/components/ui/link'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
@@ -33,18 +32,11 @@ export default async function AdminModule_CreatePerson_Page(props: PageProps<'/o
         <Lexington.Page>
             <Lexington.Column width="lg">
                 <Lexington.ColumnControls>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <S2_Button variant="outline" asChild>
-                                <Link to={Paths.org(organization.slug).admin.personnel}>
-                                    <ToParentPageIcon/> List
-                                </Link>
-                            </S2_Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            back to list
-                        </TooltipContent>
-                    </Tooltip>
+                    <S2_Button variant="outline" asChild>
+                        <Link to={Paths.org(organization.slug).admin.personnel}>
+                            <ToParentPageIcon/> Personnel List
+                        </Link>
+                    </S2_Button>
                 </Lexington.ColumnControls>
                 <AdminModule_CreatePerson_Form organization={organization} />
             </Lexington.Column>
