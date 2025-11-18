@@ -12,7 +12,7 @@ import { match } from 'ts-pattern'
 import { Team, TeamD4hInfo } from '@prisma/client'
 import { QueryKey, UseQueryResult } from '@tanstack/react-query'
 
-import { D4hAccessTokenData } from '../d4h-access-tokens'
+import { D4hAccessTokenBasicData, D4hAccessTokenData } from '../d4h-access-tokens'
 import type { paths } from './schema'
 import { getD4hServer } from './servers'
 import { D4hEvent } from './event'
@@ -36,18 +36,18 @@ export type D4hFetchClient =  Client<paths, `${string}/${string}`>
 
 const cachedFetchClients = new Map<string, D4hFetchClient>()
 
-export function getD4hFetchClient(accessToken: Pick<D4hAccessTokenData, 'id' | 'serverCode' | 'value'>, { cache = true }: D4hClientOptions = {}): D4hFetchClient {
+export function getD4hFetchClient(accessToken: D4hAccessTokenBasicData, { cache = true }: D4hClientOptions = {}): D4hFetchClient {
     const server = getD4hServer(accessToken.serverCode)
-    let fetchClient = cachedFetchClients.get(accessToken.id)
+    let fetchClient = cachedFetchClients.get(accessToken.tokenId)
     if(!fetchClient) {
-        fetchClient = createFetchClient({ baseUrl: server.apiUrl })
+        fetchClient = createFetchClient({ baseUrl: server?.apiUrl })
         fetchClient.use({
             onRequest({ request }) {
                 request.headers.set('Authorization', `Bearer ${accessToken.value}`)
                 return request
             }
         })
-        if(cache) cachedFetchClients.set(accessToken.id, fetchClient)
+        if(cache) cachedFetchClients.set(accessToken.tokenId, fetchClient)
     }
     return fetchClient
 }
@@ -57,11 +57,11 @@ export type D4hApiQueryClient = OpenapiQueryClient<paths, `${string}/${string}`>
 
 const queryClients = new Map<string, D4hApiQueryClient>()
 
-export function getD4hApiQueryClient(accessToken: Pick<D4hAccessTokenData, 'id' | 'serverCode' | 'value'>, { cache = true }: D4hClientOptions = {}): D4hApiQueryClient {
-    let queryClient = cache ? queryClients.get(accessToken.id) : undefined
+export function getD4hApiQueryClient(accessToken: D4hAccessTokenBasicData, { cache = true }: D4hClientOptions = {}): D4hApiQueryClient {
+    let queryClient = cache ? queryClients.get(accessToken.tokenId) : undefined
     if(!queryClient) {
         queryClient = createClient(getD4hFetchClient(accessToken, { cache }))
-        if(cache) queryClients.set(accessToken.id, queryClient)
+        if(cache) queryClients.set(accessToken.tokenId, queryClient)
     }
     return queryClient
 }
@@ -115,7 +115,7 @@ export const D4hClient = {
         queryKey({ teamId, type, ...options }: { teamId: number, type: 'events' | 'exercises' | 'incidents'} & EventParamOptions): QueryKey {
             return ['d4h', 'teams', teamId, type, this.buildQueryParams(options)] as const
         },
-        queryOptions(accessToken: Pick<D4hAccessTokenData, 'id' | 'serverCode' | 'value'>, { teamId, type, ...options }: { teamId: number, type: 'events' | 'exercises' | 'incidents' } & EventParamOptions): FetchListQueryOptions<D4hEvent> {
+        queryOptions(accessToken: D4hAccessTokenBasicData, { teamId, type, ...options }: { teamId: number, type: 'events' | 'exercises' | 'incidents' } & EventParamOptions): FetchListQueryOptions<D4hEvent> {
             const queryParams = this.buildQueryParams(options)
             const fetchClient = getD4hFetchClient(accessToken)
 
@@ -163,7 +163,7 @@ export const D4hClient = {
         queryKey({ teamId }: { teamId: number }) {
             return ['d4h', 'teams', teamId, 'members'] as const
         },
-        queryOptions(accessToken: Pick<D4hAccessTokenData, 'id' | 'serverCode' | 'value'>, { teamId }: { teamId: number }): FetchListQueryOptions<D4hMember> {
+        queryOptions(accessToken: D4hAccessTokenBasicData, { teamId }: { teamId: number }): FetchListQueryOptions<D4hMember> {
             const fetchClient = getD4hFetchClient(accessToken)
 
             return {

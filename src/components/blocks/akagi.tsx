@@ -197,7 +197,7 @@ function AkagiPagination<TData extends RowData>({ className, tableId, table, ...
     return <S2_TableFoot className={cn("sticky bottom-0 bg-background z-5", className)} {...props}>
         <tr>
             <td colSpan={table.getAllColumns().length}>
-                <div className="h-8 grid grid-cols-3 items-center text-sm px-2 py-1">
+                <div className="h-10 grid grid-cols-3 items-center text-sm px-2 py-1">
                     <div className={cn("flex gap-1 lg:gap-1.5 text-muted-foreground", rowCount > 10 ? "justify-start" : "col-span-full justify-center")}>
                         {pageCount > 1
                             ? <>

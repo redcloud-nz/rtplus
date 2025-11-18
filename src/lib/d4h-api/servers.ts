@@ -44,6 +44,6 @@ export const D4hServerList: D4HServer[] = [
 ]
 
 
-export function getD4hServer(code: D4hServerCode): D4HServer {
-    return D4hServerList.find(server => server.code === code)!
+export function getD4hServer(code: D4hServerCode): D4HServer | null {
+    return D4hServerList.find(server => server.code === code) ?? null
 }

@@ -1,165 +1,97 @@
 /*
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
- * 
+ *
+ *  Path: /orgs/[org_slug]/admin/personnel/[person_id]/team-memberships/[team_id]/--update
  */
 'use client'
 
-import { PencilIcon, PlusIcon, SaveIcon, XIcon } from 'lucide-react'
 import { useMemo } from 'react'
-import { match } from 'ts-pattern'
 
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import { Button, DeleteConfirmButton } from '@/components/ui/button'
-import { Card, CardActions, CardContent, CardExplanation, CardHeader } from '@/components/ui/card'
-import { DataTableBody, DataTableFooter, DataTableHead, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
-import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
-import { Table } from '@/components/ui/table'
+import { Akagi } from '@/components/blocks/akagi'
+import { Lexington } from '@/components/blocks/lexington'
+import { CreateNewIcon } from '@/components/icons'
+import { Show } from '@/components/show'
+import { S2_Button } from '@/components/ui/s2-button'
+import { Link } from '@/components/ui/link'
 
-import { D4hAccessTokenData, D4hAccessTokens, removeAccessToken, updateAccessToken } from '@/lib/d4h-access-tokens'
+import { D4hAccessTokenData, D4hAccessTokens } from '@/lib/d4h-access-tokens'
 import { getD4hServer } from '@/lib/d4h-api/servers'
-import { EditableFeature } from '@/lib/editable-feature'
+import { UserId } from '@/lib/schemas/user'
 import { formatDateTime } from '@/lib/utils'
-
-import { AddAccessTokenDialog } from './add-access-token'
-
+import * as Paths from '@/paths'
 
 
-export function AccessTokenListCard({ personId }: { personId: string }) {
-    const queryClient = useQueryClient()
 
-    const accessTokenQuery = useQuery(D4hAccessTokens.queryOptions(personId))
+export function Personal_D4hAccessTokens_List({ userId }: { userId: UserId }) {
 
-    const columns = useMemo(() => defineColumns<D4hAccessTokenData>(columnHelper => [
+    const { data: accessTokens = [] } = useQuery(D4hAccessTokens.queryOptions(userId))
+
+    const columns = useMemo(() => Akagi.defineColumns<D4hAccessTokenData>(columnHelper => [
         columnHelper.accessor('label', {
-            header: 'Label',
-            cell: ctx => (match(ctx.row.getEditMode())
-                .with('Update', () => 
-                    <Input 
-                        value={ctx.row.getModifiedRowData().label} 
-                        onChange={ev => ctx.row.setModifiedRowData({ label: ev.target.value })}
-                    />
-                )
-                .otherwise(() => ctx.getValue())
-            ),
-            enableHiding: false,
+            header: ctx => <Akagi.TableHeader header={ctx.header}>Label</Akagi.TableHeader>,
+            cell: ctx => <Akagi.TableCell cell={ctx.cell}>{ctx.getValue()}</Akagi.TableCell>,
             enableSorting: true,
             enableGlobalFilter: true,
         }),
         columnHelper.accessor('serverCode', {
-            header: 'D4H Server',
-            cell: ctx => getD4hServer(ctx.getValue()).name,
-            enableHiding: true,
+            header: ctx => <Akagi.TableHeader header={ctx.header}>D4H Server</Akagi.TableHeader>,
+            cell: ctx => <Akagi.TableCell cell={ctx.cell}>{getD4hServer(ctx.getValue())?.name ?? ctx.getValue()}</Akagi.TableCell>,
+            enableSorting: false,
+            enableGlobalFilter: false,
         }),
         columnHelper.accessor('createdAt', {
-            header: 'Created At',
-            cell: ctx => formatDateTime(ctx.getValue()),
-            enableHiding: true,
+            header: ctx => <Akagi.TableHeader header={ctx.header}>Created At</Akagi.TableHeader>,
+            cell: ctx => <Akagi.TableCell cell={ctx.cell}>{formatDateTime(ctx.getValue())}</Akagi.TableCell>,
             enableSorting: true,
             enableGlobalFilter: false,
         }),
         columnHelper.accessor('teams', {
-            header: 'D4H Teams',
-            cell: ctx => <>
+            header: ctx => <Akagi.TableHeader header={ctx.header}>Teams</Akagi.TableHeader>,
+            cell: ctx => <Akagi.TableCell cell={ctx.cell}>
                 {ctx.row.original.teams.map(team => <div key={team.id}>{team.name}</div>)}
-            </>,
-            enableHiding: true,
+            </Akagi.TableCell>,
             enableSorting: false,
+            enableGlobalFilter: false,
         }),
-        columnHelper.display({
-            id: 'actions',
-            header: 'Actions',
-            cell: ctx => <div className="-m-2 flex items-center justify-end">
-                {match(ctx.row.getEditMode())
-                    .with('Update', () => <>
-                        <Button variant="ghost" size="icon" onClick={() => ctx.row.saveEdit()}>
-                            <SaveIcon/>
-                            <span className="sr-only">Save</span>
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => {
-                            ctx.row.cancelEdit()
-                        }}>
-                            <XIcon/>
-                            <span className="sr-only">Cancel</span>
-                        </Button>
-                    </>)
-                    .otherwise(() => <>
-                        <Button variant="ghost" size="icon" onClick={() => ctx.row.startEdit()}>
-                            <PencilIcon/>
-                            <span className="sr-only">Edit</span>
-                        </Button>
-                        <DeleteConfirmButton onDelete={() => ctx.row.delete()}/>
-                       
-                    </>)
-                }
-            </div>,
-            enableHiding: false,
-            enableSorting: false,
-            meta: {
-                slotProps: {
-                    th: {
-                        className: 'w-20'
-                    }
-                }
-            }
-        })
     ]), [])
 
     const table = useReactTable<D4hAccessTokenData>({
-        _features: [EditableFeature()],
+        data: accessTokens,
         columns,
-        data: accessTokenQuery.data || [],
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
-        getRowId: (row) => row.id,
-        onUpdate: (rowData) => {
-            updateAccessToken(personId, rowData.id, rowData)
-            queryClient.invalidateQueries({ queryKey: D4hAccessTokens.queryKey(personId) })
-        },
-        onDelete: (rowData) => {
-            removeAccessToken(personId, rowData.id)
-            queryClient.invalidateQueries({ queryKey: D4hAccessTokens.queryKey(personId) })
-        },
-        enableGrouping: false,
         initialState: {
-            columnVisibility: {
-                label: true, serverCode: true, createdAt: true, teams: true, actions: true
-            },
             sorting: [{ id: 'createdAt', desc: true }],
-        }
+        },
     })
 
-    return <DataTableProvider value={table}>
-        <Card>
-            <CardHeader>
-                <DataTableSearch size="sm" variant="ghost" placeholder="Search access tokens..." />
-                <CardActions>
-                    <AddAccessTokenDialog personId={personId}>
-                        <Button variant="ghost" size="icon">
-                            <PlusIcon />
-                        </Button>
-                    </AddAccessTokenDialog>
+    return <Show
+        when={accessTokens.length > 0}
+        fallback={<Lexington.Empty
+            title="No D4H Access Tokens"
+            description="You have not added any D4H access tokens yet. Add one to get started."
+        >
+            <S2_Button asChild>
+                <Link to={Paths.personal.d4hAccessTokens.create}>
+                    <CreateNewIcon/> Add Access Token
+                </Link>
+            </S2_Button>
+        </Lexington.Empty>}
+    >
+        <Lexington.ColumnControls>
+            <Akagi.TableSearch table={table}/>
 
-                    <TableOptionsDropdown/>
-                    <Separator orientation="vertical"/>
-                    <CardExplanation>
-                        This card lists the personal D4H access tokens that you have configured for use on this device.
-                    </CardExplanation>
-                </CardActions>
-            </CardHeader>
-            <CardContent>
-                <Table>
-                    <DataTableHead/>
-                    <DataTableBody/>
-                    <DataTableFooter/>
-                </Table>
-            </CardContent>
-        </Card>
-    </DataTableProvider>
-    
-    
+            <S2_Button variant="outline" asChild>
+                <Link to={Paths.personal.d4hAccessTokens.create}>
+                    <CreateNewIcon/> Add Access Token
+                </Link>
+            </S2_Button>
+        </Lexington.ColumnControls>
+        <Akagi.Table table={table} />
+    </Show>
 }

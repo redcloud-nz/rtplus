@@ -15,13 +15,15 @@ import { Button } from '@/components/ui/button'
 import { D4hAccessTokens } from '@/lib/d4h-access-tokens'
 import { D4hClient } from '@/lib/d4h-api/client'
 import { D4hEvent } from '@/lib/d4h-api/event'
+import { UserId } from '@/lib/schemas/user'
 import { cn } from '@/lib/utils'
 
 
 
 
+
 export function MonthView({ userId }: { userId: string }) {
-    const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions(userId))
+    const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions({ userId: userId as UserId }))
 
     //const d4hTeams = useMemo(() => extractUniqueTeams(accessTokens), [accessTokens])
     //const teamNameMap = useMemo(() => mapToObj(d4hTeams, ({ team }) => [team.id, team.name]), [d4hTeams])

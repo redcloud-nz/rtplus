@@ -20,14 +20,14 @@ import { tv, VariantProps } from 'tailwind-variants'
 
 
 function LexingtonRoot({ children }: { children: ReactNode }) {
-    return <main
+    return <div
         data-component="LexingtonRoot"
         className="relative flex h-svh flex-1 flex-col bg-background"
-    >{children}</main>
+    >{children}</div>
 }
 
 const lexingtonPageVariants = tv({
-    base: 'flex flex-row justify-center items-stretch h-[calc(100vh-var(--header-height))] [scrollbar-color:var(--scrollbar-thumb)_var(--scrollbar-track)] [scrollbar-gutter:stable_both-edges]',
+    base: 'flex flex-row justify-center h-[calc(100vh-var(--header-height))] [scrollbar-color:var(--scrollbar-thumb)_var(--scrollbar-track)] [scrollbar-gutter:stable_both-edges]',
     variants: {
         scrollable: {
             true: "overflow-y-auto",
@@ -35,8 +35,8 @@ const lexingtonPageVariants = tv({
     }
 })
 
-function LexingtonPage({ asChild = false, children, className, scrollable = true, ...props }: ComponentProps<'div'> & VariantProps<typeof lexingtonPageVariants> & { asChild?: boolean }) {
-    const Comp = asChild ? Slot.Root : 'div'
+function LexingtonPage({ asChild = false, children, className, scrollable = true, ...props }: ComponentProps<'main'> & VariantProps<typeof lexingtonPageVariants> & { asChild?: boolean }) {
+    const Comp = asChild ? Slot.Root : 'main'
 
     return <Comp
         className={lexingtonPageVariants({ className, scrollable })}
@@ -72,7 +72,7 @@ function LexingtonEmpty({ title, description, children }: LexingtonPageEmptyProp
 }
 
 const lexingtonColumnVariants = tv({
-    base: "relative flex flex-col items-stretch p-4 gap-2 peer",
+    base: "h-fit p-4 space-y-2 peer",
     variants: {
         width: {
             xs: "w-full xs:w-md xs:mx-auto",

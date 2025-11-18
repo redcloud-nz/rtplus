@@ -7,35 +7,37 @@
 
 import { Metadata } from 'next'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
-import { Boundary } from '@/components/boundary'
+import { auth } from '@clerk/nextjs/server'
+import { Lexington } from '@/components/blocks/lexington'
 
+import { UserId } from '@/lib/schemas/user'
 import * as Paths from '@/paths'
 
-import { AccessTokenListCard } from './access-token-list'
-import { auth } from '@clerk/nextjs/server'
+import { Personal_D4hAccessTokens_List } from './access-token-list'
+
+
+
+
+
 
 
 export const metadata: Metadata = { title: "D4H Access Tokens - Personal" }
 
 export default async function Personal_D4hAccessTokens_Page() {
-    const { sessionClaims: { rt_person_id: personId } } = await auth.protect()
 
+    const { userId } = await auth.protect()
 
-    return <AppPage>
-        <AppPageBreadcrumbs breadcrumbs={[
+    return <Lexington.Root>
+        <Lexington.Header breadcrumbs={[
             Paths.personal,
             Paths.personal.d4hAccessTokens
         ]}/>
-        <AppPageContent variant="container">
-            <PageHeader>
-                <PageTitle>My D4H Access Tokens</PageTitle>
-            </PageHeader>
-            <Boundary>
-                <AccessTokenListCard personId={personId}/>
-            </Boundary>
-        </AppPageContent>
-    </AppPage>
+        <Lexington.Page>
+            <Lexington.Column width="xl">
+                <Personal_D4hAccessTokens_List userId={userId as UserId}/>
+            </Lexington.Column>
+        </Lexington.Page>
+    </Lexington.Root>
 }
 
  

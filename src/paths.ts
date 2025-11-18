@@ -445,6 +445,11 @@ export const personal = {
     d4hAccessTokens: {
         label: 'D4H Access Tokens',
         href: '/personal/d4h-access-tokens',
+
+        create: {
+            label: 'Add Access Token',
+            href: '/personal/d4h-access-tokens/--create',
+        },
     },
     dashboard: {
         label: 'Dashboard',
