@@ -41,5 +41,5 @@ export async function getOrganization(orgSlug: string): Promise<OrganizationData
 }
 
 export async function revalidateOrganization(orgSlug: string) {
-    revalidateTag(`organization-${orgSlug}`, { expire: 0})
+    revalidateTag(`organization-${orgSlug}`, { expire: 0 })
 }

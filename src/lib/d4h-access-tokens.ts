@@ -31,10 +31,12 @@ export const d4hAccessTokenSchema = z.object({
     value: z.string(),
     serverCode: z.enum(['ap', 'eu', 'us']),
     createdAt: z.string().datetime(),
+    lastVerified: z.string().datetime(),
     teams: z.array(z.object({
         id: z.number().int(),
         name: z.string(),
-    }))
+    })),
+    status: z.enum(['Active', 'Inactive']).default('Active'),
 })
 
 export type D4hAccessTokenData = z.infer<typeof d4hAccessTokenSchema>
@@ -83,13 +85,13 @@ export function removeAccessToken(userId: UserId, tokenId: string) {
 
 
 export const D4hAccessTokens = {
-    queryKey({ userId }: { userId: UserId }) {
+    queryKey({ userId }: { userId: UserId, orgId: OrganizationId }) {
         return ['d4h-access-tokens', userId] as const
     },
-    queryOptions({ userId }: { userId: UserId }) {
+    queryOptions({ userId, orgId }: { userId: UserId, orgId: OrganizationId }) {
          return {
-            queryKey: this.queryKey({ userId }),
-            queryFn: () => getAccessTokens(userId),
+            queryKey: this.queryKey({ userId, orgId }),
+            queryFn: () => getAccessTokens(userId, { orgId }),
         } as const
     }
 }

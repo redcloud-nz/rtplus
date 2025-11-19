@@ -11,6 +11,8 @@ export type UserId = string & z.BRAND<'UserId'>
 
 export const UserId = {
     schema: z.string().startsWith('user_').min(6).max(50).brand<'UserId'>(),
+
+    parse: (value: string) => UserId.schema.parse(value),
 }
 
 export const userSchema = z.object({

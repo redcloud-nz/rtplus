@@ -1,8 +1,6 @@
 /*
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
- *
- *  Path: /orgs/[org_slug]/admin/personnel/[person_id]/team-memberships/[team_id]/--update
  */
 'use client'
 
@@ -16,24 +14,28 @@ import { Lexington } from '@/components/blocks/lexington'
 import { CreateNewIcon } from '@/components/icons'
 import { Show } from '@/components/show'
 import { S2_Button } from '@/components/ui/s2-button'
-import { Link } from '@/components/ui/link'
+import { Link, TextLink } from '@/components/ui/link'
 
 import { D4hAccessTokenData, D4hAccessTokens } from '@/lib/d4h-access-tokens'
 import { getD4hServer } from '@/lib/d4h-api/servers'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { UserId } from '@/lib/schemas/user'
 import { formatDateTime } from '@/lib/utils'
 import * as Paths from '@/paths'
 
 
 
-export function Personal_D4hAccessTokens_List({ userId }: { userId: UserId }) {
 
-    const { data: accessTokens = [] } = useQuery(D4hAccessTokens.queryOptions(userId))
+export function Personal_D4hAccessTokens_List({ organization, userId }: { organization: OrganizationData, userId: UserId }) {
+
+    const { data: accessTokens = [] } = useQuery(D4hAccessTokens.queryOptions({ userId, orgId: organization.orgId }))
 
     const columns = useMemo(() => Akagi.defineColumns<D4hAccessTokenData>(columnHelper => [
         columnHelper.accessor('label', {
             header: ctx => <Akagi.TableHeader header={ctx.header}>Label</Akagi.TableHeader>,
-            cell: ctx => <Akagi.TableCell cell={ctx.cell}>{ctx.getValue()}</Akagi.TableCell>,
+            cell: ctx => <Akagi.TableCell cell={ctx.cell}>
+                <TextLink to={Paths.org(organization.slug).personal.d4hAccessToken(ctx.row.original.tokenId)}>{ctx.getValue() ?? ctx.row.original.orgId}</TextLink>
+            </Akagi.TableCell>,
             enableSorting: true,
             enableGlobalFilter: true,
         }),
@@ -77,7 +79,7 @@ export function Personal_D4hAccessTokens_List({ userId }: { userId: UserId }) {
             description="You have not added any D4H access tokens yet. Add one to get started."
         >
             <S2_Button asChild>
-                <Link to={Paths.personal.d4hAccessTokens.create}>
+                <Link to={Paths.org(organization.slug).personal.d4hAccessTokens.create}>
                     <CreateNewIcon/> Add Access Token
                 </Link>
             </S2_Button>
@@ -87,7 +89,7 @@ export function Personal_D4hAccessTokens_List({ userId }: { userId: UserId }) {
             <Akagi.TableSearch table={table}/>
 
             <S2_Button variant="outline" asChild>
-                <Link to={Paths.personal.d4hAccessTokens.create}>
+                <Link to={Paths.org(organization.slug).personal.d4hAccessTokens.create}>
                     <CreateNewIcon/> Add Access Token
                 </Link>
             </S2_Button>

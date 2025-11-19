@@ -12,11 +12,12 @@ import { match } from 'ts-pattern'
 import { Team, TeamD4hInfo } from '@prisma/client'
 import { QueryKey, UseQueryResult } from '@tanstack/react-query'
 
-import { D4hAccessTokenBasicData, D4hAccessTokenData } from '../d4h-access-tokens'
+import { D4hAccessTokenBasicData } from '../d4h-access-tokens'
 import type { paths } from './schema'
 import { getD4hServer } from './servers'
 import { D4hEvent } from './event'
 import { D4hMember } from './member'
+import { D4hWhoami } from './whoami'
 
 
 
@@ -110,6 +111,11 @@ export interface FetchListQueryOptions<TData> {
     queryKey: QueryKey
 }
 
+export interface FetchQueryOptions<TData> {
+    queryFn: () => Promise<TData>
+    queryKey: QueryKey
+}
+
 export const D4hClient = {
     events: {
         queryKey({ teamId, type, ...options }: { teamId: number, type: 'events' | 'exercises' | 'incidents'} & EventParamOptions): QueryKey {
@@ -179,5 +185,24 @@ export const D4hClient = {
                 }
             }
         }               
+    },
+    whoami: {
+        queryKey() {
+            return ['d4h', 'whoami'] as const
+        },
+        queryOptions(accessToken: D4hAccessTokenBasicData): FetchQueryOptions<D4hWhoami> {
+            
+
+            return {
+                queryKey: this.queryKey(),
+                queryFn: async () => {
+                    const fetchClient = getD4hFetchClient(accessToken)
+
+                    const { data, error } = await fetchClient.GET('/v3/whoami')
+                    if (error) throw error
+                    return data as D4hWhoami
+                },
+            }
+        }
     }
 } as const 

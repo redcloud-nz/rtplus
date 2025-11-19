@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  */
 
+import { D4hAccessTokens } from './lib/d4h-access-tokens'
 import { type SkillCheckSessionId } from './lib/schemas/skill-check-session'
 
 export const about = {
@@ -77,6 +78,7 @@ type OrgPaths = {
     dev: ReturnType<typeof devModule>,
     fog: ReturnType<typeof fogModule>,
     notes: ReturnType<typeof notesModule>,
+    personal: ReturnType<typeof personalModule>,
     skills: ReturnType<typeof skillsModule>,
     spm: ReturnType<typeof skillPackageManagerModule>,
 }
@@ -97,6 +99,7 @@ export function org(orgSlug: string): OrgPaths  {
             dev: devModule(orgSlug),
             fog: fogModule(orgSlug),
             notes: notesModule(orgSlug),
+            personal: personalModule(orgSlug),
             skills: skillsModule(orgSlug),
             spm: skillPackageManagerModule(orgSlug),
         } satisfies OrgPaths
@@ -311,6 +314,44 @@ function notesModule(orgSlug: string) {
     } as const
 }
 
+function personalModule(orgSlug: string) {
+    const base = `/orgs/${orgSlug}/personal` as const
+
+    return {
+        label: 'Personal',
+        href: base,
+
+        d4hAccessToken: (tokenId: string) => ({
+            href: `${base}/d4h-access-tokens/${tokenId}`,
+        } as const),
+        d4hAccessTokens: {
+            label: 'D4H Access Tokens',
+            href: `${base}/d4h-access-tokens`,
+
+            create: {
+                label: 'Add Access Token',
+                href: `${base}/d4h-access-tokens/--create`,
+            },
+        },
+        dashboard: {
+            label: 'Dashboard',
+            href: base,
+        },
+        settings: {
+            label: "Settings",
+            href: `${base}/settings`,
+        },
+        whoami: {
+            label: 'Who Am I',
+            href: `${base}/whoami`,
+        },
+        profile: {
+            label: 'Profile',
+            href: `${base}/profile`,
+        },
+    } as const
+}
+
 function skillsModule(orgSlug: string) {
     const base = `/orgs/${orgSlug}/skills` as const
     return {
@@ -433,41 +474,6 @@ function skillPackageManagerModule(orgSlug: string) {
         } as const,
     }
 }
-
-//  /------------------------------\
-//  |           Account            |
-//  \------------------------------/
-export const personal = {
-    label: 'Personal',
-    index: '/personal',
-    href: '/personal',
-
-    d4hAccessTokens: {
-        label: 'D4H Access Tokens',
-        href: '/personal/d4h-access-tokens',
-
-        create: {
-            label: 'Add Access Token',
-            href: '/personal/d4h-access-tokens/--create',
-        },
-    },
-    dashboard: {
-        label: 'Dashboard',
-        href: '/personal',
-    },
-    settings: {
-        label: "Settings",
-        href: '/personal/settings',
-    },
-    whoami: {
-        label: 'Who Am I',
-        href: '/personal/whoami',
-    },
-    profile: {
-        label: 'Profile',
-        href: '/personal/profile',
-    },
-} as const
 
 
 const docsBase = "https://github.com/redcloud-nz/rtplus/wiki"

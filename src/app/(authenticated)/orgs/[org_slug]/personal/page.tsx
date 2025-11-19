@@ -2,7 +2,7 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
- *  Path: /personal
+ *  Path: /orgs/[org_slug]/personal
  */
 
 import { ChevronRightIcon } from 'lucide-react'
@@ -16,7 +16,8 @@ import * as Paths from '@/paths'
 
 export const metadata = { title: 'Dashboard' }
 
-export default async function PersonalDashboardPage(props: PageProps<'/personal'>) {
+export default async function PersonalDashboardPage(props: PageProps<'/orgs/[org_slug]/personal'>) {
+    const { org_slug: orgSlug } = await props.params
 
     return <AppPage>
             <AppPageBreadcrumbs
@@ -37,7 +38,7 @@ export default async function PersonalDashboardPage(props: PageProps<'/personal'
                 </div>
                 <div className="flex w-full max-w-md flex-col gap-4">
                     <Item asChild>
-                        <Link to={Paths.personal.profile}>
+                        <Link to={Paths.org(orgSlug).personal.profile}>
                             <ItemContent>
                                 <ItemTitle>Profile</ItemTitle>
                                 <ItemDescription>Manage your personal profile settings.</ItemDescription>
@@ -48,7 +49,7 @@ export default async function PersonalDashboardPage(props: PageProps<'/personal'
                         </Link>
                     </Item>
                     <Item asChild>
-                        <Link to={Paths.personal.settings}>
+                        <Link to={Paths.org(orgSlug).personal.settings}>
                             <ItemContent>
                                 <ItemTitle>Settings</ItemTitle>
                                 <ItemDescription>Manage your personal settings.</ItemDescription>
@@ -59,7 +60,7 @@ export default async function PersonalDashboardPage(props: PageProps<'/personal'
                         </Link>
                     </Item>
                     <Item asChild>
-                        <Link to={Paths.personal.d4hAccessTokens}>
+                        <Link to={Paths.org(orgSlug).personal.d4hAccessTokens}>
                             <ItemContent>
                                 <ItemTitle>D4H Access Tokens</ItemTitle>
                                 <ItemDescription>Manage your D4H access tokens.</ItemDescription>

@@ -71,7 +71,7 @@ export default function SelectOrganization_Page() {
                     </div>
                     
                     <ItemGroup>
-                        <Item asChild>
+                        {/* <Item asChild>
                             <Link to={Paths.personal.dashboard}>
                                 <ItemMedia>
                                     <Avatar className="rounded-full">
@@ -87,7 +87,7 @@ export default function SelectOrganization_Page() {
                                 </ItemActions>
                             </Link>
                         </Item>
-                        <ItemSeparator />
+                        <ItemSeparator /> */}
                         
                         {memberships.map((membership) => <Fragment key={membership.id}>
                             <Item asChild>

@@ -8,6 +8,7 @@
 import { Metadata } from 'next'
 
 import { AppSidebar } from '@/components/nav/app-sidebar'
+import { ControlBar } from '@/components/nav/control-bar'
 import { OrganizationProvider } from '@/hooks/use-organization'
 import { getOrganization } from '@/server/organization'
 import { NavOrganizationMenu } from '@/components/nav/nav-organization-menu'
@@ -32,9 +33,10 @@ export default async function Organization_Layout(props: LayoutProps<'/orgs/[org
     const organization = await getOrganization(orgSlug)
 
     return <OrganizationProvider initial={organization}>
-        <AppSidebar name={organization.name}>
-            <NavOrganizationMenu/>
-        </AppSidebar>
-        {props.children}
+            <AppSidebar name={organization.name}>
+                <NavOrganizationMenu/>
+            </AppSidebar>
+            <ControlBar organization={organization} />
+            {props.children}
     </OrganizationProvider>
 }

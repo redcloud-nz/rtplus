@@ -15,12 +15,13 @@ import { S2_Button } from '@/components/ui/s2-button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Link } from '@/components/ui/link'
 
-
+import { OrganizationData } from '@/lib/schemas/organization'
 import { getUserInitials } from '@/lib/utils'
 import * as Paths from '@/paths'
 
 
-export function UserMenu() {
+
+export function UserMenu({ organization }: { organization: OrganizationData }) {
 
     const { user } = useUser()
 
@@ -53,21 +54,21 @@ export function UserMenu() {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
                 <DropdownMenuItem asChild>
-                    <Link to={Paths.personal.profile}>
+                    <Link to={Paths.org(organization.slug).personal.profile}>
                         <PersonalProfileIcon />
-                        <span>{Paths.personal.profile.label}</span>
+                        <span>{Paths.org(organization.slug).personal.profile.label}</span>
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                    <Link to={Paths.personal.settings}>
+                    <Link to={Paths.org(organization.slug).personal.settings}>
                         <PersonalSettingsIcon />
-                        <span>{Paths.personal.settings.label}</span>
+                        <span>{Paths.org(organization.slug).personal.settings.label}</span>
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                    <Link to={Paths.personal.d4hAccessTokens}>
+                    <Link to={Paths.org(organization.slug).personal.d4hAccessTokens}>
                         <PersonalD4HAccessTokensIcon />
-                        <span>{Paths.personal.d4hAccessTokens.label}</span>
+                        <span>{Paths.org(organization.slug).personal.d4hAccessTokens.label}</span>
                     </Link>
                 </DropdownMenuItem>
             </DropdownMenuGroup>

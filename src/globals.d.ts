@@ -6,6 +6,8 @@
 import '@clerk/nextjs'
 import '@tanstack/react-table'
 
+import type from '@/lib/schemas/user'
+
 declare module '@tanstack/react-table' {
     // eslint-disable-next-line
     interface ColumnMeta<TData extends RowData, TValue> {

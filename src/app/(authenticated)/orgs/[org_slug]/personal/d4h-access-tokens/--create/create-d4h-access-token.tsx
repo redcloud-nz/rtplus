@@ -31,17 +31,19 @@ import { addAccessToken, D4hAccessTokenData, D4HAccessTokenId, D4hAccessTokens, 
 import { D4hServerCode, D4hServerList, getD4hServer } from '@/lib/d4h-api/servers'
 import { D4hWhoami } from '@/lib/d4h-api/whoami'
 import { getD4hFetchClient } from '@/lib/d4h-api/client'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { UserId } from '@/lib/schemas/user'
 import * as Paths from '@/paths'
 
 
 
-const partialTokenObjectSchema = d4hAccessTokenSchema.omit({ createdAt: true, teams: true })
+
+const partialTokenObjectSchema = d4hAccessTokenSchema.omit({ createdAt: true, lastVerified: true, teams: true })
 
 type PartialTokenObject = z.infer<typeof partialTokenObjectSchema> & { serverCode: D4hServerCode | '' }
 
 
-export function Personal_CreateD4hAccessToken_Form({ userId }: { userId: UserId }) {
+export function Personal_CreateD4hAccessToken_Form({ organization, userId }: { organization: OrganizationData, userId: UserId }) {
     const queryClient = useQueryClient()
     const router = useRouter()
 
@@ -49,8 +51,10 @@ export function Personal_CreateD4hAccessToken_Form({ userId }: { userId: UserId 
         resolver: zodResolver(partialTokenObjectSchema),
         defaultValues: {
             tokenId: D4HAccessTokenId.create(),
+            orgId: organization.orgId,
             value: '',
             label: '',
+            status: 'Active'
         },
     })
 
@@ -88,6 +92,7 @@ export function Personal_CreateD4hAccessToken_Form({ userId }: { userId: UserId 
         const tokenToSave: D4hAccessTokenData = {
             ...form.getValues(),
             createdAt: new Date().toISOString(),
+            lastVerified: new Date().toISOString(),
             teams: whoamiData ? whoamiData.members.map(member => ({
                 id: member.owner.id,
                 name: member.owner.title,
@@ -96,10 +101,10 @@ export function Personal_CreateD4hAccessToken_Form({ userId }: { userId: UserId 
 
         addAccessToken(userId, tokenToSave)
 
-        queryClient.invalidateQueries({ queryKey: D4hAccessTokens.queryKey({ userId }) })
+        queryClient.invalidateQueries({ queryKey: D4hAccessTokens.queryKey({ userId, orgId: organization.orgId }) })
 
         handleReset()
-        router.push(Paths.personal.d4hAccessTokens.href)
+        router.push(Paths.org(organization.slug).personal.d4hAccessTokens.href)
     }
 
     function handleReset() {
@@ -204,7 +209,7 @@ export function Personal_CreateD4hAccessToken_Form({ userId }: { userId: UserId 
                         />
 
                         {match(status)
-                            .with('Ready', 'Validating', () =>
+                            .with('Ready', 'Validating', () => <>
                                 <Field orientation="horizontal">
                                     <S2_Button
                                         type="submit"
@@ -219,6 +224,7 @@ export function Personal_CreateD4hAccessToken_Form({ userId }: { userId: UserId 
                                         onClick={handleReset}
                                     >Cancel</S2_Button>
                                 </Field>
+                                </>
                             )
                             .with('Valid', 'Saving', () => <>
                                 <Paragraph className="text-sm">

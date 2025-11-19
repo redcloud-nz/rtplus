@@ -7,7 +7,10 @@ import { ComponentProps, ReactNode } from 'react'
 
 import { cn } from '@/lib/utils'
 
-export function S2_Value({ children, className, value, ...props }: Omit<ComponentProps<'div'>, 'children'> & ({ children?: never, value: string | number} | { children: ReactNode, value?: never })) {
+
+type S2_ValueProps = Omit<ComponentProps<'div'>, 'children'> & ({ children?: never, value: string | number} | { children: ReactNode, value?: never }) & {  muted?: boolean}
+
+export function S2_Value({ children, className, muted = false, value, ...props }: S2_ValueProps) {
     return <div
         data-slot="value"
         className={cn(
@@ -15,6 +18,7 @@ export function S2_Value({ children, className, value, ...props }: Omit<Componen
             "flex items-center",
             "border border-transparent rounded-md outline-none", // Border
             "text-base md:text-sm align-baseline overflow-clip", // Text size
+            muted ? "text-muted-foreground" : "text-foreground",
             className
         )}
         {...props}
