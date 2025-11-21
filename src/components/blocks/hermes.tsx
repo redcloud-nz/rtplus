@@ -7,8 +7,13 @@
  * A section that contains a header and main content area, designed to be used within a Lexington column.
  */
 
-import { cn } from '@/lib/utils'
 import { ComponentProps } from 'react'
+
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/items'
+
+import { cn } from '@/lib/utils'
+import { AlertInfoIcon } from '../icons'
+
 
 
 function HermesSection({ className, ...props}: ComponentProps<'section'>) {
@@ -39,7 +44,25 @@ function HermesSectionTitle({ className, ...props }: ComponentProps<'h3'>) {
     />
 }
 
+function HermesEmpty({ className, ...props}: Omit<ComponentProps<typeof Item>, 'children'> & { title: string, description?: string }) {
+    return <Item
+        variant="outline"
+        className={className}
+        data-component="HermesEmpty"
+        {...props}
+    >
+        <ItemMedia>
+            <AlertInfoIcon/>
+        </ItemMedia>
+        <ItemContent>
+            <ItemTitle>{props.title}</ItemTitle>
+            {props.description && <ItemDescription>{props.description}</ItemDescription>}
+        </ItemContent>
+    </Item>
+}
+
 export const Hermes = {
+    Empty: HermesEmpty,
     Section: HermesSection,
     SectionHeader: HermesSectionHeader,
     SectionTitle: HermesSectionTitle,

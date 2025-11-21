@@ -10,24 +10,18 @@ import { PlusIcon } from 'lucide-react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 
 import { Lexington } from '@/components/blocks/lexington'
-
+import { CreateNewIcon } from '@/components/icons'
 import { Show } from '@/components/show'
 import { S2_Button } from '@/components/ui/s2-button'
 import { Link, TextLink } from '@/components/ui/link'
 
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-
 import { CompetenceLevel, CompetenceLevelTerms } from '@/lib/competencies'
 import { OrganizationData } from '@/lib/schemas/organization'
-import { PersonRef } from '@/lib/schemas/person'
-import { SkillCheckData } from '@/lib/schemas/skill-check'
-import { SkillData } from '@/lib/schemas/skill'
+
 import * as Paths from '@/paths'
-import { RouterInput, trpc } from '@/trpc/client'
+import { trpc } from '@/trpc/client'
 
-type Filters = Omit<RouterInput['skillChecks']['getSkillChecks'], 'orgId' | 'limit' | 'offset'>
 
-type RowData = SkillCheckData & { assessee: PersonRef, assessor: PersonRef, skill: SkillData }
 
 export function SkillsModule_SkillChecks_List({ organization }: { organization: OrganizationData }) {
 
@@ -48,19 +42,11 @@ export function SkillsModule_SkillChecks_List({ organization }: { organization: 
         <Lexington.ColumnControls>
             <div></div>
             <div className="flex items-center gap-2">
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <S2_Button asChild>
-                            <Link to={Paths.org(organization.slug).skills.checks.create}>
-                                <PlusIcon />
-                                New Check
-                            </Link>
-                        </S2_Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        Create a new skill check
-                    </TooltipContent>
-                </Tooltip>
+                <S2_Button variant="outline" asChild>
+                    <Link to={Paths.org(organization.slug).skills.checks.create}>
+                        <CreateNewIcon /> <span className="hidden md:inline">New Check</span>
+                    </Link>
+                </S2_Button>
             </div>
         </Lexington.ColumnControls>
 

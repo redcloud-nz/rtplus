@@ -5,7 +5,6 @@
  */
 'use client'
 
-import { PlusIcon } from 'lucide-react'
 import { useMemo } from 'react'
 
 import { Protect } from '@clerk/nextjs'
@@ -14,15 +13,16 @@ import { getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedR
 
 import { Akagi } from '@/components/blocks/akagi'
 import { Lexington } from '@/components/blocks/lexington'
+import { CreateNewIcon } from '@/components/icons'
 import { Show } from '@/components/show'
 import { S2_Button } from '@/components/ui/s2-button'
 import { Link, TextLink } from '@/components/ui/link'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { OrganizationData } from '@/lib/schemas/organization'
 import { PersonData } from '@/lib/schemas/person'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
+
 
 
 
@@ -93,8 +93,7 @@ export function AdminModule_PersonnelList({ organization }: { organization: Orga
             <Protect role="org:admin">
                 <S2_Button asChild>
                     <Link to={Paths.org(organization.slug).admin.personnel.create}>
-                        <PlusIcon className="mr-2 h-4 w-4"/>
-                        Add Person
+                        <CreateNewIcon/> New Person
                     </Link>
                 </S2_Button>
             </Protect>
@@ -103,18 +102,11 @@ export function AdminModule_PersonnelList({ organization }: { organization: Orga
         <Lexington.ColumnControls>
             <Akagi.TableSearch table={table} />
             <Protect role="org:admin">
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <S2_Button variant="outline" asChild>
-                            <Link to={Paths.org(organization.slug).admin.personnel.create}>
-                                <PlusIcon/> <span className="hidden md:inline">New Person</span>
-                            </Link>
-                        </S2_Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        Create a new person
-                    </TooltipContent>
-                </Tooltip>
+                <S2_Button variant="outline" asChild>
+                    <Link to={Paths.org(organization.slug).admin.personnel.create}>
+                        <CreateNewIcon/> <span className="hidden md:inline">New Person</span>
+                    </Link>
+                </S2_Button>
             </Protect>
         </Lexington.ColumnControls>
 

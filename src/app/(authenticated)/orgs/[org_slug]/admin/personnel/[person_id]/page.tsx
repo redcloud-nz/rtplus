@@ -27,7 +27,7 @@ import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 import { AdminModule_DeletePerson_Dialog } from './delete-person'
-import { AdminModule_Person_TeamMembershipList } from './person-team-memberships'
+import { AdminModule_Person_TeamMemberships_Section } from './person-team-memberships'
 
 
 
@@ -114,17 +114,6 @@ export default function AdminModule_Person_Page(props: PageProps<'/orgs/[org_slu
             </S2_Card>
         </Hermes.Section>
         
-        <Hermes.Section>
-            <Hermes.SectionHeader>
-                <Hermes.SectionTitle>Team Memberships</Hermes.SectionTitle>
-                <S2_Button variant="outline" asChild>
-                    <Link to={Paths.org(organization.slug).admin.person(personId).teamMemberships.create}>
-                        <CreateNewIcon/> Team Membership
-                    </Link>
-                </S2_Button>
-            </Hermes.SectionHeader>
-            
-            <AdminModule_Person_TeamMembershipList organization={organization} personId={person.personId}/>
-        </Hermes.Section>
+        <AdminModule_Person_TeamMemberships_Section organization={organization} personId={person.personId}/>
     </Lexington.Column>
 }

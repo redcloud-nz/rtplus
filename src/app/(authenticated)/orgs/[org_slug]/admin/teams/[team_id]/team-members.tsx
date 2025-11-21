@@ -11,10 +11,9 @@ import { useSuspenseQueries } from '@tanstack/react-query'
 import { getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
 import { Akagi } from '@/components/blocks/akagi'
-import { AlertInfoIcon, CreateNewIcon } from '@/components/icons'
-import { Show } from '@/components/show'
+import { Hermes } from '@/components/blocks/hermes'
+import { CreateNewIcon } from '@/components/icons'
 import { S2_Button } from '@/components/ui/s2-button'
-import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/items'
 import { Link, TextLink } from '@/components/ui/link'
 
 import { OrganizationData } from '@/lib/schemas/organization'
@@ -24,7 +23,7 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function AdminModule_TeamMembers({ organization, teamId }: { organization: OrganizationData, teamId: TeamId}) {
+export function AdminModule_TeamMembers_Section({ organization, teamId }: { organization: OrganizationData, teamId: TeamId}) {
 
     const [
         { data: team },
@@ -76,19 +75,22 @@ export function AdminModule_TeamMembers({ organization, teamId }: { organization
         },
     })
 
-    return <Show 
-        when={teamMemberships.length > 0}
-        fallback={<Item variant="outline">
-            <ItemMedia>
-                <AlertInfoIcon/>
-            </ItemMedia>
-           <ItemContent>
-                <ItemTitle>No Team Memberships</ItemTitle>
-                <ItemDescription>{team.name} has no members.</ItemDescription>
-           </ItemContent>
-        </Item>}
-    >
-        <Akagi.Table table={table}/>
-    </Show>
+    return <Hermes.Section>
+        <Hermes.SectionHeader>
+            <Hermes.SectionTitle>Team Members</Hermes.SectionTitle>
+            <S2_Button variant="outline" asChild>
+                <Link to={Paths.org(organization.slug).admin.team(team.teamId).members.create}>
+                    <CreateNewIcon/> Member
+                </Link>
+            </S2_Button>
+        </Hermes.SectionHeader>
 
+        { teamMemberships.length > 0
+            ? <Akagi.Table table={table}/>
+            : <Hermes.Empty
+                title="No Team Members"
+                description="There are no members in this team yet."
+            />
+        }
+    </Hermes.Section>
 }

@@ -96,8 +96,8 @@ export function AdminModule_TeamsList({ organization }: { organization: Organiza
             <Protect role="org:admin">
                 <S2_Button asChild>
                     <Link to={Paths.org(organization.slug).admin.teams.create}>
-                        <PlusIcon/>
-                        New Team
+                        <CreateNewIcon/> New Team
+                       
                     </Link>
                 </S2_Button>
             </Protect>
@@ -106,18 +106,11 @@ export function AdminModule_TeamsList({ organization }: { organization: Organiza
         <Lexington.ColumnControls>
             <Akagi.TableSearch table={table} />
             <Protect role="org:admin">
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <S2_Button variant="outline" asChild>
-                            <Link to={Paths.org(organization.slug).admin.teams.create}>
-                                <CreateNewIcon/> <span className="hidden md:inline">New Team</span>
-                            </Link>
-                        </S2_Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        Create a new team
-                    </TooltipContent>
-                </Tooltip>
+                <S2_Button variant="outline" asChild>
+                    <Link to={Paths.org(organization.slug).admin.teams.create}>
+                        <CreateNewIcon/> <span className="hidden md:inline">New Team</span>
+                    </Link>
+                </S2_Button>
             </Protect>
         </Lexington.ColumnControls>
 

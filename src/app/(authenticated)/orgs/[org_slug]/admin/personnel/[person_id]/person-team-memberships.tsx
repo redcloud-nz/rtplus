@@ -11,10 +11,10 @@ import { useSuspenseQueries } from '@tanstack/react-query'
 import { getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
 import { Akagi } from '@/components/blocks/akagi'
-import { AlertInfoIcon } from '@/components/icons'
-import { Show } from '@/components/show'
-import { Item,  ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/items'
-import { TextLink } from '@/components/ui/link'
+import { Hermes } from '@/components/blocks/hermes'
+import { CreateNewIcon } from '@/components/icons'
+import { S2_Button } from '@/components/ui/s2-button'
+import { Link, TextLink } from '@/components/ui/link'
 
 import { OrganizationData } from '@/lib/schemas/organization'
 import { PersonId } from '@/lib/schemas/person'
@@ -23,7 +23,9 @@ import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
-export function AdminModule_Person_TeamMembershipList({ organization, personId }: { organization: OrganizationData, personId: PersonId }) {
+
+
+export function AdminModule_Person_TeamMemberships_Section({ organization, personId }: { organization: OrganizationData, personId: PersonId }) {
 
     const [
         { data: person},
@@ -77,19 +79,22 @@ export function AdminModule_Person_TeamMembershipList({ organization, personId }
         },
     })
 
-    return <Show 
-        when={teamMemberships.length > 0}
-        fallback={<Item variant="outline">
-            <ItemMedia>
-                <AlertInfoIcon/>
-            </ItemMedia>
-           <ItemContent>
-                <ItemTitle>No Team Memberships</ItemTitle>
-                <ItemDescription>{person.name} is not a member of any teams.</ItemDescription>
-           </ItemContent>
-        </Item>}
-    >
-        <Akagi.Table table={table}/>
-    </Show>
+    return <Hermes.Section>
+        <Hermes.SectionHeader>
+            <Hermes.SectionTitle>Team Memberships</Hermes.SectionTitle>
+            <S2_Button variant="outline" asChild>
+                <Link to={Paths.org(organization.slug).admin.person(personId).teamMemberships.create}>
+                    <CreateNewIcon/> Team Membership
+                </Link>
+            </S2_Button>
+        </Hermes.SectionHeader>
 
+        { teamMemberships.length > 0
+            ? <Akagi.Table table={table}/>
+            : <Hermes.Empty
+                title="No Team Memberships"
+                description="This person is not a member of any teams yet."
+            />
+        }
+    </Hermes.Section>
 }

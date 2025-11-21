@@ -8,7 +8,10 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 import { Slot as SlotPrimitive } from 'radix-ui'
 
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
+
 import { cn } from '@/lib/utils'
+
 
 export const s2_buttonVariants = tv({
     base: "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
@@ -39,12 +42,37 @@ export const s2_buttonVariants = tv({
     },
 })
 
-export function S2_Button({ className, variant, size, asChild = false, ...props }: ComponentProps<"button"> & VariantProps<typeof s2_buttonVariants> & { asChild?: boolean }) {
+export function S2_Button({ 
+    className, 
+    variant, 
+    size, 
+    asChild = false, 
+    tooltip,
+    ...props 
+}: ComponentProps<"button"> & VariantProps<typeof s2_buttonVariants> & { 
+    asChild?: boolean
+    tooltip?: string | ComponentProps<typeof TooltipContent>
+}) {
   const Comp = asChild ? SlotPrimitive.Slot : "button"
 
-  return <Comp
+  const button = <Comp
       data-slot="button"
       className={cn(s2_buttonVariants({ variant, size, className }))}
       {...props}
     />
+
+  if (!tooltip) {
+    return button
+  }
+
+  if (typeof tooltip === 'string') {
+    tooltip = {
+      children: tooltip,
+    }
+  }
+
+  return <Tooltip>
+    <TooltipTrigger asChild>{button}</TooltipTrigger>
+    <TooltipContent {...tooltip} />
+  </Tooltip>
 }

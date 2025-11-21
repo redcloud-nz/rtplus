@@ -13,14 +13,13 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 
 import { Hermes } from '@/components/blocks/hermes'
 import { Lexington } from '@/components/blocks/lexington'
-import { CreateNewIcon, DeleteObjectIcon, DropdownMenuTriggerIcon, DuplicateObjectIcon, EditObjectIcon, ToParentPageIcon } from '@/components/icons'
+import { DeleteObjectIcon, DropdownMenuTriggerIcon, DuplicateObjectIcon, EditObjectIcon, ToParentPageIcon } from '@/components/icons'
 import { S2_Button } from '@/components/ui/s2-button'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { S2_Card, S2_CardContent, S2_CardDescription, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Link } from '@/components/ui/link'
-import { Heading } from '@/components/ui/typography'
 import { S2_Value } from '@/components/ui/s2-value'
 import { useOrganization } from '@/hooks/use-organization'
 import * as Paths from '@/paths'
@@ -28,7 +27,7 @@ import { trpc } from '@/trpc/client'
 
 
 import { AdminModule_DeleteTeam_Dialog } from './delete-team'
-import { AdminModule_TeamMembers } from './team-members'
+import { AdminModule_TeamMembers_Section } from './team-members'
 
 
 
@@ -100,18 +99,7 @@ export default function AdminModule_Team_Page(props: PageProps<'/orgs/[org_slug]
             </S2_Card>
         </Hermes.Section>
 
-        <Hermes.Section>
-            <Hermes.SectionHeader>
-                <Hermes.SectionTitle>Team Members</Hermes.SectionTitle>
-                <S2_Button variant="outline" asChild>
-                    <Link to={Paths.org(organization.slug).admin.team(team.teamId).members.create}>
-                        <CreateNewIcon/> Member
-                    </Link>
-                </S2_Button>
-            </Hermes.SectionHeader>
-
-            <AdminModule_TeamMembers organization={organization} teamId={team.teamId}/>
-        </Hermes.Section>
+         <AdminModule_TeamMembers_Section organization={organization} teamId={team.teamId}/>
 
         
         
