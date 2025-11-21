@@ -19,7 +19,7 @@ import { ButtonGroup } from '@/components/ui/button-group'
 import { S2_Card, S2_CardContent, S2_CardDescription, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
-import { Link } from '@/components/ui/link'
+import { Link, TextLink } from '@/components/ui/link'
 import { S2_Value } from '@/components/ui/s2-value'
 
 import { useOrganization } from '@/hooks/use-organization'
@@ -95,10 +95,16 @@ export default function AdminModule_Person_Page(props: PageProps<'/orgs/[org_slu
                             <FieldLabel>Email</FieldLabel>
                             <S2_Value value={person.email} className="min-w-1/2"/>
                         </Field>
-                        <Field orientation="responsive">
-                            <FieldLabel>Linked User ID</FieldLabel>
-                            <S2_Value value={person.userId ?? 'Not linked'} className="min-w-1/2"/>
-                        </Field>
+                        <Protect role="org:admin">
+                             <Field orientation="responsive">
+                                <FieldLabel>Linked User ID</FieldLabel>
+                                <S2_Value className="min-w-1/2">{person.userId 
+                                    ? <TextLink to={Paths.org(organization.slug).admin.user(person.userId)}>{person.userId}</TextLink>
+                                    : <span className="text-muted-foreground">Not linked</span>
+                                }</S2_Value>
+                            </Field>
+                        </Protect>
+                       
                         <Field orientation="responsive">
                             <FieldLabel>Status</FieldLabel>
                             <S2_Value value={person.status} className="min-w-1/2"/>

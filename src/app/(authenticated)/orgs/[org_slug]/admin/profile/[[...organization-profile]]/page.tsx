@@ -17,12 +17,10 @@ export default async function Organization_Profile_Page(props: PageProps<'/orgs/
         <Lexington.Header
             breadcrumbs={[Paths.org(orgSlug).admin, Paths.org(orgSlug).admin.profile]}
         />
-        <Lexington.Page>
-            <Lexington.Column>
-                 <OrganizationProfile
-                    path={Paths.org(orgSlug).admin.profile.href}
-                />
-            </Lexington.Column>
+        <Lexington.Page className="items-center">
+            <OrganizationProfile
+                path={Paths.org(orgSlug).admin.profile.href}
+            />
         </Lexington.Page>
     </Lexington.Root>
 }

@@ -38,12 +38,23 @@ export default async function AdminModule_Index_Page(props: PageProps<'/orgs/[or
                     <div className="font-semibold mt-4">Admin Module</div>
                 </div>
                 <ItemGroup>
-                    <Protect role="org_admin">
+                    <Protect role="org:admin">
+                        <Item asChild>
+                            <Link to={Paths.org(orgSlug).admin.invitations}>
+                                <ItemContent>
+                                    <ItemTitle>Invitations</ItemTitle>
+                                    <ItemDescription>Manage your organisation's invitations.</ItemDescription>
+                                </ItemContent>
+                                <ItemActions>
+                                    <ChevronRightIcon className="size-4" />
+                                </ItemActions>
+                            </Link>
+                        </Item>
                         <Item asChild>
                             <Link to={Paths.org(orgSlug).admin.profile}>
                                 <ItemContent>
-                                    <ItemTitle>Organization</ItemTitle>
-                                    <ItemDescription>Manage your organization's profile, members, and invitations.</ItemDescription>
+                                    <ItemTitle>Organisation</ItemTitle>
+                                    <ItemDescription>Manage your organisation's profile.</ItemDescription>
                                 </ItemContent>
                                 <ItemActions>
                                     <ChevronRightIcon className="size-4" />
@@ -56,7 +67,7 @@ export default async function AdminModule_Index_Page(props: PageProps<'/orgs/[or
                         <Link to={Paths.org(orgSlug).admin.personnel}>
                             <ItemContent>
                                 <ItemTitle>Personnel</ItemTitle>
-                                <ItemDescription>Manage your organization's personnel.</ItemDescription>
+                                <ItemDescription>Manage your organisation's personnel.</ItemDescription>
                             </ItemContent>
                             <ItemActions>
                                 <ChevronRightIcon className="size-4" />
@@ -67,7 +78,7 @@ export default async function AdminModule_Index_Page(props: PageProps<'/orgs/[or
                         <Link to={Paths.org(orgSlug).admin.settings}>
                             <ItemContent>
                                 <ItemTitle>Settings</ItemTitle>
-                                <ItemDescription>Manage your organization's settings.</ItemDescription>
+                                <ItemDescription>Manage your organisation's settings.</ItemDescription>
                             </ItemContent>
                             <ItemActions>
                                 <ChevronRightIcon className="size-4" />
@@ -85,6 +96,19 @@ export default async function AdminModule_Index_Page(props: PageProps<'/orgs/[or
                             </ItemActions>
                         </Link>
                     </Item>
+                    <Protect role="org:admin">
+                        <Item asChild>
+                            <Link to={Paths.org(orgSlug).admin.users}>
+                                <ItemContent>
+                                    <ItemTitle>Users</ItemTitle>
+                                    <ItemDescription>Manage your organisation's users and their roles.</ItemDescription>
+                                </ItemContent>
+                                <ItemActions>
+                                    <ChevronRightIcon className="size-4" />
+                                </ItemActions>
+                            </Link>
+                        </Item>
+                    </Protect>
                 </ItemGroup>
             </Lexington.Column>
         </Lexington.Page>

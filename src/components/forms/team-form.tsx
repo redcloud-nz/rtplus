@@ -8,7 +8,7 @@
 import { ComponentProps, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
-
+import { Show } from '@/components/show'
 import { S2_Button } from '@/components/ui/s2-button'
 import { S2_Card, S2_CardContent, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
@@ -17,9 +17,12 @@ import { Link } from '@/components/ui/link'
 import { S2_Select, S2_SelectContent, S2_SelectItem, S2_SelectTrigger, S2_SelectValue } from '@/components/ui/s2-select'
 import { S2_Value } from '@/components/ui/s2-value'
 
+import { isIntegrationEnabled } from '@/lib/integrations'
 import { OrganizationData } from '@/lib/schemas/organization'
 import { TeamData, TeamId } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
+
+
 
 
 type TeamFormProps = Omit<ComponentProps<'form'>, 'children' | 'onSubmit'> & {
@@ -78,6 +81,31 @@ export function TeamForm({ form, mode, organization, onSubmit, teamId, ...props 
                             </Field>
                         }
                     />
+                    <Show when={isIntegrationEnabled(organization, 'd4h')}>
+                        <Controller
+                            name="properties.d4hTeamId"
+                            control={form.control}
+                            render={({ field, fieldState }) => 
+                                <Field 
+                                    data-invalid={fieldState.invalid}
+                                    orientation="responsive"
+                                    >
+                                    <FieldContent>
+                                        <FieldLabel htmlFor="d4h-team-id">D4H Team ID</FieldLabel>
+                                        {fieldState.invalid && <FieldError errors={[fieldState.error]}/>}
+                                    </FieldContent>
+                                    <S2_Input
+                                        aria-invalid={fieldState.invalid}
+                                        id="d4h-team-id"
+                                        className="min-w-1/2"
+                                        maxLength={100}
+                                        value={field.value || ''}
+                                        onChange={e => field.onChange(e.target.value || undefined)}
+                                    />
+                                </Field>
+                            }
+                        />
+                    </Show>
                     <Controller
                         name="status"
                         control={form.control}

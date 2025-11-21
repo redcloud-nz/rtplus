@@ -77,7 +77,6 @@ export function NavCollapsible({ children, className, icon, path, ...props }: Na
     const [open, setOpen] = useState<boolean>(false)
 
     const isActive = pathname == path.href
-    const isChildActive = pathname.startsWith(path.href + '/') && !isActive
 
     if(isActive && !open) {
         setOpen(true)
@@ -98,7 +97,7 @@ export function NavCollapsible({ children, className, icon, path, ...props }: Na
                 </Link>
             </S2_SidebarMenuButton>
             <CollapsibleTrigger asChild>
-                <S2_SidebarMenuAction disabled={isChildActive}>
+                <S2_SidebarMenuAction>
                     <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                 </S2_SidebarMenuAction>
             </CollapsibleTrigger>

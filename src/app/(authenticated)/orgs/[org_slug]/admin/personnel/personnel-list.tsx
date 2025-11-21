@@ -28,7 +28,7 @@ import { trpc } from '@/trpc/client'
 
 export function AdminModule_PersonnelList({ organization }: { organization: OrganizationData }) {
     
-    const { data: personnel, refetch } = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({ orgId: organization.orgId }))
+    const { data: personnel } = useSuspenseQuery(trpc.personnel.getPersonnel.queryOptions({ orgId: organization.orgId }))
 
 
     const columns = useMemo(() => Akagi.defineColumns<PersonData>(columnHelper => [

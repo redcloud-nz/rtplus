@@ -4,6 +4,8 @@
  */
 'use client'
 
+import { Protect } from '@clerk/nextjs'
+
 import { Show } from '@/components/show'
 import { AdminModuleIcon, D4HModuleIcon, OrgDashboardIcon, NotesModuleIcon, SkillsModuleIcon, SkillPackageManagerModuleIcon } from '@/components/icons'
 import { S2_SidebarGroup, S2_SidebarMenu } from '@/components/ui/s2-sidebar'
@@ -15,7 +17,6 @@ import * as Paths from '@/paths'
 import { NavCollapsible, NavItem, NavSubItem } from './nav-section'
 
 
-
 export function NavOrganizationMenu() {
     const organization = useOrganization()
 
@@ -25,11 +26,17 @@ export function NavOrganizationMenu() {
         <S2_SidebarMenu>
             <NavItem path={orgPrefix.dashboard} icon={<OrgDashboardIcon/>}/>
             <NavCollapsible path={orgPrefix.admin} icon={<AdminModuleIcon/>} prefix={orgPrefix.admin.href}>
+                <Protect role="org:admin">
+                    <NavSubItem path={orgPrefix.admin.invitations}/>
+                </Protect>
                 <NavSubItem path={orgPrefix.admin.profile}/>
                 <NavSubItem path={orgPrefix.admin.personnel}/>
                 <NavSubItem path={orgPrefix.admin.settings}/>
                 {/* <NavSubItem path={prefix.admin.skillPackages}/> */}
                 <NavSubItem path={orgPrefix.admin.teams}/>
+                <Protect role="org:admin">
+                    <NavSubItem path={orgPrefix.admin.users}/>
+                </Protect>
             </NavCollapsible>
             <Show when={isModuleEnabled(organization, 'd4h-views')}>
                 <NavCollapsible path={orgPrefix.d4hViews} icon={<D4HModuleIcon/>} prefix={orgPrefix.d4hViews.href}>

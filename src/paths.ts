@@ -117,6 +117,16 @@ function adminModule(org_slug: string) {
     return {
         label: 'Admin',
         href: base,
+
+        invitations: {
+            label: 'Invitations',
+            href: `${base}/invitations`,
+
+            create: {
+                label: 'Create',
+                href: `${base}/invitations/--create`,
+            }
+        },
         
         person: (personId: string) => {
             const personBase = `${base}/personnel/${personId}` as const
@@ -164,7 +174,7 @@ function adminModule(org_slug: string) {
         },
         profile: { 
             href: `${base}/profile`, 
-            label: 'Organization'
+            label: 'Organisation'
         },
 
         settings: {
@@ -207,6 +217,13 @@ function adminModule(org_slug: string) {
                 label: "Create",
                 href: `${base}/teams/--create`,
             }
+        },
+        user: (userId: string) => ({
+            href:`${base}/users/${userId}`,
+        } as const),
+        users: {
+            label: 'Users',
+            href: `${base}/users`,
         }
     } as const
 }

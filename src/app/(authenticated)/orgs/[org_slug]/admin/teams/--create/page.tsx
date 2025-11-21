@@ -38,7 +38,7 @@ export default async function AdminModule_CreateTeam_Page(props: PageProps<'/org
                         <TooltipTrigger asChild>
                             <S2_Button variant="outline" asChild>
                                 <Link to={Paths.org(orgSlug).admin.teams}>
-                                    <ToParentPageIcon/> List
+                                    <ToParentPageIcon/> Teams List
                                 </Link>
                             </S2_Button>
                         </TooltipTrigger>

@@ -5,14 +5,13 @@
  * Path: /orgs/[org_slug]
  */
 
-import { S2_AppPageHeader } from '@/components/app-page'
+import { Lexington } from '@/components/blocks/lexington'
 import { PageLoadingSpinner } from '@/components/ui/loading'
-import { SidebarInset } from '@/components/ui/sidebar'
 
 export default function Organization_Loading() {
 
-    return <SidebarInset>
-        <S2_AppPageHeader/>
+    return <Lexington.Root>
+        <Lexington.Header/>
         <PageLoadingSpinner message="Loading..."/>
-    </SidebarInset>
+    </Lexington.Root>
 }

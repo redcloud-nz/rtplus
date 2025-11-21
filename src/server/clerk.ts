@@ -4,13 +4,15 @@
 */
 
 import { cacheTag } from 'next/cache'
+import { cache } from 'react'
 
 import { auth, createClerkClient } from '@clerk/nextjs/server'
 
 
 
-export function getClerkClient() {
+
+export const getClerkClient = cache(() => {
     return createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY! })
-}
+})
 
 export { auth as clerkAuth }
