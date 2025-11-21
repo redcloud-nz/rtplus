@@ -32,16 +32,20 @@ const invitationSchema = z.object({
         .transform((value) => {
             return value.split(/[\s,]+/).map(email => email.trim()).filter(email => email.length > 0)
         })
-        .refine(
-            (emailList) => {
-                const invalidEmail = emailList.find(email => !z.string().email().safeParse(email).success)
-                return !invalidEmail
-            },
-            (emailList) => {
-                const invalidEmail = emailList.find(email => !z.string().email().safeParse(email).success)
-                return { message: invalidEmail ? `Invalid email address: ${invalidEmail}` : "Please enter valid email addresses separated by spaces or commas" }
+        .superRefine((emailList: string[], ctx) => {
+            for(const email of emailList) {
+                if(!z.email().safeParse(email).success) {
+                    ctx.addIssue({
+                        code: 'invalid_format',
+                        message: `Invalid email address`,
+                        value: email,
+                        format: 'email',
+                    })
+                }
             }
-        ),
+                const invalidEmail = emailList.find((email: string) => !z.email().safeParse(email).success)
+                
+        }),
     role: z.enum(['org:admin', 'org:member']),
 })
 

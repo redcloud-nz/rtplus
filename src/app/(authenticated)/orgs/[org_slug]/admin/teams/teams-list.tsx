@@ -121,6 +121,6 @@ export function AdminModule_TeamsList({ organization }: { organization: Organiza
             </Protect>
         </Lexington.ColumnControls>
 
-        <Akagi.Table table={table} pagination={false}/>
+        <Akagi.Table table={table}/>
     </Show>
 }

@@ -10,12 +10,15 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Alert } from '@/components/ui/alert'
 import { TextLink } from '@/components/ui/link'
 import { D4hAccessTokens, extractUniqueTeams } from '@/lib/d4h-access-tokens'
+import { OrganizationData } from '@/lib/schemas/organization'
+import { UserId } from '@/lib/schemas/user'
 import * as Paths from '@/paths'
 
 
 
-export function D4HAccessTokenCheck_Card({ userId }: { userId: string }) {
-    const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions(userId))
+
+export function D4HAccessTokenCheck_Card({ organization, userId }: { organization: OrganizationData, userId: UserId }) {
+    const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions({ userId, orgId: organization.orgId }))
 
     const hasAccessTokens = accessTokens.length > 0
     const uniqueTeams = extractUniqueTeams(accessTokens)
@@ -29,7 +32,7 @@ export function D4HAccessTokenCheck_Card({ userId }: { userId: string }) {
                 You have not configured any D4H access tokens. Please visit the D4H Access Tokens page to set up your tokens.
             </p>
             <p>
-                <TextLink to={Paths.personal.d4hAccessTokens}>Go to D4H Access Tokens</TextLink>
+                <TextLink to={Paths.org(organization.slug).personal.d4hAccessTokens}>Go to D4H Access Tokens</TextLink>
             </p>
         </Alert>
 

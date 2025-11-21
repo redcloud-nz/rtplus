@@ -23,6 +23,9 @@ import { Table } from '@/components/ui/table'
 import { D4hAccessTokens, extractUniqueTeams } from '@/lib/d4h-access-tokens'
 import { D4hClient} from '@/lib/d4h-api/client'
 import { D4hMember } from '@/lib/d4h-api/member'
+import { OrganizationData } from '@/lib/schemas/organization'
+import { UserId } from '@/lib/schemas/user'
+
 
 
 const StatusOptions: Record<D4hMember['status'], string> = {
@@ -33,9 +36,9 @@ const StatusOptions: Record<D4hMember['status'], string> = {
 }
 
 
-export function D4hViewsModule_PersonnelList_Card({ userId }: { userId: string }) {
+export function D4hViewsModule_PersonnelList_Card({ organization, userId }: { organization: OrganizationData, userId: UserId }) {
 
-    const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions(userId))
+    const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions({ userId, orgId: organization.orgId }))
 
     const d4hTeams = useMemo(() => extractUniqueTeams(accessTokens), [accessTokens])
     const teamNameMap = useMemo(() => mapToObj(d4hTeams, ({ team }) => [team.id, team.name]), [d4hTeams])

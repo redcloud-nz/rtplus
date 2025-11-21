@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button'
 import { D4hAccessTokens } from '@/lib/d4h-access-tokens'
 import { D4hClient } from '@/lib/d4h-api/client'
 import { D4hEvent } from '@/lib/d4h-api/event'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { UserId } from '@/lib/schemas/user'
 import { cn } from '@/lib/utils'
 
@@ -22,8 +23,8 @@ import { cn } from '@/lib/utils'
 
 
 
-export function MonthView({ userId }: { userId: string }) {
-    const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions({ userId: userId as UserId }))
+export function MonthView({ organization, userId }: { organization: OrganizationData, userId: UserId }) {
+    const { data: accessTokens } = useSuspenseQuery(D4hAccessTokens.queryOptions({ userId, orgId: organization.orgId }))
 
     //const d4hTeams = useMemo(() => extractUniqueTeams(accessTokens), [accessTokens])
     //const teamNameMap = useMemo(() => mapToObj(d4hTeams, ({ team }) => [team.id, team.name]), [d4hTeams])

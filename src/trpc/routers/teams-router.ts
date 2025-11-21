@@ -81,8 +81,8 @@ export const teamsRouter = createTRPCRouter({
 
     getTeams: orgProcedure
         .input(z.object({
-            status: recordStatusParameterSchema
-        }).optional().default({}))
+            status: recordStatusParameterSchema.optional(),
+        }))
         .output(z.array(teamSchema.extend({
             _count: z.object({
                 teamMemberships: z.number()

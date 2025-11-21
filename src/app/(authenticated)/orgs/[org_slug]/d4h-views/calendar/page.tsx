@@ -12,6 +12,8 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent} from '@/components/app-pag
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
+import { getOrganization } from '@/server/organization'
+import { UserId } from '@/lib/schemas/user'
 
 import { MonthView } from './month-view'
 
@@ -22,8 +24,9 @@ import { MonthView } from './month-view'
 export const metadata: Metadata = { title: "Calendar - D4H" }
 
 export default async function D4hViewsModule_Calendar_Page(props: PageProps<'/orgs/[org_slug]/d4h-views/calendar'>) {
-
     const { org_slug: orgSlug } = await props.params
+    const organization = await getOrganization(orgSlug)
+
     const { userId } = await auth.protect()
 
     return <AppPage>
@@ -33,7 +36,7 @@ export default async function D4hViewsModule_Calendar_Page(props: PageProps<'/or
         ]}/>
         <AppPageContent variant="full">
             <Boundary>
-                <MonthView userId={userId} />
+                <MonthView organization={organization} userId={UserId.parse(userId)} />
             </Boundary>
         </AppPageContent>
     </AppPage>

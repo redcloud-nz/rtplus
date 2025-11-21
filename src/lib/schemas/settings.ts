@@ -12,9 +12,11 @@ export const organizationSettingsSchema = z.object({
     integrations: z.object({
         d4h: z.object({
             enabled: z.boolean().default(false),
-            server: D4hServerCode.schema.default('us'),
-        }).default({}),
-    }).default({}),
+            server: D4hServerCode.schema.default('ap'),
+        }).default({ enabled: false, server: 'ap' }),
+    }).default({
+        d4h: { enabled: false, server: 'ap' }
+    }),
     modules: z.object({
         d4hViews: z.object({
             enabled: z.boolean().default(false),
@@ -29,14 +31,16 @@ export const organizationSettingsSchema = z.object({
             enabled: z.boolean().default(false),
         }).default({ enabled: false }),
 
-    }).default({}),
+    })
     
 })
+
 
 export type OrganizationSettingsData = z.infer<typeof organizationSettingsSchema>
 
 export const DefaultOrganizationSettings: OrganizationSettingsData = organizationSettingsSchema.parse({
-    enabledModules: []
+    integrations: {},
+    modules: {}
 })
 
 export const userSettingsSchema = z.object({

@@ -13,7 +13,10 @@ import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeade
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
+import { getOrganization } from '@/server/organization'
+
 import { D4hViewsModule_ActivitiesList_Card } from './d4h-activities-list'
+import { UserId } from '@/lib/schemas/user'
 
 
 
@@ -22,6 +25,8 @@ export const metadata: Metadata = { title: "Activities - D4H" }
 
 export default async function D4hViewsModule_Activities_Page(props: PageProps<'/orgs/[org_slug]/d4h-views/activities'>) {
     const { org_slug: orgSlug } = await props.params
+    const organization = await getOrganization(orgSlug)
+
     const { userId } = await auth.protect()
 
     return <AppPage>
@@ -37,7 +42,7 @@ export default async function D4hViewsModule_Activities_Page(props: PageProps<'/
                 </PageDescription>
             </PageHeader>
             <Boundary>
-                <D4hViewsModule_ActivitiesList_Card userId={userId} />
+                <D4hViewsModule_ActivitiesList_Card organization={organization} userId={UserId.parse(userId)} />
             </Boundary>
         </AppPageContent>
     </AppPage>

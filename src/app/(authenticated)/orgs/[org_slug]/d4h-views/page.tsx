@@ -14,14 +14,18 @@ import { Boundary } from '@/components/boundary'
 import { CardLink, CardLinkList, ExternalLink } from '@/components/ui/link'
 import { Heading, Paragraph } from '@/components/ui/typography'
 
+import { UserId } from '@/lib/schemas/user'
 import * as Paths from '@/paths'
+import { getOrganization } from '@/server/organization'
 
 import { D4HAccessTokenCheck_Card } from './d4h-access-token-check'
+
 
 export const metadata: Metadata = { title: "D4H Integration" }
 
 export default async function D4hViewsModule_Index_Page(props: PageProps<'/orgs/[org_slug]/d4h-views'>) {
     const { org_slug: orgSlug } = await props.params
+    const organization = await getOrganization(orgSlug)
 
     const { userId } = await auth.protect()
 
@@ -39,7 +43,7 @@ export default async function D4hViewsModule_Index_Page(props: PageProps<'/orgs/
             </Paragraph>
 
              <Boundary>
-                <D4HAccessTokenCheck_Card userId={userId} />
+                <D4HAccessTokenCheck_Card organization={organization} userId={userId as UserId} />
             </Boundary>
 
             <CardLinkList>

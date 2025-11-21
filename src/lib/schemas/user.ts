@@ -18,8 +18,8 @@ export const UserId = {
 export const userSchema = z.object({
     userId: UserId.schema,
     name: z.string().nonempty().max(100),
-    email: z.string().email().max(100),
-    settings: z.record(z.any()),
+    email: z.email().max(100),
+    settings: z.record(z.string(), z.any()),
 })
 
 export function toUserData(record: UserRecord) {
