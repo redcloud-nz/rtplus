@@ -28,7 +28,7 @@ export default async function SkillPackageManagerModule_SkillPackagesList_Page(p
             ]}
         />
         <Lexington.Page>
-            <Lexington.Column>
+            <Lexington.Column width="xl">
                  <SkillPackageManagerModule_SkillPackagesList organization={organization} />
             </Lexington.Column>
         </Lexington.Page>

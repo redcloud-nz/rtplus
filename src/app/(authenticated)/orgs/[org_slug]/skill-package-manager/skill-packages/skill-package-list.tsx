@@ -10,16 +10,13 @@ import { useMemo } from 'react'
 
 import { Protect } from '@clerk/nextjs'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
+import { Akagi } from '@/components/blocks/akagi'
 import { Lexington } from '@/components/blocks/lexington'
 import { Show } from '@/components/show'
-import { Button, RefreshButton } from '@/components/ui/button'
-import { Card, CardActions, CardContent, CardExplanation, CardHeader } from '@/components/ui/card'
-import { DataTableBody, DataTableHead, DataTableFooter, DataTableProvider, DataTableSearch, defineColumns, TableOptionsDropdown } from '@/components/ui/data-table'
+import { S2_Button } from '@/components/ui/s2-button'
 import { Link, TextLink } from '@/components/ui/link'
-import { Separator } from '@/components/ui/separator'
-import { Table } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { OrganizationData } from '@/lib/schemas/organization'
@@ -32,48 +29,40 @@ import { trpc, WithCounts } from '@/trpc/client'
 
 export function SkillPackageManagerModule_SkillPackagesList({ organization }: { organization: OrganizationData }) {
     
-    const { data: skillPackages, refetch: skillPackagesRefetch } = useSuspenseQuery(trpc.skills.getPackages.queryOptions({ orgId: organization.orgId, owner: 'org' }))
+    const { data: skillPackages } = useSuspenseQuery(trpc.skills.getPackages.queryOptions({ orgId: organization.orgId, owner: 'org' }))
 
-    async function handleRefresh() {
-        await skillPackagesRefetch()
-    }
-
-    const columns = useMemo(() => defineColumns<WithCounts<SkillPackageData, 'skills' | 'skillGroups'>>(columnHelper => [
-        columnHelper.accessor('skillPackageId', {
-            header: 'ID',
-            cell: ctx => ctx.getValue(),
-            enableHiding: true,
-            enableSorting: false,
-            enableGlobalFilter: false,
-        }),
+    const columns = useMemo(() => Akagi.defineColumns<WithCounts<SkillPackageData, 'skills' | 'skillGroups'>>(columnHelper => [
         columnHelper.accessor('name', {
-            header: 'Name',
-            cell: ctx => <TextLink to={Paths.org(organization.slug).spm.skillPackage(ctx.row.original.skillPackageId)}>{ctx.getValue()}</TextLink>,
-            enableHiding: false
+            header: ctx => <Akagi.TableHeader header={ctx.header} className="min-w-1/3">Name</Akagi.TableHeader>,
+            cell: ctx => <Akagi.TableCell cell={ctx.cell} className="min-w-1/3">
+                <TextLink to={Paths.org(organization.slug).spm.skillPackage(ctx.row.original.skillPackageId)}>{ctx.getValue()}</TextLink>
+            </Akagi.TableCell>,
+            enableSorting: true,
+            enableGlobalFilter: true,
         }),
         columnHelper.accessor('_count.skillGroups', {
-            header: 'Groups',
-            cell: ctx => ctx.getValue(),
-            enableGrouping: false,
+            header: ctx => <Akagi.TableHeader header={ctx.header} className="w-[100px]">Groups</Akagi.TableHeader>,
+            cell: ctx => <Akagi.TableCell cell={ctx.cell}>{ctx.getValue()}</Akagi.TableCell>,
             enableSorting: true,
             enableGlobalFilter: false,
         }),
         columnHelper.accessor('_count.skills', {
-            header: 'Skills',
-            cell: ctx => ctx.getValue(),
-            enableGrouping: false,
+            header: ctx => <Akagi.TableHeader header={ctx.header} className="w-[100px]">Skills</Akagi.TableHeader>,
+            cell: ctx => <Akagi.TableCell cell={ctx.cell}>{ctx.getValue()}</Akagi.TableCell>,
             enableSorting: true,
             enableGlobalFilter: false,
         }),
         columnHelper.accessor('status', {
-            header: 'Status',
-            cell: ctx => ctx.getValue(),
+            header: ctx => <Akagi.TableHeader 
+                header={ctx.header}
+                filterOptions={['Active', 'Inactive']}
+                className="w-[100px]"
+            >Status</Akagi.TableHeader>,
+            cell: ctx => <Akagi.TableCell cell={ctx.cell}>{ctx.getValue()}</Akagi.TableCell>,
+            enableColumnFilter: true,
             enableSorting: false,
             enableGlobalFilter: false,
             filterFn: 'arrIncludesSome',
-            meta: {
-                enumOptions: { Active: 'Active', Inactive: 'Inactive' },
-            }
         }),
     ]), [])
 
@@ -83,20 +72,16 @@ export function SkillPackageManagerModule_SkillPackagesList({ organization }: { 
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
-        getGroupedRowModel: getGroupedRowModel(),
-        getExpandedRowModel: getExpandedRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
         initialState: {
-            columnVisibility: {
-                skillPackageId: false, name: true, skillGroups: true, skills: true, status: true
-            },
             columnFilters: [
                 { id: 'status', value: ['Active'] }
             ],
             globalFilter: "",
-            grouping: [],
             sorting: [
                 { id: 'name', desc: false }
             ],
+            pagination: { pageIndex: 0, pageSize: Akagi.DEFAULT_PAGE_SIZE },
         }
     })
 
@@ -104,54 +89,33 @@ export function SkillPackageManagerModule_SkillPackagesList({ organization }: { 
         when={skillPackages.length > 0} 
         fallback={<Lexington.Empty title="No Skill Packages Yet" description="There are no skill packages here yet. Get started by creating one.">
             <Protect role="org:admin">
-                    <Button asChild>
-                        <Link to={Paths.org(organization.slug).spm.skillPackages.create}>
-                            <PlusIcon className="mr-2 h-4 w-4"/>
-                            Add Skill Package
-                        </Link>
-                    </Button>
-                </Protect>
+                <S2_Button asChild>
+                    <Link to={Paths.org(organization.slug).spm.skillPackages.create}>
+                        <PlusIcon className="mr-2 h-4 w-4"/>
+                        Add Skill Package
+                    </Link>
+                </S2_Button>
+            </Protect>
         </Lexington.Empty>}
     >
-        <DataTableProvider value={table}>
-            <Card>
-                <CardHeader>
-                    <DataTableSearch size="sm" variant="ghost"/>
-                    <CardActions>
-                        <Protect role="org:admin">
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" asChild>
-                                        <Link to={Paths.org(organization.slug).spm.skillPackages.create}>
-                                            <PlusIcon />
-                                        </Link>
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    Create new skill package
-                                </TooltipContent>
-                            </Tooltip>
-                        </Protect>
-                        
+        <Lexington.ColumnControls>
+            <Akagi.TableSearch table={table} />
+            <Protect role="org:admin">
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <S2_Button variant="outline" asChild>
+                            <Link to={Paths.org(organization.slug).spm.skillPackages.create}>
+                                <PlusIcon/> <span className="hidden md:inline">New Skill Package</span>
+                            </Link>
+                        </S2_Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        Create a new skill package
+                    </TooltipContent>
+                </Tooltip>
+            </Protect>
+        </Lexington.ColumnControls>
 
-                        <RefreshButton onClick={handleRefresh}/>
-                        <TableOptionsDropdown/>
-                        <Separator orientation="vertical"/>
-                        <CardExplanation>
-                            This is a list of all the available skill packages in the system.
-                        </CardExplanation>
-                    
-                    </CardActions>
-                    
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <DataTableHead/>
-                        <DataTableBody/>
-                        <DataTableFooter/>
-                    </Table>
-                </CardContent>
-            </Card>
-        </DataTableProvider>
+        <Akagi.Table table={table}/>
     </Show>
 }
