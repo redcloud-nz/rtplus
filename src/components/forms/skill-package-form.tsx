@@ -8,7 +8,6 @@
 import { ComponentProps, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
-import { Show } from '@/components/show'
 import { S2_Button } from '@/components/ui/s2-button'
 import { S2_Card, S2_CardContent, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
@@ -17,23 +16,22 @@ import { Link } from '@/components/ui/link'
 import { S2_Select, S2_SelectContent, S2_SelectItem, S2_SelectTrigger, S2_SelectValue } from '@/components/ui/s2-select'
 import { S2_Value } from '@/components/ui/s2-value'
 
-import { isIntegrationEnabled } from '@/lib/integrations'
+import { SkillPackageData } from '@/lib/schemas/skill-package'
 import { OrganizationData } from '@/lib/schemas/organization'
-import { TeamData, TeamId } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
+import { S2_Textarea } from '../ui/s2-textarea'
 
 
 
-
-type TeamFormProps = Omit<ComponentProps<'form'>, 'children' | 'onSubmit'> & {
-    form: ReturnType<typeof useForm<TeamData>>
+type SkillPackageFormProps = Omit<ComponentProps<'form'>, 'children' | 'onSubmit'> & {
+    form: ReturnType<typeof useForm<SkillPackageData>>
     mode: 'Create' | 'Update'
     organization: OrganizationData
-    onSubmit: (data: TeamData) => Promise<void>
-    teamId: TeamId
+    onSubmit: (data: SkillPackageData) => Promise<void>
+    skillPackageId: string
 }
 
-export function TeamForm({ form, mode, organization, onSubmit, teamId, ...props }: TeamFormProps) {
+export function SkillPackageForm({ form, mode, organization, onSubmit, skillPackageId, ...props }: SkillPackageFormProps) {
 
     const [isPending, setIsPending] = useState(false)
 
@@ -46,18 +44,17 @@ export function TeamForm({ form, mode, organization, onSubmit, teamId, ...props 
     
      return <S2_Card>
         <S2_CardHeader>
-            <S2_CardTitle>{mode == 'Create' ? 'Create Team' : 'Update Team'}</S2_CardTitle>
+            <S2_CardTitle>{mode == 'Create' ? 'Create Skill Package' : 'Update Skill Package'}</S2_CardTitle>
         </S2_CardHeader>
         <S2_CardContent>
-            <form id="team-form" onSubmit={handleSubmit} {...props}>
+            <form id="skill-package-form" onSubmit={handleSubmit} {...props}>
                 <FieldGroup>
                     <Field orientation="responsive">
                         <FieldContent>
-                            <FieldLabel>Team ID</FieldLabel>
+                            <FieldLabel>Skill Package ID</FieldLabel>
                         </FieldContent>
-                        <S2_Value value={teamId} className="min-w-1/2"/>
+                        <S2_Value value={skillPackageId} className="min-w-1/2"/>
                     </Field>
-
                     <Controller
                         name="name"
                         control={form.control}
@@ -65,47 +62,43 @@ export function TeamForm({ form, mode, organization, onSubmit, teamId, ...props 
                             <Field 
                                 data-invalid={fieldState.invalid}
                                 orientation="responsive"
-                                >
+                            >
                                 <FieldContent>
-                                    <FieldLabel htmlFor="team-name">Name</FieldLabel>
+                                    <FieldLabel htmlFor="skill-package-name">Skill Package Name</FieldLabel>
                                     {fieldState.invalid && <FieldError errors={[fieldState.error]}/>}
                                 </FieldContent>
                                 <S2_Input
                                     aria-invalid={fieldState.invalid}
-                                    id="team-name"
+                                    id="skill-package-name"
                                     className="min-w-1/2"
                                     maxLength={100}
-                                    value={field.value}
-                                    onChange={field.onChange}
+                                    {...field}
                                 />
                             </Field>
                         }
                     />
-                    <Show when={isIntegrationEnabled(organization, 'd4h')}>
-                        <Controller
-                            name="properties.d4hTeamId"
-                            control={form.control}
-                            render={({ field, fieldState }) => 
-                                <Field 
-                                    data-invalid={fieldState.invalid}
-                                    orientation="responsive"
-                                    >
-                                    <FieldContent>
-                                        <FieldLabel htmlFor="d4h-team-id">D4H Team ID</FieldLabel>
-                                        {fieldState.invalid && <FieldError errors={[fieldState.error]}/>}
-                                    </FieldContent>
-                                    <S2_Input
-                                        aria-invalid={fieldState.invalid}
-                                        id="d4h-team-id"
-                                        className="min-w-1/2"
-                                        maxLength={100}
-                                        value={field.value || ''}
-                                        onChange={e => field.onChange(e.target.value || undefined)}
-                                    />
-                                </Field>
-                            }
-                        />
-                    </Show>
+                    <Controller
+                        name="description"
+                        control={form.control}
+                        render={({ field, fieldState }) => 
+                            <Field 
+                                data-invalid={fieldState.invalid}
+                                orientation="responsive"
+                                >
+                                <FieldContent>
+                                    <FieldLabel htmlFor="skill-package-description">Description</FieldLabel>
+                                    {fieldState.invalid && <FieldError errors={[fieldState.error]}/>}
+                                </FieldContent>
+                                <S2_Textarea
+                                    aria-invalid={fieldState.invalid}
+                                    id="skill-package-description"
+                                    className="min-w-1/2"
+                                    maxLength={500}
+                                    {...field}
+                                />
+                            </Field>
+                        }
+                    />
                     <Controller
                         name="status"
                         control={form.control}
@@ -115,11 +108,11 @@ export function TeamForm({ form, mode, organization, onSubmit, teamId, ...props 
                                 orientation="responsive"
                                 >
                                 <FieldContent>
-                                    <FieldLabel htmlFor="team-status">Status</FieldLabel>
+                                    <FieldLabel htmlFor="skill-package-status">Status</FieldLabel>
                                     {fieldState.invalid && <FieldError errors={[fieldState.error]}/>}
                                 </FieldContent>
                                 <S2_Select value={field.value} onValueChange={field.onChange}>
-                                    <S2_SelectTrigger id="team-status" className="min-w-1/2" aria-invalid={fieldState.invalid}>
+                                    <S2_SelectTrigger id="skill-package-status" className="min-w-1/2" aria-invalid={fieldState.invalid}>
                                         <S2_SelectValue placeholder="Select status" />
                                     </S2_SelectTrigger>
                                     <S2_SelectContent>
@@ -134,7 +127,7 @@ export function TeamForm({ form, mode, organization, onSubmit, teamId, ...props 
                         <S2_Button 
                             type="submit"
                             disabled={!form.formState.isDirty || isPending}
-                            form="team-form"
+                            form="skill-package-form"
                         >
                             {mode === 'Create' ? 'Create' : 'Save'}
                         </S2_Button>
@@ -145,7 +138,7 @@ export function TeamForm({ form, mode, organization, onSubmit, teamId, ...props 
                             onClick={() => form.reset() } 
                             asChild
                         >
-                            <Link to={mode === 'Create' ? Paths.org(organization.slug).admin.teams : Paths.org(organization.slug).admin.team(teamId)}>
+                            <Link to={mode === 'Create' ? Paths.org(organization.slug).skillPackageManager.skillPackages : Paths.org(organization.slug).skillPackageManager.skillPackage(skillPackageId)}>
                                 Cancel
                             </Link>
                         </S2_Button>

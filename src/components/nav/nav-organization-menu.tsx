@@ -50,8 +50,8 @@ export function NavOrganizationMenu() {
                 <NavItem path={orgPrefix.notes} icon={<NotesModuleIcon/>}/>
             </Show>
             <Show when={isModuleEnabled(organization, 'skill-package-manager')}>
-                <NavCollapsible path={orgPrefix.spm} icon={<SkillPackageManagerModuleIcon/>} prefix={orgPrefix.spm.href}>
-                    <NavItem path={orgPrefix.spm.skillPackages}/>
+                <NavCollapsible path={orgPrefix.skillPackageManager} icon={<SkillPackageManagerModuleIcon/>} prefix={orgPrefix.skillPackageManager.href}>
+                    <NavItem path={orgPrefix.skillPackageManager.skillPackages}/>
                 </NavCollapsible>
             </Show>
             <Show when={isModuleEnabled(organization, 'skills')}>

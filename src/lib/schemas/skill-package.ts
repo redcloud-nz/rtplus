@@ -19,6 +19,8 @@ export const SkillPackageId = {
     schema: z.string().length(8).regex(/^[a-zA-Z0-9]+$/, "8 character Skill Package ID expected.").brand<'SkillPackageId'>(),
 
     create: () => SkillPackageId.schema.parse(nanoId8()),
+
+    parse: (value: string) => SkillPackageId.schema.parse(value),
 } as const
 
 export const skillPackageSchema = z.object({

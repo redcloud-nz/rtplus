@@ -32,11 +32,11 @@ export default async function AdminModuleNewSkillGroup_Page(props: PageProps<'/o
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.org(orgSlug).spm,
-                Paths.org(orgSlug).spm.skillPackages,
-                { label: skillPackage.name, href: Paths.org(orgSlug).spm.skillPackage(skillPackageId).href },
-                Paths.org(orgSlug).spm.skillPackage(skillPackageId).groups,
-                Paths.org(orgSlug).spm.skillPackage(skillPackageId).groups.create
+                Paths.org(orgSlug).skillPackageManager,
+                Paths.org(orgSlug).skillPackageManager.skillPackages,
+                { label: skillPackage.name, href: Paths.org(orgSlug).skillPackageManager.skillPackage(skillPackageId).href },
+                Paths.org(orgSlug).skillPackageManager.skillPackage(skillPackageId).groups,
+                Paths.org(orgSlug).skillPackageManager.skillPackage(skillPackageId).groups.create
             ]}
         />
         <AppPageContent variant='container'>

@@ -93,7 +93,7 @@ export function AdminModule_SkillGroupDetails({ organization, skillGroupId, skil
                             label="Skill Package"
                             control={
                                 <DisplayValue>
-                                    <TextLink to={Paths.org(organization.slug).spm.skillPackage(skillGroup.skillPackageId)}>
+                                    <TextLink to={Paths.org(organization.slug).skillPackageManager.skillPackage(skillGroup.skillPackageId)}>
                                         {skillGroup.skillPackage.name}
                                     </TextLink>
                                 </DisplayValue>
@@ -191,7 +191,7 @@ function UpdateSkillGroupForm({ onClose, organization, skillGroup, skillPackage 
                         label="Skill Package"
                         control={
                             <DisplayValue>
-                                <TextLink to={Paths.org(organization.slug).spm.skillPackage(skillPackage.skillPackageId)}>
+                                <TextLink to={Paths.org(organization.slug).skillPackageManager.skillPackage(skillPackage.skillPackageId)}>
                                     {skillPackage.name}
                                 </TextLink>
                             </DisplayValue>
@@ -266,7 +266,7 @@ function DeleteSkillGroupDialog({ organization, skillGroup }: { organization: Or
 
             queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter())
             queryClient.invalidateQueries(trpc.skills.getGroup.queryFilter({ skillGroupId: skillGroup.skillGroupId }))
-            router.push(Paths.org(organization.slug).spm.skillPackage(skillGroup.skillPackageId).group(skillGroup.skillGroupId).href)
+            router.push(Paths.org(organization.slug).skillPackageManager.skillPackage(skillGroup.skillPackageId).group(skillGroup.skillGroupId).href)
         }
     }))
 

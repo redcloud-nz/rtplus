@@ -9,14 +9,15 @@ import { Lexington } from '@/components/blocks/lexington'
 import { ToParentPageIcon } from '@/components/icons'
 import { S2_Button } from '@/components/ui/s2-button'
 import { Link } from '@/components/ui/link'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
 
 import { AdminModule_CreateTeam_Form } from './create-team'
 
-
+export const metadata = {
+    title: 'Create Team'
+}
 
 export default async function AdminModule_CreateTeam_Page(props: PageProps<'/orgs/[org_slug]/admin/teams/--create'>) { 
     const { org_slug: orgSlug } = await props.params
@@ -34,18 +35,11 @@ export default async function AdminModule_CreateTeam_Page(props: PageProps<'/org
         <Lexington.Page>
             <Lexington.Column width="lg">
                 <Lexington.ColumnControls>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <S2_Button variant="outline" asChild>
-                                <Link to={Paths.org(orgSlug).admin.teams}>
-                                    <ToParentPageIcon/> Teams List
-                                </Link>
-                            </S2_Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            back to list
-                        </TooltipContent>
-                    </Tooltip>
+                    <S2_Button variant="outline" asChild>
+                        <Link to={Paths.org(orgSlug).admin.teams}>
+                            <ToParentPageIcon/> Teams List
+                        </Link>
+                    </S2_Button>
                 </Lexington.ColumnControls>
                 <AdminModule_CreateTeam_Form organization={organization} />
             </Lexington.Column>

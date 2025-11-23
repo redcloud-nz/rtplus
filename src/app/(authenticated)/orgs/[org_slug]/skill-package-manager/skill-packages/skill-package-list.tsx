@@ -36,7 +36,7 @@ export function SkillPackageManagerModule_SkillPackagesList({ organization }: { 
         columnHelper.accessor('name', {
             header: ctx => <Akagi.TableHeader header={ctx.header} className="min-w-1/3">Name</Akagi.TableHeader>,
             cell: ctx => <Akagi.TableCell cell={ctx.cell} className="min-w-1/3">
-                <TextLink to={Paths.org(organization.slug).spm.skillPackage(ctx.row.original.skillPackageId)}>{ctx.getValue()}</TextLink>
+                <TextLink to={Paths.org(organization.slug).skillPackageManager.skillPackage(ctx.row.original.skillPackageId)}>{ctx.getValue()}</TextLink>
             </Akagi.TableCell>,
             enableSorting: true,
             enableGlobalFilter: true,
@@ -91,7 +91,7 @@ export function SkillPackageManagerModule_SkillPackagesList({ organization }: { 
         fallback={<Lexington.Empty title="No Skill Packages Yet" description="There are no skill packages here yet. Get started by creating one.">
             <Protect role="org:admin">
                 <S2_Button asChild>
-                    <Link to={Paths.org(organization.slug).spm.skillPackages.create}>
+                    <Link to={Paths.org(organization.slug).skillPackageManager.skillPackages.create}>
                         <CreateNewIcon/> New Skill Package
                     </Link>
                 </S2_Button>
@@ -102,7 +102,7 @@ export function SkillPackageManagerModule_SkillPackagesList({ organization }: { 
             <Akagi.TableSearch table={table} />
             <Protect role="org:admin">
                 <S2_Button variant="outline" asChild>
-                    <Link to={Paths.org(organization.slug).spm.skillPackages.create}>
+                    <Link to={Paths.org(organization.slug).skillPackageManager.skillPackages.create}>
                         <CreateNewIcon/> <span className="hidden md:inline">New Skill Package</span>
                     </Link>
                 </S2_Button>

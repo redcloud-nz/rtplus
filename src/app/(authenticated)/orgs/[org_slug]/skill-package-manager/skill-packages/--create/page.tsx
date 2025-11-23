@@ -7,40 +7,43 @@
 
 import { Metadata } from 'next'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
-import { Boundary } from '@/components/boundary'
+import { Lexington } from '@/components/blocks/lexington'
+import { ToParentPageIcon } from '@/components/icons'
+import { S2_Button } from '@/components/ui/s2-button'
+import { Link } from '@/components/ui/link'
 
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
-
-import { AdminModile_NewSkillPackage_Form } from './new-skill-package'
-
+import { AdminModile_CreateSkillPackage_Form } from './new-skill-package'
 
 
 export const metadata: Metadata = {
     title: 'Create Skill Package'
 }
 
-export default async function AdminModile_NewSkillPackage_Page(props: PageProps<'/orgs/[org_slug]/skill-package-manager/skill-packages/--create'>) {
+export default async function AdminModile_CreateSkillPackage_Page(props: PageProps<'/orgs/[org_slug]/skill-package-manager/skill-packages/--create'>) {
     const { org_slug: orgSlug } = await props.params
     const organisation = await getOrganization(orgSlug)
 
-    return <AppPage>
-        <AppPageBreadcrumbs
+    return <Lexington.Root>
+        <Lexington.Header
             breadcrumbs={[
-                Paths.org(orgSlug).spm,
-                Paths.org(orgSlug).spm.skillPackages,
-                Paths.org(orgSlug).spm.skillPackages.create
+                Paths.org(orgSlug).skillPackageManager,
+                Paths.org(orgSlug).skillPackageManager.skillPackages,
+                Paths.org(orgSlug).skillPackageManager.skillPackages.create
             ]}
         />
-        <AppPageContent variant="container">
-            <PageHeader>
-                <PageTitle>Create Skill Package</PageTitle>
-            </PageHeader>
-
-            <Boundary>
-                <AdminModile_NewSkillPackage_Form organization={organisation} />
-            </Boundary>
-        </AppPageContent>
-    </AppPage>
+        <Lexington.Page>
+           <Lexington.Column width="lg">
+                <Lexington.ColumnControls>
+                    <S2_Button variant="outline" asChild>
+                        <Link to={Paths.org(orgSlug).skillPackageManager.skillPackages}>
+                            <ToParentPageIcon/> Skill Packages List
+                        </Link>
+                    </S2_Button>
+                </Lexington.ColumnControls>
+                <AdminModile_CreateSkillPackage_Form organization={organisation} />
+           </Lexington.Column>
+        </Lexington.Page>
+    </Lexington.Root>
  }

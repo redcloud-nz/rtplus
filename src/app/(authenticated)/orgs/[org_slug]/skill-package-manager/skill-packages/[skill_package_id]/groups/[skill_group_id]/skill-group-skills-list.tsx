@@ -46,7 +46,7 @@ export function AdminModule_SkillGroup_SkillsList({ organization, skillGroupId, 
         }),
         columnHelper.accessor('name', {
             header: 'Skill',
-            cell: ctx => <TextLink to={Paths.org(organization.slug).spm.skillPackage(skillPackageId).skill(ctx.row.original.skillId)}>{ctx.getValue()}</TextLink>,
+            cell: ctx => <TextLink to={Paths.org(organization.slug).skillPackageManager.skillPackage(skillPackageId).skill(ctx.row.original.skillId)}>{ctx.getValue()}</TextLink>,
             enableGrouping: false,
             enableHiding: false
         }),

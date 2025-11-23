@@ -80,7 +80,7 @@ type OrgPaths = {
     notes: ReturnType<typeof notesModule>,
     personal: ReturnType<typeof personalModule>,
     skills: ReturnType<typeof skillsModule>,
-    spm: ReturnType<typeof skillPackageManagerModule>,
+    skillPackageManager: ReturnType<typeof skillPackageManagerModule>,
 }
 
 const orgPathCache = new Map<string, OrgPaths>()
@@ -101,7 +101,7 @@ export function org(orgSlug: string): OrgPaths  {
             notes: notesModule(orgSlug),
             personal: personalModule(orgSlug),
             skills: skillsModule(orgSlug),
-            spm: skillPackageManagerModule(orgSlug),
+            skillPackageManager: skillPackageManagerModule(orgSlug),
         } satisfies OrgPaths
         orgPathCache.set(orgSlug, paths)
     }
@@ -446,8 +446,10 @@ function skillPackageManagerModule(orgSlug: string) {
 
             return {
                 href: packageBase,
-                update: `${packageBase}/--update`,
-                delete: `${packageBase}/--delete`,
+                update: {
+                    href: `${packageBase}/--update`,
+                    label: 'Update',
+                },
 
                 group: (skillGroupId: string) => ({
                     href: `${packageBase}/groups/${skillGroupId}`,

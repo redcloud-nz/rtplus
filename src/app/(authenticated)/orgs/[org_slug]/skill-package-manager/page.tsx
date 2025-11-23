@@ -23,7 +23,7 @@ export default async function OrganizationDashboard_Page(props: PageProps<'/orgs
     return <AppPage>
             <AppPageBreadcrumbs
                 breadcrumbs={[
-                    Paths.org(orgSlug).spm,
+                    Paths.org(orgSlug).skillPackageManager,
                 ]}
             />
             <AppPageContent variant="container">
@@ -34,7 +34,7 @@ export default async function OrganizationDashboard_Page(props: PageProps<'/orgs
                 </div>
                 <div className="flex w-full max-w-md flex-col gap-4">
                     <Item asChild>
-                        <Link to={Paths.org(orgSlug).spm.skillPackages}>
+                        <Link to={Paths.org(orgSlug).skillPackageManager.skillPackages}>
                             <ItemContent>
                                 <ItemTitle>Skill Packages</ItemTitle>
                                 <ItemDescription>Manage skill packages and their contents.</ItemDescription>

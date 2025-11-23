@@ -138,9 +138,10 @@ function AkagiTableCell<TData extends RowData>({ align = "start", children, clas
 
 interface AkagiTableProps<TData extends RowData> {
     table: TanstackTable<TData>
+    pagination?: boolean
 }
 
-function AkagiTable<TData extends RowData>({ table }: AkagiTableProps<TData>) {
+function AkagiTable<TData extends RowData>({ table, pagination = true }: AkagiTableProps<TData>) {
 
     const tableId = useId()
 
@@ -166,7 +167,7 @@ function AkagiTable<TData extends RowData>({ table }: AkagiTableProps<TData>) {
             )}
             {isEmpty && <tr><td colSpan={table.getVisibleFlatColumns().length} className="text-center py-4">No results found</td></tr>}
         </S2_TableBody>
-        { (!isEmpty) ? <AkagiPagination tableId={tableId} table={table} /> : null}
+        { (pagination && !isEmpty) ? <AkagiPagination tableId={tableId} table={table} /> : null}
     </S2_Table>
 }
 

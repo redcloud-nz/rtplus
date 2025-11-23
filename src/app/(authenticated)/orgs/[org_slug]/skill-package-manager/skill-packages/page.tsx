@@ -23,8 +23,8 @@ export default async function SkillPackageManagerModule_SkillPackagesList_Page(p
     return <Lexington.Root>
         <Lexington.Header
             breadcrumbs={[
-                Paths.org(orgSlug).spm,
-                Paths.org(orgSlug).spm.skillPackages,
+                Paths.org(orgSlug).skillPackageManager,
+                Paths.org(orgSlug).skillPackageManager.skillPackages,
             ]}
         />
         <Lexington.Page>

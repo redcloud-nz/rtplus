@@ -20,9 +20,9 @@ export default async function ImportSkillPackage_Page(props: PageProps<'/orgs/[o
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.org(orgSlug).spm,
-                Paths.org(orgSlug).spm.skillPackages,
-                Paths.org(orgSlug).spm.skillPackages.import,
+                Paths.org(orgSlug).skillPackageManager,
+                Paths.org(orgSlug).skillPackageManager.skillPackages,
+                Paths.org(orgSlug).skillPackageManager.skillPackages.import,
             ]}
         />
         <ImportSkillPackage_Content organization={organization} />

@@ -19,7 +19,7 @@ import { assertNonNull } from '@/lib/utils'
 import { recordStatusParameterSchema } from '@/lib/validation'
 import { TRPCError } from '@trpc/server'
 
-import { AuthenticatedContext, AuthenticatedOrgContext, authenticatedProcedure, createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
+import { AuthenticatedContext, AuthenticatedOrgContext, createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
 
 
 export const skillsRouter = createTRPCRouter({
@@ -426,7 +426,7 @@ export const skillsRouter = createTRPCRouter({
     updatePackage: orgAdminProcedure
         .input(skillPackageSchema.omit({ ownerOrgId: true }))
         .output(skillPackageSchema)
-        .mutation(async ({ ctx, input: { skillPackageId, ...fields } }) => {
+        .mutation(async ({ ctx, input: { orgId, skillPackageId, ...fields } }) => {
             const skillPackage = await getSkillPackageById(ctx, skillPackageId)
 
             if(skillPackage.ownerOrgId != ctx.auth.activeOrg.orgId) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to modify SkillPackage(${skillPackageId})` })
@@ -455,7 +455,7 @@ export const skillsRouter = createTRPCRouter({
     updateSkill: orgAdminProcedure
         .input(skillSchema)
         .output(skillSchema)
-        .mutation(async ({ ctx, input: { skillPackageId, skillId, ...fields } }) => {
+        .mutation(async ({ ctx, input: { orgId, skillPackageId, skillId, ...fields } }) => {
             const skill = await getSkillById(ctx, skillPackageId, skillId)
 
             if(skill.skillPackage.ownerOrgId != ctx.auth.activeOrg.orgId) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to modify Skill(${skillId})` })

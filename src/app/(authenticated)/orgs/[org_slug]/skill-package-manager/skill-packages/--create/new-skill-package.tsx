@@ -7,17 +7,12 @@
 
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { DisplayValue } from '@/components/ui/display-value'
-import { Form, FormCancelButton, FormField, FormSubmitButton, SubmitVerbs } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { ToruGrid, ToruGridFooter, ToruGridRow } from '@/components/ui/toru-grid'
+import { SkillPackageForm } from '@/components/forms/skill-package-form'
 import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
@@ -30,7 +25,8 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function AdminModile_NewSkillPackage_Form({ organization }: { organization: OrganizationData }) {
+
+export function AdminModile_CreateSkillPackage_Form({ organization }: { organization: OrganizationData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -45,11 +41,29 @@ export function AdminModile_NewSkillPackage_Form({ organization }: { organizatio
             name: '',
             description: '',
             status: 'Active',
+            tags: [],
+            properties: {}
         }
     })
 
     const mutation = useMutation(trpc.skills.createPackage.mutationOptions({
-        onError(error) {
+        async onMutate(data) {
+            const newPackage = skillPackageSchema.parse(data)
+
+            await queryClient.cancelQueries(trpc.skills.getPackages.queryFilter())
+
+            const previousPackages = queryClient.getQueryData(trpc.skills.getPackages.queryKey())
+
+            queryClient.setQueryData(trpc.skills.getPackages.queryKey(), (prev = []) => [...prev, { ...newPackage, _count: { skills: 0, skillGroups: 0 } }])
+            queryClient.setQueryData(trpc.skills.getPackage.queryKey({ skillPackageId: newPackage.skillPackageId }), newPackage)
+
+            return { previousPackages }
+        },
+        onError(error, _variables, context) {
+            if(context?.previousPackages) {
+                queryClient.setQueryData(trpc.skills.getPackages.queryKey(), context.previousPackages)
+            }
+
             if (error.shape?.cause?.name == 'FieldConflictError') {
                 form.setError(error.shape.cause.message as keyof SkillPackageData, { message: error.shape.message })
             } else {
@@ -63,59 +77,21 @@ export function AdminModile_NewSkillPackage_Form({ organization }: { organizatio
         onSuccess(result) {
             toast({
                 title: "Skill Package Created",
-                description: <>The skill package <ObjectName>{result.name}</ObjectName> has been created successfully.</>,
+                description: <>Skill package <ObjectName>{result.name}</ObjectName> has been created successfully.</>,
             })
 
             queryClient.invalidateQueries(trpc.skills.getPackages.queryFilter())
-            router.push(Paths.org(organization.slug).spm.skillPackage(result.skillPackageId).href)
+            router.push(Paths.org(organization.slug).skillPackageManager.skillPackage(result.skillPackageId).href)
         }
     }))
 
-    return <Card>
-        <CardHeader>
-            <CardTitle>Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <FormProvider {...form}>
-                <Form onSubmit={form.handleSubmit(formData => mutation.mutate({ ...formData, orgId: organization.orgId }))}>
-                    <ToruGrid mode="form">
-                        <FormField
-                            control={form.control}
-                            name="skillPackageId"
-                            render={({ field }) => <ToruGridRow
-                                label="Skill Package ID"
-                                control={<DisplayValue>{field.value}</DisplayValue>}
-                            />}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => <ToruGridRow
-                                label="Name"
-                                control={<Input maxLength={100} {...field} />}
-                                description="The name of the skill package."
-                            />}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="description"
-                            render={({ field }) => <ToruGridRow
-                                label="Description"
-                                control={<Textarea maxLength={500} {...field} />}
-                                description="A brief description of the skill package."
-                            />}
-                        />
-                        <ToruGridRow
-                            label="Status"
-                            control={<DisplayValue>Active</DisplayValue>}
-                        />
-                        <ToruGridFooter>
-                            <FormSubmitButton labels={SubmitVerbs.create} size="sm" />
-                            <FormCancelButton onClick={() => router.back()} size="sm" />
-                        </ToruGridFooter>
-                    </ToruGrid>
-                </Form>
-            </FormProvider>
-        </CardContent>
-    </Card>
+    return <SkillPackageForm
+        mode="Create"
+        form={form}
+        organization={organization} 
+        skillPackageId={skillPackageId}
+        onSubmit={async (data) => {
+            await mutation.mutateAsync({ ...data, orgId: organization.orgId })
+        }}
+    />
 }

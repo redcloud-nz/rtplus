@@ -90,7 +90,7 @@ export function AdminModule_SkillDetails({ organization, skillId, skillPackageId
                             label="Skill Package"
                             control={
                                 <DisplayValue>
-                                    <TextLink to={Paths.org(organization.slug).spm.skillPackage(skill.skillPackageId)}>
+                                    <TextLink to={Paths.org(organization.slug).skillPackageManager.skillPackage(skill.skillPackageId)}>
                                         {skill.skillPackage.name}
                                     </TextLink>
                                 </DisplayValue>
@@ -100,7 +100,7 @@ export function AdminModule_SkillDetails({ organization, skillId, skillPackageId
                             label="Skill Group"
                             control={
                                 <DisplayValue>
-                                    <TextLink to={Paths.org(organization.slug).spm.skillPackage(skill.skillPackageId).group(skill.skillGroupId)}>
+                                    <TextLink to={Paths.org(organization.slug).skillPackageManager.skillPackage(skill.skillPackageId).group(skill.skillGroupId)}>
                                         {skill.skillGroup.name}
                                     </TextLink>
                                 </DisplayValue>
@@ -199,7 +199,7 @@ function UpdateSkillForm({ onClose, organization, skill, skillPackage, skillGrou
                         label="Skill Package"
                         control={
                             <DisplayValue>
-                                <TextLink to={Paths.org(organization.slug).spm.skillPackage(skill.skillPackageId)}>
+                                <TextLink to={Paths.org(organization.slug).skillPackageManager.skillPackage(skill.skillPackageId)}>
                                     {skillPackage.name}
                                 </TextLink>
                             </DisplayValue>
@@ -213,7 +213,7 @@ function UpdateSkillForm({ onClose, organization, skill, skillPackage, skillGrou
                         label="Skill Group"
                         control={
                             <DisplayValue>
-                                <TextLink to={Paths.org(organization.slug).spm.skillPackage(skill.skillPackageId).group(skill.skillGroupId)}>
+                                <TextLink to={Paths.org(organization.slug).skillPackageManager.skillPackage(skill.skillPackageId).group(skill.skillGroupId)}>
                                     {skillGroup.name}
                                 </TextLink>
                             </DisplayValue>
@@ -308,7 +308,7 @@ function DeleteSkillDialog({ organization, skill }: { organization: Organization
 
             queryClient.invalidateQueries(trpc.skills.getSkills.queryFilter())
             queryClient.invalidateQueries(trpc.skills.getSkill.queryFilter({ skillId: skill.skillId }))
-            router.push(Paths.org(organization.slug).spm.skillPackage(skill.skillPackageId).group(skill.skillGroupId).href)
+            router.push(Paths.org(organization.slug).skillPackageManager.skillPackage(skill.skillPackageId).group(skill.skillGroupId).href)
         }
     }))
 

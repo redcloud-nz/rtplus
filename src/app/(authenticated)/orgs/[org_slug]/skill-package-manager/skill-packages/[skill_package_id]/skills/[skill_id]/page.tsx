@@ -31,10 +31,10 @@ export default async function AdminModule_Skill_Page(props: PageProps<'/orgs/[or
     return <AppPage>
         <AppPageBreadcrumbs
             breadcrumbs={[
-                Paths.org(orgSlug).spm,
-                Paths.org(orgSlug).spm.skillPackages,
-                {  href: Paths.org(orgSlug).spm.skillPackage(skill.skillPackageId).href, label: skill.skillPackage.name, },
-                Paths.org(orgSlug).spm.skillPackage(skill.skillPackageId).skills,
+                Paths.org(orgSlug).skillPackageManager,
+                Paths.org(orgSlug).skillPackageManager.skillPackages,
+                {  href: Paths.org(orgSlug).skillPackageManager.skillPackage(skill.skillPackageId).href, label: skill.skillPackage.name, },
+                Paths.org(orgSlug).skillPackageManager.skillPackage(skill.skillPackageId).skills,
                 skill.name
             ]}
         />
