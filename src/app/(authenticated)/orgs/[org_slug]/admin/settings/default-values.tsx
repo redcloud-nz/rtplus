@@ -44,8 +44,8 @@ export function Settings_DefaultValues_Card({ form }: { form: ReturnType<typeof 
                             }}
                         >
                             <S2_SelectTrigger 
-                                className="min-w-1/2"
                                 id="defaultPageSize-select"
+                                className="min-w-24"
                                 aria-invalid={fieldState.invalid}
                             >
                                 <S2_SelectValue />

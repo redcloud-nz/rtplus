@@ -5,7 +5,8 @@
  *  Path: /orgs/[org_slug]/admin/personnel/--import
  */
 
-import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
+
+import { Lexington } from '@/components/blocks/lexington'
 import { NotImplemented } from '@/components/nav/errors'
 
 import * as Paths from '@/paths'
@@ -13,14 +14,17 @@ import * as Paths from '@/paths'
 export default async function ImportPersonnel(props: PageProps<'/orgs/[org_slug]/admin/personnel/--import'>) {
     const { org_slug: orgSlug } = await props.params
 
-    return <AppPage>
-        <AppPageBreadcrumbs 
+    return <Lexington.Root>
+        <Lexington.Header
             breadcrumbs={[
                 Paths.org(orgSlug).admin,
                 Paths.org(orgSlug).admin.personnel,
                 Paths.org(orgSlug).admin.personnel.import
             ]}
         />
-        <NotImplemented />
-    </AppPage>
+        <Lexington.Page>
+            <NotImplemented />
+        </Lexington.Page>
+        
+    </Lexington.Root>
 }

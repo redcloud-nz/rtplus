@@ -36,7 +36,7 @@ export type NotImplementedProps = AppPageContentProps & {
 
 export function NotImplemented({ docUrl, ghIssueNumber, ...props }: NotImplementedProps) {
 
-    return <AppPageContent variant="centered" {...props}>
+    return <div className="h-full flex flex-col justify-center items-center">
         <div className="flex flex-col gap-2 justify-center items-center">
             <div className="font-semibold text-2xl text-zinc-800">501</div>
             <div className="font-semibold text-zinc-800">Not Implemented</div>
@@ -49,7 +49,7 @@ export function NotImplemented({ docUrl, ghIssueNumber, ...props }: NotImplement
             {ghIssueNumber ? <Paragraph>Learn more about this proposal: <GitHubIssueLink issueNumber={ghIssueNumber}></GitHubIssueLink>.</Paragraph> : null}
         </div>
         
-    </AppPageContent>
+    </div>
 }
 
 export function Unauthorized({ ...props }: AppPageContentProps) {

@@ -9,14 +9,15 @@ import { Metadata } from 'next'
 
 import { auth } from '@clerk/nextjs/server'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
-import { Boundary } from '@/components/boundary'
+import { PageDescription, PageHeader, PageTitle } from '@/components/app-page'
+import { Lexington } from '@/components/blocks/lexington'
 
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
 
 import { D4hViewsModule_ActivitiesList_Card } from './d4h-activities-list'
 import { UserId } from '@/lib/schemas/user'
+
 
 
 
@@ -29,21 +30,19 @@ export default async function D4hViewsModule_Activities_Page(props: PageProps<'/
 
     const { userId } = await auth.protect()
 
-    return <AppPage>
-        <AppPageBreadcrumbs breadcrumbs={[
+    return <Lexington.Root>
+        <Lexington.Header breadcrumbs={[
             Paths.org(orgSlug).d4hViews,
             Paths.org(orgSlug).d4hViews.activities
         ]}/>
-        <AppPageContent>
+        <Lexington.Page>
             <PageHeader>
                 <PageTitle>Activities</PageTitle>
                 <PageDescription>
                     A list of the activities (events, exercises, and incidents) available from your configured teams.
                 </PageDescription>
             </PageHeader>
-            <Boundary>
-                <D4hViewsModule_ActivitiesList_Card organization={organization} userId={UserId.parse(userId)} />
-            </Boundary>
-        </AppPageContent>
-    </AppPage>
+            <D4hViewsModule_ActivitiesList_Card organization={organization} userId={UserId.parse(userId)} />
+        </Lexington.Page>
+    </Lexington.Root>
 }

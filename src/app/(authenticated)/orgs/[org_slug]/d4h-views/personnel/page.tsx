@@ -9,14 +9,15 @@ import { Metadata } from 'next'
 
 import { auth } from '@clerk/nextjs/server'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
-import { Boundary } from '@/components/boundary'
+import { PageHeader, PageTitle } from '@/components/app-page'
+import { Lexington } from '@/components/blocks/lexington'
 
 import { UserId } from '@/lib/schemas/user'
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
 
 import { D4hViewsModule_PersonnelList_Card } from './d4h-personnel-list'
+
 
 
 export const metadata: Metadata = { title: "Personnel - D4H" }
@@ -27,19 +28,16 @@ export default async function D4hViewsModule_Personnel_Page(props: PageProps<'/o
 
     const { userId } = await auth.protect()
 
-    return <AppPage>
-        <AppPageBreadcrumbs breadcrumbs={[
+    return <Lexington.Root>
+        <Lexington.Header breadcrumbs={[
                 Paths.org(orgSlug).d4hViews,
                 Paths.org(orgSlug).d4hViews.personnel
         ]}/>
-        <AppPageContent>
+        <Lexington.Page>
             <PageHeader>
                 <PageTitle>Personnel</PageTitle>
             </PageHeader>
-            <Boundary>
-                 <D4hViewsModule_PersonnelList_Card organization={organization} userId={UserId.parse(userId)} />
-            </Boundary>
-        </AppPageContent>
-        
-    </AppPage>
+            <D4hViewsModule_PersonnelList_Card organization={organization} userId={UserId.parse(userId)} />
+        </Lexington.Page>
+    </Lexington.Root>
 }

@@ -5,6 +5,7 @@
  * Path: /orgs/[org_slug]/personal/settings
  */
 import { Lexington } from '@/components/blocks/lexington'
+import { NotImplemented } from '@/components/nav/errors'
 
 import * as Paths from '@/paths'
 
@@ -18,9 +19,7 @@ export default async function PersonalSettings_Page(props: PageProps<'/orgs/[org
             Paths.org(orgSlug).personal.settings
         ]}/>
         <Lexington.Page>
-            <Lexington.Column>
-
-            </Lexington.Column>
+            <NotImplemented/>
         </Lexington.Page>
     </Lexington.Root>
 }

@@ -16,7 +16,7 @@ import { Lexington } from '@/components/blocks/lexington'
 import { DeleteObjectIcon, DropdownMenuTriggerIcon, DuplicateObjectIcon, EditObjectIcon, ToParentPageIcon } from '@/components/icons'
 import { S2_Button } from '@/components/ui/s2-button'
 import { ButtonGroup } from '@/components/ui/button-group'
-import { S2_Card, S2_CardContent, S2_CardDescription, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
+import { S2_Card, S2_CardAction, S2_CardContent, S2_CardDescription, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Link } from '@/components/ui/link'
@@ -87,12 +87,13 @@ export default function AdminModule_Team_Page(props: PageProps<'/orgs/[org_slug]
                 <S2_CardHeader>
                     <S2_CardTitle>{team.name}</S2_CardTitle>
                     <S2_CardDescription>ID: {team.teamId}</S2_CardDescription>
+                    <S2_CardAction className="text-muted-foreground text-sm">Team</S2_CardAction>
                 </S2_CardHeader>
                 <S2_CardContent>
                     <FieldGroup>
                         <Field orientation="responsive">
                             <FieldLabel>Status</FieldLabel>
-                            <S2_Value value={team.status} className="min-w-1/2"/>
+                            <S2_Value value={team.status}/>
                         </Field>
                     </FieldGroup>
                 </S2_CardContent>

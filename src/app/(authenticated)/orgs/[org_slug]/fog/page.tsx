@@ -4,7 +4,8 @@
  * 
  *  Path: /orgs/[org_slug]/fog
  */
-import { AppPage, AppPageBreadcrumbs } from '@/components/app-page'
+
+import { Lexington } from '@/components/blocks/lexington'
 import { NotImplemented } from '@/components/nav/errors'
 
 import * as Paths from '@/paths'
@@ -12,8 +13,10 @@ import * as Paths from '@/paths'
 export default async function FOGModule_Page(props: PageProps<'/orgs/[org_slug]/fog'>) {
     const { org_slug: orgSlug } = await props.params
 
-    return <AppPage>
-        <AppPageBreadcrumbs breadcrumbs={[Paths.org(orgSlug).fog]}/>
-        <NotImplemented/>
-    </AppPage>
+    return <Lexington.Root>
+        <Lexington.Header breadcrumbs={[Paths.org(orgSlug).fog]}/>
+        <Lexington.Page>
+            <NotImplemented />
+        </Lexington.Page>
+    </Lexington.Root>
 }

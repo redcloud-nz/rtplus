@@ -6,8 +6,6 @@
  */
 
 import { Lexington } from '@/components/blocks/lexington'
-import { S2_AppPageHeader } from '@/components/app-page'
-import { SidebarInset } from '@/components/ui/sidebar'
 
 import * as Paths from '@/paths'
 

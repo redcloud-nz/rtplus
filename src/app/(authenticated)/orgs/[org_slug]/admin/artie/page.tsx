@@ -7,10 +7,10 @@
 
 import { Metadata } from 'next'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
 import * as Paths from '@/paths'
 
 import { ArtieTest } from './artie-test'
+import { Lexington } from '@/components/blocks/lexington'
 
 
 export const metadata: Metadata = { title: "Artie Test" }
@@ -19,16 +19,15 @@ export const metadata: Metadata = { title: "Artie Test" }
 export default async function AdminModule_ArtieTest_Page(props: PageProps<'/orgs/[org_slug]/admin/artie'>) {
     const { org_slug: orgSlug } = await props.params
 
-    return <AppPage>
-            <AppPageBreadcrumbs
+    return <Lexington.Root>
+            <Lexington.Header
                 breadcrumbs={[
                     Paths.org(orgSlug).admin,
-                    Paths.org(orgSlug).admin.teams
                 ]}
             />
-            <AppPageContent variant="container">
+            <Lexington.Page>
                 <ArtieTest/>
-            </AppPageContent>
+            </Lexington.Page>
            
-        </AppPage>
+        </Lexington.Root>
 }

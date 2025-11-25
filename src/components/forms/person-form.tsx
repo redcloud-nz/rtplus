@@ -156,10 +156,7 @@ export function PersonForm({ mode, organization, person, ...props }: PersonFormP
                         name="name"
                         control={form.control}
                         render={({ field, fieldState }) => 
-                            <Field 
-                                data-invalid={fieldState.invalid}
-                                orientation="responsive"
-                            >
+                            <Field data-invalid={fieldState.invalid}>
                                 <FieldContent>
                                     <FieldLabel htmlFor="person-name">Name</FieldLabel>
                                     <FieldDescription>The full name of the person.</FieldDescription>
@@ -168,7 +165,6 @@ export function PersonForm({ mode, organization, person, ...props }: PersonFormP
                                 <S2_Input
                                     aria-invalid={fieldState.invalid}
                                     id="person-name"
-                                    className="min-w-1/2"
                                     maxLength={100}
                                     value={field.value}
                                     onChange={field.onChange}
@@ -180,10 +176,7 @@ export function PersonForm({ mode, organization, person, ...props }: PersonFormP
                         name="email"
                         control={form.control}
                         render={({ field, fieldState }) => 
-                            <Field 
-                                data-invalid={fieldState.invalid}
-                                orientation="responsive"
-                                >
+                            <Field data-invalid={fieldState.invalid}>
                                 <FieldContent>
                                     <FieldLabel htmlFor="person-email">Email</FieldLabel>
                                     <FieldDescription>The unique email address of the person.</FieldDescription>
@@ -193,7 +186,6 @@ export function PersonForm({ mode, organization, person, ...props }: PersonFormP
                                     aria-invalid={fieldState.invalid}
                                     id="person-email"
                                     type="email"
-                                    className="min-w-1/2"
                                     maxLength={100}
                                     value={field.value}
                                     onChange={field.onChange}
@@ -215,7 +207,7 @@ export function PersonForm({ mode, organization, person, ...props }: PersonFormP
                                     {fieldState.invalid && <FieldError errors={[fieldState.error]}/>}
                                 </FieldContent>
                                 <S2_Select value={field.value} onValueChange={field.onChange}>
-                                    <S2_SelectTrigger id="person-status" className="min-w-1/2" aria-invalid={fieldState.invalid}>
+                                    <S2_SelectTrigger id="person-status" className="min-w-32" aria-invalid={fieldState.invalid}>
                                         <S2_SelectValue placeholder="Select status" />
                                     </S2_SelectTrigger>
                                     <S2_SelectContent>

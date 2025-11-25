@@ -6,12 +6,18 @@
  */
 'use client'
 
-import { AppPage } from '@/components/app-page'
+import { Lexington } from '@/components/blocks/lexington'
 import { UnknownError } from '@/components/nav/errors'
 
 
 export default function Authenticated_ErrorPage({ error }: { error: Error & { digest?: string } }) {
-    return <AppPage>
-        <UnknownError error={error}/>
-    </AppPage>
+    return <Lexington.Root>
+        <Lexington.Header
+            breadcrumbs={["Error"]}
+        />
+        <Lexington.Page>
+            <UnknownError error={error}/>
+        </Lexington.Page>
+        
+    </Lexington.Root>
 }

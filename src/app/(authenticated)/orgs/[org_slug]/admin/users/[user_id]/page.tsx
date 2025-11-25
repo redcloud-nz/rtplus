@@ -23,6 +23,7 @@ import { formatDate, TITLE_SEPARATOR } from '@/lib/utils'
 import * as Paths from '@/paths'
 import { getClerkClient } from '@/server/clerk'
 import { getOrganization } from '@/server/organization'
+import { Hermes } from '@/components/blocks/hermes'
 
 
 
@@ -68,43 +69,45 @@ export default async function AdminModule_User_Page(props: PageProps<'/orgs/[org
         <Lexington.Header/>
         <Lexington.Page>
             <Lexington.Column width="lg">
-                <Lexington.ColumnControls>
-                    <S2_Button variant="outline" asChild>
-                        <Link to={Paths.org(orgSlug).admin.users}>
-                            <ToParentPageIcon/> Users List
-                        </Link>
-                    </S2_Button>
-                </Lexington.ColumnControls>
-                <S2_Card>
-                    <S2_CardHeader>
-                        <S2_CardTitle>{user.fullName}</S2_CardTitle>
-                        <S2_CardDescription>{user.id}</S2_CardDescription>
-                        <S2_CardAction>
-                            <img src={user.imageUrl} alt={`${user.fullName}'s profile image`} className="rounded-full w-12 h-12"/>
-                        </S2_CardAction>
-                    </S2_CardHeader>
-                    <S2_CardContent>
-                        <FieldGroup>
-                            <Field orientation="responsive">
-                                <FieldLabel>Email</FieldLabel>
-                                <S2_Value className="min-w-1/2">
-                                    {user.primaryEmailAddress
-                                        ? <>{user.primaryEmailAddress.emailAddress} <span className="text-muted-foreground ml-2">({user.primaryEmailAddress.verification?.status})</span></>
-                                        : <span className="text-muted-foreground">None</span>
-                                    }
-                                </S2_Value>
-                            </Field>
-                            <Field orientation="responsive">
-                                <FieldLabel>Organisation Role</FieldLabel>
-                                <S2_Value value={membership.role == 'org:admin' ? 'Admin' : 'Member'} className="min-w-1/2"/>
-                            </Field>
-                            <Field orientation="responsive">
-                                <FieldLabel>Joined</FieldLabel>
-                                <S2_Value value={membership.createdAt ? formatDate(new Date(membership.createdAt)) : 'Unknown'} className="min-w-1/2"/>
-                            </Field>
-                        </FieldGroup>
-                    </S2_CardContent>
-                </S2_Card>
+                <Hermes.Section>
+                    <Hermes.SectionHeader>
+                        <Hermes.BackButton to={Paths.org(organization.slug).admin.users}>
+                            Users List
+                        </Hermes.BackButton>
+                    </Hermes.SectionHeader>
+
+                    <S2_Card>
+                        <S2_CardHeader>
+                            <S2_CardTitle>{user.fullName}</S2_CardTitle>
+                            <S2_CardDescription>{user.id}</S2_CardDescription>
+                            <S2_CardAction>
+                                <img src={user.imageUrl} alt={`${user.fullName}'s profile image`} className="rounded-full w-12 h-12"/>
+                            </S2_CardAction>
+                        </S2_CardHeader>
+                        <S2_CardContent>
+                            <FieldGroup>
+                                <Field orientation="responsive">
+                                    <FieldLabel>Email</FieldLabel>
+                                    <S2_Value>
+                                        {user.primaryEmailAddress
+                                            ? <>{user.primaryEmailAddress.emailAddress} <span className="text-muted-foreground ml-2">({user.primaryEmailAddress.verification?.status})</span></>
+                                            : <span className="text-muted-foreground">None</span>
+                                        }
+                                    </S2_Value>
+                                </Field>
+                                <Field orientation="responsive">
+                                    <FieldLabel>Organisation Role</FieldLabel>
+                                    <S2_Value value={membership.role == 'org:admin' ? 'Admin' : 'Member'}/>
+                                </Field>
+                                <Field orientation="responsive">
+                                    <FieldLabel>Joined</FieldLabel>
+                                    <S2_Value value={membership.createdAt ? formatDate(new Date(membership.createdAt)) : 'Unknown'}/>
+                                </Field>
+                            </FieldGroup>
+                        </S2_CardContent>
+                    </S2_Card>
+                </Hermes.Section>
+                
                 
             </Lexington.Column>
         </Lexington.Page>

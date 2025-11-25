@@ -90,14 +90,13 @@ export default function AdminModule_Person_TeamMembership_Page(props: PageProps<
                 <FieldGroup>
                     <Field orientation="responsive">
                         <FieldLabel>Team</FieldLabel>
-                        <div></div>
-                        <S2_Value className="min-w-1/2">
+                        <S2_Value>
                             <TextLink to={Paths.org(organization.slug).admin.team(teamMembership.team.teamId)}>{teamMembership.team.name}</TextLink>
                         </S2_Value>
                     </Field>
                     <Field orientation="responsive">
                         <FieldLabel>Status</FieldLabel>
-                        <S2_Value value={teamMembership.status} className="min-w-1/2"/>
+                        <S2_Value value={teamMembership.status}/>
                     </Field>
                 </FieldGroup>
             </S2_CardContent>

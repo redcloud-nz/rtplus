@@ -13,10 +13,10 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 
 import { Hermes } from '@/components/blocks/hermes'
 import { Lexington } from '@/components/blocks/lexington'
-import { CreateNewIcon, DeleteObjectIcon, DropdownMenuTriggerIcon, DuplicateObjectIcon, EditObjectIcon, ToParentPageIcon } from '@/components/icons'
+import { DeleteObjectIcon, DropdownMenuTriggerIcon, DuplicateObjectIcon, EditObjectIcon, ToParentPageIcon } from '@/components/icons'
 import { S2_Button } from '@/components/ui/s2-button'
 import { ButtonGroup } from '@/components/ui/button-group'
-import { S2_Card, S2_CardContent, S2_CardDescription, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
+import { S2_Card, S2_CardAction, S2_CardContent, S2_CardDescription, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Link, TextLink } from '@/components/ui/link'
@@ -44,11 +44,9 @@ export default function AdminModule_Person_Page(props: PageProps<'/orgs/[org_slu
     return <Lexington.Column width="lg">
         <Hermes.Section>
             <Hermes.SectionHeader>
-                <S2_Button variant="outline" asChild>
-                    <Link to={Paths.org(organization.slug).admin.personnel }>
-                        <ToParentPageIcon/> Personnel List
-                    </Link>
-                </S2_Button>
+                <Hermes.BackButton to={Paths.org(organization.slug).admin.personnel}> 
+                    Personnel List
+                </Hermes.BackButton>
                 <Protect role="org:admin">
                     <ButtonGroup>
                         <S2_Button variant="outline" asChild>
@@ -62,8 +60,8 @@ export default function AdminModule_Person_Page(props: PageProps<'/orgs/[org_slu
                                     <DropdownMenuTriggerIcon/>
                                 </S2_Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuLabel>Person Menu</DropdownMenuLabel>
                                 <DropdownMenuGroup>
                                     <DropdownMenuItem disabled>
                                         <DuplicateObjectIcon/> Duplicate
@@ -88,17 +86,18 @@ export default function AdminModule_Person_Page(props: PageProps<'/orgs/[org_slu
                 <S2_CardHeader>
                     <S2_CardTitle>{person.name}</S2_CardTitle>
                     <S2_CardDescription>ID: {person.personId}</S2_CardDescription>
+                    <S2_CardAction className="text-muted-foreground text-sm">Person</S2_CardAction>
                 </S2_CardHeader>
                 <S2_CardContent>
                     <FieldGroup>
                         <Field orientation="responsive">
                             <FieldLabel>Email</FieldLabel>
-                            <S2_Value value={person.email} className="min-w-1/2"/>
+                            <S2_Value value={person.email}/>
                         </Field>
                         <Protect role="org:admin">
                              <Field orientation="responsive">
                                 <FieldLabel>Linked User ID</FieldLabel>
-                                <S2_Value className="min-w-1/2">{person.userId 
+                                <S2_Value>{person.userId 
                                     ? <TextLink to={Paths.org(organization.slug).admin.user(person.userId)}>{person.userId}</TextLink>
                                     : <span className="text-muted-foreground">Not linked</span>
                                 }</S2_Value>
@@ -107,7 +106,7 @@ export default function AdminModule_Person_Page(props: PageProps<'/orgs/[org_slu
                        
                         <Field orientation="responsive">
                             <FieldLabel>Status</FieldLabel>
-                            <S2_Value value={person.status} className="min-w-1/2"/>
+                            <S2_Value value={person.status}/>
                         </Field>
                     </FieldGroup>
                 </S2_CardContent>

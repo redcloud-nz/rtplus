@@ -9,8 +9,8 @@ import { Metadata } from 'next'
 
 import { auth } from '@clerk/nextjs/server'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageHeader, PageTitle } from '@/components/app-page'
-import { Boundary } from '@/components/boundary'
+import { PageHeader, PageTitle } from '@/components/app-page'
+import { Lexington } from '@/components/blocks/lexington'
 import { CardLink, CardLinkList, ExternalLink } from '@/components/ui/link'
 import { Heading, Paragraph } from '@/components/ui/typography'
 
@@ -19,6 +19,7 @@ import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
 
 import { D4HAccessTokenCheck_Card } from './d4h-access-token-check'
+
 
 
 export const metadata: Metadata = { title: "D4H Integration" }
@@ -31,9 +32,9 @@ export default async function D4hViewsModule_Index_Page(props: PageProps<'/orgs/
 
     const prefix = Paths.org(orgSlug).d4hViews
 
-    return <AppPage>
-        <AppPageBreadcrumbs breadcrumbs={[prefix]}/>
-        <AppPageContent variant="container">
+    return <Lexington.Root>
+        <Lexington.Header breadcrumbs={[prefix]}/>
+        <Lexington.Page>
             <PageHeader>
                 <PageTitle>D4H Integration</PageTitle>
             </PageHeader>
@@ -42,9 +43,7 @@ export default async function D4hViewsModule_Index_Page(props: PageProps<'/orgs/
                 Welcome to the RT+ D4H integration feature. This page provides access to various D4H-related functionalities, including activities, calendar, equipment, and personnel management.
             </Paragraph>
 
-             <Boundary>
-                <D4HAccessTokenCheck_Card organization={organization} userId={userId as UserId} />
-            </Boundary>
+             <D4HAccessTokenCheck_Card organization={organization} userId={userId as UserId} />
 
             <CardLinkList>
                 <CardLink to={prefix.activities}/>
@@ -63,7 +62,7 @@ export default async function D4hViewsModule_Index_Page(props: PageProps<'/orgs/
             <Paragraph>
                 If you have ideas for how we can improve the D4H integration, please let us know by emailing <ExternalLink href={`mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL}`}>{process.env.NEXT_PUBLIC_SUPPORT_EMAIL}</ExternalLink> or submitting a feature request on our <ExternalLink href="https://github.com/redcloud-nz/rtplus/issues">GitHub</ExternalLink> page.
             </Paragraph>
-        </AppPageContent>
+        </Lexington.Page>
         
-    </AppPage>
+    </Lexington.Root>
 }

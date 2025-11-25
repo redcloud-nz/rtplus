@@ -11,13 +11,13 @@ import { use } from 'react'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
-
+import { Lexington } from '@/components/blocks/lexington'
 import { useOrganization } from '@/hooks/use-organization'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 import { NotesModule_ViewNote } from './view-note'
+
 
 
 export default function NotesModule_Note_Page(props: PageProps<'/orgs/[org_slug]/notes/[note_id]'>) {
@@ -26,14 +26,17 @@ export default function NotesModule_Note_Page(props: PageProps<'/orgs/[org_slug]
     const organization = useOrganization()
     const { data: note } = useSuspenseQuery(trpc.notes.getNote.queryOptions({ orgId: organization.orgId, noteId }))
 
-    return <AppPage>
-        <AppPageBreadcrumbs breadcrumbs={[
+    return <Lexington.Root>
+        <Lexington.Header breadcrumbs={[
             Paths.org(orgSlug).notes,
             Paths.org(orgSlug).notes.note(noteId).labelled(note.title)
         ]}/>
-        <AppPageContent variant="container">
-            <NotesModule_ViewNote note={note} organization={organization} />
-        </AppPageContent>
-    </AppPage>
+        <Lexington.Page>
+            <Lexington.Column width="lg">
+                <NotesModule_ViewNote note={note} organization={organization} />
+            </Lexington.Column>
+            
+        </Lexington.Page>
+    </Lexington.Root>
 }
 

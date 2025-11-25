@@ -7,25 +7,25 @@
 
 import { UserProfile } from '@clerk/nextjs'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
-
+import { Lexington } from '@/components/blocks/lexington'
 import * as Paths from '@/paths'
+
 
 export default async function Personal_Profile_Page(props: PageProps<'/orgs/[org_slug]/personal/profile/[[...user-profile]]'>) {
     const { org_slug: orgSlug} = await props.params
 
-    return <AppPage>
-        <AppPageBreadcrumbs
+    return <Lexington.Root>
+        <Lexington.Header
             breadcrumbs={[
                 Paths.org(orgSlug).personal, 
                 Paths.org(orgSlug).personal.profile
             ]}
         />
-        <AppPageContent variant="centered">
+        <Lexington.Page className="items-center">
             <UserProfile
                 path={Paths.org(orgSlug).personal.profile.href}
             />
-        </AppPageContent>
+        </Lexington.Page>
         
-    </AppPage>
+    </Lexington.Root>
 }

@@ -5,12 +5,11 @@
  * /orgs/[org_slug]/notes/--create
 */
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
-
 import * as Paths from '@/paths'
 
 import { NotesModule_NewNote_Form } from './new-note'
 import { getOrganization } from '@/server/organization'
+import { Lexington } from '@/components/blocks/lexington'
 
 
 
@@ -23,14 +22,14 @@ export default async function NotesModule_NewNote_Page(props: PageProps<'/orgs/[
     const organization = await getOrganization(orgSlug)
 
 
-    return <AppPage>
-        <AppPageBreadcrumbs breadcrumbs={[
+    return <Lexington.Root>
+        <Lexington.Header breadcrumbs={[
             Paths.org(orgSlug).notes,
             Paths.org(orgSlug).notes.create
         ]}/>
-        <AppPageContent variant="container">
+        <Lexington.Page>
             <NotesModule_NewNote_Form organization={organization} />
-        </AppPageContent>       
-    </AppPage>
+        </Lexington.Page>       
+    </Lexington.Root>
 }
 

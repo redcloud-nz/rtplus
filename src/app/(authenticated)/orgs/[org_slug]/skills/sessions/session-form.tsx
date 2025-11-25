@@ -66,7 +66,7 @@ export function SkillsModule_SessionForm({ mode, organization, onSubmit, session
                                 <FieldLabel htmlFor="session-id">Session ID</FieldLabel>
                                 <FieldDescription>The unique identifier for this session.</FieldDescription>
                             </FieldContent>
-                            <S2_Value id="session-id" className='min-w-1/2' value={field.value} />
+                            <S2_Value id="session-id" value={field.value} />
                         </Field>}
                     />
                     <Controller
@@ -85,7 +85,6 @@ export function SkillsModule_SessionForm({ mode, organization, onSubmit, session
                                 <S2_Input
                                     aria-invalid={fieldState.invalid}
                                     id="session-name"
-                                    className='min-w-1/2'
                                     maxLength={100}
                                     value={field.value}
                                     onChange={field.onChange}
@@ -110,7 +109,6 @@ export function SkillsModule_SessionForm({ mode, organization, onSubmit, session
                                 <S2_DatePicker
                                     aria-invalid={fieldState.invalid}
                                     id="session-date"
-                                    className='min-w-1/2'
                                     value={field.value}
                                     onValueChange={field.onChange}
                                 />
@@ -121,10 +119,7 @@ export function SkillsModule_SessionForm({ mode, organization, onSubmit, session
                         name="notes"
                         control={form.control}
                         render={({ field, fieldState }) => 
-                            <Field 
-                                data-invalid={fieldState.invalid}
-                                orientation="responsive"
-                            >
+                            <Field data-invalid={fieldState.invalid}>
                                 <FieldContent>
                                     <FieldLabel htmlFor="session-notes">Notes</FieldLabel>
                                     <FieldDescription>Additional notes about the session.</FieldDescription>

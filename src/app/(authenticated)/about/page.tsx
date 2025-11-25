@@ -7,21 +7,22 @@
 
 import { Metadata } from 'next'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageTitle } from '@/components/app-page'
+import { PageTitle } from '@/components/app-page'
 import { Heading, Paragraph } from '@/components/ui/typography'
 import { EmailLink } from '@/components/ui/link'
 
 import * as Paths from '@/paths'
+import { Lexington } from '@/components/blocks/lexington'
 
 
 export const metadata: Metadata = { title: "About | RT+" }
 
 export default function AboutPage() {
-    return <AppPage>
-        <AppPageBreadcrumbs
+    return <Lexington.Root>
+        <Lexington.Header
            breadcrumbs={[Paths.about]}
         />
-        <AppPageContent>
+        <Lexington.Page>
         
             <div className="container mx-auto max-w-4xl flex flex-col gap-8">
                 <PageTitle>About</PageTitle>
@@ -64,8 +65,8 @@ export default function AboutPage() {
                     </Paragraph>
                 </section>
             </div>
-        </AppPageContent>
-    </AppPage>
+        </Lexington.Page>
+    </Lexington.Root>
 }
 
 const technologies: { name: string, url: string, description: string }[] = [

@@ -5,11 +5,8 @@
  *  Path: /orgs/[org_slug]/skills/sessions/[session_id]/--update
  */
 
+import { Hermes } from '@/components/blocks/hermes'
 import { Lexington } from '@/components/blocks/lexington'
-import { ToParentPageIcon } from '@/components/icons'
-import { S2_Button } from '@/components/ui/s2-button'
-import { Link } from '@/components/ui/link'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { TITLE_SEPARATOR } from '@/lib/utils'
 import * as Paths from '@/paths'
@@ -17,6 +14,7 @@ import { fetchSkillCheckSession } from '@/server/fetch'
 import { getOrganization } from '@/server/organization'
 
 import { SkillsModule_UpdateSession_Form } from './update-session'
+
 
 
 export async function generateMetadata(props: PageProps<'/orgs/[org_slug]/skills/sessions/[session_id]/--update'>) {
@@ -43,21 +41,15 @@ export default async function SkillsModule_SessionUpdate_Page(props: PageProps<'
         ]}/>
         <Lexington.Page>
             <Lexington.Column width="lg">
-                 <Lexington.ColumnControls>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <S2_Button variant="outline" asChild>
-                                <Link to={skillsPath.session(session.sessionId)}>
-                                    <ToParentPageIcon/> Session
-                                </Link>
-                            </S2_Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            back to session
-                        </TooltipContent>
-                    </Tooltip>
-                </Lexington.ColumnControls>
-                <SkillsModule_UpdateSession_Form organization={organization} session={session} />
+                <Hermes.Section>
+                    <Hermes.SectionHeader>
+                        <Hermes.BackButton to={skillsPath.session(session.sessionId)}>
+                            Session 
+                        </Hermes.BackButton>
+                    </Hermes.SectionHeader>
+
+                    <SkillsModule_UpdateSession_Form organization={organization} session={session} />
+                </Hermes.Section>
             </Lexington.Column>
         </Lexington.Page>
     </Lexington.Root>

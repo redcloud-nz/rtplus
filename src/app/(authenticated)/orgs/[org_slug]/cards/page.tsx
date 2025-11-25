@@ -8,13 +8,14 @@
 import { Metadata } from 'next'
 import Link, { LinkProps } from 'next/link'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageTitle } from '@/components/app-page'
+import { PageDescription, PageTitle } from '@/components/app-page'
 import { Heading } from '@/components/ui/typography'
 
 import { VehicleList } from '@/data/vehicles'
 
 import * as Paths from '@/paths'
 import { cn } from '@/lib/utils'
+import { Lexington } from '@/components/blocks/lexington'
 
 
 export const metadata: Metadata = { title: "Cards | RT+" }
@@ -22,13 +23,13 @@ export const metadata: Metadata = { title: "Cards | RT+" }
 export default async function CardsModule_Index_Page(props: PageProps<'/orgs/[org_slug]/cards'>) {
     const { org_slug: orgSlug } = await props.params
 
-    return <AppPage>
-        <AppPageBreadcrumbs
+    return <Lexington.Root>
+        <Lexington.Header
             breadcrumbs={[
                 Paths.org(orgSlug).cards
             ]}
         />
-        <AppPageContent>
+        <Lexington.Page>
             <PageTitle>Reference Cards</PageTitle>
             <PageDescription>
                 A collection of quick reference cards.
@@ -45,8 +46,8 @@ export default async function CardsModule_Index_Page(props: PageProps<'/orgs/[or
                     />
                 )}
             </div>
-        </AppPageContent>
-    </AppPage>
+        </Lexington.Page>
+    </Lexington.Root>
 }
 
 

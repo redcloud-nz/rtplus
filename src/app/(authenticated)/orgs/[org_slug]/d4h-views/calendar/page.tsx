@@ -8,7 +8,6 @@ import { Metadata } from 'next'
 
 import { auth } from '@clerk/nextjs/server'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent} from '@/components/app-page'
 import { Boundary } from '@/components/boundary'
 
 import * as Paths from '@/paths'
@@ -16,6 +15,7 @@ import { getOrganization } from '@/server/organization'
 import { UserId } from '@/lib/schemas/user'
 
 import { MonthView } from './month-view'
+import { Lexington } from '@/components/blocks/lexington'
 
 
 
@@ -29,17 +29,17 @@ export default async function D4hViewsModule_Calendar_Page(props: PageProps<'/or
 
     const { userId } = await auth.protect()
 
-    return <AppPage>
-        <AppPageBreadcrumbs breadcrumbs={[
+    return <Lexington.Root>
+        <Lexington.Header breadcrumbs={[
             Paths.org(orgSlug).d4hViews, 
             Paths.org(orgSlug).d4hViews.calendar
         ]}/>
-        <AppPageContent variant="full">
+        <Lexington.Page>
             <Boundary>
                 <MonthView organization={organization} userId={UserId.parse(userId)} />
             </Boundary>
-        </AppPageContent>
-    </AppPage>
+        </Lexington.Page>
+    </Lexington.Root>
 }
 
 

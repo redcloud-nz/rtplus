@@ -5,7 +5,7 @@
  *  Path: /cards/vehicles/[plate]
  */
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageTitle } from '@/components/app-page'
+import { Lexington } from '@/components/blocks/lexington'
 import { NotFound } from '@/components/nav/errors'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DL, DLDetails, DLTerm } from '@/components/ui/description-list'
@@ -19,17 +19,17 @@ export default async function VehicleReferenceCard(props: { params: Promise<{ pl
     const vehicle = VehicleList.find(v => v.plate == params.plate)
     if(vehicle == undefined) return <NotFound/>
 
-    return <AppPage>
-        <AppPageBreadcrumbs
+    return <Lexington.Root>
+        <Lexington.Header
             breadcrumbs={[
                 { label: 'Cards', href: "/cards" },
                 { label: 'Vehicles', href: "/card/vehicles" },
                 vehicle.plate
             ]}
         />
-        <AppPageContent>
-            <PageTitle>{vehicle.plate}</PageTitle>
-            <PageDescription>{vehicle.name}</PageDescription>
+        <Lexington.Page>
+            {/* <PageTitle>{vehicle.plate}</PageTitle>
+            <PageDescription>{vehicle.name}</PageDescription> */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <Card>
                     <CardHeader>
@@ -92,8 +92,8 @@ export default async function VehicleReferenceCard(props: { params: Promise<{ pl
                     </CardContent>
                 </Card>
             </div>
-        </AppPageContent>
-    </AppPage>
+        </Lexington.Page>
+    </Lexington.Root>
 }
 
 

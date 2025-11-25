@@ -11,11 +11,12 @@ import { use } from 'react'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent } from '@/components/app-page'
+import { Lexington } from '@/components/blocks/lexington'
 import { NotImplemented } from '@/components/nav/errors'
 import { useOrganization } from '@/hooks/use-organization'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
+
 
 
 
@@ -27,15 +28,15 @@ export default function NotesModule_NoteHistory_Page(props: PageProps<'/orgs/[or
 
     const notesModule = Paths.org(orgSlug).notes
 
-    return <AppPage>
-        <AppPageBreadcrumbs breadcrumbs={[
+    return <Lexington.Root>
+        <Lexington.Header breadcrumbs={[
             notesModule,
             notesModule.note(noteId).labelled(note.title),
             notesModule.note(noteId).history
         ]}/>
-        <AppPageContent variant="centered">
+        <Lexington.Page>
             <NotImplemented />
-        </AppPageContent>
-    </AppPage>
+        </Lexington.Page>
+    </Lexington.Root>
 }
 
