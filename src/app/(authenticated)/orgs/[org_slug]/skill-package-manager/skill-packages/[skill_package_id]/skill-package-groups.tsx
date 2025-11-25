@@ -22,7 +22,7 @@ import { SkillPackageData } from '@/lib/schemas/skill-package'
 import * as Paths from '@/paths'
 
 
-export function AdminModule_SkillPackage_Groups_Section({ organization, skillPackage, groups }: { organization: OrganizationData, skillPackage: SkillPackageData, groups: SkillGroupData[] }) {
+export function SkillPackageManagerModule_Package_Groups_Section({ organization, skillPackage, groups }: { organization: OrganizationData, skillPackage: SkillPackageData, groups: SkillGroupData[] }) {
 
     const columns = useMemo(() => Akagi.defineColumns<SkillGroupData>(columnHelper => [
         columnHelper.accessor('name', {
@@ -32,7 +32,7 @@ export function AdminModule_SkillPackage_Groups_Section({ organization, skillPac
                     {ctx.getValue()}
                 </TextLink>
             </Akagi.TableCell>,
-            enableSorting: true,
+            enableSorting: false,
             enableGlobalFilter: false,
         }),
         columnHelper.accessor('description', {
@@ -50,6 +50,8 @@ export function AdminModule_SkillPackage_Groups_Section({ organization, skillPac
             cell: ctx => <Akagi.TableCell cell={ctx.cell}>{ctx.getValue()}</Akagi.TableCell>,
             enableSorting: false,
             enableGlobalFilter: false,
+            filterFn: 'arrIncludesSome',
+            
         })
     ]), [organization.slug, skillPackage.skillPackageId])      
 
@@ -62,13 +64,15 @@ export function AdminModule_SkillPackage_Groups_Section({ organization, skillPac
         initialState: {
             columnFilters: [
                 { id: 'status', value: ['Active']}
-            ]
+            ],
+            sorting: [{ id: 'sequence', desc: false }]
         }
     })
 
     return <Hermes.Section>
         <Hermes.SectionHeader>
             <Hermes.SectionTitle>Skill Groups</Hermes.SectionTitle>
+
             <Protect role="org:admin">
                 <S2_Button variant="outline" asChild>
                     <Link to={Paths.org(organization.slug).skillPackageManager.skillPackage(skillPackage.skillPackageId).groups.create}>

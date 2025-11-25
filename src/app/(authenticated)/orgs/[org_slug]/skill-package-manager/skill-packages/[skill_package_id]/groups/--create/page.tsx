@@ -5,50 +5,37 @@
  * Path: /orgs/[org_slug]/skill-package-manager/skill-packages/[skill_package_id]/groups/--create
  */
 
-import { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 
-import { AppPage, AppPageBreadcrumbs, AppPageContent, PageDescription, PageHeader, PageTitle } from '@/components/app-page'
-import { Boundary } from '@/components/boundary'
+import { Hermes } from '@/components/blocks/hermes'
+import { Lexington } from '@/components/blocks/lexington'
 import * as Paths from '@/paths'
-import { fetchSkillPackage } from '@/server/fetch'
 import { getOrganization } from '@/server/organization'
+import { getSkillPackage } from '@/server/skills'
 
-import { AdminModule_NewSkillGroup_Form } from './new-skill-group'
+import { SkillPackageManagerModule_CreateGroup_Form } from './create-skill-group'
 
 
 
-export async function generateMetadata(props: PageProps<'/orgs/[org_slug]/skill-package-manager/skill-packages/[skill_package_id]/groups/--create'>): Promise<Metadata> {
+export default async function SkillPackageManagerModule_CreateGroup_Page(props: PageProps<'/orgs/[org_slug]/skill-package-manager/skill-packages/[skill_package_id]/groups/--create'>) {
     const { org_slug: orgSlug, skill_package_id: skillPackageId } = await props.params
     const organization = await getOrganization(orgSlug)
-    const skillPackage = await fetchSkillPackage({ orgId: organization.orgId, skillPackageId })
-    return { title: `New Skill | ${skillPackage.name}` }
-}
+    const skillPackage = await getSkillPackage(organization.orgId, skillPackageId)
+    if(!skillPackage) notFound()
 
-export default async function AdminModuleNewSkillGroup_Page(props: PageProps<'/orgs/[org_slug]/skill-package-manager/skill-packages/[skill_package_id]/groups/--create'>) {
-    const { org_slug: orgSlug, skill_package_id: skillPackageId } = await props.params
-    const organization = await getOrganization(orgSlug)
-    const skillPackage = await fetchSkillPackage({ orgId: organization.orgId, skillPackageId })
 
-    return <AppPage>
-        <AppPageBreadcrumbs
-            breadcrumbs={[
-                Paths.org(orgSlug).skillPackageManager,
-                Paths.org(orgSlug).skillPackageManager.skillPackages,
-                { label: skillPackage.name, href: Paths.org(orgSlug).skillPackageManager.skillPackage(skillPackageId).href },
-                Paths.org(orgSlug).skillPackageManager.skillPackage(skillPackageId).groups,
-                Paths.org(orgSlug).skillPackageManager.skillPackage(skillPackageId).groups.create
-            ]}
+     return <Lexington.Column width="lg">
+
+        <Hermes.Section>
+            <Hermes.SectionHeader>
+                <Hermes.BackButton to={Paths.org(organization.slug).skillPackageManager.skillPackage(skillPackage.skillPackageId)}>
+                    {skillPackage.name}
+                </Hermes.BackButton>
+            </Hermes.SectionHeader>
+        </Hermes.Section>
+        <SkillPackageManagerModule_CreateGroup_Form 
+            organization={organization} 
+            skillPackageId={skillPackage.skillPackageId}
         />
-        <AppPageContent variant='container'>
-            <PageHeader>
-                <PageTitle>New Skill Group</PageTitle>
-                <PageDescription>Create a new skill group within this skill package.</PageDescription>
-            </PageHeader>
-            
-            <Boundary>
-                <AdminModule_NewSkillGroup_Form organization={organization} skillPackageId={skillPackageId} />
-            </Boundary>
-            
-        </AppPageContent>
-    </AppPage>
+    </Lexington.Column>
 }

@@ -26,7 +26,7 @@ export async function generateMetadata(props: LayoutProps<'/orgs/[org_slug]/skil
 
 }
 
-export default async function AdminModule_SkillPackage_Layout(props: LayoutProps<'/orgs/[org_slug]/skill-package-manager/skill-packages/[skill_package_id]'>) {
+export default async function SkillPackageManagerModule_Package_Layout(props: LayoutProps<'/orgs/[org_slug]/skill-package-manager/skill-packages/[skill_package_id]'>) {
     const { org_slug: orgSlug, skill_package_id: skillPackageId } = await props.params
     const organization = await getOrganization(orgSlug)
     

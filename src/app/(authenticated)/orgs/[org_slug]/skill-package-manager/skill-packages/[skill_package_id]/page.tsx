@@ -17,7 +17,7 @@ import { Lexington } from '@/components/blocks/lexington'
 import { DeleteObjectIcon, DropdownMenuTriggerIcon, EditObjectIcon, ToParentPageIcon } from '@/components/icons'
 import { S2_Button } from '@/components/ui/s2-button'
 import { ButtonGroup } from '@/components/ui/button-group'
-import { S2_Card, S2_CardContent, S2_CardDescription, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
+import { S2_Card, S2_CardAction, S2_CardContent, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Link } from '@/components/ui/link'
@@ -27,13 +27,12 @@ import { useOrganization } from '@/hooks/use-organization'
 import * as Paths from '@/paths'
 
 import { trpc } from '@/trpc/client'
-import { AdminModule_SkillPackage_Groups_Section } from './skill-package-groups'
-import { AdminModule_SkillPackage_Skills_Section } from './skill-package-skills'
-import { AdminModule_DeleteSkillPackage_Dialog } from './delete-skill-package'
+import { SkillPackageManagerModule_Package_Skills_Section } from './skill-package-skills'
+import { SkillPackageManagerModule_DeletPackage_Dialog } from './delete-skill-package'
 
 
 
-export default function AdminModule_SkillPackage_Page(props: PageProps<'/orgs/[org_slug]/skill-package-manager/skill-packages/[skill_package_id]'>) {
+export default function SkillPackageManagerModule_Package_Page(props: PageProps<'/orgs/[org_slug]/skill-package-manager/skill-packages/[skill_package_id]'>) {
     const { org_slug: orgSlug, skill_package_id: skillPackageId } = use(props.params)
     
     const organization = useOrganization()
@@ -57,7 +56,7 @@ export default function AdminModule_SkillPackage_Page(props: PageProps<'/orgs/[o
             <Hermes.SectionHeader>
                 <S2_Button variant="outline" asChild>
                     <Link to={Paths.org(orgSlug).skillPackageManager.skillPackages}>
-                        <ToParentPageIcon/> Back to Skill Packages
+                        <ToParentPageIcon/> Skill Packages List
                     </Link>
                 </S2_Button>
                 <Protect role="org:admin">
@@ -73,8 +72,8 @@ export default function AdminModule_SkillPackage_Page(props: PageProps<'/orgs/[o
                                     <DropdownMenuTriggerIcon /> <span className="sr-only">Open menu</span>
                                 </S2_Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuLabel>Skill Package Menu</DropdownMenuLabel>
                                 <DropdownMenuGroup>
                                     <DropdownMenuItem className="text-destructive" onSelect={() => setDeleteDialogOpen(true)}>
                                         <DeleteObjectIcon/> Delete
@@ -82,7 +81,7 @@ export default function AdminModule_SkillPackage_Page(props: PageProps<'/orgs/[o
                                 </DropdownMenuGroup>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                        <AdminModule_DeleteSkillPackage_Dialog
+                        <SkillPackageManagerModule_DeletPackage_Dialog
                             open={deleteDialogOpen}
                             onOpenChange={setDeleteDialogOpen}
                             organization={organization}
@@ -94,24 +93,31 @@ export default function AdminModule_SkillPackage_Page(props: PageProps<'/orgs/[o
             <S2_Card>
                 <S2_CardHeader>
                     <S2_CardTitle>{skillPackage.name}</S2_CardTitle>
-                    <S2_CardDescription>ID: {skillPackage.skillPackageId}</S2_CardDescription>
+                    <S2_CardAction className="text-muted-foreground text-sm">Skill Package</S2_CardAction>
                 </S2_CardHeader>
                 <S2_CardContent>
                     <FieldGroup>
                         <Field orientation="responsive">
+                            <FieldLabel>Skill Package ID</FieldLabel>
+                            <S2_Value>{skillPackage.skillPackageId}</S2_Value>
+                        </Field>
+                        <Field orientation="responsive">
+                            <FieldLabel>Name</FieldLabel>
+                            <S2_Value>{skillPackage.name}</S2_Value>
+                        </Field>
+                        <Field orientation="responsive">
                             <FieldLabel>Description</FieldLabel>
-                            <S2_Value className="min-w-1/2">{skillPackage.description || <span className="text-muted-foreground">No description</span>}</S2_Value>
+                            <S2_Value>{skillPackage.description || <span className="text-muted-foreground">No description</span>}</S2_Value>
                         </Field>
                         <Field orientation="responsive">
                             <FieldLabel>Status</FieldLabel>
-                            <S2_Value className="min-w-1/2">{skillPackage.status}</S2_Value>
+                            <S2_Value>{skillPackage.status}</S2_Value>
                         </Field>
                     </FieldGroup>
                 </S2_CardContent>
             </S2_Card>
         </Hermes.Section>
 
-        <AdminModule_SkillPackage_Groups_Section organization={organization} skillPackage={skillPackage} groups={groups} />
-        <AdminModule_SkillPackage_Skills_Section organization={organization} skillPackage={skillPackage} skills={skills} />
+        <SkillPackageManagerModule_Package_Skills_Section organization={organization} skillPackage={skillPackage} groups={groups} skills={skills} />
     </Lexington.Column>
 }

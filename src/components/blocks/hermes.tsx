@@ -9,10 +9,12 @@
 
 import { ComponentProps } from 'react'
 
+import { AlertInfoIcon, ToParentPageIcon } from '@/components/icons'
+import { S2_Button } from '@/components/ui/s2-button'
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/items'
+import { Link, LinkProps } from '@/components/ui/link'
 
 import { cn } from '@/lib/utils'
-import { AlertInfoIcon } from '../icons'
 
 
 
@@ -61,7 +63,16 @@ function HermesEmpty({ className, ...props}: Omit<ComponentProps<typeof Item>, '
     </Item>
 }
 
+function HermesBackButton({ children, to, ...props}: Omit<ComponentProps<typeof S2_Button>, 'asChild'> & { to: LinkProps['to']}) {
+    return <S2_Button variant="outline" {...props} asChild>
+        <Link to={to}>
+            <ToParentPageIcon/> {children}
+        </Link>
+    </S2_Button>
+}
+
 export const Hermes = {
+    BackButton: HermesBackButton,
     Empty: HermesEmpty,
     Section: HermesSection,
     SectionHeader: HermesSectionHeader,

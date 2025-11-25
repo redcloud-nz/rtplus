@@ -453,8 +453,10 @@ function skillPackageManagerModule(orgSlug: string) {
 
                 group: (skillGroupId: string) => ({
                     href: `${packageBase}/groups/${skillGroupId}`,
-                    update: `${packageBase}/groups/${skillGroupId}/--update`,
-                    delete: `${packageBase}/groups/${skillGroupId}/--delete`,
+                    update: {
+                        label: 'Update',
+                        href: `${packageBase}/groups/${skillGroupId}/--update`,
+                    },
                 } as const),
                 groups: {
                     label: 'Groups',
@@ -466,8 +468,11 @@ function skillPackageManagerModule(orgSlug: string) {
 
                 skill: (skillId: string) => ({
                     href: `${packageBase}/skills/${skillId}`,
-                    update: `${packageBase}/skills/${skillId}/--update`,
-                    delete: `${packageBase}/skills/${skillId}/--delete`,
+                    update: {
+                        label: 'Update',
+                        href: `${packageBase}/skills/${skillId}/--update`,
+                        
+                    },
                 } as const),
 
                 skills: {

@@ -8,6 +8,7 @@
 import { ComponentProps, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { pick } from 'remeda'
+import { z } from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 
@@ -20,71 +21,72 @@ import { S2_Select, S2_SelectContent, S2_SelectItem, S2_SelectTrigger, S2_Select
 import { S2_Textarea } from '../ui/s2-textarea'
 import { S2_Value } from '@/components/ui/s2-value'
 
-import { SkillPackageData, skillPackageSchema } from '@/lib/schemas/skill-package'
+import { SkillGroupData, skillGroupSchema } from '@/lib/schemas/skill-group'
 import { OrganizationData } from '@/lib/schemas/organization'
 import * as Paths from '@/paths'
 
 
-type SkillPackageFormProps = Omit<ComponentProps<'form'>, 'children' | 'onSubmit'> & {
-    mode: 'Create' | 'Update'
+
+
+type SKillGroupFormProps = Omit<ComponentProps<'form'>, 'children' | 'onSubmit'> & {
+    mode: 'Create' | 'Update',
     organization: OrganizationData
-    skillPackage: SkillPackageData
-    onSubmit: (data: SkillPackageData) => Promise<void>
-    
+    skillGroup: SkillGroupData
+    onSubmit: (data: SkillGroupData) => Promise<void>
 }
 
-export function SkillPackageForm({ mode, organization, onSubmit, skillPackage, ...props }: SkillPackageFormProps) {
+export function SkillGroupForm({ mode, organization, onSubmit, skillGroup, ...props }: SKillGroupFormProps) {
 
     const [isPending, setIsPending] = useState(false)
 
     const form = useForm({
-        resolver: zodResolver(skillPackageSchema.pick({ name: true, description: true, status: true })),
-        defaultValues: pick(skillPackage, ['name', 'description', 'status'])
+        resolver: zodResolver(skillGroupSchema.pick({ name: true, description: true, status: true })),
+        defaultValues: pick(skillGroup, ['name', 'description', 'status'])
     })
 
     const handleSubmit = form.handleSubmit(async (data) => {
         setIsPending(true)
-        await onSubmit({ ...skillPackage, ...data })
+        await onSubmit({ ...skillGroup, ...data})
         setIsPending(false)
         form.reset()
     })
     
      return <S2_Card>
         <S2_CardHeader>
-            <S2_CardTitle>{mode == 'Create' ? 'Create Skill Package' : 'Update Skill Package'}</S2_CardTitle>
+            <S2_CardTitle>{mode == 'Create' ? 'Create Skill Group' : 'Update Skill Group'}</S2_CardTitle>
         </S2_CardHeader>
         <S2_CardContent>
-            <form id="skill-package-form" onSubmit={handleSubmit} {...props}>
+            <form id="skill-group-form" onSubmit={handleSubmit} {...props}>
                 <FieldGroup>
                     <Field orientation="responsive">
-                        <FieldLabel>Skill Package ID</FieldLabel>
-                        <S2_Value value={skillPackage.skillPackageId}/>
+                         <FieldLabel>Skill Group ID</FieldLabel>
+                        <S2_Value value={skillGroup.skillGroupId}/>
                     </Field>
                     <Controller
                         name="name"
                         control={form.control}
-                        render={({ field, fieldState }) => 
+                        render={({ field, fieldState }) => (
                             <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor="skill-package-name">Package Name</FieldLabel>
+                                <FieldLabel htmlFor="skill-group-name">Name</FieldLabel>
                                 <S2_Input
                                     aria-invalid={fieldState.invalid}
-                                    id="skill-package-name"
+                                    id="skill-group-name"
                                     maxLength={100}
                                     {...field}
                                 />
                                 {fieldState.invalid && <FieldError errors={[fieldState.error]}/>}
                             </Field>
-                        }
+                        )}
                     />
                     <Controller
                         name="description"
                         control={form.control}
                         render={({ field, fieldState }) => 
                             <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor="skill-package-description">Package Description</FieldLabel>
+                                <FieldLabel htmlFor="skill-group-description">Description</FieldLabel>
                                 <S2_Textarea
                                     aria-invalid={fieldState.invalid}
-                                    id="skill-package-description"
+                                    id="skill-group-description"
                                     maxLength={500}
                                     {...field}
                                 />
@@ -99,10 +101,10 @@ export function SkillPackageForm({ mode, organization, onSubmit, skillPackage, .
                             <Field 
                                 data-invalid={fieldState.invalid}
                                 orientation="responsive"
-                                >
-                                <FieldLabel htmlFor="skill-package-status">Status</FieldLabel>
+                            >
+                                <FieldLabel htmlFor="skill-group-status">Status</FieldLabel>
                                 <S2_Select value={field.value} onValueChange={field.onChange}>
-                                    <S2_SelectTrigger id="skill-package-status" className="min-w-32" aria-invalid={fieldState.invalid}>
+                                    <S2_SelectTrigger id="skill-group-status" className="min-w-32" aria-invalid={fieldState.invalid}>
                                         <S2_SelectValue placeholder="Select status" />
                                     </S2_SelectTrigger>
                                     <S2_SelectContent>
@@ -118,7 +120,7 @@ export function SkillPackageForm({ mode, organization, onSubmit, skillPackage, .
                         <S2_Button 
                             type="submit"
                             disabled={!form.formState.isDirty || isPending}
-                            form="skill-package-form"
+                            form="skill-group-form"
                         >
                             {mode === 'Create' ? 'Create' : 'Save'}
                         </S2_Button>
@@ -130,15 +132,15 @@ export function SkillPackageForm({ mode, organization, onSubmit, skillPackage, .
                             asChild
                         >
                             <Link to={mode === 'Create' 
-                                ? Paths.org(organization.slug).skillPackageManager.skillPackages 
-                                : Paths.org(organization.slug).skillPackageManager.skillPackage(skillPackage.skillPackageId)
+                                ? Paths.org(organization.slug).skillPackageManager.skillPackage(skillGroup.skillPackageId) 
+                                : Paths.org(organization.slug).skillPackageManager.skillPackage(skillGroup.skillPackageId).group(skillGroup.skillGroupId)
                             }>
                                 Cancel
                             </Link>
                         </S2_Button>
                     </Field>
-                </FieldGroup>
-            </form>
+            </FieldGroup>
+          </form>
         </S2_CardContent>
     </S2_Card>
 }

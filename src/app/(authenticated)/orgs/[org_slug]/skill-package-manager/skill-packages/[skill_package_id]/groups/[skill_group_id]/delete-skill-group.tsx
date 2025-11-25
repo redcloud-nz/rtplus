@@ -22,14 +22,15 @@ import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
 import { OrganizationData, OrganizationId } from '@/lib/schemas/organization'
-import { SkillPackageData } from '@/lib/schemas/skill-package'
-import { zodNanoId8 } from '@/lib/validation'
+import { SkillGroupData, SkillGroupId } from '@/lib/schemas/skill-group'
+import { SkillPackageId } from '@/lib/schemas/skill-package'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
 
 
-export function SkillPackageManagerModule_DeletPackage_Dialog({ organization, skillPackage, ...props }: Omit<ComponentProps<typeof Dialog>, 'children'> & { organization: OrganizationData, skillPackage: SkillPackageData }) {
+
+export function SkillPackageManagerModule_DeleteSkillGroup_Dialog({ organization, skillGroup, ...props }: Omit<ComponentProps<typeof Dialog>, 'children'> & { organization: OrganizationData, skillGroup: SkillGroupData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
@@ -37,61 +38,61 @@ export function SkillPackageManagerModule_DeletPackage_Dialog({ organization, sk
     const form = useForm({
         resolver: zodResolver(z.object({
             orgId: OrganizationId.schema,
-            skillPackageId: zodNanoId8,
-            skillPackageName: z.literal(skillPackage.name)
+            skillPackageId: SkillPackageId.schema,
+            skillGroupId: SkillGroupId.schema,
+            skillGroupName: z.literal(skillGroup.name)
         })),
-        defaultValues: { orgId: organization.orgId, skillPackageId: skillPackage.skillPackageId, skillPackageName: "" }
+        defaultValues: { orgId: organization.orgId, skillPackageId: skillGroup.skillPackageId, skillGroupId: skillGroup.skillGroupId, skillGroupName: "" }
     })
 
-    const mutation = useMutation(trpc.skills.deletePackage.mutationOptions({
+    const mutation = useMutation(trpc.skills.deleteGroup.mutationOptions({
         onMutate() {
             props.onOpenChange?.(false)
-            
         },
         onError(error) {
             toast({
-                title: 'Error deleting skill package',
+                title: 'Error deleting skill group',
                 description: error.message,
                 variant: 'destructive'
             })
         },
         onSuccess() {
             toast({
-                title: 'Skill package deleted',
-                description: <>The skill package <ObjectName>{skillPackage.name}</ObjectName> has been deleted.</>,
+                title: 'Skill group deleted',
+                description: <>The skill group <ObjectName>{skillGroup.name}</ObjectName> has been deleted.</>,
             })
-
-            router.push(Paths.org(organization.slug).skillPackageManager.skillPackages.href)
             
-            queryClient.invalidateQueries(trpc.skills.getPackages.queryFilter({ orgId: organization.orgId }))
+            router.push(Paths.org(organization.slug).skillPackageManager.skillPackage(skillGroup.skillPackageId).href)
+
+            queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter({ skillPackageId: skillGroup.skillPackageId }))
         }
     }))
 
     return <Dialog {...props}>
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>Delete Skill Package</DialogTitle>
+                <DialogTitle>Delete Skill Group</DialogTitle>
                 <DialogDescription>
-                    Please confirm that you want to delete the skill package <ObjectName>{skillPackage.name}</ObjectName>. This action cannot be undone.
+                    Please confirm that you want to delete the skill group <ObjectName>{skillGroup.name}</ObjectName>. This action cannot be undone.
                 </DialogDescription>
             </DialogHeader>
             <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))}>
                 <FieldGroup>
                     <Controller
-                        name="skillPackageName"
+                        name="skillGroupName"
                         control={form.control}
                         render={({ field, fieldState }) => (
                             <Field orientation="responsive">
                                 <FieldContent>
-                                    <FieldLabel htmlFor='delete-skill-package-confirm-name'>Package Name</FieldLabel>
+                                    <FieldLabel htmlFor='delete-skill-group-confirm-name'>Group Name</FieldLabel>
                                     <FieldDescription>
-                                        Retype the skill package name.
+                                        Retype the skill group name.
                                     </FieldDescription>
                                     { fieldState.error && <FieldError errors={[fieldState.error]}/>}
                                 </FieldContent>
                                 <Input 
                                     {...field} 
-                                    id="delete-skill-package-confirm-name"
+                                    id="delete-skill-group-confirm-name"
                                     aria-invalid={fieldState.invalid}
                                     className="min-w-1/2"
                                 />

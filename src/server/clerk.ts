@@ -2,12 +2,12 @@
  *  Copyright (c) 2025 Redcloud Development, Ltd.
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
 */
+import 'server-only'
 
-import { cacheTag } from 'next/cache'
+
 import { cache } from 'react'
 
 import { auth, createClerkClient } from '@clerk/nextjs/server'
-
 
 
 

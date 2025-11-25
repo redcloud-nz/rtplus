@@ -7,9 +7,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
-import { useForm } from 'react-hook-form'
 
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { SkillPackageForm } from '@/components/forms/skill-package-form'
@@ -17,8 +15,7 @@ import { ObjectName } from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
 import { OrganizationData } from '@/lib/schemas/organization'
-import { SkillPackageData, skillPackageSchema } from '@/lib/schemas/skill-package'
-import { nanoId8 } from '@/lib/id'
+import { SkillPackageData, SkillPackageId, skillPackageSchema } from '@/lib/schemas/skill-package'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
@@ -26,25 +23,20 @@ import { trpc } from '@/trpc/client'
 
 
 
-export function AdminModile_CreateSkillPackage_Form({ organization }: { organization: OrganizationData }) {
+export function SkillPackageManagerModule_CreatePackage_Form({ organization }: { organization: OrganizationData }) {
     const queryClient = useQueryClient()
     const router = useRouter()
     const { toast } = useToast()
-    
 
-    const skillPackageId = useMemo(() => nanoId8(), [])
-
-    const form = useForm<SkillPackageData>({
-        resolver: zodResolver(skillPackageSchema),
-        defaultValues: {
-            skillPackageId,
-            name: '',
-            description: '',
-            status: 'Active',
-            tags: [],
-            properties: {}
-        }
-    })
+    const initSkillPackage = useMemo(() => ({
+        skillPackageId: SkillPackageId.create(),
+        ownerOrgId: organization.orgId,
+        name: '',
+        description: '',
+        status: 'Active' as SkillPackageData['status'],
+        tags: [],
+        properties: {}
+    } satisfies SkillPackageData), [])
 
     const mutation = useMutation(trpc.skills.createPackage.mutationOptions({
         async onMutate(data) {
@@ -64,15 +56,11 @@ export function AdminModile_CreateSkillPackage_Form({ organization }: { organiza
                 queryClient.setQueryData(trpc.skills.getPackages.queryKey(), context.previousPackages)
             }
 
-            if (error.shape?.cause?.name == 'FieldConflictError') {
-                form.setError(error.shape.cause.message as keyof SkillPackageData, { message: error.shape.message })
-            } else {
-                toast({
-                    title: "Error creating skill package",
-                    description: error.message,
-                    variant: 'destructive',
-                })
-            }
+            toast({
+                title: "Error creating skill package",
+                description: error.message,
+                variant: 'destructive',
+            })
         },
         onSuccess(result) {
             toast({
@@ -87,9 +75,8 @@ export function AdminModile_CreateSkillPackage_Form({ organization }: { organiza
 
     return <SkillPackageForm
         mode="Create"
-        form={form}
         organization={organization} 
-        skillPackageId={skillPackageId}
+        skillPackage={initSkillPackage}
         onSubmit={async (data) => {
             await mutation.mutateAsync({ ...data, orgId: organization.orgId })
         }}

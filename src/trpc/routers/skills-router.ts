@@ -25,9 +25,9 @@ import { AuthenticatedContext, AuthenticatedOrgContext, createTRPCRouter, orgAdm
 export const skillsRouter = createTRPCRouter({
 
     createGroup: orgAdminProcedure
-        .input(skillGroupSchema)
+        .input(skillGroupSchema.omit({ sequence: true }))
         .output(skillGroupSchema)
-        .mutation(async ({ ctx, input: { skillPackageId, skillGroupId, ...input} }) => {
+        .mutation(async ({ ctx, input: { orgId, skillPackageId, skillGroupId, ...input} }) => {
             const skillPackage = await getSkillPackageById(ctx, skillPackageId)
 
             if(skillPackage.ownerOrgId != ctx.auth.activeOrg.orgId) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to modify SkillPackage(${skillPackageId})` })
@@ -46,7 +46,13 @@ export const skillsRouter = createTRPCRouter({
                     data: {
                         skillGroupId,
                         skillPackageId,
-                        ...fields,
+                        parentId: null,
+                        name: fields.name,
+                        description: fields.description,
+                        status: fields.status,
+                        tags: fields.tags,
+                        properties: fields.properties,
+                        sequence: (aggregations._max.sequence ?? 0) + 1,
                     },
                 }),
 
@@ -68,7 +74,7 @@ export const skillsRouter = createTRPCRouter({
     createPackage: orgAdminProcedure
         .input(skillPackageSchema.omit({ ownerOrgId: true }))
         .output(skillPackageSchema)
-        .mutation(async ({ ctx, input: { skillPackageId, ...input } }) => {
+        .mutation(async ({ ctx, input: { orgId, skillPackageId, ...input } }) => {
             const aggregations = await ctx.prisma.skillPackage.aggregate({
                 _max: { sequence: true },
             })
@@ -81,7 +87,12 @@ export const skillsRouter = createTRPCRouter({
                 data: {
                     skillPackageId,
                     ownerOrgId: ctx.auth.activeOrg.orgId,
-                    ...fields ,
+                    name: fields.name,
+                    description: fields.description,
+                    status: fields.status,
+                    tags: fields.tags,
+                    properties: fields.properties,
+                    sequence: 0,
                     changeLogs: {
                         create: {
                             event: 'Create',
@@ -99,7 +110,7 @@ export const skillsRouter = createTRPCRouter({
     createSkill: orgAdminProcedure
         .input(skillSchema)
         .output(skillSchema)
-        .mutation(async ({ ctx, input: { skillPackageId, skillId, ...input } }) => {
+        .mutation(async ({ ctx, input: { orgId, skillPackageId, skillId, ...input } }) => {
             const skillPackage = await getSkillPackageById(ctx, skillPackageId)
 
             if(skillPackage.ownerOrgId != ctx.auth.activeOrg.orgId) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to modify SkillPackage(${skillPackageId})` })
@@ -389,7 +400,7 @@ export const skillsRouter = createTRPCRouter({
     updateGroup: orgAdminProcedure
         .input(skillGroupSchema)
         .output(skillGroupSchema)
-        .mutation(async ({ ctx, input: { skillGroupId, skillPackageId, ...fields} }) => {
+        .mutation(async ({ ctx, input: { orgId, skillGroupId, skillPackageId, ...fields} }) => {
             const skillGroup = await getSkillGroupById(ctx, skillPackageId, skillGroupId)
 
             if(skillGroup.skillPackage.ownerOrgId != ctx.auth.activeOrg.orgId) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to modify SkillGroup(${skillGroupId})` })

@@ -10,7 +10,7 @@ import  { ComponentProps, ForwardRefExoticComponent, ReactNode, RefAttributes } 
 import { cn } from '@/lib/utils'
 
 
-type LinkProps = Omit<ComponentProps<typeof NextLink>, 'href'> & { to: { href: string } }
+export type LinkProps = Omit<ComponentProps<typeof NextLink>, 'href'> & { to: { href: string } }
 
 export function Link({ children, to: path, ...props }: LinkProps) {
     return <NextLink
@@ -72,7 +72,7 @@ type TextLinkProps = Omit<ComponentProps<typeof NextLink>, 'children' | 'href'> 
 
 export function TextLink({ children, className, to: path, ...props }: TextLinkProps) {
     return <NextLink
-        className={cn('text-blue-900 hover:underline', className)}
+        className={cn('text-blue-900 hover:underline cursor-pointer', className)}
         href={path.href}
         {...props}
     >
