@@ -21,7 +21,7 @@ import { ObjectName } from '@/components/ui/typography'
 import { useToast } from '@/hooks/use-toast'
 import { OrganizationData } from '@/lib/schemas/organization'
 import { PersonId } from '@/lib/schemas/person'
-import { TeamMembershipData, teamMembershipSchema } from '@/lib/schemas/team-membership'
+import { teamMembershipSchema } from '@/lib/schemas/team-membership'
 import * as Paths from '@/paths'
 import { trpc } from '@/trpc/client'
 
@@ -43,7 +43,7 @@ export default function AdminModule_Person_CreateTeamMembership_Form({ organizat
         ]
     })
 
-    const form = useForm<TeamMembershipData>({
+    const form = useForm({
         resolver: zodResolver(teamMembershipSchema),
         defaultValues: {
             teamId: '',

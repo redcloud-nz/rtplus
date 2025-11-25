@@ -10,10 +10,12 @@ import { ToParentPageIcon } from '@/components/icons'
 import { S2_Button } from '@/components/ui/s2-button'
 import { Link } from '@/components/ui/link'
 
+import { TeamData, TeamId } from '@/lib/schemas/team'
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
 
-import { AdminModule_CreateTeam_Form } from './create-team'
+import { TeamForm } from '@/components/forms/team-form'
+
 
 export const metadata = {
     title: 'Create Team'
@@ -23,6 +25,14 @@ export default async function AdminModule_CreateTeam_Page(props: PageProps<'/org
     const { org_slug: orgSlug } = await props.params
     const organization = await getOrganization(orgSlug)
 
+    const initialTeam = {
+        teamId: TeamId.create(),
+        name: '',
+        status: 'Active',
+        color: '',
+        tags: [],
+        properties: {},
+    } satisfies TeamData
 
     return <Lexington.Root>
         <Lexington.Header
@@ -41,7 +51,11 @@ export default async function AdminModule_CreateTeam_Page(props: PageProps<'/org
                         </Link>
                     </S2_Button>
                 </Lexington.ColumnControls>
-                <AdminModule_CreateTeam_Form organization={organization} />
+                <TeamForm
+                    mode="Create"
+                    organization={organization}
+                    team={initialTeam}
+                />
             </Lexington.Column>
         </Lexington.Page>
     </Lexington.Root>

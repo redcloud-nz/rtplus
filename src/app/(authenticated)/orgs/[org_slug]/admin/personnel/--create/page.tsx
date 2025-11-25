@@ -7,19 +7,31 @@
 
 
 import { Lexington } from '@/components/blocks/lexington'
+import { PersonForm } from '@/components/forms/person-form'
 import { ToParentPageIcon } from '@/components/icons'
 import { S2_Button } from '@/components/ui/s2-button'
 import { Link } from '@/components/ui/link'
 
+import { PersonData, PersonId } from '@/lib/schemas/person'
 import * as Paths from '@/paths'
 import { getOrganization } from '@/server/organization'
 
-import { AdminModule_CreatePerson_Form } from './create-person'
+export const metadata = { title: 'Create Person' }
 
 
 export default async function AdminModule_CreatePerson_Page(props: PageProps<'/orgs/[org_slug]/admin/personnel/--create'>) { 
     const { org_slug: orgSlug } = await props.params
     const organization = await getOrganization(orgSlug)
+
+    const initialPerson = {
+        personId: PersonId.create(),
+        userId: null,
+        name: '',
+        email: '',
+        status: 'Active',
+        tags: [],
+        properties: {},
+    } satisfies PersonData
 
     return <Lexington.Root>
         <Lexington.Header
@@ -38,7 +50,11 @@ export default async function AdminModule_CreatePerson_Page(props: PageProps<'/o
                         </Link>
                     </S2_Button>
                 </Lexington.ColumnControls>
-                <AdminModule_CreatePerson_Form organization={organization} />
+                <PersonForm
+                    mode="Create"
+                    organization={organization}
+                    person={initialPerson}
+                />
             </Lexington.Column>
         </Lexington.Page>        
     </Lexington.Root>

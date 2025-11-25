@@ -6,6 +6,7 @@
 'use client'
 
 import { Controller, useForm, useWatch } from 'react-hook-form'
+import { z } from 'zod'
 
 import { S2_Card, S2_CardContent, S2_CardDescription, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field'
@@ -13,13 +14,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 
 import { D4hServerList } from '@/lib/d4h-api/servers'
-import { OrganizationSettingsData } from '@/lib/schemas/settings'
+import { organizationSettingsSchema } from '@/lib/schemas/settings'
 
 
 /**
  * Card containing the organization level settings for the D4H integration.
  */
-export function Settings_D4hIntegration_Card({ form }: { form: ReturnType<typeof useForm<OrganizationSettingsData>> }) {
+export function Settings_D4hIntegration_Card({ form }: { form: ReturnType<typeof useForm<z.input<typeof organizationSettingsSchema>>> }) {
 
     const enabled = useWatch({ control: form.control, name: 'integrations.d4h.enabled' })
 

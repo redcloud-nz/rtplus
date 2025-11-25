@@ -55,11 +55,11 @@ export function AdminModule_CreateInvitation_Form({ organization }: { organizati
     const router = useRouter()
     const { toast } = useToast()
 
-    const form = useForm<z.infer<typeof invitationSchema>>({
+    const form = useForm({
         resolver: zodResolver(invitationSchema),
         defaultValues: {
-            emailAddresses: [],
-            role: 'org:member',
+            emailAddresses: "",
+            role: 'org:member' as const,
         }
     })
 

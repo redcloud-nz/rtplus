@@ -21,8 +21,6 @@ import { FieldConflictError } from '../types'
 
 
 
-
-
 /**
  * TRPC router for personnel management.
  */
@@ -223,6 +221,7 @@ export const personnelRouter = createTRPCRouter({
                 }
             })
 
+            // Clear cached data
             revalidatePerson(personId)
 
             return toPersonData(updated)

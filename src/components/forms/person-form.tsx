@@ -5,8 +5,13 @@
 
 'use client'
 
-import { ComponentProps, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { ComponentProps } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { pick } from 'remeda'
+
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { S2_Button } from '@/components/ui/s2-button'
 import { S2_Card, S2_CardContent, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
@@ -14,32 +19,131 @@ import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLab
 import { S2_Input } from '@/components/ui/s2-input'
 import { Link } from '@/components/ui/link'
 import { S2_Select, S2_SelectContent, S2_SelectItem, S2_SelectTrigger, S2_SelectValue } from '@/components/ui/s2-select'
+import { ObjectName } from '@/components/ui/typography'
 
+import { useToast } from '@/hooks/use-toast'
 import { OrganizationData } from '@/lib/schemas/organization'
-import { PersonData, PersonId} from '@/lib/schemas/person'
+import { PersonData, personSchema} from '@/lib/schemas/person'
 import * as Paths from '@/paths'
+import { trpc } from '@/trpc/client'
 
 
 
 type PersonFormProps = Omit<ComponentProps<'form'>, 'children' | 'onSubmit'> & {
-    form: ReturnType<typeof useForm<PersonData>>
     mode: 'Create' | 'Update'
     organization: OrganizationData
-    onSubmit: (data: PersonData) => Promise<void>
-    personId: PersonId
-    
+    person: PersonData
 }
 
-export function PersonForm({ form, mode, organization, onSubmit, personId, ...props }: PersonFormProps) {
+export function PersonForm({ mode, organization, person, ...props }: PersonFormProps) {
+    const queryClient = useQueryClient()
+    const router = useRouter()
+    const { toast } = useToast()
 
-    const [isPending, setIsPending] = useState(false)
-
-    const handleSubmit = form.handleSubmit(async (data) => {
-        setIsPending(true)
-        await onSubmit(data)
-        form.reset(data)
-        setIsPending(false)
+    const form = useForm({
+        resolver: zodResolver(personSchema.pick({ name: true, email: true, status: true })),
+        defaultValues: pick(person, ['name', 'email', 'status'])
     })
+
+    const handleSubmit = form.handleSubmit(async (formData) => {
+        if(mode === 'Create') {
+            await createMutation.mutateAsync({ ...person, ...formData, orgId: organization.orgId })
+        } else {
+            await updateMutation.mutateAsync({ ...person, ...formData, orgId: organization.orgId })
+        }
+    })
+
+    const createMutation = useMutation(trpc.personnel.createPerson.mutationOptions({
+        async onMutate(data) {
+            const newPerson = personSchema.parse(data)
+
+            await queryClient.cancelQueries(trpc.personnel.getPersonnel.queryFilter({ orgId: organization.orgId }))
+
+            const previousPersonnel = queryClient.getQueryData(trpc.personnel.getPersonnel.queryKey({ orgId: organization.orgId }))
+
+            queryClient.setQueryData(trpc.personnel.getPersonnel.queryKey({ orgId: organization.orgId }), (prev = []) => [...prev, newPerson])
+
+            return { previousPersonnel }
+        },
+        onError(error, _variables, context) {
+            if(context?.previousPersonnel) {
+                queryClient.setQueryData(trpc.personnel.getPersonnel.queryKey({ orgId: organization.orgId }), context.previousPersonnel)
+            }
+            
+            if(error.shape?.cause?.name == 'FieldConflictError') {
+                form.setError(error.shape.cause.message as keyof Pick<PersonData, 'name' | 'email' | 'status'>, { message: error.shape.message })
+            } else {
+                toast({
+                    title: "Error creating person",
+                    description: error.message,
+                    variant: 'destructive',
+                })
+            }
+
+        },
+        onSuccess(result) {
+            toast({
+                title: "Person created",
+                description: <>The person <ObjectName>{result.name}</ObjectName> has been created successfully.</>,
+            })
+
+            queryClient.invalidateQueries(trpc.personnel.getPersonnel.queryFilter({ orgId: organization.orgId }))
+
+            router.push(Paths.org(organization.slug).admin.person(person.personId).href)
+        }
+    }))
+
+    const updateMutation = useMutation(trpc.personnel.updatePerson.mutationOptions({
+        async onMutate(data) {
+            const updatedPerson = personSchema.parse(data)
+
+            await queryClient.cancelQueries(trpc.personnel.getPersonnel.queryFilter({ orgId: organization.orgId }))
+            await queryClient.cancelQueries(trpc.personnel.getPerson.queryFilter({ orgId: organization.orgId, personId: person.personId }))
+
+            const previousPersonnel = queryClient.getQueryData(trpc.personnel.getPersonnel.queryKey({ orgId: organization.orgId }))
+            const previousPerson = queryClient.getQueryData(trpc.personnel.getPerson.queryKey({ orgId: organization.orgId, personId: person.personId }))
+
+            queryClient.setQueryData(trpc.personnel.getPersonnel.queryKey({ orgId: organization.orgId }), (prev = []) => {
+                return prev.map(p => p.personId === updatedPerson.personId ? updatedPerson : p)
+            })
+            queryClient.setQueryData(trpc.personnel.getPerson.queryKey({ orgId: organization.orgId, personId: person.personId }), updatedPerson)
+
+            return { previousPersonnel, previousPerson }
+
+        },
+        onError(error, _variables, context) {
+            if(context?.previousPersonnel) {
+                queryClient.setQueryData(trpc.personnel.getPersonnel.queryKey({ orgId: organization.orgId }), context.previousPersonnel)
+            }
+            if(context?.previousPerson) {
+                queryClient.setQueryData(trpc.personnel.getPerson.queryKey({ orgId: organization.orgId, personId: person.personId }), context.previousPerson)
+            }
+
+            if(error.shape?.cause?.name == 'FieldConflictError') {
+                form.setError(error.shape.cause.message as keyof Pick<PersonData, 'name' | 'email' | 'status'>, { message: error.shape.message })
+            } else {
+                toast({
+                    title: "Error updating person",
+                    description: error.message,
+                    variant: 'destructive',
+                })
+            }
+        },
+        onSuccess(result) {
+            
+            toast({
+                title: "Person updated",
+                description: `The person ${result.name} has been updated successfully.`,
+            })
+
+            router.push(Paths.org(organization.slug).admin.person(person.personId).href)
+
+            queryClient.invalidateQueries(trpc.personnel.getPersonnel.queryFilter({ orgId: organization.orgId }))
+            queryClient.invalidateQueries(trpc.personnel.getPerson.queryFilter({ orgId: organization.orgId, personId: person.personId }))
+        }
+    }))
+
+    const isPending = createMutation.isPending || updateMutation.isPending
     
     return <S2_Card>
         <S2_CardHeader>
@@ -136,7 +240,7 @@ export function PersonForm({ form, mode, organization, onSubmit, personId, ...pr
                             disabled={isPending} onClick={() => form.reset() } 
                             asChild
                         >
-                            <Link to={mode === 'Create' ? Paths.org(organization.slug).admin.personnel : Paths.org(organization.slug).admin.person(personId)}>
+                            <Link to={mode === 'Create' ? Paths.org(organization.slug).admin.personnel : Paths.org(organization.slug).admin.person(person.personId)}>
                                 Cancel
                             </Link>
                         </S2_Button>

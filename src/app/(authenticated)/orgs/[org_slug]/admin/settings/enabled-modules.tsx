@@ -6,17 +6,19 @@
 'use client'
 
 import { Controller, useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 import { S2_Card, S2_CardContent, S2_CardDescription, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
 import { Field, FieldContent, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Switch } from '@/components/ui/switch'
 
-import { OrganizationSettingsData } from '@/lib/schemas/settings'
+import { organizationSettingsSchema } from '@/lib/schemas/settings'
+
 
 /**
  * Card controlling which modules are enabled for the organization.
  */
-export function Settings_EnabledModules_Card({ form }: { form: ReturnType<typeof useForm<OrganizationSettingsData>> }) {
+export function Settings_EnabledModules_Card({ form }: { form: ReturnType<typeof useForm<z.input<typeof organizationSettingsSchema>>> }) {
 
     return <S2_Card>
         <S2_CardHeader>

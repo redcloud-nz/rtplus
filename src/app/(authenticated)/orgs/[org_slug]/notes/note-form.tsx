@@ -34,7 +34,7 @@ type NoteFormProps = Omit<ComponentProps<'form'>, 'children' | 'onSubmit'> & {
 
 export function NotesModule_NoteForm({ cancelPath, className, id: formId = "note-form", listPath,  note, onSubmit,...props }: NoteFormProps) {
 
-    const form = useForm<NoteData>({
+    const form = useForm({
         resolver: zodResolver(noteSchema),
         defaultValues: { ...note }
     })

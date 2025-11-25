@@ -5,17 +5,18 @@
 'use client'
 
 import { Controller, useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 import { S2_Card, S2_CardContent, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { S2_Select, S2_SelectContent, S2_SelectItem, S2_SelectTrigger, S2_SelectValue } from '@/components/ui/s2-select'
 
-import { OrganizationSettingsData } from '@/lib/schemas/settings'
+import { organizationSettingsSchema } from '@/lib/schemas/settings'
 
 
 
 
-export function Settings_DefaultValues_Card({ form }: { form: ReturnType<typeof useForm<OrganizationSettingsData>> }) {
+export function Settings_DefaultValues_Card({ form }: { form: ReturnType<typeof useForm<z.input<typeof organizationSettingsSchema>>> }) {
     
     return <S2_Card>
         <S2_CardHeader>
@@ -37,7 +38,7 @@ export function Settings_DefaultValues_Card({ form }: { form: ReturnType<typeof 
                         </FieldContent>
                         
                         <S2_Select                
-                            value={field.value.toString()}
+                            value={field.value?.toString() ?? ''}
                             onValueChange={value => {
                                 field.onChange(Number(value))
                             }}

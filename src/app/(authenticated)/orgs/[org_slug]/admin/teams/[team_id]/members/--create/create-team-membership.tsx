@@ -44,7 +44,7 @@ export default function AdminModule_Team_CreateTeamMembership_Form({ organizatio
         ]
     })
 
-    const form = useForm<TeamMembershipData>({
+    const form = useForm({
         resolver: zodResolver(teamMembershipSchema),
         defaultValues: {
             teamId,

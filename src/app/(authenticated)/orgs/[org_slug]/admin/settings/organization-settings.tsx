@@ -13,11 +13,11 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 
 import { Button } from '@/components/ui/button'
 import { FloatingFooter } from '@/components/footer'
-import { Heading, Paragraph } from '@/components/ui/typography'
+import { Heading} from '@/components/ui/typography'
 
 import { useToast } from '@/hooks/use-toast'
 import { OrganizationData } from '@/lib/schemas/organization'
-import { OrganizationSettingsData, organizationSettingsSchema } from '@/lib/schemas/settings'
+import { organizationSettingsSchema } from '@/lib/schemas/settings'
 import { trpc } from '@/trpc/client'
 
 import { Settings_D4hIntegration_Card } from './d4h-integration'
@@ -36,7 +36,7 @@ export function AdminModule_OrganizationSettings_Form({ organization }: {organiz
 
     const { data: orgSettings } = useSuspenseQuery(trpc.settings.getOrganizationSettings.queryOptions({ orgId: organization.orgId }))
 
-    const form = useForm<OrganizationSettingsData>({
+    const form = useForm({
         resolver: zodResolver(organizationSettingsSchema),
         defaultValues: { ...orgSettings },
     })

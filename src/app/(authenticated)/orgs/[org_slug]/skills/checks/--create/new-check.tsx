@@ -9,7 +9,6 @@ import { formatISO } from 'date-fns'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import z from 'zod'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useSuspenseQueries,  } from '@tanstack/react-query'
@@ -57,7 +56,7 @@ export function SkillsModule_NewCheck_Form({ organization }: { organization: Org
 
     const skillCheckId = useMemo(() => nanoId16(), [])
 
-    const form = useForm<z.infer<typeof singleSkillCheckSchema>>({
+    const form = useForm({
         resolver: zodResolver(singleSkillCheckSchema),
         defaultValues: {
             skillCheckId,

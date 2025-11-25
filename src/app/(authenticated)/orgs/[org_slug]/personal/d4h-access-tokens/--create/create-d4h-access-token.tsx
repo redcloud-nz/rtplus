@@ -28,7 +28,7 @@ import { S2_Textarea } from '@/components/ui/s2-textarea'
 import { Paragraph } from '@/components/ui/typography'
 
 import { addAccessToken, D4hAccessTokenData, D4HAccessTokenId, D4hAccessTokens, d4hAccessTokenSchema } from '@/lib/d4h-access-tokens'
-import { D4hServerCode, D4hServerList, getD4hServer } from '@/lib/d4h-api/servers'
+import { D4hServerList, getD4hServer } from '@/lib/d4h-api/servers'
 import { D4hWhoami } from '@/lib/d4h-api/whoami'
 import { getD4hFetchClient } from '@/lib/d4h-api/client'
 import { OrganizationData } from '@/lib/schemas/organization'
@@ -40,14 +40,12 @@ import * as Paths from '@/paths'
 
 const partialTokenObjectSchema = d4hAccessTokenSchema.omit({ createdAt: true, lastVerified: true, teams: true })
 
-type PartialTokenObject = z.infer<typeof partialTokenObjectSchema> & { serverCode: D4hServerCode | '' }
-
 
 export function Personal_CreateD4hAccessToken_Form({ organization, userId }: { organization: OrganizationData, userId: UserId }) {
     const queryClient = useQueryClient()
     const router = useRouter()
 
-    const form = useForm<PartialTokenObject>({
+    const form = useForm({
         resolver: zodResolver(partialTokenObjectSchema),
         defaultValues: {
             tokenId: D4HAccessTokenId.create(),
@@ -86,11 +84,11 @@ export function Personal_CreateD4hAccessToken_Form({ organization, userId }: { o
         }
     })
 
-    async function handleSave() {
+    const handleSave = form.handleSubmit(async (formData) => {
         setStatus('Saving')
 
         const tokenToSave: D4hAccessTokenData = {
-            ...form.getValues(),
+            ...formData,
             createdAt: new Date().toISOString(),
             lastVerified: new Date().toISOString(),
             teams: whoamiData ? whoamiData.members.map(member => ({
@@ -105,7 +103,7 @@ export function Personal_CreateD4hAccessToken_Form({ organization, userId }: { o
 
         handleReset()
         router.push(Paths.org(organization.slug).personal.d4hAccessTokens.href)
-    }
+    })
 
     function handleReset() {
         form.reset()

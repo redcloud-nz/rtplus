@@ -5,41 +5,77 @@
 
 'use client'
 
-import { ComponentProps, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { ComponentProps } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { S2_Button } from '@/components/ui/s2-button'
 import { S2_Card, S2_CardContent, S2_CardDescription, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { Link } from '@/components/ui/link'
 import { S2_Select, S2_SelectContent, S2_SelectItem, S2_SelectTrigger, S2_SelectValue } from '@/components/ui/s2-select'
 import { Spinner } from '@/components/ui/spinner'
+import { ObjectName } from '@/components/ui/typography'
 
+import { useToast } from '@/hooks/use-toast'
+import { OrganizationData } from '@/lib/schemas/organization'
 import { PersonRef } from '@/lib/schemas/person'
 import { TeamRef } from '@/lib/schemas/team'
-import { TeamMembershipData } from '@/lib/schemas/team-membership'
-
+import { TeamMembershipData, teamMembershipSchema } from '@/lib/schemas/team-membership'
+import * as Paths from '@/paths'
+import { trpc } from '@/trpc/client'
 
 
 
 
 type TeamMembershipFormProps = Omit<ComponentProps<'form'>, 'children' | 'onSubmit'> & {
-    form: ReturnType<typeof useForm<TeamMembershipData>>
+    scope: 'Person' | 'Team'
+    organization: OrganizationData
     membership: TeamMembershipData
-    onCancel: () => void
-    onSubmit: (data: TeamMembershipData) => Promise<void>
     person: PersonRef
     team: TeamRef
 }
 
-export function TeamMembershipForm({ form, membership, onCancel, onSubmit, person, team, ...props }: TeamMembershipFormProps) {
+export function TeamMembershipForm({ scope, membership, organization, person, team, ...props }: TeamMembershipFormProps) {
+    const queryClient = useQueryClient()
+    const router = useRouter()
+    const { toast } = useToast()
 
-    const [isPending, setIsPending] = useState(false)
 
-    const handleSubmit = form.handleSubmit(async (data) => {
-        setIsPending(true)
-        await onSubmit(data)
-        setIsPending(false)
+    const form = useForm({
+        resolver: zodResolver(teamMembershipSchema),
+        defaultValues: { ...membership }
     })
+
+    const mutation = useMutation(trpc.teamMemberships.updateTeamMembership.mutationOptions({
+        onError(error) {
+            toast({
+                title: 'Error updating team membership',
+                description: error.message,
+                variant: 'destructive'
+            })
+        },
+        onSuccess() {
+            toast({
+                title: "Team membership updated",
+                description: <>The membership of <ObjectName>{person.name}</ObjectName> in <ObjectName>{team.name}</ObjectName> has been updated.</>,
+            })
+
+            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ orgId: organization.orgId, personId: person.personId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMemberships.queryFilter({ orgId: organization.orgId, teamId: team.teamId }))
+            queryClient.invalidateQueries(trpc.teamMemberships.getTeamMembership.queryFilter({ orgId: organization.orgId, personId: person.personId, teamId: team.teamId }))
+
+            if(scope == 'Person') {
+                router.push(Paths.org(organization.slug).admin.person(person.personId).teamMembership(team.teamId).href)
+            } else {
+                router.push(Paths.org(organization.slug).admin.team(team.teamId).member(person.personId).href)
+            }
+        }
+    }))
+
 
     return <S2_Card>
         <S2_CardHeader>
@@ -47,7 +83,7 @@ export function TeamMembershipForm({ form, membership, onCancel, onSubmit, perso
             <S2_CardDescription><span className="font-medium">{person.name}</span> in <span className="font-medium">{team.name}</span>.</S2_CardDescription>
         </S2_CardHeader>
         <S2_CardContent>
-            <form id="update-team-membership" onSubmit={handleSubmit} {...props}>
+            <form id="update-team-membership" onSubmit={form.handleSubmit(async (data) => mutation.mutateAsync({ ...data, orgId: organization.orgId }))} {...props}>
                 <FieldGroup>
                     <Controller
                         name="status"
@@ -77,17 +113,23 @@ export function TeamMembershipForm({ form, membership, onCancel, onSubmit, perso
                     <Field orientation="horizontal">
                         <S2_Button 
                             type="submit"
-                            disabled={!form.formState.isDirty || isPending}
+                            disabled={!form.formState.isDirty || mutation.isPending}
                             form="update-team-membership"
                         >
-                            {isPending ? <><Spinner/> Updating...</> : 'Update' }
+                            {mutation.isPending ? <><Spinner/> Updating...</> : 'Update' }
                         </S2_Button>
                         <S2_Button 
                             type="button"
                             variant="outline" 
-                            disabled={isPending} onClick={() => { form.reset(); onCancel() }} 
+                            disabled={mutation.isPending} onClick={() => { form.reset(); }} 
+                            asChild
                         >
-                            Cancel
+                            <Link 
+                                to={scope == 'Person' 
+                                    ? Paths.org(organization.slug).admin.person(person.personId).teamMembership(team.teamId) 
+                                    : Paths.org(organization.slug).admin.team(team.teamId).member(person.personId)
+                                }
+                            >Cancel</Link>
                         </S2_Button>
                     </Field>
                 </FieldGroup>

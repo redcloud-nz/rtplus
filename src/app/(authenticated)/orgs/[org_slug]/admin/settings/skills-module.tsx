@@ -6,15 +6,16 @@
 'use client'
 
 import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 import { S2_Card, S2_CardContent, S2_CardHeader, S2_CardTitle } from '@/components/ui/s2-card'
 
-import { OrganizationSettingsData } from '@/lib/schemas/settings'
+import { organizationSettingsSchema } from '@/lib/schemas/settings'
 
 /**
  * Card containing the organization level settings for the Skills module. 
  */
-export function Settings_SkillsModule_Card({}: { form: ReturnType<typeof useForm<OrganizationSettingsData>> }) {
+export function Settings_SkillsModule_Card({}: { form: ReturnType<typeof useForm<z.input<typeof organizationSettingsSchema>>> }) {
 
     return <S2_Card>
         <S2_CardHeader>

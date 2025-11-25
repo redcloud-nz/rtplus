@@ -37,7 +37,7 @@ type SessionFormProps = Omit<ComponentProps<'form'>, 'children' | 'onSubmit'> & 
 
 export function SkillsModule_SessionForm({ mode, organization, onSubmit, session, ...props }: SessionFormProps) {
     
-    const form = useForm<SkillCheckSessionData>({
+    const form = useForm({
         resolver: zodResolver(skillCheckSessionSchema),
         defaultValues: { ...session }
     })
