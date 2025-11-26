@@ -65,7 +65,7 @@ export function SkillPackageManagerModule_DeleteSkill_Dialog({ organization, ski
             
             router.push(Paths.org(organization.slug).skillPackageManager.skillPackage(skill.skillPackageId).href)
 
-            queryClient.invalidateQueries(trpc.skills.getSkills.queryFilter({ skillPackageId: skill.skillPackageId }))
+            queryClient.invalidateQueries(trpc.skills.listSkills.queryFilter({ skillPackageId: skill.skillPackageId }))
         }
     }))
 

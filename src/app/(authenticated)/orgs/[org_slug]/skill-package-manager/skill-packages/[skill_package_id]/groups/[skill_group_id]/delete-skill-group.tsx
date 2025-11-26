@@ -64,7 +64,7 @@ export function SkillPackageManagerModule_DeleteSkillGroup_Dialog({ organization
             
             router.push(Paths.org(organization.slug).skillPackageManager.skillPackage(skillGroup.skillPackageId).href)
 
-            queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter({ skillPackageId: skillGroup.skillPackageId }))
+            queryClient.invalidateQueries(trpc.skills.listGroups.queryFilter({ skillPackageId: skillGroup.skillPackageId }))
         }
     }))
 

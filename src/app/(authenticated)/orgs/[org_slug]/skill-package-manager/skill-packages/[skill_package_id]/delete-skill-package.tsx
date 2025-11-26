@@ -63,7 +63,7 @@ export function SkillPackageManagerModule_DeletPackage_Dialog({ organization, sk
 
             router.push(Paths.org(organization.slug).skillPackageManager.skillPackages.href)
             
-            queryClient.invalidateQueries(trpc.skills.getPackages.queryFilter({ orgId: organization.orgId }))
+            queryClient.invalidateQueries(trpc.skills.listPackages.queryFilter({ orgId: organization.orgId }))
         }
     }))
 

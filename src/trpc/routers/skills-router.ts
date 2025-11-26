@@ -20,10 +20,19 @@ import { recordStatusParameterSchema } from '@/lib/validation'
 import { TRPCError } from '@trpc/server'
 
 import { AuthenticatedContext, AuthenticatedOrgContext, createTRPCRouter, orgAdminProcedure, orgProcedure } from '../init'
+import { Messages } from '../messages'
 
-
+/**
+ * TRPC router for managing skills, skill groups, and skill packages.
+ */
 export const skillsRouter = createTRPCRouter({
 
+    /**
+     * Create a new skill group.
+     * @param input - Skill group data
+     * @returns The created skill group.
+     * @throws TRPCError if the user does not have permission to modify the skill package.
+     */
     createGroup: orgAdminProcedure
         .input(skillGroupSchema.omit({ sequence: true }))
         .output(skillGroupSchema)
@@ -32,12 +41,12 @@ export const skillsRouter = createTRPCRouter({
 
             if(skillPackage.ownerOrgId != ctx.auth.activeOrg.orgId) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to modify SkillPackage(${skillPackageId})` })
 
-            const aggregations = await ctx.prisma.skillGroup.aggregate({
-                where: { skillPackageId },
-                _max: { sequence: true }
+            const existingGroups = await ctx.prisma.skillGroup.findMany({
+                where: { skillPackageId},
             })
+            const highestSequence = existingGroups.reduce((max, group) => group.sequence > max ? group.sequence : max, 0)
 
-            const fields = { ...input, sequence: (aggregations._max.sequence ?? 0) + 1 }
+            const fields = { ...input, sequence: highestSequence + 1 }
 
             const changes = diffObject({ tags: [], properties: {}, status: 'Active' }, fields)
 
@@ -52,7 +61,7 @@ export const skillsRouter = createTRPCRouter({
                         status: fields.status,
                         tags: fields.tags,
                         properties: fields.properties,
-                        sequence: (aggregations._max.sequence ?? 0) + 1,
+                        sequence: fields.sequence
                     },
                 }),
 
@@ -71,15 +80,16 @@ export const skillsRouter = createTRPCRouter({
             return toSkillGroupData(created)
         }),
 
+    /**
+     * Create a new skill package.
+     * @param input - Skill package data
+     * @returns The created skill package.
+     * @throws TRPCError if the user does not have permission to create a skill package.
+     */
     createPackage: orgAdminProcedure
-        .input(skillPackageSchema.omit({ ownerOrgId: true }))
+        .input(skillPackageSchema.omit({ ownerOrgId: true, published: true }))
         .output(skillPackageSchema)
-        .mutation(async ({ ctx, input: { orgId, skillPackageId, ...input } }) => {
-            const aggregations = await ctx.prisma.skillPackage.aggregate({
-                _max: { sequence: true },
-            })
-
-            const fields = { ...input, sequence: (aggregations._max.sequence ?? 0) + 1 }
+        .mutation(async ({ ctx, input: { orgId, skillPackageId, ...fields } }) => {
 
             const changes = diffObject({ tags: [], properties: {}, status: 'Active' }, fields)
 
@@ -92,7 +102,7 @@ export const skillsRouter = createTRPCRouter({
                     status: fields.status,
                     tags: fields.tags,
                     properties: fields.properties,
-                    sequence: 0,
+                    published: false,
                     changeLogs: {
                         create: {
                             event: 'Create',
@@ -107,20 +117,27 @@ export const skillsRouter = createTRPCRouter({
             return toSkillPackageData(created)
         }),
 
+    /**
+     * Create a new skill.
+     * @param input Skill data
+     * @returns The created skill.
+     * @throws TRPCError if the user does not have permission to modify the skill package.
+     */
     createSkill: orgAdminProcedure
-        .input(skillSchema)
+        .input(skillSchema.omit({ sequence: true }))
         .output(skillSchema)
-        .mutation(async ({ ctx, input: { orgId, skillPackageId, skillId, ...input } }) => {
+        .mutation(async ({ ctx, input: { orgId, skillPackageId, skillGroupId, skillId, ...input } }) => {
             const skillPackage = await getSkillPackageById(ctx, skillPackageId)
 
             if(skillPackage.ownerOrgId != ctx.auth.activeOrg.orgId) throw new TRPCError({ code: 'FORBIDDEN', message: `You do not have permission to modify SkillPackage(${skillPackageId})` })
 
-            const aggregations = await ctx.prisma.skill.aggregate({
-                where: { skillPackageId: skillPackageId, skillGroupId: input.skillGroupId },
-                _max: { sequence: true }
+            const existingSkills = await ctx.prisma.skill.findMany({
+                where: { skillPackageId, skillGroupId },
             })
 
-            const fields = { ...input, sequence: (aggregations._max.sequence ?? 0) + 1 }
+            const highestSequence = existingSkills.reduce((max, skill) => skill.sequence > max ? skill.sequence : max, 0)
+
+            const fields = { ...input, sequence: highestSequence + 1 }
 
             const changes = diffObject({ tags: [], properties: {}, status: 'Active' }, fields)
 
@@ -129,7 +146,13 @@ export const skillsRouter = createTRPCRouter({
                     data: {
                         skillId,
                         skillPackageId,
-                        ...fields,
+                        skillGroupId,
+                        name: fields.name,
+                        description: fields.description,
+                        status: fields.status,
+                        tags: fields.tags,
+                        properties: fields.properties,
+                        sequence: fields.sequence,
                     },
                     include: {
                         skillPackage: true,
@@ -152,6 +175,14 @@ export const skillsRouter = createTRPCRouter({
             return toSkillData(newSkill)
         }),
 
+
+    /**
+     * Delete a skill group.
+     * @param input.skillGroupId - The ID of the skill group to delete.
+     * @param input.skillPackageId - The ID of the skill package the group belongs to.
+     * @returns The deleted skill group.
+     * @throws TRPCError if the user does not have permission to modify the skill package.
+     */
     deleteGroup: orgAdminProcedure
         .input(z.object({
             skillGroupId: SkillGroupId.schema,
@@ -187,6 +218,12 @@ export const skillsRouter = createTRPCRouter({
             return toSkillGroupData(deleted)
         }),
 
+    /**
+     * Delete a skill package.
+     * @param input.skillPackageId - The ID of the skill package to delete.
+     * @return The deleted skill package.
+     * @throws TRPCError if the user does not have permission to delete the skill package.
+     */
     deletePackage: orgAdminProcedure
         .input(z.object({
             skillPackageId: SkillPackageId.schema
@@ -202,6 +239,13 @@ export const skillsRouter = createTRPCRouter({
             return toSkillPackageData(deleted)
         }),
 
+    /**
+     * Delete a skill.
+     * @param input.skillId - The ID of the skill to delete.
+     * @param input.skillPackageId - The ID of the skill package the skill belongs to.
+     * @return The deleted skill.
+     * @throws TRPCError if the user does not have permission to delete the skill.
+     */
     deleteSkill: orgAdminProcedure
         .input(z.object({
             skillId: SkillId.schema,
@@ -245,7 +289,7 @@ export const skillsRouter = createTRPCRouter({
         .query(async ({ ctx }) => {
             const skillPackages = await ctx.prisma.skillPackage.findMany({ 
                 where: { status: 'Active' },
-                orderBy: { sequence: 'asc' },
+                orderBy: { name: 'asc' },
                 include: {
                     skillGroups: {
                         where: { status: 'Active' },
@@ -265,6 +309,12 @@ export const skillsRouter = createTRPCRouter({
             }))
         }),
 
+    /**
+     * Get a skill group by ID.
+     * @param input.skillGroupId - The ID of the skill group to retrieve.
+     * @param input.skillPackageId - The ID of the skill package the group belongs to.
+     * @return The requested skill group along with its skill package.
+     */
     getGroup: orgProcedure
         .input(z.object({
             skillGroupId: SkillGroupId.schema,
@@ -279,7 +329,52 @@ export const skillsRouter = createTRPCRouter({
             return { ...toSkillGroupData(skillGroup), skillPackage: toSkillPackageData(skillPackage) }
         }),
 
-    getGroups: orgProcedure
+    /**
+     * Get a skill package by ID.
+     * @param input.skillPackageId - The ID of the skill package to retrieve.
+     * @return The requested skill package.
+     * @throws TRPCError(NOT_FOUND) if the skill package does not exist.
+     */
+    getPackage: orgProcedure
+        .input(z.object({
+            skillPackageId: SkillPackageId.schema
+        }))
+        .output(skillPackageSchema)
+        .query(async ({ ctx, input: { skillPackageId} }) => {
+            const found = await getSkillPackageById(ctx, skillPackageId)
+            return toSkillPackageData(found)
+        }), 
+
+    /**
+     * Get a skill by ID.
+     * @param input.skillId - The ID of the skill to retrieve.
+     * @param input.skillPackageId - The ID of the skill package the skill belongs to.
+     * @return The requested skill along with its skill group and skill package.
+     * @throws TRPCError(NOT_FOUND) if the skill does not exist.
+     */
+    getSkill: orgProcedure
+        .input(z.object({
+            skillId: SkillId.schema,
+            skillPackageId: SkillPackageId.schema
+        }))
+        .output(skillSchema.extend({
+            skillGroup: skillGroupSchema,
+            skillPackage: skillPackageSchema
+        }))
+        .query(async ({ ctx, input: { skillId, skillPackageId } }) => {
+            const { skillPackage, skillGroup, ...skill } = await getSkillById(ctx, skillPackageId, skillId)
+
+            return { ...toSkillData(skill), skillGroup: toSkillGroupData(skillGroup), skillPackage: toSkillPackageData(skillPackage) }
+        }),
+
+    
+    /**
+     * List skill groups, optionally filtered by skill package ID.
+     * @param input.status - Array of record statuses to filter by.
+     * @param input.skillPackageId - Optional skill package ID to filter groups.
+     * @returns An array of skill groups.
+     */
+    listGroups: orgProcedure
         .input(z.object({
             status: recordStatusParameterSchema,
             skillPackageId: SkillPackageId.schema.optional()
@@ -294,17 +389,13 @@ export const skillsRouter = createTRPCRouter({
             return groups.map(toSkillGroupData)
         }),
 
-    getPackage: orgProcedure
-        .input(z.object({
-            skillPackageId: SkillPackageId.schema
-        }))
-        .output(skillPackageSchema)
-        .query(async ({ ctx, input: { skillPackageId} }) => {
-            const found = await getSkillPackageById(ctx, skillPackageId)
-            return toSkillPackageData(found)
-        }), 
-
-    getPackages: orgProcedure
+    /**
+     * List skill packages, optionally filtered by status and owner.
+     * @param input.status - Array of record statuses to filter by.
+     * @param input.owner - Owner filter ('any' or 'org').
+     * @returns An array of skill packages.
+     */
+    listPackages: orgProcedure
         .input(z.object({
             status: recordStatusParameterSchema,
             owner: z.enum(['any', 'org']).optional().default('any'),
@@ -313,7 +404,7 @@ export const skillsRouter = createTRPCRouter({
             _count: z.object({
                 skillGroups: z.number(),
                 skills: z.number()
-            })
+            }).optional()
         })))
         .query(async ({ ctx, input }) => {
             const skillPackages = await ctx.prisma.skillPackage.findMany({ 
@@ -321,7 +412,7 @@ export const skillsRouter = createTRPCRouter({
                     status: { in: input.status },
                     ownerOrgId: input.owner == 'org' ? ctx.auth.activeOrg.orgId : undefined
                 },
-                orderBy: { sequence: 'asc' },
+                orderBy: { name: 'asc' },
                 include: {
                     _count: {
                         select: { 
@@ -339,22 +430,15 @@ export const skillsRouter = createTRPCRouter({
             return skillPackages.map(skillPackage => ({ ...toSkillPackageData(skillPackage), _count: skillPackage._count }))
         }),
 
-    getSkill: orgProcedure
-        .input(z.object({
-            skillId: SkillId.schema,
-            skillPackageId: SkillPackageId.schema
-        }))
-        .output(skillSchema.extend({
-            skillGroup: skillGroupSchema,
-            skillPackage: skillPackageSchema
-        }))
-        .query(async ({ ctx, input: { skillId, skillPackageId } }) => {
-            const { skillPackage, skillGroup, ...skill } = await getSkillById(ctx, skillPackageId, skillId)
-
-            return { ...toSkillData(skill), skillGroup: toSkillGroupData(skillGroup), skillPackage: toSkillPackageData(skillPackage) }
-        }),
-
-    getSkills: orgProcedure
+    /**
+     * List skills, optionally filtered by status, skill package ID, skill group ID, and skill IDs.
+     * @param input.status - Array of record statuses to filter by.
+     * @param input.skillPackageId - Optional skill package ID to filter skills.
+     * @param input.skillGroupId - Optional skill group ID to filter skills.
+     * @param input.skillIds - Optional array of skill IDs to filter skills.
+     * @returns An array of skills.
+     */
+    listSkills: orgProcedure
         .input(z.object({
             status: recordStatusParameterSchema,
             skillPackageId: SkillPackageId.schema.optional(),
@@ -397,6 +481,12 @@ export const skillsRouter = createTRPCRouter({
             return { changeCounts: changeCounts, elapsedTime }
         }),
 
+    /**
+     * Update a skill group.
+     * @param input - Skill group data to update.
+     * @returns The updated skill group.
+     * @throws TRPCError if the user does not have permission to modify the skill package.
+     */
     updateGroup: orgAdminProcedure
         .input(skillGroupSchema)
         .output(skillGroupSchema)
@@ -433,9 +523,14 @@ export const skillsRouter = createTRPCRouter({
             return toSkillGroupData(updated)
         }),
 
-    
+    /**
+     * Update a skill package.
+     * @param input - Skill package data to update.
+     * @returns The updated skill package.
+     * @throws TRPCError if the user does not have permission to modify the skill package.
+     */
     updatePackage: orgAdminProcedure
-        .input(skillPackageSchema.omit({ ownerOrgId: true }))
+        .input(skillPackageSchema.omit({ ownerOrgId: true, published: true }))
         .output(skillPackageSchema)
         .mutation(async ({ ctx, input: { orgId, skillPackageId, ...fields } }) => {
             const skillPackage = await getSkillPackageById(ctx, skillPackageId)
@@ -448,7 +543,11 @@ export const skillsRouter = createTRPCRouter({
             const updated = await ctx.prisma.skillPackage.update({
                 where: { skillPackageId },
                 data: {
-                    ...fields,
+                    name: fields.name,
+                    description: fields.description,
+                    status: fields.status,
+                    tags: fields.tags,
+                    properties: fields.properties,
                     changeLogs: {
                         create: {
                             event: 'Update',
@@ -463,6 +562,12 @@ export const skillsRouter = createTRPCRouter({
             return toSkillPackageData(updated)
         }),
 
+    /**
+     * Update a skill.
+     * @param input - Skill data to update.
+     * @returns The updated skill.
+     * @throws TRPCError if the user does not have permission to modify the skill.
+     */
     updateSkill: orgAdminProcedure
         .input(skillSchema)
         .output(skillSchema)
@@ -506,7 +611,7 @@ export async function getSkillById(ctx: AuthenticatedContext, skillPackageId: st
         }
     })
 
-    if (!skill) throw new TRPCError({ code: 'NOT_FOUND', message: `Skill(${skillId}) not found`})
+    if (!skill) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.skillNotFound(skillId) })
 
     return skill
 }
@@ -520,7 +625,7 @@ export async function getSkillGroupById(ctx: AuthenticatedContext, skillPackageI
         },
     })
 
-    if (!skillGroup) throw new TRPCError({ code: 'NOT_FOUND', message: `SkillGroup(${skillGroupId}) not found`})
+    if (!skillGroup) throw new TRPCError({ code: 'NOT_FOUND', message: Messages.skillGroupNotFound(skillGroupId) })
 
     return skillGroup
 }
@@ -531,7 +636,7 @@ export async function getSkillPackageById(ctx: AuthenticatedContext, skillPackag
         })
 
         if(!skillPackage) {
-            throw new TRPCError({ code: 'NOT_FOUND', message: `SkillPackage(${skillPackageId}) not found` })
+            throw new TRPCError({ code: 'NOT_FOUND', message: Messages.skillPackageNotFound(skillPackageId) })
         }
         return skillPackage
 }
@@ -544,7 +649,7 @@ async function importPackage(ctx: AuthenticatedOrgContext, skillPackage: SkillPa
 
     if(storedPackage) {
         // Existing Package
-        const existingData = pick(storedPackage, ['name', 'sequence'])
+        const existingData = pick(storedPackage, ['name'])
         
         const fields = pick(skillPackage, ['name', 'sequence'])
 

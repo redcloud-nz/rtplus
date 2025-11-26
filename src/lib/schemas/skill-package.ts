@@ -31,10 +31,27 @@ export const skillPackageSchema = z.object({
     tags: tagsSchema,
     properties: propertiesSchema,
     status: recordStatusSchema,
+    published: z.boolean(),
 })
 
 export type SkillPackageData = z.infer<typeof skillPackageSchema>
 
 export function toSkillPackageData(data: SkillPackageRecord): SkillPackageData {
     return skillPackageSchema.parse(data)
+}
+
+export const skillPackageRefSchema = z.object({
+    skillPackageId: SkillPackageId.schema,
+    name: z.string().nonempty().max(100),
+    status: recordStatusSchema,
+})
+
+export type SkillPackageRef = z.infer<typeof skillPackageRefSchema>
+
+export function toSkillPackageRef(data: Pick<SkillPackageRecord, 'skillPackageId' | 'name' | 'status'>): SkillPackageRef {
+    return skillPackageRefSchema.parse({
+        skillPackageId: data.skillPackageId,
+        name: data.name,
+        status: data.status,
+    })
 }

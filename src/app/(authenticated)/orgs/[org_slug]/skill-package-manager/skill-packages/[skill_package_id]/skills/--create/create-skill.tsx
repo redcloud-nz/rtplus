@@ -54,7 +54,7 @@ export function SkillPackageModule_CreateSkill_Form({ organization, skillPackage
                 description: <>The skill <ObjectName>{result.name}</ObjectName> has been created successfully.</>,
             })
 
-            queryClient.invalidateQueries(trpc.skills.getSkills.queryFilter({ skillPackageId }))
+            queryClient.invalidateQueries(trpc.skills.listSkills.queryFilter({ skillPackageId }))
 
             router.push(Paths.org(organization.slug).skillPackageManager.skillPackage(skillPackageId).skill(result.skillId).href)
         }

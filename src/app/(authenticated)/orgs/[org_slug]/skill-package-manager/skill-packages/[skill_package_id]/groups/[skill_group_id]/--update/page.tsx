@@ -40,13 +40,13 @@ export default function SkillPackageManagerModule_GroupUpdate_Page(props: PagePr
     const mutation = useMutation(trpc.skills.updateGroup.mutationOptions({
         async onMutate(data) {
             const updatedGroup = skillGroupSchema.parse(data)
-            await queryClient.cancelQueries(trpc.skills.getGroups.queryFilter({ orgId: organization.orgId, skillPackageId }))
+            await queryClient.cancelQueries(trpc.skills.listGroups.queryFilter({ orgId: organization.orgId, skillPackageId }))
             await queryClient.cancelQueries(trpc.skills.getGroup.queryFilter({ orgId: organization.orgId, skillPackageId, skillGroupId }))
 
-            const previousSkillGroups = queryClient.getQueryData(trpc.skills.getGroups.queryKey({ orgId: organization.orgId, skillPackageId }))
+            const previousSkillGroups = queryClient.getQueryData(trpc.skills.listGroups.queryKey({ orgId: organization.orgId, skillPackageId }))
             const previousSkillGroup = queryClient.getQueryData(trpc.skills.getGroup.queryKey({ orgId: organization.orgId, skillPackageId, skillGroupId }))
 
-            queryClient.setQueryData(trpc.skills.getGroups.queryKey({ orgId: organization.orgId, skillPackageId }), (prev = []) => {
+            queryClient.setQueryData(trpc.skills.listGroups.queryKey({ orgId: organization.orgId, skillPackageId }), (prev = []) => {
                 return prev.map(sg => sg.skillGroupId === updatedGroup.skillGroupId ? { ...sg, ...updatedGroup} : sg)
             })
             queryClient.setQueryData(trpc.skills.getGroup.queryKey({ orgId: organization.orgId, skillPackageId, skillGroupId }), { ...updatedGroup, skillPackage })
@@ -55,7 +55,7 @@ export default function SkillPackageManagerModule_GroupUpdate_Page(props: PagePr
         },
         onError(error, _data, context) {
             if (context?.previousSkillGroups) {
-                queryClient.setQueryData(trpc.skills.getGroups.queryKey({ orgId: organization.orgId, skillPackageId }), context.previousSkillGroups)
+                queryClient.setQueryData(trpc.skills.listGroups.queryKey({ orgId: organization.orgId, skillPackageId }), context.previousSkillGroups)
             }
             if (context?.previousSkillGroup) {
                 queryClient.setQueryData(trpc.skills.getGroup.queryKey({ orgId: organization.orgId, skillPackageId, skillGroupId }), context.previousSkillGroup)
@@ -73,7 +73,7 @@ export default function SkillPackageManagerModule_GroupUpdate_Page(props: PagePr
             })
             router.push(Paths.org(organization.slug).skillPackageManager.skillPackage(skillPackageId).group(skillGroupId).href)
 
-            queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter({ orgId: organization.orgId, skillPackageId }))
+            queryClient.invalidateQueries(trpc.skills.listGroups.queryFilter({ orgId: organization.orgId, skillPackageId }))
             queryClient.invalidateQueries(trpc.skills.getGroup.queryFilter({ orgId: organization.orgId, skillPackageId, skillGroupId }))
         }
     }))

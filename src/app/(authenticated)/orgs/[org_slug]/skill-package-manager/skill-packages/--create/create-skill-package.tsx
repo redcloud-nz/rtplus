@@ -42,18 +42,18 @@ export function SkillPackageManagerModule_CreatePackage_Form({ organization }: {
         async onMutate(data) {
             const newPackage = skillPackageSchema.parse(data)
 
-            await queryClient.cancelQueries(trpc.skills.getPackages.queryFilter())
+            await queryClient.cancelQueries(trpc.skills.listPackages.queryFilter())
 
-            const previousPackages = queryClient.getQueryData(trpc.skills.getPackages.queryKey())
+            const previousPackages = queryClient.getQueryData(trpc.skills.listPackages.queryKey())
 
-            queryClient.setQueryData(trpc.skills.getPackages.queryKey(), (prev = []) => [...prev, { ...newPackage, _count: { skills: 0, skillGroups: 0 } }])
+            queryClient.setQueryData(trpc.skills.listPackages.queryKey(), (prev = []) => [...prev, { ...newPackage, _count: { skills: 0, skillGroups: 0 } }])
             queryClient.setQueryData(trpc.skills.getPackage.queryKey({ skillPackageId: newPackage.skillPackageId }), newPackage)
 
             return { previousPackages }
         },
         onError(error, _variables, context) {
             if(context?.previousPackages) {
-                queryClient.setQueryData(trpc.skills.getPackages.queryKey(), context.previousPackages)
+                queryClient.setQueryData(trpc.skills.listPackages.queryKey(), context.previousPackages)
             }
 
             toast({
@@ -68,7 +68,7 @@ export function SkillPackageManagerModule_CreatePackage_Form({ organization }: {
                 description: <>Skill package <ObjectName>{result.name}</ObjectName> has been created successfully.</>,
             })
 
-            queryClient.invalidateQueries(trpc.skills.getPackages.queryFilter())
+            queryClient.invalidateQueries(trpc.skills.listPackages.queryFilter())
             router.push(Paths.org(organization.slug).skillPackageManager.skillPackage(result.skillPackageId).href)
         }
     }))

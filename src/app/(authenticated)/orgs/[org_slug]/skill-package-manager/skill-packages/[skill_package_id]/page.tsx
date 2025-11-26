@@ -44,8 +44,8 @@ export default function SkillPackageManagerModule_Package_Page(props: PageProps<
     ] = useSuspenseQueries({
         queries: [
             trpc.skills.getPackage.queryOptions({ orgId: organization.orgId, skillPackageId }),
-            trpc.skills.getGroups.queryOptions({ orgId: organization.orgId, skillPackageId }),
-            trpc.skills.getSkills.queryOptions({ orgId: organization.orgId, skillPackageId })
+            trpc.skills.listGroups.queryOptions({ orgId: organization.orgId, skillPackageId }),
+            trpc.skills.listSkills.queryOptions({ orgId: organization.orgId, skillPackageId })
         ]
     })
 

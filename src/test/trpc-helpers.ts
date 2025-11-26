@@ -35,10 +35,10 @@ interface CreateAuthenticatedMockContextOverrides {
     teams?: Array<TeamRecord>
 }
 
-export const createAuthenticatedMockContext = ({ activeOrg = {}, ...overrides }: CreateAuthenticatedMockContextOverrides) => {
+export const createAuthenticatedMockContext = ({ activeOrg = {}, userId, ...overrides }: CreateAuthenticatedMockContextOverrides) => {
     return createInnerTRPCContext({
         auth: {
-            userId: UserId.schema.parse('user_test123'),
+            userId: userId ?? UserId.schema.parse('user_test123'),
             activeOrg: {
                 orgId: OrganizationId.schema.parse('org_test123'),
                 orgSlug: 'test-organization',

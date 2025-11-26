@@ -64,14 +64,37 @@ model Organization {
     settings     Json            @default("{}")
 
     // Relations
-    personnel          Person[]            @relation("person_to_org")
-    teams              Team[]              @relation("team_to_org")
-    skillChecks        SkillCheck[]        @relation("skill_check_to_org")
-    skillCheckSessions SkillCheckSession[] @relation("skill_check_session_to_org")
-    skillPackages      SkillPackage[]      @relation("skill_package_to_owner")
-    notes              Note[]              @relation("note_to_org")
-
+    changeLogs                OrganizationChangeLog[]    @relation("organization_change_log_to_org")
+    personnel                 Person[]                   @relation("person_to_org")
+    teams                     Team[]                     @relation("team_to_org")
+    skillChecks               SkillCheck[]               @relation("skill_check_to_org")
+    skillCheckSessions        SkillCheckSession[]        @relation("skill_check_session_to_org")
+    skillPackages             SkillPackage[]             @relation("skill_package_to_owner")
+    skillPackageSubscriptions SkillPackageSubscription[] @relation("skill_package_subscription_to_org")
+    notes                     Note[]                     @relation("note_to_org")
     @@map("organizations")
+}
+
+model OrganizationChangeLog {
+    entryId     String            @map("entry_id") @id @default(cuid())
+    orgId       String            @map("org_id") @db.VarChar(50)
+    userId      String?           @map("user_id") @db.VarChar(50)
+    event       OrganizationChangeEvent
+
+    meta        Json              @default("{}")
+    timestamp   DateTime          @default(now())
+
+    // Relations
+    organization Organization     @relation("organization_change_log_to_org", fields: [orgId], references: [orgId], onDelete: Cascade)
+    user         User?            @relation("organization_change_log_to_user", fields: [userId], references: [userId], onDelete: SetNull)
+
+    @@map("organizations_change_log")
+}
+
+enum OrganizationChangeEvent {
+    SkillPackageSubscribe
+    SkillPackageUpdateSubscription
+    SkillPackageUnsubscribe
 }
 
 /// defines an individual person.
@@ -129,6 +152,7 @@ model PersonChangeLog {
 enum RecordStatus {
     Active
     Inactive
+    Deleted
 }
 
 /// defines an individual skill that can be assessed.
@@ -255,9 +279,10 @@ model SkillGroup {
 
     // Relations
     skillPackage   SkillPackage @relation("skill_group_to_skill_package", fields: [skillPackageId], references: [skillPackageId], onDelete: Cascade)
+    skills         Skill[]      @relation("skill_to_skill_group")
+    subscriptions  SkillPackageSubscriptionGroup[] @relation("skill_package_subscription_group_to_skill_group")
     parent         SkillGroup?  @relation("skill_group_to_parent", fields: [parentId], references: [skillGroupId], onDelete: SetNull)
     children       SkillGroup[] @relation("skill_group_to_parent")
-    skills         Skill[]      @relation("skill_to_skill_group")
 
     @@map("skill_groups")
 }
@@ -270,14 +295,15 @@ model SkillPackage {
     description    String                  @default("")
     tags           String[]                @default([])
     properties     Json                    @default("{}")
-    sequence       Int
+    published      Boolean                 @default(false)
     status         RecordStatus            @default(Active)
 
     // Relations
-    changeLogs  SkillPackageChangeLog[]    @relation("skill_package_change_log_to_skill_package")
-    owner       Organization               @relation("skill_package_to_owner", fields: [ownerOrgId], references: [orgId], onDelete: Cascade)
-    skillGroups SkillGroup[]               @relation("skill_group_to_skill_package")
-    skills      Skill[]                    @relation("skill_to_skill_package")
+    changeLogs    SkillPackageChangeLog[]    @relation("skill_package_change_log_to_skill_package")
+    owner         Organization               @relation("skill_package_to_owner", fields: [ownerOrgId], references: [orgId], onDelete: Cascade)
+    skillGroups   SkillGroup[]               @relation("skill_group_to_skill_package")
+    skills        Skill[]                    @relation("skill_to_skill_package")
+    subscriptions SkillPackageSubscription[] @relation("skill_package_subscription_to_skill_package")
 
     @@map("skill_packages")
 }
@@ -292,6 +318,8 @@ enum SkillPackageChangeEvent {
     CreateGroup
     DeleteGroup
     UpdateGroup
+    Publish
+    Unpublish
 }
 
 // defines a change to a skill package record.
@@ -312,6 +340,36 @@ model SkillPackageChangeLog {
     @@map("skill_packages_change_log")
 }
 
+// defines a subscription to a skill package by an organization.
+model SkillPackageSubscription {
+    subscriptionId       String       @map("subscription_id") @id @default(cuid()) @db.VarChar(32)
+    orgId                String       @map("org_id") @db.VarChar(50)
+    skillPackageId       String       @map("skill_package_id") @db.VarChar(32)
+    status               RecordStatus @default(Active)
+
+    // Relations
+    groups       SkillPackageSubscriptionGroup[] @relation("skill_package_subscription_group_to_subscription")
+    organization Organization                    @relation("skill_package_subscription_to_org", fields: [orgId], references: [orgId], onDelete: Cascade)
+    skillPackage SkillPackage                    @relation("skill_package_subscription_to_skill_package", fields: [skillPackageId], references: [skillPackageId], onDelete: Cascade)
+
+    @@unique([orgId, skillPackageId])
+    @@map("skill_package_subscriptions")
+}
+
+// defines the inclusion of a skill group within a skill package subscription.
+model SkillPackageSubscriptionGroup {
+    subscriptionId      String       @map("subscription_id") @db.VarChar(32)
+    skillGroupId        String       @map("skill_group_id") @db.VarChar(32)
+    included            Boolean      @default(true)
+
+    // Relations
+    subscription       SkillPackageSubscription  @relation("skill_package_subscription_group_to_subscription", fields: [subscriptionId], references: [subscriptionId], onDelete: Cascade)
+    skillGroup         SkillGroup                @relation("skill_package_subscription_group_to_skill_group", fields: [skillGroupId], references: [skillGroupId], onDelete: Cascade)
+
+
+    @@id([subscriptionId, skillGroupId])
+    @@map("skill_package_subscription_groups")
+}
 
 // defines a response team or similar high level organizational unit.
 model Team {
@@ -419,6 +477,7 @@ model User {
 
     // Relations
     noteChangeLogs         NoteChangeLog[]         @relation("note_change_log_to_user")
+    organizationChangeLogs OrganizationChangeLog[] @relation("organization_change_log_to_user")
     personChangeLogs       PersonChangeLog[]       @relation("person_change_log_to_user")
     personnel              Person[]                @relation("person_to_user")
     skillPackageChangeLogs SkillPackageChangeLog[] @relation("skill_package_change_log_to_user")

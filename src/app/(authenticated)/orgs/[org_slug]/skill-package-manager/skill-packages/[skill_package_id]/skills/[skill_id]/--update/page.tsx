@@ -49,7 +49,7 @@ export default function SkillPackageManagerModule_SkillUpdate_Page(props: PagePr
             })
             router.push(Paths.org(organization.slug).skillPackageManager.skillPackage(skillPackage.skillPackageId).skill(skill.skillId).href)
 
-            queryClient.invalidateQueries(trpc.skills.getSkills.queryFilter({ skillPackageId }))
+            queryClient.invalidateQueries(trpc.skills.listSkills.queryFilter({ skillPackageId }))
             queryClient.invalidateQueries(trpc.skills.getSkill.queryFilter({ orgId: organization.orgId, skillPackageId, skillId }))
         }
     }))

@@ -41,7 +41,7 @@ export function SkillForm({ mode, organization, onSubmit, skill, ...props }: Ski
     const [isPending, setIsPending] = useState(false)
 
     // Get available skill groups for group selection
-    const { data: skillGroups } = useSuspenseQuery(trpc.skills.getGroups.queryOptions({ orgId: organization.orgId, skillPackageId: skill.skillPackageId, status: ['Active', 'Inactive'] }))
+    const { data: skillGroups } = useSuspenseQuery(trpc.skills.listGroups.queryOptions({ orgId: organization.orgId, skillPackageId: skill.skillPackageId, status: ['Active', 'Inactive'] }))
 
     const form = useForm({
         resolver: zodResolver(skillSchema.pick({ skillGroupId: true, name: true, description: true, status: true })),

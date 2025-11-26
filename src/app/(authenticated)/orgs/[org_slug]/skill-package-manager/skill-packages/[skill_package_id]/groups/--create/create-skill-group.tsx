@@ -55,7 +55,7 @@ export function SkillPackageManagerModule_CreateGroup_Form({ organization, skill
                 description: <>The skill group <ObjectName>{result.name}</ObjectName> has been created successfully.</>,
             })
 
-            queryClient.invalidateQueries(trpc.skills.getGroups.queryFilter({ skillPackageId }))
+            queryClient.invalidateQueries(trpc.skills.listGroups.queryFilter({ skillPackageId }))
             router.push(Paths.org(organization.slug).skillPackageManager.skillPackage(skillPackageId).group(result.skillGroupId).href)
         }
     }))

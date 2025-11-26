@@ -30,7 +30,7 @@ import { trpc, WithCounts } from '@/trpc/client'
 
 export function SkillPackageManagerModule_SkillPackagesList({ organization }: { organization: OrganizationData }) {
     
-    const { data: skillPackages } = useSuspenseQuery(trpc.skills.getPackages.queryOptions({ orgId: organization.orgId, owner: 'org' }))
+    const { data: skillPackages } = useSuspenseQuery(trpc.skills.listPackages.queryOptions({ orgId: organization.orgId, owner: 'org' }))
 
     const columns = useMemo(() => Akagi.defineColumns<WithCounts<SkillPackageData, 'skills' | 'skillGroups'>>(columnHelper => [
         columnHelper.accessor('name', {

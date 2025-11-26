@@ -37,13 +37,13 @@ export default function SkillPackageManagerModule_PackageUpdate_Page(props: Page
     const mutation = useMutation(trpc.skills.updatePackage.mutationOptions({
         async onMutate(data) {
             const updatedPackage = skillPackageSchema.parse(data)
-            await queryClient.cancelQueries(trpc.skills.getPackages.queryFilter({ orgId: organization.orgId }))
+            await queryClient.cancelQueries(trpc.skills.listPackages.queryFilter({ orgId: organization.orgId }))
             await queryClient.cancelQueries(trpc.skills.getPackage.queryFilter({ orgId: organization.orgId, skillPackageId }))
 
-            const previousSkillPackages = queryClient.getQueryData(trpc.skills.getPackages.queryKey({ orgId: organization.orgId }))
+            const previousSkillPackages = queryClient.getQueryData(trpc.skills.listPackages.queryKey({ orgId: organization.orgId }))
             const previousSkillPackage = queryClient.getQueryData(trpc.skills.getPackage.queryKey({ orgId: organization.orgId, skillPackageId }))
 
-            queryClient.setQueryData(trpc.skills.getPackages.queryKey({ orgId: organization.orgId }), (prev = []) => {
+            queryClient.setQueryData(trpc.skills.listPackages.queryKey({ orgId: organization.orgId }), (prev = []) => {
                 return prev.map(sp => sp.skillPackageId === updatedPackage.skillPackageId ? { ...sp, ...updatedPackage} : sp)
             })
             queryClient.setQueryData(trpc.skills.getPackage.queryKey({ orgId: organization.orgId, skillPackageId }), updatedPackage)
@@ -53,7 +53,7 @@ export default function SkillPackageManagerModule_PackageUpdate_Page(props: Page
         },
         async onError(error, _data, context) {
             if (context?.previousSkillPackages) {
-                queryClient.setQueryData(trpc.skills.getPackages.queryKey({ orgId: organization.orgId }), context.previousSkillPackages)
+                queryClient.setQueryData(trpc.skills.listPackages.queryKey({ orgId: organization.orgId }), context.previousSkillPackages)
             }
             if (context?.previousSkillPackage) {
                 queryClient.setQueryData(trpc.skills.getPackage.queryKey({ orgId: organization.orgId, skillPackageId }), context.previousSkillPackage)
@@ -72,7 +72,7 @@ export default function SkillPackageManagerModule_PackageUpdate_Page(props: Page
             })
             router.push(Paths.org(organization.slug).skillPackageManager.skillPackage(skillPackageId).href)
 
-            queryClient.invalidateQueries(trpc.skills.getPackages.queryFilter({ orgId: organization.orgId }))
+            queryClient.invalidateQueries(trpc.skills.listPackages.queryFilter({ orgId: organization.orgId }))
             queryClient.invalidateQueries(trpc.skills.getPackage.queryFilter({ orgId: organization.orgId, skillPackageId }))
         }
     }))
