@@ -3,13 +3,14 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  * 
  * Path: /orgs/[org_slug]/admin/settings
- */
+*/
+
+import { auth } from '@clerk/nextjs/server'
+
 
 import { Lexington } from '@/components/blocks/lexington'
 
 import * as Paths from '@/paths'
-
-import { clerkAuth } from '@/server/clerk'
 import { getOrganization } from '@/server/organization'
 
 import { AdminModule_OrganizationSettings_Form } from './organization-settings'
@@ -25,7 +26,7 @@ export default async function AdminModule_OrganizationSettings_Page(props: PageP
     const { org_slug: orgSlug } = await props.params
     const organization = await getOrganization(orgSlug)
 
-    await clerkAuth.protect({role: 'admin' })
+    await auth.protect({role: 'admin' })
 
     return <Lexington.Root>
         <Lexington.Header

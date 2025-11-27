@@ -32,7 +32,7 @@ export function SkillPackageManagerModule_SkillPackagesList({ organization }: { 
     
     const { data: skillPackages } = useSuspenseQuery(trpc.skills.listPackages.queryOptions({ orgId: organization.orgId, owner: 'org' }))
 
-    const columns = useMemo(() => Akagi.defineColumns<WithCounts<SkillPackageData, 'skills' | 'skillGroups'>>(columnHelper => [
+    const columns = useMemo(() => Akagi.defineColumns<typeof skillPackages[number]>(columnHelper => [
         columnHelper.accessor('name', {
             header: ctx => <Akagi.TableHeader header={ctx.header} className="min-w-1/3">Name</Akagi.TableHeader>,
             cell: ctx => <Akagi.TableCell cell={ctx.cell} className="min-w-1/3">

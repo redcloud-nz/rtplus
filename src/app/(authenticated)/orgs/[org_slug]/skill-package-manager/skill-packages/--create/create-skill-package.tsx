@@ -35,7 +35,8 @@ export function SkillPackageManagerModule_CreatePackage_Form({ organization }: {
         description: '',
         status: 'Active' as SkillPackageData['status'],
         tags: [],
-        properties: {}
+        properties: {},
+        published: false,
     } satisfies SkillPackageData), [])
 
     const mutation = useMutation(trpc.skills.createPackage.mutationOptions({

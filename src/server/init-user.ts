@@ -6,19 +6,21 @@
 'use server'
 
 import { ClerkClient } from '@clerk/backend'
+import { auth } from '@clerk/nextjs/server'
 import { Organization as OrganizationRecord, Person as PersonRecord, User as UserRecord } from '@prisma/client'
 
 import { RTPlusLogger } from '@/lib/logger'
 
-import { clerkAuth, getClerkClient } from './clerk'
+import { getClerkClient } from './clerk'
 import prisma from './prisma'
+
 
 
 const logger = new RTPlusLogger('server/init-user')
 
 export async function verifyUserConsistency(args: { userId: string, orgId: string | null}) {
     
-    const { userId, orgId } = await clerkAuth.protect()
+    const { userId, orgId } = await auth.protect()
 
     if(userId !== args.userId) throw new Error(`'User ID mismatch clientUserId=${args.userId} serverUserId=${userId}`)
     if(orgId !== args.orgId) throw new Error(`'Organization ID mismatch clientOrgId=${args.orgId} serverOrgId=${orgId}`)

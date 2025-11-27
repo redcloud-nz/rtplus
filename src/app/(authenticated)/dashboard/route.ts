@@ -5,8 +5,10 @@
 
 import { redirect } from 'next/navigation'
 
+import { auth } from '@clerk/nextjs/server'
+
 import * as Paths from '@/paths'
-import { clerkAuth } from '@/server/clerk'
+
 
 
 /**
@@ -15,7 +17,7 @@ import { clerkAuth } from '@/server/clerk'
  * If the user is signed in to an organization.
  */
 export async function GET(req: Request) {
-    const { orgSlug } = await clerkAuth()
+    const { orgSlug } = await auth()
 
     if (orgSlug) redirect(Paths.org(orgSlug).dashboard.href)
 

@@ -7,12 +7,10 @@ import 'server-only'
 
 import { cache } from 'react'
 
-import { auth, createClerkClient } from '@clerk/nextjs/server'
+import { ClerkClient, createClerkClient } from '@clerk/backend'
 
 
 
-export const getClerkClient = cache(() => {
-    return createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY! })
+export const getClerkClient = cache((): ClerkClient => {
+    return createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY as string })
 })
-
-export { auth as clerkAuth }
